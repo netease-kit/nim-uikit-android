@@ -1,0 +1,108 @@
+package com.netease.nim.uikit.session.activity;
+
+import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
+import android.widget.Toast;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.netease.nim.uikit.R;
+import com.netease.nim.uikit.session.SessionCustomization;
+import com.netease.nim.uikit.session.constant.Extras;
+import com.netease.nim.uikit.uinfo.UserInfoHelper;
+import com.netease.nim.uikit.uinfo.UserInfoObservable;
+import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
+import com.netease.nimlib.sdk.msg.model.CustomNotification;
+
+import java.util.List;
+
+
+/**
+ * 点对点聊天界面
+ * <p/>
+ * Created by huangjun on 2015/2/1.
+ */
+public class P2PMessageActivity extends BaseMessageActivity {
+
+    public static void start(Context context, String contactId, SessionCustomization customization) {
+        Intent intent = new Intent();
+        intent.putExtra(Extras.EXTRA_ACCOUNT, contactId);
+        intent.putExtra(Extras.EXTRA_CUSTOMIZATION, customization);
+        intent.setClass(context, P2PMessageActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+
+        context.startActivity(intent);
+    }
+
+    @Override
+    protected int getContentViewResId() {
+        return R.layout.message_activity;
+    }
+
+    @Override
+    public SessionTypeEnum getSessionTypeEnum() {
+        return SessionTypeEnum.P2P;
+    }
+
+    @Override
+    protected void onMenuKeyPressed(int id) {
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        requestBuddyInfo();
+        registerUserInfoObserver();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterUserInfoObserver();
+    }
+
+    private void requestBuddyInfo() {
+        setTitle(UserInfoHelper.getUserTitleName(sessionId, getSessionTypeEnum()));
+    }
+
+    @Override
+    protected void showCommandMessage(CustomNotification message) {
+        String content = message.getContent();
+        try {
+            JSONObject json = JSON.parseObject(content);
+            int id = json.getIntValue("id");
+            if (id == 1) {
+                // 正在输入
+                Toast.makeText(P2PMessageActivity.this, "对方正在输入...", Toast.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(P2PMessageActivity.this, "command: " + content, Toast.LENGTH_SHORT).show();
+            }
+
+        } catch (Exception e) {
+
+        }
+    }
+
+    private UserInfoObservable.UserInfoObserver uinfoObserver;
+    private void registerUserInfoObserver() {
+        if (uinfoObserver == null) {
+            uinfoObserver = new UserInfoObservable.UserInfoObserver() {
+                @Override
+                public void onUserInfoChanged(List<String> accounts) {
+                    if (accounts.contains(sessionId)) {
+                        requestBuddyInfo();
+                    }
+                }
+            };
+        }
+
+        UserInfoHelper.registerObserver(uinfoObserver);
+    }
+
+    private void unregisterUserInfoObserver() {
+        if (uinfoObserver != null) {
+            UserInfoHelper.unregisterObserver(uinfoObserver);
+        }
+    }
+}

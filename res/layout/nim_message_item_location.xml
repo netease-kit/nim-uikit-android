@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content">
+
+    <com.netease.nim.uikit.common.ui.imageview.MsgThumbImageView
+        android:id="@+id/message_item_location_image"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:gravity="center"
+        android:padding="0dip"/>
+
+    <TextView
+        android:id="@+id/message_item_location_address"
+        android:layout_width="fill_parent"
+        android:layout_height="35dip"
+        android:layout_gravity="bottom|center_horizontal"
+        android:ellipsize="end"
+        android:gravity="center"
+        android:lineSpacingExtra="1dip"
+        android:paddingBottom="2dip"
+        android:paddingLeft="7dip"
+        android:paddingRight="7dip"
+        android:paddingTop="2dip"
+        android:singleLine="true"
+        android:textColor="#ffffff"
+        android:textSize="12sp"/>
+</FrameLayout>

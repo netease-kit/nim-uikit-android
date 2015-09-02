@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!--
+    设置背景色图像资源
+    -->
+    <item
+            android:id="@android:id/background"
+            android:drawable="@drawable/nim_g_download_progress_bar_bg"/>
+    <!--
+    设置第一级进度条颜色图像资源
+    -->
+    <item
+            android:id="@android:id/progress"
+            android:drawable="@drawable/nim_progress_bar_foreground"/>
+</layer-list>
