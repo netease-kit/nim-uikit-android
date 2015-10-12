@@ -6,7 +6,6 @@ import com.netease.nim.uikit.NimUIKit;
 import com.netease.nim.uikit.uinfo.UserInfoHelper;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.Observer;
-import com.netease.nimlib.sdk.RequestCallback;
 import com.netease.nimlib.sdk.team.TeamService;
 import com.netease.nimlib.sdk.team.TeamServiceObserver;
 import com.netease.nimlib.sdk.team.constant.TeamTypeEnum;
@@ -36,42 +35,39 @@ public class TeamDataCache {
         return instance;
     }
 
+    public void buildCache() {
+        queryTeamList();
+    }
+
     /**
      * *
      * ********************** 观察者 ************************
      */
 
     public interface TeamDataChangedObserver {
-        public void onUpdateTeams(List<Team> teams);
+        void onUpdateTeams(List<Team> teams);
 
-        public void onRemoveTeam(Team team);
+        void onRemoveTeam(Team team);
     }
 
     public interface TeamMemberDataChangedObserver {
-        public void onUpdateTeamMember(List<TeamMember> members);
+        void onUpdateTeamMember(List<TeamMember> members);
 
-        public void onRemoveTeamMember(TeamMember member);
-    }
-
-    public interface QueryTeamCallback {
-        public void onResult(List<Team> teams);
+        void onRemoveTeamMember(TeamMember member);
     }
 
     private List<TeamDataChangedObserver> teamObservers = new ArrayList<>();
     private List<TeamMemberDataChangedObserver> memberObservers = new ArrayList<>();
 
-    public void init() {
-        NIMClient.getService(TeamServiceObserver.class).observeTeamUpdate(teamUpdateObserver, true);
-        NIMClient.getService(TeamServiceObserver.class).observeTeamRemove(teamRemoveObserver, true);
-        NIMClient.getService(TeamServiceObserver.class).observeMemberUpdate(memberUpdateObserver, true);
-        NIMClient.getService(TeamServiceObserver.class).observeMemberRemove(memberRemoveObserver, true);
+    public void registerObservers(boolean register) {
+        NIMClient.getService(TeamServiceObserver.class).observeTeamUpdate(teamUpdateObserver, register);
+        NIMClient.getService(TeamServiceObserver.class).observeTeamRemove(teamRemoveObserver, register);
+        NIMClient.getService(TeamServiceObserver.class).observeMemberUpdate(memberUpdateObserver, register);
+        NIMClient.getService(TeamServiceObserver.class).observeMemberRemove(memberRemoveObserver, register);
     }
 
-    public void release() {
-        NIMClient.getService(TeamServiceObserver.class).observeTeamUpdate(teamUpdateObserver, false);
-        NIMClient.getService(TeamServiceObserver.class).observeTeamRemove(teamRemoveObserver, false);
-        NIMClient.getService(TeamServiceObserver.class).observeMemberUpdate(memberUpdateObserver, false);
-        NIMClient.getService(TeamServiceObserver.class).observeMemberRemove(memberRemoveObserver, false);
+    public void clear() {
+        clearTeamCache();
     }
 
     // 群资料变动观察者通知。新建群和群更新的通知都通过该接口传递
@@ -166,13 +162,9 @@ public class TeamDataCache {
 
     private ReadWriteLock lock = new ReentrantReadWriteLock();
 
-    public void initTeamCache() {
-        queryTeamList();
-    }
-
     public List<Team> queryTeamList() {
         List<Team> teams = NIMClient.getService(TeamService.class).queryTeamListBlock();
-        TeamDataCache.getInstance().addOrUpdateTeam(teams);
+        addOrUpdateTeam(teams);
         return teams;
     }
 
@@ -185,6 +177,10 @@ public class TeamDataCache {
     }
 
     public Team getTeamById(String id) {
+        if (id2TeamMap.isEmpty()) {
+            buildCache();
+        }
+
         Team team;
         lock.readLock().lock();
         {

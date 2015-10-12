@@ -3,6 +3,7 @@ package com.netease.nim.uikit.session;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.view.View;
 
 import com.netease.nim.uikit.session.actions.BaseAction;
 import com.netease.nimlib.sdk.msg.attachment.MsgAttachment;
@@ -66,6 +67,6 @@ public class SessionCustomization implements Serializable {
         public int iconId;
 
         // 响应事件
-        public abstract void onClick(Context context, String sessionId);
+        public abstract void onClick(Context context, View view, String sessionId);
     }
 }

@@ -44,7 +44,7 @@ public class ActionsGridviewAdapter extends BaseAdapter {
 	public View getView(int position, View convertView, ViewGroup parent) {
 		View itemlayout;
 		if (convertView == null) {
-			itemlayout = LayoutInflater.from(context).inflate(R.layout.actions_item_layout, null);
+			itemlayout = LayoutInflater.from(context).inflate(R.layout.nim_actions_item_layout, null);
 		} else {
 			itemlayout = convertView;
 		}

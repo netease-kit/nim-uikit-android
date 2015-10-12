@@ -18,8 +18,8 @@ import android.widget.LinearLayout;
 import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.common.ui.imageview.CheckedImageButton;
 import com.netease.nim.uikit.common.util.log.LogUtil;
-import com.netease.nim.uikit.common.util.sys.ScreenUtil;
 import com.netease.nim.uikit.common.util.media.BitmapDecoder;
+import com.netease.nim.uikit.common.util.sys.ScreenUtil;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -76,7 +76,7 @@ public class EmoticonPickerView extends LinearLayout implements IEmoticonCategor
         this.uiHandler = new Handler(context.getMainLooper());
 
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        inflater.inflate(R.layout.emoji_layout, this);
+        inflater.inflate(R.layout.nim_emoji_layout, this);
     }
 
     @Override

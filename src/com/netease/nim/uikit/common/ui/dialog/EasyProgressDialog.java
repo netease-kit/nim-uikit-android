@@ -42,12 +42,12 @@ public class EasyProgressDialog extends Dialog {
 	}
 
 	public EasyProgressDialog(Context context, String msg) {
-		this(context, R.style.easy_dialog_style, R.layout.easy_progress_dialog);
+		this(context, R.style.easy_dialog_style, R.layout.nim_easy_progress_dialog);
 		setMessage(msg);
 	}
 
 	public EasyProgressDialog(Context context) {
-		this(context, R.style.easy_dialog_style, R.layout.easy_progress_dialog);
+		this(context, R.style.easy_dialog_style, R.layout.nim_easy_progress_dialog);
 	}
 
 	public void setMessage(String msg) {

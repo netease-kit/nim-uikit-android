@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:id="@+id/messageActivityLayout"
+              xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:background="@color/color_message_default_bg"
+              android:orientation="vertical">
+
+    <FrameLayout
+        android:id="@+id/message_activity_list_view_container"
+        android:layout_width="match_parent"
+        android:layout_height="0dip"
+        android:layout_weight="1">
+
+        <com.netease.nim.uikit.session.helper.MsgBkImageView
+            android:id="@+id/message_activity_background"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <FrameLayout
+                android:id="@+id/team_notify_bar_panel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+            </FrameLayout>
+
+            <com.netease.nim.uikit.common.ui.listview.MessageListView
+                android:id="@+id/messageListView"
+                style="@style/list_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:cacheColorHint="@android:color/transparent"
+                android:divider="@null"
+                android:fadingEdge="none"
+                android:focusable="false"
+                android:listSelector="@android:color/transparent"
+                android:scrollbars="vertical"/>
+        </LinearLayout>
+
+        <FrameLayout
+            android:id="@+id/layoutPlayAudio"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:background="@drawable/nim_dialog_toast_bg"
+            android:visibility="gone">
+
+            <Chronometer
+                android:id="@+id/timer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@string/timer_default"
+                android:textColor="@color/white"
+                android:textSize="45sp"/>
+
+            <LinearLayout
+                android:id="@+id/timer_tip_container"
+                android:layout_width="188dp"
+                android:layout_height="40dp"
+                android:layout_gravity="bottom"
+                android:gravity="center">
+
+                <TextView
+                    android:id="@+id/timer_tip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="@string/recording_cancel"
+                    android:textColor="@color/white"
+                    android:textSize="20sp"/>
+            </LinearLayout>
+        </FrameLayout>
+
+    </FrameLayout>
+
+    <include layout="@layout/nim_message_activity_bottom_layout"/>
+
+</LinearLayout>

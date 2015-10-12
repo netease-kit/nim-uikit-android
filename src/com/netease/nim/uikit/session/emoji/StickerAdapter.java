@@ -45,7 +45,7 @@ public class StickerAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
         StickerViewHolder viewHolder;
         if (convertView == null) {
-            convertView = View.inflate(context, R.layout.sticker_picker_view, null);
+            convertView = View.inflate(context, R.layout.nim_sticker_picker_view, null);
             viewHolder = new StickerViewHolder();
             viewHolder.imageView = (ImageView) convertView.findViewById(R.id.sticker_thumb_image);
             viewHolder.descLabel = (TextView) convertView.findViewById(R.id.sticker_desc_label);

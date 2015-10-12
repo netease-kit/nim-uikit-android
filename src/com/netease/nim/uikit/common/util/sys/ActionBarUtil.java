@@ -34,7 +34,7 @@ public class ActionBarUtil {
 		ActionBar actionBar = activity.getSupportActionBar();
 		actionBar.setDisplayShowCustomEnabled(true);
 		actionBar.setDisplayShowTitleEnabled(true);
-        View view = LayoutInflater.from(activity).inflate(R.layout.action_bar_right_clickable_tv, null);
+        View view = LayoutInflater.from(activity).inflate(R.layout.nim_action_bar_right_clickable_tv, null);
 		TextView textView = (TextView) view.findViewById(R.id.action_bar_right_clickable_textview);
 		textView.setText(text);
 		actionBar.setCustomView(view, new ActionBar.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,

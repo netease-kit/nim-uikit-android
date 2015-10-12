@@ -111,7 +111,7 @@ public class WatchVideoActivity extends TActionBarActivity implements Callback {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.watch_video_activity);
+        setContentView(R.layout.nim_watch_video_activity);
 
         parseIntent();
         findViews();

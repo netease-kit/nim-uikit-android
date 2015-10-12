@@ -60,7 +60,7 @@ public class WatchMessagePictureActivity extends TActionBarActivity {
         super.onCreate(savedInstanceState);
 
         onParseIntent();
-        setContentView(R.layout.watch_picture_activity);
+        setContentView(R.layout.nim_watch_picture_activity);
         findViews();
 
         handler = new Handler();

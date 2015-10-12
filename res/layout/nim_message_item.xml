@@ -23,8 +23,8 @@
 
     <com.netease.nim.uikit.common.ui.imageview.HeadImageView
         android:id="@+id/message_item_portrait_left"
-        android:layout_width="40dip"
-        android:layout_height="40dip"
+        android:layout_width="@dimen/avatar_size_in_session"
+        android:layout_height="@dimen/avatar_size_in_session"
         android:layout_alignParentLeft="true"
         android:layout_below="@id/message_item_time"
         android:layout_marginRight="@dimen/bubble_head_margin_horizontal"
@@ -32,8 +32,8 @@
 
     <com.netease.nim.uikit.common.ui.imageview.HeadImageView
         android:id="@+id/message_item_portrait_right"
-        android:layout_width="40dip"
-        android:layout_height="40dip"
+        android:layout_width="@dimen/avatar_size_in_session"
+        android:layout_height="@dimen/avatar_size_in_session"
         android:layout_alignParentRight="true"
         android:layout_below="@id/message_item_time"
         android:layout_marginLeft="@dimen/bubble_head_margin_horizontal"

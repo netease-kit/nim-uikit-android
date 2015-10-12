@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@drawable/nim_bg_edittext_rectangle_normal" android:state_window_focused="false" />
+    <item android:drawable="@drawable/nim_bg_edittext_rectangle_focused" android:state_focused="true" />
+</selector>

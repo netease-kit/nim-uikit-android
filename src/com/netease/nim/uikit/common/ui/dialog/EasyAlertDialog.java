@@ -1,9 +1,5 @@
 package com.netease.nim.uikit.common.ui.dialog;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
@@ -19,14 +15,16 @@ import android.widget.TextView;
 import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.common.util.sys.ScreenUtil;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
 /**
- * 普通提示使用 {@link R.layout.easy_alert_dialog_info}, 包含两个按钮以及Title和Message(居中显示).
+ * 普通提示包含两个按钮以及Title和Message(居中显示).
  * <p/>
- * 警告提示使用 {@link R.layout.easy_alert_dialog_warning},
- * 包含一个按钮以及Title和Message(居中显示).
+ * 警告提示使用包含一个按钮以及Title和Message(居中显示).
  * <p/>
- * 错误提示使用 {@link R.layout.easy_alert_dialog_error},
- * 包含一个按钮(红色背景)以及Title和Message(居中显示).
+ * 错误提示使用包含一个按钮(红色背景)以及Title和Message(居中显示).
  * <p/>
  * 特殊布局需求可以自定义布局.
  */
@@ -84,12 +82,12 @@ public class EasyAlertDialog extends Dialog {
 
     public EasyAlertDialog(Context context, int style) {
         this(context, -1, style);
-        resourceId = R.layout.easy_alert_dialog_default_layout;
+        resourceId = R.layout.nim_easy_alert_dialog_default_layout;
     }
 
     public EasyAlertDialog(Context context) {
         this(context, R.style.dialog_default_style);
-        resourceId = R.layout.easy_alert_dialog_default_layout;
+        resourceId = R.layout.nim_easy_alert_dialog_default_layout;
     }
 
 	public void setTitle(CharSequence title) {

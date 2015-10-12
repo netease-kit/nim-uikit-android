@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.netease.nim.uikit.common.ui.imageview.CropImageView
+        android:id="@+id/cropable_image_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/yixin_profile_buddy_operations"
+        android:orientation="horizontal"
+        android:layout_alignParentBottom="true">
+
+        <RelativeLayout
+            android:descendantFocusability="beforeDescendants"
+            android:id="@+id/cancel_btn"
+            android:clickable="true"
+            android:background="@drawable/nim_align_bottom_green_btn_selector"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:minHeight="50dp"
+            android:layout_height="wrap_content"
+            android:onClick="onClick">
+
+
+            <TextView
+                android:layout_centerInParent="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/cancel"
+                android:textColor="@color/white"
+                android:clickable="false"
+                android:textSize="17sp" />
+
+        </RelativeLayout>
+
+        <View
+            android:background="@color/split_line_grey_color_d9d9d9"
+            android:layout_width="2px"
+            android:layout_height="fill_parent"></View>
+
+        <RelativeLayout
+            android:descendantFocusability="beforeDescendants"
+            android:clickable="true"
+            android:id="@+id/ok_btn"
+            android:background="@drawable/nim_align_bottom_green_btn_selector"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:minHeight="50dp"
+            android:layout_height="wrap_content"
+            android:onClick="onClick">
+
+            <TextView
+
+                android:layout_centerInParent="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/choose"
+                android:clickable="false"
+                android:textColor="@color/white"
+                android:textSize="17sp" />
+        </RelativeLayout>
+    </LinearLayout>
+
+
+</RelativeLayout>

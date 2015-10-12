@@ -1,10 +1,6 @@
 package com.netease.nim.uikit.common.media.picker.activity;
 
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -15,7 +11,6 @@ import android.widget.TextView;
 
 import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.common.activity.TActionBarActivity;
-import com.netease.nim.uikit.session.constant.Extras;
 import com.netease.nim.uikit.common.media.picker.fragment.PickerAlbumFragment;
 import com.netease.nim.uikit.common.media.picker.fragment.PickerAlbumFragment.OnAlbumItemClickListener;
 import com.netease.nim.uikit.common.media.picker.fragment.PickerImageFragment;
@@ -25,7 +20,12 @@ import com.netease.nim.uikit.common.media.picker.loader.PickerlImageLoadTool;
 import com.netease.nim.uikit.common.media.picker.model.AlbumInfo;
 import com.netease.nim.uikit.common.media.picker.model.PhotoInfo;
 import com.netease.nim.uikit.common.media.picker.model.PickerContract;
+import com.netease.nim.uikit.session.constant.Extras;
 import com.netease.nim.uikit.session.constant.RequestCode;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Inner image picker, no longer use third-part application 
@@ -62,7 +62,7 @@ public class PickerAlbumActivity extends TActionBarActivity implements OnAlbumIt
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.picker_album_activity);
+		setContentView(R.layout.nim_picker_album_activity);
 		proceedExtra();
 		initActionBar();
 		initUI();

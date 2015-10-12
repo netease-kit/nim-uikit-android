@@ -1,8 +1,6 @@
 package com.netease.nim.uikit.common.media.picker.adapter;
 
 
-import java.util.List;
-
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +14,8 @@ import com.netease.nim.uikit.common.media.picker.loader.PickerlImageLoadTool;
 import com.netease.nim.uikit.common.media.picker.loader.RotateImageViewAware;
 import com.netease.nim.uikit.common.media.picker.model.AlbumInfo;
 import com.netease.nim.uikit.common.media.picker.util.ThumbnailsUtil;
+
+import java.util.List;
 
 public class PickerAlbumAdapter extends BaseAdapter {
 	
@@ -49,7 +49,7 @@ public class PickerAlbumAdapter extends BaseAdapter {
 		ViewHolder viewHolder;
 		if (convertView == null) {
 			viewHolder = new ViewHolder();
-			convertView = mInflater.inflate(R.layout.picker_photofolder_item, null);
+			convertView = mInflater.inflate(R.layout.nim_picker_photofolder_item, null);
 			viewHolder.folderCover = (ImageView)convertView.findViewById(R.id.picker_photofolder_cover);
 			viewHolder.folderName = (TextView)convertView.findViewById(R.id.picker_photofolder_info);
 			viewHolder.folderFileNum = (TextView)convertView.findViewById(R.id.picker_photofolder_num);

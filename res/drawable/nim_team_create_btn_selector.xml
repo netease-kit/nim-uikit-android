@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:drawable="@drawable/nim_team_create_btn_pressed" android:state_pressed="true"></item>
+    <item android:drawable="@drawable/nim_team_create_btn" android:state_enabled="false"></item>
+    <item android:drawable="@drawable/nim_team_create_btn"></item>
+
+</selector>

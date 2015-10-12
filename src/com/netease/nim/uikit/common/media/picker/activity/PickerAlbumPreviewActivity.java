@@ -10,24 +10,27 @@ import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.*;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.common.activity.TActionBarActivity;
+import com.netease.nim.uikit.common.media.picker.adapter.PickerPreviewPagerAdapter;
+import com.netease.nim.uikit.common.media.picker.model.PhotoInfo;
+import com.netease.nim.uikit.common.media.picker.model.PickerContract;
+import com.netease.nim.uikit.common.media.picker.util.PickerUtil;
 import com.netease.nim.uikit.common.ui.imageview.BaseZoomableImageView;
 import com.netease.nim.uikit.common.util.media.BitmapDecoder;
 import com.netease.nim.uikit.common.util.media.ImageUtil;
 import com.netease.nim.uikit.common.util.sys.ActionBarUtil;
 import com.netease.nim.uikit.session.constant.Extras;
-import com.netease.nim.uikit.common.media.picker.adapter.PickerPreviewPagerAdapter;
-import com.netease.nim.uikit.common.media.picker.model.PhotoInfo;
-import com.netease.nim.uikit.common.media.picker.model.PickerContract;
-import com.netease.nim.uikit.common.media.picker.util.PickerUtil;
 import com.netease.nim.uikit.session.constant.RequestCode;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 public class PickerAlbumPreviewActivity extends TActionBarActivity implements OnClickListener, OnPageChangeListener {
 	
@@ -92,7 +95,7 @@ public class PickerAlbumPreviewActivity extends TActionBarActivity implements On
 	
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.picker_image_preview_activity);
+		setContentView(R.layout.nim_picker_image_preview_activity);
 		proceedExtras();
 		initActionBar();
 		initUI();
@@ -113,7 +116,7 @@ public class PickerAlbumPreviewActivity extends TActionBarActivity implements On
 	}
 	
 	private void initActionBar(){
-		View barView = ActionBarUtil.addRightCustomViewOnActionBar(this, R.layout.action_bar_right_picker_preview);
+		View barView = ActionBarUtil.addRightCustomViewOnActionBar(this, R.layout.nim_action_bar_right_picker_preview);
 		previewSelectBtn = (ImageButton) barView.findViewById(R.id.picker_image_preview_photos_select);
 		previewSelectBtn.setOnClickListener(this);
 	}

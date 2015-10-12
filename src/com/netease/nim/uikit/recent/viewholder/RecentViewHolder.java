@@ -26,15 +26,15 @@ public abstract class RecentViewHolder extends TViewHolder implements OnClickLis
 
     protected HeadImageView imgHead;
 
-    protected TextView lblNickname;
+    protected TextView tvNickname;
 
-    protected TextView lblMessage;
+    protected TextView tvMessage;
 
-    protected TextView lblUnread;
+    protected TextView tvUnread;
 
     protected View unreadIndicator;
 
-    protected TextView lblDatetime;
+    protected TextView tvDatetime;
 
     // 消息发送错误状态标记，目前没有逻辑处理
     protected ImageView imgMsgStatus;
@@ -87,14 +87,14 @@ public abstract class RecentViewHolder extends TViewHolder implements OnClickLis
 
     private void updateNewIndicator() {
         int unreadNum = recent.getUnreadCount();
-        lblUnread.setVisibility(unreadNum > 0 ? View.VISIBLE : View.GONE);
-        lblUnread.setText(unreadCountShowRule(unreadNum));
+        tvUnread.setVisibility(unreadNum > 0 ? View.VISIBLE : View.GONE);
+        tvUnread.setText(unreadCountShowRule(unreadNum));
     }
 
     private void updateMsgLabel() {
         // 显示消息具体内容
-        MoonUtil.identifyFaceExpressionAndTags(context, lblMessage, getContent(), ImageSpan.ALIGN_BOTTOM, 0.45f);
-        //lblMessage.setText(getContent());
+        MoonUtil.identifyFaceExpressionAndTags(context, tvMessage, getContent(), ImageSpan.ALIGN_BOTTOM, 0.45f);
+        //tvMessage.setText(getContent());
 
         MsgStatusEnum status = recent.getMsgStatus();
         switch (status) {
@@ -112,7 +112,7 @@ public abstract class RecentViewHolder extends TViewHolder implements OnClickLis
         }
 
         String timeString = TimeUtil.getTimeShowString(recent.getTime(), true);
-        lblDatetime.setText(timeString);
+        tvDatetime.setText(timeString);
     }
 
     protected void updateNickLabel(String nick) {
@@ -120,10 +120,10 @@ public abstract class RecentViewHolder extends TViewHolder implements OnClickLis
         labelWidth -= ScreenUtil.dip2px(50 + 70); // 减去固定的头像和时间宽度
 
         if (labelWidth > 0) {
-            lblNickname.setMaxWidth(labelWidth);
+            tvNickname.setMaxWidth(labelWidth);
         }
 
-        lblNickname.setText(nick);
+        tvNickname.setText(nick);
     }
 
     protected int getResId() {
@@ -132,13 +132,13 @@ public abstract class RecentViewHolder extends TViewHolder implements OnClickLis
 
     public void inflate() {
         this.portraitPanel = (FrameLayout) view.findViewById(R.id.portrait_panel);
-        this.imgHead = (HeadImageView) view.findViewById(R.id.imgHead);
-        this.lblNickname = (TextView) view.findViewById(R.id.lblNickname);
-        this.lblMessage = (TextView) view.findViewById(R.id.lblMessage);
-        this.lblUnread = (TextView) view.findViewById(R.id.unread_number_tip);
+        this.imgHead = (HeadImageView) view.findViewById(R.id.img_head);
+        this.tvNickname = (TextView) view.findViewById(R.id.tv_nickname);
+        this.tvMessage = (TextView) view.findViewById(R.id.tv_message);
+        this.tvUnread = (TextView) view.findViewById(R.id.unread_number_tip);
         this.unreadIndicator = view.findViewById(R.id.new_message_indicator);
-        this.lblDatetime = (TextView) view.findViewById(R.id.lblDateTime);
-        this.imgMsgStatus = (ImageView) view.findViewById(R.id.imgMsgStatus);
+        this.tvDatetime = (TextView) view.findViewById(R.id.tv_date_time);
+        this.imgMsgStatus = (ImageView) view.findViewById(R.id.img_msg_status);
         this.bottomLine = view.findViewById(R.id.bottom_line);
         this.topLine = view.findViewById(R.id.top_line);
     }

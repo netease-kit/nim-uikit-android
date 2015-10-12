@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/contact_select_area_head"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <com.netease.nim.uikit.common.ui.imageview.HeadImageView
+        android:id="@+id/contact_select_area_image"
+        android:layout_width="@dimen/avatar_size_in_contact"
+        android:layout_height="@dimen/avatar_size_in_contact"
+        android:layout_centerInParent="true"
+        android:clickable="false"
+        android:contentDescription="@string/empty"
+        android:focusable="false"
+        android:focusableInTouchMode="false"/>
+    
+</RelativeLayout>

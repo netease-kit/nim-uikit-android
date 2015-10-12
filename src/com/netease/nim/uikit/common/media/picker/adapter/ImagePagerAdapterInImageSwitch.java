@@ -1,7 +1,5 @@
 package com.netease.nim.uikit.common.media.picker.adapter;
 
-import java.util.List;
-
 import android.content.Context;
 import android.os.Build;
 import android.support.v4.view.PagerAdapter;
@@ -11,9 +9,11 @@ import android.view.ViewGroup;
 
 import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.common.activity.TActionBarActivity;
-import com.netease.nim.uikit.common.ui.imageview.BaseZoomableImageView;
 import com.netease.nim.uikit.common.media.picker.activity.PreviewImageFromLocalActivity;
+import com.netease.nim.uikit.common.ui.imageview.BaseZoomableImageView;
 import com.netease.nim.uikit.common.util.sys.ScreenUtil;
+
+import java.util.List;
 
 public class ImagePagerAdapterInImageSwitch extends PagerAdapter{
 	private Context mContext;
@@ -58,11 +58,11 @@ public class ImagePagerAdapterInImageSwitch extends PagerAdapter{
 //		if( Build.VERSION.SDK_INT >=  17 )
 		if( Build.VERSION.SDK_INT >=  Build.VERSION_CODES.FROYO )
 		{
-			layout = mInflater.inflate(R.layout.preview_image_layout_multi_touch, null);
+			layout = mInflater.inflate(R.layout.nim_preview_image_layout_multi_touch, null);
 		}
 		else 
 		{
-			layout = mInflater.inflate(R.layout.preview_image_layout_zoom_control, null);
+			layout = mInflater.inflate(R.layout.nim_preview_image_layout_zoom_control, null);
 		}
 				
 		container.addView(layout);

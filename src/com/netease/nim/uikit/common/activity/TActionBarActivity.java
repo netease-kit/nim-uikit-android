@@ -79,7 +79,7 @@ public abstract class TActionBarActivity extends ActionBarActivity {
         onBackPressed();
     }
 
-    public void setTitle(String title) {
+    public void setTitle(CharSequence title) {
         getSupportActionBar().setTitle(title);
     }
 
@@ -87,7 +87,7 @@ public abstract class TActionBarActivity extends ActionBarActivity {
         getSupportActionBar().setTitle(titleResId);
     }
 
-    public void setSubTitle(String subTitle) {
+    public void setSubTitle(CharSequence subTitle) {
         getSupportActionBar().setSubtitle(subTitle);
     }
 
@@ -198,8 +198,8 @@ public abstract class TActionBarActivity extends ActionBarActivity {
         return fragments2;
     }
 
-    public void switchContent(TFragment fragment) {
-        switchContent(fragment, false);
+    public TFragment switchContent(TFragment fragment) {
+        return switchContent(fragment, false);
     }
 
     protected TFragment switchContent(TFragment fragment, boolean needAddToBackStack) {

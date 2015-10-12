@@ -5,17 +5,17 @@ import android.text.TextUtils;
 import android.widget.Toast;
 
 import com.netease.nim.uikit.R;
+import com.netease.nim.uikit.common.media.picker.PickImageHelper;
+import com.netease.nim.uikit.common.media.picker.activity.PickImageActivity;
 import com.netease.nim.uikit.common.media.picker.activity.PreviewImageFromCameraActivity;
-import com.netease.nim.uikit.common.ui.dialog.CustomAlertDialog;
 import com.netease.nim.uikit.common.util.file.AttachmentStore;
 import com.netease.nim.uikit.common.util.media.ImageUtil;
 import com.netease.nim.uikit.common.util.storage.StorageType;
 import com.netease.nim.uikit.common.util.storage.StorageUtil;
 import com.netease.nim.uikit.common.util.string.StringUtil;
 import com.netease.nim.uikit.session.constant.Extras;
-import com.netease.nim.uikit.session.activity.PickImageActivity;
-import com.netease.nim.uikit.session.helper.SendImageHelper;
 import com.netease.nim.uikit.session.constant.RequestCode;
+import com.netease.nim.uikit.session.helper.SendImageHelper;
 
 import java.io.File;
 
@@ -25,54 +25,25 @@ import java.io.File;
 public abstract class PickImageAction extends BaseAction {
 
     private static final int PICK_IMAGE_COUNT = 9;
+    private static final int PORTRAIT_IMAGE_WIDTH = 720;
 
     public static final String MIME_JPEG = "image/jpeg";
     public static final String JPG = ".jpg";
 
-    private boolean mutiSelect;
+    private boolean multiSelect;
+    private boolean crop = false;
 
     protected abstract void onPicked(File file);
 
-    protected PickImageAction(int iconResId, int titleId, boolean mutiSelect) {
+    protected PickImageAction(int iconResId, int titleId, boolean multiSelect) {
         super(iconResId, titleId);
-        this.mutiSelect = mutiSelect;
+        this.multiSelect = multiSelect;
     }
 
     @Override
     public void onClick() {
         int requestCode = makeRequestCode(RequestCode.PICK_IMAGE);
-        showSelector(getTitleId(), requestCode, mutiSelect, tempFile());
-    }
-
-    /**
-     * 打开图片选择器
-     */
-    private void showSelector(int titleId, final int requestCode, final boolean mutiSelect, final String outPath) {
-        if (getActivity() == null) {
-            return;
-        }
-
-        CustomAlertDialog dialog = new CustomAlertDialog(getActivity());
-        dialog.setTitle(titleId);
-
-        dialog.addItem(getActivity().getString(R.string.input_panel_take),new CustomAlertDialog.onSeparateItemClickListener() {
-            @Override
-            public void onClick() {
-                int from = PickImageActivity.FROM_CAMERA;
-                PickImageActivity.start(getActivity(), requestCode, from, outPath, mutiSelect, 1,
-                        false, false, 0, 0);
-            }
-        });
-        dialog.addItem(getActivity().getString(R.string.choose_from_photo_album), new CustomAlertDialog.onSeparateItemClickListener() {
-            @Override
-            public void onClick() {
-                int from = PickImageActivity.FROM_LOCAL;
-                PickImageActivity.start(getActivity(), requestCode, from, outPath, mutiSelect, PICK_IMAGE_COUNT,
-                        false, false, 0, 0);
-            }
-        });
-        dialog.show();
-
+        showSelector(getTitleId(), requestCode, multiSelect, tempFile());
     }
 
     private String tempFile() {
@@ -80,29 +51,48 @@ public abstract class PickImageAction extends BaseAction {
         return StorageUtil.getWritePath(filename, StorageType.TYPE_TEMP);
     }
 
+    /**
+     * 打开图片选择器
+     */
+    private void showSelector(int titleId, final int requestCode, final boolean multiSelect, final String outPath) {
+        PickImageHelper.PickImageOption option = new PickImageHelper.PickImageOption();
+        option.titleResId = titleId;
+        option.multiSelect = multiSelect;
+        option.multiSelectMaxCount = PICK_IMAGE_COUNT;
+        option.crop = crop;
+        option.cropOutputImageWidth = PORTRAIT_IMAGE_WIDTH;
+        option.cropOutputImageHeight = PORTRAIT_IMAGE_WIDTH;
+        option.outputPath = outPath;
+
+        PickImageHelper.pickImage(getActivity(), requestCode, option);
+    }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
-        case RequestCode.PICK_IMAGE:
-            onPickImageActivityResult(requestCode, data);
-            break;
-        case RequestCode.PREVIEW_IMAGE_FROM_CAMERA:
-            onPreviewImageActivityResult(requestCode, data);
-            break;
+            case RequestCode.PICK_IMAGE:
+                onPickImageActivityResult(requestCode, data);
+                break;
+            case RequestCode.PREVIEW_IMAGE_FROM_CAMERA:
+                onPreviewImageActivityResult(requestCode, data);
+                break;
         }
     }
 
-    // 图片选取回调
+    /**
+     * 图片选取回调
+     */
     private void onPickImageActivityResult(int requestCode, Intent data) {
         if (data == null) {
             Toast.makeText(getActivity(), R.string.picker_image_error, Toast.LENGTH_LONG).show();
             return;
         }
-
         boolean local = data.getBooleanExtra(Extras.EXTRA_FROM_LOCAL, false);
-        if (local) {    // 本地相册
+        if (local) {
+            // 本地相册
             sendImageAfterSelfImagePicker(data);
-        } else {        // 拍照
+        } else {
+            // 拍照
             Intent intent = new Intent();
             if (!handleImagePath(intent, data)) {
                 return;
@@ -170,7 +160,9 @@ public abstract class PickImageAction extends BaseAction {
         });
     }
 
-    // 拍摄回调
+    /**
+     * 拍摄回调
+     */
     private void onPreviewImageActivityResult(int requestCode, Intent data) {
         if (data.getBooleanExtra(PreviewImageFromCameraActivity.RESULT_SEND, false)) {
             sendImageAfterPreviewPhotoActivityResult(data);

@@ -7,7 +7,7 @@ import com.netease.nimlib.sdk.msg.model.IMMessage;
  */
 public interface ModuleProxy {
     // 发送消息
-    void sendMessage(IMMessage msg);
+    boolean sendMessage(IMMessage msg);
 
     // 消息输入区展开时候的处理
     void onInputPanelExpand();

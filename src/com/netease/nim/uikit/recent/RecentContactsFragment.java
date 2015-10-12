@@ -126,9 +126,9 @@ public class RecentContactsFragment extends TFragment implements TAdapterDelegat
      * 查找页面控件
      */
     private void findViews() {
-        listView = (ListView) this.getView().findViewById(R.id.lvMessages);
-        emptyBg = getView().findViewById(R.id.emptyBg);
-        emptyHint = (TextView) getView().findViewById(R.id.message_list_empty_hint);
+        listView = findView(R.id.lvMessages);
+        emptyBg = findView(R.id.emptyBg);
+        emptyHint = findView(R.id.message_list_empty_hint);
     }
 
     /**

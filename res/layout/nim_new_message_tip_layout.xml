@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/new_message_tip_layout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="bottom"
+    android:background="@color/GreyWhite"
+    android:gravity="center"
+    android:orientation="horizontal"
+    android:padding="10dip"
+    android:visibility="gone" >
+
+    <com.netease.nim.uikit.common.ui.imageview.HeadImageView
+        android:id="@+id/new_message_tip_head_image_view"
+        android:layout_width="25dip"
+        android:layout_height="25dip"
+        android:contentDescription="@string/empty"
+        android:layout_marginRight="@dimen/bubble_head_margin_horizontal" />
+
+    <TextView
+        android:id="@+id/new_message_tip_text_view"
+        android:layout_width="0dip"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginLeft="10dip"
+        android:layout_marginRight="10dip"
+        android:layout_weight="1"
+        android:singleLine="true"
+        android:textColor="#575757"
+        android:textSize="12sp" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right|center_vertical"
+        android:background="@drawable/nim_message_unread_news_icon_selector"
+        android:contentDescription="@string/empty" />
+
+</LinearLayout>

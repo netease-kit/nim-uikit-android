@@ -1,7 +1,5 @@
 package com.netease.nim.uikit.session.emoji;
 
-import com.netease.nim.uikit.R;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -9,6 +7,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+
+import com.netease.nim.uikit.R;
 
 public class EmojiAdapter extends BaseAdapter {
 
@@ -39,7 +39,7 @@ public class EmojiAdapter extends BaseAdapter {
 	 
 	@SuppressLint({ "ViewHolder", "InflateParams" })
 	public View getView(int position, View convertView, ViewGroup parent) {
-		convertView = LayoutInflater.from(context).inflate(R.layout.emoji_item, null);
+		convertView = LayoutInflater.from(context).inflate(R.layout.nim_emoji_item, null);
 		ImageView emojiThumb = (ImageView) convertView.findViewById(R.id.imgEmoji);
 		int count = EmojiManager.getDisplayCount();
 		int index = startIndex + position;

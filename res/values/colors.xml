@@ -4,6 +4,7 @@
     <color name="transparent">#00000000</color>
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
+    <color name="grey">#333333</color>
     <color name="global_bg">#9000</color>
     <color name="color_green_01d9ae">#01D9AE</color>
     <color name="color_gray_d9d9d9">#d9d9d9</color>
@@ -22,6 +23,11 @@
     <color name="color_black_333333">#333333</color>
     <color name="color_grey_999999">#999999</color>
     <color name="color_grey_555555">#555555</color>
+    <color name="color_green_disable">#a2efe0</color>
+    <color name="color_green_00d3a9">#ff00D3A9</color>
+    <color name="color_blue_0888ff">#0888ff</color>
+    <color name="action_bar_black_title_1f1f1f">#1f1f1f</color>
+    <color name="action_bar_black_title_color">#252525</color>
 
     <!-- main bg color -->
     <color name="main_bg_color">#FFFFFF</color>

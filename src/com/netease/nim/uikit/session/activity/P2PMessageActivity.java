@@ -10,8 +10,12 @@ import com.alibaba.fastjson.JSONObject;
 import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.session.SessionCustomization;
 import com.netease.nim.uikit.session.constant.Extras;
+import com.netease.nim.uikit.session.fragment.MessageFragment;
 import com.netease.nim.uikit.uinfo.UserInfoHelper;
 import com.netease.nim.uikit.uinfo.UserInfoObservable;
+import com.netease.nimlib.sdk.NIMClient;
+import com.netease.nimlib.sdk.Observer;
+import com.netease.nimlib.sdk.msg.MsgServiceObserve;
 import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.msg.model.CustomNotification;
 
@@ -36,52 +40,31 @@ public class P2PMessageActivity extends BaseMessageActivity {
     }
 
     @Override
-    protected int getContentViewResId() {
-        return R.layout.message_activity;
-    }
-
-    @Override
-    public SessionTypeEnum getSessionTypeEnum() {
-        return SessionTypeEnum.P2P;
-    }
-
-    @Override
-    protected void onMenuKeyPressed(int id) {
-    }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // 单聊特例话数据，包括个人信息，
         requestBuddyInfo();
-        registerUserInfoObserver();
+        registerObservers(true);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        unregisterUserInfoObserver();
+        registerObservers(false);
     }
 
     private void requestBuddyInfo() {
-        setTitle(UserInfoHelper.getUserTitleName(sessionId, getSessionTypeEnum()));
+        setTitle(UserInfoHelper.getUserTitleName(sessionId, SessionTypeEnum.P2P));
     }
 
-    @Override
-    protected void showCommandMessage(CustomNotification message) {
-        String content = message.getContent();
-        try {
-            JSONObject json = JSON.parseObject(content);
-            int id = json.getIntValue("id");
-            if (id == 1) {
-                // 正在输入
-                Toast.makeText(P2PMessageActivity.this, "对方正在输入...", Toast.LENGTH_LONG).show();
-            } else {
-                Toast.makeText(P2PMessageActivity.this, "command: " + content, Toast.LENGTH_SHORT).show();
-            }
-
-        } catch (Exception e) {
-
+    private void registerObservers(boolean register) {
+        if (register) {
+            registerUserInfoObserver();
+        } else {
+            unregisterUserInfoObserver();
         }
+        NIMClient.getService(MsgServiceObserve.class).observeCustomNotification(commandObserver, register);
     }
 
     private UserInfoObservable.UserInfoObserver uinfoObserver;
@@ -104,5 +87,50 @@ public class P2PMessageActivity extends BaseMessageActivity {
         if (uinfoObserver != null) {
             UserInfoHelper.unregisterObserver(uinfoObserver);
         }
+    }
+
+    /**
+     * 命令消息接收观察者
+     */
+    Observer<CustomNotification> commandObserver = new Observer<CustomNotification>() {
+        @Override
+        public void onEvent(CustomNotification message) {
+            if (!sessionId.equals(message.getSessionId()) || message.getSessionType() != SessionTypeEnum.P2P) {
+                return;
+            }
+            showCommandMessage(message);
+        }
+    };
+
+    protected void showCommandMessage(CustomNotification message) {
+        String content = message.getContent();
+        try {
+            JSONObject json = JSON.parseObject(content);
+            int id = json.getIntValue("id");
+            if (id == 1) {
+                // 正在输入
+                Toast.makeText(P2PMessageActivity.this, "对方正在输入...", Toast.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(P2PMessageActivity.this, "command: " + content, Toast.LENGTH_SHORT).show();
+            }
+
+        } catch (Exception e) {
+
+        }
+    }
+
+    @Override
+    protected MessageFragment fragment() {
+        Bundle arguments = getIntent().getExtras();
+        arguments.putSerializable(Extras.EXTRA_TYPE, SessionTypeEnum.P2P);
+        MessageFragment fragment = new MessageFragment();
+        fragment.setArguments(arguments);
+        fragment.setContainerId(R.id.message_fragment_container);
+        return fragment;
+    }
+
+    @Override
+    protected int getContentViewId() {
+        return R.layout.nim_message_activity;
     }
 }

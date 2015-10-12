@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/isetting_item_height"
+                android:background="@drawable/nim_semitransparency_selector"
+                android:paddingLeft="@dimen/isetting_item_padding_left"
+                android:paddingRight="@dimen/isetting_item_padding_right">
+
+    <TextView
+        android:id="@+id/user_profile_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_centerVertical="true"
+        android:textColor="@color/color_black_ff333333"
+        android:textSize="16sp"/>
+
+    <com.netease.nim.uikit.common.ui.widget.SwitchButton
+        android:id="@+id/user_profile_toggle"
+        android:layout_width="58dip"
+        android:layout_height="36.67dip"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"/>
+
+    <View
+        android:id="@+id/line"
+        style="@style/horizontal_light_thin_divider"
+        android:layout_alignParentBottom="true"/>
+
+</RelativeLayout>

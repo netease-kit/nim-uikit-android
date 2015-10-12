@@ -1,23 +1,23 @@
 package com.netease.nim.uikit.common.media.picker.fragment;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-
-import com.netease.nim.uikit.R;
-import com.netease.nim.uikit.common.fragment.TFragment;
-import com.netease.nim.uikit.session.constant.Extras;
-import com.netease.nim.uikit.common.media.picker.adapter.PickerPhotoAdapter;
-import com.netease.nim.uikit.common.media.picker.model.PhotoInfo;
-
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.GridView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.GridView;
+
+import com.netease.nim.uikit.R;
+import com.netease.nim.uikit.common.fragment.TFragment;
+import com.netease.nim.uikit.common.media.picker.adapter.PickerPhotoAdapter;
+import com.netease.nim.uikit.common.media.picker.model.PhotoInfo;
+import com.netease.nim.uikit.session.constant.Extras;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PickerImageFragment extends TFragment implements OnItemClickListener {
 	
@@ -57,7 +57,7 @@ public class PickerImageFragment extends TFragment implements OnItemClickListene
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		return inflater.inflate(R.layout.picker_images_fragment, container, false);
+		return inflater.inflate(R.layout.nim_picker_images_fragment, container, false);
 	}
 	
 	@Override
@@ -76,7 +76,7 @@ public class PickerImageFragment extends TFragment implements OnItemClickListene
 	}
 	
 	private void findViews() {		
-		pickerImageGridView = (GridView) getView().findViewById(R.id.picker_images_gridview);
+		pickerImageGridView = findView(R.id.picker_images_gridview);
 		photoAdapter = new PickerPhotoAdapter(getActivity(), photoList, pickerImageGridView, isMutiMode, 0, mutiSelectLimitSize);
 		pickerImageGridView.setAdapter(photoAdapter);
 		pickerImageGridView.setOnItemClickListener(this);

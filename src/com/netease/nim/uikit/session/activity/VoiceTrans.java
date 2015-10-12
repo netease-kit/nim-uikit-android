@@ -59,7 +59,7 @@ public class VoiceTrans {
         textLayout = baseActivity.findViewById(R.id.voice_trans_layout);
         if (textLayout == null) {
             LayoutInflater layoutInflater = LayoutInflater.from(baseActivity);
-            textLayout = layoutInflater.inflate(R.layout.voice_trans_layout, null);
+            textLayout = layoutInflater.inflate(R.layout.nim_voice_trans_layout, null);
             ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
             baseActivity.addContentView(textLayout, layoutParams);
         }

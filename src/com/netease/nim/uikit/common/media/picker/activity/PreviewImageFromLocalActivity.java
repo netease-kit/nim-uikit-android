@@ -17,7 +17,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.netease.nim.uikit.session.constant.Extras;
 import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.common.activity.TActionBarActivity;
 import com.netease.nim.uikit.common.media.picker.adapter.ImagePagerAdapterInImageSwitch;
@@ -29,8 +28,8 @@ import com.netease.nim.uikit.common.util.media.BitmapDecoder;
 import com.netease.nim.uikit.common.util.media.ImageUtil;
 import com.netease.nim.uikit.common.util.storage.StorageType;
 import com.netease.nim.uikit.common.util.storage.StorageUtil;
+import com.netease.nim.uikit.session.constant.Extras;
 import com.netease.nim.uikit.session.constant.RequestCode;
-import com.netease.nim.uikit.session.activity.PickImageActivity;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -77,7 +76,7 @@ public class PreviewImageFromLocalActivity extends TActionBarActivity {
 
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.preview_image_from_local_activity);
+		setContentView(R.layout.nim_preview_image_from_local_activity);
 				
 		originalImageSizeTip = (TextView) findViewById(R.id.picker_image_preview_orignal_image_tip);       
         originalImage = (ImageButton) findViewById(R.id.picker_image_preview_orignal_image);

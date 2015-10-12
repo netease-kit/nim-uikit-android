@@ -1,5 +1,7 @@
 package com.netease.nim.uikit.uinfo;
 
+import android.text.TextUtils;
+
 import com.netease.nim.uikit.NimUIKit;
 import com.netease.nim.uikit.team.TeamDataCache;
 import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
@@ -14,7 +16,7 @@ public class UserInfoHelper {
     // 获取用户原本的昵称
     public static String getUserName(String account) {
         UserInfoProvider.UserInfo userInfo = NimUIKit.getUserInfoProvider().getUserInfo(account);
-        if (userInfo != null) {
+        if (userInfo != null && !TextUtils.isEmpty(userInfo.getName())) {
             return userInfo.getName();
         } else {
             return account;
@@ -59,7 +61,7 @@ public class UserInfoHelper {
 
     /**
      * 当用户资料发生改动时，请调用此接口，通知更新UI
-     * @param accounts 有用户信息改动的账号列表
+     * @param accounts 有用户信息改动的帐号列表
      */
     public static void notifyChanged(List<String> accounts) {
         if (userInfoObservable != null) {

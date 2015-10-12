@@ -1,10 +1,10 @@
 package com.netease.nim.uikit.common.ui.dialog;
 
-import com.netease.nim.uikit.common.adapter.TViewHolder;
-import com.netease.nim.uikit.R;
-
 import android.util.Pair;
 import android.widget.TextView;
+
+import com.netease.nim.uikit.R;
+import com.netease.nim.uikit.common.adapter.TViewHolder;
 
 public class CustomDialogViewHolder extends TViewHolder {
 
@@ -12,7 +12,7 @@ public class CustomDialogViewHolder extends TViewHolder {
 
 	@Override
 	protected int getResId() {
-		return R.layout.custom_dialog_list_item;
+		return R.layout.nim_custom_dialog_list_item;
 	}
 
 	@Override

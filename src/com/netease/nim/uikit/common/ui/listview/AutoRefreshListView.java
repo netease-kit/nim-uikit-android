@@ -9,10 +9,10 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.ListView;
 
+import com.netease.nim.uikit.R;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import com.netease.nim.uikit.R;
 
 public class AutoRefreshListView extends ListView {
 
@@ -108,9 +108,9 @@ public class AutoRefreshListView extends ListView {
     }
 
     private void addRefreshView(Context context) {
-        refreshHeader = (ViewGroup) View.inflate(context, R.layout.listview_refresh, null);
+        refreshHeader = (ViewGroup) View.inflate(context, R.layout.nim_listview_refresh, null);
         addHeaderView(refreshHeader, null, false);
-        refreshFooter = (ViewGroup) View.inflate(context, R.layout.listview_refresh, null);
+        refreshFooter = (ViewGroup) View.inflate(context, R.layout.nim_listview_refresh, null);
         addFooterView(refreshFooter, null, false);
     }
 

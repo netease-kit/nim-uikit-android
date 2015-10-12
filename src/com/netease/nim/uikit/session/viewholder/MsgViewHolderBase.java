@@ -148,7 +148,6 @@ public abstract class MsgViewHolderBase extends TViewHolder {
         setOnClickListener();
         setLongClickListener();
         setContent();
-        setOnClickListener();
 
         bindContentView();
     }

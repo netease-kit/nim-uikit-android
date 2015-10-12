@@ -70,7 +70,7 @@ public class BitmapCache {
         }
     }
 
-    public void clearCache() {
+    public void clear() {
         if (cache.size() > 0) {
             cache.evictAll();
         }

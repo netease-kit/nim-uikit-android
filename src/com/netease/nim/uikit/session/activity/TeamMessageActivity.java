@@ -6,15 +6,16 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
 
-import com.netease.nim.uikit.session.constant.Extras;
 import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.common.util.log.LogUtil;
 import com.netease.nim.uikit.session.SessionCustomization;
+import com.netease.nim.uikit.session.constant.Extras;
+import com.netease.nim.uikit.session.fragment.MessageFragment;
+import com.netease.nim.uikit.session.fragment.TeamMessageFragment;
 import com.netease.nim.uikit.team.TeamDataCache;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.RequestCallback;
 import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
-import com.netease.nimlib.sdk.msg.model.IMMessage;
 import com.netease.nimlib.sdk.team.TeamService;
 import com.netease.nimlib.sdk.team.model.Team;
 import com.netease.nimlib.sdk.team.model.TeamMember;
@@ -28,21 +29,14 @@ import java.util.List;
  */
 public class TeamMessageActivity extends BaseMessageActivity {
 
+    private static final String TAG = "TMA";
+
     // model
     private Team team;
 
     private View invalidTeamTipView;
 
-    @Override
-    protected int getContentViewResId() {
-        return R.layout.message_activity;
-    }
-
-    @Override
-    public SessionTypeEnum getSessionTypeEnum() {
-        return SessionTypeEnum.Team;
-    }
-
+    private TeamMessageFragment fragment;
 
     public static void start(Context context, String tid, SessionCustomization customization) {
         Intent intent = new Intent();
@@ -59,8 +53,9 @@ public class TeamMessageActivity extends BaseMessageActivity {
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         findViews();
 
         registerTeamUpdateObserver(true);
@@ -130,8 +125,9 @@ public class TeamMessageActivity extends BaseMessageActivity {
         }
 
         team = d;
-        setTitle(team == null ? sessionId : team.getName() + "(" + team.getMemberCount() + "人)");
+        fragment.setTeam(team);
 
+        setTitle(team == null ? sessionId : team.getName() + "(" + team.getMemberCount() + "人)");
         invalidTeamTipView.setVisibility(team.isMyTeam() ? View.GONE : View.VISIBLE);
     }
 
@@ -180,7 +176,7 @@ public class TeamMessageActivity extends BaseMessageActivity {
 
         @Override
         public void onUpdateTeamMember(List<TeamMember> members) {
-            messageListPanel.refreshMessageList();
+            fragment.refreshMessageList();
         }
 
         @Override
@@ -190,12 +186,18 @@ public class TeamMessageActivity extends BaseMessageActivity {
     };
 
     @Override
-    public boolean isAllowSendMessage(IMMessage message) {
-        if (!team.isMyTeam()) {
-            Toast.makeText(this, R.string.team_send_message_not_allow, Toast.LENGTH_SHORT).show();
-            return false;
-        }
+    protected MessageFragment fragment() {
+        // 添加fragment
+        Bundle arguments = getIntent().getExtras();
+        arguments.putSerializable(Extras.EXTRA_TYPE, SessionTypeEnum.Team);
+        fragment = new TeamMessageFragment();
+        fragment.setArguments(arguments);
+        fragment.setContainerId(R.id.message_fragment_container);
+        return fragment;
+    }
 
-        return true;
+    @Override
+    protected int getContentViewId() {
+        return R.layout.nim_team_message_activity;
     }
 }

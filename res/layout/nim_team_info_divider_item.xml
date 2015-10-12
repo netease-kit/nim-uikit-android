@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:clickable="true"
+              android:onClick="onClick"
+              android:paddingLeft="15dp"
+              android:paddingRight="15dp"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:background="@drawable/nim_bottom_divider_match_parent_selector"
+              android:orientation="vertical">
+
+    <RelativeLayout
+        android:minHeight="50dp"
+        android:layout_gravity="center_vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/item_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:layout_centerVertical="true"
+            android:layout_alignParentLeft="true"
+            android:layout_marginRight="15dp"
+            android:textColor="@color/grey"
+            android:text="@string/empty"
+            android:singleLine="true"
+            android:textSize="@dimen/text_size_16"/>
+
+        <TextView
+            android:layout_toRightOf="@id/item_title"
+            android:id="@+id/item_detail"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="right|center_vertical"
+            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true"
+            android:textColor="@color/color_grey_999999"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:text="@string/empty"
+            android:textSize="@dimen/text_size_16"/>
+
+    </RelativeLayout>
+
+    <View
+        android:background="@color/color_split_line_d9d9d9"
+        android:layout_below="@+id/content_layout"
+        android:layout_width="match_parent"
+        android:layout_height="1px"
+        />
+
+</LinearLayout>

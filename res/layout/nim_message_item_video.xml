@@ -29,6 +29,6 @@
             android:src="@drawable/nim_play_btn_select" />
     </LinearLayout>
 
-    <include layout="@layout/message_item_thumb_progress_bar_text"/>
+    <include layout="@layout/nim_message_item_thumb_progress_bar_text"/>
 
 </FrameLayout>

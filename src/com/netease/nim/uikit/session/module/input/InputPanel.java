@@ -42,6 +42,7 @@ import com.netease.nimlib.sdk.media.record.RecordType;
 import com.netease.nimlib.sdk.msg.MessageBuilder;
 import com.netease.nimlib.sdk.msg.MsgService;
 import com.netease.nimlib.sdk.msg.attachment.MsgAttachment;
+import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.msg.model.CustomNotification;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
 
@@ -242,6 +243,10 @@ public class InputPanel implements IEmoticonSelectedListener, IAudioRecordCallba
             return;
         }
 
+        if (container.sessionType == SessionTypeEnum.Team) {
+            return;
+        }
+
         if (System.currentTimeMillis() - typingTime > 5000L) {
             typingTime = System.currentTimeMillis();
             CustomNotification command = new CustomNotification();
@@ -300,8 +305,9 @@ public class InputPanel implements IEmoticonSelectedListener, IAudioRecordCallba
     // 发送文本消息
     private void onTextMessageSendButtonPressed() {
         IMMessage textMessage = MessageBuilder.createTextMessage(container.account, container.sessionType, messageEditText.getText().toString());
-        container.proxy.sendMessage(textMessage);
-        restoreText(true);
+        if (container.proxy.sendMessage(textMessage)) {
+            restoreText(true);
+        }
     }
 
     // 切换成音频，收起键盘，按钮切换成键盘
@@ -381,7 +387,7 @@ public class InputPanel implements IEmoticonSelectedListener, IAudioRecordCallba
     // 初始化更多布局
     private void addActionPanelLayout() {
         if (actionPanelBottomLayout == null) {
-            View.inflate(container.activity, R.layout.message_activity_actions_layout, messageActivityBottomLayout);
+            View.inflate(container.activity, R.layout.nim_message_activity_actions_layout, messageActivityBottomLayout);
             actionPanelBottomLayout = view.findViewById(R.id.actionsLayout);
             actionPanelBottomLayoutHasSetup = false;
         }

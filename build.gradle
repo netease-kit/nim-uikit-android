@@ -11,7 +11,7 @@ android {
             resources.srcDirs = ['src']
             aidl.srcDirs = ['src']
             renderscript.srcDirs = ['src']
-            res.srcDirs = ['res']
+            res.srcDirs = ['res', 'res-ptr']
             assets.srcDirs = ['assets']
             jniLibs.srcDirs = ['libs', 'libs-sdk']
         }
@@ -22,4 +22,6 @@ dependencies {
     compile 'com.android.support:appcompat-v7:19.1.0'
     compile fileTree(dir: 'libs', include: '*.jar', exclude: ['android-support-*.jar'])
     compile fileTree(dir: 'libs-sdk', include: ['*.jar'])
+    //
+    
 }

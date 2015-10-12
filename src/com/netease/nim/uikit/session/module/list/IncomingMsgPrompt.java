@@ -64,7 +64,7 @@ public class IncomingMsgPrompt {
     // 初始化底部新信息提示条
     private void init() {
         ViewGroup containerView = (ViewGroup) view.findViewById(R.id.message_activity_list_view_container);
-        View.inflate(context, R.layout.new_message_tip_layout, containerView);
+        View.inflate(context, R.layout.nim_new_message_tip_layout, containerView);
         newMessageTipLayout = containerView.findViewById(R.id.new_message_tip_layout);
         newMessageTipLayout.setOnClickListener(new View.OnClickListener() {
 

@@ -46,7 +46,7 @@ public class PreviewImageFromCameraActivity extends TActionBarActivity {
 
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.preview_image_from_camera_activity);
+		setContentView(R.layout.nim_preview_image_from_camera_activity);
 		initActionBar();
 		getIntentData();
 		findViews();

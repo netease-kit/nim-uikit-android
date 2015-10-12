@@ -138,7 +138,7 @@ public class CaptureVideoActivity extends TActionBarActivity implements SurfaceH
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().setFormat(PixelFormat.TRANSLUCENT); // 使得窗口支持透明度
-        setContentView(R.layout.capture_video_activity);
+        setContentView(R.layout.nim_capture_video_activity);
         setTitle(R.string.video_record);
 
         parseIntent();

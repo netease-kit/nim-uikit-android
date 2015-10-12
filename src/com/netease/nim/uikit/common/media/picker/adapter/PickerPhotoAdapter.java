@@ -1,15 +1,5 @@
 package com.netease.nim.uikit.common.media.picker.adapter;
 
-import java.util.List;
-
-import com.netease.nim.uikit.R;
-import com.netease.nim.uikit.common.media.picker.fragment.PickerImageFragment.OnPhotoSelectClickListener;
-import com.netease.nim.uikit.common.media.picker.loader.PickerlImageLoadTool;
-import com.netease.nim.uikit.common.media.picker.loader.RotateImageViewAware;
-import com.netease.nim.uikit.common.media.picker.model.PhotoInfo;
-import com.netease.nim.uikit.common.media.picker.util.ThumbnailsUtil;
-import com.netease.nim.uikit.common.util.sys.ScreenUtil;
-
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,6 +11,16 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
+
+import com.netease.nim.uikit.R;
+import com.netease.nim.uikit.common.media.picker.fragment.PickerImageFragment.OnPhotoSelectClickListener;
+import com.netease.nim.uikit.common.media.picker.loader.PickerlImageLoadTool;
+import com.netease.nim.uikit.common.media.picker.loader.RotateImageViewAware;
+import com.netease.nim.uikit.common.media.picker.model.PhotoInfo;
+import com.netease.nim.uikit.common.media.picker.util.ThumbnailsUtil;
+import com.netease.nim.uikit.common.util.sys.ScreenUtil;
+
+import java.util.List;
 
 public class PickerPhotoAdapter extends BaseAdapter {
 
@@ -85,7 +85,7 @@ public class PickerPhotoAdapter extends BaseAdapter {
 		ViewHolder viewHolder;
 		if (convertView == null) {			
 			viewHolder = new ViewHolder();
-			convertView = mInflater.inflate(R.layout.picker_photo_grid_item, null);
+			convertView = mInflater.inflate(R.layout.nim_picker_photo_grid_item, null);
 			viewHolder.image = (ImageView) convertView.findViewById(R.id.picker_photo_grid_item_img);
 			viewHolder.select = (ImageView) convertView.findViewById(R.id.picker_photo_grid_item_select);
 			viewHolder.selectHotPot = (RelativeLayout) convertView.findViewById(R.id.picker_photo_grid_item_select_hotpot); 

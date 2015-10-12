@@ -1,8 +1,5 @@
 package com.netease.nim.uikit.common.ui.dialog;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import android.app.AlertDialog;
 import android.content.Context;
 import android.os.Bundle;
@@ -18,11 +15,14 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.common.adapter.TAdapter;
 import com.netease.nim.uikit.common.adapter.TAdapterDelegate;
 import com.netease.nim.uikit.common.adapter.TViewHolder;
-import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.common.util.sys.ScreenUtil;
+
+import java.util.LinkedList;
+import java.util.List;
 
 public class CustomAlertDialog extends AlertDialog {
 
@@ -114,7 +114,7 @@ public class CustomAlertDialog extends AlertDialog {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.easy_alert_dialog_with_listview);
+		setContentView(R.layout.nim_easy_alert_dialog_with_listview);
 		LinearLayout root = (LinearLayout) findViewById(R.id.easy_alert_dialog_layout);
 		ViewGroup.LayoutParams params = root.getLayoutParams();
 		params.width = (int) ScreenUtil.getDialogWidth();

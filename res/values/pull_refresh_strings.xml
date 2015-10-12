@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools"
+           tools:ignore="MissingTranslation">
+
+    <string name="pull_to_refresh_pull">下拉刷新</string>
+    <string name="pull_to_refresh_up">上拉刷新</string>
+    <string name="pull_to_refresh_release">松开刷新</string>
+    <string name="pull_to_refresh_refreshing">加载中&#8230;</string>
+    
+    <string name="pull_to_refresh_pull_label">@string/pull_to_refresh_pull</string>
+    <string name="pull_to_refresh_release_label">@string/pull_to_refresh_release</string>
+    <string name="pull_to_refresh_refreshing_label">@string/pull_to_refresh_refreshing</string>
+
+    <!-- Just use standard Pull Down String when pulling up. These can be set for languages which require it -->
+    <string name="pull_to_refresh_from_bottom_pull_label">@string/pull_to_refresh_up</string>
+    <string name="pull_to_refresh_from_bottom_release_label">@string/pull_to_refresh_release</string>
+    <string name="pull_to_refresh_from_bottom_refreshing_label">@string/pull_to_refresh_refreshing</string>
+
+</resources>

@@ -23,6 +23,7 @@ import com.netease.nim.uikit.common.util.media.BitmapDecoder;
 import com.netease.nim.uikit.common.util.sys.ClipboardUtil;
 import com.netease.nim.uikit.common.util.sys.ScreenUtil;
 import com.netease.nim.uikit.session.activity.VoiceTrans;
+import com.netease.nim.uikit.session.helper.LocalMessageTransfer;
 import com.netease.nim.uikit.session.module.Container;
 import com.netease.nim.uikit.session.viewholder.MsgViewHolderBase;
 import com.netease.nim.uikit.session.viewholder.MsgViewHolderFactory;
@@ -262,6 +263,8 @@ public class MessageListPanel implements TAdapterDelegate {
         } else {
             unregisterUserInfoObserver();
         }
+
+        LocalMessageTransfer.getInstance().registerObserver(incomingLocalMessageObserver, register);
     }
 
     /**
@@ -283,6 +286,20 @@ public class MessageListPanel implements TAdapterDelegate {
         @Override
         public void onEvent(AttachmentProgress progress) {
             onAttachmentProgressChange(progress);
+        }
+    };
+
+    /**
+     * 本地消息接收观察者
+     */
+    LocalMessageTransfer.LocalMessageObserver incomingLocalMessageObserver = new LocalMessageTransfer.LocalMessageObserver() {
+        @Override
+        public void onMessage(IMMessage message) {
+            if (message == null || !container.account.equals(message.getSessionId())) {
+                return;
+            }
+
+            onMsgSend(message);
         }
     };
 

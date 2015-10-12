@@ -76,12 +76,12 @@ public class EasyEditDialog extends Dialog {
 
 	public EasyEditDialog(Context context, int style) {
 		this(context, -1, style);
-		mResourceId = R.layout.easy_alert_dialog_with_edit_text;
+		mResourceId = R.layout.nim_easy_alert_dialog_with_edit_text;
 	}
 
 	public EasyEditDialog(Context context) {
 		this(context, R.style.sdk_share_dialog);
-		mResourceId = R.layout.easy_alert_dialog_with_edit_text;
+		mResourceId = R.layout.nim_easy_alert_dialog_with_edit_text;
 	}
 
 	public void setTitle(String title) {
