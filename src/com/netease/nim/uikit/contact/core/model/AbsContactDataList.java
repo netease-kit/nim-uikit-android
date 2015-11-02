@@ -54,9 +54,9 @@ public abstract class AbsContactDataList {
 
     public abstract int getCount();
 
-    public abstract AbsContactItem getItem(int index);
-
     public abstract boolean isEmpty();
+
+    public abstract AbsContactItem getItem(int index);
 
     public abstract List<AbsContactItem> getItems();
 

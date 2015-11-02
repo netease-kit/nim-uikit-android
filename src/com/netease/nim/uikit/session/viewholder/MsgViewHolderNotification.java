@@ -6,7 +6,7 @@ import android.widget.TextView;
 
 import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.session.emoji.MoonUtil;
-import com.netease.nim.uikit.session.helper.SystemMessageDescBuilder;
+import com.netease.nim.uikit.session.helper.TeamNotificationHelper;
 
 public class MsgViewHolderNotification extends MsgViewHolderBase {
 
@@ -28,7 +28,7 @@ public class MsgViewHolderNotification extends MsgViewHolderBase {
     }
 
     protected String getDisplayText() {
-        return SystemMessageDescBuilder.getTeamNotificationText(message, message.getSessionId());
+        return TeamNotificationHelper.getTeamNotificationText(message, message.getSessionId());
     }
 
     private void handleTextNotification(String text) {

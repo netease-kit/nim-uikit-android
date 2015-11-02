@@ -1,5 +1,6 @@
 package com.netease.nim.uikit.session.activity;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -12,7 +13,7 @@ import com.netease.nim.uikit.session.SessionCustomization;
 import com.netease.nim.uikit.session.constant.Extras;
 import com.netease.nim.uikit.session.fragment.MessageFragment;
 import com.netease.nim.uikit.session.fragment.TeamMessageFragment;
-import com.netease.nim.uikit.team.TeamDataCache;
+import com.netease.nim.uikit.cache.TeamDataCache;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.RequestCallback;
 import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
@@ -38,10 +39,13 @@ public class TeamMessageActivity extends BaseMessageActivity {
 
     private TeamMessageFragment fragment;
 
-    public static void start(Context context, String tid, SessionCustomization customization) {
+    private Class<? extends Activity> backToClass;
+
+    public static void start(Context context, String tid, SessionCustomization customization, Class<? extends Activity> backToClass) {
         Intent intent = new Intent();
         intent.putExtra(Extras.EXTRA_ACCOUNT, tid);
         intent.putExtra(Extras.EXTRA_CUSTOMIZATION, customization);
+        intent.putExtra(Extras.EXTRA_BACK_TO_CLASS, backToClass);
         intent.setClass(context, TeamMessageActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
@@ -56,6 +60,7 @@ public class TeamMessageActivity extends BaseMessageActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        backToClass = (Class<? extends Activity>) getIntent().getSerializableExtra(Extras.EXTRA_BACK_TO_CLASS);
         findViews();
 
         registerTeamUpdateObserver(true);
@@ -199,5 +204,17 @@ public class TeamMessageActivity extends BaseMessageActivity {
     @Override
     protected int getContentViewId() {
         return R.layout.nim_team_message_activity;
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        if (backToClass != null) {
+            Intent intent = new Intent();
+            intent.setClass(this, backToClass);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(intent);
+            finish();
+        }
     }
 }

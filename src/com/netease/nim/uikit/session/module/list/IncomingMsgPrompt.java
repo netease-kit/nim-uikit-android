@@ -13,7 +13,7 @@ import com.netease.nim.uikit.common.ui.imageview.HeadImageView;
 import com.netease.nim.uikit.common.ui.listview.ListViewUtil;
 import com.netease.nim.uikit.common.ui.listview.MessageListView;
 import com.netease.nim.uikit.session.emoji.MoonUtil;
-import com.netease.nim.uikit.session.helper.SystemMessageDescBuilder;
+import com.netease.nim.uikit.session.helper.TeamNotificationHelper;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
 
 /**
@@ -50,7 +50,7 @@ public class IncomingMsgPrompt {
             newMessageTipHeadImageView.resetImageView();
         }
 
-        MoonUtil.identifyFaceExpression(context, newMessageTipTextView, SystemMessageDescBuilder.getMsgShowText(newMessage),
+        MoonUtil.identifyFaceExpression(context, newMessageTipTextView, TeamNotificationHelper.getMsgShowText(newMessage),
                 ImageSpan.ALIGN_BOTTOM);
         newMessageTipLayout.setVisibility(View.VISIBLE);
         uiHandler.removeCallbacks(showNewMessageTipLayoutRunnable);

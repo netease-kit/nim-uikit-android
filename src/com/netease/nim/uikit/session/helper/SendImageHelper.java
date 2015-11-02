@@ -1,25 +1,26 @@
 package com.netease.nim.uikit.session.helper;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.text.TextUtils;
 import android.widget.Toast;
 
 import com.netease.nim.uikit.R;
-import com.netease.nim.uikit.common.util.file.FileUtil;
-import com.netease.nim.uikit.common.util.media.ImageUtil;
-import com.netease.nim.uikit.common.util.file.AttachmentStore;
-import com.netease.nim.uikit.common.util.storage.StorageType;
-import com.netease.nim.uikit.common.util.storage.StorageUtil;
-import com.netease.nim.uikit.session.constant.Extras;
 import com.netease.nim.uikit.common.media.picker.model.PhotoInfo;
 import com.netease.nim.uikit.common.media.picker.model.PickerContract;
+import com.netease.nim.uikit.common.util.file.AttachmentStore;
+import com.netease.nim.uikit.common.util.file.FileUtil;
+import com.netease.nim.uikit.common.util.media.ImageUtil;
+import com.netease.nim.uikit.common.util.storage.StorageType;
+import com.netease.nim.uikit.common.util.storage.StorageUtil;
 import com.netease.nim.uikit.common.util.string.MD5;
+import com.netease.nim.uikit.session.constant.Extras;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 public class SendImageHelper {
 	public interface Callback {
@@ -129,6 +130,12 @@ public class SendImageHelper {
 				String mimeType = FileUtil.getExtensionName(photoPath);
 				imageFile = ImageUtil.getScaledImageFileWithMD5(imageFile, mimeType);
 				if (imageFile == null) {
+					new Handler(context.getMainLooper()).post(new Runnable() {
+						@Override
+						public void run() {
+							Toast.makeText(context, R.string.picker_image_error, Toast.LENGTH_LONG).show();
+						}
+					});
 					return null;
 				} else {
 					ImageUtil.makeThumbnail(context, imageFile);

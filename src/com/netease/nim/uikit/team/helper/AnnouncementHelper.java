@@ -6,7 +6,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.netease.nim.uikit.NimUIKit;
-import com.netease.nim.uikit.team.TeamDataCache;
+import com.netease.nim.uikit.cache.TeamDataCache;
 import com.netease.nim.uikit.team.model.Announcement;
 
 import java.util.ArrayList;

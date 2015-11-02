@@ -11,9 +11,6 @@ import com.netease.nim.uikit.common.ui.imageview.HeadImageView;
 import com.netease.nim.uikit.contact.core.item.ContactItem;
 import com.netease.nim.uikit.contact.core.model.ContactDataAdapter;
 import com.netease.nim.uikit.contact.core.model.IContact;
-import com.netease.nim.uikit.contact.core.provider.ContactSearch;
-import com.netease.nim.uikit.contact.core.provider.ContactSearch.HitInfo;
-import com.netease.nim.uikit.contact.core.query.TextQuery;
 
 public class ContactHolder extends AbsContactViewHolder<ContactItem> {
 
@@ -27,23 +24,14 @@ public class ContactHolder extends AbsContactViewHolder<ContactItem> {
 
     @Override
     public void refresh(ContactDataAdapter adapter, int position, final ContactItem item) {
+        // contact info
         final IContact contact = item.getContact();
-
-        TextQuery query = adapter.getQuery();
-        HitInfo hitInfo = query != null ? ContactSearch.hitInfo(contact, query) : null;
         if (contact.getContactType() == IContact.Type.Friend) {
             head.loadBuddyAvatar(contact.getContactId());
         } else {
             head.setImageBitmap(NimUIKit.getUserInfoProvider().getTeamIcon(contact.getContactId()));
         }
-
         name.setText(contact.getDisplayName());
-
-        if (hitInfo != null && !hitInfo.text.equals(contact.getDisplayName())) {
-            desc.setVisibility(View.VISIBLE);
-        } else {
-            desc.setVisibility(View.GONE);
-        }
         headLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -54,6 +42,18 @@ public class ContactHolder extends AbsContactViewHolder<ContactItem> {
                 }
             }
         });
+
+        // query result
+        desc.setVisibility(View.GONE);
+        /*
+        TextQuery query = adapter.getQuery();
+        HitInfo hitInfo = query != null ? ContactSearch.hitInfo(contact, query) : null;
+        if (hitInfo != null && !hitInfo.text.equals(contact.getDisplayName())) {
+            desc.setVisibility(View.VISIBLE);
+        } else {
+            desc.setVisibility(View.GONE);
+        }
+        */
     }
 
     @Override

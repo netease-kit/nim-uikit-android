@@ -1,7 +1,7 @@
 package com.netease.nim.uikit.contact.core.provider;
 
 import com.netease.nim.uikit.contact.core.model.TeamMemberContact;
-import com.netease.nim.uikit.team.TeamDataCache;
+import com.netease.nim.uikit.cache.TeamDataCache;
 import com.netease.nim.uikit.contact.core.item.AbsContactItem;
 import com.netease.nim.uikit.contact.core.item.ContactItem;
 import com.netease.nim.uikit.contact.core.item.ItemTypes;

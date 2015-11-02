@@ -74,11 +74,13 @@ public class MessageFragment extends TFragment implements ModuleProxy {
         NIMClient.getService(MsgService.class).setChattingAccount(MsgService.MSG_CHATTING_ACCOUNT_NONE,
                 SessionTypeEnum.None);
         inputPanel.onPause();
+        messageListPanel.onPause();
     }
 
     @Override
     public void onResume() {
         super.onResume();
+        messageListPanel.onResume();
         NIMClient.getService(MsgService.class).setChattingAccount(sessionId, sessionType);
         getActivity().setVolumeControlStream(AudioManager.STREAM_VOICE_CALL); // 默认使用听筒播放
     }

@@ -58,7 +58,7 @@ public class TeamHelper {
      */
     public static ContactSelectActivity.Option getCreateContactSelectOption(ArrayList<String> memberAccounts, int teamCapacity) {
         // 限制群成员数量在群容量范围内
-        int capacity = teamCapacity - memberAccounts.size();
+        int capacity = teamCapacity - (memberAccounts == null ? 0 : memberAccounts.size());
         ContactSelectActivity.Option option = TeamHelper.getContactSelectOption(memberAccounts);
         option.maxSelectNum = capacity;
         option.maxSelectedTip = NimUIKit.getContext().getString(R.string.reach_team_member_capacity, teamCapacity);
@@ -76,9 +76,11 @@ public class TeamHelper {
     public static ContactSelectActivity.Option getContactSelectOption(List<String> memberAccounts) {
         ContactSelectActivity.Option option = new ContactSelectActivity.Option();
         option.title = NimUIKit.getContext().getString(R.string.invite_member);
-        ArrayList<String> disableUids = new ArrayList<>();
-        disableUids.addAll(memberAccounts);
-        option.itemDisableFilter = new ContactIdFilter(disableUids);
+        if (memberAccounts != null) {
+            ArrayList<String> disableAccounts = new ArrayList<>();
+            disableAccounts.addAll(memberAccounts);
+            option.itemDisableFilter = new ContactIdFilter(disableAccounts);
+        }
         return option;
     }
 

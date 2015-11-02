@@ -13,7 +13,7 @@ import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.common.activity.TActionBarActivity;
 import com.netease.nim.uikit.common.adapter.TAdapterDelegate;
 import com.netease.nim.uikit.common.adapter.TViewHolder;
-import com.netease.nim.uikit.team.TeamDataCache;
+import com.netease.nim.uikit.cache.TeamDataCache;
 import com.netease.nim.uikit.team.adapter.TeamMemberAdapter;
 import com.netease.nim.uikit.team.adapter.TeamMemberAdapter.TeamMemberItem;
 import com.netease.nim.uikit.team.helper.TeamHelper;
@@ -299,8 +299,8 @@ public class AdvancedTeamMemberActivity extends TActionBarActivity implements TA
     }
 
     @Override
-    public void onHeadImageViewClick(String uid) {
-        AdvancedTeamMemberInfoActivity.startActivityForResult(AdvancedTeamMemberActivity.this, uid, teamId);
+    public void onHeadImageViewClick(String account) {
+        AdvancedTeamMemberInfoActivity.startActivityForResult(AdvancedTeamMemberActivity.this, account, teamId);
     }
 
     @Override
@@ -311,10 +311,10 @@ public class AdvancedTeamMemberActivity extends TActionBarActivity implements TA
                 case AdvancedTeamMemberInfoActivity.REQ_CODE_REMOVE_MEMBER:
                     boolean isSetAdmin = data.getBooleanExtra(AdvancedTeamMemberInfoActivity.EXTRA_ISADMIN, false);
                     boolean isRemoveMember = data.getBooleanExtra(AdvancedTeamMemberInfoActivity.EXTRA_ISREMOVE, false);
-                    String uid = data.getStringExtra(EXTRA_ID);
-                    refreshAdmin(isSetAdmin, uid);
+                    String account = data.getStringExtra(EXTRA_ID);
+                    refreshAdmin(isSetAdmin, account);
                     if (isRemoveMember) {
-                        removeMember(uid);
+                        removeMember(account);
                     }
                     break;
                 default:
@@ -326,12 +326,12 @@ public class AdvancedTeamMemberActivity extends TActionBarActivity implements TA
     /**
      * 移除群成员成功后，删除列表中的群成员
      */
-    private void removeMember(String uid) {
-        if (TextUtils.isEmpty(uid)) {
+    private void removeMember(String account) {
+        if (TextUtils.isEmpty(account)) {
             return;
         }
         for (TeamMemberItem item : dataSource) {
-            if (item.getAccount() != null && item.getAccount().equals(uid)) {
+            if (item.getAccount() != null && item.getAccount().equals(account)) {
                 dataSource.remove(item);
                 isMemberChange = true;
                 break;
@@ -344,19 +344,19 @@ public class AdvancedTeamMemberActivity extends TActionBarActivity implements TA
      * 是否设置了管理员刷新界面
      *
      * @param isSetAdmin 是否设置为管理员
-     * @param uid        帐号
+     * @param account        帐号
      */
-    private void refreshAdmin(boolean isSetAdmin, String uid) {
+    private void refreshAdmin(boolean isSetAdmin, String account) {
         if (isSetAdmin) {
-            if (managerList.contains(uid)) {
+            if (managerList.contains(account)) {
                 return;
             }
-            managerList.add(uid);
+            managerList.add(account);
             isMemberChange = true;
             updateTeamMemberDataSource();
         } else {
-            if (managerList.contains(uid)) {
-                managerList.remove(uid);
+            if (managerList.contains(account)) {
+                managerList.remove(account);
                 isMemberChange = true;
                 updateTeamMemberDataSource();
             }

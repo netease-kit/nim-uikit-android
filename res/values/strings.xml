@@ -82,6 +82,9 @@
     <string name="video_record_short">录制视频太短</string>
     <string name="download_progress_description">%1$s（%2$s/%3$s）</string>
 
+    <!-- 联系人选择器 -->
+    <string name="contact_selector">联系人选择器</string>
+
     <!-- team -->
     <string name="team_need_authentication">需要身份验证</string>
     <string name="team_allow_anyone_join">允许任何人加入</string>

@@ -22,7 +22,7 @@ import com.netease.nim.uikit.recent.viewholder.CommonRecentViewHolder;
 import com.netease.nim.uikit.recent.viewholder.RecentContactAdapter;
 import com.netease.nim.uikit.recent.viewholder.RecentViewHolder;
 import com.netease.nim.uikit.recent.viewholder.TeamRecentViewHolder;
-import com.netease.nim.uikit.team.TeamDataCache;
+import com.netease.nim.uikit.cache.TeamDataCache;
 import com.netease.nim.uikit.uinfo.UserInfoHelper;
 import com.netease.nim.uikit.uinfo.UserInfoObservable;
 import com.netease.nimlib.sdk.NIMClient;
@@ -51,8 +51,6 @@ import static com.netease.nim.uikit.common.ui.dialog.CustomAlertDialog.onSeparat
  */
 public class RecentContactsFragment extends TFragment implements TAdapterDelegate {
 
-    private final String TAG = "RecentContactsFragment";
-
     // 置顶功能可直接使用，也可作为思路，供开发者充分利用RecentContact的tag字段
     public static final long RECENT_TAG_STICKY = 1; // 联系人置顶tag
 
@@ -72,7 +70,7 @@ public class RecentContactsFragment extends TFragment implements TAdapterDelegat
 
     private RecentContactsCallback callback;
 
-    private UserInfoObservable.UserInfoObserver uinfoObserver;
+    private UserInfoObservable.UserInfoObserver userInfoObserver;
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -109,7 +107,7 @@ public class RecentContactsFragment extends TFragment implements TAdapterDelegat
         return true;
     }
 
-    public void notifyDataSetChanged() {
+    private void notifyDataSetChanged() {
         adapter.notifyDataSetChanged();
         boolean empty = items.isEmpty() && msgLoaded;
         emptyBg.setVisibility(empty ? View.VISIBLE : View.GONE);
@@ -278,14 +276,21 @@ public class RecentContactsFragment extends TFragment implements TAdapterDelegat
 
     private void refreshMessages(boolean unreadChanged) {
         sortRecentContacts(items);
-        deleteEmptyMessage(items);
         notifyDataSetChanged();
 
         if (unreadChanged) {
+
+            // 方式一：累加每个最近联系人的未读
+            /*
             int unreadNum = 0;
             for (RecentContact r : items) {
                 unreadNum += r.getUnreadCount();
             }
+            */
+
+            // 方式二：
+            int unreadNum = NIMClient.getService(MsgService.class).getTotalUnreadCount();
+
             if (callback != null) {
                 callback.onUnreadCountChange(unreadNum);
             }
@@ -472,8 +477,8 @@ public class RecentContactsFragment extends TFragment implements TAdapterDelegat
     }
 
     private void registerUserInfoObserver() {
-        if (uinfoObserver == null) {
-            uinfoObserver = new UserInfoObservable.UserInfoObserver() {
+        if (userInfoObserver == null) {
+            userInfoObserver = new UserInfoObservable.UserInfoObserver() {
                 @Override
                 public void onUserInfoChanged(List<String> accounts) {
                     refreshMessages(false);
@@ -481,12 +486,12 @@ public class RecentContactsFragment extends TFragment implements TAdapterDelegat
             };
         }
 
-        UserInfoHelper.registerObserver(uinfoObserver);
+        UserInfoHelper.registerObserver(userInfoObserver);
     }
 
     private void unregisterUserInfoObserver() {
-        if (uinfoObserver != null) {
-            UserInfoHelper.unregisterObserver(uinfoObserver);
+        if (userInfoObserver != null) {
+            UserInfoHelper.unregisterObserver(userInfoObserver);
         }
     }
 }

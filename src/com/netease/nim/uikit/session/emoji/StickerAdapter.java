@@ -9,6 +9,7 @@ import android.widget.TextView;
 
 import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.common.util.sys.ScreenUtil;
+import com.nostra13.universalimageloader.core.ImageLoader;
 
 /**
  * 每屏显示的贴图
@@ -64,8 +65,8 @@ public class StickerAdapter extends BaseAdapter {
             return convertView;
         }
 
-        viewHolder.imageView.setImageBitmap(StickerManager.getInstance().getStickerBitmap(context, sticker.getCategory(),
-                sticker.getName(), ScreenUtil.dip2px(64)));
+        ImageLoader.getInstance().displayImage(StickerManager.getInstance().getStickerBitmapUri(sticker.getCategory()
+                , sticker.getName()), viewHolder.imageView, StickerManager.getInstance().getStickerImageOptions(ScreenUtil.dip2px(64)));
 
         viewHolder.descLabel.setVisibility(View.GONE);
 

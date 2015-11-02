@@ -1,23 +1,26 @@
 package com.netease.nim.uikit;
 
+import android.app.Activity;
 import android.content.Context;
+import android.text.TextUtils;
 import android.util.Log;
 
+import com.netease.nim.uikit.cache.DataCacheManager;
 import com.netease.nim.uikit.common.util.log.LogUtil;
 import com.netease.nim.uikit.common.util.storage.StorageType;
 import com.netease.nim.uikit.common.util.storage.StorageUtil;
 import com.netease.nim.uikit.common.util.sys.ScreenUtil;
 import com.netease.nim.uikit.contact.ContactEventListener;
 import com.netease.nim.uikit.contact.ContactProvider;
-import com.netease.nim.uikit.contact.FriendDataCache;
 import com.netease.nim.uikit.contact_selector.activity.ContactSelectActivity;
 import com.netease.nim.uikit.session.SessionCustomization;
 import com.netease.nim.uikit.session.SessionEventListener;
 import com.netease.nim.uikit.session.activity.P2PMessageActivity;
 import com.netease.nim.uikit.session.activity.TeamMessageActivity;
+import com.netease.nim.uikit.session.emoji.StickerManager;
 import com.netease.nim.uikit.session.viewholder.MsgViewHolderBase;
 import com.netease.nim.uikit.session.viewholder.MsgViewHolderFactory;
-import com.netease.nim.uikit.team.TeamDataCache;
+import com.netease.nim.uikit.cache.TeamDataCache;
 import com.netease.nim.uikit.team.activity.AdvancedTeamInfoActivity;
 import com.netease.nim.uikit.team.activity.NormalTeamInfoActivity;
 import com.netease.nim.uikit.uinfo.UserInfoHelper;
@@ -69,33 +72,30 @@ public final class NimUIKit {
         NimUIKit.context = context.getApplicationContext();
         NimUIKit.userInfoProvider = userInfoProvider;
         NimUIKit.contactProvider = contactProvider;
-        NimUIKit.imageLoaderKit = new ImageLoaderKit(context);
-        NimUIKit.imageLoaderKit.init(null);
+        NimUIKit.imageLoaderKit = new ImageLoaderKit(context, null);
 
-        FriendDataCache.getInstance().registerObservers(true);
-        TeamDataCache.getInstance().registerObservers(true);
+        // init data cache
+        LoginSyncDataStatusObserver.getInstance().registerLoginSyncDataStatus(true);  // 监听登录同步数据完成通知
+        DataCacheManager.observeSDKDataChanged(true);
+        if (!TextUtils.isEmpty(getAccount())) {
+            DataCacheManager.buildDataCache(); // build data cache on auto login
+        }
 
+        // init tools
         StorageUtil.init(context, null);
+        ScreenUtil.init(context);
+        StickerManager.getInstance().init();
+
+        // init log
         String path = StorageUtil.getDirectoryByDirType(StorageType.TYPE_LOG);
         LogUtil.init(path, Log.DEBUG);
-        ScreenUtil.init(context);
-    }
-
-    /**
-     * 构建缓存，一般在登录成功后调用
-     */
-    public static void buildCache() {
-        TeamDataCache.getInstance().buildCache();
-        FriendDataCache.getInstance().buildCache();
     }
 
     /**
      * 释放缓存，一般在注销时调用
      */
     public static void clearCache() {
-        TeamDataCache.getInstance().clear();
-        FriendDataCache.getInstance().clear();
-        NimUIKit.imageLoaderKit.clear();
+        DataCacheManager.clearDataCache();
     }
 
     /**
@@ -110,7 +110,23 @@ public final class NimUIKit {
         if (sessionType == SessionTypeEnum.P2P) {
             P2PMessageActivity.start(context, id, customization);
         } else if (sessionType == SessionTypeEnum.Team) {
-            TeamMessageActivity.start(context, id, customization);
+            TeamMessageActivity.start(context, id, customization, null);
+        }
+    }
+
+    /**
+     * 打开一个聊天窗口（用于从聊天信息中创建群聊时，打开群聊）
+     *
+     * @param context       上下文
+     * @param id            聊天对象ID（用户帐号account或者群组ID）
+     * @param sessionType   会话类型
+     * @param customization 定制化信息。针对不同的聊天对象，可提供不同的定制化。
+     * @param backToClass   返回的指定页面
+     */
+    public static void startChatting(Context context, String id, SessionTypeEnum sessionType, SessionCustomization customization,
+                                     Class<? extends Activity> backToClass) {
+        if (sessionType == SessionTypeEnum.Team) {
+            TeamMessageActivity.start(context, id, customization, backToClass);
         }
     }
 
@@ -139,7 +155,7 @@ public final class NimUIKit {
         if (team.getType() == TeamTypeEnum.Advanced) {
             AdvancedTeamInfoActivity.start(context, teamId); // 启动固定群组资料页
         } else if (team.getType() == TeamTypeEnum.Normal) {
-            NormalTeamInfoActivity.startForTeamInfo(context, teamId); // 启动普通群组资料页
+            NormalTeamInfoActivity.start(context, teamId); // 启动普通群组资料页
         }
 
     }
@@ -162,6 +178,10 @@ public final class NimUIKit {
 
     public static LocationProvider getLocationProvider() {
         return locationProvider;
+    }
+
+    public static ImageLoaderKit getImageLoaderKit() {
+        return imageLoaderKit;
     }
 
     public static void setLocationProvider(LocationProvider locationProvider) {

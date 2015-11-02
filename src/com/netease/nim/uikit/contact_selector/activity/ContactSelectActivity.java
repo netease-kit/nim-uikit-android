@@ -18,6 +18,7 @@ import android.widget.Button;
 import android.widget.GridView;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -26,8 +27,6 @@ import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.common.activity.TActionBarActivity;
 import com.netease.nim.uikit.common.ui.liv.LetterIndexView;
 import com.netease.nim.uikit.common.ui.liv.LivIndex;
-import com.netease.nim.uikit.common.ui.ptr.PullToRefreshBase;
-import com.netease.nim.uikit.common.ui.ptr.PullToRefreshListView;
 import com.netease.nim.uikit.contact.core.item.AbsContactItem;
 import com.netease.nim.uikit.contact.core.item.ContactItem;
 import com.netease.nim.uikit.contact.core.item.ContactItemFilter;
@@ -66,7 +65,7 @@ public class ContactSelectActivity extends TActionBarActivity implements View.On
 
     // view
 
-    private PullToRefreshListView listView;
+    private ListView listView;
 
     private LivIndex livIndex;
 
@@ -320,9 +319,8 @@ public class ContactSelectActivity extends TActionBarActivity implements View.On
     }
 
     private void initListView() {
-        listView = (PullToRefreshListView) findViewById(R.id.contact_list_view);
+        listView = findView(R.id.contact_list_view);
         listView.setAdapter(contactAdapter);
-        listView.setMode(PullToRefreshBase.Mode.DISABLED);
         listView.setOnScrollListener(new AbsListView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(AbsListView view, int scrollState) {
@@ -337,7 +335,7 @@ public class ContactSelectActivity extends TActionBarActivity implements View.On
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                position = position - listView.getRefreshableView().getHeaderViewsCount();
+                position = position - listView.getHeaderViewsCount();
                 AbsContactItem item = (AbsContactItem) contactAdapter.getItem(position);
 
                 if (item == null) {

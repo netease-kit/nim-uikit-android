@@ -3,16 +3,13 @@
 云信 UI 组件提供了构建IM功能所需的基本功能模块：聊天窗口、最近联系人列表、通讯录列表、联系人选择器、群名片。其他功能有：照片选择、查看大图、视频采集与播放。
 UI组件工程提供了较为简洁的接口，开发者可基于组件快速的实现聊天界面和最近联系人功能，并实现基础的一些定制化开发。云信的 UI 组件完全开源，如果开发者希望修改界面，只需要通过替换界面资源，修改layout 等方式即可实现。如果开发者希望更深层次的自定义，也可自行修改代码。
 
-## 初始化 UI 组件
+## <span id="初始化 UI 组件"> 初始化 UI 组件 </span>
 
-首先将官网的 UIKit 解压后作为库工程导入项目中，
-在 Android Studio 将 UIKit 作为 Module 导入到 Project 中，并修改 build.gradle 文件中的 buildToolsVer 为自己的版本号，如"21.1.1"，并在你 APP 的 build.gradle 的 dependencies下加入：
-```
-dependencies {
-    ...
-    compile project(path: ':uikit')
-}
-```
+导入UIKit
+
+- [Eclipse导入UIKit](http://note.youdao.com/share/?id=a8e904df99e1a114c5b565568a19906d&type=note  "target=_blank")
+- [Android Studio导入UIKit](http://note.youdao.com/share/?id=66d12a2aa10b37928b869feaef54ec3e&type=note  "target=_blank")
+
 并在 Application 中初始化：
 
 ```
@@ -51,159 +48,23 @@ public class NimApplication extends Application {
     }
 ```
 
-需要在 AndroidManifest.xml 中导入下面 Activity 声明，这些 Activity 使用的 theme 可在 demo 源码包中values/styles.xml 中找到。
+UIKit 中用到的 Activity 已经在 uikit 工程的 AndroidManifest.xml 文件中注册好，上层 APP 的AndroidManifest 文件无需再去添加注册。除观看视频的 WatchVideoActivity 需要用到黑色主题，因此单独写了 style 外，其他 Activity 均使用项目默认主题。
 
-```
-    <!-- 聊天窗口 -->
-    <!-- UI组件中包含了语音选文字功能，该界面是全屏显示，为了视觉上的美观，该界面主题ActionBar使用Overlay模式。
-         如果开发者不需要该功能或效果，使用普通主题即可。 同时，还需要将message_activity.xml这个layout中的根节点的paddingTop去掉。 -->
-    <activity
-        android:name="com.netease.nim.uikit.session.activity.P2PMessageActivity"
-        android:configChanges="keyboardHidden|orientation"
-        android:screenOrientation="portrait"
-        android:theme="@style/OverlayBaseActionBarTheme"
-        android:windowSoftInputMode="stateHidden|adjustResize"/>
+同只使用 nimlib SDK 一样，需要参考接入云信 SDK 指南文档，在 AndroidManifest 文件中声明云信 SDK 所用到的 service 和 BroadcastReceiver 组件。
 
-    <activity
-        android:name="com.netease.nim.uikit.session.activity.TeamMessageActivity"
-        android:configChanges="keyboardHidden|orientation"
-        android:screenOrientation="portrait"
-        android:theme="@style/OverlayBaseActionBarTheme"
-        android:windowSoftInputMode="stateHidden|adjustResize"/>
-
-    <!-- 联系人选择器 -->
-    <activity
-        android:name="com.netease.nim.uikit.contact_selector.activity.ContactSelectActivity"
-        android:configChanges="keyboardHidden|orientation"
-        android:label="@string/contact_selector"
-        android:screenOrientation="portrait"
-        android:windowSoftInputMode="stateHidden|adjustPan"/>
-
-    <!-- 群名片 -->
-    <activity
-        android:name="com.netease.nim.uikit.team.activity.NormalTeamInfoActivity"
-        android:configChanges="keyboardHidden|orientation"
-        android:screenOrientation="portrait"
-        android:windowSoftInputMode="stateHidden|adjustResize"/>
-
-    <activity
-        android:name="com.netease.nim.uikit.team.activity.AdvancedTeamInfoActivity"
-        android:configChanges="keyboardHidden|orientation"
-        android:screenOrientation="portrait"
-        android:windowSoftInputMode="stateHidden|adjustResize"/>
-
-    <activity
-        android:name="com.netease.nim.uikit.team.activity.AdvancedTeamMemberActivity"
-        android:configChanges="keyboardHidden|orientation"
-        android:screenOrientation="portrait"
-        android:windowSoftInputMode="stateHidden|adjustResize"/>
-
-    <activity
-        android:name="com.netease.nim.uikit.team.activity.AdvancedTeamAnnounceActivity"
-        android:configChanges="keyboardHidden|orientation"
-        android:screenOrientation="portrait"
-        android:windowSoftInputMode="stateHidden|adjustResize"/>
-
-    <activity
-        android:name="com.netease.nim.uikit.team.activity.AdvancedTeamMemberInfoActivity"
-        android:configChanges="keyboardHidden|orientation"
-        android:screenOrientation="portrait"
-        android:windowSoftInputMode="stateHidden|adjustResize"/>
-
-    <activity
-        android:name=".team.AdvancedTeamSearchActivity"
-        android:configChanges="keyboardHidden|orientation"
-        android:screenOrientation="portrait"
-        android:windowSoftInputMode="stateHidden|adjustResize"/>
-
-    <activity
-        android:name="com.netease.nim.uikit.team.activity.AdvancedTeamNicknameActivity"
-        android:configChanges="keyboardHidden|orientation"
-        android:screenOrientation="portrait"
-        android:windowSoftInputMode="stateHidden|adjustResize"/>
-
-    <activity
-        android:name=".team.AdvancedTeamJoinActivity"
-        android:configChanges="keyboardHidden|orientation"
-        android:screenOrientation="portrait"
-        android:windowSoftInputMode="stateHidden|adjustResize"/>
-
-    <activity
-        android:name="com.netease.nim.uikit.team.activity.AdvancedTeamCreateActivity"
-        android:configChanges="keyboardHidden|orientation"
-        android:screenOrientation="portrait"
-        android:windowSoftInputMode="stateHidden|adjustResize"/>
-
-    <activity
-        android:name="com.netease.nim.uikit.team.activity.AdvancedTeamCreateAnnounceActivity"
-        android:configChanges="keyboardHidden|orientation"
-        android:screenOrientation="portrait"
-        android:windowSoftInputMode="stateHidden|adjustResize"/>
-
-    <activity
-        android:name="com.netease.nim.uikit.team.activity.TeamPropertySettingActivity"
-        android:configChanges="keyboardHidden|orientation"
-        android:screenOrientation="portrait"
-        android:windowSoftInputMode="stateHidden|adjustResize"/>
-
-    <!-- 照片选择 -->
-    <activity
-        android:name="com.netease.nim.uikit.common.media.picker.activity.PickImageActivity"
-        android:screenOrientation="portrait"/>
-
-    <activity
-        android:name="com.netease.nim.uikit.common.media.picker.activity.PickerAlbumActivity"
-        android:screenOrientation="portrait"/>
-
-    <activity
-        android:name="com.netease.nim.uikit.common.media.picker.activity.PickerAlbumPreviewActivity"
-        android:screenOrientation="portrait"/>
-
-    <activity
-        android:name="com.netease.nim.uikit.common.media.picker.activity.PreviewImageFromLocalActivity"
-        android:configChanges="keyboardHidden|orientation"
-        android:screenOrientation="portrait"
-        android:windowSoftInputMode="stateHidden|adjustResize"/>
-
-    <activity
-        android:name="com.netease.nim.uikit.common.media.picker.activity.PreviewImageFromCameraActivity"
-        android:configChanges="keyboardHidden|orientation"
-        android:label="@string/input_panel_take"
-        android:screenOrientation="portrait"
-        android:windowSoftInputMode="stateHidden|adjustResize"/>
-
-    <!-- 视频 -->
-    <activity
-        android:name="com.netease.nim.uikit.session.activity.CaptureVideoActivity"
-        android:configChanges="keyboardHidden|orientation"
-        android:screenOrientation="portrait"
-        android:windowSoftInputMode="stateHidden|adjustResize"/>
-
-    <activity
-        android:name="com.netease.nim.uikit.session.activity.WatchVideoActivity"
-        android:configChanges="keyboardHidden|orientation|screenSize"
-        android:theme="@style/DarkOverlayActionBarTheme"
-        android:label="@string/video_play"/>
-
-    <!-- 查看大图 -->
-    <activity
-        android:name="com.netease.nim.uikit.session.activity.WatchMessagePictureActivity"
-        android:configChanges="keyboardHidden"/>
-```
 
 `NimUIKit` 是 UIKit 的接口，提供了 UI 组件的所有能力，上述初始化代码中的注册、设置等函数中均在 `NimUIKit` 中，下文将逐一介绍。
 
-### 设置用户资料提供者
+### <span id="设置用户资料提供者"> 设置用户资料提供者</span>
 
 网易云信不托管用户资料数据，用户资料由第三方 APP 服务器自行管理，当 UI 组件显示需要用到用户资料（`UserInfo`）时，会通过 `UserInfoProvider` 来获取，开发者在初始化 UIKit 时必须设置用户资料提供者，需要实现：
 
-- 根据用户帐号返回用户资料，一般APP的设计会先从本地缓存中获取，当本地缓存中没有时，则需要异步请求远程服务器，
-当数据返回时需要通知UIKit刷新界面（重新载入用户资料数据），接口为NimUIKit.notifyUserInfoChanged(accounts);
+- 根据用户帐号返回用户资料，一般 APP 的设计会先从本地缓存中获取，当本地缓存中没有时，则需要异步请求远程服务器，当数据返回时需要通知 UIKit 刷新界面（重新载入用户资料数据），接口为NimUIKit.notifyUserInfoChanged(accounts);
 - 返回用户默认头像资源 ID，当本地缓存不存在时，先显示默认头像
-- 为通知栏提供用户头像（一般从本地缓存中取，若未下载或本地不存在，返回null，通知栏将显示默认头像）
+- 为通知栏提供用户头像（一般从本地缓存中取，若未下载或本地不存在，返回 null，通知栏将显示默认头像）
 - 根据群 ID 返回群头像位图
 
-注意：第三方 APP 的用户资料类需要实现 `UserInfo` 接口，接口中需要提供用户帐号，用户名(用户昵称)，用户头像位图，默认头像资源ID。
+> 注意：第三方 APP 的用户资料类需要实现 `UserInfo` 接口，接口中需要提供用户帐号，用户名(用户昵称)，用户头像位图，默认头像资源ID。
 
 在 demo 中，头像采用的圆形剪切绘制。开发者可调用 `HeadImageView#setMask` 修改头像形状，demo 中提供了 `nim_portrait_mask_round` 和 `nim_portrait_mask_square` 两种。
 
@@ -231,7 +92,7 @@ private UserInfoProvider infoProvider = new UserInfoProvider() {
     @Override
     public Bitmap getAvatarForMessageNotifier(String account) {
         UserInfo user = getUserInfo(account);
-        if (user != null && TextUtils.isEmpty(user.getAvatar())) {
+        if (user != null && !TextUtils.isEmpty(user.getAvatar())) {
             return ImageLoaderKit.getBitmapFromCache(user.getAvatar(), R.dimen.avatar_size_default, R.dimen.avatar_size_default);
         }
 
@@ -250,11 +111,10 @@ private UserInfoProvider infoProvider = new UserInfoProvider() {
 };
 ```
 
-### 设置通讯录提供者
+### <span id="设置通讯录提供者"> 设置通讯录提供者</span>
 
 如果需要使用 UIKit 的通讯录功能（通讯录列表、联系人选择器），需要提供通讯录相关的数据源，需要实现 `ContactProvider` 并在 UIKit 初始化时设置：
-- 返回本地所有好友用户信息（通讯录一般列出所有的好友）
-- 向服务器请求所有好友用户信息，提供给通讯录刷新（请求数据）使用
+- 返回本地所有好友用户信息
 - 返回我的好友数量，提供给通讯录显示所有联系人数量使用
 - 返回一个用户显示名（例如：如果有昵称显示昵称，如果没有显示帐号）
 示例如下：
@@ -273,43 +133,6 @@ private ContactProvider contactProvider = new ContactProvider() {
         }
 
         @Override
-        public void getUserInfoOfMyFriends(final RequestCallback<List<UserInfoProvider.UserInfo>> callback) {
-            NimUserInfoCache.getInstance().getUsersOfMyFriendFromRemote(
-                    new RequestCallback<List<NimUserInfo>>() {
-                        @Override
-                        public void onSuccess(List<NimUserInfo> nimUsers) {
-                            if (callback != null) {
-                                if (nimUsers == null) {
-                                    callback.onSuccess(null);
-                                }
-
-                                List<UserInfoProvider.UserInfo> users = new ArrayList<>(nimUsers.size());
-                                if (!nimUsers.isEmpty()) {
-                                    users.addAll(nimUsers);
-                                }
-
-                                callback.onSuccess(users);
-                            }
-                        }
-
-                        @Override
-                        public void onFailed(int code) {
-                            if (callback != null) {
-                                callback.onFailed(code);
-                            }
-                        }
-
-                        @Override
-                        public void onException(Throwable exception) {
-                            if (callback != null) {
-                                callback.onException(exception);
-                            }
-                        }
-                    }
-            );
-        }
-
-        @Override
         public int getMyFriendsCount() {
             return FriendDataCache.getInstance().getMyFriendCounts(); // 好友关系缓存
         }
@@ -321,9 +144,9 @@ private ContactProvider contactProvider = new ContactProvider() {
     };
 ```
 
-## 最近联系人列表
+## <span id="最近联系人列表"> 最近联系人列表</span>
 
-### 集成最近联系人列表
+### <span id="集成最近联系人列表"> 集成最近联系人列表</span>
 
 下面演示集成最近联系人列表 `RecentContactsFragment`
 
@@ -397,19 +220,9 @@ public class SessionListFragment extends MainTabFragment {
             }
         });
     }
-
-	// 用户资料变更监听器
-    NimUserInfoCache.UserDataChangedObserver userDataChangedObserver = new NimUserInfoCache.UserDataChangedObserver() {
-        @Override
-        public void onUpdateUsers(List<NimUserInfo> users) {
-            if (contactsFragment != null) {
-                contactsFragment.notifyDataSetChanged();
-            }
-        }
-    };
 ```
 
-### 定制联系人列表
+### <span id="定制联系人列表"> 定制联系人列表</span>
 
 通过设置自定义事件回调函数 `RecentContactsCallback` 来定制，目前支持：
 - 最近联系人列表数据加载完成的回调函数。
@@ -417,13 +230,13 @@ public class SessionListFragment extends MainTabFragment {
 - 最近联系人点击响应回调函数，以供打开会话窗口时传入定制化参数，或者做其他动作。
 - 设置自定义消息的摘要消息，展示在最近联系人列表的消息缩略栏上。当然，你也可以自定义一些内建消息的缩略语，例如图片，语音，音视频会话等，自定义的缩略语会被优先使用。
 
-## 聊天窗口
+## <span id="聊天窗口"> 聊天窗口</span>
 
 UI 组件目前提供点对点聊天、群聊窗口。
 
-### 集成聊天窗口
+### <span id="集成聊天窗口"> 集成聊天窗口</span>
 
-启动聊天窗口，需要指定回话类型（P2P/TEAM），传入帐号（单聊个人帐号/群号），如果需要定制，传入 `SessionCustomization` ，使用默认界面传 null ，例如：
+启动聊天窗口，需要指定会话类型（P2P/TEAM），传入帐号（单聊个人帐号/群号）。如果需要定制，传入 `SessionCustomization` ，使用默认界面传 null ，例如：
 
 ```
 NimUIKit.startChatting(context, account, SessionTypeEnum.P2P, null);
@@ -431,7 +244,7 @@ NimUIKit.startChatting(context, account, SessionTypeEnum.P2P, null);
 NimUIKit.startChatting(context, teamId, SessionTypeEnum.Team, getTeamCustomization());
 ```
 
-### 定制聊天窗口
+### <span id="定制聊天窗口"> 定制聊天窗口</span>
 
 #### 定制聊天窗口
 
@@ -443,7 +256,7 @@ NimUIKit.startChatting(context, teamId, SessionTypeEnum.Team, getTeamCustomizati
   file: file:///文件绝对路径
 - 加号展开后的按钮和动作，默认已包含图片，视频和地理位置。
 - ActionBar 右侧可定制按钮 `OptionsButton`，默认为空。
-- 如果 `OptionsButton` 的点击响应中需要 startActivityForResult，可以处理 onActivityResult，需要注意的是，由于加号中的 Action 的限制，RequestCode 只能使用int的最低8位。
+- 如果 `OptionsButton` 的点击响应中需要 startActivityForResult，可以处理 onActivityResult。需要注意的是，由于加号中的 Action 的限制，RequestCode 只能使用int的最低8位。
 - UIKit 内建了对贴图消息的输入和管理展示，并和 emoji 表情整合在了一起，但贴图消息的附件定义，开发者可以按需扩展。
 示例如下：
 
@@ -503,7 +316,7 @@ private static SessionCustomization getMyP2pCustomization() {
         p2pCustomization.backgroundUri = "file:///sdcard/Pictures/bk.png";
         p2pCustomization.backgroundUri = "android.resource://com.netease.nim.demo/drawable/bk"
 
-        // 定制加号点开后可以包含的操作，默认已经有图片，视频等消息了
+        // 定制加号点开后可以包含的操作，默认已经有图片，视频等消息了，如果要去掉默认的操作，请修改MessageFragment的getActionList函数
         ArrayList<BaseAction> actions = new ArrayList<>();
         actions.add(new AVChatAction(AVChatType.AUDIO));
         actions.add(new AVChatAction(AVChatType.VIDEO));
@@ -600,11 +413,11 @@ SessionEventListener listener = new SessionEventListener() {
 NimUIKit.setSessionListener(listener);
 ```
 
-## 通讯录列表
+## <span id="通讯录列表"> 通讯录列表</span>
 
 UIKit 提供的通讯录列表默认显示所有好友，提供字母导航，支持帐号、昵称搜索、支持功能项（例如，折叠群、黑名单、消息验证、我的电脑等）。
 
-### 集成通讯录列表
+### <span id="集成通讯录列表"> 集成通讯录列表</span>
 
 通讯录列表默认显示所有好友，好友的数据源需要在 `ContactProvider` 中提供，下面演示集成通讯录 `ContactsFragment` :
 
@@ -651,13 +464,13 @@ public class ContactListFragment extends MainTabFragment {
     }
 ```
 
-### 定制通讯录列表
+### <span id="定制通讯录列表"> 定制通讯录列表</span>
 
 #### 设置通讯录列表点击事件响应处理
 
-通讯录列表列表提供一些点击事件的响应处理函数，见 `ContactEventListener` ：
+通讯录列表提供一些点击事件的响应处理函数，见 `ContactEventListener` ：
 
-- 通讯录联系人项点击事件处理，一般打开会话窗口
+- 通讯录联系人项点击事件处理，一般打开用户资料页面
 - 通讯录联系人项长按事件处理，一般弹出菜单：移除好友、添加到星标好友等
 - 联系人头像点击相应，一般跳转到用户资料页面
 
@@ -748,9 +561,9 @@ public final static class FuncItem extends AbsContactItem {
 }
 ```
 
-## 联系人选择器
+## <span id="联系人选择器"> 联系人选择器</span>
 
-### 打开联系人选择器
+### <span id="打开联系人选择器"> 打开联系人选择器</span>
 
 在创建群、邀请群成员、消息转发等场景经常需要使用到联系人选择器，联系人选择器中的默认的联系人是你的好友，第三方 APP 通过 `ContactProvider` 的 getUserInfoOfMyFriends 接口提供你所有的好友。
 启动联系人选择器时可以传入可选参数 `ContactSelectActivity.Option` 来做联系人过滤、默认选中、多选等操作。例如：
@@ -775,7 +588,7 @@ option.maxSelectedTip = getString(R.string.reach_team_member_capacity, teamCapac
 NimUIKit.startContactSelect(NormalTeamInfoActivity.this, option, REQUEST_CODE_CONTACT_SELECT);
 ```
 
-### 定制联系人选择器
+### <span id="定制联系人选择器"> 定制联系人选择器</span>
 
 可以通过 `ContactSelectActivity.Option` 来定制，目前支持：
 - 设置联系人选择器中数据源类型：好友（默认）、群、群成员（需要设置teamId）
@@ -787,10 +600,11 @@ NimUIKit.startContactSelect(NormalTeamInfoActivity.this, option, REQUEST_CODE_CO
 - 不显示指定的联系人
 - 指定联系人可见但不可操作
 - 帐号、昵称搜索
+- 允许不选任何人点击确定
 
-## 群名片
+## <span id="群名片"> 群名片</span>
 
-### 打开普通群或高级群资料页
+### <span id="打开普通群或高级群资料页"> 打开普通群或高级群资料页</span>
 
 创建普通群或高级群后，可以查看群资料，进行群消息提醒设置，群名称设置等操作。只需要传入参数：上下文和群id就可以打开相关的群资料页面。具体代码示例如下：
 
@@ -803,4 +617,3 @@ SessionCustomization.OptionsButton infoButton = new SessionCustomization.Options
     }
 };
 ```
-

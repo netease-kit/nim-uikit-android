@@ -148,15 +148,14 @@ public class AutoRefreshListView extends ListView {
             }
 
             if (start && refreshableStart && mode != Mode.END) {
-                refreshListener.onRefreshFromStart();
                 currentMode = Mode.START;
                 state = State.REFRESHING;
+                refreshListener.onRefreshFromStart();
             } else if (refreshableEnd && mode != Mode.START) {
-                refreshListener.onRefreshFromEnd();
                 currentMode = Mode.END;
                 state = State.REFRESHING;
+                refreshListener.onRefreshFromEnd();
             }
-
             updateRefreshView();
         }
     }
@@ -188,7 +187,6 @@ public class AutoRefreshListView extends ListView {
 
     public void onRefreshStart(Mode mode) {
         state = State.REFRESHING;
-
         currentMode = mode;
     }
 

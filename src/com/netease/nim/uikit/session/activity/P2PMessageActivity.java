@@ -3,6 +3,7 @@ package com.netease.nim.uikit.session.activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Window;
 import android.widget.Toast;
 
 import com.alibaba.fastjson.JSON;
@@ -42,7 +43,6 @@ public class P2PMessageActivity extends BaseMessageActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         // 单聊特例话数据，包括个人信息，
         requestBuddyInfo();
         registerObservers(true);

@@ -29,6 +29,7 @@ public interface Extras {
     String EXTRA_TYPE = "type";
 
     String EXTRA_CUSTOMIZATION = "customization";
+    String EXTRA_BACK_TO_CLASS = "backToClass";
 
     //图片选自器
     String EXTRA_PHOTO_LISTS = "photo_list";

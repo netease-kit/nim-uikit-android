@@ -31,18 +31,6 @@
             layout="@layout/nim_team_info_divider_item" />
 
         <LinearLayout
-            android:id="@+id/notify_layout"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@color/color_background"
-            android:paddingTop="20dp">
-
-            <include
-                android:id="@+id/team_notification_config_layout"
-                layout="@layout/nim_advanced_team_info_divider_item" />
-        </LinearLayout>
-
-        <LinearLayout
             android:id="@+id/toggle_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

@@ -11,13 +11,14 @@ import android.graphics.drawable.Drawable;
 import android.media.ExifInterface;
 import android.text.TextUtils;
 
-import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.NimUIKit;
-import com.netease.nim.uikit.common.util.file.FileUtil;
-import com.netease.nim.uikit.common.util.string.StringUtil;
+import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.common.util.file.AttachmentStore;
+import com.netease.nim.uikit.common.util.file.FileUtil;
+import com.netease.nim.uikit.common.util.log.LogUtil;
 import com.netease.nim.uikit.common.util.storage.StorageType;
 import com.netease.nim.uikit.common.util.storage.StorageUtil;
+import com.netease.nim.uikit.common.util.string.StringUtil;
 import com.netease.nim.uikit.session.viewholder.MsgViewHolderThumbBase;
 
 import java.io.BufferedOutputStream;
@@ -277,6 +278,7 @@ public class ImageUtil {
         String filePath = imageFile.getPath();
 
         if (!isInvalidPictureFile(mimeType)) {
+            LogUtil.i("ImageUtil", "is invalid picture file");
             return null;
         }
 

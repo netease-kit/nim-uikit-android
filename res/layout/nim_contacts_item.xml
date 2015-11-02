@@ -14,6 +14,7 @@
 
         <com.netease.nim.uikit.common.ui.imageview.HeadImageView
             android:id="@+id/contacts_item_head"
+            android:scaleType="centerCrop"
             android:layout_width="@dimen/avatar_size_in_contact"
             android:layout_height="@dimen/avatar_size_in_contact"/>
     </RelativeLayout>

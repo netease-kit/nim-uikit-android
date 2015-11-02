@@ -1,6 +1,6 @@
 package com.netease.nim.uikit.contact.core.model;
 
-import com.netease.nim.uikit.team.TeamDataCache;
+import com.netease.nim.uikit.cache.TeamDataCache;
 import com.netease.nimlib.sdk.team.model.TeamMember;
 
 /**

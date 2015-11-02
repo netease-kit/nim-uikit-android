@@ -35,10 +35,6 @@ public abstract class TActionBarActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
 
         LogUtil.ui("activity: " + getClass().getSimpleName() + " onCreate()");
-
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(displayHomeAsUpEnabled());
-        }
     }
 
     @Override
@@ -58,6 +54,9 @@ public abstract class TActionBarActivity extends ActionBarActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(displayHomeAsUpEnabled());
+        }
     }
 
     @Override

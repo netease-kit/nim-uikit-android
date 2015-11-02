@@ -1,6 +1,8 @@
 package com.netease.nim.uikit.contact.core.provider;
 
 import com.netease.nim.uikit.NimUIKit;
+import com.netease.nim.uikit.UIKitLogTag;
+import com.netease.nim.uikit.common.util.log.LogUtil;
 import com.netease.nim.uikit.contact.core.item.AbsContactItem;
 import com.netease.nim.uikit.contact.core.item.ContactItem;
 import com.netease.nim.uikit.contact.core.item.ItemTypes;
@@ -20,6 +22,7 @@ public final class UserDataProvider {
             items.add(new ContactItem(ContactHelper.makeContactFromUserInfo(u), ItemTypes.FRIEND));
         }
 
+        LogUtil.i(UIKitLogTag.CONTACT, "contact provide data size =" + items.size());
         return items;
     }
 

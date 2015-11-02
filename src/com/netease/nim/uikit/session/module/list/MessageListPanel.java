@@ -8,9 +8,11 @@ import android.text.TextUtils;
 import android.util.Pair;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.netease.nim.uikit.NimUIKit;
 import com.netease.nim.uikit.R;
+import com.netease.nim.uikit.UserPreferences;
 import com.netease.nim.uikit.common.adapter.TAdapterDelegate;
 import com.netease.nim.uikit.common.adapter.TViewHolder;
 import com.netease.nim.uikit.common.ui.dialog.CustomAlertDialog;
@@ -23,7 +25,8 @@ import com.netease.nim.uikit.common.util.media.BitmapDecoder;
 import com.netease.nim.uikit.common.util.sys.ClipboardUtil;
 import com.netease.nim.uikit.common.util.sys.ScreenUtil;
 import com.netease.nim.uikit.session.activity.VoiceTrans;
-import com.netease.nim.uikit.session.helper.LocalMessageTransfer;
+import com.netease.nim.uikit.session.audio.MessageAudioControl;
+import com.netease.nim.uikit.session.helper.MessageListPanelHelper;
 import com.netease.nim.uikit.session.module.Container;
 import com.netease.nim.uikit.session.viewholder.MsgViewHolderBase;
 import com.netease.nim.uikit.session.viewholder.MsgViewHolderFactory;
@@ -101,12 +104,21 @@ public class MessageListPanel implements TAdapterDelegate {
         init(anchor);
     }
 
+    public void onResume() {
+       setEarPhoneMode(UserPreferences.isEarPhoneModeEnable());
+    }
+
+    public void onPause() {
+        MessageAudioControl.getInstance(container.activity).stopAudio();
+    }
+
     public void onDestroy() {
         registerObservers(false);
     }
 
     public boolean onBackPressed() {
         uiHandler.removeCallbacks(null);
+        MessageAudioControl.getInstance(container.activity).stopAudio(); // 界面返回，停止语音播放
         if (voiceTrans != null && voiceTrans.isShow()) {
             voiceTrans.hide();
             return true;
@@ -187,7 +199,7 @@ public class MessageListPanel implements TAdapterDelegate {
         uiHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                ListViewUtil.scrollToPostion(messageListView, position, 0);
+                ListViewUtil.scrollToPosition(messageListView, position, 0);
             }
         }, 200);
     }
@@ -264,7 +276,7 @@ public class MessageListPanel implements TAdapterDelegate {
             unregisterUserInfoObserver();
         }
 
-        LocalMessageTransfer.getInstance().registerObserver(incomingLocalMessageObserver, register);
+        MessageListPanelHelper.getInstance().registerObserver(incomingLocalMessageObserver, register);
     }
 
     /**
@@ -292,14 +304,20 @@ public class MessageListPanel implements TAdapterDelegate {
     /**
      * 本地消息接收观察者
      */
-    LocalMessageTransfer.LocalMessageObserver incomingLocalMessageObserver = new LocalMessageTransfer.LocalMessageObserver() {
+    MessageListPanelHelper.LocalMessageObserver incomingLocalMessageObserver = new MessageListPanelHelper.LocalMessageObserver() {
         @Override
-        public void onMessage(IMMessage message) {
+        public void onAddMessage(IMMessage message) {
             if (message == null || !container.account.equals(message.getSessionId())) {
                 return;
             }
 
             onMsgSend(message);
+        }
+
+        @Override
+        public void onClearMessages(String account) {
+            items.clear();
+            refreshMessageList();
         }
     };
 
@@ -590,6 +608,7 @@ public class MessageListPanel implements TAdapterDelegate {
 
         /**
          * 长按菜单操作
+         *
          * @param item
          */
         private void onNormalLongClick(IMMessage item) {
@@ -606,13 +625,17 @@ public class MessageListPanel implements TAdapterDelegate {
         private void prepareDialogItems(final IMMessage selectedItem, CustomAlertDialog alertDialog) {
             MsgTypeEnum msgType = selectedItem.getMsgType();
 
-            // 0 resend
+            MessageAudioControl.getInstance(container.activity).stopAudio();
+
+            // 0 EarPhoneMode
+            longClickItemEarPhoneMode(alertDialog, msgType);
+            // 1 resend
             longClickItemResend(selectedItem, alertDialog);
-            // 1 copy
+            // 2 copy
             longClickItemCopy(selectedItem, alertDialog, msgType);
-            // 2 delete
+            // 3 delete
             longClickItemDelete(selectedItem, alertDialog);
-            // 3 trans
+            // 4 trans
             longClickItemVoidToText(selectedItem, alertDialog, msgType);
         }
 
@@ -723,6 +746,32 @@ public class MessageListPanel implements TAdapterDelegate {
                 adapter.notifyDataSetChanged();
             }
         }
+
+        // 长按菜单项 -- 听筒扬声器切换
+        private void longClickItemEarPhoneMode(CustomAlertDialog alertDialog, MsgTypeEnum msgType) {
+            if (msgType != MsgTypeEnum.audio) return;
+
+            String content = null;
+            if (UserPreferences.isEarPhoneModeEnable()) {
+                content = "切换成扬声器播放";
+            } else {
+                content = "切换成听筒播放";
+            }
+            final String finalContent = content;
+            alertDialog.addItem(content, new CustomAlertDialog.onSeparateItemClickListener() {
+
+                @Override
+                public void onClick() {
+                    Toast.makeText(container.activity, finalContent, Toast.LENGTH_SHORT).show();
+                    setEarPhoneMode(!UserPreferences.isEarPhoneModeEnable());
+                }
+            });
+        }
+    }
+
+    private void setEarPhoneMode(boolean earPhoneMode) {
+        UserPreferences.setEarPhoneModeEnable(earPhoneMode);
+        MessageAudioControl.getInstance(container.activity).setEarPhoneModeEnable(earPhoneMode);
     }
 
     private Bitmap getBackground(String path) {
@@ -752,6 +801,7 @@ public class MessageListPanel implements TAdapterDelegate {
     }
 
     private UserInfoObservable.UserInfoObserver uinfoObserver;
+
     private void registerUserInfoObserver() {
         if (uinfoObserver == null) {
             uinfoObserver = new UserInfoObservable.UserInfoObserver() {

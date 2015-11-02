@@ -3,9 +3,8 @@ package com.netease.nim.uikit.team.activity;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
-import android.text.TextUtils;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -18,15 +17,16 @@ import android.widget.Toast;
 
 import com.netease.nim.uikit.NimUIKit;
 import com.netease.nim.uikit.R;
+import com.netease.nim.uikit.cache.TeamDataCache;
 import com.netease.nim.uikit.common.activity.TActionBarActivity;
 import com.netease.nim.uikit.common.adapter.TAdapterDelegate;
 import com.netease.nim.uikit.common.adapter.TViewHolder;
 import com.netease.nim.uikit.common.ui.dialog.DialogMaker;
 import com.netease.nim.uikit.common.ui.widget.SwitchButton;
 import com.netease.nim.uikit.common.util.log.LogUtil;
+import com.netease.nim.uikit.common.util.sys.NetworkUtil;
 import com.netease.nim.uikit.contact.core.item.ContactIdFilter;
 import com.netease.nim.uikit.contact_selector.activity.ContactSelectActivity;
-import com.netease.nim.uikit.team.TeamDataCache;
 import com.netease.nim.uikit.team.adapter.TeamMemberAdapter;
 import com.netease.nim.uikit.team.model.TeamExtras;
 import com.netease.nim.uikit.team.model.TeamRequestCode;
@@ -41,20 +41,16 @@ import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.team.TeamService;
 import com.netease.nimlib.sdk.team.constant.TeamFieldEnum;
 import com.netease.nimlib.sdk.team.constant.TeamMemberType;
-import com.netease.nimlib.sdk.team.constant.TeamTypeEnum;
 import com.netease.nimlib.sdk.team.model.Team;
 import com.netease.nimlib.sdk.team.model.TeamMember;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
- * 普通群群资料页(TARGET_CREATE_NORMAL_TEAM) / 创建普通群(TARGET_TEAM_INFO)
+ * 普通群群资料页
  * <p/>
  * Created by huangjun on 2015/3/3.
  */
@@ -64,19 +60,11 @@ public class NormalTeamInfoActivity extends TActionBarActivity implements OnClic
     // constant
     private static final String TAG = "TeamInfoActivity";
 
-    private static final int TARGET_TEAM_INFO = 0x00;
-
-    private static final int TARGET_CREATE_NORMAL_TEAM = 0x01;
-
     private static final int REQUEST_CODE_NAME = 101;
 
     private static final int REQUEST_CODE_CONTACT_SELECT = 102;
 
     private static final String EXTRA_ID = "EXTRA_ID";
-
-    private static final String EXTRA_FIRST_MEMBER_ACCOUNT = "EXTRA_FIRST_MEMBER_ACCOUNT";
-
-    private static final String EXTRA_TARGET = "EXTRA_TARGET";
 
     private static final String KEY_MSG_NOTICE = "msg_notice";
 
@@ -94,22 +82,12 @@ public class NormalTeamInfoActivity extends TActionBarActivity implements OnClic
 
     private List<TeamMemberAdapter.TeamMemberItem> dataSource;
 
-    private String firstMemberAccount;
-
-    private Map<String, Boolean> toggleStateMap;
-
     private UserInfoObservable.UserInfoObserver userInfoObserver;
 
     // view
     private TextView teamNameTextView;
 
     private TeamInfoGridView gridView;
-
-    private View layoutNotificationConfig;
-
-    private View notifyLayout;
-
-    private TextView notificationConfigText;
 
     private ViewGroup toggleLayout;
 
@@ -120,43 +98,15 @@ public class NormalTeamInfoActivity extends TActionBarActivity implements OnClic
 
     private int teamCapacity = 50; // 群人数上限，暂定
 
-    private int target = TARGET_TEAM_INFO;
-
     /**
      * 启动群资料页
      *
      * @param context 调用方Activity
      * @param id      讨论组ID
      */
-    public static void startForTeamInfo(Context context, String id) {
-        start(context, id, TARGET_TEAM_INFO);
-    }
-
-    /**
-     * 创建普通群
-     *
-     * @param context 调用方Activity
-     */
-    public static void startForCreateNormalTeam(Context context) {
-        start(context, null, TARGET_CREATE_NORMAL_TEAM);
-    }
-
-    /**
-     * 创建普通群
-     *
-     * @param context       调用方Activity
-     * @param firstMemberId 点对点聊天对象作为多人会话第一个成员
-     */
-    public static void startForCreateNormalTeam(Context context, String firstMemberId) {
-        start(context, firstMemberId, TARGET_CREATE_NORMAL_TEAM);
-    }
-
-    private static void start(Context context, String id, int target) {
+    public static void start(Context context, String id) {
         Intent intent = new Intent();
-        if (!TextUtils.isEmpty(id)) {
-            intent.putExtra(target == TARGET_TEAM_INFO ? EXTRA_ID : EXTRA_FIRST_MEMBER_ACCOUNT, id);
-        }
-        intent.putExtra(EXTRA_TARGET, target);
+        intent.putExtra(EXTRA_ID, id);
         intent.setClass(context, NormalTeamInfoActivity.class);
         ((Activity) context).startActivityForResult(intent, TeamRequestCode.REQUEST_CODE);
     }
@@ -190,13 +140,8 @@ public class NormalTeamInfoActivity extends TActionBarActivity implements OnClic
         setContentView(R.layout.nim_team_info_activity);
 
         parseIntentData();
-        initNotifyLayout();
-        if (target == TARGET_CREATE_NORMAL_TEAM) {
-            initCreateTeam();
-        } else if (target == TARGET_TEAM_INFO) {
-            loadTeamInfo();
-        }
-
+        initToggleBtn();
+        loadTeamInfo();
         initAdapter();
         findViews();
         requestMembers();
@@ -207,9 +152,6 @@ public class NormalTeamInfoActivity extends TActionBarActivity implements OnClic
     @Override
     protected void onResume() {
         super.onResume();
-        if (target == TARGET_CREATE_NORMAL_TEAM) {
-            setToggleBtn();
-        }
     }
 
     @Override
@@ -221,27 +163,10 @@ public class NormalTeamInfoActivity extends TActionBarActivity implements OnClic
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_CODE_NAME && resultCode == Activity.RESULT_OK) {
-            final String teamName = data.getStringExtra(TeamPropertySettingActivity.EXTRA_DATA);
-            if (target == TARGET_CREATE_NORMAL_TEAM) {
-                setItemDetail(R.id.settings_item_name, teamName);
-            }
-        }
         if (requestCode == REQUEST_CODE_CONTACT_SELECT && resultCode == Activity.RESULT_OK) {
             final ArrayList<String> selected = data.getStringArrayListExtra(ContactSelectActivity.RESULT_DATA);
             if (selected != null && !selected.isEmpty()) {
-                if (target == TARGET_TEAM_INFO) {
-                    addMembersToTeam(selected);
-                    // 修复VH复用bug by xuwen
-                    getHandler().postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            adapter.notifyDataSetChanged();
-                        }
-                    }, 300);
-                } else if (target == TARGET_CREATE_NORMAL_TEAM) {
-                    addMember(selected, false);
-                }
+                addMembersToTeam(selected);
             }
         }
     }
@@ -285,35 +210,16 @@ public class NormalTeamInfoActivity extends TActionBarActivity implements OnClic
 
     private void parseIntentData() {
         teamId = getIntent().getStringExtra(EXTRA_ID);
-        firstMemberAccount = getIntent().getStringExtra(EXTRA_FIRST_MEMBER_ACCOUNT);
-        target = getIntent().getIntExtra(EXTRA_TARGET, TARGET_TEAM_INFO);
-    }
-
-    private void initNotifyLayout() {
-        notifyLayout = findViewById(R.id.notify_layout);
-        notifyLayout.setVisibility(View.GONE);
-    }
-
-    private void initCreateTeam() {
-        View nameView = findViewById(R.id.settings_item_name);
-        teamNameTextView = (TextView) nameView.findViewById(R.id.item_detail);
-        if (target == TARGET_CREATE_NORMAL_TEAM) {
-            teamNameTextView.setText("普通群");
-            setTitle(R.string.chat_setting);
-        }
-        toggleLayout = findView(R.id.toggle_layout);
-        initToggleBtn();
-
-        creator = NimUIKit.getAccount();
     }
 
     private void initToggleBtn() {
+        toggleLayout = findView(R.id.toggle_layout);
         noticeBtn = addToggleItemView(KEY_MSG_NOTICE, R.string.team_notification_config, true);
     }
 
-    private void setToggleBtn() {
-        if (noticeBtn != null && toggleStateMap != null) {
-            noticeBtn.setCheck(toggleStateMap.get(KEY_MSG_NOTICE));
+    private void setToggleBtn(Team team) {
+        if (noticeBtn != null) {
+            noticeBtn.setCheck(!team.mute());
         }
     }
 
@@ -333,21 +239,42 @@ public class NormalTeamInfoActivity extends TActionBarActivity implements OnClic
 
         toggleLayout.addView(vp);
 
-        if (toggleStateMap == null) {
-            toggleStateMap = new HashMap<>();
-        }
-        toggleStateMap.put(key, initState);
         return switchButton;
     }
 
     private SwitchButton.OnChangedListener onChangedListener = new SwitchButton.OnChangedListener() {
         @Override
-        public void OnChanged(View v, boolean checkState) {
-            String key = (String) v.getTag();
-            if (toggleStateMap.containsKey(key)) {
-                toggleStateMap.put(key, checkState);  // update state
-                Log.i(TAG, "toggle " + key + "to " + checkState);
+        public void OnChanged(View v, final boolean checkState) {
+            if (!NetworkUtil.isNetAvailable(NormalTeamInfoActivity.this)) {
+                Toast.makeText(NormalTeamInfoActivity.this, R.string.network_is_not_available, Toast.LENGTH_SHORT).show();
+                noticeBtn.setCheck(!checkState);
+                return;
             }
+            NIMClient.getService(TeamService.class).muteTeam(team.getId(), !checkState).setCallback(new RequestCallback<Void>() {
+                @Override
+                public void onSuccess(Void param) {
+                    if (checkState) {
+                        Toast.makeText(NormalTeamInfoActivity.this, "开启群消息提醒", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(NormalTeamInfoActivity.this, "关闭群消息提醒", Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                @Override
+                public void onFailed(int code) {
+                    if (code == 408) {
+                        Toast.makeText(NormalTeamInfoActivity.this, R.string.network_is_not_available, Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(NormalTeamInfoActivity.this, "on failed:" + code, Toast.LENGTH_SHORT).show();
+                    }
+                    noticeBtn.setCheck(!checkState);
+                }
+
+                @Override
+                public void onException(Throwable exception) {
+
+                }
+            });
         }
     };
 
@@ -394,37 +321,8 @@ public class NormalTeamInfoActivity extends TActionBarActivity implements OnClic
         teamNameTextView = (TextView) nameView.findViewById(R.id.item_detail);
         teamNameTextView.setText(teamName);
         teamNameTextView.setEnabled(isSelfAdmin);
-        // team notify
-        notifyLayout.setVisibility(View.VISIBLE);
-        setNotifyConfig();
-        notificationConfigText.setText(team.mute() ? getString(R.string.close) : getString(R.string.open));
-    }
 
-    private void setNotifyConfig() {
-        layoutNotificationConfig = findViewById(R.id.team_notification_config_layout);
-        ((TextView) layoutNotificationConfig.findViewById(R.id.item_title)).setText(R.string.team_notification_config);
-        notificationConfigText = (TextView) layoutNotificationConfig.findViewById(R.id.item_detail);
-        layoutNotificationConfig.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                NIMClient.getService(TeamService.class).muteTeam(teamId, !team.mute()).setCallback(new RequestCallback<Void>() {
-                    @Override
-                    public void onSuccess(Void param) {
-                        notificationConfigText.setText(team.mute() ? getString(R.string.close) : getString(R.string.open));
-                    }
-
-                    @Override
-                    public void onFailed(int code) {
-                        Log.d(TAG, "muteTeam failed code:" + code);
-                    }
-
-                    @Override
-                    public void onException(Throwable exception) {
-
-                    }
-                });
-            }
-        });
+        setToggleBtn(team);
     }
 
     private void onGetTeamInfoFailed(String errorMsg) {
@@ -478,90 +376,60 @@ public class NormalTeamInfoActivity extends TActionBarActivity implements OnClic
         nameLabel.setText(R.string.team_settings_name);
 
         // talk button
-        if (target == TARGET_TEAM_INFO) {
-            Button quitBtn = (Button) findViewById(R.id.quit_team);
-            quitBtn.setText(R.string.quit_team);
-            quitBtn.setOnClickListener(this);
-            findViewById(R.id.create_team).setVisibility(View.GONE);
-        } else if (target == TARGET_CREATE_NORMAL_TEAM) {
-            Button btn = (Button) findViewById(R.id.create_team);
-            btn.setOnClickListener(this);
-            btn.setVisibility(View.VISIBLE);
-            btn.setText(R.string.create_team);
-            findViewById(R.id.quit_team).setVisibility(View.GONE);
-        }
-
-    }
-
-    private void setItemDetail(int id, String detail) {
-        // 设置群名称
-        View view = findViewById(id);
-        if (view != null) {
-            TextView detailLabel = (TextView) view.findViewById(R.id.item_detail);
-            if (detailLabel != null) {
-                detailLabel.setText(detail);
-            }
-        }
+        Button quitBtn = (Button) findViewById(R.id.quit_team);
+        quitBtn.setText(R.string.quit_team);
+        quitBtn.setOnClickListener(this);
+        findViewById(R.id.create_team).setVisibility(View.GONE);
     }
 
     /**
      * *************************** 加载&变更数据源 ********************************
      */
     private void requestMembers() {
-        if (target == TARGET_TEAM_INFO) {
-            gridView.setVisibility(View.GONE);
-            memberAccounts.clear();
-            if (team != null) {
-                NIMClient.getService(TeamService.class).queryMemberList
-                        (teamId).setCallback(new RequestCallback<List<TeamMember>>() {
-                    @Override
-                    public void onSuccess(List<TeamMember> members) {
-                        if (members == null || members.isEmpty()) {
-                            String errorMsg = "queryMemberList empty";
-                            LogUtil.e(TAG, errorMsg);
-                            Toast.makeText(NormalTeamInfoActivity.this, errorMsg, Toast.LENGTH_SHORT).show();
-                            return;
-                        }
+        gridView.setVisibility(View.GONE);
+        memberAccounts.clear();
+        if (team != null) {
+            NIMClient.getService(TeamService.class).queryMemberList
+                    (teamId).setCallback(new RequestCallback<List<TeamMember>>() {
+                @Override
+                public void onSuccess(List<TeamMember> members) {
+                    if (members == null || members.isEmpty()) {
+                        String errorMsg = "queryMemberList empty";
+                        LogUtil.e(TAG, errorMsg);
+                        Toast.makeText(NormalTeamInfoActivity.this, errorMsg, Toast.LENGTH_SHORT).show();
+                        return;
+                    }
 
-                        gridView.setVisibility(View.VISIBLE);
-                        List<String> accounts = new ArrayList<>();
-                        for (TeamMember member : members) {
-                            // 标记创建者（群主）
-                            if (member.getType() == TeamMemberType.Owner) {
-                                creator = member.getAccount();
-                                if (creator.equals(NimUIKit.getAccount())) {
-                                    isSelfAdmin = true;
-                                }
+                    gridView.setVisibility(View.VISIBLE);
+                    List<String> accounts = new ArrayList<>();
+                    for (TeamMember member : members) {
+                        // 标记创建者（群主）
+                        if (member.getType() == TeamMemberType.Owner) {
+                            creator = member.getAccount();
+                            if (creator.equals(NimUIKit.getAccount())) {
+                                isSelfAdmin = true;
                             }
-                            accounts.add(member.getAccount());
                         }
-                        addMember(accounts, true);
+                        accounts.add(member.getAccount());
                     }
+                    addMember(accounts, true);
+                }
 
-                    @Override
-                    public void onFailed(int code) {
-                        String errorMsg = "request team member list failed :" + code;
-                        Toast.makeText(NormalTeamInfoActivity.this, errorMsg, Toast.LENGTH_SHORT).show();
-                        LogUtil.e(TAG, errorMsg);
-                    }
+                @Override
+                public void onFailed(int code) {
+                    String errorMsg = "request team member list failed :" + code;
+                    Toast.makeText(NormalTeamInfoActivity.this, errorMsg, Toast.LENGTH_SHORT).show();
+                    LogUtil.e(TAG, errorMsg);
+                }
 
-                    @Override
-                    public void onException(Throwable exception) {
-                        String errorMsg = "request team member list exception :" + exception.getMessage();
-                        Toast.makeText(NormalTeamInfoActivity.this, errorMsg, Toast.LENGTH_SHORT).show();
-                        LogUtil.e(TAG, errorMsg);
-                    }
-                });
-            }
-        } else if (target == TARGET_CREATE_NORMAL_TEAM) {
-            List<String> accounts = new ArrayList<>();
-            accounts.add(creator);
-            if (!TextUtils.isEmpty(firstMemberAccount)) {
-                accounts.add(firstMemberAccount);
-            }
-            addMember(accounts, true);
+                @Override
+                public void onException(Throwable exception) {
+                    String errorMsg = "request team member list exception :" + exception.getMessage();
+                    Toast.makeText(NormalTeamInfoActivity.this, errorMsg, Toast.LENGTH_SHORT).show();
+                    LogUtil.e(TAG, errorMsg);
+                }
+            });
         }
-
     }
 
     private void addMember(List<String> accounts, boolean clear) {
@@ -625,7 +493,7 @@ public class NormalTeamInfoActivity extends TActionBarActivity implements OnClic
         dataSource.add(new TeamMemberAdapter.TeamMemberItem(TeamMemberAdapter.TeamMemberItemTag.ADD, null, null, null));
 
         // remove item
-        if (isSelfAdmin && target == TARGET_TEAM_INFO) {
+        if (isSelfAdmin) {
             dataSource.add(new TeamMemberAdapter.TeamMemberItem(TeamMemberAdapter.TeamMemberItemTag.DELETE, null, null,
                     null));
         }
@@ -641,6 +509,10 @@ public class NormalTeamInfoActivity extends TActionBarActivity implements OnClic
                 dataSource.remove(item);
                 break;
             }
+        }
+        // 为了解决2.3系统，移除用户后刷新界面不显示的问题
+        if (Build.VERSION.SDK_INT < 11) {
+            adapter.setMode(TeamMemberAdapter.Mode.NORMAL);
         }
 
         adapter.notifyDataSetChanged();
@@ -754,72 +626,6 @@ public class NormalTeamInfoActivity extends TActionBarActivity implements OnClic
     }
 
     /**
-     * 创建群
-     */
-    private void createTeam() {
-        ArrayList<String> accounts = new ArrayList<>();
-        accounts.addAll(memberAccounts);
-        accounts.remove(creator);
-        if (accounts.isEmpty()) {
-            Toast.makeText(NormalTeamInfoActivity.this, R.string.team_create_notice, Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        String teamName = teamNameTextView.getText().toString();
-        if (TextUtils.isEmpty(teamName)) {
-            teamName = "普通群";
-        }
-
-        DialogMaker.showProgressDialog(this, getString(R.string.empty), true);
-        // 创建群
-        HashMap<TeamFieldEnum, Serializable> fields = new HashMap<TeamFieldEnum, Serializable>();
-        fields.put(TeamFieldEnum.Name, teamName);
-        NIMClient.getService(TeamService.class).createTeam(fields, TeamTypeEnum.Normal, "",
-                accounts).setCallback(
-                new RequestCallback<Team>() {
-                    @Override
-                    public void onSuccess(Team team) {
-                        DialogMaker.dismissProgressDialog();
-                        TeamDataCache.getInstance().addOrUpdateTeam(team);
-                        Toast.makeText(NormalTeamInfoActivity.this, R.string.create_team_success,
-                                Toast.LENGTH_SHORT).show();
-                        setResult(Activity.RESULT_OK, new Intent().putExtra(TeamExtras.RESULT_EXTRA_REASON,
-                                TeamExtras.RESULT_EXTRA_REASON_CREATE).putExtra(TeamExtras.RESULT_EXTRA_DATA, team.getId()));
-                        updateTeamMute(team);
-                        finish();
-                    }
-
-                    @Override
-                    public void onFailed(int code) {
-                        DialogMaker.dismissProgressDialog();
-                        if (code == 801) {
-                            String tip = getString(R.string.over_team_member_capacity, teamCapacity);
-                            Toast.makeText(NormalTeamInfoActivity.this, tip,
-                                    Toast.LENGTH_SHORT).show();
-                        } else {
-                            Toast.makeText(NormalTeamInfoActivity.this, R.string.create_team_failed,
-                                    Toast.LENGTH_SHORT).show();
-                        }
-
-                        Log.e(TAG, "create team error: " + code);
-                    }
-
-                    @Override
-                    public void onException(Throwable exception) {
-                        DialogMaker.dismissProgressDialog();
-                    }
-                }
-        );
-    }
-
-    private void updateTeamMute(Team team) {
-        if (toggleStateMap != null) {
-            NIMClient.getService(TeamService.class).muteTeam(team.getId(), !toggleStateMap.get(KEY_MSG_NOTICE));
-        }
-
-    }
-
-    /**
      * ******************************* Event *********************************
      */
 
@@ -828,9 +634,6 @@ public class NormalTeamInfoActivity extends TActionBarActivity implements OnClic
         int i = v.getId();
         if (i == R.id.quit_team) {
             quitTeam();
-
-        } else if (i == R.id.create_team) {
-            createTeam();
 
         } else if (i == R.id.settings_item_name) {
             TeamPropertySettingActivity.start(NormalTeamInfoActivity.this, teamId, TeamFieldEnum.Name, teamNameTextView.getText().toString(), REQUEST_CODE_NAME);
@@ -858,8 +661,8 @@ public class NormalTeamInfoActivity extends TActionBarActivity implements OnClic
     }
 
     @Override
-    public void onHeadImageViewClick(String uid) {
-        NimUIKit.getContactEventListener().onAvatarClick(this, uid);
+    public void onHeadImageViewClick(String account) {
+        NimUIKit.getContactEventListener().onAvatarClick(this, account);
     }
 
     private void registerUserInfoChangedObserver(boolean register) {

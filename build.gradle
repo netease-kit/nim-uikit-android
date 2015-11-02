@@ -20,7 +20,7 @@ android {
 
 dependencies {
     compile 'com.android.support:appcompat-v7:19.1.0'
-    compile fileTree(dir: 'libs', include: '*.jar', exclude: ['android-support-*.jar'])
+    compile fileTree(dir: 'libs', include: '*.jar')
     compile fileTree(dir: 'libs-sdk', include: ['*.jar'])
     //
     

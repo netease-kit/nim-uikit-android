@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.common.activity.TActionBarActivity;
+import com.netease.nim.uikit.common.util.log.LogUtil;
 import com.netease.nimlib.sdk.AbortableFuture;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.RequestCallback;
@@ -23,6 +24,8 @@ import com.netease.nimlib.sdk.msg.model.IMMessage;
  * Created by hzxuwen on 2015/7/9.
  */
 public class VoiceTrans {
+    private static final String TAG = VoiceTrans.class.getSimpleName();
+
     private final Activity baseActivity;
 
     // view
@@ -85,7 +88,7 @@ public class VoiceTrans {
     }
 
     public void hide() {
-        if(callFuture != null) {
+        if (callFuture != null) {
             callFuture.abort();
         }
         if (actionBar != null) {
@@ -123,6 +126,7 @@ public class VoiceTrans {
 
             @Override
             public void onFailed(int code) {
+                LogUtil.e(TAG, "voice to text failed, code=" + code);
                 voiceTransText.setText(R.string.trans_voice_failed);
                 failIcon.setVisibility(View.VISIBLE);
                 updateUI();
@@ -130,6 +134,7 @@ public class VoiceTrans {
 
             @Override
             public void onException(Throwable exception) {
+                LogUtil.e(TAG, "voice to text throw exception, e=" + exception.getMessage());
                 voiceTransText.setText("参数错误");
                 failIcon.setVisibility(View.VISIBLE);
                 updateUI();

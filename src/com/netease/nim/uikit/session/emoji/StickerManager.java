@@ -1,16 +1,16 @@
 package com.netease.nim.uikit.session.emoji;
 
-import android.content.Context;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.media.ThumbnailUtils;
 import android.util.Log;
 
 import com.netease.nim.uikit.NimUIKit;
-import com.netease.nim.uikit.common.cache.BitmapCache;
+import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.common.util.file.FileUtil;
-import com.netease.nim.uikit.common.util.log.LogUtil;
-import com.netease.nim.uikit.common.util.media.BitmapDecoder;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.download.ImageDownloader;
+import com.nostra13.universalimageloader.core.process.BitmapProcessor;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -31,9 +31,17 @@ public class StickerManager {
     private static final String CATEGORY_XXY = "xxy";
     private static final String CATEGORY_LT = "lt";
 
+    /**
+     * 数据源
+     */
     private List<StickerCategory> stickerCategories = new ArrayList<>();
     private Map<String, StickerCategory> stickerCategoryMap = new HashMap<>();
     private Map<String, Integer> stickerOrder = new HashMap<>(3);
+
+    /**
+     * ImageLoader
+     */
+    private Map<Integer, DisplayImageOptions> stickerImageOptions = new HashMap<>(2);
 
     public static StickerManager getInstance() {
         if (instance == null) {
@@ -105,37 +113,64 @@ public class StickerManager {
         return stickerCategoryMap.get(name);
     }
 
-    public Bitmap getStickerBitmap(Context context, String categoryName, String stickerName) {
-        return getStickerBitmap(context, categoryName, stickerName, 0);
-    }
-
-    public Bitmap getStickerBitmap(Context context, String categoryName, String stickerName, int thumbSize) {
+    public String getStickerBitmapUri(String categoryName, String stickerName) {
         StickerManager manager = StickerManager.getInstance();
         StickerCategory category = manager.getCategory(categoryName);
         if (category == null) {
             return null;
         }
 
-        boolean thumb = thumbSize > 0;
         if (isSystemSticker(categoryName)) {
             if (!stickerName.contains(".png")) {
                 stickerName += ".png";
             }
 
             String path = "sticker/" + category.getName() + "/" + stickerName;
-            // 先检查缓存
-            String key = thumb ? path + "/" + thumbSize : path;
-            Bitmap bm = BitmapCache.getInstance().getBitmap(key);
-            if (bm == null) {
-                // 加入缓存
-                bm = thumb ? resize(loadAsAsset(context, path), thumbSize) : loadAsAsset(context, path);
-                BitmapCache.getInstance().putBitmap(key, bm);
-            }
-
-            return bm;
+            return ImageDownloader.Scheme.ASSETS.wrap(path);
         }
 
         return null;
+    }
+
+    /**
+     * **************************** StickerImageLoader ****************************
+     */
+
+    public DisplayImageOptions getStickerImageOptions(int resize) {
+        if (resize < 0) {
+            resize = 0;
+        }
+
+        if (!stickerImageOptions.containsKey(resize)) {
+            stickerImageOptions.put(resize, createStickerImageOption(resize));
+        }
+
+        return stickerImageOptions.get(resize);
+    }
+
+    private DisplayImageOptions createStickerImageOption(int resize) {
+        int defaultIcon = R.drawable.nim_default_img_failed;
+        return new DisplayImageOptions.Builder()
+                .showImageOnFail(defaultIcon)
+                .resetViewBeforeLoading(true)
+                .cacheInMemory(true)
+                .cacheOnDisk(false)
+                .preProcessor(new StickerBitmapResizeProcessor(resize))
+                .bitmapConfig(Bitmap.Config.RGB_565)
+                .build();
+    }
+
+    private class StickerBitmapResizeProcessor implements BitmapProcessor {
+        private int resize = 0;
+
+        public StickerBitmapResizeProcessor(int resize) {
+            this.resize = resize;
+        }
+
+        @Override
+        public Bitmap process(Bitmap bitmap) {
+            return resize(bitmap, resize);
+        }
     }
 
     private Bitmap resize(Bitmap source, int size) {
@@ -158,15 +193,5 @@ public class StickerManager {
         } else {
             return ThumbnailUtils.extractThumbnail(source, width, height, ThumbnailUtils.OPTIONS_RECYCLE_INPUT);
         }
-    }
-
-    private Bitmap loadAsAsset(Context context, String path) {
-        AssetManager assetManager = context.getAssets();
-        try {
-            return BitmapDecoder.decode(assetManager.open(path));
-        } catch (IOException e) {
-            LogUtil.i("StickerImageLoader", e.toString());
-        }
-        return null;
     }
 }

@@ -23,7 +23,7 @@ import com.netease.nim.uikit.common.util.sys.ActionBarUtil;
 import com.netease.nim.uikit.common.util.sys.TimeUtil;
 import com.netease.nim.uikit.contact.core.item.ContactIdFilter;
 import com.netease.nim.uikit.contact_selector.activity.ContactSelectActivity;
-import com.netease.nim.uikit.team.TeamDataCache;
+import com.netease.nim.uikit.cache.TeamDataCache;
 import com.netease.nim.uikit.team.adapter.TeamMemberAdapter;
 import com.netease.nim.uikit.team.adapter.TeamMemberAdapter.TeamMemberItem;
 import com.netease.nim.uikit.team.helper.AnnouncementHelper;
@@ -181,10 +181,10 @@ public class AdvancedTeamInfoActivity extends TActionBarActivity implements
             case AdvancedTeamMemberInfoActivity.REQ_CODE_REMOVE_MEMBER:
                 boolean isSetAdmin = data.getBooleanExtra(AdvancedTeamMemberInfoActivity.EXTRA_ISADMIN, false);
                 boolean isRemoveMember = data.getBooleanExtra(AdvancedTeamMemberInfoActivity.EXTRA_ISREMOVE, false);
-                String uid = data.getStringExtra(EXTRA_ID);
-                refreshAdmin(isSetAdmin, uid);
+                String account = data.getStringExtra(EXTRA_ID);
+                refreshAdmin(isSetAdmin, account);
                 if (isRemoveMember) {
-                    removeMember(uid);
+                    removeMember(account);
                 }
                 break;
             case REQUEST_CODE_MEMBER_LIST:
@@ -694,9 +694,9 @@ public class AdvancedTeamInfoActivity extends TActionBarActivity implements
         option.teamId = teamId;
         option.multi = false;
         option.maxSelectNum = 1;
-        ArrayList<String> includeUids = new ArrayList<>();
-        includeUids.addAll(memberAccounts);
-        option.itemFilter = new ContactIdFilter(includeUids, false);
+        ArrayList<String> includeAccounts = new ArrayList<>();
+        includeAccounts.addAll(memberAccounts);
+        option.itemFilter = new ContactIdFilter(includeAccounts, false);
         NimUIKit.startContactSelect(this, option, REQUEST_CODE_TRANSFER);
         dialog.dismiss();
     }
@@ -906,9 +906,9 @@ public class AdvancedTeamInfoActivity extends TActionBarActivity implements
     }
 
     @Override
-    public void onHeadImageViewClick(String uid) {
+    public void onHeadImageViewClick(String account) {
         // 打开群成员信息详细页面
-        AdvancedTeamMemberInfoActivity.startActivityForResult(AdvancedTeamInfoActivity.this, uid, teamId);
+        AdvancedTeamMemberInfoActivity.startActivityForResult(AdvancedTeamInfoActivity.this, account, teamId);
     }
 
     /**
@@ -981,17 +981,17 @@ public class AdvancedTeamInfoActivity extends TActionBarActivity implements
     /**
      * 移除群成员成功后，删除列表中的群成员
      *
-     * @param uid 被删除成员帐号
+     * @param account 被删除成员帐号
      */
-    private void removeMember(String uid) {
-        if (TextUtils.isEmpty(uid)) {
+    private void removeMember(String account) {
+        if (TextUtils.isEmpty(account)) {
             return;
         }
 
-        memberAccounts.remove(uid);
+        memberAccounts.remove(account);
 
         for (TeamMember m : members) {
-            if (m.getAccount().equals(uid)) {
+            if (m.getAccount().equals(account)) {
                 members.remove(m);
                 break;
             }
@@ -1000,7 +1000,7 @@ public class AdvancedTeamInfoActivity extends TActionBarActivity implements
         memberCountText.setText(String.format("共%d人", members.size()));
 
         for (TeamMemberItem item : dataSource) {
-            if (item.getAccount() != null && item.getAccount().equals(uid)) {
+            if (item.getAccount() != null && item.getAccount().equals(account)) {
                 dataSource.remove(item);
                 break;
             }
@@ -1012,18 +1012,18 @@ public class AdvancedTeamInfoActivity extends TActionBarActivity implements
      * 是否设置了管理员刷新界面
      *
      * @param isSetAdmin
-     * @param uid
+     * @param account
      */
-    private void refreshAdmin(boolean isSetAdmin, String uid) {
+    private void refreshAdmin(boolean isSetAdmin, String account) {
         if (isSetAdmin) {
-            if (managerList.contains(uid)) {
+            if (managerList.contains(account)) {
                 return;
             }
-            managerList.add(uid);
+            managerList.add(account);
             updateTeamMemberDataSource();
         } else {
-            if (managerList.contains(uid)) {
-                managerList.remove(uid);
+            if (managerList.contains(account)) {
+                managerList.remove(account);
                 updateTeamMemberDataSource();
             }
         }

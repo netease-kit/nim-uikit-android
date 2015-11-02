@@ -4,9 +4,7 @@ import android.text.TextUtils;
 
 import com.netease.nim.uikit.NimUIKit;
 import com.netease.nim.uikit.R;
-import com.netease.nim.uikit.team.TeamDataCache;
-import com.netease.nim.uikit.uinfo.UserInfoHelper;
-import com.netease.nimlib.sdk.msg.attachment.FileAttachment;
+import com.netease.nim.uikit.cache.TeamDataCache;
 import com.netease.nimlib.sdk.msg.attachment.NotificationAttachment;
 import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
@@ -22,7 +20,7 @@ import java.util.Map;
  * 系统消息描述文本构造器。主要是将各个系统消息转换为显示的文本内容。<br>
  * Created by huangjun on 2015/3/11.
  */
-public class SystemMessageDescBuilder {
+public class TeamNotificationHelper {
     private static ThreadLocal<String> teamId = new ThreadLocal<String>();
 
     public static String getMsgShowText(final IMMessage message) {
@@ -62,13 +60,13 @@ public class SystemMessageDescBuilder {
             text = buildKickMemberNotification(((MemberChangeAttachment) attachment));
             break;
         case LeaveTeam:
-            text = buildLeaveGroupNotification(fromAccount);
+            text = buildLeaveTeamNotification(fromAccount);
             break;
         case DismissTeam:
-            text = buildDismissGroupNotification(fromAccount);
+            text = buildDismissTeamNotification(fromAccount);
             break;
         case UpdateTeam:
-            text = buildUpdateGroupNotification(tid, fromAccount, (UpdateTeamAttachment) attachment);
+            text = buildUpdateTeamNotification(tid, fromAccount, (UpdateTeamAttachment) attachment);
             break;
         case PassTeamApply:
             text = buildManagerPassTeamApplyNotification((MemberChangeAttachment) attachment);
@@ -99,11 +97,11 @@ public class SystemMessageDescBuilder {
 
     private static String buildMemberListString(List<String> members, String fromAccount) {
         StringBuilder sb = new StringBuilder();
-        for (String uid : members) {
-            if (!TextUtils.isEmpty(fromAccount) && fromAccount.equals(uid)) {
+        for (String account : members) {
+            if (!TextUtils.isEmpty(fromAccount) && fromAccount.equals(account)) {
                 continue;
             }
-            sb.append(getTeamMemberDisplayName(uid));
+            sb.append(getTeamMemberDisplayName(account));
             sb.append(",");
         }
         sb.deleteCharAt(sb.length() - 1);
@@ -131,15 +129,15 @@ public class SystemMessageDescBuilder {
         return sb.toString();
     }
 
-    private static String buildLeaveGroupNotification(String fromAccount) {
+    private static String buildLeaveTeamNotification(String fromAccount) {
         return getTeamMemberDisplayName(fromAccount) + " 离开了群";
     }
 
-    private static String buildDismissGroupNotification(String fromAccount) {
+    private static String buildDismissTeamNotification(String fromAccount) {
         return getTeamMemberDisplayName(fromAccount) + " 解散了群";
     }
 
-    private static String buildUpdateGroupNotification(String tid, String account, UpdateTeamAttachment a) {
+    private static String buildUpdateTeamNotification(String tid, String account, UpdateTeamAttachment a) {
         StringBuilder sb = new StringBuilder();
         for (Map.Entry<TeamFieldEnum, Object> field : a.getUpdatedFields().entrySet()) {
             if (field.getKey() == TeamFieldEnum.Name) {

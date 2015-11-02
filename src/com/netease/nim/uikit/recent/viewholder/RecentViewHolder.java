@@ -1,5 +1,6 @@
 package com.netease.nim.uikit.recent.viewholder;
 
+import android.text.TextUtils;
 import android.text.style.ImageSpan;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -113,6 +114,11 @@ public abstract class RecentViewHolder extends TViewHolder implements OnClickLis
 
         String timeString = TimeUtil.getTimeShowString(recent.getTime(), true);
         tvDatetime.setText(timeString);
+        if (!TextUtils.isEmpty(timeString) && timeString.equals("1970-01-01")) {
+            tvDatetime.setVisibility(View.GONE);
+        } else {
+            tvDatetime.setVisibility(View.VISIBLE);
+        }
     }
 
     protected void updateNickLabel(String nick) {

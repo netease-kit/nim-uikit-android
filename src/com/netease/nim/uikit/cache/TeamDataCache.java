@@ -1,4 +1,4 @@
-package com.netease.nim.uikit.team;
+package com.netease.nim.uikit.cache;
 
 import android.text.TextUtils;
 
@@ -16,8 +16,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 群信息/群成员数据监听&缓存
@@ -41,7 +40,7 @@ public class TeamDataCache {
 
     /**
      * *
-     * ********************** 观察者 ************************
+     * ******************************************** 观察者 ********************************************
      */
 
     public interface TeamDataChangedObserver {
@@ -156,11 +155,9 @@ public class TeamDataCache {
 
     /**
      * *
-     * ********************** 群缓存与持久 ************************
+     * ******************************************** 群缓存与持久 ********************************************
      */
-    private Map<String, Team> id2TeamMap = new HashMap<>();
-
-    private ReadWriteLock lock = new ReentrantReadWriteLock();
+    private Map<String, Team> id2TeamMap = new ConcurrentHashMap<>();
 
     public List<Team> queryTeamList() {
         List<Team> teams = NIMClient.getService(TeamService.class).queryTeamListBlock();
@@ -169,37 +166,15 @@ public class TeamDataCache {
     }
 
     public void clearTeamCache() {
-        lock.writeLock().lock();
-        {
-            id2TeamMap.clear();
-        }
-        lock.writeLock().unlock();
+        id2TeamMap.clear();
     }
 
     public Team getTeamById(String id) {
-        if (id2TeamMap.isEmpty()) {
-            buildCache();
-        }
-
-        Team team;
-        lock.readLock().lock();
-        {
-            team = id2TeamMap.get(id);
-        }
-        lock.readLock().unlock();
-
-        return team;
+        return id2TeamMap.get(id);
     }
 
     public boolean isTeamInCache(String id) {
-        boolean exist;
-        lock.readLock().lock();
-        {
-            exist = id2TeamMap.containsKey(id);
-        }
-        lock.readLock().unlock();
-
-        return exist;
+        return id2TeamMap.containsKey(id);
     }
 
     public String getTeamName(String id) {
@@ -210,17 +185,11 @@ public class TeamDataCache {
 
     public List<Team> getAllTeams() {
         List<Team> teams = new ArrayList<>();
-
-        lock.readLock().lock();
-        {
-            for (Team t : id2TeamMap.values()) {
-                if (t.isMyTeam()) {
-                    teams.add(t);
-                }
+        for (Team t : id2TeamMap.values()) {
+            if (t.isMyTeam()) {
+                teams.add(t);
             }
         }
-        lock.readLock().unlock();
-
         return teams;
     }
 
@@ -234,31 +203,21 @@ public class TeamDataCache {
 
     private List<Team> getAllTeamsByType(TeamTypeEnum type) {
         List<Team> teams = new ArrayList<>();
-
-        lock.readLock().lock();
-        {
-            for (Team t : id2TeamMap.values()) {
-                if (t.isMyTeam() && t.getType() == type) {
-                    teams.add(t);
-                }
+        for (Team t : id2TeamMap.values()) {
+            if (t.isMyTeam() && t.getType() == type) {
+                teams.add(t);
             }
         }
-        lock.readLock().unlock();
 
         return teams;
     }
-
 
     public void addOrUpdateTeam(Team team) {
         if (team == null) {
             return;
         }
 
-        lock.writeLock().lock();
-        {
-            id2TeamMap.put(team.getId(), team);
-        }
-        lock.writeLock().unlock();
+        id2TeamMap.put(team.getId(), team);
     }
 
     public void addOrUpdateTeam(List<Team> teamList) {
@@ -266,17 +225,13 @@ public class TeamDataCache {
             return;
         }
 
-        lock.writeLock().lock();
-        {
-            for (Team t : teamList) {
-                if (t == null) {
-                    continue;
-                }
-
-                id2TeamMap.put(t.getId(), t);
+        for (Team t : teamList) {
+            if (t == null) {
+                continue;
             }
+
+            id2TeamMap.put(t.getId(), t);
         }
-        lock.writeLock().unlock();
     }
 
     /**

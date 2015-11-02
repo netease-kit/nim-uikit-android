@@ -2,7 +2,7 @@ package com.netease.nim.uikit.recent.viewholder;
 
 import com.netease.nim.uikit.NimUIKit;
 import com.netease.nim.uikit.common.util.sys.TimeUtil;
-import com.netease.nim.uikit.session.helper.SystemMessageDescBuilder;
+import com.netease.nim.uikit.session.helper.TeamNotificationHelper;
 import com.netease.nimlib.sdk.avchat.constant.AVChatRecordState;
 import com.netease.nimlib.sdk.avchat.constant.AVChatType;
 import com.netease.nimlib.sdk.avchat.model.AVChatAttachment;
@@ -54,7 +54,7 @@ public class CommonRecentViewHolder extends RecentViewHolder {
             case file:
                 return "[文件]";
             case notification:
-                return SystemMessageDescBuilder.getTeamNotificationText(recent.getContactId(),
+                return TeamNotificationHelper.getTeamNotificationText(recent.getContactId(),
                         recent.getFromAccount(),
                         (NotificationAttachment) recent.getAttachment());
             case avchat:

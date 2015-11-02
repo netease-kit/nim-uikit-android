@@ -3,7 +3,7 @@ package com.netease.nim.uikit.uinfo;
 import android.text.TextUtils;
 
 import com.netease.nim.uikit.NimUIKit;
-import com.netease.nim.uikit.team.TeamDataCache;
+import com.netease.nim.uikit.cache.TeamDataCache;
 import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.uinfo.UserInfoProvider;
 

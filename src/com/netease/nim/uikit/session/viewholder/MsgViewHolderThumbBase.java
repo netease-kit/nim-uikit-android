@@ -98,8 +98,11 @@ public abstract class MsgViewHolderThumbBase extends MsgViewHolderBase {
                 bounds = new int[]{attachment.getWidth(), attachment.getHeight()};
             }
         }
-        ImageUtil.ImageSize imageSize = ImageUtil.getThumbnailDisplaySize(bounds[0], bounds[1], getImageMaxEdge(), getImageMinEdge());
-        setLayoutParams(imageSize.width, imageSize.height, thumbnail);
+
+        if (bounds != null) {
+            ImageUtil.ImageSize imageSize = ImageUtil.getThumbnailDisplaySize(bounds[0], bounds[1], getImageMaxEdge(), getImageMinEdge());
+            setLayoutParams(imageSize.width, imageSize.height, thumbnail);
+        }
     }
 
     private int maskBg() {

@@ -123,4 +123,34 @@
         <item name="android:gravity">center_vertical</item>
     </style>
 
+    <!-- Dark ActionBar -->
+    <style name="DarkBaseActionBarTheme" parent="@style/Theme.AppCompat.Light.DarkActionBar">
+        <item name="actionBarStyle">@style/DarkBaseActionBarStyle</item>
+        <item name="homeAsUpIndicator">@drawable/nim_actionbar_white_back_icon</item>
+        <item name="android:actionBarStyle">@style/DarkBaseActionBarStyle</item>
+        <item name="android:windowContentOverlay">@null</item>
+    </style>
+
+    <!-- Overlay Dark ActionBar -->
+    <style name="DarkOverlayActionBarTheme" parent="@style/DarkBaseActionBarTheme">
+        <item name="windowActionBarOverlay">true</item>
+        <item name="android:windowActionBarOverlay">true</item>
+    </style>
+
+    <style name="DarkBaseActionBarStyle" parent="@style/Widget.AppCompat.ActionBar">
+        <item name="android:background">@drawable/nim_actionbar_black_bg</item>
+        <item name="background">@drawable/nim_actionbar_black_bg</item>
+        <item name="height">@dimen/action_bar_height</item>
+        <item name="icon">@color/transparent</item>
+        <item name="titleTextStyle">@style/DarkActionBarTitleTextStyle</item>
+        <item name="android:height">@dimen/action_bar_height</item>
+        <item name="android:icon">@color/transparent</item>
+        <item name="android:titleTextStyle">@style/DarkActionBarTitleTextStyle</item>
+    </style>
+
+    <style name="DarkActionBarTitleTextStyle" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Title">
+        <item name="android:textSize">17sp</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+
 </resources>

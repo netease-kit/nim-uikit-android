@@ -16,6 +16,7 @@ import com.netease.nim.uikit.common.util.sys.TimeUtil;
 import com.netease.nim.uikit.session.audio.MessageAudioControl;
 import com.netease.nimlib.sdk.msg.attachment.AudioAttachment;
 import com.netease.nimlib.sdk.msg.constant.AttachStatusEnum;
+import com.netease.nimlib.sdk.msg.constant.MsgDirectionEnum;
 import com.netease.nimlib.sdk.msg.constant.MsgStatusEnum;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
 
@@ -61,8 +62,7 @@ public class MsgViewHolderAudio extends MsgViewHolderBase {
     @Override
     protected void onItemClick() {
         if (audioControl != null) {
-            if (message.getAttachStatus() != AttachStatusEnum.transferred) {
-                // todo 未下载完毕或者消息错误时
+            if (message.getDirect() == MsgDirectionEnum.In && message.getAttachStatus() != AttachStatusEnum.transferred) {
                 return;
             }
 

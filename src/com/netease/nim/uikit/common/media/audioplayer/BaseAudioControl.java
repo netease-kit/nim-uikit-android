@@ -61,8 +61,13 @@ abstract public class BaseAudioControl<T> {
         basePlayerListener.setAudioControlListener(audioControlListener);
     }
 
-    protected void setEarPhoneModeEnable(boolean isEarPhoneModeEnable) {
+    public void setEarPhoneModeEnable(boolean isEarPhoneModeEnable) {
     	this.isEarPhoneModeEnable = isEarPhoneModeEnable;
+		if (isEarPhoneModeEnable) {
+			updateAudioStreamType(AudioManager.STREAM_VOICE_CALL);
+		} else {
+			updateAudioStreamType(AudioManager.STREAM_MUSIC);
+		}
     }
     
 	@SuppressWarnings("unchecked")

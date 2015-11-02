@@ -6,11 +6,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 
-import com.netease.nim.uikit.common.ui.ptr.PullToRefreshListView;
+import com.netease.nim.uikit.UIKitLogTag;
 import com.netease.nim.uikit.common.ui.liv.LetterIndexView;
 import com.netease.nim.uikit.common.ui.liv.LivIndex;
+import com.netease.nim.uikit.common.util.log.LogUtil;
 import com.netease.nim.uikit.contact.core.item.AbsContactItem;
 import com.netease.nim.uikit.contact.core.item.ContactItemFilter;
 import com.netease.nim.uikit.contact.core.model.ContactDataTask.Host;
@@ -79,7 +81,7 @@ public class ContactDataAdapter extends BaseAdapter {
         this.disableFilter = disableFilter;
     }
 
-    public final LivIndex createLivIndex(PullToRefreshListView lv, LetterIndexView liv, TextView tvHit, ImageView ivBk) {
+    public final LivIndex createLivIndex(ListView lv, LetterIndexView liv, TextView tvHit, ImageView ivBk) {
         return new LivIndex(lv, liv, tvHit, ivBk, getIndexes());
     }
 
@@ -186,16 +188,20 @@ public class ContactDataAdapter extends BaseAdapter {
     // LOAD
     //
 
-    public final void load(boolean reload) {
-        if (!reload && !isEmpty()) {
-            return;
-        }
-
-        startTask(null, false);
-    }
-
     public final void query(String query) {
         startTask(new TextQuery(query), true);
+    }
+
+    public final boolean load(boolean reload) {
+        if (!reload && !isEmpty()) {
+            return false;
+        }
+
+        LogUtil.i(UIKitLogTag.CONTACT, "contact load data");
+
+        startTask(null, false);
+
+        return true;
     }
 
     public final void query(TextQuery query) {

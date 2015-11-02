@@ -1,6 +1,5 @@
 package com.netease.nim.uikit.contact;
 
-import com.netease.nimlib.sdk.RequestCallback;
 import com.netease.nimlib.sdk.uinfo.UserInfoProvider;
 
 import java.util.List;
@@ -15,13 +14,6 @@ public interface ContactProvider {
      * @return 用户信息集合
      */
     List<UserInfoProvider.UserInfo> getUserInfoOfMyFriends();
-
-    /**
-     * 向服务器请求所有好友用户信息，提供给通讯录刷新（请求数据）使用
-     *
-     * @param callback 回调
-     */
-    void getUserInfoOfMyFriends(RequestCallback<List<UserInfoProvider.UserInfo>> callback);
 
     /**
      * 返回我的好友数量，提供给通讯录显示所有联系人数量使用

@@ -542,7 +542,7 @@ public class CaptureVideoActivity extends TActionBarActivity implements SurfaceH
             message += mb > 1 ? getString(R.string.capture_video_size_in_mb, mb) : getString(
                     R.string.capture_video_size_in_kb, kb);
             message += getString(R.string.is_send_video);
-            if(mb<=1&& kb<10) {
+            if(mb <= 1 && kb < 10) {
                 tooShortAlert();
                 return;
             }
