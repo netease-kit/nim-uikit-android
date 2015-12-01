@@ -9,8 +9,10 @@ import com.netease.nimlib.sdk.msg.attachment.NotificationAttachment;
 import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
 import com.netease.nimlib.sdk.team.constant.TeamFieldEnum;
+import com.netease.nimlib.sdk.team.constant.TeamTypeEnum;
 import com.netease.nimlib.sdk.team.constant.VerifyTypeEnum;
 import com.netease.nimlib.sdk.team.model.MemberChangeAttachment;
+import com.netease.nimlib.sdk.team.model.Team;
 import com.netease.nimlib.sdk.team.model.UpdateTeamAttachment;
 
 import java.util.List;
@@ -116,7 +118,7 @@ public class TeamNotificationHelper {
         sb.append(selfName);
         sb.append("邀请 ");
         sb.append(buildMemberListString(a.getTargets(), fromAccount));
-        sb.append(" 加入群");
+        sb.append(" 加入讨论组");
 
         return sb.toString();
     }
@@ -124,13 +126,26 @@ public class TeamNotificationHelper {
     private static String buildKickMemberNotification(MemberChangeAttachment a) {
         StringBuilder sb = new StringBuilder();
         sb.append(buildMemberListString(a.getTargets(), null));
-        sb.append(" 已被移出群");
+        Team team = TeamDataCache.getInstance().getTeamById(teamId.get());
+        if (team.getType() == TeamTypeEnum.Advanced) {
+            sb.append(" 已被移出群");
+        } else {
+            sb.append(" 已被移出讨论组");
+        }
+
 
         return sb.toString();
     }
 
     private static String buildLeaveTeamNotification(String fromAccount) {
-        return getTeamMemberDisplayName(fromAccount) + " 离开了群";
+        String tip = null;
+        Team team = TeamDataCache.getInstance().getTeamById(teamId.get());
+        if (team.getType() == TeamTypeEnum.Advanced) {
+            tip = " 离开了群";
+        } else {
+            tip = " 离开了讨论组";
+        }
+        return getTeamMemberDisplayName(fromAccount) + tip;
     }
 
     private static String buildDismissTeamNotification(String fromAccount) {
@@ -141,7 +156,7 @@ public class TeamNotificationHelper {
         StringBuilder sb = new StringBuilder();
         for (Map.Entry<TeamFieldEnum, Object> field : a.getUpdatedFields().entrySet()) {
             if (field.getKey() == TeamFieldEnum.Name) {
-                sb.append("群名称被更新为 " + field.getValue());
+                sb.append("名称被更新为 " + field.getValue());
             } else if (field.getKey() == TeamFieldEnum.Introduce) {
                 sb.append("群介绍被更新为 " + field.getValue());
             } else if (field.getKey() == TeamFieldEnum.Announcement) {

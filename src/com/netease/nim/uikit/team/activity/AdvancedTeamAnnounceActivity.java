@@ -14,19 +14,17 @@ import android.widget.Toast;
 
 import com.netease.nim.uikit.NimUIKit;
 import com.netease.nim.uikit.R;
+import com.netease.nim.uikit.cache.SimpleCallback;
+import com.netease.nim.uikit.cache.TeamDataCache;
 import com.netease.nim.uikit.common.activity.TActionBarActivity;
 import com.netease.nim.uikit.common.adapter.TAdapter;
 import com.netease.nim.uikit.common.adapter.TAdapterDelegate;
 import com.netease.nim.uikit.common.adapter.TViewHolder;
 import com.netease.nim.uikit.common.ui.listview.ListViewUtil;
 import com.netease.nim.uikit.common.util.sys.ActionBarUtil;
-import com.netease.nim.uikit.cache.TeamDataCache;
 import com.netease.nim.uikit.team.helper.AnnouncementHelper;
 import com.netease.nim.uikit.team.model.Announcement;
 import com.netease.nim.uikit.team.viewholder.TeamAnnounceHolder;
-import com.netease.nimlib.sdk.NIMClient;
-import com.netease.nimlib.sdk.RequestCallbackWrapper;
-import com.netease.nimlib.sdk.team.TeamService;
 import com.netease.nimlib.sdk.team.constant.TeamMemberType;
 import com.netease.nimlib.sdk.team.model.Team;
 import com.netease.nimlib.sdk.team.model.TeamMember;
@@ -163,28 +161,28 @@ public class AdvancedTeamAnnounceActivity extends TActionBarActivity implements 
         Team t = TeamDataCache.getInstance().getTeamById(teamId);
         if (t != null) {
             updateAnnounceInfo(t);
-        } else
-            NIMClient.getService(TeamService.class).queryTeam(teamId).setCallback(new RequestCallbackWrapper<Team>() {
+        } else {
+            TeamDataCache.getInstance().fetchTeamById(teamId, new SimpleCallback<Team>() {
                 @Override
-                public void onResult(int code, Team team, Throwable exception) {
-                    if (team != null) {
-                        TeamDataCache.getInstance().addOrUpdateTeam(team);
-                        updateAnnounceInfo(team);
+                public void onResult(boolean success, Team result) {
+                    if (success && result != null) {
+                        updateAnnounceInfo(result);
                     }
                 }
             });
+        }
     }
 
     private void requestMemberData() {
-        TeamMember teamMember = TeamDataCache.getInstance().getTeamMemberByAccount(teamId, NimUIKit.getAccount());
+        TeamMember teamMember = TeamDataCache.getInstance().getTeamMember(teamId, NimUIKit.getAccount());
         if (teamMember != null) {
             updateTeamMember(teamMember);
         } else {
             // 请求群成员
-            NIMClient.getService(TeamService.class).queryTeamMember(teamId, NimUIKit.getAccount()).setCallback(new RequestCallbackWrapper<TeamMember>() {
+            TeamDataCache.getInstance().fetchTeamMember(teamId, NimUIKit.getAccount(), new SimpleCallback<TeamMember>() {
                 @Override
-                public void onResult(int code, TeamMember member, Throwable exception) {
-                    if (member != null) {
+                public void onResult(boolean success, TeamMember member) {
+                    if (success && member != null) {
                         updateTeamMember(member);
                     }
                 }
@@ -230,7 +228,7 @@ public class AdvancedTeamAnnounceActivity extends TActionBarActivity implements 
             announceTips.setVisibility(View.GONE);
         }
 
-        List<Announcement> list = AnnouncementHelper.getAnnouncements(announce, isMember ? 5 : Integer.MAX_VALUE);
+        List<Announcement> list = AnnouncementHelper.getAnnouncements(teamId, announce, isMember ? 5 : Integer.MAX_VALUE);
         if (list == null || list.isEmpty()) {
             return;
         }
@@ -245,6 +243,7 @@ public class AdvancedTeamAnnounceActivity extends TActionBarActivity implements 
 
     /**
      * 跳转到选中的公告
+     *
      * @param list 群公告列表
      */
     private void jumpToIndex(List<Announcement> list) {

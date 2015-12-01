@@ -3,6 +3,7 @@ package com.netease.nim.uikit.team.viewholder;
 import android.widget.TextView;
 
 import com.netease.nim.uikit.R;
+import com.netease.nim.uikit.cache.TeamDataCache;
 import com.netease.nim.uikit.common.adapter.TViewHolder;
 import com.netease.nim.uikit.common.util.sys.TimeUtil;
 import com.netease.nim.uikit.team.model.Announcement;
@@ -34,7 +35,7 @@ public class TeamAnnounceHolder extends TViewHolder {
     protected void refresh(Object item) {
         Announcement a = (Announcement) item;
         announceTitle.setText(a.getTitle());
-        teamName.setText(a.getCreator());
+        teamName.setText(TeamDataCache.getInstance().getTeamMemberDisplayName(a.getTeamId(), a.getCreator()));
         announceCreateTime.setText(TimeUtil.getTimeShowString(a.getTime(), false));
         announceContent.setText(a.getContent());
     }

@@ -53,21 +53,10 @@
                 android:layout_alignParentBottom="true"
                 android:background="@drawable/nim_red_round_button_selector"
                 android:minHeight="50dp"
-                android:text="@string/quit_team"
+                android:text="@string/quit_normal_team"
                 android:textColor="@color/white"
                 android:textSize="@dimen/text_size_17" />
 
-            <Button
-                android:id="@+id/create_team"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
-                android:background="@drawable/nim_team_create_btn_selector"
-                android:minHeight="50dp"
-                android:text="@string/create_team"
-                android:textColor="@color/white"
-                android:textSize="@dimen/text_size_17"
-                android:visibility="gone" />
         </RelativeLayout>
     </LinearLayout>
 </ScrollView>

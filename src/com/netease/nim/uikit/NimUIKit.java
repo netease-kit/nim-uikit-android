@@ -6,6 +6,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.netease.nim.uikit.cache.DataCacheManager;
+import com.netease.nim.uikit.cache.TeamDataCache;
 import com.netease.nim.uikit.common.util.log.LogUtil;
 import com.netease.nim.uikit.common.util.storage.StorageType;
 import com.netease.nim.uikit.common.util.storage.StorageUtil;
@@ -20,7 +21,6 @@ import com.netease.nim.uikit.session.activity.TeamMessageActivity;
 import com.netease.nim.uikit.session.emoji.StickerManager;
 import com.netease.nim.uikit.session.viewholder.MsgViewHolderBase;
 import com.netease.nim.uikit.session.viewholder.MsgViewHolderFactory;
-import com.netease.nim.uikit.cache.TeamDataCache;
 import com.netease.nim.uikit.team.activity.AdvancedTeamInfoActivity;
 import com.netease.nim.uikit.team.activity.NormalTeamInfoActivity;
 import com.netease.nim.uikit.uinfo.UserInfoHelper;
@@ -142,7 +142,7 @@ public final class NimUIKit {
     }
 
     /**
-     * 打开普通群或高级群资料页
+     * 打开讨论组或高级群资料页
      *
      * @param context 上下文
      * @param teamId  群id
@@ -153,9 +153,9 @@ public final class NimUIKit {
             return;
         }
         if (team.getType() == TeamTypeEnum.Advanced) {
-            AdvancedTeamInfoActivity.start(context, teamId); // 启动固定群组资料页
+            AdvancedTeamInfoActivity.start(context, teamId); // 启动固定群资料页
         } else if (team.getType() == TeamTypeEnum.Normal) {
-            NormalTeamInfoActivity.start(context, teamId); // 启动普通群组资料页
+            NormalTeamInfoActivity.start(context, teamId); // 启动讨论组资料页
         }
 
     }
@@ -196,6 +196,14 @@ public final class NimUIKit {
      */
     public static void registerMsgItemViewHolder(Class<? extends MsgAttachment> attach, Class<? extends MsgViewHolderBase> viewHolder) {
         MsgViewHolderFactory.register(attach, viewHolder);
+    }
+
+    /**
+     * 注册Tip类型消息项展示ViewHolder
+     * @param viewHolder Tip消息ViewHolder
+     */
+    public static void registerTipMsgViewHolder(Class<? extends MsgViewHolderBase> viewHolder) {
+        MsgViewHolderFactory.registerTipMsgViewHolder(viewHolder);
     }
 
     /**

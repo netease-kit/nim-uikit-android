@@ -11,12 +11,12 @@ import com.netease.nimlib.sdk.Observer;
 import com.netease.nimlib.sdk.RequestCallback;
 import com.netease.nimlib.sdk.RequestCallbackWrapper;
 import com.netease.nimlib.sdk.ResponseCode;
+import com.netease.nimlib.sdk.friend.model.Friend;
 import com.netease.nimlib.sdk.uinfo.UserService;
 import com.netease.nimlib.sdk.uinfo.UserServiceObserve;
 import com.netease.nimlib.sdk.uinfo.model.NimUserInfo;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -34,7 +34,7 @@ public class NimUserInfoCache {
 
     private Map<String, NimUserInfo> account2UserMap = new ConcurrentHashMap<>();
 
-    private Map<String, List<RequestCallback<NimUserInfo>>> requestUserInfoMap = new HashMap<>(); // 重复请求处理
+    private Map<String, List<RequestCallback<NimUserInfo>>> requestUserInfoMap = new ConcurrentHashMap<>(); // 重复请求处理
 
     /**
      * 构建缓存与清理
@@ -153,20 +153,48 @@ public class NimUserInfoCache {
     }
 
     public NimUserInfo getUserInfo(String account) {
+        if (TextUtils.isEmpty(account) || account2UserMap == null) {
+            LogUtil.e(UIKitLogTag.USER_CACHE, "getUserInfo null, account=" + account + ", account2UserMap=" + account2UserMap);
+            return null;
+        }
+
         return account2UserMap.get(account);
     }
 
     public boolean hasUser(String account) {
+        if (TextUtils.isEmpty(account) || account2UserMap == null) {
+            LogUtil.e(UIKitLogTag.USER_CACHE, "hasUser null, account=" + account + ", account2UserMap=" + account2UserMap);
+            return false;
+        }
+
         return account2UserMap.containsKey(account);
     }
 
+    /**
+     * 获取用户显示名称。
+     * 若设置了备注名，则显示备注名。
+     * 若没有设置备注名，用户有昵称则显示昵称，用户没有昵称则显示帐号。
+     *
+     * @param account 用户帐号
+     * @return
+     */
     public String getUserDisplayName(String account) {
-        NimUserInfo u = getUserInfo(account);
-        if (u != null) {
-            return !TextUtils.isEmpty(u.getName()) ? u.getName() : u.getAccount();
+        Friend friend = FriendDataCache.getInstance().getFriendByAccount(account);
+        if (friend != null && !TextUtils.isEmpty(friend.getAlias())) {
+            return friend.getAlias();
         }
 
-        return account;
+        return getUserName(account);
+    }
+
+    // 获取用户原本的昵称
+    public String getUserName(String account) {
+        NimUserInfo userInfo = getUserInfo(account);
+        if (userInfo != null && !TextUtils.isEmpty(userInfo.getName())) {
+            return userInfo.getName();
+        } else {
+            return account;
+        }
     }
 
     public String getUserDisplayNameEx(String account) {

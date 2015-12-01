@@ -208,7 +208,7 @@ public class TeamPropertySettingActivity extends TActionBarActivity implements V
      * 保存设置
      */
     private void saveTeamProperty() {
-        if(teamId == null) { // 普通群创建时，设置群名称
+        if(teamId == null) { // 讨论组创建时，设置群名称
             Intent intent = new Intent();
             intent.putExtra(EXTRA_DATA, editText.getText().toString());
             setResult(Activity.RESULT_OK, intent);

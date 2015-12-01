@@ -30,7 +30,7 @@ public interface ItemTypes {
     interface TEAMS {
         int BASE = ItemTypes.TEAM << 16;
 
-        int NORMAL_TEAM = BASE + 1; // 普通群
+        int NORMAL_TEAM = BASE + 1; // 讨论组
 
         int ADVANCED_TEAM = BASE + 2; // 高级群
 

@@ -10,11 +10,12 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.netease.nim.uikit.R;
+import com.netease.nim.uikit.cache.SimpleCallback;
+import com.netease.nim.uikit.cache.TeamDataCache;
 import com.netease.nim.uikit.common.activity.TActionBarActivity;
 import com.netease.nim.uikit.common.ui.dialog.DialogMaker;
 import com.netease.nim.uikit.common.util.sys.ActionBarUtil;
 import com.netease.nim.uikit.common.util.sys.NetworkUtil;
-import com.netease.nim.uikit.cache.TeamDataCache;
 import com.netease.nim.uikit.team.helper.AnnouncementHelper;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.RequestCallback;
@@ -83,7 +84,7 @@ public class AdvancedTeamCreateAnnounceActivity extends TActionBarActivity {
             return;
         }
 
-        if(TextUtils.isEmpty(teamAnnounceTitle.getText().toString())) {
+        if (TextUtils.isEmpty(teamAnnounceTitle.getText().toString())) {
             Toast.makeText(AdvancedTeamCreateAnnounceActivity.this, R.string.team_announce_notice, Toast.LENGTH_SHORT).show();
             return;
         }
@@ -95,22 +96,15 @@ public class AdvancedTeamCreateAnnounceActivity extends TActionBarActivity {
             updateTeamData(t);
             updateAnnounce();
         } else {
-            NIMClient.getService(TeamService.class).queryTeam(teamId).setCallback(new RequestCallback<Team>() {
+            TeamDataCache.getInstance().fetchTeamById(teamId, new SimpleCallback<Team>() {
                 @Override
-                public void onSuccess(Team param) {
-                    updateTeamData(param);
-                    updateAnnounce();
-                    TeamDataCache.getInstance().addOrUpdateTeam(param);
-                }
-
-                @Override
-                public void onFailed(int code) {
-                    ActionBarUtil.setTextViewEnable(AdvancedTeamCreateAnnounceActivity.this, true);
-                }
-
-                @Override
-                public void onException(Throwable exception) {
-                    ActionBarUtil.setTextViewEnable(AdvancedTeamCreateAnnounceActivity.this, true);
+                public void onResult(boolean success, Team result) {
+                    if (success && result != null) {
+                        updateTeamData(result);
+                        updateAnnounce();
+                    } else {
+                        ActionBarUtil.setTextViewEnable(AdvancedTeamCreateAnnounceActivity.this, true);
+                    }
                 }
             });
         }
@@ -118,6 +112,7 @@ public class AdvancedTeamCreateAnnounceActivity extends TActionBarActivity {
 
     /**
      * 获得最新公告内容
+     *
      * @param team 群
      */
     private void updateTeamData(Team team) {
@@ -134,9 +129,9 @@ public class AdvancedTeamCreateAnnounceActivity extends TActionBarActivity {
      * 创建公告更新到服务器
      */
     private void updateAnnounce() {
-        String announceMent = AnnouncementHelper.makeAnnounceJson(teamId, announce, teamAnnounceTitle.getText().toString(),
+        String announcement = AnnouncementHelper.makeAnnounceJson(announce, teamAnnounceTitle.getText().toString(),
                 teamAnnounceContent.getText().toString());
-        NIMClient.getService(TeamService.class).updateTeam(teamId, TeamFieldEnum.Announcement, announceMent).setCallback(new RequestCallback<Void>() {
+        NIMClient.getService(TeamService.class).updateTeam(teamId, TeamFieldEnum.Announcement, announcement).setCallback(new RequestCallback<Void>() {
             @Override
             public void onSuccess(Void param) {
                 DialogMaker.dismissProgressDialog();

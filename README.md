@@ -218,6 +218,23 @@ public class SessionListFragment extends MainTabFragment {
                 }
                 return null;
             }
+            
+            @Override
+            public String getDigestOfTipMsg(RecentContact recent) {
+                String msgId = recent.getRecentMessageId();
+                List<String> uuids = new ArrayList<>(1);
+                uuids.add(msgId);
+                List<IMMessage> msgs = NIMClient.getService(MsgService.class).queryMessageListByUuidBlock(uuids);
+                if (msgs != null && !msgs.isEmpty()) {
+                    IMMessage msg = msgs.get(0);
+                    Map<String, Object> content = msg.getRemoteExtension();
+                    if (content != null && !content.isEmpty()) {
+                        return (String) content.get("content");
+                     }
+                }
+            
+                return null;
+            }
         });
     }
 ```
@@ -388,6 +405,13 @@ NimUIKit.registerMsgItemViewHolder(GuessAttachment.class, MsgViewHolderGuess.cla
 NimUIKit.registerMsgItemViewHolder(FileAttachment.class, MsgViewHolderFile.class);
 ```
 
+当用户使用 Tip 消息时，需要注册 Tip 消息项展示 ViewHolder
+
+```
+// 在Application初始化中注册
+NimUIKit.registerTipMsgViewHolder(MsgViewHolderTip.class);
+```
+
 #### 设置会话中点击事件响应处理
 
 会话窗口消息列表提供一些点击事件的响应处理函数，见 `SessionEventListener`：
@@ -534,7 +558,7 @@ public final static class FuncItem extends AbsContactItem {
         @Override
         public void refresh(ContactDataAdapter contactAdapter, int position, FuncItem item) {
             if (item == NORMAL_TEAM) {
-                funcName.setText("普通群");
+                funcName.setText("讨论组");
                 image.setImageResource(R.drawable.ic_secretary);
             } else if (item == BLACK_LIST) {
                 funcName.setText("黑名单");
@@ -604,9 +628,9 @@ NimUIKit.startContactSelect(NormalTeamInfoActivity.this, option, REQUEST_CODE_CO
 
 ## <span id="群名片"> 群名片</span>
 
-### <span id="打开普通群或高级群资料页"> 打开普通群或高级群资料页</span>
+### <span id="打开讨论组或高级群资料页"> 打开讨论组或高级群资料页</span>
 
-创建普通群或高级群后，可以查看群资料，进行群消息提醒设置，群名称设置等操作。只需要传入参数：上下文和群id就可以打开相关的群资料页面。具体代码示例如下：
+创建讨论组或高级群后，可以查看群资料，进行群消息提醒设置，群名称设置等操作。只需要传入参数：上下文和群id就可以打开相关的群资料页面。具体代码示例如下：
 
 ```
 // 例如在定制 actionbar 右上角按钮时，点击打开群资料页面。

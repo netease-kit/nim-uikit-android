@@ -320,9 +320,6 @@ public class AdvancedTeamCreateActivity extends TActionBarActivity implements TA
             return;
         }
         Log.i(TAG, "create and update team success");
-
-        TeamDataCache.getInstance().addOrUpdateTeam(team);
-
         DialogMaker.dismissProgressDialog();
         Toast.makeText(AdvancedTeamCreateActivity.this, R.string.create_team_success,
                 Toast.LENGTH_SHORT).show();

@@ -8,16 +8,14 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.netease.nim.uikit.R;
-import com.netease.nim.uikit.common.util.log.LogUtil;
+import com.netease.nim.uikit.cache.FriendDataCache;
+import com.netease.nim.uikit.cache.SimpleCallback;
+import com.netease.nim.uikit.cache.TeamDataCache;
 import com.netease.nim.uikit.session.SessionCustomization;
 import com.netease.nim.uikit.session.constant.Extras;
 import com.netease.nim.uikit.session.fragment.MessageFragment;
 import com.netease.nim.uikit.session.fragment.TeamMessageFragment;
-import com.netease.nim.uikit.cache.TeamDataCache;
-import com.netease.nimlib.sdk.NIMClient;
-import com.netease.nimlib.sdk.RequestCallback;
 import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
-import com.netease.nimlib.sdk.team.TeamService;
 import com.netease.nimlib.sdk.team.model.Team;
 import com.netease.nimlib.sdk.team.model.TeamMember;
 
@@ -88,34 +86,21 @@ public class TeamMessageActivity extends BaseMessageActivity {
         if (t != null) {
             updateTeamInfo(t);
         } else {
-            NIMClient.getService(TeamService.class).queryTeam(sessionId).setCallback(new RequestCallback<Team>() {
+            TeamDataCache.getInstance().fetchTeamById(sessionId, new SimpleCallback<Team>() {
                 @Override
-                public void onSuccess(Team team) {
-                    if (team != null) {
-                        TeamDataCache.getInstance().addOrUpdateTeam(team);
-                        updateTeamInfo(team);
+                public void onResult(boolean success, Team result) {
+                    if (success && result != null) {
+                        updateTeamInfo(result);
                     } else {
                         onRequestTeamInfoFailed();
-                        LogUtil.e(TAG, "request team info failed, team is null");
                     }
-                }
-
-                @Override
-                public void onFailed(int code) {
-                    onRequestTeamInfoFailed();
-                    LogUtil.e(TAG, "request team info failed, error code =" + code);
-                }
-
-                @Override
-                public void onException(Throwable exception) {
-                    onRequestTeamInfoFailed();
                 }
             });
         }
     }
 
     private void onRequestTeamInfoFailed() {
-        Toast.makeText(TeamMessageActivity.this, "获取群信息失败!", Toast.LENGTH_SHORT);
+        Toast.makeText(TeamMessageActivity.this, "获取群组信息失败!", Toast.LENGTH_SHORT);
         finish();
     }
 
@@ -149,6 +134,7 @@ public class TeamMessageActivity extends BaseMessageActivity {
             TeamDataCache.getInstance().unregisterTeamDataChangedObserver(teamDataChangedObserver);
             TeamDataCache.getInstance().unregisterTeamMemberDataChangedObserver(teamMemberDataChangedObserver);
         }
+        FriendDataCache.getInstance().registerFriendDataChangedObserver(friendDataChangedObserver, register);
     }
 
     /**
@@ -187,6 +173,28 @@ public class TeamMessageActivity extends BaseMessageActivity {
         @Override
         public void onRemoveTeamMember(TeamMember member) {
 
+        }
+    };
+
+    FriendDataCache.FriendDataChangedObserver friendDataChangedObserver = new FriendDataCache.FriendDataChangedObserver() {
+        @Override
+        public void onAddedOrUpdatedFriends(List<String> accounts) {
+            fragment.refreshMessageList();
+        }
+
+        @Override
+        public void onDeletedFriends(List<String> accounts) {
+            fragment.refreshMessageList();
+        }
+
+        @Override
+        public void onAddUserToBlackList(List<String> account) {
+            fragment.refreshMessageList();
+        }
+
+        @Override
+        public void onRemoveUserFromBlackList(List<String> account) {
+            fragment.refreshMessageList();
         }
     };
 

@@ -51,7 +51,7 @@ public class TeamMemberDataProvider {
      * * 数据查询
      */
     private static final List<TeamMemberContact> query(TextQuery query, String tid) {
-        List<TeamMember> teamMembers = TeamDataCache.getInstance().getTeamMemberListById(tid);
+        List<TeamMember> teamMembers = TeamDataCache.getInstance().getTeamMemberList(tid);
 
         List<TeamMemberContact> contacts = new ArrayList<>();
         for (TeamMember t : teamMembers) {

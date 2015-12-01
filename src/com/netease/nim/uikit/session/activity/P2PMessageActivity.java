@@ -3,12 +3,12 @@ package com.netease.nim.uikit.session.activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.Window;
 import android.widget.Toast;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.netease.nim.uikit.R;
+import com.netease.nim.uikit.cache.FriendDataCache;
 import com.netease.nim.uikit.session.SessionCustomization;
 import com.netease.nim.uikit.session.constant.Extras;
 import com.netease.nim.uikit.session.fragment.MessageFragment;
@@ -29,6 +29,8 @@ import java.util.List;
  * Created by huangjun on 2015/2/1.
  */
 public class P2PMessageActivity extends BaseMessageActivity {
+
+    private boolean isResume = false;
 
     public static void start(Context context, String contactId, SessionCustomization customization) {
         Intent intent = new Intent();
@@ -54,6 +56,18 @@ public class P2PMessageActivity extends BaseMessageActivity {
         registerObservers(false);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        isResume = true;
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        isResume = false;
+    }
+
     private void requestBuddyInfo() {
         setTitle(UserInfoHelper.getUserTitleName(sessionId, SessionTypeEnum.P2P));
     }
@@ -65,9 +79,33 @@ public class P2PMessageActivity extends BaseMessageActivity {
             unregisterUserInfoObserver();
         }
         NIMClient.getService(MsgServiceObserve.class).observeCustomNotification(commandObserver, register);
+        FriendDataCache.getInstance().registerFriendDataChangedObserver(friendDataChangedObserver, register);
     }
 
+    FriendDataCache.FriendDataChangedObserver friendDataChangedObserver = new FriendDataCache.FriendDataChangedObserver() {
+        @Override
+        public void onAddedOrUpdatedFriends(List<String> accounts) {
+            setTitle(UserInfoHelper.getUserTitleName(sessionId, SessionTypeEnum.P2P));
+        }
+
+        @Override
+        public void onDeletedFriends(List<String> accounts) {
+            setTitle(UserInfoHelper.getUserTitleName(sessionId, SessionTypeEnum.P2P));
+        }
+
+        @Override
+        public void onAddUserToBlackList(List<String> account) {
+            setTitle(UserInfoHelper.getUserTitleName(sessionId, SessionTypeEnum.P2P));
+        }
+
+        @Override
+        public void onRemoveUserFromBlackList(List<String> account) {
+            setTitle(UserInfoHelper.getUserTitleName(sessionId, SessionTypeEnum.P2P));
+        }
+    };
+
     private UserInfoObservable.UserInfoObserver uinfoObserver;
+
     private void registerUserInfoObserver() {
         if (uinfoObserver == null) {
             uinfoObserver = new UserInfoObservable.UserInfoObserver() {
@@ -103,6 +141,10 @@ public class P2PMessageActivity extends BaseMessageActivity {
     };
 
     protected void showCommandMessage(CustomNotification message) {
+        if (!isResume) {
+            return;
+        }
+
         String content = message.getContent();
         try {
             JSONObject json = JSON.parseObject(content);

@@ -6,7 +6,6 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.netease.nim.uikit.NimUIKit;
-import com.netease.nim.uikit.cache.TeamDataCache;
 import com.netease.nim.uikit.team.model.Announcement;
 
 import java.util.ArrayList;
@@ -23,7 +22,7 @@ public class AnnouncementHelper {
     public final static String JSON_KEY_CONTENT = "content";
     public final static String JSON_KEY_ID = "id";
 
-    public static String makeAnnounceJson(String teamId, String announce, String title, String content) {
+    public static String makeAnnounceJson(String announce, String title, String content) {
         JSONArray jsonArray = null;
         try {
             jsonArray = JSONArray.parseArray(announce);
@@ -37,7 +36,7 @@ public class AnnouncementHelper {
 
         JSONObject json = new JSONObject();
         json.put(JSON_KEY_ID, UUID.randomUUID().toString());
-        json.put(JSON_KEY_CREATOR, getCreatorName(teamId));
+        json.put(JSON_KEY_CREATOR, getCreatorName());
         json.put(JSON_KEY_TITLE, title);
         json.put(JSON_KEY_CONTENT, content);
         json.put(JSON_KEY_TIME, System.currentTimeMillis());
@@ -45,7 +44,7 @@ public class AnnouncementHelper {
         return jsonArray.toString();
     }
 
-    public static List<Announcement> getAnnouncements(String announce, int limit) {
+    public static List<Announcement> getAnnouncements(String teamId, String announce, int limit) {
         if (TextUtils.isEmpty(announce)) {
             return null;
         }
@@ -62,7 +61,7 @@ public class AnnouncementHelper {
                 long time = json.getLong(JSON_KEY_TIME);
                 String content = json.getString(JSON_KEY_CONTENT);
 
-                announcements.add(new Announcement(id, creator, title, time, content));
+                announcements.add(new Announcement(id, teamId, creator, title, time, content));
 
                 if (++count >= limit) {
                     break;
@@ -75,12 +74,12 @@ public class AnnouncementHelper {
         return announcements;
     }
 
-    public static Announcement getLastAnnouncement(String announcement) {
-        List<Announcement> list = getAnnouncements(announcement, 1);
+    public static Announcement getLastAnnouncement(String teamId, String announcement) {
+        List<Announcement> list = getAnnouncements(teamId, announcement, 1);
         return (list == null || list.isEmpty()) ? null : list.get(0);
     }
 
-    private static String getCreatorName(String teamId) {
-        return TeamDataCache.getInstance().getDisplayNameWithoutMe(teamId, NimUIKit.getAccount());
+    private static String getCreatorName() {
+        return NimUIKit.getAccount();
     }
 }

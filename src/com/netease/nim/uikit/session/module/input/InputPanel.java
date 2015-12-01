@@ -44,6 +44,7 @@ import com.netease.nimlib.sdk.msg.MsgService;
 import com.netease.nimlib.sdk.msg.attachment.MsgAttachment;
 import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.msg.model.CustomNotification;
+import com.netease.nimlib.sdk.msg.model.CustomNotificationConfig;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
 
 import java.io.File;
@@ -252,6 +253,10 @@ public class InputPanel implements IEmoticonSelectedListener, IAudioRecordCallba
             CustomNotification command = new CustomNotification();
             command.setSessionId(container.account);
             command.setSessionType(container.sessionType);
+            CustomNotificationConfig config = new CustomNotificationConfig();
+            config.enablePush = false;
+            config.enableUnreadCount = false;
+            command.setConfig(config);
 
             JSONObject json = new JSONObject();
             json.put("id", "1");
@@ -305,6 +310,7 @@ public class InputPanel implements IEmoticonSelectedListener, IAudioRecordCallba
     // 发送文本消息
     private void onTextMessageSendButtonPressed() {
         IMMessage textMessage = MessageBuilder.createTextMessage(container.account, container.sessionType, messageEditText.getText().toString());
+
         if (container.proxy.sendMessage(textMessage)) {
             restoreText(true);
         }
@@ -497,7 +503,7 @@ public class InputPanel implements IEmoticonSelectedListener, IAudioRecordCallba
     public void onStickerSelected(String category, String item) {
         Log.i("InputPanel", "onStickerSelected, category =" + category + ", sticker =" + item);
 
-        if (customization  != null) {
+        if (customization != null) {
             MsgAttachment attachment = customization.createStickerAttachment(category, item);
             IMMessage stickerMessage = MessageBuilder.createCustomMessage(container.account, container.sessionType, "贴图消息", attachment);
             container.proxy.sendMessage(stickerMessage);

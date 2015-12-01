@@ -13,6 +13,8 @@ import android.widget.Toast;
 
 import com.netease.nim.uikit.NimUIKit;
 import com.netease.nim.uikit.R;
+import com.netease.nim.uikit.cache.SimpleCallback;
+import com.netease.nim.uikit.cache.TeamDataCache;
 import com.netease.nim.uikit.common.activity.TActionBarActivity;
 import com.netease.nim.uikit.common.adapter.TAdapterDelegate;
 import com.netease.nim.uikit.common.adapter.TViewHolder;
@@ -23,7 +25,6 @@ import com.netease.nim.uikit.common.util.sys.ActionBarUtil;
 import com.netease.nim.uikit.common.util.sys.TimeUtil;
 import com.netease.nim.uikit.contact.core.item.ContactIdFilter;
 import com.netease.nim.uikit.contact_selector.activity.ContactSelectActivity;
-import com.netease.nim.uikit.cache.TeamDataCache;
 import com.netease.nim.uikit.team.adapter.TeamMemberAdapter;
 import com.netease.nim.uikit.team.adapter.TeamMemberAdapter.TeamMemberItem;
 import com.netease.nim.uikit.team.helper.AnnouncementHelper;
@@ -35,8 +36,7 @@ import com.netease.nim.uikit.uinfo.UserInfoHelper;
 import com.netease.nim.uikit.uinfo.UserInfoObservable;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.RequestCallback;
-import com.netease.nimlib.sdk.msg.MsgService;
-import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
+import com.netease.nimlib.sdk.ResponseCode;
 import com.netease.nimlib.sdk.team.TeamService;
 import com.netease.nimlib.sdk.team.constant.TeamFieldEnum;
 import com.netease.nimlib.sdk.team.constant.TeamMemberType;
@@ -382,28 +382,21 @@ public class AdvancedTeamInfoActivity extends TActionBarActivity implements
         if (t != null) {
             updateTeamInfo(t);
         } else {
-            NIMClient.getService(TeamService.class).queryTeam(teamId).setCallback(new RequestCallback<Team>() {
+            TeamDataCache.getInstance().fetchTeamById(teamId, new SimpleCallback<Team>() {
                 @Override
-                public void onSuccess(Team t) {
-                    TeamDataCache.getInstance().addOrUpdateTeam(t);
-                    updateTeamInfo(t);
-                }
-
-                @Override
-                public void onFailed(int code) {
-                    onGetTeamInfoFailed("" + code);
-                }
-
-                @Override
-                public void onException(Throwable exception) {
-                    onGetTeamInfoFailed(exception.getMessage());
+                public void onResult(boolean success, Team result) {
+                    if (success && result != null) {
+                        updateTeamInfo(result);
+                    } else {
+                        onGetTeamInfoFailed();
+                    }
                 }
             });
         }
     }
 
-    private void onGetTeamInfoFailed(String errorMsg) {
-        Toast.makeText(this, getString(R.string.team_not_exist) + ", errorMsg=" + errorMsg, Toast.LENGTH_SHORT).show();
+    private void onGetTeamInfoFailed() {
+        Toast.makeText(this, getString(R.string.team_not_exist), Toast.LENGTH_SHORT).show();
         finish();
     }
 
@@ -593,21 +586,12 @@ public class AdvancedTeamInfoActivity extends TActionBarActivity implements
      * *************************** 加载&变更数据源 ********************************
      */
     private void requestMembers() {
-        NIMClient.getService(TeamService.class).queryMemberList(teamId).setCallback(new RequestCallback<List<TeamMember>>() {
+        TeamDataCache.getInstance().fetchTeamMemberList(teamId, new SimpleCallback<List<TeamMember>>() {
             @Override
-            public void onSuccess(List<TeamMember> members) {
-                TeamDataCache.getInstance().addOrUpdateTeamMember(teamId, members);
-                updateTeamMember(members);
-            }
-
-            @Override
-            public void onFailed(int code) {
-
-            }
-
-            @Override
-            public void onException(Throwable exception) {
-
+            public void onResult(boolean success, List<TeamMember> members) {
+                if (success && members != null && !members.isEmpty()) {
+                    updateTeamMember(members);
+                }
             }
         });
     }
@@ -710,12 +694,13 @@ public class AdvancedTeamInfoActivity extends TActionBarActivity implements
         NIMClient.getService(TeamService.class).addMembers(teamId, accounts).setCallback(new RequestCallback<Void>() {
             @Override
             public void onSuccess(Void param) {
-                Toast.makeText(AdvancedTeamInfoActivity.this, R.string.team_invite_members_success, Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onFailed(int code) {
-                Toast.makeText(AdvancedTeamInfoActivity.this, R.string.team_invite_members_success, Toast.LENGTH_SHORT).show();
+                if (code == ResponseCode.RES_TEAM_INVITE_SUCCESS) {
+                    Toast.makeText(AdvancedTeamInfoActivity.this, R.string.team_invite_members_success, Toast.LENGTH_SHORT).show();
+                }
                 Log.e(TAG, "invite members failed, code=" + code);
             }
 
@@ -736,11 +721,8 @@ public class AdvancedTeamInfoActivity extends TActionBarActivity implements
                 .setCallback(new RequestCallback<List<TeamMember>>() {
                     @Override
                     public void onSuccess(List<TeamMember> members) {
-                        for (TeamMember member : members) {
-                            TeamDataCache.getInstance().addOrUpdateTeamMember(member);
-                        }
                         creator = account;
-                        updateTeamMember(TeamDataCache.getInstance().getTeamMemberListById(teamId));
+                        updateTeamMember(TeamDataCache.getInstance().getTeamMemberList(teamId));
                         Toast.makeText(AdvancedTeamInfoActivity.this, R.string.team_transfer_success, Toast.LENGTH_SHORT).show();
                     }
 
@@ -770,7 +752,6 @@ public class AdvancedTeamInfoActivity extends TActionBarActivity implements
                 DialogMaker.dismissProgressDialog();
                 Toast.makeText(AdvancedTeamInfoActivity.this, R.string.quit_team_success, Toast.LENGTH_SHORT).show();
                 setResult(Activity.RESULT_OK, new Intent().putExtra(RESULT_EXTRA_REASON, RESULT_EXTRA_REASON_QUIT));
-                NIMClient.getService(MsgService.class).deleteRecentContact2(teamId, SessionTypeEnum.Team);
                 finish();
             }
 
@@ -917,7 +898,7 @@ public class AdvancedTeamInfoActivity extends TActionBarActivity implements
      * @param announcement 群公告
      */
     private void setAnnouncement(String announcement) {
-        Announcement a = AnnouncementHelper.getLastAnnouncement(announcement);
+        Announcement a = AnnouncementHelper.getLastAnnouncement(teamId, announcement);
         if (a == null) {
             announcementEdit.setText("");
         } else {

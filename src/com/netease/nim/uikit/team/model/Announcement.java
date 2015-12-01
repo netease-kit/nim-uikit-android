@@ -11,9 +11,11 @@ public class Announcement {
     private String title;
     private long time;
     private String content;
+    private String teamId;
 
-    public Announcement(String id, String creator, String title, long time, String content) {
+    public Announcement(String id, String teamId, String creator, String title, long time, String content) {
         this.id = id;
+        this.teamId = teamId;
         this.creator = creator;
         this.title = title;
         this.time = time;
@@ -22,6 +24,10 @@ public class Announcement {
 
     public String getId() {
         return id;
+    }
+
+    public String getTeamId() {
+        return teamId;
     }
 
     public String getCreator() {

@@ -1,5 +1,7 @@
 package com.netease.nim.uikit;
 
+import android.os.Handler;
+
 import com.netease.nim.uikit.common.util.log.LogUtil;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.Observer;
@@ -16,6 +18,12 @@ import java.util.List;
 public class LoginSyncDataStatusObserver {
 
     private static final String TAG = LoginSyncDataStatusObserver.class.getSimpleName();
+
+    private static final int TIME_OUT_SECONDS = 10;
+
+    private Handler uiHandler;
+
+    private Runnable timeoutRunnable;
 
     /**
      * 状态
@@ -49,7 +57,7 @@ public class LoginSyncDataStatusObserver {
                     LogUtil.i(TAG, "login sync data begin");
                 } else if (status == LoginSyncStatus.SYNC_COMPLETED) {
                     LogUtil.i(TAG, "login sync data completed");
-                    onLoginSyncDataCompleted();
+                    onLoginSyncDataCompleted(false);
                 }
             }
         }, register);
@@ -63,22 +71,38 @@ public class LoginSyncDataStatusObserver {
      * @return 返回true表示数据同步已经完成或者不进行同步，返回false表示正在同步数据
      */
     public boolean observeSyncDataCompletedEvent(Observer<Void> observer) {
-        if (syncStatus == LoginSyncStatus.NO_BEGIN) {
+        if (syncStatus == LoginSyncStatus.NO_BEGIN || syncStatus == LoginSyncStatus.SYNC_COMPLETED) {
             /*
-            * 如果登录后未开始同步数据，那么可能是自动登录的情况:
+            * NO_BEGIN 如果登录后未开始同步数据，那么可能是自动登录的情况:
             * PUSH进程已经登录同步数据完成了，此时UI进程启动后并不知道，这里直接视为同步完成
             */
             return true;
         }
 
-        if (syncStatus == LoginSyncStatus.SYNC_COMPLETED) {
-            observers.clear();
-            return true;
-        }
-
+        // 正在同步
         if (!observers.contains(observer)) {
             observers.add(observer);
         }
+
+        // 超时定时器
+        if (uiHandler == null) {
+            uiHandler = new Handler(NimUIKit.getContext().getMainLooper());
+        }
+
+        if (timeoutRunnable == null) {
+            timeoutRunnable = new Runnable() {
+                @Override
+                public void run() {
+                    // 如果超时还处于开始同步的状态，模拟结束
+                    if (syncStatus == LoginSyncStatus.BEGIN_SYNC) {
+                        onLoginSyncDataCompleted(true);
+                    }
+                }
+            };
+        }
+
+        uiHandler.removeCallbacks(timeoutRunnable);
+        uiHandler.postDelayed(timeoutRunnable, TIME_OUT_SECONDS * 1000);
 
         return false;
     }
@@ -86,15 +110,23 @@ public class LoginSyncDataStatusObserver {
     /**
      * 登录同步数据完成处理
      */
-    private void onLoginSyncDataCompleted() {
+    private void onLoginSyncDataCompleted(boolean timeout) {
+        LogUtil.i(TAG, "onLoginSyncDataCompleted, timeout=" + timeout);
+
+        // 移除超时任务（有可能完成包到来的时候，超时任务都还没创建）
+        if (timeoutRunnable != null) {
+            uiHandler.removeCallbacks(timeoutRunnable);
+        }
+
         // 通知上层
         for (Observer<Void> o : observers) {
             o.onEvent(null);
         }
 
-        // 通知完立即清除
-        observers.clear();
+        // 重置状态
+        reset();
     }
+
 
     /**
      * 单例

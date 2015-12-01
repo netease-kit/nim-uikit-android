@@ -20,6 +20,17 @@ public class CommonRecentViewHolder extends RecentViewHolder {
     protected String descOfMsg() {
         if (recent.getMsgType() == MsgTypeEnum.text) {
             return recent.getContent();
+        } else if (recent.getMsgType() == MsgTypeEnum.tip) {
+            String digest = null;
+            if (getCallback() != null) {
+                digest = getCallback().getDigestOfTipMsg(recent);
+            }
+
+            if (digest == null) {
+                digest = getDefaultDigest(null);
+            }
+
+            return digest;
         } else if (recent.getAttachment() != null) {
             String digest = null;
             if (getCallback() != null) {
@@ -34,8 +45,6 @@ public class CommonRecentViewHolder extends RecentViewHolder {
         }
         return "";
     }
-
-
 
     // SDK本身只记录原始数据，第三方APP可根据自己实际需求，在最近联系人列表上显示缩略消息
     // 以下为一些常见消息类型的示例。
@@ -53,6 +62,8 @@ public class CommonRecentViewHolder extends RecentViewHolder {
                 return "[位置]";
             case file:
                 return "[文件]";
+            case tip:
+                return "[通知提醒]";
             case notification:
                 return TeamNotificationHelper.getTeamNotificationText(recent.getContactId(),
                         recent.getFromAccount(),

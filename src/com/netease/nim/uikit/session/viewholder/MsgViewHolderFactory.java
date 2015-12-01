@@ -18,6 +18,8 @@ public class MsgViewHolderFactory {
 
     private static HashMap<Class<? extends MsgAttachment>, Class<? extends MsgViewHolderBase>> viewHolders = new HashMap<>();
 
+    private static Class<? extends MsgViewHolderBase> tipMsgViewHolder;
+
     static {
         // built in
         register(ImageAttachment.class, MsgViewHolderPicture.class);
@@ -31,9 +33,15 @@ public class MsgViewHolderFactory {
         viewHolders.put(attach, viewHolder);
     }
 
+    public static void registerTipMsgViewHolder(Class<? extends MsgViewHolderBase> viewHolder) {
+        tipMsgViewHolder = viewHolder;
+    }
+
     public static Class<? extends MsgViewHolderBase> getViewHolderByType(IMMessage message) {
         if (message.getMsgType() == MsgTypeEnum.text) {
             return MsgViewHolderText.class;
+        } else if (message.getMsgType() == MsgTypeEnum.tip) {
+            return tipMsgViewHolder == null ? MsgViewHolderUnknown.class : tipMsgViewHolder;
         } else {
             Class<? extends MsgViewHolderBase> viewHolder = null;
             if (message.getAttachment() != null) {

@@ -10,17 +10,16 @@ import android.widget.Toast;
 
 import com.netease.nim.uikit.NimUIKit;
 import com.netease.nim.uikit.R;
+import com.netease.nim.uikit.cache.SimpleCallback;
+import com.netease.nim.uikit.cache.TeamDataCache;
 import com.netease.nim.uikit.common.activity.TActionBarActivity;
 import com.netease.nim.uikit.common.ui.dialog.DialogMaker;
 import com.netease.nim.uikit.common.ui.dialog.EasyAlertDialog;
 import com.netease.nim.uikit.common.ui.dialog.EasyAlertDialogHelper;
 import com.netease.nim.uikit.common.ui.dialog.MenuDialog;
 import com.netease.nim.uikit.common.ui.imageview.HeadImageView;
-import com.netease.nim.uikit.cache.TeamDataCache;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.RequestCallback;
-import com.netease.nimlib.sdk.RequestCallbackWrapper;
-import com.netease.nimlib.sdk.ResponseCode;
 import com.netease.nimlib.sdk.team.TeamService;
 import com.netease.nimlib.sdk.team.constant.TeamMemberType;
 import com.netease.nimlib.sdk.team.model.TeamMember;
@@ -119,7 +118,7 @@ public class AdvancedTeamMemberInfoActivity extends TActionBarActivity implement
     }
 
     private void loadMemberInfo() {
-        viewMember = TeamDataCache.getInstance().getTeamMemberByAccount(teamId, account);
+        viewMember = TeamDataCache.getInstance().getTeamMember(teamId, account);
         if (viewMember != null) {
             updateMemberInfo();
         } else {
@@ -131,16 +130,13 @@ public class AdvancedTeamMemberInfoActivity extends TActionBarActivity implement
      * 查询群成员的信息
      */
     private void requestMemberInfo() {
-        NIMClient.getService(TeamService.class).queryTeamMember(teamId, account).setCallback(new RequestCallbackWrapper<TeamMember>() {
+        TeamDataCache.getInstance().fetchTeamMember(teamId, account, new SimpleCallback<TeamMember>() {
             @Override
-            public void onResult(int code, TeamMember member, Throwable exception) {
-                if (code != ResponseCode.RES_SUCCESS || member == null) {
-                    return;
+            public void onResult(boolean success, TeamMember member) {
+                if (success && member != null) {
+                    viewMember = member;
+                    updateMemberInfo();
                 }
-
-                TeamDataCache.getInstance().addOrUpdateTeamMember(member);
-                viewMember = member;
-                updateMemberInfo();
             }
         });
     }
@@ -185,7 +181,7 @@ public class AdvancedTeamMemberInfoActivity extends TActionBarActivity implement
      * 获得用户自己的身份
      */
     private void updateSelfIndentity() {
-        TeamMember selfTeamMember = TeamDataCache.getInstance().getTeamMemberByAccount(teamId, NimUIKit.getAccount());
+        TeamMember selfTeamMember = TeamDataCache.getInstance().getTeamMember(teamId, NimUIKit.getAccount());
         if (selfTeamMember == null) {
             return;
         }
@@ -385,7 +381,6 @@ public class AdvancedTeamMemberInfoActivity extends TActionBarActivity implement
                 identity.setText(R.string.team_member);
                 Toast.makeText(AdvancedTeamMemberInfoActivity.this, R.string.update_success, Toast.LENGTH_LONG).show();
 
-                TeamDataCache.getInstance().addOrUpdateTeamMember(members.get(0));
                 viewMember = members.get(0);
                 updateMemberInfo();
             }
@@ -460,9 +455,10 @@ public class AdvancedTeamMemberInfoActivity extends TActionBarActivity implement
 
     /**
      * 设置返回的Intent
-     * @param account 帐号
+     *
+     * @param account    帐号
      * @param isSetAdmin 是否设置为管理员
-     * @param value 是否移除群成员
+     * @param value      是否移除群成员
      */
     private void makeIntent(String account, boolean isSetAdmin, boolean value) {
         Intent intent = new Intent();

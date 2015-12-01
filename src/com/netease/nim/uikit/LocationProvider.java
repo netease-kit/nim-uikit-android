@@ -13,7 +13,7 @@ public interface LocationProvider {
     void requestLocation(Context context, Callback callback);
 
     // 根据当前地理位置打开地图
-    void openMap(Context context, double longitude, double latitude);
+    void openMap(Context context, double longitude, double latitude, String address);
 
     // 定位请求的回调函数。如果定位不成功，或者用户取消，不回调即可。
     interface Callback {

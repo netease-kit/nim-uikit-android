@@ -13,6 +13,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.netease.nim.uikit.R;
+import com.netease.nim.uikit.cache.FriendDataCache;
+import com.netease.nim.uikit.cache.TeamDataCache;
 import com.netease.nim.uikit.common.adapter.TAdapterDelegate;
 import com.netease.nim.uikit.common.adapter.TViewHolder;
 import com.netease.nim.uikit.common.fragment.TFragment;
@@ -22,7 +24,6 @@ import com.netease.nim.uikit.recent.viewholder.CommonRecentViewHolder;
 import com.netease.nim.uikit.recent.viewholder.RecentContactAdapter;
 import com.netease.nim.uikit.recent.viewholder.RecentViewHolder;
 import com.netease.nim.uikit.recent.viewholder.TeamRecentViewHolder;
-import com.netease.nim.uikit.cache.TeamDataCache;
 import com.netease.nim.uikit.uinfo.UserInfoHelper;
 import com.netease.nim.uikit.uinfo.UserInfoObservable;
 import com.netease.nimlib.sdk.NIMClient;
@@ -280,7 +281,7 @@ public class RecentContactsFragment extends TFragment implements TAdapterDelegat
 
         if (unreadChanged) {
 
-            // 方式一：累加每个最近联系人的未读
+            // 方式一：累加每个最近联系人的未读（快）
             /*
             int unreadNum = 0;
             for (RecentContact r : items) {
@@ -288,7 +289,7 @@ public class RecentContactsFragment extends TFragment implements TAdapterDelegat
             }
             */
 
-            // 方式二：
+            // 方式二：直接从SDK读取（相对慢）
             int unreadNum = NIMClient.getService(MsgService.class).getTotalUnreadCount();
 
             if (callback != null) {
@@ -322,14 +323,6 @@ public class RecentContactsFragment extends TFragment implements TAdapterDelegat
         }
     };
 
-    private void deleteEmptyMessage(List<RecentContact> list) {
-        for (int i = list.size() - 1; i >= 0; i--) {
-            if (list.get(i).getTime() == 0) {
-                items.remove(i);
-            }
-        }
-    }
-
     /**
      * ********************** 收消息，处理状态变化 ************************
      */
@@ -340,6 +333,7 @@ public class RecentContactsFragment extends TFragment implements TAdapterDelegat
         service.observeRecentContactDeleted(deleteObserver, register);
         registerTeamUpdateObserver(register);
         registerTeamMemberUpdateObserver(register);
+        FriendDataCache.getInstance().registerFriendDataChangedObserver(friendDataChangedObserver, register);
         if (register) {
             registerUserInfoObserver();
         } else {
@@ -494,4 +488,26 @@ public class RecentContactsFragment extends TFragment implements TAdapterDelegat
             UserInfoHelper.unregisterObserver(userInfoObserver);
         }
     }
+
+    FriendDataCache.FriendDataChangedObserver friendDataChangedObserver = new FriendDataCache.FriendDataChangedObserver() {
+        @Override
+        public void onAddedOrUpdatedFriends(List<String> accounts) {
+            refreshMessages(false);
+        }
+
+        @Override
+        public void onDeletedFriends(List<String> accounts) {
+            refreshMessages(false);
+        }
+
+        @Override
+        public void onAddUserToBlackList(List<String> account) {
+            refreshMessages(false);
+        }
+
+        @Override
+        public void onRemoveUserFromBlackList(List<String> account) {
+            refreshMessages(false);
+        }
+    };
 }

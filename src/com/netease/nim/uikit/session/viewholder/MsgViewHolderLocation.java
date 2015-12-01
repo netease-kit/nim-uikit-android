@@ -47,7 +47,7 @@ public class MsgViewHolderLocation extends MsgViewHolderBase {
     protected void onItemClick() {
         if (NimUIKit.getLocationProvider() != null) {
             LocationAttachment location = (LocationAttachment) message.getAttachment();
-            NimUIKit.getLocationProvider().openMap(context, location.getLongitude(), location.getLatitude());
+            NimUIKit.getLocationProvider().openMap(context, location.getLongitude(), location.getLatitude(), location.getAddress());
         }
     }
 

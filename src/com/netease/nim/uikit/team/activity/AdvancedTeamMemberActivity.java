@@ -10,10 +10,11 @@ import android.widget.AbsListView;
 
 import com.netease.nim.uikit.NimUIKit;
 import com.netease.nim.uikit.R;
+import com.netease.nim.uikit.cache.SimpleCallback;
+import com.netease.nim.uikit.cache.TeamDataCache;
 import com.netease.nim.uikit.common.activity.TActionBarActivity;
 import com.netease.nim.uikit.common.adapter.TAdapterDelegate;
 import com.netease.nim.uikit.common.adapter.TViewHolder;
-import com.netease.nim.uikit.cache.TeamDataCache;
 import com.netease.nim.uikit.team.adapter.TeamMemberAdapter;
 import com.netease.nim.uikit.team.adapter.TeamMemberAdapter.TeamMemberItem;
 import com.netease.nim.uikit.team.helper.TeamHelper;
@@ -21,9 +22,6 @@ import com.netease.nim.uikit.team.ui.TeamInfoGridView;
 import com.netease.nim.uikit.team.viewholder.TeamMemberHolder;
 import com.netease.nim.uikit.uinfo.UserInfoHelper;
 import com.netease.nim.uikit.uinfo.UserInfoObservable;
-import com.netease.nimlib.sdk.NIMClient;
-import com.netease.nimlib.sdk.RequestCallback;
-import com.netease.nimlib.sdk.team.TeamService;
 import com.netease.nimlib.sdk.team.constant.TeamMemberType;
 import com.netease.nimlib.sdk.team.model.Team;
 import com.netease.nimlib.sdk.team.model.TeamMember;
@@ -260,21 +258,12 @@ public class AdvancedTeamMemberActivity extends TActionBarActivity implements TA
      * ******************************加载数据*******************************
      */
     private void requestData() {
-        // 请求群成员
-        NIMClient.getService(TeamService.class).queryMemberList(teamId).setCallback(new RequestCallback<List<TeamMember>>() {
+        TeamDataCache.getInstance().fetchTeamMemberList(teamId, new SimpleCallback<List<TeamMember>>() {
             @Override
-            public void onSuccess(List<TeamMember> members) {
-                updateTeamMember(members);
-            }
-
-            @Override
-            public void onFailed(int code) {
-
-            }
-
-            @Override
-            public void onException(Throwable exception) {
-
+            public void onResult(boolean success, List<TeamMember> members) {
+                if (success && members != null && !members.isEmpty()) {
+                    updateTeamMember(members);
+                }
             }
         });
     }
@@ -344,7 +333,7 @@ public class AdvancedTeamMemberActivity extends TActionBarActivity implements TA
      * 是否设置了管理员刷新界面
      *
      * @param isSetAdmin 是否设置为管理员
-     * @param account        帐号
+     * @param account    帐号
      */
     private void refreshAdmin(boolean isSetAdmin, String account) {
         if (isSetAdmin) {

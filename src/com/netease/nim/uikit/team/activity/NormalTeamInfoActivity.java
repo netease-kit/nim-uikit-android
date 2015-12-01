@@ -17,13 +17,13 @@ import android.widget.Toast;
 
 import com.netease.nim.uikit.NimUIKit;
 import com.netease.nim.uikit.R;
+import com.netease.nim.uikit.cache.SimpleCallback;
 import com.netease.nim.uikit.cache.TeamDataCache;
 import com.netease.nim.uikit.common.activity.TActionBarActivity;
 import com.netease.nim.uikit.common.adapter.TAdapterDelegate;
 import com.netease.nim.uikit.common.adapter.TViewHolder;
 import com.netease.nim.uikit.common.ui.dialog.DialogMaker;
 import com.netease.nim.uikit.common.ui.widget.SwitchButton;
-import com.netease.nim.uikit.common.util.log.LogUtil;
 import com.netease.nim.uikit.common.util.sys.NetworkUtil;
 import com.netease.nim.uikit.contact.core.item.ContactIdFilter;
 import com.netease.nim.uikit.contact_selector.activity.ContactSelectActivity;
@@ -50,7 +50,7 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * 普通群群资料页
+ * 讨论组资料页
  * <p/>
  * Created by huangjun on 2015/3/3.
  */
@@ -254,9 +254,9 @@ public class NormalTeamInfoActivity extends TActionBarActivity implements OnClic
                 @Override
                 public void onSuccess(Void param) {
                     if (checkState) {
-                        Toast.makeText(NormalTeamInfoActivity.this, "开启群消息提醒", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(NormalTeamInfoActivity.this, "开启消息提醒", Toast.LENGTH_SHORT).show();
                     } else {
-                        Toast.makeText(NormalTeamInfoActivity.this, "关闭群消息提醒", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(NormalTeamInfoActivity.this, "关闭消息提醒", Toast.LENGTH_SHORT).show();
                     }
                 }
 
@@ -284,21 +284,14 @@ public class NormalTeamInfoActivity extends TActionBarActivity implements OnClic
         if (t != null) {
             updateTeamInfo(t);
         } else {
-            NIMClient.getService(TeamService.class).queryTeam(teamId).setCallback(new RequestCallback<Team>() {
+            TeamDataCache.getInstance().fetchTeamById(teamId, new SimpleCallback<Team>() {
                 @Override
-                public void onSuccess(Team t) {
-                    TeamDataCache.getInstance().addOrUpdateTeam(t);
-                    updateTeamInfo(t);
-                }
-
-                @Override
-                public void onFailed(int code) {
-                    onGetTeamInfoFailed("" + code);
-                }
-
-                @Override
-                public void onException(Throwable exception) {
-                    onGetTeamInfoFailed(exception.getMessage().toString());
+                public void onResult(boolean success, Team result) {
+                    if (success && result != null) {
+                        updateTeamInfo(result);
+                    } else {
+                        onGetTeamInfoFailed();
+                    }
                 }
             });
         }
@@ -325,8 +318,8 @@ public class NormalTeamInfoActivity extends TActionBarActivity implements OnClic
         setToggleBtn(team);
     }
 
-    private void onGetTeamInfoFailed(String errorMsg) {
-        Toast.makeText(this, getString(R.string.team_not_exist) + ", errorMsg=" + errorMsg, Toast.LENGTH_SHORT).show();
+    private void onGetTeamInfoFailed() {
+        Toast.makeText(this, getString(R.string.normal_team_not_exist), Toast.LENGTH_SHORT).show();
         finish();
     }
 
@@ -373,13 +366,11 @@ public class NormalTeamInfoActivity extends TActionBarActivity implements OnClic
         View nameView = findViewById(R.id.settings_item_name);
         nameView.setOnClickListener(this);
         TextView nameLabel = (TextView) nameView.findViewById(R.id.item_title);
-        nameLabel.setText(R.string.team_settings_name);
+        nameLabel.setText(R.string.normal_team_name);
 
         // talk button
         Button quitBtn = (Button) findViewById(R.id.quit_team);
-        quitBtn.setText(R.string.quit_team);
         quitBtn.setOnClickListener(this);
-        findViewById(R.id.create_team).setVisibility(View.GONE);
     }
 
     /**
@@ -389,44 +380,26 @@ public class NormalTeamInfoActivity extends TActionBarActivity implements OnClic
         gridView.setVisibility(View.GONE);
         memberAccounts.clear();
         if (team != null) {
-            NIMClient.getService(TeamService.class).queryMemberList
-                    (teamId).setCallback(new RequestCallback<List<TeamMember>>() {
+            TeamDataCache.getInstance().fetchTeamMemberList(teamId, new SimpleCallback<List<TeamMember>>() {
                 @Override
-                public void onSuccess(List<TeamMember> members) {
-                    if (members == null || members.isEmpty()) {
-                        String errorMsg = "queryMemberList empty";
-                        LogUtil.e(TAG, errorMsg);
-                        Toast.makeText(NormalTeamInfoActivity.this, errorMsg, Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-
-                    gridView.setVisibility(View.VISIBLE);
-                    List<String> accounts = new ArrayList<>();
-                    for (TeamMember member : members) {
-                        // 标记创建者（群主）
-                        if (member.getType() == TeamMemberType.Owner) {
-                            creator = member.getAccount();
-                            if (creator.equals(NimUIKit.getAccount())) {
-                                isSelfAdmin = true;
+                public void onResult(boolean success, List<TeamMember> members) {
+                    if (success && members != null && !members.isEmpty()) {
+                        gridView.setVisibility(View.VISIBLE);
+                        List<String> accounts = new ArrayList<>();
+                        for (TeamMember member : members) {
+                            // 标记创建者（群主）
+                            if (member.getType() == TeamMemberType.Owner) {
+                                creator = member.getAccount();
+                                if (creator.equals(NimUIKit.getAccount())) {
+                                    isSelfAdmin = true;
+                                }
                             }
+                            accounts.add(member.getAccount());
                         }
-                        accounts.add(member.getAccount());
+                        addMember(accounts, true);
+                    } else {
+                        Toast.makeText(NormalTeamInfoActivity.this, "获取成员列表失败", Toast.LENGTH_SHORT).show();
                     }
-                    addMember(accounts, true);
-                }
-
-                @Override
-                public void onFailed(int code) {
-                    String errorMsg = "request team member list failed :" + code;
-                    Toast.makeText(NormalTeamInfoActivity.this, errorMsg, Toast.LENGTH_SHORT).show();
-                    LogUtil.e(TAG, errorMsg);
-                }
-
-                @Override
-                public void onException(Throwable exception) {
-                    String errorMsg = "request team member list exception :" + exception.getMessage();
-                    Toast.makeText(NormalTeamInfoActivity.this, errorMsg, Toast.LENGTH_SHORT).show();
-                    LogUtil.e(TAG, errorMsg);
                 }
             });
         }
@@ -528,7 +501,7 @@ public class NormalTeamInfoActivity extends TActionBarActivity implements OnClic
     @Override
     public void onAddMember() {
         ContactSelectActivity.Option option = new ContactSelectActivity.Option();
-        option.title = "邀请群成员";
+        option.title = "邀请成员";
         ArrayList<String> disableAccounts = new ArrayList<>();
         disableAccounts.addAll(memberAccounts);
         option.itemDisableFilter = new ContactIdFilter(disableAccounts);
@@ -605,7 +578,7 @@ public class NormalTeamInfoActivity extends TActionBarActivity implements OnClic
             @Override
             public void onSuccess(Void param) {
                 DialogMaker.dismissProgressDialog();
-                Toast.makeText(NormalTeamInfoActivity.this, R.string.quit_team_success, Toast.LENGTH_SHORT).show();
+                Toast.makeText(NormalTeamInfoActivity.this, R.string.quit_normal_team_success, Toast.LENGTH_SHORT).show();
                 setResult(Activity.RESULT_OK, new Intent().putExtra(TeamExtras.RESULT_EXTRA_REASON, TeamExtras.RESULT_EXTRA_REASON_QUIT));
 
                 NIMClient.getService(MsgService.class).deleteRecentContact2(teamId, SessionTypeEnum.Team);
@@ -615,7 +588,7 @@ public class NormalTeamInfoActivity extends TActionBarActivity implements OnClic
             @Override
             public void onFailed(int code) {
                 DialogMaker.dismissProgressDialog();
-                Toast.makeText(NormalTeamInfoActivity.this, R.string.quit_team_failed, Toast.LENGTH_SHORT).show();
+                Toast.makeText(NormalTeamInfoActivity.this, R.string.quit_normal_team_failed, Toast.LENGTH_SHORT).show();
             }
 
             @Override
