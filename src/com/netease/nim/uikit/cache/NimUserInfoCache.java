@@ -179,12 +179,20 @@ public class NimUserInfoCache {
      * @return
      */
     public String getUserDisplayName(String account) {
+        String alias = getAlias(account);
+        if (!TextUtils.isEmpty(alias)) {
+            return alias;
+        }
+
+        return getUserName(account);
+    }
+
+    public String getAlias(String account) {
         Friend friend = FriendDataCache.getInstance().getFriendByAccount(account);
         if (friend != null && !TextUtils.isEmpty(friend.getAlias())) {
             return friend.getAlias();
         }
-
-        return getUserName(account);
+        return null;
     }
 
     // 获取用户原本的昵称

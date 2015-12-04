@@ -9,7 +9,6 @@ import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.Observer;
 import com.netease.nimlib.sdk.RequestCallbackWrapper;
 import com.netease.nimlib.sdk.ResponseCode;
-import com.netease.nimlib.sdk.friend.model.Friend;
 import com.netease.nimlib.sdk.team.TeamService;
 import com.netease.nimlib.sdk.team.TeamServiceObserver;
 import com.netease.nimlib.sdk.team.constant.TeamTypeEnum;
@@ -409,6 +408,20 @@ public class TeamDataCache {
      * 讨论组：首先返回备注名。没有设置备注名，则返回用户昵称。
      */
     public String getDisplayNameWithoutMe(String tid, String account) {
+        String memberNick = getTeamNick(tid, account);
+        if (!TextUtils.isEmpty(memberNick)) {
+            return memberNick;
+        }
+
+        String alias = NimUserInfoCache.getInstance().getAlias(account);
+        if (!TextUtils.isEmpty(alias)) {
+            return alias;
+        }
+
+        return NimUserInfoCache.getInstance().getUserName(account);
+    }
+
+    public String getTeamNick(String tid, String account) {
         Team team = getTeamById(tid);
         if (team != null && team.getType() == TeamTypeEnum.Advanced) {
             TeamMember member = getTeamMember(tid, account);
@@ -416,13 +429,7 @@ public class TeamDataCache {
                 return member.getTeamNick();
             }
         }
-
-        Friend friend = FriendDataCache.getInstance().getFriendByAccount(account);
-        if (friend != null && !TextUtils.isEmpty(friend.getAlias())) {
-            return friend.getAlias();
-        }
-
-        return NimUserInfoCache.getInstance().getUserName(account);
+        return null;
     }
 
     private void replaceTeamMemberList(String tid, List<TeamMember> members) {
