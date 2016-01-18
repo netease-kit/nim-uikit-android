@@ -36,7 +36,7 @@ public class TeamAnnounceHolder extends TViewHolder {
         Announcement a = (Announcement) item;
         announceTitle.setText(a.getTitle());
         teamName.setText(TeamDataCache.getInstance().getTeamMemberDisplayName(a.getTeamId(), a.getCreator()));
-        announceCreateTime.setText(TimeUtil.getTimeShowString(a.getTime(), false));
+        announceCreateTime.setText(TimeUtil.getTimeShowString((a.getTime() * 1000), false)); // 兼容ios
         announceContent.setText(a.getContent());
     }
 }

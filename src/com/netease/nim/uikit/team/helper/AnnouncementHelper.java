@@ -39,7 +39,7 @@ public class AnnouncementHelper {
         json.put(JSON_KEY_CREATOR, getCreatorName());
         json.put(JSON_KEY_TITLE, title);
         json.put(JSON_KEY_CONTENT, content);
-        json.put(JSON_KEY_TIME, System.currentTimeMillis());
+        json.put(JSON_KEY_TIME, (System.currentTimeMillis() / 1000)); // 与ios和pc兼容
         jsonArray.add(json);
         return jsonArray.toString();
     }
