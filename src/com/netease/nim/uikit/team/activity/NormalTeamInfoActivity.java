@@ -96,7 +96,7 @@ public class NormalTeamInfoActivity extends TActionBarActivity implements OnClic
     // state
     private boolean isSelfAdmin = false;
 
-    private int teamCapacity = 50; // 群人数上限，暂定
+    private int teamCapacity = 200; // 群人数上限，暂定
 
     /**
      * 启动群资料页

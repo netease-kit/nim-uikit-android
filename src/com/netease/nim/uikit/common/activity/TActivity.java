@@ -19,6 +19,8 @@ public abstract class TActivity extends FragmentActivity {
 
     private boolean destroyed = false;
 
+    private static Handler handler;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -110,5 +112,12 @@ public abstract class TActivity extends FragmentActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    protected final Handler getHandler() {
+        if (handler == null) {
+            handler = new Handler(getMainLooper());
+        }
+        return handler;
     }
 }

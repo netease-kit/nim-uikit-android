@@ -22,7 +22,6 @@ import com.netease.nim.uikit.common.ui.dialog.DialogMaker;
 import com.netease.nim.uikit.common.ui.dialog.MenuDialog;
 import com.netease.nim.uikit.common.util.sys.ActionBarUtil;
 import com.netease.nim.uikit.contact_selector.activity.ContactSelectActivity;
-import com.netease.nim.uikit.cache.TeamDataCache;
 import com.netease.nim.uikit.team.adapter.TeamMemberAdapter;
 import com.netease.nim.uikit.team.helper.TeamHelper;
 import com.netease.nim.uikit.team.ui.TeamInfoGridView;
@@ -68,7 +67,7 @@ public class AdvancedTeamCreateActivity extends TActionBarActivity implements TA
     // state: init -1, failed 0, success 1
     private Team team;
 
-    private int teamCapacity = 50; // 群人数上限，暂定
+    private int teamCapacity = 200; // 群人数上限，暂定
 
     public static void startActivity(Context context) {
         Intent intent = new Intent();

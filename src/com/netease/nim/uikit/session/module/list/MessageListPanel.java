@@ -105,7 +105,7 @@ public class MessageListPanel implements TAdapterDelegate {
     }
 
     public void onResume() {
-       setEarPhoneMode(UserPreferences.isEarPhoneModeEnable());
+        setEarPhoneMode(UserPreferences.isEarPhoneModeEnable());
     }
 
     public void onPause() {
@@ -226,7 +226,7 @@ public class MessageListPanel implements TAdapterDelegate {
         if (isMyMessage(lastMsg)) {
             if (needScrollToBottom) {
                 ListViewUtil.scrollToBottom(messageListView);
-            } else if (incomingMsgPrompt != null) {
+            } else if (incomingMsgPrompt != null && lastMsg.getSessionType() != SessionTypeEnum.ChatRoom) {
                 incomingMsgPrompt.show(lastMsg);
             }
         }

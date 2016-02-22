@@ -368,6 +368,24 @@ public class ContactsFragment extends TFragment {
     };
 
     private void reloadWhenDataChanged(List<String> accounts, String reason, boolean reload) {
+        if (accounts == null || accounts.isEmpty()) {
+            return;
+        }
+
+        // 与通讯录无关的（非好友）变更通知，去掉
+        boolean needReload = false;
+        for (String account : accounts) {
+            if (FriendDataCache.getInstance().isMyFriend(account)) {
+                needReload = true;
+                break;
+            }
+        }
+
+        if (!needReload) {
+            Log.d(UIKitLogTag.CONTACT, "no need to reload contact");
+            return;
+        }
+
         // log
         StringBuilder sb = new StringBuilder();
         sb.append("ContactFragment received data changed as [" + reason + "] : ");

@@ -1,14 +1,13 @@
 package com.netease.nim.uikit.common.ui.listview;
 
-import com.netease.nim.uikit.common.adapter.IViewReclaimer;
-
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.AbsListView;
 import android.widget.BaseAdapter;
+
+import com.netease.nim.uikit.common.adapter.IViewReclaimer;
 
 public class MessageListView extends AutoRefreshListView {
 
@@ -44,19 +43,6 @@ public class MessageListView extends AutoRefreshListView {
 	}
 
 	private void init(Context context) {
-		addOnScrollListener(new OnScrollListener() {
-			public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-
-			}
-
-			public void onScrollStateChanged(AbsListView view, int scrollState) {
-				if (scrollState == OnScrollListener.SCROLL_STATE_IDLE) {
-					if (ListViewUtil.isLastMessageVisible(MessageListView.this)) {
-					}
-				}
-			}
-		});
-
 		setRecyclerListener(recyclerListener);
 
 		gestureDetector = new GestureDetector(context, new GestureListener());

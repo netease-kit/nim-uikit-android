@@ -106,6 +106,10 @@ public class FriendDataCache {
         return friendMap.get(account);
     }
 
+    public boolean isMyFriend(String account) {
+        return friendAccountSet.contains(account);
+    }
+
     /**
      * ****************************** 缓存好友关系变更监听&通知 ******************************
      */

@@ -19,6 +19,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.Chronometer;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -36,6 +37,7 @@ import com.netease.nim.uikit.session.emoji.IEmoticonSelectedListener;
 import com.netease.nim.uikit.session.emoji.MoonUtil;
 import com.netease.nim.uikit.session.module.Container;
 import com.netease.nimlib.sdk.NIMClient;
+import com.netease.nimlib.sdk.chatroom.ChatRoomMessageBuilder;
 import com.netease.nimlib.sdk.media.record.AudioRecorder;
 import com.netease.nimlib.sdk.media.record.IAudioRecordCallback;
 import com.netease.nimlib.sdk.media.record.RecordType;
@@ -69,6 +71,7 @@ public class InputPanel implements IEmoticonSelectedListener, IAudioRecordCallba
     protected EditText messageEditText;// 文本消息编辑框
     protected Button audioRecordBtn; // 录音按钮
     protected View audioAnimLayout; // 录音动画布局
+    protected FrameLayout textAudioSwitchLayout; // 切换文本，语音按钮布局
     protected View switchToTextButtonInInputBar;// 文本消息选择按钮
     protected View switchToAudioButtonInInputBar;// 语音消息选择按钮
     protected View moreFuntionButtonInInputBar;// 更多消息选择按钮
@@ -89,9 +92,11 @@ public class InputPanel implements IEmoticonSelectedListener, IAudioRecordCallba
     private boolean started = false;
     private boolean cancelled = false;
     private boolean touched = false; // 是否按着
+    private boolean isKeyboardShowed = true; // 是否显示键盘
 
     // state
     private boolean actionPanelBottomLayoutHasSetup = false;
+    private boolean isTextAudioSwitchShow = true;
 
     // adapter
     private List<BaseAction> actions;
@@ -99,12 +104,17 @@ public class InputPanel implements IEmoticonSelectedListener, IAudioRecordCallba
     // data
     private long typingTime = 0;
 
-    public InputPanel(Container container, View view, List<BaseAction> actions) {
+    public InputPanel(Container container, View view, List<BaseAction> actions, boolean isTextAudioSwitchShow) {
         this.container = container;
         this.view = view;
         this.actions = actions;
         this.uiHandler = new Handler();
+        this.isTextAudioSwitchShow = isTextAudioSwitchShow;
         init();
+    }
+
+    public InputPanel(Container container, View view, List<BaseAction> actions) {
+        this(container, view, actions, true);
     }
 
     public void onPause() {
@@ -172,6 +182,14 @@ public class InputPanel implements IEmoticonSelectedListener, IAudioRecordCallba
         // 显示录音按钮
         switchToTextButtonInInputBar.setVisibility(View.GONE);
         switchToAudioButtonInInputBar.setVisibility(View.VISIBLE);
+
+        // 文本录音按钮切换布局
+        textAudioSwitchLayout = (FrameLayout) view.findViewById(R.id.switchLayout);
+        if (isTextAudioSwitchShow) {
+            textAudioSwitchLayout.setVisibility(View.VISIBLE);
+        } else {
+            textAudioSwitchLayout.setVisibility(View.GONE);
+        }
     }
 
     private void initInputBarListener() {
@@ -244,7 +262,7 @@ public class InputPanel implements IEmoticonSelectedListener, IAudioRecordCallba
             return;
         }
 
-        if (container.sessionType == SessionTypeEnum.Team) {
+        if (container.sessionType == SessionTypeEnum.Team || container.sessionType == SessionTypeEnum.ChatRoom) {
             return;
         }
 
@@ -309,7 +327,13 @@ public class InputPanel implements IEmoticonSelectedListener, IAudioRecordCallba
 
     // 发送文本消息
     private void onTextMessageSendButtonPressed() {
-        IMMessage textMessage = MessageBuilder.createTextMessage(container.account, container.sessionType, messageEditText.getText().toString());
+        IMMessage textMessage;
+        String text = messageEditText.getText().toString();
+        if (container.sessionType == SessionTypeEnum.ChatRoom) {
+            textMessage = ChatRoomMessageBuilder.createChatRoomTextMessage(container.account, text);
+        } else {
+            textMessage = MessageBuilder.createTextMessage(container.account, container.sessionType, text);
+        }
 
         if (container.proxy.sendMessage(textMessage)) {
             restoreText(true);
@@ -364,6 +388,7 @@ public class InputPanel implements IEmoticonSelectedListener, IAudioRecordCallba
 
     // 隐藏键盘布局
     private void hideInputMethod() {
+        isKeyboardShowed = false;
         uiHandler.removeCallbacks(showTextRunnable);
         InputMethodManager imm = (InputMethodManager) container.activity.getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(messageEditText.getWindowToken(), 0);
@@ -401,10 +426,12 @@ public class InputPanel implements IEmoticonSelectedListener, IAudioRecordCallba
     }
 
     // 显示键盘布局
-    private void showInputMethod(EditText editTextMessage, boolean setSelection) {
+    private void showInputMethod(EditText editTextMessage) {
         editTextMessage.requestFocus();
-        if (setSelection) {
+        //如果已经显示,则继续操作时不需要把光标定位到最后
+        if (!isKeyboardShowed) {
             editTextMessage.setSelection(editTextMessage.getText().length());
+            isKeyboardShowed = true;
         }
 
         InputMethodManager imm = (InputMethodManager) container.activity.getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -450,9 +477,7 @@ public class InputPanel implements IEmoticonSelectedListener, IAudioRecordCallba
     private Runnable showTextRunnable = new Runnable() {
         @Override
         public void run() {
-            // textLayoutAlreadyShow表示TextLayout是否已经显, 如果已经显示,则继续操作时不需要把光标定位到最后
-            final boolean textLayoutAlreadyShow = (messageInputBar.getVisibility() == View.VISIBLE);
-            showInputMethod(messageEditText, !textLayoutAlreadyShow);
+            showInputMethod(messageEditText);
         }
     };
 

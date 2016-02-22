@@ -62,7 +62,7 @@ public class MsgViewHolderFactory {
         return viewHolders.size() + 2;
     }
 
-    private static Class<? extends MsgAttachment> getSuperClass(Class<? extends MsgAttachment> derived) {
+    public static Class<? extends MsgAttachment> getSuperClass(Class<? extends MsgAttachment> derived) {
         Class sup = derived.getSuperclass();
         if (sup != null && MsgAttachment.class.isAssignableFrom(sup)) {
             return sup;

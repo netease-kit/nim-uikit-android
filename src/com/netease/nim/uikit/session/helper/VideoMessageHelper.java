@@ -10,15 +10,15 @@ import android.provider.MediaStore;
 import android.widget.Toast;
 
 import com.netease.nim.uikit.R;
-import com.netease.nim.uikit.session.activity.CaptureVideoActivity;
 import com.netease.nim.uikit.common.ui.dialog.CustomAlertDialog;
 import com.netease.nim.uikit.common.util.C;
-import com.netease.nim.uikit.common.util.file.FileUtil;
-import com.netease.nim.uikit.common.util.string.StringUtil;
 import com.netease.nim.uikit.common.util.file.AttachmentStore;
-import com.netease.nim.uikit.common.util.string.MD5;
+import com.netease.nim.uikit.common.util.file.FileUtil;
 import com.netease.nim.uikit.common.util.storage.StorageType;
 import com.netease.nim.uikit.common.util.storage.StorageUtil;
+import com.netease.nim.uikit.common.util.string.MD5;
+import com.netease.nim.uikit.common.util.string.StringUtil;
+import com.netease.nim.uikit.session.activity.CaptureVideoActivity;
 
 import java.io.File;
 
@@ -194,7 +194,7 @@ public class VideoMessageHelper {
                 return uri.getPath();
             } else {
                 cursor.moveToFirst();
-                return cursor.getString(1); // 文件路径
+                return cursor.getString(cursor.getColumnIndex("_data")); // 文件路径
             }
         } catch (Exception e) {
             return null;

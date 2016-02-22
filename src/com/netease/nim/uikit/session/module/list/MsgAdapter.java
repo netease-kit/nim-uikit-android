@@ -5,6 +5,7 @@ import android.view.View;
 
 import com.netease.nim.uikit.common.adapter.TAdapter;
 import com.netease.nim.uikit.common.adapter.TAdapterDelegate;
+import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
 
 import java.util.HashMap;
@@ -165,6 +166,9 @@ public class MsgAdapter extends TAdapter<IMMessage> {
     }
 
     private boolean hideTimeAlways(IMMessage message) {
+        if (message.getSessionType() == SessionTypeEnum.ChatRoom) {
+            return true;
+        }
         switch (message.getMsgType()) {
         case notification:
             return true;

@@ -66,12 +66,16 @@ public class PullToRefreshListView extends PullToRefreshAdapterViewBase<ListView
 		InternalListView listView = ((InternalListView)mRefreshableView);
 		return listView.getVerticalScrollOffset();
 	}
-	
+
 	public int getHorizontalScrollOffset(){
 		InternalListView listView = ((InternalListView)mRefreshableView);
 		return listView.getHorizontalScrollOffset();
 	}
-	
+
+	public LoadingLayout getHeaderLoadingView(){
+		return mHeaderLoadingView;
+	}
+
 	@Override
 	protected void onRefreshing(final boolean doScroll) {
 		/**
@@ -97,22 +101,22 @@ public class PullToRefreshListView extends PullToRefreshAdapterViewBase<ListView
 		final int selection, scrollToY;
 
 		switch (getCurrentMode()) {
-		case MANUAL_REFRESH_ONLY:
-		case PULL_FROM_END:
-			origLoadingView = getFooterLayout();
-			listViewLoadingView = mFooterLoadingView;
-			oppositeListViewLoadingView = mHeaderLoadingView;
-			selection = mRefreshableView.getCount() - 1;
-			scrollToY = getScrollY() - getFooterSize(false);
-			break;
-		case PULL_FROM_START:
-		default:
-			origLoadingView = getHeaderLayout();
-			listViewLoadingView = mHeaderLoadingView;
-			oppositeListViewLoadingView = mFooterLoadingView;
-			selection = 0;
-			scrollToY = getScrollY() + getHeaderSize(false);
-			break;
+			case MANUAL_REFRESH_ONLY:
+			case PULL_FROM_END:
+				origLoadingView = getFooterLayout();
+				listViewLoadingView = mFooterLoadingView;
+				oppositeListViewLoadingView = mHeaderLoadingView;
+				selection = mRefreshableView.getCount() - 1;
+				scrollToY = getScrollY() - getFooterSize(false);
+				break;
+			case PULL_FROM_START:
+			default:
+				origLoadingView = getHeaderLayout();
+				listViewLoadingView = mHeaderLoadingView;
+				oppositeListViewLoadingView = mFooterLoadingView;
+				selection = 0;
+				scrollToY = getScrollY() + getHeaderSize(false);
+				break;
 		}
 
 		// Hide our original Loading View
@@ -120,10 +124,10 @@ public class PullToRefreshListView extends PullToRefreshAdapterViewBase<ListView
 		origLoadingView.hideAllViews();
 
 		// Make sure the opposite end is hidden too
-		oppositeListViewLoadingView.setVisibility(GONE);
+		oppositeListViewLoadingView.setVisibility(View.GONE);
 
 		// Show the ListView Loading View and set it to refresh.
-		listViewLoadingView.setVisibility(VISIBLE);
+		listViewLoadingView.setVisibility(View.VISIBLE);
 		listViewLoadingView.refreshing();
 
 		if (doScroll) {
@@ -158,33 +162,33 @@ public class PullToRefreshListView extends PullToRefreshAdapterViewBase<ListView
 		final boolean scrollLvToEdge;
 
 		switch (getCurrentMode()) {
-		case MANUAL_REFRESH_ONLY:
-		case PULL_FROM_END:
-			originalLoadingLayout = getFooterLayout();
-			listViewLoadingLayout = mFooterLoadingView;
-			selection = mRefreshableView.getCount() - 1;
-			scrollToHeight = getFooterSize(false);
-			scrollLvToEdge = Math.abs(mRefreshableView.getLastVisiblePosition() - selection) <= 1;
-			break;
-		case PULL_FROM_START:
-		default:
-			originalLoadingLayout = getHeaderLayout();
-			listViewLoadingLayout = mHeaderLoadingView;
-			scrollToHeight = -getHeaderSize(false);
-			selection = 0;
-			scrollLvToEdge = Math.abs(mRefreshableView.getFirstVisiblePosition() - selection) <= 1;
-			break;
+			case MANUAL_REFRESH_ONLY:
+			case PULL_FROM_END:
+				originalLoadingLayout = getFooterLayout();
+				listViewLoadingLayout = mFooterLoadingView;
+				selection = mRefreshableView.getCount() - 1;
+				scrollToHeight = getFooterSize(false);
+				scrollLvToEdge = Math.abs(mRefreshableView.getLastVisiblePosition() - selection) <= 1;
+				break;
+			case PULL_FROM_START:
+			default:
+				originalLoadingLayout = getHeaderLayout();
+				listViewLoadingLayout = mHeaderLoadingView;
+				scrollToHeight = -getHeaderSize(false);
+				selection = 0;
+				scrollLvToEdge = Math.abs(mRefreshableView.getFirstVisiblePosition() - selection) <= 1;
+				break;
 		}
 
 		// If the ListView header loading layout is showing, then we need to
 		// flip so that the original one is showing instead
-		if (listViewLoadingLayout.getVisibility() == VISIBLE) {
+		if (listViewLoadingLayout.getVisibility() == View.VISIBLE) {
 
 			// Set our Original View to Visible
 			originalLoadingLayout.showInvisibleViews();
 
 			// Hide the ListView Header/Footer
-			listViewLoadingLayout.setVisibility(GONE);
+			listViewLoadingLayout.setVisibility(View.GONE);
 
 			/**
 			 * Scroll so the View is at the same Y as the ListView
@@ -258,7 +262,7 @@ public class PullToRefreshListView extends PullToRefreshAdapterViewBase<ListView
 			// Create Loading Views ready for use later
 			FrameLayout frame = new FrameLayout(getContext());
 			mHeaderLoadingView = createLvLoadingLayout(getContext(), Mode.PULL_FROM_START, a);
-			mHeaderLoadingView.setVisibility(GONE);
+			mHeaderLoadingView.setVisibility(View.GONE);
 			frame.addView(mHeaderLoadingView, lp);
 
 			// enable header loading view
@@ -268,7 +272,7 @@ public class PullToRefreshListView extends PullToRefreshAdapterViewBase<ListView
 
 			mLvFooterLoadingFrame = new FrameLayout(getContext());
 			mFooterLoadingView = createLvLoadingLayout(getContext(), Mode.PULL_FROM_END, a);
-			mFooterLoadingView.setVisibility(GONE);
+			mFooterLoadingView.setVisibility(View.GONE);
 			mLvFooterLoadingFrame.addView(mFooterLoadingView, lp);
 
 			/**
@@ -294,7 +298,7 @@ public class PullToRefreshListView extends PullToRefreshAdapterViewBase<ListView
 
 		@Override
 		protected boolean overScrollBy(int deltaX, int deltaY, int scrollX, int scrollY, int scrollRangeX,
-				int scrollRangeY, int maxOverScrollX, int maxOverScrollY, boolean isTouchEvent) {
+									   int scrollRangeY, int maxOverScrollX, int maxOverScrollY, boolean isTouchEvent) {
 
 			final boolean returnValue = super.overScrollBy(deltaX, deltaY, scrollX, scrollY, scrollRangeX,
 					scrollRangeY, maxOverScrollX, maxOverScrollY, isTouchEvent);
@@ -366,11 +370,11 @@ public class PullToRefreshListView extends PullToRefreshAdapterViewBase<ListView
 		public void setEmptyViewInternal(View emptyView) {
 			super.setEmptyView(emptyView);
 		}
-		
+
 		public int getVerticalScrollOffset(){
 			return this.computeVerticalScrollOffset();
 		}
-		
+
 		public int getHorizontalScrollOffset(){
 			return this.computeHorizontalScrollOffset();
 		}

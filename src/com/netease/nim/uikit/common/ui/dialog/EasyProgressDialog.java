@@ -26,6 +26,8 @@ public class EasyProgressDialog extends Dialog {
 
 	private int mLayoutId;
 
+	private TextView message;
+
 	public EasyProgressDialog(Context context, int style, int layout) {
 		super(context, style);
 		mContext = context;
@@ -54,15 +56,23 @@ public class EasyProgressDialog extends Dialog {
 		mMessage = msg;
 	}
 
+	public void updateLoadingMessage(String msg) {
+		mMessage = msg;
+		showMessage();
+	}
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(mLayoutId);
-		if (!TextUtils.isEmpty(mMessage)) {
-			TextView message = (TextView) findViewById(R.id.easy_progress_dialog_message);
+		message = (TextView) findViewById(R.id.easy_progress_dialog_message);
+		showMessage();
+	}
+
+	private void showMessage() {
+		if (message != null && !TextUtils.isEmpty(mMessage)) {
 			message.setVisibility(View.VISIBLE);
 			message.setText(mMessage);
 		}
 	}
-
 }
