@@ -45,6 +45,7 @@ public class P2PMessageActivity extends BaseMessageActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         // 单聊特例话数据，包括个人信息，
         requestBuddyInfo();
         registerObservers(true);

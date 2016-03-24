@@ -77,9 +77,8 @@
     <orderEntry type="jdk" jdkName="Android API 21 Platform" jdkType="Android SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" exported="" name="support-v4-19.1.0" level="project" />
+    <orderEntry type="library" exported="" name="nrtc-sdk" level="project" />
     <orderEntry type="library" exported="" name="fastjson-1.1.34.android" level="project" />
-    <orderEntry type="library" exported="" name="nrtc-sdk-1.1.0" level="project" />
-    <orderEntry type="library" exported="" name="nim-sdk-2.0.0" level="project" />
     <orderEntry type="library" exported="" name="appcompat-v7-19.1.0" level="project" />
     <orderEntry type="library" exported="" name="universal-image-loader-1.9.4" level="project" />
     <orderEntry type="module" module-name="basesdk" exported="" />

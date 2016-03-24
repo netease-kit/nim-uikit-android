@@ -45,6 +45,7 @@
     <dimen name="dark_line_size">3px</dimen>
 
     <!-- avatar -->
+    <dimen name="avatar_notification_size">48dip</dimen>
     <dimen name="avatar_max_size">60dip</dimen>
     <dimen name="avatar_size_default">50dip</dimen>
     <dimen name="avatar_size_in_session">40dip</dimen>

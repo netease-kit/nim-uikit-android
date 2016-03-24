@@ -1,5 +1,6 @@
 package com.netease.nim.uikit.session.viewholder;
 
+import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,6 +39,7 @@ public abstract class MsgViewHolderBase extends TViewHolder {
     protected TextView nameTextView;
     protected FrameLayout contentContainer;
     protected LinearLayout nameContainer;
+    protected TextView readReceiptTextView;
 
     private HeadImageView avatarLeft;
     private HeadImageView avatarRight;
@@ -149,6 +151,7 @@ public abstract class MsgViewHolderBase extends TViewHolder {
         contentContainer = findViewById(R.id.message_item_content);
         nameIconView = findViewById(R.id.message_item_name_icon);
         nameContainer = findViewById(R.id.message_item_name_layout);
+        readReceiptTextView = findView(R.id.textViewAlreadyRead);
 
         View.inflate(view.getContext(), getContentResId(), contentContainer);
         inflateContentView();
@@ -164,6 +167,7 @@ public abstract class MsgViewHolderBase extends TViewHolder {
         setOnClickListener();
         setLongClickListener();
         setContent();
+        setReadReceipt();
 
         bindContentView();
     }
@@ -312,7 +316,7 @@ public abstract class MsgViewHolderBase extends TViewHolder {
         LinearLayout bodyContainer = (LinearLayout) view.findViewById(R.id.message_item_body);
 
         // 调整container的位置
-        int index = isReceivedMessage() ? 0 : 2;
+        int index = isReceivedMessage() ? 0 : 3;
         if (bodyContainer.getChildAt(index) != contentContainer) {
             bodyContainer.removeView(contentContainer);
             bodyContainer.addView(contentContainer, index);
@@ -328,6 +332,14 @@ public abstract class MsgViewHolderBase extends TViewHolder {
                 setGravity(bodyContainer, Gravity.RIGHT);
                 contentContainer.setBackgroundResource(rightBackground());
             }
+        }
+    }
+
+    private void setReadReceipt() {
+        if (!TextUtils.isEmpty(getAdapter().getUuid()) && message.getUuid().equals(getAdapter().getUuid())) {
+            readReceiptTextView.setVisibility(View.VISIBLE);
+        } else {
+            readReceiptTextView.setVisibility(View.GONE);
         }
     }
 }

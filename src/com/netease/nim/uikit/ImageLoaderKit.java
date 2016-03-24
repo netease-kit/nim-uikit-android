@@ -4,10 +4,9 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.text.TextUtils;
 
+import com.netease.nim.uikit.common.media.picker.util.BitmapUtil;
 import com.netease.nim.uikit.common.ui.imageview.HeadImageView;
 import com.netease.nim.uikit.common.util.log.LogUtil;
-import com.netease.nimlib.sdk.nos.model.NosThumbParam;
-import com.netease.nimlib.sdk.nos.util.NosThumbImageUtil;
 import com.netease.nimlib.sdk.uinfo.UserInfoProvider;
 import com.nostra13.universalimageloader.cache.disc.impl.ext.LruDiskCache;
 import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
@@ -18,7 +17,6 @@ import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.ImageSize;
 import com.nostra13.universalimageloader.core.download.BaseImageDownloader;
 import com.nostra13.universalimageloader.core.download.ImageDownloader;
-import com.nostra13.universalimageloader.utils.DiskCacheUtils;
 import com.nostra13.universalimageloader.utils.MemoryCacheUtils;
 import com.nostra13.universalimageloader.utils.StorageUtils;
 
@@ -81,31 +79,6 @@ public class ImageLoaderKit {
         return config;
     }
 
-    public static Bitmap getBitmapFromCache(String uri, int width, int height) {
-        if (TextUtils.isEmpty(uri)) {
-            return null;
-        }
-
-        boolean cached = true;
-        ImageDownloader.Scheme scheme = ImageDownloader.Scheme.ofUri(uri);
-        if (scheme == ImageDownloader.Scheme.HTTP || scheme == ImageDownloader.Scheme.HTTPS || scheme ==
-                ImageDownloader.Scheme.UNKNOWN) {
-            // non local resource
-            cached = MemoryCacheUtils.findCachedBitmapsForImageUri(uri, ImageLoader.getInstance()
-                    .getMemoryCache()).size() > 0 || DiskCacheUtils.findInCache(uri, ImageLoader.getInstance()
-                    .getDiskCache()) != null;
-        }
-
-        if (cached) {
-            Bitmap bitmap = ImageLoader.getInstance().loadImageSync(uri, new ImageSize(width, height));
-            if (bitmap == null) {
-                LogUtil.e(TAG, "load cached image failed, uri =" + uri);
-            }
-            return bitmap;
-        }
-
-        return null;
-    }
 
     /**
      * 判断图片地址是否合法，合法地址如下：
@@ -137,6 +110,56 @@ public class ImageLoaderKit {
     }
 
     /**
+     * 从ImageLoader内存缓存中取出头像位图
+     */
+    private static Bitmap getMemoryCachedAvatarBitmap(UserInfoProvider.UserInfo userInfo) {
+        if(userInfo == null || !isImageUriValid(userInfo.getAvatar())) {
+            return null;
+        }
+
+        String key = HeadImageView.getAvatarCacheKey(userInfo.getAvatar());
+
+        // DiskCacheUtils.findInCache(uri, ImageLoader.getInstance().getDiskCache() 查询磁盘缓存示例
+        List<Bitmap> bitmaps = MemoryCacheUtils.findCachedBitmapsForImageUri(key, ImageLoader.getInstance().getMemoryCache());
+        if(bitmaps.size() > 0) {
+            return bitmaps.get(0);
+        }
+
+        return null;
+    }
+
+    /**
+     * 异步加载头像位图到ImageLoader内存缓存
+     */
+    private static void asyncLoadAvatarBitmapToCache(UserInfoProvider.UserInfo userInfo) {
+        if(userInfo == null || !isImageUriValid(userInfo.getAvatar())) {
+            return;
+        }
+
+        String url = HeadImageView.getAvatarCacheKey(userInfo.getAvatar());
+        ImageLoader.getInstance().loadImage(url,
+                new ImageSize(HeadImageView.DEFAULT_AVATAR_THUMB_SIZE, HeadImageView.DEFAULT_AVATAR_THUMB_SIZE),
+                avatarLoadOption, null);
+
+    }
+
+    /**
+     * 获取通知栏提醒所需的头像位图，只存内存缓存中取，如果没有则返回空，自动发起异步加载
+     */
+    public static Bitmap getNotificationBitmapFromCache(UserInfoProvider.UserInfo userInfo) {
+        Bitmap cachedBitmap = getMemoryCachedAvatarBitmap(userInfo);
+        if(cachedBitmap == null) {
+            asyncLoadAvatarBitmapToCache(userInfo);
+        } else {
+            return BitmapUtil.resizeBitmap(cachedBitmap,
+                    HeadImageView.DEFAULT_AVATAR_NOTIFICATION_ICON_SIZE,
+                    HeadImageView.DEFAULT_AVATAR_NOTIFICATION_ICON_SIZE);
+        }
+
+        return null;
+    }
+
+    /**
      * 构建头像缓存
      */
     public static void buildAvatarCache(List<String> accounts) {
@@ -144,22 +167,19 @@ public class ImageLoaderKit {
             return;
         }
 
-        int thumbSize = HeadImageView.DEFAULT_THUMB_SIZE;
+        UserInfoProvider.UserInfo userInfo;
         for (String account : accounts) {
-            final UserInfoProvider.UserInfo userInfo = NimUIKit.getUserInfoProvider().getUserInfo(account);
-            boolean needLoad = userInfo != null && ImageLoaderKit.isImageUriValid(userInfo.getAvatar());
-            if (needLoad) {
-                final String thumbUrl = thumbSize > 0 ? NosThumbImageUtil.makeImageThumbUrl(userInfo.getAvatar(),
-                        NosThumbParam.ThumbType.Crop, thumbSize, thumbSize) : userInfo.getAvatar();
-                ImageLoader.getInstance().loadImage(thumbUrl, new ImageSize(thumbSize, thumbSize), headImageOption,
-                        null);
-            }
+            userInfo = NimUIKit.getUserInfoProvider().getUserInfo(account);
+            asyncLoadAvatarBitmapToCache(userInfo);
         }
 
         LogUtil.i(TAG, "build avatar cache completed, avatar count =" + accounts.size());
     }
 
-    private static DisplayImageOptions headImageOption = createImageOptions();
+    /**
+     * 头像ImageLoader加载配置
+     */
+    private static DisplayImageOptions avatarLoadOption = createImageOptions();
 
     private static final DisplayImageOptions createImageOptions() {
         return new DisplayImageOptions.Builder()

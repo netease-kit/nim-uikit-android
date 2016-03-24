@@ -501,9 +501,11 @@ public class MessageListPanel implements TAdapterDelegate {
             // 如果是第一次加载，updateShowTimeItem返回的就是lastShowTimeItem
             if (firstLoad) {
                 ListViewUtil.scrollToBottom(messageListView);
+                sendReceipt(); // 发送已读回执
             }
 
             adapter.updateShowTimeItem(items, true, firstLoad);
+            updateReceipt(items); // 更新已读回执标签
 
             refreshMessageList();
             messageListView.onRefreshComplete(count, LOAD_MESSAGE_COUNT, true);
@@ -711,6 +713,14 @@ public class MessageListPanel implements TAdapterDelegate {
 
         public void deleteItem(IMMessage messageItem) {
             NIMClient.getService(MsgService.class).deleteChattingHistory(messageItem);
+            List<IMMessage> messages = new ArrayList<>();
+            for (IMMessage message : items) {
+                if (message.getUuid().equals(messageItem.getUuid())) {
+                    continue;
+                }
+                messages.add(message);
+            }
+            updateReceipt(messages);
             adapter.deleteItem(messageItem);
         }
 
@@ -825,5 +835,73 @@ public class MessageListPanel implements TAdapterDelegate {
         if (uinfoObserver != null) {
             UserInfoHelper.unregisterObserver(uinfoObserver);
         }
+    }
+
+    /**
+     * 收到已读回执（更新VH的已读label）
+     */
+
+    public void receiveReceipt() {
+        updateReceipt(items);
+        refreshMessageList();
+    }
+
+    public void updateReceipt(final List<IMMessage> messages) {
+        for (int i = messages.size() - 1; i >= 0; i--) {
+            if (receiveReceiptCheck(messages.get(i))) {
+                adapter.setUuid(messages.get(i).getUuid());
+                break;
+            }
+        }
+    }
+
+    private boolean receiveReceiptCheck(final IMMessage msg) {
+        if(msg != null && msg.getSessionType() == SessionTypeEnum.P2P
+                && msg.getDirect() == MsgDirectionEnum.Out
+                && msg.getMsgType() != MsgTypeEnum.tip
+                && msg.getMsgType() != MsgTypeEnum.notification
+                && msg.isRemoteRead()) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * 发送已读回执（需要过滤）
+     */
+
+    public void sendReceipt() {
+        if (container.account == null || container.sessionType != SessionTypeEnum.P2P) {
+            return;
+        }
+
+        IMMessage message = getLastReceivedMessage();
+        if(!sendReceiptCheck(message)) {
+            return;
+        }
+
+        NIMClient.getService(MsgService.class).sendMessageReceipt(container.account, message);
+    }
+
+    private IMMessage getLastReceivedMessage() {
+        IMMessage lastMessage = null;
+        for (int i = items.size() - 1; i >= 0; i--) {
+            if (sendReceiptCheck(items.get(i))) {
+                lastMessage = items.get(i);
+                break;
+            }
+        }
+
+        return lastMessage;
+    }
+
+    private boolean sendReceiptCheck(final IMMessage msg) {
+        if(msg == null || msg.getDirect() != MsgDirectionEnum.In ||
+                msg.getMsgType() == MsgTypeEnum.tip || msg.getMsgType() == MsgTypeEnum.notification) {
+            return false; // 非收到的消息，Tip消息和通知类消息，不要发已读回执
+        }
+
+        return true;
     }
 }

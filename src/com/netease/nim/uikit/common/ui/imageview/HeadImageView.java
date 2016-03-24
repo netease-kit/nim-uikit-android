@@ -23,7 +23,8 @@ import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListene
  */
 public class HeadImageView extends CircleImageView {
 
-    public static final int DEFAULT_THUMB_SIZE = (int) NimUIKit.getContext().getResources().getDimension(R.dimen.avatar_max_size);
+    public static final int DEFAULT_AVATAR_THUMB_SIZE = (int) NimUIKit.getContext().getResources().getDimension(R.dimen.avatar_max_size);
+    public static final int DEFAULT_AVATAR_NOTIFICATION_ICON_SIZE = (int) NimUIKit.getContext().getResources().getDimension(R.dimen.avatar_notification_size);
 
     private DisplayImageOptions options = createImageOptions();
 
@@ -56,7 +57,7 @@ public class HeadImageView extends CircleImageView {
      * @param account
      */
     public void loadBuddyAvatar(String account) {
-        loadBuddyAvatar(account, DEFAULT_THUMB_SIZE);
+        loadBuddyAvatar(account, DEFAULT_AVATAR_THUMB_SIZE);
     }
 
     /**
@@ -74,7 +75,7 @@ public class HeadImageView extends CircleImageView {
      * @param account
      * @param thumbSize 缩略图的宽、高
      */
-    public void loadBuddyAvatar(final String account, final int thumbSize) {
+    private void loadBuddyAvatar(final String account, final int thumbSize) {
         // 先显示默认头像
         setImageResource(NimUIKit.getUserInfoProvider().getDefaultIconResId());
 
@@ -89,8 +90,7 @@ public class HeadImageView extends CircleImageView {
              * 若使用网易云信云存储，这里可以设置下载图片的压缩尺寸，生成下载URL
              * 如果图片来源是非网易云信云存储，请不要使用NosThumbImageUtil
              */
-            final String thumbUrl = thumbSize > 0 ? NosThumbImageUtil.makeImageThumbUrl(userInfo.getAvatar(),
-                    NosThumbParam.ThumbType.Crop, thumbSize, thumbSize) : userInfo.getAvatar();
+            final String thumbUrl = makeAvatarThumbNosUrl(userInfo.getAvatar(), thumbSize);
 
             // 异步从cache or NOS加载图片
             ImageLoader.getInstance().displayImage(thumbUrl, new NonViewAware(new ImageSize(thumbSize, thumbSize),
@@ -117,5 +117,16 @@ public class HeadImageView extends CircleImageView {
      */
     public void resetImageView() {
         setImageBitmap(null);
+    }
+
+    /**
+     * 生成头像缩略图NOS URL地址（用作ImageLoader缓存的key）
+     */
+    private static String makeAvatarThumbNosUrl(final String url, final int thumbSize) {
+         return thumbSize > 0 ? NosThumbImageUtil.makeImageThumbUrl(url, NosThumbParam.ThumbType.Crop, thumbSize, thumbSize) : url;
+    }
+
+    public static String getAvatarCacheKey(final String url) {
+        return makeAvatarThumbNosUrl(url, DEFAULT_AVATAR_THUMB_SIZE);
     }
 }

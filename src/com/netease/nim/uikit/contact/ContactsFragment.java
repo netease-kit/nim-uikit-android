@@ -351,7 +351,7 @@ public class ContactsFragment extends TFragment {
     private UserInfoObservable.UserInfoObserver userInfoObserver = new UserInfoObservable.UserInfoObserver() {
         @Override
         public void onUserInfoChanged(List<String> accounts) {
-            reloadWhenDataChanged(accounts, "onUserInfoChanged", true);
+            reloadWhenDataChanged(accounts, "onUserInfoChanged", true, false); // 非好友资料变更，不用刷新界面
         }
     };
 
@@ -368,17 +368,25 @@ public class ContactsFragment extends TFragment {
     };
 
     private void reloadWhenDataChanged(List<String> accounts, String reason, boolean reload) {
+        reloadWhenDataChanged(accounts, reason, reload, true);
+    }
+
+    private void reloadWhenDataChanged(List<String> accounts, String reason, boolean reload, boolean force) {
         if (accounts == null || accounts.isEmpty()) {
             return;
         }
 
-        // 与通讯录无关的（非好友）变更通知，去掉
         boolean needReload = false;
-        for (String account : accounts) {
-            if (FriendDataCache.getInstance().isMyFriend(account)) {
-                needReload = true;
-                break;
+        if(!force) {
+            // 非force：与通讯录无关的（非好友）变更通知，去掉
+            for (String account : accounts) {
+                if (FriendDataCache.getInstance().isMyFriend(account)) {
+                    needReload = true;
+                    break;
+                }
             }
+        } else{
+            needReload = true;
         }
 
         if (!needReload) {

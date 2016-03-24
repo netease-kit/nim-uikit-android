@@ -25,6 +25,7 @@ import com.netease.nimlib.sdk.msg.MsgService;
 import com.netease.nimlib.sdk.msg.MsgServiceObserve;
 import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
+import com.netease.nimlib.sdk.msg.model.MessageReceipt;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -149,7 +150,7 @@ public class MessageFragment extends TFragment implements ModuleProxy {
     private void registerObservers(boolean register) {
         MsgServiceObserve service = NIMClient.getService(MsgServiceObserve.class);
         service.observeReceiveMessage(incomingMessageObserver, register);
-
+        service.observeMessageReceipt(messageReceiptObserver, register);
     }
 
     /**
@@ -161,7 +162,16 @@ public class MessageFragment extends TFragment implements ModuleProxy {
             if (messages == null || messages.isEmpty()) {
                 return;
             }
+
             messageListPanel.onIncomingMessage(messages);
+            sendMsgReceipt(); // 发送已读回执
+        }
+    };
+
+    private Observer<List<MessageReceipt>> messageReceiptObserver = new Observer<List<MessageReceipt>>() {
+        @Override
+        public void onEvent(List<MessageReceipt> messageReceipts) {
+            receiveReceipt();
         }
     };
 
@@ -212,9 +222,23 @@ public class MessageFragment extends TFragment implements ModuleProxy {
         actions.add(new VideoAction());
         actions.add(new LocationAction());
 
-        if (customization != null &&  customization.actions != null) {
+        if (customization != null && customization.actions != null) {
             actions.addAll(customization.actions);
         }
         return actions;
+    }
+
+    /**
+     * 发送已读回执
+     */
+    private void sendMsgReceipt() {
+        messageListPanel.sendReceipt();
+    }
+
+    /**
+     * 收到已读回执
+     */
+    public void receiveReceipt() {
+        messageListPanel.receiveReceipt();
     }
 }
