@@ -53,38 +53,14 @@ public class LogUtil {
 		LogImpl.i("ui", buildMessage(msg));
 	}
 
-	public static final void core(String msg) {
-		LogImpl.i("core", buildMessage(msg));
-	}
-	
-	public static final void coreDebug(String msg) {
-		LogImpl.d("core", buildMessage(msg));
-	}
-
 	public static final void res(String msg) {
 		LogImpl.i("RES", buildMessage(msg));
-	}
-	
-	public static final void resDebug(String msg) {
-		LogImpl.d("RES", buildMessage(msg));
 	}
 
 	public static final void audio(String msg) {
 		LogImpl.i("AudioRecorder", buildMessage(msg));
 	}
-	
-	public static void vincent(String msg) {
-        LogImpl.v("Vincent", buildMessage(msg));
-	}
-	
-	public static void pipeline(String prefix, String msg) {
-		LogImpl.i("Pipeline", prefix + " " + buildMessage(msg));
-	}
 
-    public static void pipelineDebug(String prefix, String msg) {
-        LogImpl.d("Pipeline", prefix + " " + buildMessage(msg));
-    }
-	
 	public static String getLogFileName(String cat) {
 		return LogImpl.getLogFileName(cat);
 	}

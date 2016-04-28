@@ -3,6 +3,7 @@ package com.netease.nim.uikit.session.viewholder;
 import android.graphics.Color;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ImageSpan;
+import android.view.View;
 import android.widget.TextView;
 
 import com.netease.nim.uikit.NimUIKit;
@@ -30,6 +31,12 @@ public class MsgViewHolderText extends MsgViewHolderBase {
 
         TextView bodyTextView = findViewById(R.id.nim_message_item_text_body);
         bodyTextView.setTextColor(isReceivedMessage() ? Color.BLACK : Color.WHITE);
+        bodyTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onItemClick();
+            }
+        });
         MoonUtil.identifyFaceExpression(NimUIKit.getContext(), bodyTextView, getDisplayText(), ImageSpan.ALIGN_BOTTOM);
         bodyTextView.setMovementMethod(LinkMovementMethod.getInstance());
         bodyTextView.setOnLongClickListener(longClickListener);
