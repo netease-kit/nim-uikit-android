@@ -9,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.netease.nim.uikit.R;
+import com.netease.nim.uikit.cache.TeamDataCache;
 import com.netease.nim.uikit.common.adapter.TViewHolder;
 import com.netease.nim.uikit.common.ui.imageview.HeadImageView;
 import com.netease.nim.uikit.common.util.sys.ScreenUtil;
@@ -20,6 +21,7 @@ import com.netease.nim.uikit.uinfo.UserInfoHelper;
 import com.netease.nimlib.sdk.msg.constant.MsgStatusEnum;
 import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.msg.model.RecentContact;
+import com.netease.nimlib.sdk.team.model.Team;
 
 public abstract class RecentViewHolder extends TViewHolder implements OnClickListener {
 
@@ -82,7 +84,8 @@ public abstract class RecentViewHolder extends TViewHolder implements OnClickLis
         if (recent.getSessionType() == SessionTypeEnum.P2P) {
             imgHead.loadBuddyAvatar(recent.getContactId());
         } else if (recent.getSessionType() == SessionTypeEnum.Team) {
-            imgHead.loadTeamIcon(recent.getContactId());
+            Team team = TeamDataCache.getInstance().getTeamById(recent.getContactId());
+            imgHead.loadTeamIconByTeam(team);
         }
     }
 

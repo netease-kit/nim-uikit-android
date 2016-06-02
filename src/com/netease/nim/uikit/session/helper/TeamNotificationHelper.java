@@ -12,6 +12,7 @@ import com.netease.nimlib.sdk.team.constant.TeamFieldEnum;
 import com.netease.nimlib.sdk.team.constant.TeamTypeEnum;
 import com.netease.nimlib.sdk.team.constant.VerifyTypeEnum;
 import com.netease.nimlib.sdk.team.model.MemberChangeAttachment;
+import com.netease.nimlib.sdk.team.model.MuteMemberAttachment;
 import com.netease.nimlib.sdk.team.model.Team;
 import com.netease.nimlib.sdk.team.model.UpdateTeamAttachment;
 
@@ -23,7 +24,7 @@ import java.util.Map;
  * Created by huangjun on 2015/3/11.
  */
 public class TeamNotificationHelper {
-    private static ThreadLocal<String> teamId = new ThreadLocal<String>();
+    private static ThreadLocal<String> teamId = new ThreadLocal<>();
 
     public static String getMsgShowText(final IMMessage message) {
         String content = "";
@@ -55,39 +56,42 @@ public class TeamNotificationHelper {
     private static String buildNotification(String tid, String fromAccount, NotificationAttachment attachment) {
         String text;
         switch (attachment.getType()) {
-        case InviteMember:
-            text = buildInviteMemberNotification(((MemberChangeAttachment) attachment), fromAccount);
-            break;
-        case KickMember:
-            text = buildKickMemberNotification(((MemberChangeAttachment) attachment));
-            break;
-        case LeaveTeam:
-            text = buildLeaveTeamNotification(fromAccount);
-            break;
-        case DismissTeam:
-            text = buildDismissTeamNotification(fromAccount);
-            break;
-        case UpdateTeam:
-            text = buildUpdateTeamNotification(tid, fromAccount, (UpdateTeamAttachment) attachment);
-            break;
-        case PassTeamApply:
-            text = buildManagerPassTeamApplyNotification((MemberChangeAttachment) attachment);
-            break;
-        case TransferOwner:
-            text = buildTransferOwnerNotification(fromAccount, (MemberChangeAttachment) attachment);
-            break;
-        case AddTeamManager:
-            text = buildAddTeamManagerNotification((MemberChangeAttachment) attachment);
-            break;
-        case RemoveTeamManager:
-            text = buildRemoveTeamManagerNotification((MemberChangeAttachment) attachment);
-            break;
-        case AcceptInvite:
-            text = buildAcceptInviteNotification(fromAccount, (MemberChangeAttachment) attachment);
-            break;
-        default:
-            text = getTeamMemberDisplayName(fromAccount) + ": unknown message";
-            break;
+            case InviteMember:
+                text = buildInviteMemberNotification(((MemberChangeAttachment) attachment), fromAccount);
+                break;
+            case KickMember:
+                text = buildKickMemberNotification(((MemberChangeAttachment) attachment));
+                break;
+            case LeaveTeam:
+                text = buildLeaveTeamNotification(fromAccount);
+                break;
+            case DismissTeam:
+                text = buildDismissTeamNotification(fromAccount);
+                break;
+            case UpdateTeam:
+                text = buildUpdateTeamNotification(tid, fromAccount, (UpdateTeamAttachment) attachment);
+                break;
+            case PassTeamApply:
+                text = buildManagerPassTeamApplyNotification((MemberChangeAttachment) attachment);
+                break;
+            case TransferOwner:
+                text = buildTransferOwnerNotification(fromAccount, (MemberChangeAttachment) attachment);
+                break;
+            case AddTeamManager:
+                text = buildAddTeamManagerNotification((MemberChangeAttachment) attachment);
+                break;
+            case RemoveTeamManager:
+                text = buildRemoveTeamManagerNotification((MemberChangeAttachment) attachment);
+                break;
+            case AcceptInvite:
+                text = buildAcceptInviteNotification(fromAccount, (MemberChangeAttachment) attachment);
+                break;
+            case MuteTeamMember:
+                text = buildMuteTeamNotification((MuteMemberAttachment) attachment);
+                break;
+            default:
+                text = getTeamMemberDisplayName(fromAccount) + ": unknown message";
+                break;
         }
 
         return text;
@@ -118,7 +122,12 @@ public class TeamNotificationHelper {
         sb.append(selfName);
         sb.append("邀请 ");
         sb.append(buildMemberListString(a.getTargets(), fromAccount));
-        sb.append(" 加入讨论组");
+        Team team = TeamDataCache.getInstance().getTeamById(teamId.get());
+        if (team.getType() == TeamTypeEnum.Advanced) {
+            sb.append(" 加入群");
+        } else {
+            sb.append(" 加入讨论组");
+        }
 
         return sb.toString();
     }
@@ -138,7 +147,7 @@ public class TeamNotificationHelper {
     }
 
     private static String buildLeaveTeamNotification(String fromAccount) {
-        String tip = null;
+        String tip;
         Team team = TeamDataCache.getInstance().getTeamById(teamId.get());
         if (team.getType() == TeamTypeEnum.Advanced) {
             tip = " 离开了群";
@@ -175,10 +184,23 @@ public class TeamNotificationHelper {
                 sb.append("群扩展字段被更新为 " + field.getValue());
             } else if (field.getKey() == TeamFieldEnum.Ext_Server) {
                 sb.append("群扩展字段(服务器)被更新为 " + field.getValue());
+            } else if (field.getKey() == TeamFieldEnum.ICON) {
+                sb.append("群头像已更新");
+            } else if (field.getKey() == TeamFieldEnum.InviteMode) {
+                sb.append("群邀请他人权限被更新为 " + field.getValue());
+            } else if (field.getKey() == TeamFieldEnum.TeamUpdateMode) {
+                sb.append("群资料修改权限被更新为 " + field.getValue());
+            } else if (field.getKey() == TeamFieldEnum.BeInviteMode) {
+                sb.append("群被邀请人身份验证权限被更新为 " + field.getValue());
+            } else if (field.getKey() == TeamFieldEnum.TeamExtensionUpdateMode) {
+                sb.append("群扩展字段修改权限被更新为 " + field.getValue());
             } else {
                 sb.append("群" + field.getKey() + "被更新为 " + field.getValue());
             }
             sb.append("\r\n");
+        }
+        if (sb.length() < 2) {
+            return "未知通知";
         }
         return sb.delete(sb.length() - 2, sb.length()).toString();
     }
@@ -224,6 +246,16 @@ public class TeamNotificationHelper {
 
         sb.append(getTeamMemberDisplayName(from));
         sb.append(" 接受了 ").append(buildMemberListString(a.getTargets(), null)).append(" 的入群邀请");
+
+        return sb.toString();
+    }
+
+    private static String buildMuteTeamNotification(MuteMemberAttachment a) {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append(buildMemberListString(a.getTargets(), null));
+        sb.append("被管理员");
+        sb.append(a.isMute() ? "禁言" : "解除禁言");
 
         return sb.toString();
     }

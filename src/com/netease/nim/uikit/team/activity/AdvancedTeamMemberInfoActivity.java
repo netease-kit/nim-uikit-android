@@ -3,7 +3,9 @@ package com.netease.nim.uikit.team.activity;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -18,6 +20,8 @@ import com.netease.nim.uikit.common.ui.dialog.EasyAlertDialog;
 import com.netease.nim.uikit.common.ui.dialog.EasyAlertDialogHelper;
 import com.netease.nim.uikit.common.ui.dialog.MenuDialog;
 import com.netease.nim.uikit.common.ui.imageview.HeadImageView;
+import com.netease.nim.uikit.common.ui.widget.SwitchButton;
+import com.netease.nim.uikit.common.util.sys.NetworkUtil;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.RequestCallback;
 import com.netease.nimlib.sdk.team.TeamService;
@@ -25,7 +29,9 @@ import com.netease.nimlib.sdk.team.constant.TeamMemberType;
 import com.netease.nimlib.sdk.team.model.TeamMember;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 群成员详细信息界面
@@ -33,18 +39,21 @@ import java.util.List;
  */
 public class AdvancedTeamMemberInfoActivity extends TActionBarActivity implements View.OnClickListener {
 
+    private static final String TAG = AdvancedTeamMemberInfoActivity.class.getSimpleName();
     // constant
+    public static final int REQ_CODE_REMOVE_MEMBER = 11;
     private static final String EXTRA_ID = "EXTRA_ID";
     private static final String EXTRA_TID = "EXTRA_TID";
     public static final String EXTRA_ISADMIN = "EXTRA_ISADMIN";
     public static final String EXTRA_ISREMOVE = "EXTRA_ISREMOVE";
-    public static final int REQ_CODE_REMOVE_MEMBER = 11;
+    private final String KEY_MUTE_MSG = "mute_msg";
 
     // data
     private String account;
     private String teamId;
     private TeamMember viewMember;
     private boolean isSetAdmin;
+    private Map<String, Boolean> toggleStateMap;
 
     // view
     private HeadImageView headImageView;
@@ -56,6 +65,8 @@ public class AdvancedTeamMemberInfoActivity extends TActionBarActivity implement
     private View identityContainer;
     private MenuDialog setAdminDialog;
     private MenuDialog cancelAdminDialog;
+    private ViewGroup toggleLayout;
+    private SwitchButton muteSwitch;
 
     // state
     private boolean isSelfCreator = false;
@@ -85,6 +96,13 @@ public class AdvancedTeamMemberInfoActivity extends TActionBarActivity implement
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+
+        updateToggleView();
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         if (setAdminDialog != null) {
@@ -108,6 +126,7 @@ public class AdvancedTeamMemberInfoActivity extends TActionBarActivity implement
         nickName = (TextView) findViewById(R.id.team_nickname_detail);
         identity = (TextView) findViewById(R.id.team_member_identity_detail);
         removeBtn = (Button) findViewById(R.id.team_remove_member);
+        toggleLayout = findView(R.id.toggle_layout);
         setClickListener();
     }
 
@@ -115,6 +134,113 @@ public class AdvancedTeamMemberInfoActivity extends TActionBarActivity implement
         nickContainer.setOnClickListener(this);
         identityContainer.setOnClickListener(this);
         removeBtn.setOnClickListener(this);
+    }
+
+    private void updateToggleView() {
+        if (getMyPermission()) {
+            boolean isMute = TeamDataCache.getInstance().getTeamMember(teamId, account).isMute();
+            if (muteSwitch == null) {
+                addToggleBtn(isMute);
+            } else {
+                setToggleBtn(muteSwitch, isMute);
+            }
+            Log.i(TAG, "mute=" + isMute);
+        }
+
+    }
+
+    // 判断是否有权限
+    private boolean getMyPermission() {
+        if (isSelfCreator && !isSelf(account)) {
+            return true;
+        }
+        if (isSelfManager && identity.getText().toString().equals(getString(R.string.team_member))) {
+            return true;
+        }
+        return false;
+    }
+
+    private void addToggleBtn(boolean isMute) {
+        muteSwitch = addToggleItemView(KEY_MUTE_MSG, R.string.mute_msg, isMute);
+    }
+
+    private void setToggleBtn(SwitchButton btn, boolean isChecked) {
+        btn.setCheck(isChecked);
+    }
+
+    private SwitchButton addToggleItemView(String key, int titleResId, boolean initState) {
+        ViewGroup vp = (ViewGroup) getLayoutInflater().inflate(R.layout.nim_user_profile_toggle_item, null);
+        ViewGroup.LayoutParams vlp = new ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, (int) getResources().getDimension(R.dimen.isetting_item_height));
+        vp.setLayoutParams(vlp);
+
+        TextView titleText = ((TextView) vp.findViewById(R.id.user_profile_title));
+        titleText.setText(titleResId);
+
+        SwitchButton switchButton = (SwitchButton) vp.findViewById(R.id.user_profile_toggle);
+        switchButton.setCheck(initState);
+        switchButton.setOnChangedListener(onChangedListener);
+        switchButton.setTag(key);
+
+        toggleLayout.addView(vp);
+
+        if (toggleStateMap == null) {
+            toggleStateMap = new HashMap<>();
+        }
+        toggleStateMap.put(key, initState);
+        return switchButton;
+    }
+
+    private SwitchButton.OnChangedListener onChangedListener = new SwitchButton.OnChangedListener() {
+        @Override
+        public void OnChanged(View v, final boolean checkState) {
+            final String key = (String) v.getTag();
+            if (!NetworkUtil.isNetAvailable(AdvancedTeamMemberInfoActivity.this)) {
+                Toast.makeText(AdvancedTeamMemberInfoActivity.this, R.string.network_is_not_available, Toast.LENGTH_SHORT).show();
+                if (key.equals(KEY_MUTE_MSG)) {
+                    muteSwitch.setCheck(!checkState);
+                }
+                return;
+            }
+
+            updateStateMap(checkState, key);
+
+            if (key.equals(KEY_MUTE_MSG)) {
+                NIMClient.getService(TeamService.class).muteTeamMember(teamId, account, checkState).setCallback(new RequestCallback<Void>() {
+                    @Override
+                    public void onSuccess(Void param) {
+                        if (checkState) {
+                            Toast.makeText(AdvancedTeamMemberInfoActivity.this, "群禁言成功", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(AdvancedTeamMemberInfoActivity.this, "取消群禁言成功", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    @Override
+                    public void onFailed(int code) {
+                        if (code == 408) {
+                            Toast.makeText(AdvancedTeamMemberInfoActivity.this, R.string.network_is_not_available, Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(AdvancedTeamMemberInfoActivity.this, "on failed:" + code, Toast.LENGTH_SHORT).show();
+                        }
+                        updateStateMap(!checkState, key);
+                        muteSwitch.setCheck(!checkState);
+                    }
+
+                    @Override
+                    public void onException(Throwable exception) {
+
+                    }
+                });
+            }
+        }
+    };
+
+    private void updateStateMap(boolean checkState, String key) {
+        if (toggleStateMap.containsKey(key)) {
+            toggleStateMap.put(key, checkState);  // update state
+            Log.i(TAG, "toggle " + key + "to " + checkState);
+        }
     }
 
     private void loadMemberInfo() {
@@ -234,7 +360,7 @@ public class AdvancedTeamMemberInfoActivity extends TActionBarActivity implement
             @Override
             public void onFailed(int code) {
                 DialogMaker.dismissProgressDialog();
-                Toast.makeText(AdvancedTeamMemberInfoActivity.this, R.string.update_failed,
+                Toast.makeText(AdvancedTeamMemberInfoActivity.this, String.format(getString(R.string.update_failed), code),
                         Toast.LENGTH_SHORT).show();
             }
 
@@ -282,6 +408,7 @@ public class AdvancedTeamMemberInfoActivity extends TActionBarActivity implement
             Toast.makeText(this, R.string.no_permission, Toast.LENGTH_SHORT).show();
         }
     }
+
 
     /**
      * 显示设置管理员按钮
@@ -356,13 +483,12 @@ public class AdvancedTeamMemberInfoActivity extends TActionBarActivity implement
             @Override
             public void onFailed(int code) {
                 DialogMaker.dismissProgressDialog();
-                Toast.makeText(AdvancedTeamMemberInfoActivity.this, R.string.update_failed, Toast.LENGTH_LONG).show();
+                Toast.makeText(AdvancedTeamMemberInfoActivity.this, String.format(getString(R.string.update_failed), code), Toast.LENGTH_LONG).show();
             }
 
             @Override
             public void onException(Throwable exception) {
                 DialogMaker.dismissProgressDialog();
-                Toast.makeText(AdvancedTeamMemberInfoActivity.this, R.string.update_failed, Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -388,13 +514,12 @@ public class AdvancedTeamMemberInfoActivity extends TActionBarActivity implement
             @Override
             public void onFailed(int code) {
                 DialogMaker.dismissProgressDialog();
-                Toast.makeText(AdvancedTeamMemberInfoActivity.this, R.string.update_failed, Toast.LENGTH_LONG).show();
+                Toast.makeText(AdvancedTeamMemberInfoActivity.this, String.format(getString(R.string.update_failed), code), Toast.LENGTH_LONG).show();
             }
 
             @Override
             public void onException(Throwable exception) {
                 DialogMaker.dismissProgressDialog();
-                Toast.makeText(AdvancedTeamMemberInfoActivity.this, R.string.update_failed, Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -436,13 +561,12 @@ public class AdvancedTeamMemberInfoActivity extends TActionBarActivity implement
             @Override
             public void onFailed(int code) {
                 DialogMaker.dismissProgressDialog();
-                Toast.makeText(AdvancedTeamMemberInfoActivity.this, R.string.update_failed, Toast.LENGTH_LONG).show();
+                Toast.makeText(AdvancedTeamMemberInfoActivity.this, String.format(getString(R.string.update_failed), code), Toast.LENGTH_LONG).show();
             }
 
             @Override
             public void onException(Throwable exception) {
                 DialogMaker.dismissProgressDialog();
-                Toast.makeText(AdvancedTeamMemberInfoActivity.this, R.string.update_failed, Toast.LENGTH_LONG).show();
             }
         });
     }

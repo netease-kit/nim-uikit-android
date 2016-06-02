@@ -7,10 +7,12 @@ import android.widget.TextView;
 
 import com.netease.nim.uikit.NimUIKit;
 import com.netease.nim.uikit.R;
+import com.netease.nim.uikit.cache.TeamDataCache;
 import com.netease.nim.uikit.common.ui.imageview.HeadImageView;
 import com.netease.nim.uikit.contact.core.item.ContactItem;
 import com.netease.nim.uikit.contact.core.model.ContactDataAdapter;
 import com.netease.nim.uikit.contact.core.model.IContact;
+import com.netease.nimlib.sdk.team.model.Team;
 
 public class ContactHolder extends AbsContactViewHolder<ContactItem> {
 
@@ -29,7 +31,8 @@ public class ContactHolder extends AbsContactViewHolder<ContactItem> {
         if (contact.getContactType() == IContact.Type.Friend) {
             head.loadBuddyAvatar(contact.getContactId());
         } else {
-            head.setImageBitmap(NimUIKit.getUserInfoProvider().getTeamIcon(contact.getContactId()));
+            Team team = TeamDataCache.getInstance().getTeamById(contact.getContactId());
+            head.loadTeamIconByTeam(team);
         }
         name.setText(contact.getDisplayName());
         headLayout.setOnClickListener(new View.OnClickListener() {

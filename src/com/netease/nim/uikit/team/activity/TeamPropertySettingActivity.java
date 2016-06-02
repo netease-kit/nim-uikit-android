@@ -19,6 +19,7 @@ import com.netease.nim.uikit.common.util.string.StringTextWatcher;
 import com.netease.nim.uikit.common.util.sys.ActionBarUtil;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.RequestCallback;
+import com.netease.nimlib.sdk.ResponseCode;
 import com.netease.nimlib.sdk.team.TeamService;
 import com.netease.nimlib.sdk.team.constant.TeamFieldEnum;
 
@@ -214,12 +215,6 @@ public class TeamPropertySettingActivity extends TActionBarActivity implements V
             setResult(Activity.RESULT_OK, intent);
             finish();
         } else {
-//            HashMap<TeamFieldEnum, Serializable> fields = new HashMap<>();
-//            fields.put(TeamFieldEnum.Name, "test batch name");
-//            fields.put(TeamFieldEnum.Introduce, "test batch introduce");
-//            fields.put(TeamFieldEnum.Extension, "test batch extension");
-//            NIMClient.getService(TeamService.class).updateTeamFields(teamId, fields);
-
             NIMClient.getService(TeamService.class).updateTeam(teamId, filed, editText.getText().toString()).setCallback(new RequestCallback<Void>() {
                 @Override
                 public void onSuccess(Void param) {
@@ -229,12 +224,16 @@ public class TeamPropertySettingActivity extends TActionBarActivity implements V
 
                 @Override
                 public void onFailed(int code) {
-                    Toast.makeText(TeamPropertySettingActivity.this, R.string.update_failed, Toast.LENGTH_SHORT).show();
+                    if (code == ResponseCode.RES_TEAM_ENACCESS) {
+                        Toast.makeText(TeamPropertySettingActivity.this, R.string.no_permission, Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(TeamPropertySettingActivity.this, String.format(getString(R.string.update_failed), code),
+                                Toast.LENGTH_SHORT).show();
+                    }
                 }
 
                 @Override
                 public void onException(Throwable exception) {
-                    Toast.makeText(TeamPropertySettingActivity.this, R.string.update_failed, Toast.LENGTH_SHORT).show();
                 }
             });
         }

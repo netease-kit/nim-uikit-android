@@ -4,7 +4,10 @@ import com.netease.nim.uikit.NimUIKit;
 import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.contact.core.item.ContactIdFilter;
 import com.netease.nim.uikit.contact_selector.activity.ContactSelectActivity;
+import com.netease.nimlib.sdk.team.constant.TeamBeInviteModeEnum;
+import com.netease.nimlib.sdk.team.constant.TeamInviteModeEnum;
 import com.netease.nimlib.sdk.team.constant.TeamMemberType;
+import com.netease.nimlib.sdk.team.constant.TeamUpdateModeEnum;
 import com.netease.nimlib.sdk.team.constant.VerifyTypeEnum;
 import com.netease.nimlib.sdk.team.model.TeamMember;
 
@@ -49,6 +52,105 @@ public class TeamHelper {
             return R.string.team_need_authentication;
         } else {
             return R.string.team_not_allow_anyone_join;
+        }
+    }
+
+    // 邀请他人菜单项名称
+    public static List<String> createInviteMenuStrings() {
+        int[] res = new int[]{R.string.team_admin_invite, R.string.team_everyone_invite,
+                R.string.cancel};
+        List<String> btnNames = new ArrayList<>();
+        for (int r : res) {
+            btnNames.add(NimUIKit.getContext().getString(r));
+        }
+        return btnNames;
+    }
+
+    // 获取邀请他人类型
+    public static TeamInviteModeEnum getInviteModeEnum(String name) {
+        TeamInviteModeEnum type = null;
+
+        if (name.equals(NimUIKit.getContext().getString(R.string.team_admin_invite))) {
+            type = TeamInviteModeEnum.Manager;
+        } else if (name.equals(NimUIKit.getContext().getString(R.string.team_everyone_invite))) {
+            type = TeamInviteModeEnum.All;
+        }
+
+        return type;
+    }
+
+    // 获取邀请他人文本描述
+    public static int getInviteModeString(TeamInviteModeEnum type) {
+        if (type == TeamInviteModeEnum.Manager) {
+            return R.string.team_admin_invite;
+        } else {
+            return R.string.team_everyone_invite;
+        }
+    }
+
+    // 群资料修改权限菜单名称
+    public static List<String> createTeamInfoUpdateMenuStrings() {
+        int[] res = new int[]{R.string.team_admin_update, R.string.team_everyone_update,
+                R.string.cancel};
+        List<String> btnNames = new ArrayList<>();
+        for (int r : res) {
+            btnNames.add(NimUIKit.getContext().getString(r));
+        }
+        return btnNames;
+    }
+
+    // 获取群资料修改类型
+    public static TeamUpdateModeEnum getUpdateModeEnum(String name) {
+        TeamUpdateModeEnum type = null;
+
+        if (name.equals(NimUIKit.getContext().getString(R.string.team_admin_update))) {
+            type = TeamUpdateModeEnum.Manager;
+        } else if (name.equals(NimUIKit.getContext().getString(R.string.team_everyone_update))) {
+            type = TeamUpdateModeEnum.All;
+        }
+
+        return type;
+    }
+
+    // 获取群资料修改类型文本描述
+    public static int getInfoUpdateModeString(TeamUpdateModeEnum type) {
+        if (type == TeamUpdateModeEnum.Manager) {
+            return R.string.team_admin_update;
+        } else {
+            return R.string.team_everyone_update;
+        }
+    }
+
+    // 被邀请人身份验证名称
+    public static List<String> createTeamInviteeAuthenMenuStrings() {
+        int[] res = new int[]{R.string.team_invitee_need_authen, R.string.team_invitee_not_need_authen,
+                R.string.cancel};
+        List<String> btnNames = new ArrayList<>();
+        for (int r : res) {
+            btnNames.add(NimUIKit.getContext().getString(r));
+        }
+        return btnNames;
+    }
+
+    // 获取被邀请人身份类型
+    public static TeamBeInviteModeEnum getBeInvitedModeEnum(String name) {
+        TeamBeInviteModeEnum type = null;
+
+        if (name.equals(NimUIKit.getContext().getString(R.string.team_invitee_need_authen))) {
+            type = TeamBeInviteModeEnum.NeedAuth;
+        } else if (name.equals(NimUIKit.getContext().getString(R.string.team_invitee_not_need_authen))) {
+            type = TeamBeInviteModeEnum.NoAuth;
+        }
+
+        return type;
+    }
+
+    // 获取被邀请人类型文本描述
+    public static int getBeInvitedModeString(TeamBeInviteModeEnum type) {
+        if (type == TeamBeInviteModeEnum.NeedAuth) {
+            return R.string.team_invitee_need_authen;
+        } else {
+            return R.string.team_invitee_not_need_authen;
         }
     }
 

@@ -43,6 +43,7 @@
     <string name="file_transfer_state_undownload">未下载</string>
     <string name="trans_voice_failed">语音转化失败</string>
     <string name="team_invalid_tip">您已退出该群</string>
+    <string name="normal_team_invalid_tip">您已退出该讨论组</string>
     <string name="team_send_message_not_allow">您已不在该群，不能发送消息</string>
     <string name="send">发送</string>
     <string name="unsupport_title">无法显示该内容</string>
@@ -90,6 +91,12 @@
     <string name="team_need_authentication">需要身份验证</string>
     <string name="team_allow_anyone_join">允许任何人加入</string>
     <string name="team_not_allow_anyone_join">不允许任何人申请加入</string>
+    <string name="team_admin_invite">管理员邀请</string>
+    <string name="team_everyone_invite">所有人邀请</string>
+    <string name="team_admin_update">管理员修改</string>
+    <string name="team_everyone_update">所有人修改</string>
+    <string name="team_invitee_need_authen">需要验证</string>
+    <string name="team_invitee_not_need_authen">不需要验证</string>
     <string name="team_nickname">群昵称</string>
     <string name="team_nickname_none">未填写</string>
     <string name="team_identity">身份</string>
@@ -99,7 +106,7 @@
     <string name="team_creator">群主</string>
     <string name="team_member">群成员</string>
     <string name="update_success">保存成功</string>
-    <string name="update_failed">保存失败</string>
+    <string name="update_failed">保存失败, code:%d</string>
     <string name="no_permission">没有权限</string>
     <string name="set_team_admin">设为管理员</string>
     <string name="cancel_team_admin">取消管理员</string>
@@ -113,6 +120,9 @@
     <string name="create_advanced_team">创建高级群</string>
     <string name="reach_team_member_capacity">成员数量不能超过%1$d</string>
     <string name="team_authentication">身份验证</string>
+    <string name="team_invite">邀请他人权限</string>
+    <string name="team_info_update">群资料修改权限</string>
+    <string name="team_invitee_authentication">被邀请人身份验证</string>
     <string name="create_team">创建群</string>
     <string name="over_team_member_capacity">邀请失败，成员人数上限为%1$d人</string>
     <string name="over_team_capacity">创建失败，创建群数量达到限制</string>
@@ -157,6 +167,10 @@
     <string name="team_settings_set_name">取个名字吧</string>
     <string name="team_not_exist">该群不存在</string>
     <string name="normal_team_not_exist">该讨论组不存在</string>
+    <string name="mute_msg">设置禁言</string>
+    <string name="set_head_image">设置头像</string>
+    <string name="team_update_cancel">取消更新</string>
+    <string name="team_update_failed">群头像设置失败</string>
 
     <!-- 消息搜索 -->
     <string name="message_search_no_result">无结果</string>

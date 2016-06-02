@@ -10,6 +10,7 @@ import com.netease.nim.uikit.NimUIKit;
 import com.netease.nim.uikit.R;
 import com.netease.nimlib.sdk.nos.model.NosThumbParam;
 import com.netease.nimlib.sdk.nos.util.NosThumbImageUtil;
+import com.netease.nimlib.sdk.team.model.Team;
 import com.netease.nimlib.sdk.uinfo.UserInfoProvider;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -83,21 +84,42 @@ public class HeadImageView extends CircleImageView {
         final UserInfoProvider.UserInfo userInfo = NimUIKit.getUserInfoProvider().getUserInfo(account);
         boolean needLoad = userInfo != null && ImageLoaderKit.isImageUriValid(userInfo.getAvatar());
 
-        // ImageLoader异步加载
+        doLoadImage(needLoad, account, userInfo != null ? userInfo.getAvatar() : null, thumbSize);
+    }
+
+    public void loadTeamIcon(String tid) {
+        Bitmap bitmap = NimUIKit.getUserInfoProvider().getTeamIcon(tid);
+        setImageBitmap(bitmap);
+    }
+
+    public void loadTeamIconByTeam(final Team team) {
+        // 先显示默认头像
+        setImageResource(R.drawable.nim_avatar_group);
+
+        // 判断是否需要ImageLoader加载
+        boolean needLoad = team != null && ImageLoaderKit.isImageUriValid(team.getIcon());
+
+        doLoadImage(needLoad, team != null ? team.getId() : null, team.getIcon(), DEFAULT_AVATAR_THUMB_SIZE);
+    }
+
+    /**
+     * ImageLoader异步加载
+     */
+    private void doLoadImage(final boolean needLoad, final String tag, final String url, final int thumbSize) {
         if (needLoad) {
-            setTag(account); // 解决ViewHolder复用问题
+            setTag(tag); // 解决ViewHolder复用问题
             /**
              * 若使用网易云信云存储，这里可以设置下载图片的压缩尺寸，生成下载URL
              * 如果图片来源是非网易云信云存储，请不要使用NosThumbImageUtil
              */
-            final String thumbUrl = makeAvatarThumbNosUrl(userInfo.getAvatar(), thumbSize);
+            final String thumbUrl = makeAvatarThumbNosUrl(url, thumbSize);
 
             // 异步从cache or NOS加载图片
             ImageLoader.getInstance().displayImage(thumbUrl, new NonViewAware(new ImageSize(thumbSize, thumbSize),
                     ViewScaleType.CROP), options, new SimpleImageLoadingListener() {
                 @Override
                 public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-                    if (getTag() != null && getTag().equals(account)) {
+                    if (getTag() != null && getTag().equals(tag)) {
                         setImageBitmap(loadedImage);
                     }
                 }
@@ -105,11 +127,6 @@ public class HeadImageView extends CircleImageView {
         } else {
             setTag(null);
         }
-    }
-
-    public void loadTeamIcon(String tid) {
-        Bitmap bitmap = NimUIKit.getUserInfoProvider().getTeamIcon(tid);
-        setImageBitmap(bitmap);
     }
 
     /**
@@ -123,7 +140,7 @@ public class HeadImageView extends CircleImageView {
      * 生成头像缩略图NOS URL地址（用作ImageLoader缓存的key）
      */
     private static String makeAvatarThumbNosUrl(final String url, final int thumbSize) {
-         return thumbSize > 0 ? NosThumbImageUtil.makeImageThumbUrl(url, NosThumbParam.ThumbType.Crop, thumbSize, thumbSize) : url;
+        return thumbSize > 0 ? NosThumbImageUtil.makeImageThumbUrl(url, NosThumbParam.ThumbType.Crop, thumbSize, thumbSize) : url;
     }
 
     public static String getAvatarCacheKey(final String url) {

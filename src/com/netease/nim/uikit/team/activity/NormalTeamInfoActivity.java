@@ -182,8 +182,10 @@ public class NormalTeamInfoActivity extends TActionBarActivity implements OnClic
     private void registerObservers(boolean register) {
         if (register) {
             TeamDataCache.getInstance().registerTeamDataChangedObserver(teamDataObserver);
+            TeamDataCache.getInstance().registerTeamMemberDataChangedObserver(teamMemberObserver);
         } else {
             TeamDataCache.getInstance().unregisterTeamDataChangedObserver(teamDataObserver);
+            TeamDataCache.getInstance().unregisterTeamMemberDataChangedObserver(teamMemberObserver);
         }
 
         registerUserInfoChangedObserver(register);
@@ -204,6 +206,30 @@ public class NormalTeamInfoActivity extends TActionBarActivity implements OnClic
         public void onRemoveTeam(Team team) {
             if (team.getId().equals(teamId)) {
                 NormalTeamInfoActivity.this.team = team;
+            }
+        }
+    };
+
+    TeamDataCache.TeamMemberDataChangedObserver teamMemberObserver = new TeamDataCache.TeamMemberDataChangedObserver() {
+
+        @Override
+        public void onUpdateTeamMember(List<TeamMember> members) {
+            List<String> accounts = new ArrayList<>();
+            for (TeamMember m : members) {
+                if (m.getTid().equals(teamId)) {
+                    accounts.add(m.getAccount());
+                }
+            }
+
+            if (!accounts.isEmpty()) {
+                addMember(accounts, false);
+            }
+        }
+
+        @Override
+        public void onRemoveTeamMember(TeamMember member) {
+            if (member.getTid().equals(teamId)) {
+                removeMember(member.getAccount());
             }
         }
     };

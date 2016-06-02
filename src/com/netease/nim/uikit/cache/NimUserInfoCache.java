@@ -77,6 +77,11 @@ public class NimUserInfoCache {
 
             @Override
             public void onResult(int code, List<NimUserInfo> users, Throwable exception) {
+                if (exception != null) {
+                    callback.onException(exception);
+                    return;
+                }
+
                 NimUserInfo user = null;
                 boolean hasCallback = requestUserInfoMap.get(account).size() > 0;
                 if (code == ResponseCode.RES_SUCCESS && users != null && !users.isEmpty()) {

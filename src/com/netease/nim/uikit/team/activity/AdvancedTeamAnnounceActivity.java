@@ -124,11 +124,7 @@ public class AdvancedTeamAnnounceActivity extends TActionBarActivity implements 
         ActionBarUtil.addRightClickableTextViewOnActionBar(this, R.string.create, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (isMember) {
-                    Toast.makeText(AdvancedTeamAnnounceActivity.this, R.string.no_permission, Toast.LENGTH_SHORT).show();
-                } else {
-                    AdvancedTeamCreateAnnounceActivity.startActivityForResult(AdvancedTeamAnnounceActivity.this, teamId, RES_ANNOUNCE_CREATE_CODE);
-                }
+                 AdvancedTeamCreateAnnounceActivity.startActivityForResult(AdvancedTeamAnnounceActivity.this, teamId, RES_ANNOUNCE_CREATE_CODE);
             }
         });
     }

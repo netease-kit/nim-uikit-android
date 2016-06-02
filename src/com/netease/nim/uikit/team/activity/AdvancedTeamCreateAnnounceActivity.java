@@ -145,14 +145,13 @@ public class AdvancedTeamCreateAnnounceActivity extends TActionBarActivity {
             public void onFailed(int code) {
                 DialogMaker.dismissProgressDialog();
                 ActionBarUtil.setTextViewEnable(AdvancedTeamCreateAnnounceActivity.this, true);
-                Toast.makeText(AdvancedTeamCreateAnnounceActivity.this, R.string.update_failed, Toast.LENGTH_SHORT).show();
+                Toast.makeText(AdvancedTeamCreateAnnounceActivity.this, String.format(getString(R.string.update_failed), code), Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onException(Throwable exception) {
                 DialogMaker.dismissProgressDialog();
                 ActionBarUtil.setTextViewEnable(AdvancedTeamCreateAnnounceActivity.this, true);
-                Toast.makeText(AdvancedTeamCreateAnnounceActivity.this, R.string.update_failed, Toast.LENGTH_SHORT).show();
             }
         });
     }

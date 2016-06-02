@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.netease.nim.uikit.R;
@@ -16,6 +17,7 @@ import com.netease.nim.uikit.session.constant.Extras;
 import com.netease.nim.uikit.session.fragment.MessageFragment;
 import com.netease.nim.uikit.session.fragment.TeamMessageFragment;
 import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
+import com.netease.nimlib.sdk.team.constant.TeamTypeEnum;
 import com.netease.nimlib.sdk.team.model.Team;
 import com.netease.nimlib.sdk.team.model.TeamMember;
 
@@ -28,12 +30,12 @@ import java.util.List;
  */
 public class TeamMessageActivity extends BaseMessageActivity {
 
-    private static final String TAG = "TMA";
-
     // model
     private Team team;
 
     private View invalidTeamTipView;
+
+    private TextView invalidTeamTipText;
 
     private TeamMessageFragment fragment;
 
@@ -51,7 +53,8 @@ public class TeamMessageActivity extends BaseMessageActivity {
     }
 
     protected void findViews() {
-        invalidTeamTipView = findViewById(R.id.invalid_team_tip);
+        invalidTeamTipView = findView(R.id.invalid_team_tip);
+        invalidTeamTipText = findView(R.id.invalid_team_text);
     }
 
     @Override
@@ -118,6 +121,8 @@ public class TeamMessageActivity extends BaseMessageActivity {
         fragment.setTeam(team);
 
         setTitle(team == null ? sessionId : team.getName() + "(" + team.getMemberCount() + "人)");
+
+        invalidTeamTipText.setText(team.getType() == TeamTypeEnum.Normal ? R.string.normal_team_invalid_tip : R.string.team_invalid_tip);
         invalidTeamTipView.setVisibility(team.isMyTeam() ? View.GONE : View.VISIBLE);
     }
 
@@ -156,7 +161,12 @@ public class TeamMessageActivity extends BaseMessageActivity {
 
         @Override
         public void onRemoveTeam(Team team) {
-
+            if (team == null) {
+                return;
+            }
+            if (team.getId().equals(TeamMessageActivity.this.team.getId())) {
+                updateTeamInfo(team);
+            }
         }
     };
 
@@ -172,7 +182,6 @@ public class TeamMessageActivity extends BaseMessageActivity {
 
         @Override
         public void onRemoveTeamMember(TeamMember member) {
-
         }
     };
 
