@@ -218,6 +218,11 @@ public abstract class MsgViewHolderBase extends TViewHolder {
     private void setHeadImageView() {
         HeadImageView show = isReceivedMessage() ? avatarLeft : avatarRight;
         HeadImageView hide = isReceivedMessage() ? avatarRight : avatarLeft;
+        hide.setVisibility(View.GONE);
+        if (!isShowHeadImage()) {
+            show.setVisibility(View.GONE);
+            return;
+        }
         if (isMiddleItem()) {
             show.setVisibility(View.GONE);
         } else {
@@ -225,10 +230,6 @@ public abstract class MsgViewHolderBase extends TViewHolder {
             show.loadBuddyAvatar(message.getFromAccount());
         }
 
-        if (!isShowHeadImage()) {
-            show.setVisibility(View.GONE);
-        }
-        hide.setVisibility(View.GONE);
     }
 
     private void setOnClickListener() {

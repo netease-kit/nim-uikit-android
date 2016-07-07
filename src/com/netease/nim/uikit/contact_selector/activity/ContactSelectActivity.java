@@ -24,7 +24,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.netease.nim.uikit.R;
-import com.netease.nim.uikit.common.activity.TActionBarActivity;
+import com.netease.nim.uikit.common.activity.UI;
 import com.netease.nim.uikit.common.ui.liv.LetterIndexView;
 import com.netease.nim.uikit.common.ui.liv.LivIndex;
 import com.netease.nim.uikit.contact.core.item.AbsContactItem;
@@ -42,6 +42,7 @@ import com.netease.nim.uikit.contact_selector.adapter.ContactSelectAdapter;
 import com.netease.nim.uikit.contact_selector.adapter.ContactSelectAvatarAdapter;
 import com.netease.nim.uikit.contact_selector.viewholder.ContactsMultiSelectHolder;
 import com.netease.nim.uikit.contact_selector.viewholder.ContactsSelectHolder;
+import com.netease.nim.uikit.model.ToolBarOptions;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -52,7 +53,7 @@ import java.util.List;
  * <p/>
  * Created by huangjun on 2015/3/3.
  */
-public class ContactSelectActivity extends TActionBarActivity implements View.OnClickListener, android.support.v7.widget.SearchView.OnQueryTextListener {
+public class ContactSelectActivity extends UI implements View.OnClickListener, android.support.v7.widget.SearchView.OnQueryTextListener {
 
     public static final String EXTRA_DATA = "EXTRA_DATA"; // 请求数据：Option
     public static final String RESULT_DATA = "RESULT_DATA"; // 返回结果
@@ -222,6 +223,9 @@ public class ContactSelectActivity extends TActionBarActivity implements View.On
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.nim_contacts_select);
+
+        ToolBarOptions options = new ToolBarOptions();
+        setToolBar(R.id.toolbar, options);
 
         parseIntentData();
         initAdapter();

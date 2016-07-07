@@ -1,8 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.netease.nim.uikit">
+    package="com.netease.nim.uikit">
+
     <uses-sdk
         android:minSdkVersion="9"
-        android:targetSdkVersion="19"/>
+        android:targetSdkVersion="19" />
 
     <application>
         <!-- 会话窗口 -->
@@ -12,59 +13,64 @@
             android:name="com.netease.nim.uikit.session.activity.P2PMessageActivity"
             android:configChanges="keyboardHidden|orientation"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateHidden|adjustResize"/>
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="stateHidden|adjustResize" />
         <activity
             android:name="com.netease.nim.uikit.session.activity.TeamMessageActivity"
             android:configChanges="keyboardHidden|orientation"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateHidden|adjustResize"/>
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="stateHidden|adjustResize" />
 
         <!-- 群聊 -->
         <activity
             android:name="com.netease.nim.uikit.team.activity.NormalTeamInfoActivity"
             android:configChanges="keyboardHidden|orientation"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateHidden|adjustResize"/>
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="stateHidden|adjustResize" />
         <activity
             android:name="com.netease.nim.uikit.team.activity.AdvancedTeamInfoActivity"
             android:configChanges="keyboardHidden|orientation"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateHidden|adjustResize"/>
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="stateHidden|adjustResize" />
         <activity
             android:name="com.netease.nim.uikit.team.activity.AdvancedTeamMemberActivity"
             android:configChanges="keyboardHidden|orientation"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateHidden|adjustResize"/>
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="stateHidden|adjustResize" />
         <activity
             android:name="com.netease.nim.uikit.team.activity.AdvancedTeamAnnounceActivity"
             android:configChanges="keyboardHidden|orientation"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateHidden|adjustResize"/>
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="stateHidden|adjustResize" />
         <activity
             android:name="com.netease.nim.uikit.team.activity.AdvancedTeamMemberInfoActivity"
             android:configChanges="keyboardHidden|orientation"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateHidden|adjustResize"/>
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="stateHidden|adjustResize" />
         <activity
             android:name="com.netease.nim.uikit.team.activity.AdvancedTeamNicknameActivity"
             android:configChanges="keyboardHidden|orientation"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateHidden|adjustResize"/>
-        <activity
-            android:name="com.netease.nim.uikit.team.activity.AdvancedTeamCreateActivity"
-            android:configChanges="keyboardHidden|orientation"
-            android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateHidden|adjustResize"/>
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="stateHidden|adjustResize" />
         <activity
             android:name="com.netease.nim.uikit.team.activity.AdvancedTeamCreateAnnounceActivity"
             android:configChanges="keyboardHidden|orientation"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateHidden|adjustResize"/>
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="stateHidden|adjustResize" />
         <activity
             android:name="com.netease.nim.uikit.team.activity.TeamPropertySettingActivity"
             android:configChanges="keyboardHidden|orientation"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateHidden|adjustResize"/>
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="stateHidden|adjustResize" />
 
         <!-- 联系人选择器 -->
         <activity
@@ -72,49 +78,58 @@
             android:configChanges="keyboardHidden|orientation"
             android:label="@string/contact_selector"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateHidden|adjustPan"/>
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="stateHidden|adjustPan" />
 
         <!-- 照片选择 -->
         <activity
             android:name="com.netease.nim.uikit.common.media.picker.activity.PickImageActivity"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name="com.netease.nim.uikit.common.media.picker.activity.CropImageActivity"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar"/>
         <activity
             android:name="com.netease.nim.uikit.common.media.picker.activity.PickerAlbumActivity"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name="com.netease.nim.uikit.common.media.picker.activity.PickerAlbumPreviewActivity"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name="com.netease.nim.uikit.common.media.picker.activity.PreviewImageFromLocalActivity"
             android:configChanges="keyboardHidden|orientation"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateHidden|adjustResize"/>
+            android:windowSoftInputMode="stateHidden|adjustResize"
+            android:theme="@style/AppTheme.NoActionBar"/>
         <activity
             android:name="com.netease.nim.uikit.common.media.picker.activity.PreviewImageFromCameraActivity"
             android:configChanges="keyboardHidden|orientation"
             android:label="@string/input_panel_take"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateHidden|adjustResize"/>
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="stateHidden|adjustResize" />
 
         <!-- 视频 -->
         <activity
             android:name="com.netease.nim.uikit.session.activity.CaptureVideoActivity"
             android:configChanges="keyboardHidden|orientation"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateHidden|adjustResize"/>
+            android:windowSoftInputMode="stateHidden|adjustResize"
+            android:theme="@style/AppTheme.NoActionBar"/>
 
         <activity
             android:name="com.netease.nim.uikit.session.activity.WatchVideoActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
-            android:theme="@style/DarkOverlayActionBarTheme"
-            android:label="@string/video_play"/>
+            android:label="@string/video_play"
+            android:theme="@style/DarkTheme" />
 
         <!-- 查看大图 -->
         <activity
             android:name="com.netease.nim.uikit.session.activity.WatchMessagePictureActivity"
-            android:configChanges="keyboardHidden"/>
+            android:configChanges="keyboardHidden"
+            android:theme="@style/AppTheme.NoActionBar"/>
     </application>
 </manifest>

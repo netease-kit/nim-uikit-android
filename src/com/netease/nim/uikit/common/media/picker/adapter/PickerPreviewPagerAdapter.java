@@ -8,7 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.netease.nim.uikit.R;
-import com.netease.nim.uikit.common.activity.TActionBarActivity;
+import com.netease.nim.uikit.common.activity.UI;
 import com.netease.nim.uikit.common.media.picker.activity.PickerAlbumPreviewActivity;
 import com.netease.nim.uikit.common.media.picker.model.PhotoInfo;
 import com.netease.nim.uikit.common.ui.imageview.BaseZoomableImageView;
@@ -22,9 +22,9 @@ public class PickerPreviewPagerAdapter extends PagerAdapter{
 	private List<PhotoInfo> mList;
 	private LayoutInflater mInflater;
 	private int viewPagerWidth, viewPagerHeight;
-	private TActionBarActivity mActivity;
+	private UI mActivity;
 	
-    public PickerPreviewPagerAdapter(Context cx, List<PhotoInfo> list, LayoutInflater inflater, int width, int height, TActionBarActivity activity) {  
+    public PickerPreviewPagerAdapter(Context cx, List<PhotoInfo> list, LayoutInflater inflater, int width, int height, UI activity) {
     	mContext = cx;  
         mList = list;
         mInflater = inflater; 

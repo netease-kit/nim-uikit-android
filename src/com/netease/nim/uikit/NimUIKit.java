@@ -19,6 +19,7 @@ import com.netease.nim.uikit.session.SessionEventListener;
 import com.netease.nim.uikit.session.activity.P2PMessageActivity;
 import com.netease.nim.uikit.session.activity.TeamMessageActivity;
 import com.netease.nim.uikit.session.emoji.StickerManager;
+import com.netease.nim.uikit.session.module.MsgForwardFilter;
 import com.netease.nim.uikit.session.viewholder.MsgViewHolderBase;
 import com.netease.nim.uikit.session.viewholder.MsgViewHolderFactory;
 import com.netease.nim.uikit.team.activity.AdvancedTeamInfoActivity;
@@ -60,6 +61,9 @@ public final class NimUIKit {
 
     // 通讯录列表一些点击事件的响应处理函数
     private static ContactEventListener contactEventListener;
+
+    // 转发消息过滤器
+    private static MsgForwardFilter msgForwardFilter;
 
     /**
      * 初始化UIKit，须传入context以及用户信息提供者
@@ -258,5 +262,21 @@ public final class NimUIKit {
      */
     public static void notifyUserInfoChanged(List<String> accounts) {
         UserInfoHelper.notifyChanged(accounts);
+    }
+
+    /**
+     * 设置转发消息过滤的监听器
+     * @param msgForwardFilter
+     */
+    public static void setMsgForwardFilter(MsgForwardFilter msgForwardFilter) {
+        NimUIKit.msgForwardFilter = msgForwardFilter;
+    }
+
+    /**
+     * 获取转发消息过滤的监听器
+     * @return
+     */
+    public static MsgForwardFilter getMsgForwardFilter() {
+        return msgForwardFilter;
     }
 }

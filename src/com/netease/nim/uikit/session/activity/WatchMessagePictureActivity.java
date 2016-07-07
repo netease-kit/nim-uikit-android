@@ -11,16 +11,16 @@ import android.provider.MediaStore;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.netease.nim.uikit.R;
-import com.netease.nim.uikit.common.activity.TActionBarActivity;
+import com.netease.nim.uikit.common.activity.UI;
 import com.netease.nim.uikit.common.ui.dialog.CustomAlertDialog;
 import com.netease.nim.uikit.common.ui.dialog.CustomAlertDialog.onSeparateItemClickListener;
 import com.netease.nim.uikit.common.ui.imageview.BaseZoomableImageView;
@@ -51,7 +51,7 @@ import java.util.List;
  * 查看聊天消息原图
  * Created by huangjun on 2015/3/6.
  */
-public class WatchMessagePictureActivity extends TActionBarActivity {
+public class WatchMessagePictureActivity extends UI {
 
     private static final String INTENT_EXTRA_IMAGE = "INTENT_EXTRA_IMAGE";
     private static final String TAG = WatchMessagePictureActivity.class.getSimpleName();
@@ -65,7 +65,6 @@ public class WatchMessagePictureActivity extends TActionBarActivity {
 
     private View loadingLayout;
     private BaseZoomableImageView image;
-    private ActionBar actionBar;
     protected CustomAlertDialog alertDialog;
     private ViewPager imageViewPager;
     private PagerAdapter adapter;
@@ -82,6 +81,9 @@ public class WatchMessagePictureActivity extends TActionBarActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.nim_watch_picture_activity);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
         this.message = (IMMessage) getIntent().getSerializableExtra(INTENT_EXTRA_IMAGE);
         findViews();
         queryImageMessages();
@@ -145,9 +147,6 @@ public class WatchMessagePictureActivity extends TActionBarActivity {
         loadingLayout = findViewById(R.id.loading_layout);
 
         imageViewPager = (ViewPager) findViewById(R.id.view_pager_image);
-
-        actionBar = getSupportActionBar();
-        actionBar.hide();
     }
 
     private void setViewPagerAdapter() {

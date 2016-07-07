@@ -8,13 +8,14 @@ import android.os.Handler;
 import android.view.View;
 
 import com.netease.nim.uikit.R;
-import com.netease.nim.uikit.common.activity.TActionBarActivity;
+import com.netease.nim.uikit.common.activity.UI;
 import com.netease.nim.uikit.common.ui.imageview.CropImageView;
 import com.netease.nim.uikit.common.util.media.BitmapDecoder;
 import com.netease.nim.uikit.common.util.media.ImageUtil;
+import com.netease.nim.uikit.model.ToolBarOptions;
 import com.netease.nim.uikit.session.constant.Extras;
 
-public class CropImageActivity extends TActionBarActivity {
+public class CropImageActivity extends UI {
 
     public static final int PICKER_IMAGE_EDIT = 0x1040;
 
@@ -47,6 +48,10 @@ public class CropImageActivity extends TActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.nim_crop_image_activity);
+
+        ToolBarOptions options = new ToolBarOptions();
+        options.titleId = R.string.crop;
+        setToolBar(R.id.toolbar, options);
 
         processIntent();
 

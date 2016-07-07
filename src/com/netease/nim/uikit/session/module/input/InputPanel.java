@@ -37,7 +37,6 @@ import com.netease.nim.uikit.session.emoji.IEmoticonSelectedListener;
 import com.netease.nim.uikit.session.emoji.MoonUtil;
 import com.netease.nim.uikit.session.module.Container;
 import com.netease.nimlib.sdk.NIMClient;
-import com.netease.nimlib.sdk.chatroom.ChatRoomMessageBuilder;
 import com.netease.nimlib.sdk.media.record.AudioRecorder;
 import com.netease.nimlib.sdk.media.record.IAudioRecordCallback;
 import com.netease.nimlib.sdk.media.record.RecordType;
@@ -62,9 +61,9 @@ public class InputPanel implements IEmoticonSelectedListener, IAudioRecordCallba
 
     private static final int SHOW_LAYOUT_DELAY = 200;
 
-    private Container container;
-    private View view;
-    private Handler uiHandler;
+    protected Container container;
+    protected View view;
+    protected Handler uiHandler;
 
     protected View actionPanelBottomLayout; // 更多布局
     protected LinearLayout messageActivityBottomLayout;
@@ -327,17 +326,16 @@ public class InputPanel implements IEmoticonSelectedListener, IAudioRecordCallba
 
     // 发送文本消息
     private void onTextMessageSendButtonPressed() {
-        IMMessage textMessage;
         String text = messageEditText.getText().toString();
-        if (container.sessionType == SessionTypeEnum.ChatRoom) {
-            textMessage = ChatRoomMessageBuilder.createChatRoomTextMessage(container.account, text);
-        } else {
-            textMessage = MessageBuilder.createTextMessage(container.account, container.sessionType, text);
-        }
+        IMMessage textMessage = createTextMessage(text);
 
         if (container.proxy.sendMessage(textMessage)) {
             restoreText(true);
         }
+    }
+
+    protected IMMessage createTextMessage(String text) {
+        return MessageBuilder.createTextMessage(container.account, container.sessionType, text);
     }
 
     // 切换成音频，收起键盘，按钮切换成键盘

@@ -1,5 +1,7 @@
 package com.netease.nim.uikit.session.module.list;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
@@ -24,6 +26,7 @@ import com.netease.nim.uikit.common.ui.listview.MessageListView;
 import com.netease.nim.uikit.common.util.media.BitmapDecoder;
 import com.netease.nim.uikit.common.util.sys.ClipboardUtil;
 import com.netease.nim.uikit.common.util.sys.ScreenUtil;
+import com.netease.nim.uikit.contact_selector.activity.ContactSelectActivity;
 import com.netease.nim.uikit.session.activity.VoiceTrans;
 import com.netease.nim.uikit.session.audio.MessageAudioControl;
 import com.netease.nim.uikit.session.helper.MessageListPanelHelper;
@@ -62,6 +65,10 @@ import java.util.List;
  * Created by hzxuwen on 2015/6/10.
  */
 public class MessageListPanel implements TAdapterDelegate {
+
+    private static final int REQUEST_CODE_FORWARD_PERSON = 0x01;
+    private static final int REQUEST_CODE_FORWARD_TEAM = 0x02;
+
     // container
     private Container container;
     private View rootView;
@@ -83,6 +90,9 @@ public class MessageListPanel implements TAdapterDelegate {
 
     // 语音转文字
     private VoiceTrans voiceTrans;
+
+    // 待转发消息
+    private IMMessage forwardMessage;
 
     // 背景图片缓存
     private static Pair<String, Bitmap> background;
@@ -639,6 +649,13 @@ public class MessageListPanel implements TAdapterDelegate {
             longClickItemDelete(selectedItem, alertDialog);
             // 4 trans
             longClickItemVoidToText(selectedItem, alertDialog, msgType);
+
+            if (!NimUIKit.getMsgForwardFilter().shouldIgnore(selectedItem) && !recordOnly) {
+                // 5 forward to person
+                longClickItemForwardToPerson(selectedItem, alertDialog);
+                // 6 forward to team
+                longClickItemForwardToTeam(selectedItem, alertDialog);
+            }
         }
 
         // 长按菜单项--重发
@@ -777,6 +794,40 @@ public class MessageListPanel implements TAdapterDelegate {
                 }
             });
         }
+
+        // 长按菜单项 -- 转发到个人
+        private void longClickItemForwardToPerson(final IMMessage item, CustomAlertDialog alertDialog) {
+            alertDialog.addItem(container.activity.getString(R.string.forward_to_person), new CustomAlertDialog.onSeparateItemClickListener() {
+
+                @Override
+                public void onClick() {
+                    forwardMessage = item;
+                    ContactSelectActivity.Option option = new ContactSelectActivity.Option();
+                    option.title = "选择转发的人";
+                    option.type = ContactSelectActivity.ContactSelectType.BUDDY;
+                    option.multi = false;
+                    option.maxSelectNum = 1;
+                    NimUIKit.startContactSelect(container.activity, option, REQUEST_CODE_FORWARD_PERSON);
+                }
+            });
+        }
+
+        // 长按菜单项 -- 转发到群组
+        private void longClickItemForwardToTeam(final IMMessage item, CustomAlertDialog alertDialog) {
+            alertDialog.addItem(container.activity.getString(R.string.forward_to_team), new CustomAlertDialog.onSeparateItemClickListener() {
+
+                @Override
+                public void onClick() {
+                    forwardMessage = item;
+                    ContactSelectActivity.Option option = new ContactSelectActivity.Option();
+                    option.title = "选择转发的群";
+                    option.type = ContactSelectActivity.ContactSelectType.TEAM;
+                    option.multi = false;
+                    option.maxSelectNum = 1;
+                    NimUIKit.startContactSelect(container.activity, option, REQUEST_CODE_FORWARD_TEAM);
+                }
+            });
+        }
     }
 
     private void setEarPhoneMode(boolean earPhoneMode) {
@@ -856,7 +907,7 @@ public class MessageListPanel implements TAdapterDelegate {
     }
 
     private boolean receiveReceiptCheck(final IMMessage msg) {
-        if(msg != null && msg.getSessionType() == SessionTypeEnum.P2P
+        if (msg != null && msg.getSessionType() == SessionTypeEnum.P2P
                 && msg.getDirect() == MsgDirectionEnum.Out
                 && msg.getMsgType() != MsgTypeEnum.tip
                 && msg.getMsgType() != MsgTypeEnum.notification
@@ -877,7 +928,7 @@ public class MessageListPanel implements TAdapterDelegate {
         }
 
         IMMessage message = getLastReceivedMessage();
-        if(!sendReceiptCheck(message)) {
+        if (!sendReceiptCheck(message)) {
             return;
         }
 
@@ -897,11 +948,41 @@ public class MessageListPanel implements TAdapterDelegate {
     }
 
     private boolean sendReceiptCheck(final IMMessage msg) {
-        if(msg == null || msg.getDirect() != MsgDirectionEnum.In ||
+        if (msg == null || msg.getDirect() != MsgDirectionEnum.In ||
                 msg.getMsgType() == MsgTypeEnum.tip || msg.getMsgType() == MsgTypeEnum.notification) {
             return false; // 非收到的消息，Tip消息和通知类消息，不要发已读回执
         }
 
         return true;
+    }
+
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode != Activity.RESULT_OK) {
+            return;
+        }
+        final ArrayList<String> selected = data.getStringArrayListExtra(ContactSelectActivity.RESULT_DATA);
+        if (selected != null && !selected.isEmpty()) {
+            switch (requestCode) {
+                case REQUEST_CODE_FORWARD_TEAM:
+                    doForwardMessage(selected.get(0), SessionTypeEnum.Team);
+                    break;
+                case REQUEST_CODE_FORWARD_PERSON:
+                    doForwardMessage(selected.get(0), SessionTypeEnum.P2P);
+                    break;
+            }
+        }
+    }
+
+    // 转发消息
+    private void doForwardMessage(final String sessionId, SessionTypeEnum sessionTypeEnum) {
+        IMMessage message = MessageBuilder.createForwardMessage(forwardMessage, sessionId, sessionTypeEnum);
+        if (message == null) {
+            Toast.makeText(container.activity, "该类型不支持转发", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        NIMClient.getService(MsgService.class).sendMessage(message, false);
+        if (container.account.equals(sessionId)) {
+            onMsgSend(message);
+        }
     }
 }

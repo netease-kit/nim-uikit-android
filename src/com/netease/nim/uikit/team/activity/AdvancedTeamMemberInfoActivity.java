@@ -14,7 +14,7 @@ import com.netease.nim.uikit.NimUIKit;
 import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.cache.SimpleCallback;
 import com.netease.nim.uikit.cache.TeamDataCache;
-import com.netease.nim.uikit.common.activity.TActionBarActivity;
+import com.netease.nim.uikit.common.activity.UI;
 import com.netease.nim.uikit.common.ui.dialog.DialogMaker;
 import com.netease.nim.uikit.common.ui.dialog.EasyAlertDialog;
 import com.netease.nim.uikit.common.ui.dialog.EasyAlertDialogHelper;
@@ -22,6 +22,7 @@ import com.netease.nim.uikit.common.ui.dialog.MenuDialog;
 import com.netease.nim.uikit.common.ui.imageview.HeadImageView;
 import com.netease.nim.uikit.common.ui.widget.SwitchButton;
 import com.netease.nim.uikit.common.util.sys.NetworkUtil;
+import com.netease.nim.uikit.model.ToolBarOptions;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.RequestCallback;
 import com.netease.nimlib.sdk.team.TeamService;
@@ -37,7 +38,7 @@ import java.util.Map;
  * 群成员详细信息界面
  * Created by hzxuwen on 2015/3/19.
  */
-public class AdvancedTeamMemberInfoActivity extends TActionBarActivity implements View.OnClickListener {
+public class AdvancedTeamMemberInfoActivity extends UI implements View.OnClickListener {
 
     private static final String TAG = AdvancedTeamMemberInfoActivity.class.getSimpleName();
     // constant
@@ -84,7 +85,10 @@ public class AdvancedTeamMemberInfoActivity extends TActionBarActivity implement
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.nim_advanced_team_member_info_layout);
-        setTitle(R.string.team_member_info);
+
+        ToolBarOptions options = new ToolBarOptions();
+        options.titleId = R.string.team_member_info;
+        setToolBar(R.id.toolbar, options);
 
         parseIntentData();
 

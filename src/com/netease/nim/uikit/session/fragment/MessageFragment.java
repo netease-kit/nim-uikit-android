@@ -213,6 +213,7 @@ public class MessageFragment extends TFragment implements ModuleProxy {
         super.onActivityResult(requestCode, resultCode, data);
 
         inputPanel.onActivityResult(requestCode, resultCode, data);
+        messageListPanel.onActivityResult(requestCode, resultCode, data);
     }
 
     // 操作面板集合

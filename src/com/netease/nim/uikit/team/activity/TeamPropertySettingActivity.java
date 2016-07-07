@@ -14,9 +14,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.netease.nim.uikit.R;
-import com.netease.nim.uikit.common.activity.TActionBarActivity;
+import com.netease.nim.uikit.common.activity.UI;
 import com.netease.nim.uikit.common.util.string.StringTextWatcher;
-import com.netease.nim.uikit.common.util.sys.ActionBarUtil;
+import com.netease.nim.uikit.model.ToolBarOptions;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.RequestCallback;
 import com.netease.nimlib.sdk.ResponseCode;
@@ -27,7 +27,7 @@ import com.netease.nimlib.sdk.team.constant.TeamFieldEnum;
  * 群属性
  * Created by hzxuwen on 2015/4/10.
  */
-public class TeamPropertySettingActivity extends TActionBarActivity implements View.OnClickListener {
+public class TeamPropertySettingActivity extends UI implements View.OnClickListener {
 
     private static final String EXTRA_TID = "EXTRA_TID";
     public static final String EXTRA_DATA = "EXTRA_DATA";
@@ -80,10 +80,15 @@ public class TeamPropertySettingActivity extends TActionBarActivity implements V
         super.onCreate(savedInstanceState);
         setContentView(R.layout.nim_team_name_activity);
 
+        ToolBarOptions options = new ToolBarOptions();
+        setToolBar(R.id.toolbar, options);
+
         findViews();
         parseIntent();
 
-        ActionBarUtil.addRightClickableTextViewOnActionBar(this, R.string.save, this);
+        TextView toolbarView = findView(R.id.action_bar_right_clickable_textview);
+        toolbarView.setText(R.string.save);
+        toolbarView.setOnClickListener(this);
     }
 
     private void parseIntent() {

@@ -16,14 +16,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.netease.nim.uikit.R;
-import com.netease.nim.uikit.common.activity.TActionBarActivity;
+import com.netease.nim.uikit.common.activity.UI;
 import com.netease.nim.uikit.common.util.string.StringUtil;
-import com.netease.nim.uikit.common.util.sys.ActionBarUtil;
+import com.netease.nim.uikit.model.ToolBarOptions;
 
 /**
  * Created by hzxuwen on 2015/3/19.
  */
-public class AdvancedTeamNicknameActivity extends TActionBarActivity implements TextWatcher, View.OnClickListener {
+public class AdvancedTeamNicknameActivity extends UI implements TextWatcher, View.OnClickListener {
 
     // constant
     public static final String EXTRA_NAME = "EXTRA_NAME";
@@ -47,14 +47,19 @@ public class AdvancedTeamNicknameActivity extends TActionBarActivity implements 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.nim_advanced_team_nickname_activity);
-        setTitle(R.string.team_nickname);
+
+        ToolBarOptions options = new ToolBarOptions();
+        options.titleId = R.string.team_nickname;
+        setToolBar(R.id.toolbar, options);
 
         nickName = getIntent().getStringExtra(EXTRA_NAME);
         if (nickName == null) {
             nickName = "";
         }
 
-        ActionBarUtil.addRightClickableTextViewOnActionBar(this, R.string.save, this);
+        TextView toolbarView = findView(R.id.action_bar_right_clickable_textview);
+        toolbarView.setText(R.string.save);
+        toolbarView.setOnClickListener(this);
 
         regularTeamNickname = (EditText) findViewById(R.id.regular_team_nickname);
         regularTeamNickname.setText(nickName);

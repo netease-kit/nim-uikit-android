@@ -12,9 +12,10 @@ import com.netease.nim.uikit.NimUIKit;
 import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.cache.SimpleCallback;
 import com.netease.nim.uikit.cache.TeamDataCache;
-import com.netease.nim.uikit.common.activity.TActionBarActivity;
+import com.netease.nim.uikit.common.activity.UI;
 import com.netease.nim.uikit.common.adapter.TAdapterDelegate;
 import com.netease.nim.uikit.common.adapter.TViewHolder;
+import com.netease.nim.uikit.model.ToolBarOptions;
 import com.netease.nim.uikit.team.adapter.TeamMemberAdapter;
 import com.netease.nim.uikit.team.adapter.TeamMemberAdapter.TeamMemberItem;
 import com.netease.nim.uikit.team.helper.TeamHelper;
@@ -34,7 +35,7 @@ import java.util.List;
  * 群成员列表界面
  * Created by hzxuwen on 2015/3/17.
  */
-public class AdvancedTeamMemberActivity extends TActionBarActivity implements TAdapterDelegate,
+public class AdvancedTeamMemberActivity extends UI implements TAdapterDelegate,
         TeamMemberAdapter.RemoveMemberCallback, TeamMemberAdapter.AddMemberCallback, TeamMemberHolder.TeamMemberHolderEventListener {
 
     // constant
@@ -70,7 +71,11 @@ public class AdvancedTeamMemberActivity extends TActionBarActivity implements TA
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.nim_team_member_grid_layout);
-        setTitle(R.string.team_member);
+
+        ToolBarOptions options = new ToolBarOptions();
+        options.titleId = R.string.team_member;
+        setToolBar(R.id.toolbar, options);
+
         parseIntentData();
         loadTeamInfo();
         initAdapter();

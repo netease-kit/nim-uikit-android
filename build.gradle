@@ -1,6 +1,8 @@
 apply plugin: 'com.android.library'
 
 android {
+    useLibrary 'org.apache.http.legacy'
+
     compileSdkVersion 23
     buildToolsVersion buildToolsVer
 
@@ -13,15 +15,13 @@ android {
             renderscript.srcDirs = ['src']
             res.srcDirs = ['res', 'res-ptr']
             assets.srcDirs = ['assets']
-            jniLibs.srcDirs = ['libs', 'libs-sdk']
+            jniLibs.srcDirs = ['libs']
         }
     }
 }
 
 dependencies {
-    compile 'com.android.support:appcompat-v7:19.1.0'
-    compile fileTree(dir: 'libs', include: '*.jar')
-    compile fileTree(dir: 'libs-sdk', include: ['*.jar'])
-    //
-    
+    compile 'com.android.support:appcompat-v7:23.3.0'
+    compile 'com.android.support:design:23.3.0'
+    compile fileTree(dir: 'libs', include: '*.jar')
 }

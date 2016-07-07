@@ -2,7 +2,6 @@ package com.netease.nim.uikit.session.activity;
 
 import android.app.Activity;
 import android.content.Context;
-import android.support.v7.app.ActionBar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,7 +10,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.netease.nim.uikit.R;
-import com.netease.nim.uikit.common.activity.TActionBarActivity;
 import com.netease.nim.uikit.common.util.log.LogUtil;
 import com.netease.nimlib.sdk.AbortableFuture;
 import com.netease.nimlib.sdk.NIMClient;
@@ -34,13 +32,11 @@ public class VoiceTrans {
     private View cancelBtn;
     private ProgressBar refreshingIndicator;
     private View failIcon;
-    private ActionBar actionBar;
 
     private AbortableFuture<String> callFuture;
 
     public VoiceTrans(Activity baseActivity) {
         this.baseActivity = baseActivity;
-        hideActionBar();
         findViews();
         setListener();
     }
@@ -49,12 +45,6 @@ public class VoiceTrans {
         InputMethodManager imm = (InputMethodManager) baseActivity.getSystemService(Context.INPUT_METHOD_SERVICE);
         if (baseActivity.getCurrentFocus() != null) {
             imm.hideSoftInputFromWindow(baseActivity.getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
-        }
-    }
-
-    private void hideActionBar() {
-        if (baseActivity instanceof TActionBarActivity) {
-            actionBar = ((TActionBarActivity) baseActivity).getSupportActionBar();
         }
     }
 
@@ -91,17 +81,11 @@ public class VoiceTrans {
         if (callFuture != null) {
             callFuture.abort();
         }
-        if (actionBar != null) {
-            actionBar.show();
-        }
         voiceTransText.scrollTo(0, 0);
         textLayout.setVisibility(View.GONE);
     }
 
     public void show() {
-        if (actionBar != null) {
-            actionBar.hide();
-        }
         hideKeyBoard();
         textLayout.setVisibility(View.VISIBLE);
         voiceTransText.setText("正在转换");

@@ -26,7 +26,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.netease.nim.uikit.R;
-import com.netease.nim.uikit.common.activity.TActionBarActivity;
+import com.netease.nim.uikit.common.activity.UI;
 import com.netease.nim.uikit.common.ui.dialog.EasyAlertDialog;
 import com.netease.nim.uikit.common.ui.dialog.EasyAlertDialogHelper;
 import com.netease.nim.uikit.common.util.file.AttachmentStore;
@@ -43,7 +43,7 @@ import java.util.List;
  * <p/>
  * Created by huangjun on 2015/4/11.
  */
-public class CaptureVideoActivity extends TActionBarActivity implements SurfaceHolder.Callback {
+public class CaptureVideoActivity extends UI implements SurfaceHolder.Callback {
 
     private static final String TAG = "video";
 
@@ -138,6 +138,8 @@ public class CaptureVideoActivity extends TActionBarActivity implements SurfaceH
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().setFormat(PixelFormat.TRANSLUCENT); // 使得窗口支持透明度
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.nim_capture_video_activity);
         setTitle(R.string.video_record);
 
@@ -171,7 +173,6 @@ public class CaptureVideoActivity extends TActionBarActivity implements SurfaceH
     }
 
     private void initActionBar() {
-        getSupportActionBar().hide();
         checkMultiCamera();
     }
 
@@ -542,7 +543,7 @@ public class CaptureVideoActivity extends TActionBarActivity implements SurfaceH
             message += mb > 1 ? getString(R.string.capture_video_size_in_mb, mb) : getString(
                     R.string.capture_video_size_in_kb, kb);
             message += getString(R.string.is_send_video);
-            if(mb <= 1 && kb < 10) {
+            if (mb <= 1 && kb < 10) {
                 tooShortAlert();
                 return;
             }

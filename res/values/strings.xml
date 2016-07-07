@@ -31,6 +31,8 @@
     <string name="copy_has_blank">复 制</string>
     <string name="delete_has_blank">删 除</string>
     <string name="voice_to_text">转文字</string>
+    <string name="forward_to_person">转发到个人</string>
+    <string name="forward_to_team">转发到群组</string>
     <string name="save">保存</string>
     <string name="main_msg_list_delete_chatting">删除该聊天</string>
     <string name="main_msg_list_sticky_on_top">置顶该聊天</string>
@@ -200,6 +202,7 @@
     <string name="choose_from_photo_album">从手机相册选择</string>
     <string name="choose">选取</string>
     <string name="edit">编辑</string>
+    <string name="crop">裁剪</string>
 
     <!-- 消息类型 -->
     <string name="msg_type_image">图片</string>

@@ -13,15 +13,16 @@ import android.text.TextUtils;
 import android.widget.Toast;
 
 import com.netease.nim.uikit.R;
-import com.netease.nim.uikit.common.activity.TActionBarActivity;
+import com.netease.nim.uikit.common.activity.UI;
 import com.netease.nim.uikit.common.media.picker.model.PhotoInfo;
 import com.netease.nim.uikit.common.media.picker.model.PickerContract;
+import com.netease.nim.uikit.model.ToolBarOptions;
 import com.netease.nim.uikit.session.constant.Extras;
 
 import java.io.File;
 import java.util.List;
 
-public class PickImageActivity extends TActionBarActivity {
+public class PickImageActivity extends UI {
 
     private static final String KEY_STATE = "state";
 
@@ -63,6 +64,8 @@ public class PickImageActivity extends TActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.nim_pick_image_activity);
+        ToolBarOptions options = new ToolBarOptions();
+        setToolBar(R.id.toolbar, options);
     }
 
     @Override

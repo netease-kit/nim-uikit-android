@@ -9,6 +9,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.cache.FriendDataCache;
+import com.netease.nim.uikit.model.ToolBarOptions;
 import com.netease.nim.uikit.session.SessionCustomization;
 import com.netease.nim.uikit.session.constant.Extras;
 import com.netease.nim.uikit.session.fragment.MessageFragment;
@@ -175,5 +176,12 @@ public class P2PMessageActivity extends BaseMessageActivity {
     @Override
     protected int getContentViewId() {
         return R.layout.nim_message_activity;
+    }
+
+    @Override
+    protected void initToolBar() {
+        ToolBarOptions options = new ToolBarOptions();
+        options.titleString = UserInfoHelper.getUserTitleName(sessionId, SessionTypeEnum.P2P);
+        setToolBar(R.id.toolbar, options);
     }
 }

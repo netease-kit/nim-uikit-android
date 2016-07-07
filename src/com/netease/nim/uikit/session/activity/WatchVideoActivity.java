@@ -25,9 +25,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.netease.nim.uikit.R;
-import com.netease.nim.uikit.common.activity.TActionBarActivity;
+import com.netease.nim.uikit.common.activity.UI;
 import com.netease.nim.uikit.common.util.file.FileUtil;
 import com.netease.nim.uikit.common.util.sys.TimeUtil;
+import com.netease.nim.uikit.model.ToolBarOptions;
 import com.netease.nimlib.sdk.AbortableFuture;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.Observer;
@@ -43,7 +44,7 @@ import com.netease.nimlib.sdk.msg.model.IMMessage;
  * <p/>
  * Created by huangjun on 2015/4/11.
  */
-public class WatchVideoActivity extends TActionBarActivity implements Callback {
+public class WatchVideoActivity extends UI implements Callback {
     public static final String INTENT_EXTRA_DATA = "EXTRA_DATA";
 
     // player
@@ -112,6 +113,10 @@ public class WatchVideoActivity extends TActionBarActivity implements Callback {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.nim_watch_video_activity);
+
+        ToolBarOptions options = new ToolBarOptions();
+        options.navigateId = R.drawable.nim_actionbar_white_back_icon;
+        setToolBar(R.id.toolbar, options);
 
         parseIntent();
         findViews();

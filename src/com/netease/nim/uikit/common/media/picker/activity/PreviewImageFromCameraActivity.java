@@ -17,19 +17,19 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.netease.nim.uikit.R;
-import com.netease.nim.uikit.common.activity.TActionBarActivity;
+import com.netease.nim.uikit.common.activity.UI;
 import com.netease.nim.uikit.common.util.file.AttachmentStore;
 import com.netease.nim.uikit.common.util.media.BitmapDecoder;
 import com.netease.nim.uikit.common.util.storage.StorageType;
 import com.netease.nim.uikit.common.util.storage.StorageUtil;
-import com.netease.nim.uikit.common.util.sys.ActionBarUtil;
+import com.netease.nim.uikit.model.ToolBarOptions;
 import com.netease.nim.uikit.session.constant.Extras;
 import com.netease.nim.uikit.session.constant.RequestCode;
 
 import java.io.File;
 import java.util.ArrayList;
 
-public class PreviewImageFromCameraActivity extends TActionBarActivity {
+public class PreviewImageFromCameraActivity extends UI {
 
 	public static final String RESULT_RETAKE = "RESULT_RETAKE";
 	public static final String RESULT_SEND = "RESULT_SEND";
@@ -47,6 +47,10 @@ public class PreviewImageFromCameraActivity extends TActionBarActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.nim_preview_image_from_camera_activity);
+
+		ToolBarOptions options = new ToolBarOptions();
+		setToolBar(R.id.toolbar, options);
+
 		initActionBar();
 		getIntentData();
 		findViews();
@@ -96,9 +100,9 @@ public class PreviewImageFromCameraActivity extends TActionBarActivity {
 
 
 	private void initActionBar() {
-		TextView textView = ActionBarUtil.addRightClickableBlueTextViewOnActionBar(this, R.string.recapture);
-		textView.setOnClickListener(new View.OnClickListener() {
-
+		TextView toolbarView = findView(R.id.action_bar_right_clickable_textview);
+		toolbarView.setText(R.string.recapture);
+		toolbarView.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				deleteTempFile();

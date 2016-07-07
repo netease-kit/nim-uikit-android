@@ -49,19 +49,21 @@ public class LoginSyncDataStatusObserver {
      */
     public void registerLoginSyncDataStatus(boolean register) {
         LogUtil.i(TAG, "observe login sync data completed event on Application create");
-        NIMClient.getService(AuthServiceObserver.class).observeLoginSyncDataStatus(new Observer<LoginSyncStatus>() {
-            @Override
-            public void onEvent(LoginSyncStatus status) {
-                syncStatus = status;
-                if (status == LoginSyncStatus.BEGIN_SYNC) {
-                    LogUtil.i(TAG, "login sync data begin");
-                } else if (status == LoginSyncStatus.SYNC_COMPLETED) {
-                    LogUtil.i(TAG, "login sync data completed");
-                    onLoginSyncDataCompleted(false);
-                }
-            }
-        }, register);
+        NIMClient.getService(AuthServiceObserver.class).observeLoginSyncDataStatus(loginSyncStatusObserver, register);
     }
+
+    Observer<LoginSyncStatus> loginSyncStatusObserver = new Observer<LoginSyncStatus>() {
+        @Override
+        public void onEvent(LoginSyncStatus status) {
+            syncStatus = status;
+            if (status == LoginSyncStatus.BEGIN_SYNC) {
+                LogUtil.i(TAG, "login sync data begin");
+            } else if (status == LoginSyncStatus.SYNC_COMPLETED) {
+                LogUtil.i(TAG, "login sync data completed");
+                onLoginSyncDataCompleted(false);
+            }
+        }
+    };
 
     /**
      * 监听登录后同步数据完成事件，缓存构建完成后自动取消监听

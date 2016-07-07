@@ -10,7 +10,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.netease.nim.uikit.R;
-import com.netease.nim.uikit.common.activity.TActionBarActivity;
+import com.netease.nim.uikit.common.activity.UI;
 import com.netease.nim.uikit.common.media.picker.fragment.PickerAlbumFragment;
 import com.netease.nim.uikit.common.media.picker.fragment.PickerAlbumFragment.OnAlbumItemClickListener;
 import com.netease.nim.uikit.common.media.picker.fragment.PickerImageFragment;
@@ -20,6 +20,7 @@ import com.netease.nim.uikit.common.media.picker.loader.PickerlImageLoadTool;
 import com.netease.nim.uikit.common.media.picker.model.AlbumInfo;
 import com.netease.nim.uikit.common.media.picker.model.PhotoInfo;
 import com.netease.nim.uikit.common.media.picker.model.PickerContract;
+import com.netease.nim.uikit.model.ToolBarOptions;
 import com.netease.nim.uikit.session.constant.Extras;
 import com.netease.nim.uikit.session.constant.RequestCode;
 
@@ -30,7 +31,7 @@ import java.util.List;
 /**
  * Inner image picker, no longer use third-part application 
  */
-public class PickerAlbumActivity extends TActionBarActivity implements OnAlbumItemClickListener,
+public class PickerAlbumActivity extends UI implements OnAlbumItemClickListener,
 	OnPhotoSelectClickListener, OnClickListener{
 
 	private FrameLayout pickerAlbumLayout;
@@ -63,6 +64,10 @@ public class PickerAlbumActivity extends TActionBarActivity implements OnAlbumIt
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.nim_picker_album_activity);
+
+		ToolBarOptions options = new ToolBarOptions();
+		setToolBar(R.id.toolbar, options);
+
 		proceedExtra();
 		initActionBar();
 		initUI();

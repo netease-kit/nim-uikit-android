@@ -7,24 +7,29 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
 import com.netease.nim.uikit.common.fragment.TFragment;
-import com.netease.nim.uikit.common.util.sys.ReflectionUtil;
 import com.netease.nim.uikit.common.util.log.LogUtil;
+import com.netease.nim.uikit.common.util.sys.ReflectionUtil;
+import com.netease.nim.uikit.model.ToolBarOptions;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class TActionBarActivity extends ActionBarActivity {
+public abstract class UI extends AppCompatActivity {
 
     private boolean destroyed = false;
 
     private static Handler handler;
+
+    private Toolbar toolbar;
 
     @Override
     protected void onStart() {
@@ -54,9 +59,6 @@ public abstract class TActionBarActivity extends ActionBarActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(displayHomeAsUpEnabled());
-        }
     }
 
     @Override
@@ -74,24 +76,51 @@ public abstract class TActionBarActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    public void setToolBar(int toolBarId, ToolBarOptions options) {
+        toolbar = (Toolbar) findViewById(toolBarId);
+        if (options.titleId != 0) {
+            toolbar.setTitle(options.titleId);
+        }
+        if (!TextUtils.isEmpty(options.titleString)) {
+            toolbar.setTitle(options.titleString);
+        }
+        if (options.logoId != 0) {
+            toolbar.setLogo(options.logoId);
+        }
+        setSupportActionBar(toolbar);
+
+        if (options.isNeedNavigate) {
+            toolbar.setNavigationIcon(options.navigateId);
+            toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    onNavigateUpClicked();
+                }
+            });
+        }
+    }
+
+    public void setToolBar(int toolbarId, int titleId, int logoId) {
+        toolbar = (Toolbar) findViewById(toolbarId);
+        toolbar.setTitle(titleId);
+        toolbar.setLogo(logoId);
+        setSupportActionBar(toolbar);
+    }
+
+    public Toolbar getToolBar() {
+        return toolbar;
+    }
+
     public void onNavigateUpClicked() {
         onBackPressed();
     }
 
+    @Override
     public void setTitle(CharSequence title) {
-        getSupportActionBar().setTitle(title);
-    }
-
-    public void setTitle(int titleResId) {
-        getSupportActionBar().setTitle(titleResId);
-    }
-
-    public void setSubTitle(CharSequence subTitle) {
-        getSupportActionBar().setSubtitle(subTitle);
-    }
-
-    public void setSubTitle(int subTitleResId) {
-        getSupportActionBar().setSubtitle(subTitleResId);
+        super.setTitle(title);
+        if (toolbar != null) {
+            toolbar.setTitle(title);
+        }
     }
 
     protected final Handler getHandler() {
@@ -253,7 +282,7 @@ public abstract class TActionBarActivity extends ActionBarActivity {
     }
 
     protected boolean isCompatible(int apiLevel) {
-        return android.os.Build.VERSION.SDK_INT >= apiLevel;
+        return Build.VERSION.SDK_INT >= apiLevel;
     }
 
     protected <T extends View> T findView(int resId) {

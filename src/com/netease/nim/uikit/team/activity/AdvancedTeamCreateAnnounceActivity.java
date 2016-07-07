@@ -7,15 +7,16 @@ import android.text.InputFilter;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.cache.SimpleCallback;
 import com.netease.nim.uikit.cache.TeamDataCache;
-import com.netease.nim.uikit.common.activity.TActionBarActivity;
+import com.netease.nim.uikit.common.activity.UI;
 import com.netease.nim.uikit.common.ui.dialog.DialogMaker;
-import com.netease.nim.uikit.common.util.sys.ActionBarUtil;
 import com.netease.nim.uikit.common.util.sys.NetworkUtil;
+import com.netease.nim.uikit.model.ToolBarOptions;
 import com.netease.nim.uikit.team.helper.AnnouncementHelper;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.RequestCallback;
@@ -27,7 +28,7 @@ import com.netease.nimlib.sdk.team.model.Team;
  * 创建群公告界面
  * Created by hzxuwen on 2015/3/18.
  */
-public class AdvancedTeamCreateAnnounceActivity extends TActionBarActivity {
+public class AdvancedTeamCreateAnnounceActivity extends UI {
 
     // constant
     private final static String EXTRA_TID = "EXTRA_TID";
@@ -39,6 +40,7 @@ public class AdvancedTeamCreateAnnounceActivity extends TActionBarActivity {
     // view
     private EditText teamAnnounceTitle;
     private EditText teamAnnounceContent;
+    private TextView toolbarView;
 
     public static void startActivityForResult(Activity activity, String teamId, int requestCode) {
         Intent intent = new Intent();
@@ -51,7 +53,10 @@ public class AdvancedTeamCreateAnnounceActivity extends TActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.nim_advanced_team_create_announce);
-        setTitle(R.string.team_annourcement);
+
+        ToolBarOptions options = new ToolBarOptions();
+        options.titleId = R.string.team_annourcement;
+        setToolBar(R.id.toolbar, options);
 
         parseIntentData();
         findViews();
@@ -70,7 +75,9 @@ public class AdvancedTeamCreateAnnounceActivity extends TActionBarActivity {
     }
 
     private void initActionbar() {
-        ActionBarUtil.addRightClickableTextViewOnActionBar(this, R.string.save, new View.OnClickListener() {
+        toolbarView = findView(R.id.action_bar_right_clickable_textview);
+        toolbarView.setText(R.string.save);
+        toolbarView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 requestAnnounceData();
@@ -89,7 +96,7 @@ public class AdvancedTeamCreateAnnounceActivity extends TActionBarActivity {
             return;
         }
 
-        ActionBarUtil.setTextViewEnable(this, false);
+        toolbarView.setEnabled(false);
         // 请求群信息
         Team t = TeamDataCache.getInstance().getTeamById(teamId);
         if (t != null) {
@@ -103,7 +110,7 @@ public class AdvancedTeamCreateAnnounceActivity extends TActionBarActivity {
                         updateTeamData(result);
                         updateAnnounce();
                     } else {
-                        ActionBarUtil.setTextViewEnable(AdvancedTeamCreateAnnounceActivity.this, true);
+                        toolbarView.setEnabled(true);
                     }
                 }
             });
@@ -144,14 +151,14 @@ public class AdvancedTeamCreateAnnounceActivity extends TActionBarActivity {
             @Override
             public void onFailed(int code) {
                 DialogMaker.dismissProgressDialog();
-                ActionBarUtil.setTextViewEnable(AdvancedTeamCreateAnnounceActivity.this, true);
+                toolbarView.setEnabled(true);
                 Toast.makeText(AdvancedTeamCreateAnnounceActivity.this, String.format(getString(R.string.update_failed), code), Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onException(Throwable exception) {
                 DialogMaker.dismissProgressDialog();
-                ActionBarUtil.setTextViewEnable(AdvancedTeamCreateAnnounceActivity.this, true);
+                toolbarView.setEnabled(true);
             }
         });
     }

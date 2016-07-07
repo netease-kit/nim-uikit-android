@@ -16,12 +16,12 @@ import com.netease.nim.uikit.NimUIKit;
 import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.cache.SimpleCallback;
 import com.netease.nim.uikit.cache.TeamDataCache;
-import com.netease.nim.uikit.common.activity.TActionBarActivity;
+import com.netease.nim.uikit.common.activity.UI;
 import com.netease.nim.uikit.common.adapter.TAdapter;
 import com.netease.nim.uikit.common.adapter.TAdapterDelegate;
 import com.netease.nim.uikit.common.adapter.TViewHolder;
 import com.netease.nim.uikit.common.ui.listview.ListViewUtil;
-import com.netease.nim.uikit.common.util.sys.ActionBarUtil;
+import com.netease.nim.uikit.model.ToolBarOptions;
 import com.netease.nim.uikit.team.helper.AnnouncementHelper;
 import com.netease.nim.uikit.team.model.Announcement;
 import com.netease.nim.uikit.team.viewholder.TeamAnnounceHolder;
@@ -36,7 +36,7 @@ import java.util.List;
  * 群公告列表
  * Created by hzxuwen on 2015/3/18.
  */
-public class AdvancedTeamAnnounceActivity extends TActionBarActivity implements TAdapterDelegate {
+public class AdvancedTeamAnnounceActivity extends UI implements TAdapterDelegate {
     // constant
     private final static String EXTRA_TID = "EXTRA_TID";
     private final static String EXTRA_AID = "EXTRA_AID";
@@ -77,7 +77,11 @@ public class AdvancedTeamAnnounceActivity extends TActionBarActivity implements 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.nim_advanced_team_announce);
-        setTitle(R.string.team_annourcement);
+
+        ToolBarOptions options = new ToolBarOptions();
+        options.titleId = R.string.team_annourcement;
+        setToolBar(R.id.toolbar, options);
+
         uiHandler = new Handler(getMainLooper());
 
         parseIntentData();
@@ -121,10 +125,12 @@ public class AdvancedTeamAnnounceActivity extends TActionBarActivity implements 
     }
 
     private void initActionbar() {
-        ActionBarUtil.addRightClickableTextViewOnActionBar(this, R.string.create, new View.OnClickListener() {
+        TextView toolbarView = findView(R.id.action_bar_right_clickable_textview);
+        toolbarView.setText(R.string.create);
+        toolbarView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                 AdvancedTeamCreateAnnounceActivity.startActivityForResult(AdvancedTeamAnnounceActivity.this, teamId, RES_ANNOUNCE_CREATE_CODE);
+                AdvancedTeamCreateAnnounceActivity.startActivityForResult(AdvancedTeamAnnounceActivity.this, teamId, RES_ANNOUNCE_CREATE_CODE);
             }
         });
     }

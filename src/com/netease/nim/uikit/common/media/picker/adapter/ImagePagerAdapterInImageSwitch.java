@@ -8,7 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.netease.nim.uikit.R;
-import com.netease.nim.uikit.common.activity.TActionBarActivity;
+import com.netease.nim.uikit.common.activity.UI;
 import com.netease.nim.uikit.common.media.picker.activity.PreviewImageFromLocalActivity;
 import com.netease.nim.uikit.common.ui.imageview.BaseZoomableImageView;
 import com.netease.nim.uikit.common.util.sys.ScreenUtil;
@@ -20,9 +20,9 @@ public class ImagePagerAdapterInImageSwitch extends PagerAdapter{
 	private List<String> mList;
 	private LayoutInflater mInflater;
 	private int viewPagerWidth, viewPagerHeight;
-	private TActionBarActivity mActivity;
+	private UI mActivity;
 	
-    public ImagePagerAdapterInImageSwitch(Context cx, List<String> list, LayoutInflater inflater, int width, int height, TActionBarActivity activity) {  
+    public ImagePagerAdapterInImageSwitch(Context cx, List<String> list, LayoutInflater inflater, int width, int height, UI activity) {
         mContext = cx;  
         mList = list;
         mInflater = inflater; 

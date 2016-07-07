@@ -17,7 +17,7 @@ import com.netease.nim.uikit.NimUIKit;
 import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.cache.SimpleCallback;
 import com.netease.nim.uikit.cache.TeamDataCache;
-import com.netease.nim.uikit.common.activity.TActionBarActivity;
+import com.netease.nim.uikit.common.activity.UI;
 import com.netease.nim.uikit.common.adapter.TAdapterDelegate;
 import com.netease.nim.uikit.common.adapter.TViewHolder;
 import com.netease.nim.uikit.common.media.picker.PickImageHelper;
@@ -25,10 +25,10 @@ import com.netease.nim.uikit.common.ui.dialog.DialogMaker;
 import com.netease.nim.uikit.common.ui.dialog.MenuDialog;
 import com.netease.nim.uikit.common.ui.imageview.HeadImageView;
 import com.netease.nim.uikit.common.util.log.LogUtil;
-import com.netease.nim.uikit.common.util.sys.ActionBarUtil;
 import com.netease.nim.uikit.common.util.sys.TimeUtil;
 import com.netease.nim.uikit.contact.core.item.ContactIdFilter;
 import com.netease.nim.uikit.contact_selector.activity.ContactSelectActivity;
+import com.netease.nim.uikit.model.ToolBarOptions;
 import com.netease.nim.uikit.session.actions.PickImageAction;
 import com.netease.nim.uikit.team.adapter.TeamMemberAdapter;
 import com.netease.nim.uikit.team.adapter.TeamMemberAdapter.TeamMemberItem;
@@ -64,7 +64,7 @@ import java.util.List;
  * 高级群群资料页
  * Created by huangjun on 2015/3/17.
  */
-public class AdvancedTeamInfoActivity extends TActionBarActivity implements
+public class AdvancedTeamInfoActivity extends UI implements
         TAdapterDelegate, TeamMemberAdapter.AddMemberCallback, TeamMemberHolder.TeamMemberHolderEventListener {
 
     private static final int REQUEST_CODE_TRANSFER = 101;
@@ -173,6 +173,9 @@ public class AdvancedTeamInfoActivity extends TActionBarActivity implements
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.nim_advanced_team_info_activity);
+
+        ToolBarOptions options = new ToolBarOptions();
+        setToolBar(R.id.toolbar, options);
 
         parseIntentData();
         findViews();
@@ -451,7 +454,9 @@ public class AdvancedTeamInfoActivity extends TActionBarActivity implements
     }
 
     private void initActionbar() {
-        ActionBarUtil.addRightClickableTextViewOnActionBar(this, R.string.menu, new View.OnClickListener() {
+        TextView toolbarView = findView(R.id.action_bar_right_clickable_textview);
+        toolbarView.setText(R.string.menu);
+        toolbarView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 showRegularTeamMenu();
@@ -755,7 +760,7 @@ public class AdvancedTeamInfoActivity extends TActionBarActivity implements
                     }
                 }
             }
-            addTeamMembers(members, false);
+            addTeamMembers(m, false);
         }
 
         @Override

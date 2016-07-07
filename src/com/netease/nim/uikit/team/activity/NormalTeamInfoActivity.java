@@ -19,7 +19,7 @@ import com.netease.nim.uikit.NimUIKit;
 import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.cache.SimpleCallback;
 import com.netease.nim.uikit.cache.TeamDataCache;
-import com.netease.nim.uikit.common.activity.TActionBarActivity;
+import com.netease.nim.uikit.common.activity.UI;
 import com.netease.nim.uikit.common.adapter.TAdapterDelegate;
 import com.netease.nim.uikit.common.adapter.TViewHolder;
 import com.netease.nim.uikit.common.ui.dialog.DialogMaker;
@@ -27,6 +27,7 @@ import com.netease.nim.uikit.common.ui.widget.SwitchButton;
 import com.netease.nim.uikit.common.util.sys.NetworkUtil;
 import com.netease.nim.uikit.contact.core.item.ContactIdFilter;
 import com.netease.nim.uikit.contact_selector.activity.ContactSelectActivity;
+import com.netease.nim.uikit.model.ToolBarOptions;
 import com.netease.nim.uikit.team.adapter.TeamMemberAdapter;
 import com.netease.nim.uikit.team.model.TeamExtras;
 import com.netease.nim.uikit.team.model.TeamRequestCode;
@@ -54,7 +55,7 @@ import java.util.List;
  * <p/>
  * Created by huangjun on 2015/3/3.
  */
-public class NormalTeamInfoActivity extends TActionBarActivity implements OnClickListener, TAdapterDelegate,
+public class NormalTeamInfoActivity extends UI implements OnClickListener, TAdapterDelegate,
         TeamMemberAdapter.RemoveMemberCallback, TeamMemberAdapter.AddMemberCallback, TeamMemberHolder.TeamMemberHolderEventListener {
 
     // constant
@@ -138,6 +139,9 @@ public class NormalTeamInfoActivity extends TActionBarActivity implements OnClic
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.nim_team_info_activity);
+
+        ToolBarOptions options = new ToolBarOptions();
+        setToolBar(R.id.toolbar, options);
 
         parseIntentData();
         initToggleBtn();

@@ -18,7 +18,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.netease.nim.uikit.R;
-import com.netease.nim.uikit.common.activity.TActionBarActivity;
+import com.netease.nim.uikit.common.activity.UI;
 import com.netease.nim.uikit.common.media.picker.adapter.ImagePagerAdapterInImageSwitch;
 import com.netease.nim.uikit.common.ui.dialog.EasyAlertDialog;
 import com.netease.nim.uikit.common.ui.imageview.BaseZoomableImageView;
@@ -34,7 +34,7 @@ import com.netease.nim.uikit.session.constant.RequestCode;
 import java.io.File;
 import java.util.ArrayList;
 
-public class PreviewImageFromLocalActivity extends TActionBarActivity {
+public class PreviewImageFromLocalActivity extends UI {
     
 	private boolean needShowSendOriginal = false;
 	
@@ -141,7 +141,7 @@ public class PreviewImageFromLocalActivity extends TActionBarActivity {
 
 	@SuppressLint("NewApi")
 	private void sendOrigImage() {
-		final TActionBarActivity activity = PreviewImageFromLocalActivity.this;
+		final UI activity = PreviewImageFromLocalActivity.this;
 		final EasyAlertDialog allAlertDialog = new EasyAlertDialog(activity);
 		allAlertDialog.setTitle(getString(R.string.picker_image_preview_original));
 		

@@ -61,6 +61,8 @@ public class EasyEditDialog extends Dialog {
 
 	private boolean mShowEditTextLength = false;
 
+	private int inputType = -1;
+
 	public EasyEditDialog(Context context, int resourceId, int style) {
 		super(context, style);
 		mMaxEditTextLength = 16;
@@ -107,6 +109,10 @@ public class EasyEditDialog extends Dialog {
 				mEdit.setHint(hint);
 			}
 		}
+	}
+
+	public void setInputType(int type) {
+		this.inputType = type;
 	}
 
 	public void setEditTextMaxLength(int maxLength) {
@@ -181,7 +187,10 @@ public class EasyEditDialog extends Dialog {
 			mEdit = (EditText) findViewById(R.id.easy_alert_dialog_edit_text);
 			mLengthTextView = (TextView) findViewById(R.id.edit_text_length);
 			// mEdit.setFilters(new InputFilter[] { new InputFilter.LengthFilter(mMaxEditTextLength) });
-		    mLengthTextView.setVisibility(mShowEditTextLength ? View.VISIBLE: View.GONE);
+			mLengthTextView.setVisibility(mShowEditTextLength ? View.VISIBLE : View.GONE);
+			if (inputType != -1) {
+				mEdit.setInputType(inputType);
+			}
 			mEdit.addTextChangedListener(new EditTextWatcher(mEdit, mLengthTextView, mMaxEditTextLength,
 					mShowEditTextLength));
 
