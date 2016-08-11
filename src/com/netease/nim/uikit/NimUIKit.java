@@ -27,6 +27,7 @@ import com.netease.nim.uikit.team.activity.NormalTeamInfoActivity;
 import com.netease.nim.uikit.uinfo.UserInfoHelper;
 import com.netease.nimlib.sdk.msg.attachment.MsgAttachment;
 import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
+import com.netease.nimlib.sdk.msg.model.IMMessage;
 import com.netease.nimlib.sdk.team.constant.TeamTypeEnum;
 import com.netease.nimlib.sdk.team.model.Team;
 import com.netease.nimlib.sdk.uinfo.UserInfoProvider;
@@ -109,12 +110,14 @@ public final class NimUIKit {
      * @param id            聊天对象ID（用户帐号account或者群组ID）
      * @param sessionType   会话类型
      * @param customization 定制化信息。针对不同的聊天对象，可提供不同的定制化。
+     * @param anchor        跳转到指定消息的位置，不需要跳转填null
      */
-    public static void startChatting(Context context, String id, SessionTypeEnum sessionType, SessionCustomization customization) {
+    public static void startChatting(Context context, String id, SessionTypeEnum sessionType, SessionCustomization
+            customization, IMMessage anchor) {
         if (sessionType == SessionTypeEnum.P2P) {
-            P2PMessageActivity.start(context, id, customization);
+            P2PMessageActivity.start(context, id, customization, anchor);
         } else if (sessionType == SessionTypeEnum.Team) {
-            TeamMessageActivity.start(context, id, customization, null);
+            TeamMessageActivity.start(context, id, customization, null, anchor);
         }
     }
 
@@ -126,11 +129,12 @@ public final class NimUIKit {
      * @param sessionType   会话类型
      * @param customization 定制化信息。针对不同的聊天对象，可提供不同的定制化。
      * @param backToClass   返回的指定页面
+     * @param anchor        跳转到指定消息的位置，不需要跳转填null
      */
     public static void startChatting(Context context, String id, SessionTypeEnum sessionType, SessionCustomization customization,
-                                     Class<? extends Activity> backToClass) {
+                                     Class<? extends Activity> backToClass, IMMessage anchor) {
         if (sessionType == SessionTypeEnum.Team) {
-            TeamMessageActivity.start(context, id, customization, backToClass);
+            TeamMessageActivity.start(context, id, customization, backToClass, anchor);
         }
     }
 
@@ -204,6 +208,7 @@ public final class NimUIKit {
 
     /**
      * 注册Tip类型消息项展示ViewHolder
+     *
      * @param viewHolder Tip消息ViewHolder
      */
     public static void registerTipMsgViewHolder(Class<? extends MsgViewHolderBase> viewHolder) {
@@ -266,6 +271,7 @@ public final class NimUIKit {
 
     /**
      * 设置转发消息过滤的监听器
+     *
      * @param msgForwardFilter
      */
     public static void setMsgForwardFilter(MsgForwardFilter msgForwardFilter) {
@@ -274,6 +280,7 @@ public final class NimUIKit {
 
     /**
      * 获取转发消息过滤的监听器
+     *
      * @return
      */
     public static MsgForwardFilter getMsgForwardFilter() {

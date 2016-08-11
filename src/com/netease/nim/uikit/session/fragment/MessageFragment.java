@@ -111,14 +111,15 @@ public class MessageFragment extends TFragment implements ModuleProxy {
     private void parseIntent() {
         sessionId = getArguments().getString(Extras.EXTRA_ACCOUNT);
         sessionType = (SessionTypeEnum) getArguments().getSerializable(Extras.EXTRA_TYPE);
+        IMMessage anchor = (IMMessage) getArguments().getSerializable(Extras.EXTRA_ANCHOR);
 
         customization = (SessionCustomization) getArguments().getSerializable(Extras.EXTRA_CUSTOMIZATION);
         Container container = new Container(getActivity(), sessionId, sessionType, this);
 
         if (messageListPanel == null) {
-            messageListPanel = new MessageListPanel(container, rootView, false, false);
+            messageListPanel = new MessageListPanel(container, rootView, anchor, false, false);
         } else {
-            messageListPanel.reload(container, null);
+            messageListPanel.reload(container, anchor);
         }
 
         if (inputPanel == null) {
@@ -195,6 +196,7 @@ public class MessageFragment extends TFragment implements ModuleProxy {
 
     @Override
     public void onInputPanelExpand() {
+        messageListPanel.jumpReload();
         messageListPanel.scrollToBottom();
     }
 

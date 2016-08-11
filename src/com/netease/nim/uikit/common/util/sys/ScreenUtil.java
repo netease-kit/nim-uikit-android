@@ -63,6 +63,13 @@ public class ScreenUtil {
         Log.d(TAG, "screenWidth=" + screenWidth + " screenHeight=" + screenHeight + " density=" + density);
     }
 
+	public static int getDisplayWidth(){
+		if(screenWidth == 0){
+			GetInfo(NimUIKit.getContext());
+		}
+		return screenWidth;
+	}
+
 	public static int getDisplayHeight() {
 		if(screenHeight == 0){
 			GetInfo(NimUIKit.getContext());

@@ -8,7 +8,7 @@ import android.content.SharedPreferences;
  */
 public class UserPreferences {
 
-    private final static String KEY_EARPHONE_MODE="KEY_EARPHONE_MODE";
+    private final static String KEY_EARPHONE_MODE = "KEY_EARPHONE_MODE";
 
     public static void setEarPhoneModeEnable(boolean on) {
         saveBoolean(KEY_EARPHONE_MODE, on);

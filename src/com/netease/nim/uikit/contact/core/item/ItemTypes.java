@@ -24,16 +24,16 @@ public interface ItemTypes {
 
     int TEAM_MEMBER = 3; // 群成员
 
+    int MSG = 4; // 消息
+
     /**
      * 子类型
      */
     interface TEAMS {
         int BASE = ItemTypes.TEAM << 16;
 
-        int NORMAL_TEAM = BASE + 1; // 讨论组
+        int NORMAL_TEAM = BASE + 1; // 普通群
 
         int ADVANCED_TEAM = BASE + 2; // 高级群
-
-        int CUSTOM_TEAM = BASE + 3; // 自定义群
     }
 }

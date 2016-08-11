@@ -39,6 +39,7 @@ import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.Observer;
 import com.netease.nimlib.sdk.RequestCallback;
 import com.netease.nimlib.sdk.RequestCallbackWrapper;
+import com.netease.nimlib.sdk.ResponseCode;
 import com.netease.nimlib.sdk.avchat.model.AVChatAttachment;
 import com.netease.nimlib.sdk.msg.MessageBuilder;
 import com.netease.nimlib.sdk.msg.MsgService;
@@ -88,6 +89,9 @@ public class MessageListPanel implements TAdapterDelegate {
     // 从服务器拉取消息记录
     private boolean remote;
 
+    // 初始时是否定位到指定消息
+    private boolean jump;
+
     // 语音转文字
     private VoiceTrans voiceTrans;
 
@@ -110,6 +114,7 @@ public class MessageListPanel implements TAdapterDelegate {
         this.rootView = rootView;
         this.recordOnly = recordOnly;
         this.remote = remote;
+        this.jump = anchor != null;
 
         init(anchor);
     }
@@ -143,6 +148,14 @@ public class MessageListPanel implements TAdapterDelegate {
         messageListView.setOnRefreshListener(new MessageLoader(anchor, remote));
     }
 
+    public void jumpReload() {
+        if (jump) {
+            jump = false;
+            items.clear();
+            messageListView.setOnRefreshListener(new MessageLoader(null, remote));
+        }
+    }
+
     private void init(IMMessage anchor) {
         initListView(anchor);
 
@@ -164,7 +177,7 @@ public class MessageListPanel implements TAdapterDelegate {
         messageListView = (MessageListView) rootView.findViewById(R.id.messageListView);
         messageListView.requestDisallowInterceptTouchEvent(true);
 
-        if (recordOnly && !remote) {
+        if (recordOnly && !remote || jump) {
             messageListView.setMode(AutoRefreshListView.Mode.BOTH);
         } else {
             messageListView.setMode(AutoRefreshListView.Mode.START);
@@ -212,6 +225,30 @@ public class MessageListPanel implements TAdapterDelegate {
                 ListViewUtil.scrollToPosition(messageListView, position, 0);
             }
         }, 200);
+    }
+
+    public void scrollToAnchor(final IMMessage anchor) {
+        if (anchor == null) {
+            return;
+        }
+
+        int position = -1;
+        for (int i = 0; i < items.size(); i++) {
+            if (items.get(i).getUuid().equals(anchor.getUuid())) {
+                position = i;
+                break;
+            }
+        }
+
+        if (position >= 0) {
+            final int jumpTo = position == 0 ? 0 : position + messageListView.getHeaderViewsCount();
+            uiHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    ListViewUtil.scrollToPosition(messageListView, jumpTo, jumpTo == 0 ? 0 : ScreenUtil.dip2px(30));
+                }
+            }, 30);
+        }
     }
 
     public void onIncomingMessage(List<IMMessage> messages) {
@@ -435,7 +472,12 @@ public class MessageListPanel implements TAdapterDelegate {
             if (remote) {
                 loadFromRemote();
             } else {
-                loadFromLocal(anchor == null ? QueryDirectionEnum.QUERY_OLD : QueryDirectionEnum.QUERY_NEW);
+                if (anchor == null) {
+                    loadFromLocal(QueryDirectionEnum.QUERY_OLD);
+                } else {
+                    // 加载指定anchor的上下文
+                    loadAnchorContext();
+                }
             }
         }
 
@@ -447,6 +489,38 @@ public class MessageListPanel implements TAdapterDelegate {
                 }
             }
         };
+
+        private void loadAnchorContext() {
+            // query old
+            this.direction = QueryDirectionEnum.QUERY_OLD;
+            messageListView.onRefreshStart(AutoRefreshListView.Mode.START);
+            NIMClient.getService(MsgService.class).queryMessageListEx(anchor(), direction, LOAD_MESSAGE_COUNT, true)
+                    .setCallback(new RequestCallbackWrapper<List<IMMessage>>() {
+                        @Override
+                        public void onResult(int code, List<IMMessage> messages, Throwable exception) {
+                            if (code != ResponseCode.RES_SUCCESS || exception != null) {
+                                return;
+                            }
+                            onMessageLoaded(messages);
+
+                            // query new
+                            direction = QueryDirectionEnum.QUERY_NEW;
+                            messageListView.onRefreshStart(AutoRefreshListView.Mode.END);
+                            NIMClient.getService(MsgService.class).queryMessageListEx(anchor(), direction, LOAD_MESSAGE_COUNT, true)
+                                    .setCallback(new RequestCallbackWrapper<List<IMMessage>>() {
+                                        @Override
+                                        public void onResult(int code, List<IMMessage> messages, Throwable exception) {
+                                            if (code != ResponseCode.RES_SUCCESS || exception != null) {
+                                                return;
+                                            }
+                                            onMessageLoaded(messages);
+                                            // scroll to position
+                                            scrollToAnchor(anchor);
+                                        }
+                                    });
+                        }
+                    });
+        }
 
         private void loadFromLocal(QueryDirectionEnum direction) {
             this.direction = direction;

@@ -20,6 +20,7 @@ import com.netease.nimlib.sdk.Observer;
 import com.netease.nimlib.sdk.msg.MsgServiceObserve;
 import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.msg.model.CustomNotification;
+import com.netease.nimlib.sdk.msg.model.IMMessage;
 
 import java.util.List;
 
@@ -33,10 +34,13 @@ public class P2PMessageActivity extends BaseMessageActivity {
 
     private boolean isResume = false;
 
-    public static void start(Context context, String contactId, SessionCustomization customization) {
+    public static void start(Context context, String contactId, SessionCustomization customization, IMMessage anchor) {
         Intent intent = new Intent();
         intent.putExtra(Extras.EXTRA_ACCOUNT, contactId);
         intent.putExtra(Extras.EXTRA_CUSTOMIZATION, customization);
+        if (anchor != null) {
+            intent.putExtra(Extras.EXTRA_ANCHOR, anchor);
+        }
         intent.setClass(context, P2PMessageActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 

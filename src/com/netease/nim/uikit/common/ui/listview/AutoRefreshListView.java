@@ -205,6 +205,11 @@ public class AutoRefreshListView extends ListView {
         }
     }
 
+    public void onRefreshComplete() {
+        state = State.RESET;
+        updateRefreshView();
+    }
+
     private void resetRefreshView(int count, int requestCount) {
         if (currentMode == Mode.START) {
             /** 如果是第一次加载，如果count<requestCount, 表示没有数据了。

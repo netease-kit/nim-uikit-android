@@ -212,4 +212,10 @@
     <string name="download_picture_fail">图片下载失败</string>
     <string name="look_up_original_photo_format">查看原图（%s）</string>
 
+    <!--全文检索-->
+    <string name="fts_enable">全文检索(FTS4)</string>
+    <string name="fts_prefix_hit">前缀匹配高亮检索结果</string>
+    <string name="msg_search">全文检索</string>
+    <string name="msg_search_limit">全文检索显示条数</string>
+
 </resources>

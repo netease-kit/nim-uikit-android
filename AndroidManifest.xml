@@ -131,5 +131,11 @@
             android:name="com.netease.nim.uikit.session.activity.WatchMessagePictureActivity"
             android:configChanges="keyboardHidden"
             android:theme="@style/AppTheme.NoActionBar"/>
+
+        <!-- 批量测试消息-->
+        <activity
+            android:name="com.netease.nim.uikit.common.util.test.MassMessageActivity"
+            android:configChanges="keyboardHidden"
+            android:theme="@style/AppTheme.NoActionBar"/>
     </application>
 </manifest>

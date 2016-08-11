@@ -18,6 +18,11 @@ public interface IContact {
          * TYPE TEAM MEMBER
          */
         int TeamMember = 0x03;
+
+        /**
+         * TYPE_MSG
+         */
+        int Msg = 0x04;
     }
 
     /**

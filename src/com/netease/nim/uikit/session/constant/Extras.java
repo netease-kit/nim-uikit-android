@@ -27,6 +27,7 @@ public interface Extras {
     // 参数
     String EXTRA_ACCOUNT = "account";
     String EXTRA_TYPE = "type";
+    String EXTRA_ANCHOR = "anchor";
 
     String EXTRA_CUSTOMIZATION = "customization";
     String EXTRA_BACK_TO_CLASS = "backToClass";

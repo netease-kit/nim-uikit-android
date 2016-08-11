@@ -61,8 +61,7 @@ public class ContactDataAdapter extends BaseAdapter {
 
     private ContactItemFilter disableFilter;
 
-    public ContactDataAdapter(Context context,
-                              ContactGroupStrategy groupStrategy, IContactDataProvider dataProvider) {
+    public ContactDataAdapter(Context context, ContactGroupStrategy groupStrategy, IContactDataProvider dataProvider) {
         this.context = context;
         this.groupStrategy = groupStrategy;
         this.dataProvider = dataProvider;
@@ -219,7 +218,7 @@ public class ContactDataAdapter extends BaseAdapter {
     private void startTask(TextQuery query, boolean abort) {
         if (abort) {
             for (Task task : tasks) {
-                task.cancel(true);
+                task.cancel(false); // 设为true有风险！
             }
         }
 

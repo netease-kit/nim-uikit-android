@@ -35,6 +35,8 @@ public class ContactDataProvider implements IContactDataProvider {
             case ItemTypes.TEAMS.ADVANCED_TEAM:
             case ItemTypes.TEAMS.NORMAL_TEAM:
                 return TeamDataProvider.provide(query, itemType);
+            case ItemTypes.MSG:
+                return MsgDataProvider.provide(query);
             default:
                 return new ArrayList<>();
         }

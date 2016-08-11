@@ -126,8 +126,8 @@ public class TimeUtil {
     }
 
     public static String getTimeShowString(long milliseconds, boolean abbreviate) {
-        String dataString = "";
-        String timeStringBy24 = "";
+        String dataString;
+        String timeStringBy24;
 
         Date currentTime = new Date(milliseconds);
         Date today = new Date();

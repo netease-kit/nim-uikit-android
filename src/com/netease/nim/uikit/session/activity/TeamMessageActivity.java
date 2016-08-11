@@ -18,6 +18,7 @@ import com.netease.nim.uikit.session.constant.Extras;
 import com.netease.nim.uikit.session.fragment.MessageFragment;
 import com.netease.nim.uikit.session.fragment.TeamMessageFragment;
 import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
+import com.netease.nimlib.sdk.msg.model.IMMessage;
 import com.netease.nimlib.sdk.team.constant.TeamTypeEnum;
 import com.netease.nimlib.sdk.team.model.Team;
 import com.netease.nimlib.sdk.team.model.TeamMember;
@@ -42,11 +43,15 @@ public class TeamMessageActivity extends BaseMessageActivity {
 
     private Class<? extends Activity> backToClass;
 
-    public static void start(Context context, String tid, SessionCustomization customization, Class<? extends Activity> backToClass) {
+    public static void start(Context context, String tid, SessionCustomization customization,
+                             Class<? extends Activity> backToClass, IMMessage anchor) {
         Intent intent = new Intent();
         intent.putExtra(Extras.EXTRA_ACCOUNT, tid);
         intent.putExtra(Extras.EXTRA_CUSTOMIZATION, customization);
         intent.putExtra(Extras.EXTRA_BACK_TO_CLASS, backToClass);
+        if (anchor != null) {
+            intent.putExtra(Extras.EXTRA_ANCHOR, anchor);
+        }
         intent.setClass(context, TeamMessageActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 

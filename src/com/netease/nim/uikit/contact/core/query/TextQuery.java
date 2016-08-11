@@ -15,6 +15,8 @@ public final class TextQuery {
 
 	public boolean pinyin;
 
+	public Object[] extra;
+
 	public TextQuery(String text) {
 		this(text, false);
 	}
