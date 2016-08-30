@@ -25,10 +25,12 @@ import com.netease.nim.uikit.common.ui.listview.ListViewUtil;
 import com.netease.nim.uikit.common.ui.listview.MessageListView;
 import com.netease.nim.uikit.common.util.media.BitmapDecoder;
 import com.netease.nim.uikit.common.util.sys.ClipboardUtil;
+import com.netease.nim.uikit.common.util.sys.NetworkUtil;
 import com.netease.nim.uikit.common.util.sys.ScreenUtil;
 import com.netease.nim.uikit.contact_selector.activity.ContactSelectActivity;
 import com.netease.nim.uikit.session.activity.VoiceTrans;
 import com.netease.nim.uikit.session.audio.MessageAudioControl;
+import com.netease.nim.uikit.session.helper.MessageHelper;
 import com.netease.nim.uikit.session.helper.MessageListPanelHelper;
 import com.netease.nim.uikit.session.module.Container;
 import com.netease.nim.uikit.session.viewholder.MsgViewHolderBase;
@@ -59,6 +61,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -263,6 +266,7 @@ public class MessageListPanel implements TAdapterDelegate {
             }
         }
         if (needRefresh) {
+            sortMessages(items);
             adapter.notifyDataSetChanged();
         }
 
@@ -292,6 +296,25 @@ public class MessageListPanel implements TAdapterDelegate {
     }
 
     /**
+     * **************************** 排序 ***********************************
+     */
+    private void sortMessages(List<IMMessage> list) {
+        if (list.size() == 0) {
+            return;
+        }
+        Collections.sort(list, comp);
+    }
+
+    private static Comparator<IMMessage> comp = new Comparator<IMMessage>() {
+
+        @Override
+        public int compare(IMMessage o1, IMMessage o2) {
+            long time = o1.getTime() - o2.getTime();
+            return time == 0 ? 0 : (time < 0 ? -1 : 1);
+        }
+    };
+
+    /**
      * *************** implements TAdapterDelegate ***************
      */
     @Override
@@ -317,6 +340,7 @@ public class MessageListPanel implements TAdapterDelegate {
         MsgServiceObserve service = NIMClient.getService(MsgServiceObserve.class);
         service.observeMsgStatus(messageStatusObserver, register);
         service.observeAttachmentProgress(attachmentProgressObserver, register);
+        service.observeRevokeMessage(revokeMessageObserver, register);
         if (register) {
             registerUserInfoObserver();
         } else {
@@ -365,6 +389,20 @@ public class MessageListPanel implements TAdapterDelegate {
         public void onClearMessages(String account) {
             items.clear();
             refreshMessageList();
+        }
+    };
+
+    /**
+     * 消息撤回观察者
+     */
+    Observer<IMMessage> revokeMessageObserver = new Observer<IMMessage>() {
+        @Override
+        public void onEvent(IMMessage message) {
+            if (message == null || !container.account.equals(message.getSessionId())) {
+                return;
+            }
+
+            deleteItem(message, false);
         }
     };
 
@@ -719,15 +757,20 @@ public class MessageListPanel implements TAdapterDelegate {
             longClickItemResend(selectedItem, alertDialog);
             // 2 copy
             longClickItemCopy(selectedItem, alertDialog, msgType);
-            // 3 delete
+            // 3 revoke
+            if (selectedItem.getDirect() == MsgDirectionEnum.Out && selectedItem.getStatus() == MsgStatusEnum.success
+                    && !NimUIKit.getMsgRevokeFilter().shouldIgnore(selectedItem) && !recordOnly) {
+                longClickRevokeMsg(selectedItem, alertDialog);
+            }
+            // 4 delete
             longClickItemDelete(selectedItem, alertDialog);
-            // 4 trans
+            // 5 trans
             longClickItemVoidToText(selectedItem, alertDialog, msgType);
 
             if (!NimUIKit.getMsgForwardFilter().shouldIgnore(selectedItem) && !recordOnly) {
-                // 5 forward to person
+                // 6 forward to person
                 longClickItemForwardToPerson(selectedItem, alertDialog);
-                // 6 forward to team
+                // 7 forward to team
                 longClickItemForwardToTeam(selectedItem, alertDialog);
             }
         }
@@ -797,24 +840,10 @@ public class MessageListPanel implements TAdapterDelegate {
 
                 @Override
                 public void onClick() {
-                    deleteItem(selectedItem);
+                    deleteItem(selectedItem, true);
                 }
             });
         }
-
-        public void deleteItem(IMMessage messageItem) {
-            NIMClient.getService(MsgService.class).deleteChattingHistory(messageItem);
-            List<IMMessage> messages = new ArrayList<>();
-            for (IMMessage message : items) {
-                if (message.getUuid().equals(messageItem.getUuid())) {
-                    continue;
-                }
-                messages.add(message);
-            }
-            updateReceipt(messages);
-            adapter.deleteItem(messageItem);
-        }
-
 
         // 长按菜单项 -- 音频转文字
         private void longClickItemVoidToText(final IMMessage item, CustomAlertDialog alertDialog, MsgTypeEnum msgType) {
@@ -902,6 +931,42 @@ public class MessageListPanel implements TAdapterDelegate {
                 }
             });
         }
+
+        // 长按菜单项 -- 撤回消息
+        private void longClickRevokeMsg(final IMMessage item, CustomAlertDialog alertDialog) {
+            alertDialog.addItem(container.activity.getString(R.string.withdrawn_msg), new CustomAlertDialog.onSeparateItemClickListener() {
+
+                @Override
+                public void onClick() {
+                    if (!NetworkUtil.isNetAvailable(container.activity)) {
+                        Toast.makeText(container.activity, R.string.network_is_not_available, Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    NIMClient.getService(MsgService.class).revokeMessage(item).setCallback(new RequestCallback<Void>() {
+                        @Override
+                        public void onSuccess(Void param) {
+                            deleteItem(item, false);
+                            MessageHelper.getInstance().onRevokeMessage(item);
+                        }
+
+                        @Override
+                        public void onFailed(int code) {
+                            if (code == ResponseCode.RES_OVERDUE) {
+                                Toast.makeText(container.activity, R.string.revoke_failed, Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(container.activity, "revoke msg failed, code:" + code, Toast.LENGTH_SHORT).show();
+                            }
+                        }
+
+                        @Override
+                        public void onException(Throwable exception) {
+
+                        }
+                    });
+                }
+            });
+        }
+
     }
 
     private void setEarPhoneMode(boolean earPhoneMode) {
@@ -1028,6 +1093,20 @@ public class MessageListPanel implements TAdapterDelegate {
         }
 
         return true;
+    }
+
+    // 删除消息
+    private void deleteItem(IMMessage messageItem, boolean isRelocateTime) {
+        NIMClient.getService(MsgService.class).deleteChattingHistory(messageItem);
+        List<IMMessage> messages = new ArrayList<>();
+        for (IMMessage message : items) {
+            if (message.getUuid().equals(messageItem.getUuid())) {
+                continue;
+            }
+            messages.add(message);
+        }
+        updateReceipt(messages);
+        adapter.deleteItem(messageItem, isRelocateTime);
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {

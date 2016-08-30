@@ -11,6 +11,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.cache.FriendDataCache;
@@ -24,10 +25,12 @@ import com.netease.nim.uikit.recent.viewholder.CommonRecentViewHolder;
 import com.netease.nim.uikit.recent.viewholder.RecentContactAdapter;
 import com.netease.nim.uikit.recent.viewholder.RecentViewHolder;
 import com.netease.nim.uikit.recent.viewholder.TeamRecentViewHolder;
+import com.netease.nim.uikit.session.helper.MessageHelper;
 import com.netease.nim.uikit.uinfo.UserInfoHelper;
 import com.netease.nim.uikit.uinfo.UserInfoObservable;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.Observer;
+import com.netease.nimlib.sdk.RequestCallback;
 import com.netease.nimlib.sdk.RequestCallbackWrapper;
 import com.netease.nimlib.sdk.ResponseCode;
 import com.netease.nimlib.sdk.msg.MsgService;
@@ -210,6 +213,30 @@ public class RecentContactsFragment extends TFragment implements TAdapterDelegat
                 refreshMessages(false);
             }
         });
+
+        alertDialog.addItem("删除该聊天（仅服务器）", new onSeparateItemClickListener() {
+            @Override
+            public void onClick() {
+                NIMClient.getService(MsgService.class)
+                        .deleteRoamingRecentContact(recent.getContactId(), recent.getSessionType())
+                        .setCallback(new RequestCallback<Void>() {
+                            @Override
+                            public void onSuccess(Void param) {
+                                Toast.makeText(getActivity(), "delete success", Toast.LENGTH_SHORT).show();
+                            }
+
+                            @Override
+                            public void onFailed(int code) {
+                                Toast.makeText(getActivity(), "delete failed, code:" + code, Toast.LENGTH_SHORT).show();
+                            }
+
+                            @Override
+                            public void onException(Throwable exception) {
+
+                            }
+                        });
+            }
+        });
         alertDialog.show();
     }
 
@@ -331,6 +358,7 @@ public class RecentContactsFragment extends TFragment implements TAdapterDelegat
         service.observeRecentContact(messageObserver, register);
         service.observeMsgStatus(statusObserver, register);
         service.observeRecentContactDeleted(deleteObserver, register);
+        service.observeRevokeMessage(revokeMessageObserver, register);
         registerTeamUpdateObserver(register);
         registerTeamMemberUpdateObserver(register);
         FriendDataCache.getInstance().registerFriendDataChangedObserver(friendDataChangedObserver, register);
@@ -413,6 +441,17 @@ public class RecentContactsFragment extends TFragment implements TAdapterDelegat
                 items.clear();
                 refreshMessages(true);
             }
+        }
+    };
+
+    Observer<IMMessage> revokeMessageObserver = new Observer<IMMessage>() {
+        @Override
+        public void onEvent(IMMessage message) {
+            if (message == null) {
+                return;
+            }
+
+            MessageHelper.getInstance().onRevokeMessage(message);
         }
     };
 

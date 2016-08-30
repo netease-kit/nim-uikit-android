@@ -185,7 +185,6 @@ public class P2PMessageActivity extends BaseMessageActivity {
     @Override
     protected void initToolBar() {
         ToolBarOptions options = new ToolBarOptions();
-        options.titleString = UserInfoHelper.getUserTitleName(sessionId, SessionTypeEnum.P2P);
         setToolBar(R.id.toolbar, options);
     }
 }

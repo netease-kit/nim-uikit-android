@@ -1,14 +1,23 @@
 package com.netease.nim.uikit.recent.viewholder;
 
+import android.text.TextUtils;
+
 import com.netease.nim.uikit.NimUIKit;
 import com.netease.nim.uikit.common.util.sys.TimeUtil;
 import com.netease.nim.uikit.session.helper.TeamNotificationHelper;
+import com.netease.nimlib.sdk.NIMClient;
+import com.netease.nimlib.sdk.RequestCallback;
 import com.netease.nimlib.sdk.avchat.constant.AVChatRecordState;
 import com.netease.nimlib.sdk.avchat.constant.AVChatType;
 import com.netease.nimlib.sdk.avchat.model.AVChatAttachment;
+import com.netease.nimlib.sdk.msg.MsgService;
 import com.netease.nimlib.sdk.msg.attachment.MsgAttachment;
 import com.netease.nimlib.sdk.msg.attachment.NotificationAttachment;
 import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
+import com.netease.nimlib.sdk.msg.model.IMMessage;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class CommonRecentViewHolder extends RecentViewHolder {
 
@@ -63,6 +72,12 @@ public class CommonRecentViewHolder extends RecentViewHolder {
             case file:
                 return "[文件]";
             case tip:
+                List<String> uuids = new ArrayList<>();
+                uuids.add(recent.getRecentMessageId());
+                List<IMMessage> messages = NIMClient.getService(MsgService.class).queryMessageListByUuidBlock(uuids);
+                if (messages != null && messages.size() > 0) {
+                    return messages.get(0).getContent();
+                }
                 return "[通知提醒]";
             case notification:
                 return TeamNotificationHelper.getTeamNotificationText(recent.getContactId(),

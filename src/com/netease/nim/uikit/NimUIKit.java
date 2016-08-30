@@ -20,6 +20,7 @@ import com.netease.nim.uikit.session.activity.P2PMessageActivity;
 import com.netease.nim.uikit.session.activity.TeamMessageActivity;
 import com.netease.nim.uikit.session.emoji.StickerManager;
 import com.netease.nim.uikit.session.module.MsgForwardFilter;
+import com.netease.nim.uikit.session.module.MsgRevokeFilter;
 import com.netease.nim.uikit.session.viewholder.MsgViewHolderBase;
 import com.netease.nim.uikit.session.viewholder.MsgViewHolderFactory;
 import com.netease.nim.uikit.team.activity.AdvancedTeamInfoActivity;
@@ -65,6 +66,9 @@ public final class NimUIKit {
 
     // 转发消息过滤器
     private static MsgForwardFilter msgForwardFilter;
+
+    // 撤回消息过滤器
+    private static MsgRevokeFilter msgRevokeFilter;
 
     /**
      * 初始化UIKit，须传入context以及用户信息提供者
@@ -285,5 +289,21 @@ public final class NimUIKit {
      */
     public static MsgForwardFilter getMsgForwardFilter() {
         return msgForwardFilter;
+    }
+
+    /**
+     * 设置消息撤回的监听器
+     * @param msgRevokeFilter
+     */
+    public static void setMsgRevokeFilter(MsgRevokeFilter msgRevokeFilter) {
+        NimUIKit.msgRevokeFilter = msgRevokeFilter;
+    }
+
+    /**
+     * 获取消息撤回的监听器
+     * @return
+     */
+    public static MsgRevokeFilter getMsgRevokeFilter() {
+        return msgRevokeFilter;
     }
 }

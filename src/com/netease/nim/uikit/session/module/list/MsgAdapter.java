@@ -35,7 +35,7 @@ public class MsgAdapter extends TAdapter<IMMessage> {
         return eventListener;
     }
 
-    public void deleteItem(IMMessage message) {
+    public void deleteItem(IMMessage message, boolean isRelocateTime) {
         if (message == null) {
             return;
         }
@@ -50,7 +50,9 @@ public class MsgAdapter extends TAdapter<IMMessage> {
 
         if (index < getCount()) {
             getItems().remove(index);
-            relocateShowTimeItemAfterDelete(message, index);
+            if (isRelocateTime) {
+                relocateShowTimeItemAfterDelete(message, index);
+            }
             notifyDataSetChanged();
         }
     }
@@ -105,7 +107,12 @@ public class MsgAdapter extends TAdapter<IMMessage> {
                 long time = anchor.getTime();
                 long now = message.getTime();
 
-                if (now - time < (long) (5 * 60 * 1000)) {
+                if (now - time == 0) {
+                    // 消息撤回时使用
+                    setShowTime(message, true);
+                    lastShowTimeItem = message;
+                    update = true;
+                } else if (now - time < (long) (5 * 60 * 1000)) {
                     setShowTime(message, false);
                 } else {
                     setShowTime(message, true);

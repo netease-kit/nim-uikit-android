@@ -33,6 +33,7 @@
     <string name="voice_to_text">转文字</string>
     <string name="forward_to_person">转发到个人</string>
     <string name="forward_to_team">转发到群组</string>
+    <string name="withdrawn_msg">撤 回</string>
     <string name="save">保存</string>
     <string name="main_msg_list_delete_chatting">删除该聊天</string>
     <string name="main_msg_list_sticky_on_top">置顶该聊天</string>
@@ -50,6 +51,7 @@
     <string name="send">发送</string>
     <string name="unsupport_title">无法显示该内容</string>
     <string name="unsupport_desc">客户端版本不支持该内容</string>
+    <string name="revoke_failed">发送时间超过2分钟的消息，不能被撤回</string>
 
     <!-- 语音 -->
     <string name="record_audio">按住 说话</string>
