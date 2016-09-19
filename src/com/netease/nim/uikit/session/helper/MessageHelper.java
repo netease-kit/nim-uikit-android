@@ -42,6 +42,6 @@ public class MessageHelper {
         CustomMessageConfig config = new CustomMessageConfig();
         config.enableUnreadCount = false;
         message.setConfig(config);
-        NIMClient.getService(MsgService.class).saveMessageToLocal(message, true, item.getTime());
+        NIMClient.getService(MsgService.class).saveMessageToLocalEx(message, true, item.getTime());
     }
 }

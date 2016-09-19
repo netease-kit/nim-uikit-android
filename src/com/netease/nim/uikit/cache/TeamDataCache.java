@@ -37,7 +37,9 @@ public class TeamDataCache {
     }
 
     public void buildCache() {
-        List<Team> teams = NIMClient.getService(TeamService.class).queryTeamListBlock();
+        final List<Team> teams = NIMClient.getService(TeamService.class).queryTeamListBlock();
+        LogUtil.i(UIKitLogTag.TEAM_CACHE, "start build TeamDataCache");
+
         addOrUpdateTeam(teams);
 
         LogUtil.i(UIKitLogTag.TEAM_CACHE, "build TeamDataCache completed, team count = " + teams.size());
@@ -78,7 +80,10 @@ public class TeamDataCache {
     // 群资料变动观察者通知。新建群和群更新的通知都通过该接口传递
     private Observer<List<Team>> teamUpdateObserver = new Observer<List<Team>>() {
         @Override
-        public void onEvent(List<Team> teams) {
+        public void onEvent(final List<Team> teams) {
+            if (teams != null) {
+                LogUtil.i(UIKitLogTag.TEAM_CACHE, "team update size:" + teams.size());
+            }
             addOrUpdateTeam(teams);
             notifyTeamDataUpdate(teams);
         }
