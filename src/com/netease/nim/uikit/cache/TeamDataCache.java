@@ -253,7 +253,7 @@ public class TeamDataCache {
         return teams;
     }
 
-    private void addOrUpdateTeam(Team team) {
+    public void addOrUpdateTeam(Team team) {
         if (team == null) {
             return;
         }

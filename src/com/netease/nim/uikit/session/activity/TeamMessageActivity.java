@@ -17,8 +17,10 @@ import com.netease.nim.uikit.session.SessionCustomization;
 import com.netease.nim.uikit.session.constant.Extras;
 import com.netease.nim.uikit.session.fragment.MessageFragment;
 import com.netease.nim.uikit.session.fragment.TeamMessageFragment;
+import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
+import com.netease.nimlib.sdk.team.TeamService;
 import com.netease.nimlib.sdk.team.constant.TeamTypeEnum;
 import com.netease.nimlib.sdk.team.model.Team;
 import com.netease.nimlib.sdk.team.model.TeamMember;
@@ -91,8 +93,9 @@ public class TeamMessageActivity extends BaseMessageActivity {
      */
     private void requestTeamInfo() {
         // 请求群基本信息
-        Team t = TeamDataCache.getInstance().getTeamById(sessionId);
+        Team t = NIMClient.getService(TeamService.class).queryTeamBlock(sessionId);
         if (t != null) {
+            TeamDataCache.getInstance().addOrUpdateTeam(t);
             updateTeamInfo(t);
         } else {
             TeamDataCache.getInstance().fetchTeamById(sessionId, new SimpleCallback<Team>() {
