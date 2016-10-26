@@ -502,7 +502,9 @@ public class NormalTeamInfoActivity extends UI implements OnClickListener, TAdap
         }
 
         // refresh
-        adapter.notifyDataSetChanged();
+        if (adapter.getMode() != TeamMemberAdapter.Mode.DELETE) {
+            adapter.notifyDataSetChanged();
+        }
     }
 
     private void removeMember(String account) {

@@ -8,7 +8,7 @@
         android:id="@+id/nim_message_item_text_body"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:autoLink="phone|email|map|web"
+        android:autoLink="phone|email|web"
         android:gravity="center_vertical|left"
         android:includeFontPadding="false"
         android:lineSpacingExtra="3dip"

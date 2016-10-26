@@ -111,6 +111,14 @@ public abstract class UI extends AppCompatActivity {
         return toolbar;
     }
 
+    public int getToolBarHeight() {
+        if (toolbar != null) {
+            return toolbar.getHeight();
+        }
+
+        return 0;
+    }
+
     public void onNavigateUpClicked() {
         onBackPressed();
     }

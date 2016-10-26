@@ -32,17 +32,17 @@ public class PickImageHelper {
         public int multiSelectMaxCount = 9;
 
         /**
-         * 是否进行图片裁剪
+         * 是否进行图片裁剪(图片选择模式：false / 图片裁剪模式：true)
          */
         public boolean crop = false;
 
         /**
-         * 图片裁剪的宽度（裁剪时有效）
+         * 图片裁剪的宽度（裁剪模式时有效）
          */
         public int cropOutputImageWidth = 720;
 
         /**
-         * 图片裁剪的高度（裁剪时有效）
+         * 图片裁剪的高度（裁剪模式时有效）
          */
         public int cropOutputImageHeight = 720;
 
@@ -69,7 +69,7 @@ public class PickImageHelper {
                 int from = PickImageActivity.FROM_CAMERA;
                 if (!option.crop) {
                     PickImageActivity.start((Activity) context, requestCode, from, option.outputPath, option.multiSelect, 1,
-                            false, false, 0, 0);
+                            true, false, 0, 0);
                 } else {
                     PickImageActivity.start((Activity) context, requestCode, from, option.outputPath, false, 1,
                             false, true, option.cropOutputImageWidth, option.cropOutputImageHeight);
@@ -85,7 +85,7 @@ public class PickImageHelper {
                 int from = PickImageActivity.FROM_LOCAL;
                 if (!option.crop) {
                     PickImageActivity.start((Activity) context, requestCode, from, option.outputPath, option.multiSelect,
-                            option.multiSelectMaxCount, false, false, 0, 0);
+                            option.multiSelectMaxCount, true, false, 0, 0);
                 } else {
                     PickImageActivity.start((Activity) context, requestCode, from, option.outputPath, false, 1,
                             false, true, option.cropOutputImageWidth, option.cropOutputImageHeight);

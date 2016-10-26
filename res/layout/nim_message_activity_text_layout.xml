@@ -62,7 +62,7 @@
         android:layout_marginRight="@dimen/bottom_component_margin_horizontal"
         android:layout_toLeftOf="@+id/emoji_button"
         android:layout_toRightOf="@+id/switchLayout"
-        android:autoLink="all"
+        android:autoLink="web|email|phone"
         android:background="@drawable/nim_message_input_edittext_box"
         android:maxHeight="72dip"
         android:maxLines="4"

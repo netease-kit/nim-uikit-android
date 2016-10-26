@@ -98,8 +98,9 @@ public class HeadImageView extends CircleImageView {
 
         // 判断是否需要ImageLoader加载
         boolean needLoad = team != null && ImageLoaderKit.isImageUriValid(team.getIcon());
-
-        doLoadImage(needLoad, team != null ? team.getId() : null, team.getIcon(), DEFAULT_AVATAR_THUMB_SIZE);
+        String tag = team != null ? team.getId() : null;
+        String url = team != null ? team.getIcon() : null;
+        doLoadImage(needLoad, tag, url, DEFAULT_AVATAR_THUMB_SIZE);
     }
 
     /**

@@ -8,6 +8,7 @@ import com.netease.nim.uikit.cache.TeamDataCache;
 import com.netease.nimlib.sdk.msg.attachment.NotificationAttachment;
 import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
+import com.netease.nimlib.sdk.team.constant.TeamAllMuteModeEnum;
 import com.netease.nimlib.sdk.team.constant.TeamFieldEnum;
 import com.netease.nimlib.sdk.team.constant.TeamTypeEnum;
 import com.netease.nimlib.sdk.team.constant.VerifyTypeEnum;
@@ -194,6 +195,13 @@ public class TeamNotificationHelper {
                 sb.append("群被邀请人身份验证权限被更新为 " + field.getValue());
             } else if (field.getKey() == TeamFieldEnum.TeamExtensionUpdateMode) {
                 sb.append("群扩展字段修改权限被更新为 " + field.getValue());
+            } else if (field.getKey() == TeamFieldEnum.AllMute) {
+                TeamAllMuteModeEnum teamAllMuteModeEnum = (TeamAllMuteModeEnum) field.getValue();
+                if (teamAllMuteModeEnum == TeamAllMuteModeEnum.Cancel) {
+                    sb.append("取消群全员禁言");
+                } else {
+                    sb.append("群全员禁言");
+                }
             } else {
                 sb.append("群" + field.getKey() + "被更新为 " + field.getValue());
             }

@@ -5,6 +5,7 @@ import com.netease.nim.uikit.contact.core.provider.ContactSearch.HitInfo.Type;
 import com.netease.nim.uikit.contact.core.query.TextQuery;
 import com.netease.nim.uikit.contact.core.query.TextSearcher;
 import com.netease.nim.uikit.cache.TeamDataCache;
+import com.netease.nimlib.sdk.friend.model.Friend;
 import com.netease.nimlib.sdk.team.model.Team;
 import com.netease.nimlib.sdk.team.model.TeamMember;
 import com.netease.nimlib.sdk.uinfo.UserInfoProvider;
@@ -37,6 +38,13 @@ public class ContactSearch {
         String name = contact.getName();
 
         return TextSearcher.contains(query.t9, name, query.text) || TextSearcher.contains(query.t9, account, query.text);
+    }
+
+    public static final boolean hitFriend(Friend friend, TextQuery query) {
+        String account = friend.getAccount();
+        String alias = friend.getAlias();
+
+        return TextSearcher.contains(query.t9, account, query.text) || TextSearcher.contains(query.t9, alias, query.text);
     }
 
     public static final boolean hitTeam(Team contact, TextQuery query) {

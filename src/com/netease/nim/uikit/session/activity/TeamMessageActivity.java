@@ -112,7 +112,7 @@ public class TeamMessageActivity extends BaseMessageActivity {
     }
 
     private void onRequestTeamInfoFailed() {
-        Toast.makeText(TeamMessageActivity.this, "获取群组信息失败!", Toast.LENGTH_SHORT);
+        Toast.makeText(TeamMessageActivity.this, "获取群组信息失败!", Toast.LENGTH_SHORT).show();
         finish();
     }
 

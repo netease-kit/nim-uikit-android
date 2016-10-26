@@ -411,6 +411,7 @@ public class InputPanel implements IEmoticonSelectedListener, IAudioRecordCallba
         uiHandler.postDelayed(showEmojiRunnable, 200);
         emoticonPickerView.setVisibility(View.VISIBLE);
         emoticonPickerView.show(this);
+        container.proxy.onInputPanelExpand();
     }
 
     // 初始化更多布局

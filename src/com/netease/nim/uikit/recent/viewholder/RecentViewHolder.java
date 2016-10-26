@@ -1,5 +1,6 @@
 package com.netease.nim.uikit.recent.viewholder;
 
+import android.graphics.drawable.AnimationDrawable;
 import android.text.style.ImageSpan;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -10,6 +11,8 @@ import android.widget.TextView;
 import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.cache.TeamDataCache;
 import com.netease.nim.uikit.common.adapter.TViewHolder;
+import com.netease.nim.uikit.common.ui.drop.DropFake;
+import com.netease.nim.uikit.common.ui.drop.DropManager;
 import com.netease.nim.uikit.common.ui.imageview.HeadImageView;
 import com.netease.nim.uikit.common.util.sys.ScreenUtil;
 import com.netease.nim.uikit.common.util.sys.TimeUtil;
@@ -32,10 +35,6 @@ public abstract class RecentViewHolder extends TViewHolder implements OnClickLis
 
     protected TextView tvMessage;
 
-    protected TextView tvUnread;
-
-    protected View unreadIndicator;
-
     protected TextView tvDatetime;
 
     // 消息发送错误状态标记，目前没有逻辑处理
@@ -44,22 +43,41 @@ public abstract class RecentViewHolder extends TViewHolder implements OnClickLis
     protected RecentContact recent;
 
     protected View bottomLine;
+
     protected View topLine;
+
+    // 未读红点（一个占坑，一个全屏动画）
+    protected DropFake tvUnread;
+
+    private ImageView imgUnreadExplosion;
 
     protected abstract String getContent();
 
     public void refresh(Object item) {
+        boolean flag = recent != null && recent.getUnreadCount() > 0;
+
         recent = (RecentContact) item;
+
+        flag = flag && recent.getUnreadCount() == 0; // 未读数从N->0执行爆裂动画
 
         updateBackground();
 
         loadPortrait();
 
-        updateNewIndicator();
-
         updateNickLabel(UserInfoHelper.getUserTitleName(recent.getContactId(), recent.getSessionType()));
 
         updateMsgLabel();
+
+        updateNewIndicator();
+
+        if (flag) {
+            Object o = DropManager.getInstance().getCurrentId();
+            if (o instanceof String && o.equals("0")) {
+                imgUnreadExplosion.setImageResource(R.drawable.explosion);
+                imgUnreadExplosion.setVisibility(View.VISIBLE);
+                ((AnimationDrawable) imgUnreadExplosion.getDrawable()).start();
+            }
+        }
     }
 
     public void refreshCurrentItem() {
@@ -138,12 +156,30 @@ public abstract class RecentViewHolder extends TViewHolder implements OnClickLis
         this.imgHead = (HeadImageView) view.findViewById(R.id.img_head);
         this.tvNickname = (TextView) view.findViewById(R.id.tv_nickname);
         this.tvMessage = (TextView) view.findViewById(R.id.tv_message);
-        this.tvUnread = (TextView) view.findViewById(R.id.unread_number_tip);
-        this.unreadIndicator = view.findViewById(R.id.new_message_indicator);
+        this.tvUnread = (DropFake) view.findViewById(R.id.unread_number_tip);
+        this.imgUnreadExplosion = (ImageView) view.findViewById(R.id.unread_number_explosion);
         this.tvDatetime = (TextView) view.findViewById(R.id.tv_date_time);
         this.imgMsgStatus = (ImageView) view.findViewById(R.id.img_msg_status);
         this.bottomLine = view.findViewById(R.id.bottom_line);
         this.topLine = view.findViewById(R.id.top_line);
+
+        this.tvUnread.setClickListener(new DropFake.ITouchListener() {
+            @Override
+            public void onDown() {
+                DropManager.getInstance().setCurrentId(recent);
+                DropManager.getInstance().getDropCover().down(tvUnread, tvUnread.getText());
+            }
+
+            @Override
+            public void onMove(float curX, float curY) {
+                DropManager.getInstance().getDropCover().move(curX, curY);
+            }
+
+            @Override
+            public void onUp() {
+                DropManager.getInstance().getDropCover().up();
+            }
+        });
     }
 
     protected String unreadCountShowRule(int unread) {
@@ -152,7 +188,7 @@ public abstract class RecentViewHolder extends TViewHolder implements OnClickLis
     }
 
     protected RecentContactsCallback getCallback() {
-        return ((RecentContactAdapter)getAdapter()).getCallback();
+        return ((RecentContactAdapter) getAdapter()).getCallback();
     }
 
     @Override

@@ -58,7 +58,7 @@ public class AnnouncementHelper {
                 String id = json.getString(JSON_KEY_ID);
                 String creator = json.getString(JSON_KEY_CREATOR);
                 String title = json.getString(JSON_KEY_TITLE);
-                long time = json.getLong(JSON_KEY_TIME);
+                long time = json.getLongValue(JSON_KEY_TIME);
                 String content = json.getString(JSON_KEY_CONTENT);
 
                 announcements.add(new Announcement(id, teamId, creator, title, time, content));

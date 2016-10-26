@@ -8,6 +8,7 @@ import android.support.v4.app.Fragment;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
+import com.netease.nim.uikit.common.activity.UI;
 import com.netease.nim.uikit.common.util.log.LogUtil;
 
 public abstract class TFragment extends Fragment {
@@ -125,5 +126,16 @@ public abstract class TFragment extends Fragment {
 
     protected <T extends View> T findView(int resId) {
         return (T) (getView().findViewById(resId));
+    }
+
+    protected void setToolBar(int toolbarId, int titleId, int logoId) {
+        if (getActivity() != null && getActivity() instanceof UI) {
+            ((UI)getActivity()).setToolBar(toolbarId, titleId, logoId);
+        }
+    }
+    protected void setTitle(int titleId) {
+        if (getActivity() != null && getActivity() instanceof UI) {
+            getActivity().setTitle(titleId);
+        }
     }
 }

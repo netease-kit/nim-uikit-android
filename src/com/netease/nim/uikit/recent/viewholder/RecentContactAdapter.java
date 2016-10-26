@@ -10,7 +10,7 @@ import com.netease.nimlib.sdk.msg.model.RecentContact;
 import java.util.List;
 
 /**
- * 最近联系人列表的adapter，管理了一个callback
+ * 最近联系人列表的adapter，管理了一个callback，新增红点拖拽控件
  */
 public class RecentContactAdapter extends TAdapter<RecentContact> {
 

@@ -40,7 +40,7 @@ public class MsgViewHolderLocation extends MsgViewHolderBase {
         setLayoutParams(width, height, mapView);
         setLayoutParams(width, (int) (0.38 * height), addressText);
 
-        mapView.loadAsResource(R.drawable.nim_location_bk, width, height, R.drawable.nim_message_item_round_bg);
+        mapView.loadAsResource(R.drawable.nim_location_bk, R.drawable.nim_message_item_round_bg);
     }
 
     @Override

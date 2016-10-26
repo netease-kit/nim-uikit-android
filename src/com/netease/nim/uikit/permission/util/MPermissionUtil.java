@@ -81,10 +81,9 @@ final public class MPermissionUtil {
 
     public static <A extends Annotation> Method findMethodWithRequestCode(Class clazz, Class<A> annotation, int requestCode) {
         for (Method method : clazz.getDeclaredMethods()) {
-            if (method.isAnnotationPresent(annotation)) {
-                if (isEqualRequestCodeFromAnnotation(method, annotation, requestCode)) {
-                    return method;
-                }
+            if (method.getAnnotation(annotation) != null &&
+                    isEqualRequestCodeFromAnnotation(method, annotation, requestCode)) {
+                return method;
             }
         }
         return null;
@@ -103,7 +102,7 @@ final public class MPermissionUtil {
     }
 
     public static String toString(List<String> permission) {
-        if(permission == null || permission.isEmpty()) {
+        if (permission == null || permission.isEmpty()) {
             return "";
         }
 
@@ -111,7 +110,7 @@ final public class MPermissionUtil {
     }
 
     public static String toString(String[] permission) {
-        if(permission == null || permission.length <= 0) {
+        if (permission == null || permission.length <= 0) {
             return "";
         }
 

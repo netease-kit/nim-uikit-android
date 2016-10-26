@@ -20,6 +20,8 @@ import com.netease.nim.uikit.common.adapter.TAdapterDelegate;
 import com.netease.nim.uikit.common.adapter.TViewHolder;
 import com.netease.nim.uikit.common.fragment.TFragment;
 import com.netease.nim.uikit.common.ui.dialog.CustomAlertDialog;
+import com.netease.nim.uikit.common.ui.drop.DropCover;
+import com.netease.nim.uikit.common.ui.drop.DropManager;
 import com.netease.nim.uikit.common.ui.listview.ListViewUtil;
 import com.netease.nim.uikit.recent.viewholder.CommonRecentViewHolder;
 import com.netease.nim.uikit.recent.viewholder.RecentContactAdapter;
@@ -44,7 +46,9 @@ import com.netease.nimlib.sdk.team.model.TeamMember;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.netease.nim.uikit.common.ui.dialog.CustomAlertDialog.onSeparateItemClickListener;
 
@@ -68,6 +72,8 @@ public class RecentContactsFragment extends TFragment implements TAdapterDelegat
     // data
     private List<RecentContact> items;
 
+    private Map<String, RecentContact> cached; // 暂缓刷上列表的数据（未读数红点拖拽动画运行时用）
+
     private RecentContactAdapter adapter;
 
     private boolean msgLoaded = false;
@@ -84,6 +90,7 @@ public class RecentContactsFragment extends TFragment implements TAdapterDelegat
         initMessageList();
         requestMessages(true);
         registerObservers(true);
+        registerDropCompletedListener(true);
     }
 
     @Override
@@ -122,6 +129,7 @@ public class RecentContactsFragment extends TFragment implements TAdapterDelegat
     public void onDestroy() {
         super.onDestroy();
         registerObservers(false);
+        registerDropCompletedListener(false);
     }
 
     /**
@@ -138,6 +146,7 @@ public class RecentContactsFragment extends TFragment implements TAdapterDelegat
      */
     private void initMessageList() {
         items = new ArrayList<>();
+        cached = new HashMap<>(3);
 
         adapter = new RecentContactAdapter(getActivity(), items, this);
         adapter.setCallback(callback);
@@ -388,28 +397,79 @@ public class RecentContactsFragment extends TFragment implements TAdapterDelegat
         }
     }
 
+    private void registerDropCompletedListener(boolean register) {
+        if (DropManager.getInstance().getDropCover() == null) {
+            return;
+        }
+
+        if (register) {
+            DropManager.getInstance().getDropCover().addDropCompletedListener(dropCompletedListener);
+        } else {
+            DropManager.getInstance().getDropCover().removeDropCompletedListener(dropCompletedListener);
+        }
+    }
+
     Observer<List<RecentContact>> messageObserver = new Observer<List<RecentContact>>() {
         @Override
-        public void onEvent(List<RecentContact> messages) {
-            int index;
-            for (RecentContact msg : messages) {
-                index = -1;
-                for (int i = 0; i < items.size(); i++) {
-                    if (msg.getContactId().equals(items.get(i).getContactId())
-                            && msg.getSessionType() == (items.get(i).getSessionType())) {
-                        index = i;
-                        break;
+        public void onEvent(List<RecentContact> recentContacts) {
+            if (!DropManager.getInstance().isTouchable()) {
+                // 正在拖拽红点，缓存数据
+                for (RecentContact r : recentContacts) {
+                    cached.put(r.getContactId(), r);
+                }
+
+                return;
+            }
+
+            onRecentContactChanged(recentContacts);
+        }
+    };
+
+    private void onRecentContactChanged(List<RecentContact> recentContacts) {
+        int index;
+        for (RecentContact r : recentContacts) {
+            index = -1;
+            for (int i = 0; i < items.size(); i++) {
+                if (r.getContactId().equals(items.get(i).getContactId())
+                        && r.getSessionType() == (items.get(i).getSessionType())) {
+                    index = i;
+                    break;
+                }
+            }
+
+            if (index >= 0) {
+                items.remove(index);
+            }
+
+            items.add(r);
+        }
+
+        refreshMessages(true);
+    }
+
+    DropCover.IDropCompletedListener dropCompletedListener = new DropCover.IDropCompletedListener() {
+        @Override
+        public void onCompleted(Object id, boolean explosive) {
+            if (cached != null && !cached.isEmpty()) {
+                // 红点爆裂，已经要清除未读，不需要再刷cached
+                if (explosive) {
+                    if (id instanceof RecentContact) {
+                        RecentContact r = (RecentContact) id;
+                        cached.remove(r.getContactId());
+                    } else if (id instanceof String && ((String) id).contentEquals("0")) {
+                        cached.clear();
                     }
                 }
 
-                if (index >= 0) {
-                    items.remove(index);
+                // 刷cached
+                if (!cached.isEmpty()) {
+                    List<RecentContact> recentContacts = new ArrayList<>(cached.size());
+                    recentContacts.addAll(cached.values());
+                    cached.clear();
+
+                    onRecentContactChanged(recentContacts);
                 }
-
-                items.add(msg);
             }
-
-            refreshMessages(true);
         }
     };
 

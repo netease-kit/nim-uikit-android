@@ -42,11 +42,11 @@ public abstract class MsgViewHolderThumbBase extends MsgViewHolderBase {
         String path = msgAttachment.getPath();
         String thumbPath = msgAttachment.getThumbPath();
         if (!TextUtils.isEmpty(thumbPath)) {
-            loadThumbnailImage(thumbPath);
+            loadThumbnailImage(thumbPath, false);
         } else if (!TextUtils.isEmpty(path)) {
-            loadThumbnailImage(thumbFromSourceFile(path));
+            loadThumbnailImage(thumbFromSourceFile(path), true);
         } else {
-            loadThumbnailImage(null);
+            loadThumbnailImage(null, false);
             if (message.getAttachStatus() == AttachStatusEnum.transferred
                     || message.getAttachStatus() == AttachStatusEnum.def) {
                 downloadAttachment();
@@ -66,21 +66,26 @@ public abstract class MsgViewHolderThumbBase extends MsgViewHolderBase {
             }
         }
 
-        if (message.getStatus() == MsgStatusEnum.sending || message.getAttachStatus() == AttachStatusEnum.transferring) {
+        if (message.getStatus() == MsgStatusEnum.sending
+                || (isReceivedMessage() && message.getAttachStatus() == AttachStatusEnum.transferring)) {
             progressCover.setVisibility(View.VISIBLE);
             progressBar.setVisibility(View.VISIBLE);
+            progressLabel.setVisibility(View.VISIBLE);
+            progressLabel.setText(StringUtil.getPercentString(getAdapter().getProgress(message)));
         } else {
             progressCover.setVisibility(View.GONE);
+            progressBar.setVisibility(View.GONE);
+            progressLabel.setVisibility(View.GONE);
         }
-        progressLabel.setText(StringUtil.getPercentString(getAdapter().getProgress(message)));
     }
 
-    private void loadThumbnailImage(String thumbPath) {
-        setImageSize(thumbPath);
-        if (thumbPath != null) {
-            thumbnail.loadAsPath(thumbPath, getImageMaxEdge(), getImageMaxEdge(), maskBg());
+    private void loadThumbnailImage(String path, boolean isOriginal) {
+        setImageSize(path);
+        if (path != null) {
+            //thumbnail.loadAsPath(thumbPath, getImageMaxEdge(), getImageMaxEdge(), maskBg());
+            thumbnail.loadAsPath(isOriginal, path, message.getUuid(), getImageMaxEdge(), getImageMaxEdge(), maskBg());
         } else {
-            thumbnail.loadAsResource(R.drawable.nim_image_default, 30, 20, maskBg());
+            thumbnail.loadAsResource(R.drawable.nim_image_default, maskBg());
         }
     }
 
@@ -108,6 +113,7 @@ public abstract class MsgViewHolderThumbBase extends MsgViewHolderBase {
     private int maskBg() {
         return R.drawable.nim_message_item_round_bg;
     }
+
     public static int getImageMaxEdge() {
         return (int) (165.0 / 320.0 * ScreenUtil.screenWidth);
     }
