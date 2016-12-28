@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.text.TextPaint;
+import android.view.View;
 
 import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.common.util.log.LogUtil;
@@ -20,6 +21,12 @@ public class DropManager {
     static final int TEXT_SIZE = ScreenUtil.sp2px(12); // 12sp
 
     static final int CIRCLE_RADIUS = ScreenUtil.dip2px(10); // 10dip
+
+    public interface IDropListener {
+        void onDropBegin();
+
+        void onDropEnd();
+    }
 
     // single instance
     private static DropManager instance;
@@ -47,6 +54,9 @@ public class DropManager {
 
     private Paint circlePaint; // 圆形画笔共享
 
+    private IDropListener listener; // 红点拖拽动画监听器
+
+    private boolean enable;
     private int[] explosionResIds = new int[]{
             R.drawable.explosion_one,
             R.drawable.explosion_two,
@@ -61,6 +71,8 @@ public class DropManager {
         this.statusBarHeight = ScreenUtil.getStatusBarHeight(context);
         this.dropCover = dropCover;
         this.dropCover.addDropCompletedListener(listener);
+        this.listener = null;
+        this.enable = true;
 
         LogUtil.i(TAG, "init DropManager, statusBarHeight=" + statusBarHeight);
     }
@@ -79,24 +91,71 @@ public class DropManager {
         this.textPaint = null;
         this.textYOffset = 0;
         this.circlePaint = null;
-
+        this.enable = false;
         LogUtil.i(TAG, "destroy DropManager");
     }
 
+    public boolean isEnable() {
+        return enable;
+    }
+
     public boolean isTouchable() {
+        if (!enable) {
+            return true;
+        }
         return isTouchable;
     }
 
     public void setTouchable(boolean isTouchable) {
         this.isTouchable = isTouchable;
+
+        if (listener != null) {
+            if (!isTouchable) {
+                listener.onDropBegin();
+            } else {
+                listener.onDropEnd();
+            }
+        }
     }
 
     public int getTop() {
         return statusBarHeight;
     }
 
-    public DropCover getDropCover() {
-        return this.dropCover;
+    public void down(View fakeView, String text) {
+        if (dropCover == null) {
+            return;
+        }
+
+        dropCover.down(fakeView, text);
+    }
+
+    public void move(float curX, float curY) {
+        if (dropCover == null) {
+            return;
+        }
+
+        dropCover.move(curX, curY);
+    }
+
+    public void up() {
+        if (dropCover == null) {
+            return;
+        }
+
+        dropCover.up();
+    }
+
+    public void addDropCompletedListener(DropCover.IDropCompletedListener listener) {
+        if (dropCover != null) {
+            dropCover.addDropCompletedListener(listener);
+        }
+    }
+
+    public void removeDropCompletedListener(DropCover.IDropCompletedListener listener) {
+        if (dropCover != null) {
+            dropCover.removeDropCompletedListener(listener);
+        }
     }
 
     public void setCurrentId(Object currentId) {
@@ -144,5 +203,9 @@ public class DropManager {
 
     public int[] getExplosionResIds() {
         return explosionResIds;
+    }
+
+    public void setDropListener(IDropListener listener) {
+        this.listener = listener;
     }
 }

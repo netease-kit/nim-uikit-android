@@ -6,6 +6,11 @@ android {
     compileSdkVersion 23
     buildToolsVersion buildToolsVer
 
+    defaultConfig {
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+    }
+
     sourceSets {
         main {
             manifest.srcFile 'AndroidManifest.xml'
@@ -13,7 +18,7 @@ android {
             resources.srcDirs = ['src']
             aidl.srcDirs = ['src']
             renderscript.srcDirs = ['src']
-            res.srcDirs = ['res', 'res-ptr']
+            res.srcDirs = ['res', 'res-ptr', 'res-ptr2']
             assets.srcDirs = ['assets']
             jniLibs.srcDirs = ['libs']
         }

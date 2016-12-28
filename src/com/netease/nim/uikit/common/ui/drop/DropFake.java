@@ -2,10 +2,16 @@ package com.netease.nim.uikit.common.ui.drop;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewParent;
+import android.widget.GridView;
+import android.widget.ListView;
+import android.widget.ScrollView;
 
 /**
  * Created by huangjun on 2016/9/13.
@@ -58,13 +64,17 @@ public class DropFake extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        // 如果未初始化 DropManager，则默认任何事件都不处理
+        if (!DropManager.getInstance().isEnable()) {
+            return super.onTouchEvent(event);
+        }
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 if (DropManager.getInstance().isTouchable()) {
                     if (touchListener != null) {
                         DropManager.getInstance().setTouchable(false);
                         // 不允许父控件处理TouchEvent，当父控件为ListView这种本身可滑动的控件时必须要控制
-                        getParent().requestDisallowInterceptTouchEvent(true);
+                        disallowInterceptTouchEvent(true);
                         touchListener.onDown();
                     }
                     return true; // eat
@@ -81,7 +91,7 @@ public class DropFake extends View {
             case MotionEvent.ACTION_CANCEL:
                 if (touchListener != null) {
                     // 将控制权还给父控件
-                    getParent().requestDisallowInterceptTouchEvent(false);
+                    disallowInterceptTouchEvent(false);
                     touchListener.onUp();
                 }
                 break;
@@ -100,7 +110,31 @@ public class DropFake extends View {
         return text;
     }
 
-    public void setClickListener(ITouchListener listener) {
+    public void setTouchListener(ITouchListener listener) {
         touchListener = listener;
+    }
+
+    private void disallowInterceptTouchEvent(boolean disable) {
+        ViewGroup parent = (ViewGroup) getParent();
+        parent.requestDisallowInterceptTouchEvent(disable);
+
+        while (true) {
+            if (parent == null) {
+                return;
+            }
+
+            if (parent instanceof RecyclerView || parent instanceof ListView || parent instanceof GridView ||
+                    parent instanceof ScrollView) {
+                parent.requestDisallowInterceptTouchEvent(disable);
+                return;
+            }
+
+            ViewParent vp = parent.getParent();
+            if (vp instanceof ViewGroup) {
+                parent = (ViewGroup) parent.getParent();
+            } else {
+                return; // DecorView
+            }
+        }
     }
 }

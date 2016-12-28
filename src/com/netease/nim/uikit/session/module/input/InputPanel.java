@@ -7,6 +7,7 @@ import android.os.Handler;
 import android.os.SystemClock;
 import android.text.Editable;
 import android.text.InputType;
+import android.text.Spannable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -30,12 +31,15 @@ import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.common.ui.dialog.EasyAlertDialogHelper;
 import com.netease.nim.uikit.common.util.log.LogUtil;
 import com.netease.nim.uikit.common.util.string.StringUtil;
+import com.netease.nim.uikit.recent.AitHelper;
 import com.netease.nim.uikit.session.SessionCustomization;
 import com.netease.nim.uikit.session.actions.BaseAction;
 import com.netease.nim.uikit.session.emoji.EmoticonPickerView;
 import com.netease.nim.uikit.session.emoji.IEmoticonSelectedListener;
 import com.netease.nim.uikit.session.emoji.MoonUtil;
 import com.netease.nim.uikit.session.module.Container;
+import com.netease.nim.uikit.team.model.TeamExtras;
+import com.netease.nim.uikit.team.model.TeamRequestCode;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.media.record.AudioRecorder;
 import com.netease.nimlib.sdk.media.record.IAudioRecordCallback;
@@ -47,6 +51,7 @@ import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.msg.model.CustomNotification;
 import com.netease.nimlib.sdk.msg.model.CustomNotificationConfig;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
+import com.netease.nimlib.sdk.team.model.TeamMember;
 
 import java.io.File;
 import java.util.List;
@@ -103,6 +108,10 @@ public class InputPanel implements IEmoticonSelectedListener, IAudioRecordCallba
     // data
     private long typingTime = 0;
 
+    // message edit watcher
+
+    private MessageEditWatcher watcher;
+
     public InputPanel(Container container, View view, List<BaseAction> actions, boolean isTextAudioSwitchShow) {
         this.container = container;
         this.view = view;
@@ -130,6 +139,10 @@ public class InputPanel implements IEmoticonSelectedListener, IAudioRecordCallba
         hideAllInputLayout(immediately);
 
         return respond;
+    }
+
+    public void setWatcher(MessageEditWatcher watcher) {
+        this.watcher = watcher;
     }
 
     private void init() {
@@ -238,6 +251,11 @@ public class InputPanel implements IEmoticonSelectedListener, IAudioRecordCallba
             public void afterTextChanged(Editable s) {
                 checkSendButtonEnable(messageEditText);
                 MoonUtil.replaceEmoticons(container.activity, s, start, count);
+
+                if (watcher != null) {
+                    watcher.afterTextChanged(s, start, count);
+                }
+
                 int editEnd = messageEditText.getSelectionEnd();
                 messageEditText.removeTextChangedListener(this);
                 while (StringUtil.counterChars(s.toString()) > 5000 && editEnd > 0) {
@@ -742,6 +760,11 @@ public class InputPanel implements IEmoticonSelectedListener, IAudioRecordCallba
         if (resultCode != Activity.RESULT_OK) {
             return;
         }
+        // 从@返回
+        if (requestCode == TeamRequestCode.REQUEST_TEAM_AIT_MEMBER) {
+            insertAitMember(data);
+            return;
+        }
 
         int index = (requestCode << 16) >> 24;
         if (index != 0) {
@@ -755,5 +778,32 @@ public class InputPanel implements IEmoticonSelectedListener, IAudioRecordCallba
                 action.onActivityResult(requestCode & 0xff, resultCode, data);
             }
         }
+    }
+
+    private void insertAitMember(Intent data) {
+        TeamMember member = (TeamMember) data.getSerializableExtra(TeamExtras.RESULT_EXTRA_DATA);
+        if (member == null) {
+            return;
+        }
+
+        // insert account
+        int start = messageEditText.getSelectionStart();
+        String account = member.getAccount() + " ";
+        if (start < 0 || start >= messageEditText.length()) {
+            messageEditText.append(account);
+        } else {
+            messageEditText.getEditableText().insert(start, account);// 光标所在位置插入文字
+        }
+
+        // 替换成昵称
+        String aitName = AitHelper.getAitName(member) + " ";
+        Editable editable = messageEditText.getText();
+        aitName = "@" + aitName;
+        start--;
+        editable.setSpan(AitHelper.getInputAitSpan(aitName, messageEditText.getTextSize()),
+                start, start + account.length() + 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+        // 显示键盘
+        uiHandler.postDelayed(showTextRunnable, SHOW_LAYOUT_DELAY);
     }
 }

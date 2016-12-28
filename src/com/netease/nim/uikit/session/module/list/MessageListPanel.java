@@ -715,7 +715,8 @@ public class MessageListPanel implements TAdapterDelegate {
             if (index >= 0 && index < items.size()) {
                 IMMessage item = items.get(index);
                 item.setStatus(MsgStatusEnum.sending);
-                refreshViewHolderByIndex(index);
+                deleteItem(item, true);
+                onMsgSend(item);
             }
 
             NIMClient.getService(MsgService.class).sendMessage(message, true);
@@ -767,7 +768,8 @@ public class MessageListPanel implements TAdapterDelegate {
             // 5 trans
             longClickItemVoidToText(selectedItem, alertDialog, msgType);
 
-            if (!NimUIKit.getMsgForwardFilter().shouldIgnore(selectedItem) && !recordOnly) {
+            if (NimUIKit.getMsgForwardFilter() != null &&
+                    !NimUIKit.getMsgForwardFilter().shouldIgnore(selectedItem) && !recordOnly) {
                 // 6 forward to person
                 longClickItemForwardToPerson(selectedItem, alertDialog);
                 // 7 forward to team
