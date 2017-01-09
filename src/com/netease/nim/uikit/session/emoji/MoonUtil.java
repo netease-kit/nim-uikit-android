@@ -18,6 +18,8 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.netease.nim.uikit.recent.AitHelper;
+
 public class MoonUtil {
 	private static final float DEF_SCALE = 0.6f;
 	private static final float SMALL_SCALE = 0.45F;
@@ -51,12 +53,20 @@ public class MoonUtil {
 		SpannableString mSpannableString = replaceEmoticons(context, value, scale, align);
 		viewSetText(textView, mSpannableString);
 	}
+
+	public static void identifyRecentVHFaceExpressionAndTags(Context context, View textView,
+			String value, int align, float scale) {
+		SpannableString mSpannableString = makeSpannableStringTags(context, value, scale, align, false);
+		AitHelper.replaceAitForeground(value, mSpannableString);
+		viewSetText(textView, mSpannableString);
+	}
+
 	/**
 	 lstmsgviewholder类使用,只需显示a标签对应的文本
 	 */
 	public static void identifyFaceExpressionAndTags(Context context,
-			View textView, String value,int align, float scale) {
-		SpannableString mSpannableString = makeSpannableStringTags(context, value, scale, align,false);
+			View textView, String value, int align, float scale) {
+		SpannableString mSpannableString = makeSpannableStringTags(context, value, scale, align, false);
 		viewSetText(textView, mSpannableString);
 	}
 
@@ -125,7 +135,7 @@ public class MoonUtil {
 				mSpannableString.setSpan(tagSpan, tagSpan.start, tagSpan.end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 			}
 		}
-		
+
 		return mSpannableString;
 	}
 	

@@ -667,7 +667,9 @@ public class NormalTeamInfoActivity extends UI implements OnClickListener, TAdap
 
     @Override
     public void onHeadImageViewClick(String account) {
-        NimUIKit.getContactEventListener().onAvatarClick(this, account);
+        if (NimUIKit.getContactEventListener() != null) {
+            NimUIKit.getContactEventListener().onAvatarClick(this, account);
+        }
     }
 
     private void registerUserInfoChangedObserver(boolean register) {

@@ -1,12 +1,10 @@
-package com.netease.nim.uikit.recent.viewholder;
-
-import android.text.TextUtils;
+package com.netease.nim.uikit.recent.holder;
 
 import com.netease.nim.uikit.NimUIKit;
+import com.netease.nim.uikit.common.ui.recyclerview.adapter.BaseQuickAdapter;
 import com.netease.nim.uikit.common.util.sys.TimeUtil;
 import com.netease.nim.uikit.session.helper.TeamNotificationHelper;
 import com.netease.nimlib.sdk.NIMClient;
-import com.netease.nimlib.sdk.RequestCallback;
 import com.netease.nimlib.sdk.avchat.constant.AVChatRecordState;
 import com.netease.nimlib.sdk.avchat.constant.AVChatType;
 import com.netease.nimlib.sdk.avchat.model.AVChatAttachment;
@@ -15,18 +13,23 @@ import com.netease.nimlib.sdk.msg.attachment.MsgAttachment;
 import com.netease.nimlib.sdk.msg.attachment.NotificationAttachment;
 import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
+import com.netease.nimlib.sdk.msg.model.RecentContact;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class CommonRecentViewHolder extends RecentViewHolder {
 
-    @Override
-    protected String getContent() {
-        return descOfMsg();
+    public CommonRecentViewHolder(BaseQuickAdapter adapter) {
+        super(adapter);
     }
 
-    protected String descOfMsg() {
+    @Override
+    protected String getContent(RecentContact recent) {
+        return descOfMsg(recent);
+    }
+
+    protected String descOfMsg(RecentContact recent) {
         if (recent.getMsgType() == MsgTypeEnum.text) {
             return recent.getContent();
         } else if (recent.getMsgType() == MsgTypeEnum.tip) {
@@ -36,7 +39,7 @@ public class CommonRecentViewHolder extends RecentViewHolder {
             }
 
             if (digest == null) {
-                digest = getDefaultDigest(null);
+                digest = getDefaultDigest(null, recent);
             }
 
             return digest;
@@ -47,7 +50,7 @@ public class CommonRecentViewHolder extends RecentViewHolder {
             }
 
             if (digest == null) {
-                digest = getDefaultDigest(recent.getAttachment());
+                digest = getDefaultDigest(recent.getAttachment(), recent);
             }
 
             return digest;
@@ -57,7 +60,7 @@ public class CommonRecentViewHolder extends RecentViewHolder {
 
     // SDK本身只记录原始数据，第三方APP可根据自己实际需求，在最近联系人列表上显示缩略消息
     // 以下为一些常见消息类型的示例。
-    private String getDefaultDigest(MsgAttachment attachment) {
+    private String getDefaultDigest(MsgAttachment attachment, RecentContact recent) {
         switch (recent.getMsgType()) {
             case text:
                 return recent.getContent();

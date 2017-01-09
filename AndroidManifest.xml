@@ -1,9 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.netease.nim.uikit">
 
-    <uses-sdk
-        android:minSdkVersion="9"
-        android:targetSdkVersion="19" />
 
     <application>
         <!-- 会话窗口 -->
@@ -132,5 +129,8 @@
             android:configChanges="keyboardHidden"
             android:theme="@style/AppTheme.NoActionBar"/>
 
+        <activity android:name=".team.activity.TeamMemberListActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar"/>
     </application>
 </manifest>

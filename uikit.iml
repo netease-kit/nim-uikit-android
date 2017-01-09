@@ -16,7 +16,7 @@
           <task>generateDebugSources</task>
         </afterSyncTasks>
         <option name="ALLOW_USER_CONFIGURATION" value="false" />
-        <option name="RES_FOLDERS_RELATIVE_PATH" value="file://$MODULE_DIR$/res;file://$MODULE_DIR$/res-ptr" />
+        <option name="RES_FOLDERS_RELATIVE_PATH" value="file://$MODULE_DIR$/res;file://$MODULE_DIR$/res-ptr;file://$MODULE_DIR$/res-ptr2" />
         <option name="LIBRARY_PROJECT" value="true" />
       </configuration>
     </facet>
@@ -58,6 +58,7 @@
       <sourceFolder url="file://$MODULE_DIR$/src/testDebug/shaders" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/res" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/res-ptr" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/res-ptr2" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/assets" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
@@ -119,7 +120,8 @@
     <orderEntry type="module" module-name="lucene" exported="" />
     <orderEntry type="module" module-name="basesdk" exported="" />
     <orderEntry type="library" exported="" name="org.apache.http.legacy-android-23" level="project" />
-    <orderEntry type="library" exported="" name="nrtc-3.1.0" level="project" />
+    <orderEntry type="library" exported="" name="nrtc-3.3.0" level="project" />
+    <orderEntry type="library" exported="" name="mi_push_sdk_3.1.2" level="project" />
     <orderEntry type="library" exported="" name="cosinesdk" level="project" />
   </component>
 </module>
