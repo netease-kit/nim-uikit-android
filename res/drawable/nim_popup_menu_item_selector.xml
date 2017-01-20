@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:drawable="@color/color_split_line_d9d9d9" android:state_pressed="true"></item>
+    <item android:drawable="@color/white"></item>
+
+</selector>

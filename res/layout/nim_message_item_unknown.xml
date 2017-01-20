@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    android:id="@+id/message_item_unsupport_container"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/nim_message_item_round_bg"
+    android:paddingTop="10dp"
+    android:paddingBottom="10dp">
+
+    <ImageView
+        android:id="@+id/message_item_unsupport_image"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="10dp"
+        android:contentDescription="@string/empty"
+        android:src="@drawable/nim_unsupport_mime_type"/>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="6dip"
+        android:layout_marginRight="4dip"
+        android:layout_toRightOf="@id/message_item_unsupport_image"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/message_item_unsupport_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:gravity="left"
+            android:singleLine="true"
+            android:text="@string/unsupport_title"
+            android:textColor="@color/color_black_333333"
+            android:textSize="16sp"/>
+
+        <TextView
+            android:id="@+id/message_item_unsupport_desc"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dip"
+            android:ellipsize="end"
+            android:gravity="left"
+            android:singleLine="true"
+            android:text="@string/unsupport_desc"
+            android:textColor="@color/color_grey_555555"
+            android:textSize="13sp"/>
+    </LinearLayout>
+</RelativeLayout>

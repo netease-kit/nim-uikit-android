@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:layout_marginTop="15dp"
+        android:background="@drawable/nim_bg_edittext_rectangle"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dip"
+            android:layout_marginLeft="11dip"
+            android:layout_marginRight="11dip"
+            android:layout_marginTop="15dip">
+
+            <TextView
+                android:id="@+id/announce_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dip"
+                android:text="announce_title"
+                android:textColor="@color/color_black_333333"
+                android:textSize="16sp" />
+
+
+            <TextView
+                android:id="@+id/team_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignLeft="@id/announce_title"
+                android:layout_below="@id/announce_title"
+                android:layout_marginTop="5dip"
+                android:text="team name"
+                android:textColor="@color/color_grey_999999"
+                android:textSize="13sp" />
+
+
+            <TextView
+                android:id="@+id/announce_create_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBaseline="@id/team_name"
+                android:layout_marginLeft="8dp"
+                android:layout_toRightOf="@id/team_name"
+                android:text="3月6日 10:13"
+                android:textColor="@color/color_grey_999999"
+                android:textSize="@dimen/text_size_13" />
+
+        </RelativeLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.5px"
+            android:layout_marginLeft="11dp"
+            android:layout_marginRight="11dp"
+            android:background="@color/color_split_line_cccccc" />
+
+        <TextView
+            android:id="@+id/announce_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="15dip"
+            android:layout_marginLeft="11dip"
+            android:layout_marginRight="11dip"
+            android:layout_marginTop="10dip"
+            android:minLines="3" />
+    </LinearLayout>
+
+</LinearLayout>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/textViewName"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="@dimen/bubble_name_layout_margin_bottom"
+    android:ellipsize="end"
+    android:maxWidth="160dip"
+    android:singleLine="true"
+    android:textColor="#000000"
+    android:textSize="12sp"
+    android:visibility="gone" >
+
+</TextView>

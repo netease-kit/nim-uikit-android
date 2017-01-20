@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/nim_contact_list_item_selecter"
+                android:minHeight="55dip">
+
+    <RelativeLayout
+        android:id="@+id/head_layout"
+        android:layout_width="50dp"
+        android:layout_height="55dp"
+        android:layout_alignParentLeft="true"
+        android:gravity="center">
+
+        <com.netease.nim.uikit.common.ui.imageview.HeadImageView
+            android:id="@+id/contacts_item_head"
+            android:layout_width="@dimen/avatar_size_in_contact"
+            android:layout_height="@dimen/avatar_size_in_contact"
+            android:scaleType="centerCrop"/>
+    </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/contacts_item_name_layout"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_toRightOf="@id/head_layout"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/contacts_item_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="10dip"
+                android:layout_marginRight="10dp"
+                android:singleLine="true"
+                android:textColor="#999999"
+                android:textSize="10sp"
+                android:visibility="gone"/>
+
+            <TextView
+                android:id="@+id/contacts_item_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_gravity="center_vertical"
+                android:layout_toLeftOf="@id/contacts_item_time"
+                android:drawablePadding="4dip"
+                android:ellipsize="end"
+                android:singleLine="true"
+                android:textColor="#333333"
+                android:textSize="16sp"/>
+        </RelativeLayout>
+
+        <TextView
+            android:id="@+id/contacts_item_desc"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginTop="1dp"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:textColor="#999999"
+            android:textSize="13sp"/>
+    </LinearLayout>
+
+    <View
+        style="@style/horizontal_light_thin_divider"
+        android:layout_alignLeft="@+id/contacts_item_name_layout"
+        android:layout_alignParentBottom="true"
+        android:layout_marginRight="10dp"/>
+
+</RelativeLayout>

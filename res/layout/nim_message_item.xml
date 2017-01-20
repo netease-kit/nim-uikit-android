@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="6dp">
+
+    <TextView
+        android:id="@+id/message_item_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="@dimen/bubble_time_layout_margin_bottom"
+        android:layout_marginTop="@dimen/bubble_time_layout_margin_top"
+        android:background="@drawable/nim_bg_message_tip"
+        android:paddingLeft="7dip"
+        android:paddingRight="7dip"
+        android:textColor="#ffffff"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        android:visibility="gone" />
+
+    <com.netease.nim.uikit.common.ui.imageview.HeadImageView
+        android:id="@+id/message_item_portrait_left"
+        android:layout_width="@dimen/avatar_size_in_session"
+        android:layout_height="@dimen/avatar_size_in_session"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@id/message_item_time"
+        android:layout_marginRight="@dimen/bubble_head_margin_horizontal"
+        android:visibility="gone" />
+
+    <com.netease.nim.uikit.common.ui.imageview.HeadImageView
+        android:id="@+id/message_item_portrait_right"
+        android:layout_width="@dimen/avatar_size_in_session"
+        android:layout_height="@dimen/avatar_size_in_session"
+        android:layout_alignParentRight="true"
+        android:layout_below="@id/message_item_time"
+        android:layout_marginLeft="@dimen/bubble_head_margin_horizontal"
+        android:visibility="gone" />
+
+    <LinearLayout
+        android:id="@+id/message_item_name_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/message_item_time"
+        android:layout_toLeftOf="@id/message_item_portrait_right"
+        android:layout_toRightOf="@id/message_item_portrait_left"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/message_item_name_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/message_item_time"
+            android:layout_marginBottom="3dp"
+            android:layout_marginRight="3dp"
+            android:layout_toRightOf="@id/message_item_portrait_left"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/message_item_nickname"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/message_item_time"
+            android:layout_marginBottom="3dp"
+            android:layout_marginTop="-3dp"
+            android:ellipsize="end"
+            android:gravity="center_vertical"
+            android:maxWidth="160dip"
+            android:singleLine="true"
+            android:textColor="#000000"
+            android:textSize="12sp"
+            android:visibility="gone" />
+    </LinearLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/message_item_name_layout"
+        android:layout_toLeftOf="@id/message_item_portrait_right"
+        android:layout_toRightOf="@id/message_item_portrait_left">
+
+        <LinearLayout
+            android:id="@+id/message_item_body"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:gravity="bottom"
+            android:orientation="horizontal">
+
+            <ProgressBar
+                android:id="@+id/message_item_progress"
+                android:layout_width="20dip"
+                android:layout_height="20dip"
+                android:layout_gravity="center"
+                android:layout_marginLeft="2dp"
+                android:layout_marginRight="2dp"
+                android:indeterminate="true"
+                android:indeterminateDrawable="@drawable/nim_progress_small_white"
+                android:visibility="gone" />
+
+            <ImageView
+                android:id="@+id/message_item_alert"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="2dp"
+                android:layout_marginRight="2dp"
+                android:src="@drawable/nim_ic_failed"
+                android:visibility="gone" />
+
+            <include layout="@layout/nim_read_recipt_layout" />
+
+            <FrameLayout
+                android:id="@+id/message_item_content"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:background="@android:color/transparent" />
+
+        </LinearLayout>
+    </FrameLayout>
+</RelativeLayout>

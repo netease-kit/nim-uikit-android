@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/watch_picture_activity_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black"
+    android:orientation="vertical" >
+
+    <!-- <include layout="@layout/watch_picture_progress_layout" /> -->
+
+
+    <!-- <include layout="@layout/watch_picture_show_more_action_layout" /> -->
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/view_pager_image"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+    <include layout="@layout/nim_watch_media_download_progress_layout" />
+
+</FrameLayout>

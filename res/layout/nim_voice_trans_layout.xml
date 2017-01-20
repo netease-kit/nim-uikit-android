@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/voice_trans_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white">
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true">
+
+        <ImageView
+            android:id="@+id/trans_fail_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/nim_ic_trans_fail"
+            android:layout_marginBottom="15dp"
+            android:visibility="gone" />
+
+        <ProgressBar
+            android:id="@+id/refreshing_indicator"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_marginRight="5dp"
+            android:progressDrawable="@drawable/nim_progress_small_white"
+            android:visibility="gone"/>
+
+        <TextView
+            android:id="@+id/voice_trans_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/trans_fail_icon"
+            android:layout_centerHorizontal="true"
+            android:layout_toRightOf="@+id/refreshing_indicator"
+            android:gravity="center"
+            android:textColor="@color/color_black_333333"
+            android:textSize="16sp" />
+
+    </RelativeLayout>
+
+
+    <TextView
+        android:id="@+id/cancel_btn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:background="@drawable/nim_red_round_button_selector"
+        android:gravity="center"
+        android:paddingBottom="10dp"
+        android:paddingTop="10dp"
+        android:text="取消"
+        android:textColor="@color/white"
+        android:textSize="17sp" />
+
+</RelativeLayout>

@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@color/white">
+
+    <RelativeLayout
+        android:id="@+id/rlRoot"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
+
+        <android.support.design.widget.AppBarLayout
+            android:id="@+id/app_bar_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:theme="@style/AppTheme.AppBarOverlay"
+            app:elevation="0dp">
+
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:background="?attr/colorPrimary"
+                app:titleTextAppearance="@style/Toolbar.TitleText"></android.support.v7.widget.Toolbar>
+        </android.support.design.widget.AppBarLayout>
+
+        <RelativeLayout
+            android:id="@+id/contactsLayout"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_above="@+id/rlCtrl"
+            android:layout_below="@id/app_bar_layout"
+            android:background="@color/transparent">
+
+            <ListView
+                android:id="@+id/contact_list_view"
+                style="@style/list_view"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_toLeftOf="@+id/liv_index"
+                android:cacheColorHint="@color/white"
+                android:divider="@color/transparent"
+                android:listSelector="@color/transparent"
+                android:nextFocusLeft="@+id/contact_select_back"
+                android:nextFocusRight="@+id/btnAlSelected"
+                android:nextFocusUp="@+id/contact_select_back"
+                android:scrollbars="none" />
+
+            <ImageView
+                android:id="@+id/img_hit_letter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:background="@drawable/nim_contact_hit_letter_bg"
+                android:contentDescription="@string/empty"
+                android:padding="40dip"
+                android:visibility="invisible" />
+
+            <TextView
+                android:id="@+id/tv_hit_letter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:textColor="#ffffff"
+                android:textSize="40sp"
+                android:visibility="invisible" />
+
+            <com.netease.nim.uikit.common.ui.liv.LetterIndexView
+                android:id="@+id/liv_index"
+                android:layout_width="15dip"
+                android:layout_height="fill_parent"
+                android:layout_alignParentRight="true"
+                android:background="#00000000" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/rlCtrl"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:background="#3c3c3c"
+            android:minHeight="55dp"
+            android:visibility="visible">
+
+            <Button
+                android:id="@+id/btnSelect"
+                android:layout_width="wrap_content"
+                android:layout_height="34dp"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="6dip"
+                android:layout_marginRight="6dip"
+                android:background="@drawable/nim_message_button_bottom_send_selector"
+                android:enabled="false"
+                android:paddingLeft="8dip"
+                android:paddingRight="8dip"
+                android:text="确定(0)"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                android:visibility="visible" />
+
+            <HorizontalScrollView
+                android:id="@+id/contact_select_area"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_toLeftOf="@id/btnSelect"
+                android:layout_weight="1"
+                android:fillViewport="true"
+                android:scrollbars="none">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingLeft="6dip"
+                    android:paddingRight="6dip">
+
+                    <GridView
+                        android:id="@+id/contact_select_area_grid"
+                        style="@style/grid_view"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:gravity="center"
+                        android:horizontalSpacing="0dip"
+                        android:listSelector="@android:color/transparent"
+                        android:paddingTop="6dp"
+                        android:verticalSpacing="0dip" />
+                </LinearLayout>
+            </HorizontalScrollView>
+        </RelativeLayout>
+    </RelativeLayout>
+</FrameLayout>

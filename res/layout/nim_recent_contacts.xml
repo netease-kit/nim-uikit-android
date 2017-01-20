@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<FrameLayout android:id="@+id/messages_list_layout"
+             xmlns:android="http://schemas.android.com/apk/res/android"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent">
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:cacheColorHint="@android:color/transparent"
+        />
+
+    <RelativeLayout
+        android:id="@+id/emptyBg"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_gravity="center"
+        android:layout_marginBottom="50dp"
+        android:visibility="gone">
+
+        <ImageView
+            android:id="@+id/emptyBg1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:contentDescription="@string/empty"
+            android:src="@drawable/nim_messages_list_empty_bg"/>
+
+        <TextView
+            android:id="@+id/message_list_empty_hint"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/emptyBg1"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="5dip"
+            android:gravity="center"/>
+    </RelativeLayout>
+</FrameLayout>

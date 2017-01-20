@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="im.yixin.activity.WelcomeActivity" >
+
+    <item
+        android:id="@+id/action_search"
+        android:icon="@drawable/nim_actionbar_search_dark_icon"
+        android:title="@string/search"
+        app:showAsAction="always"
+        app:actionViewClass="android.support.v7.widget.SearchView"/>
+
+</menu>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="LoadingView">
+        <attr name="radius" format="float|reference"/>
+        <attr name="left_ball_color" format="color|reference"/>
+        <attr name="right_ball_color" format="color|reference"/>
+        <attr name="animation_speed" format="float|reference"/>
+        <attr name="need_animation" format="boolean|reference"/>
+    </declare-styleable>
+</resources>

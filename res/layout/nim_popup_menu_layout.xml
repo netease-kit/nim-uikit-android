@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/split_one_pixels"
+    android:paddingRight="15dip"
+    android:paddingTop="@dimen/split_one_pixels" >
+
+    <com.netease.nim.uikit.common.ui.popupmenu.PopupMenuListView
+        android:id="@+id/popmenu_listview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/nim_popup_menu_bg"
+        android:divider="@color/color_split_line_d9d9d9"
+        android:dividerHeight="1px" >
+    </com.netease.nim.uikit.common.ui.popupmenu.PopupMenuListView>
+
+</RelativeLayout>
