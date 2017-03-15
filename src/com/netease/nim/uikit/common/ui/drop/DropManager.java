@@ -40,7 +40,7 @@ public class DropManager {
     }
 
     // field
-    private boolean isTouchable; // 是否响应按键事件，如果一个气泡已经在响应，其它气泡就不响应，同一界面始终最多只有一个气泡响应按键
+    private boolean isTouchable; // 是否响应按键事件，如果一个红点已经在响应，其它红点就不响应，同一界面始终最多只有一个红点响应触摸
 
     private int statusBarHeight; // 状态栏(通知栏)高度
 
@@ -111,9 +111,9 @@ public class DropManager {
 
         if (listener != null) {
             if (!isTouchable) {
-                listener.onDropBegin();
+                listener.onDropBegin(); // touchable = false
             } else {
-                listener.onDropEnd();
+                listener.onDropEnd(); // touchable = true
             }
         }
     }

@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * 悬浮在屏幕上的红点拖拽动画绘制区域
+ * <p>
  * Created by huangjun on 2016/9/13.
  */
 public class DropCover extends View {
@@ -126,11 +128,21 @@ public class DropCover extends View {
         float sina = (curY - circleY) / distance; // 移动圆圆心和固定圆圆心之间的连线与X轴相交形成的角度的sin值
         float cosa = (circleX - curX) / distance; // 移动圆圆心和固定圆圆心之间的连线与X轴相交形成的角度的cos值
 
-        path.moveTo(circleX - sina * radius * ratio, circleY - cosa * radius * ratio); // A点坐标
-        path.lineTo(circleX + sina * radius * ratio, circleY + cosa * radius * ratio); // AB连线
-        path.quadTo((circleX + curX) / 2, (circleY + curY) / 2, curX + sina * radius, curY + cosa * radius); // 控制点为两个圆心的中间点，二阶贝塞尔曲线，BC连线
-        path.lineTo(curX - sina * radius, curY - cosa * radius); // CD连线
-        path.quadTo((circleX + curX) / 2, (circleY + curY) / 2, circleX - sina * radius * ratio, circleY - cosa * radius * ratio); // 控制点也是两个圆心的中间点，二阶贝塞尔曲线，DA连线
+        float AX = circleX - sina * radius * ratio;
+        float AY = circleY - cosa * radius * ratio;
+        float BX = circleX + sina * radius * ratio;
+        float BY = circleY + cosa * radius * ratio;
+        float OX = (circleX + curX) / 2;
+        float OY = (circleY + curY) / 2;
+        float CX = curX + sina * radius;
+        float CY = curY + cosa * radius;
+        float DX = curX - sina * radius;
+        float DY = curY - cosa * radius;
+        path.moveTo(AX, AY); // A点坐标
+        path.lineTo(BX, BY); // AB连线
+        path.quadTo(OX, OY, CX, CY); // 控制点为两个圆心的中间点，贝塞尔曲线，BC连线
+        path.lineTo(DX, DY); // CD连线
+        path.quadTo(OX, OY, AX, AY); // 控制点也是两个圆心的中间点，贝塞尔曲线，DA连线
 
         canvas.drawPath(path, DropManager.getInstance().getCirclePaint());
     }
@@ -141,7 +153,7 @@ public class DropCover extends View {
     public void down(View fakeView, String text) {
         this.needDraw = true; // 由于DropCover是公用的，每次进来时都要确保needDraw的值为true
         this.hasBroken = false; // 未断裂
-        this.isDistanceOverLimit = false; // 未断裂的距离
+        this.isDistanceOverLimit = false; // 当前移动圆和固定圆的距离是否超过限值
         this.click = true; // 点击开始
 
         this.dropFake = fakeView;
@@ -149,8 +161,10 @@ public class DropCover extends View {
         dropFake.getLocationOnScreen(position);
 
         this.radius = DropManager.CIRCLE_RADIUS;
+        // 固定圆圆心坐标，固定圆圆心坐标y，需要减去系统状态栏高度
         this.circleX = position[0] + dropFake.getWidth() / 2;
         this.circleY = position[1] - DropManager.getInstance().getTop() + dropFake.getHeight() / 2;
+        // 移动圆圆心坐标
         this.curX = this.circleX;
         this.curY = this.circleY;
 
@@ -183,6 +197,7 @@ public class DropCover extends View {
             hasBroken = true; // 已经断裂过了
         }
 
+        // 固定圆缩放比例0.4-0.8之间
         ratio = MIN_RATIO + (MAX_RATIO - MIN_RATIO) * (1.0f * Math.max(DISTANCE_LIMIT - distance, 0)) / DISTANCE_LIMIT;
     }
 
@@ -244,15 +259,11 @@ public class DropCover extends View {
         }
 
         if (curExplosionAnimIndex < explosionAnimNumber) {
-            canvas.drawBitmap(explosionAnim[curExplosionAnimIndex], curX - explosionAnimWidth / 2, curY - explosionAnimHeight / 2, null);
+            canvas.drawBitmap(explosionAnim[curExplosionAnimIndex],
+                    curX - explosionAnimWidth / 2, curY - explosionAnimHeight / 2, null);
             curExplosionAnimIndex++;
-            if (curExplosionAnimIndex == 1) {
-                // 第一帧立即执行
-                invalidate();
-            } else {
-                // 其余帧每隔固定时间执行
-                postInvalidateDelayed(EXPLOSION_ANIM_FRAME_INTERVAL);
-            }
+            // 每隔固定时间执行
+            postInvalidateDelayed(EXPLOSION_ANIM_FRAME_INTERVAL);
         } else {
             // 动画结束
             explosionAnimStart = false;

@@ -14,10 +14,17 @@ import android.widget.ListView;
 import android.widget.ScrollView;
 
 /**
+ * 未读数红点View（自绘红色的圆和数字）
+ * 触摸之产生DOWN/MOVE/UP事件（不允许父容器处理TouchEvent），回调给浮在上层的DropCover进行拖拽过程绘制。
+ * View启动过程：Constructors -> onAttachedToWindow -> onMeasure() -> onSizeChanged() -> onLayout() -> onDraw()
+ * <p>
  * Created by huangjun on 2016/9/13.
  */
 public class DropFake extends View {
 
+    /**
+     * 未读数红点检测触摸事件产生DOWN/MOVE/UP
+     */
     public interface ITouchListener {
         void onDown();
 
