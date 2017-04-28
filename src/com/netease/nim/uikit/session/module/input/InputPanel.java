@@ -132,6 +132,13 @@ public class InputPanel implements IEmoticonSelectedListener, IAudioRecordCallba
         }
     }
 
+    public void onDestroy() {
+        // release
+        if (audioMessageHelper != null) {
+            audioMessageHelper.destroyAudioRecorder();
+        }
+    }
+
     public boolean collapse(boolean immediately) {
         boolean respond = (emoticonPickerView != null && emoticonPickerView.getVisibility() == View.VISIBLE
                 || actionPanelBottomLayout != null && actionPanelBottomLayout.getVisibility() == View.VISIBLE);

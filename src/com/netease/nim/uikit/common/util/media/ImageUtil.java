@@ -318,10 +318,17 @@ public class ImageUtil {
                 return success;
             }
 
-            // 旋转
-            ExifInterface localExifInterface = new ExifInterface(srcFile.getAbsolutePath());
-            int rotateInt = localExifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
-            float rotate = getImageRotate(rotateInt);
+            float rotate;
+            String mimeType = com.netease.nim.uikit.common.media.picker.util.BitmapUtil.getImageType(srcFile.getAbsolutePath());
+            if (!TextUtils.isEmpty(mimeType) && mimeType.equals("image/png")) {
+                // png格式不能使用ExifInterface
+                rotate = 0;
+            } else {
+                // 旋转
+                ExifInterface localExifInterface = new ExifInterface(srcFile.getAbsolutePath());
+                int rotateInt = localExifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+                rotate = getImageRotate(rotateInt);
+            }
 
             Bitmap dstBitmap;
             float scale = (float) Math.sqrt(((float) dstMaxWH * (float) dstMaxWH) / ((float) srcBitmap.getWidth() * (float) srcBitmap.getHeight()));

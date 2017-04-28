@@ -14,6 +14,7 @@ import android.widget.TextView;
 
 import com.netease.nim.uikit.LoginSyncDataStatusObserver;
 import com.netease.nim.uikit.NimUIKit;
+import com.netease.nim.uikit.OnlineStateChangeListener;
 import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.UIKitLogTag;
 import com.netease.nim.uikit.cache.FriendDataCache;
@@ -28,8 +29,8 @@ import com.netease.nim.uikit.contact.core.model.ContactDataAdapter;
 import com.netease.nim.uikit.contact.core.model.ContactGroupStrategy;
 import com.netease.nim.uikit.contact.core.provider.ContactDataProvider;
 import com.netease.nim.uikit.contact.core.query.IContactDataProvider;
-import com.netease.nim.uikit.contact.core.viewholder.ContactHolder;
 import com.netease.nim.uikit.contact.core.viewholder.LabelHolder;
+import com.netease.nim.uikit.contact.core.viewholder.OnlineStateContactHolder;
 import com.netease.nim.uikit.uinfo.UserInfoHelper;
 import com.netease.nim.uikit.uinfo.UserInfoObservable;
 import com.netease.nimlib.sdk.Observer;
@@ -38,6 +39,7 @@ import com.nostra13.universalimageloader.core.listener.PauseOnScrollListener;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 
 /**
@@ -92,7 +94,7 @@ public class ContactsFragment extends TFragment {
 
         // 注册观察者
         registerObserver(true);
-
+        registerOnlineStateChangeListener(true);
         // 加载本地数据
         reload(false);
     }
@@ -102,6 +104,7 @@ public class ContactsFragment extends TFragment {
         super.onDestroy();
 
         registerObserver(false);
+        registerOnlineStateChangeListener(false);
     }
 
     private void initAdapter() {
@@ -136,7 +139,7 @@ public class ContactsFragment extends TFragment {
         if (customization != null) {
             adapter.addViewHolder(ItemTypes.FUNC, customization.onGetFuncViewHolderClass());
         }
-        adapter.addViewHolder(ItemTypes.FRIEND, ContactHolder.class);
+        adapter.addViewHolder(ItemTypes.FRIEND, OnlineStateContactHolder.class);
     }
 
     private void findViews() {
@@ -377,7 +380,7 @@ public class ContactsFragment extends TFragment {
         }
 
         boolean needReload = false;
-        if(!force) {
+        if (!force) {
             // 非force：与通讯录无关的（非好友）变更通知，去掉
             for (String account : accounts) {
                 if (FriendDataCache.getInstance().isMyFriend(account)) {
@@ -385,7 +388,7 @@ public class ContactsFragment extends TFragment {
                     break;
                 }
             }
-        } else{
+        } else {
             needReload = true;
         }
 
@@ -408,5 +411,28 @@ public class ContactsFragment extends TFragment {
 
         // reload
         reload(reload);
+    }
+
+    /**
+     * *********************************** 在线状态 *******************************
+     */
+
+    OnlineStateChangeListener onlineStateChangeListener = new OnlineStateChangeListener() {
+        @Override
+        public void onlineStateChange(Set<String> accounts) {
+            // 更新
+            adapter.notifyDataSetChanged();
+        }
+    };
+
+    private void registerOnlineStateChangeListener(boolean register) {
+        if (!NimUIKit.enableOnlineState()) {
+            return;
+        }
+        if (register) {
+            NimUIKit.addOnlineStateChangeListeners(onlineStateChangeListener);
+        } else {
+            NimUIKit.removeOnlineStateChangeListeners(onlineStateChangeListener);
+        }
     }
 }

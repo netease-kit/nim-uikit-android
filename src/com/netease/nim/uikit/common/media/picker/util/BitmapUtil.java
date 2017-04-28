@@ -1,26 +1,32 @@
 package com.netease.nim.uikit.common.media.picker.util;
 
-import java.io.IOException;
-
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
+import android.text.TextUtils;
+
+import java.io.IOException;
 
 
 public class BitmapUtil {
-	
-	public static Bitmap reviewPicRotate(Bitmap bitmap,String path){
-		int degree = getPicRotate(path);
-		if(degree!=0){
-			try{
-				Matrix m = new Matrix();  
-				int width = bitmap.getWidth();  
-				int height = bitmap.getHeight();  
-				m.setRotate(degree); 
-				bitmap = Bitmap.createBitmap(bitmap, 0, 0, width, height,m, true);
-			}catch(Exception e){
+
+	public static Bitmap reviewPicRotate(Bitmap bitmap, String path) {
+		int degree = 0;
+		String mimeType = getImageType(path);
+		if (!TextUtils.isEmpty(mimeType) && !mimeType.equals("image/png")) {
+			degree = getPicRotate(path);
+		}
+		if (degree != 0) {
+			try {
+				Matrix m = new Matrix();
+				int width = bitmap.getWidth();
+				int height = bitmap.getHeight();
+				m.setRotate(degree);
+				bitmap = Bitmap.createBitmap(bitmap, 0, 0, width, height, m, true);
+			} catch (Exception e) {
 				e.printStackTrace();
-			}catch(Error err){
+			} catch (Error err) {
 				err.printStackTrace();
 			}
 		}
@@ -76,5 +82,12 @@ public class BitmapUtil {
 		matrix.postScale(scaleWidth, scaleHeight);
 
 		return Bitmap.createBitmap(BitmapOrg, 0, 0, width, height, matrix, true);
+	}
+
+	public static String getImageType(String path) {
+		BitmapFactory.Options options = new BitmapFactory.Options();
+		options.inJustDecodeBounds = true;
+		BitmapFactory.decodeFile(path, options);
+		return options.outMimeType;
 	}
 }

@@ -198,7 +198,6 @@ public class FriendDataCache {
                 for (String a : deletedFriendAccounts) {
                     friendMap.remove(a);
                 }
-
                 // log
                 DataCacheManager.Log(deletedFriendAccounts, "on delete friends", UIKitLogTag.FRIEND_CACHE);
 

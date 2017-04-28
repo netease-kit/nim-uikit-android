@@ -1,9 +1,13 @@
 package com.netease.nim.uikit.common.util.storage;
 
+import android.Manifest;
 import android.content.Context;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Environment;
 import android.os.StatFs;
 import android.text.TextUtils;
+import android.util.Log;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,6 +21,12 @@ class ExternalStorage {
 
 	private static ExternalStorage instance;
 
+	private static final String TAG = "ExternalStorage";
+
+	private boolean hasPermission = true; // 是否拥有存储卡权限
+
+	private Context context;
+
 	private ExternalStorage() {
 
 	}
@@ -29,6 +39,11 @@ class ExternalStorage {
 	}
 
     public void init(Context context, String sdkStorageRoot) {
+
+		this.context = context;
+		// 判断权限
+		hasPermission = checkPermission(context);
+
         if (!TextUtils.isEmpty(sdkStorageRoot)) {
             File dir = new File(sdkStorageRoot);
             if (!dir.exists()) {
@@ -47,7 +62,7 @@ class ExternalStorage {
         }
 
         createSubFolders();
-    }
+	}
 
     private void loadStorageState(Context context) {
         String externalPath = Environment.getExternalStorageDirectory().getPath();
@@ -173,7 +188,7 @@ class ExternalStorage {
     public long getAvailableExternalSize() {
 		return getResidualSpace(sdkStorageRoot);
 	}
-    
+
     /**
      * 获取目录剩余空间
      * @param directoryPath
@@ -191,4 +206,44 @@ class ExternalStorage {
         }
         return 0;
     }
+
+	/**
+	 * SD卡存储权限检查
+	 */
+	private boolean checkPermission(Context context) {
+		if (context == null) {
+			Log.e(TAG, "checkMPermission context null");
+			return false;
+		}
+
+		// M permission
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+			String p1 = Manifest.permission.WRITE_EXTERNAL_STORAGE;
+			String p2 = Manifest.permission.READ_EXTERNAL_STORAGE;
+			// M 先看看有没有读写权限
+			if (context.checkSelfPermission(p1) != PackageManager.PERMISSION_GRANTED ||
+					context.checkSelfPermission(p2) != PackageManager.PERMISSION_GRANTED) {
+				Log.e(TAG, "without permission to access storage");
+				return false;
+			}
+		}
+
+		return true;
+	}
+	/**
+	 * 有效性检查
+	 */
+	public void checkStorageValid() {
+		if (hasPermission) {
+			return; // M以下版本&授权过的M版本不需要检查
+		}
+
+		hasPermission = checkPermission(context); // 检查是否已经获取权限了
+		if (hasPermission) {
+			Log.i(TAG, "get permission to access storage");
+
+			// 已经重新获得权限，那么重新检查一遍初始化过程
+			createSubFolders();
+		}
+	}
 }

@@ -125,7 +125,7 @@ public class MoonUtil {
 			String emot = value.substring(start, end);
 			Drawable d = getEmotDrawable(context, emot, scale);
 			if (d != null) {
-				ImageSpan span = new ImageSpan(d, align);
+				ImageSpan span = align == -1 ? new ImageSpanAlignCenter(d) : new ImageSpan(d, align);
 				mSpannableString.setSpan(span, start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 			}
 		}

@@ -131,6 +131,12 @@ public abstract class UI extends AppCompatActivity {
         }
     }
 
+    public void setSubTitle(String subTitle) {
+        if (toolbar != null) {
+            toolbar.setSubtitle(subTitle);
+        }
+    }
+
     protected final Handler getHandler() {
         if (handler == null) {
             handler = new Handler(getMainLooper());

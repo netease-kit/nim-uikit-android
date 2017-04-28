@@ -24,10 +24,10 @@ import com.netease.nim.uikit.session.SessionEventListener;
 import com.netease.nim.uikit.session.activity.P2PMessageActivity;
 import com.netease.nim.uikit.session.activity.TeamMessageActivity;
 import com.netease.nim.uikit.session.emoji.StickerManager;
-import com.netease.nim.uikit.session.viewholder.MsgViewHolderBase;
-import com.netease.nim.uikit.session.viewholder.MsgViewHolderFactory;
 import com.netease.nim.uikit.session.module.MsgForwardFilter;
 import com.netease.nim.uikit.session.module.MsgRevokeFilter;
+import com.netease.nim.uikit.session.viewholder.MsgViewHolderBase;
+import com.netease.nim.uikit.session.viewholder.MsgViewHolderFactory;
 import com.netease.nim.uikit.team.activity.AdvancedTeamInfoActivity;
 import com.netease.nim.uikit.team.activity.NormalTeamInfoActivity;
 import com.netease.nim.uikit.uinfo.UserInfoHelper;
@@ -43,7 +43,9 @@ import com.netease.nimlib.sdk.team.constant.TeamTypeEnum;
 import com.netease.nimlib.sdk.team.model.Team;
 import com.netease.nimlib.sdk.uinfo.UserInfoProvider;
 
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * UIKit能力输出类。
@@ -88,6 +90,12 @@ public final class NimUIKit {
 
     // 群聊界面定制
     private static SessionCustomization commonTeamSessionCustomization;
+
+    // 在线状态展示内容
+    private static OnlineStateContentProvider onlineStateContentProvider;
+
+    // 在线状态变化监听
+    private static List<OnlineStateChangeListener> onlineStateChangeListeners;
 
     /**
      * 初始化UIKit, 用户信息、联系人信息使用 {@link DefalutUserInfoProvider}，{@link DefaultContactProvider}
@@ -495,5 +503,44 @@ public final class NimUIKit {
      */
     public static void CustomPushContentProvider(CustomPushContentProvider mixPushCustomConfig) {
         NimUIKit.customPushContentProvider = mixPushCustomConfig;
+    }
+
+    public static OnlineStateContentProvider getOnlineStateContentProvider() {
+        return onlineStateContentProvider;
+    }
+
+    public static void setOnlineStateContentProvider(OnlineStateContentProvider onlineStateContentProvider) {
+        NimUIKit.onlineStateContentProvider = onlineStateContentProvider;
+    }
+
+    public static void addOnlineStateChangeListeners(OnlineStateChangeListener onlineStateChangeListener) {
+        if (onlineStateChangeListeners == null) {
+            onlineStateChangeListeners = new LinkedList<>();
+        }
+        onlineStateChangeListeners.add(onlineStateChangeListener);
+    }
+
+    public static void removeOnlineStateChangeListeners(OnlineStateChangeListener onlineStateChangeListener) {
+        if (onlineStateChangeListeners == null) {
+            return;
+        }
+        onlineStateChangeListeners.remove(onlineStateChangeListener);
+    }
+
+    public static void notifyOnlineStateChange(Set<String> accounts) {
+        if (onlineStateChangeListeners != null) {
+            for (OnlineStateChangeListener listener : onlineStateChangeListeners) {
+                listener.onlineStateChange(accounts);
+            }
+        }
+    }
+
+    /**
+     * 设置了 onlineStateContentProvider 则表示UIKit需要展示在线状态
+     *
+     * @return
+     */
+    public static boolean enableOnlineState() {
+        return onlineStateContentProvider != null;
     }
 }

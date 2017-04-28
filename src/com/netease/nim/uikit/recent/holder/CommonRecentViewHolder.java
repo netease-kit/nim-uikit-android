@@ -12,6 +12,7 @@ import com.netease.nimlib.sdk.msg.MsgService;
 import com.netease.nimlib.sdk.msg.attachment.MsgAttachment;
 import com.netease.nimlib.sdk.msg.attachment.NotificationAttachment;
 import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
+import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
 import com.netease.nimlib.sdk.msg.model.RecentContact;
 
@@ -27,6 +28,15 @@ public class CommonRecentViewHolder extends RecentViewHolder {
     @Override
     protected String getContent(RecentContact recent) {
         return descOfMsg(recent);
+    }
+
+    @Override
+    protected String getOnlineStateContent(RecentContact recent) {
+        if (recent.getSessionType() == SessionTypeEnum.P2P && NimUIKit.enableOnlineState()) {
+            return NimUIKit.getOnlineStateContentProvider().getSimpleDisplay(recent.getContactId());
+        } else {
+            return super.getOnlineStateContent(recent);
+        }
     }
 
     protected String descOfMsg(RecentContact recent) {
@@ -114,7 +124,7 @@ public class CommonRecentViewHolder extends RecentViewHolder {
                     }
                 }
             default:
-                return "[自定义消息]";
+                return "[自定义消息] ";
         }
     }
 }

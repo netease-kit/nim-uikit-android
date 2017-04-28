@@ -58,6 +58,8 @@ public abstract class RecentViewHolder extends RecyclerViewHolder<BaseQuickAdapt
 
     private ImageView imgUnreadExplosion;
 
+    protected TextView tvOnlineState;
+
     // 子类覆写
     protected abstract String getContent(RecentContact recent);
 
@@ -78,7 +80,7 @@ public abstract class RecentViewHolder extends RecyclerViewHolder<BaseQuickAdapt
         this.imgMsgStatus = holder.getView(R.id.img_msg_status);
         this.bottomLine = holder.getView(R.id.bottom_line);
         this.topLine = holder.getView(R.id.top_line);
-
+        this.tvOnlineState = holder.getView(R.id.tv_online_state);
         holder.addOnClickListener(R.id.unread_number_tip);
 
         this.tvUnread.setTouchListener(new DropFake.ITouchListener() {
@@ -110,6 +112,8 @@ public abstract class RecentViewHolder extends RecyclerViewHolder<BaseQuickAdapt
         loadPortrait(recent);
 
         updateNickLabel(UserInfoHelper.getUserTitleName(recent.getContactId(), recent.getSessionType()));
+
+        updateOnlineState(recent);
 
         updateMsgLabel(holder, recent);
 
@@ -162,7 +166,7 @@ public abstract class RecentViewHolder extends RecyclerViewHolder<BaseQuickAdapt
 
     private void updateMsgLabel(BaseViewHolder holder, RecentContact recent) {
         // 显示消息具体内容
-        MoonUtil.identifyRecentVHFaceExpressionAndTags(holder.getContext(), tvMessage, getContent(recent), ImageSpan.ALIGN_BOTTOM, 0.45f);
+        MoonUtil.identifyRecentVHFaceExpressionAndTags(holder.getContext(), tvMessage, getContent(recent), -1, 0.45f);
         //tvMessage.setText(getContent());
 
         MsgStatusEnum status = recent.getMsgStatus();
@@ -182,6 +186,19 @@ public abstract class RecentViewHolder extends RecyclerViewHolder<BaseQuickAdapt
 
         String timeString = TimeUtil.getTimeShowString(recent.getTime(), true);
         tvDatetime.setText(timeString);
+    }
+
+    protected String getOnlineStateContent(RecentContact recent) {
+        return "";
+    }
+
+    protected void updateOnlineState(RecentContact recent) {
+        if (recent.getSessionType() == SessionTypeEnum.Team) {
+            tvOnlineState.setVisibility(View.GONE);
+        } else {
+            tvOnlineState.setVisibility(View.VISIBLE);
+            tvOnlineState.setText(getOnlineStateContent(recent));
+        }
     }
 
     protected void updateNickLabel(String nick) {

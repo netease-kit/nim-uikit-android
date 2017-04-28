@@ -11,6 +11,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.netease.nim.uikit.NimUIKit;
+import com.netease.nim.uikit.OnlineStateChangeListener;
 import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.cache.FriendDataCache;
 import com.netease.nim.uikit.cache.TeamDataCache;
@@ -87,6 +88,7 @@ public class RecentContactsFragment extends TFragment {
         requestMessages(true);
         registerObservers(true);
         registerDropCompletedListener(true);
+        registerOnlineStateChangeListener(true);
     }
 
     @Override
@@ -106,6 +108,7 @@ public class RecentContactsFragment extends TFragment {
         super.onDestroy();
         registerObservers(false);
         registerDropCompletedListener(false);
+        registerOnlineStateChangeListener(false);
     }
 
     /**
@@ -208,6 +211,24 @@ public class RecentContactsFragment extends TFragment {
 
         }
     };
+
+    OnlineStateChangeListener onlineStateChangeListener = new OnlineStateChangeListener() {
+        @Override
+        public void onlineStateChange(Set<String> accounts) {
+            notifyDataSetChanged();
+        }
+    };
+
+    private void registerOnlineStateChangeListener(boolean register) {
+        if (!NimUIKit.enableOnlineState()) {
+            return;
+        }
+        if (register) {
+            NimUIKit.addOnlineStateChangeListeners(onlineStateChangeListener);
+        } else {
+            NimUIKit.removeOnlineStateChangeListeners(onlineStateChangeListener);
+        }
+    }
 
     private void showLongClickMenu(final RecentContact recent, final int position) {
         CustomAlertDialog alertDialog = new CustomAlertDialog(getActivity());
