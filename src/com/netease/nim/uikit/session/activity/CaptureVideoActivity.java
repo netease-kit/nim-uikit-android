@@ -397,19 +397,8 @@ public class CaptureVideoActivity extends UI implements SurfaceHolder.Callback {
     @SuppressLint("NewApi")
     private void setCamcorderProfile() {
         CamcorderProfile profile;
-        if (super.isCompatible(11)) {
-            if (CamcorderProfile.hasProfile(cameraId, CamcorderProfile.QUALITY_CIF)) {
-                profile = CamcorderProfile.get(cameraId, CamcorderProfile.QUALITY_CIF);
-            } else {
-                profile = CamcorderProfile.get(cameraId, CamcorderProfile.QUALITY_LOW);
-            }
-        } else {
-            if (super.isCompatible(9)) {
-                profile = CamcorderProfile.get(cameraId, CamcorderProfile.QUALITY_LOW);
-            } else {
-                profile = CamcorderProfile.get(CamcorderProfile.QUALITY_LOW);
-            }
-        }
+
+        profile = CamcorderProfile.get(CamcorderProfile.QUALITY_480P);
 
         if (profile != null) {
             if (currentUsePoint != null) {
@@ -423,10 +412,6 @@ public class CaptureVideoActivity extends UI implements SurfaceHolder.Callback {
                 profile.videoCodec = MediaRecorder.VideoEncoder.H263;
             } else {
                 profile.videoCodec = MediaRecorder.VideoEncoder.H264;
-            }
-
-            if (Build.VERSION.SDK_INT < 11) {
-                profile.videoCodec = MediaRecorder.VideoEncoder.H263;
             }
 
             if (Build.VERSION.SDK_INT >= 14) {

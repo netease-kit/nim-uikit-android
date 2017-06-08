@@ -1,14 +1,8 @@
 package com.netease.nim.uikit.cache;
 
-import android.content.Context;
-import android.os.Handler;
-
-import com.netease.nim.uikit.NimUIKit;
 import com.netease.nim.uikit.common.framework.NimSingleThreadExecutor;
 import com.netease.nim.uikit.common.util.log.LogUtil;
-import com.netease.nimlib.sdk.Observer;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -33,27 +27,10 @@ public class DataCacheManager {
      * 本地缓存构建(异步)
      */
     public static void buildDataCacheAsync() {
-        buildDataCacheAsync(null, null);
-    }
-
-    /**
-     * 本地缓存构建(异步)
-     */
-    public static void buildDataCacheAsync(final Context context, final Observer<Void> buildCompletedObserver) {
         NimSingleThreadExecutor.getInstance().execute(new Runnable() {
             @Override
             public void run() {
                 buildDataCache();
-
-                // callback
-                if (context != null && buildCompletedObserver != null) {
-                    new Handler(context.getMainLooper()).post(new Runnable() {
-                        @Override
-                        public void run() {
-                            buildCompletedObserver.onEvent(null);
-                        }
-                    });
-                }
 
                 LogUtil.i(TAG, "build data cache completed");
             }
@@ -71,11 +48,6 @@ public class DataCacheManager {
         FriendDataCache.getInstance().buildCache();
         NimUserInfoCache.getInstance().buildCache();
         TeamDataCache.getInstance().buildCache();
-
-        // build self avatar cache
-        List<String> accounts = new ArrayList<>(1);
-        accounts.add(NimUIKit.getAccount());
-        NimUIKit.getImageLoaderKit().buildAvatarCache(accounts);
     }
 
     /**
@@ -86,9 +58,6 @@ public class DataCacheManager {
         FriendDataCache.getInstance().clear();
         NimUserInfoCache.getInstance().clear();
         TeamDataCache.getInstance().clear();
-
-        // clear avatar cache
-        NimUIKit.getImageLoaderKit().clear();
     }
 
     /**

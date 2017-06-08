@@ -14,11 +14,11 @@ public class NimSingleThreadExecutor {
 
     private static NimSingleThreadExecutor instance;
 
-    private Handler uiHander;
+    private Handler uiHandler;
     private Executor executor;
 
     private NimSingleThreadExecutor() {
-        uiHander = new Handler(NimUIKit.getContext().getMainLooper());
+        uiHandler = new Handler(NimUIKit.getContext().getMainLooper());
         executor = Executors.newSingleThreadExecutor();
     }
 
@@ -63,8 +63,8 @@ public class NimSingleThreadExecutor {
         @Override
         public void run() {
             final T res = task.runInBackground();
-            if (uiHander != null) {
-                uiHander.post(new Runnable() {
+            if (uiHandler != null) {
+                uiHandler.post(new Runnable() {
                     @Override
                     public void run() {
                         task.onCompleted(res);

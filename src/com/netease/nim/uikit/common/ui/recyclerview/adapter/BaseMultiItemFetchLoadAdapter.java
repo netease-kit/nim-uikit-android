@@ -123,6 +123,14 @@ public abstract class BaseMultiItemFetchLoadAdapter<T, K extends BaseViewHolder>
     private int getLayoutId(int viewType) {
         return layouts.get(viewType);
     }
+
+    protected RecyclerViewHolder getViewHolder(int viewType, String viewHolderKey) {
+        if (multiTypeViewHolders.containsKey(viewType)) {
+            return multiTypeViewHolders.get(viewType).get(viewHolderKey);
+        }
+
+        return null;
+    }
 }
 
 

@@ -1,7 +1,6 @@
 package com.netease.nim.uikit.common.ui.imageview;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
@@ -9,27 +8,14 @@ import android.graphics.PorterDuffXfermode;
 import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.view.View;
 import android.widget.ImageView;
 
+import com.bumptech.glide.Glide;
 import com.netease.nim.uikit.R;
-import com.netease.nim.uikit.common.framework.NimSingleThreadExecutor;
-import com.netease.nim.uikit.common.util.media.BitmapDecoder;
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.assist.FailReason;
-import com.nostra13.universalimageloader.core.assist.ImageSize;
-import com.nostra13.universalimageloader.core.assist.ViewScaleType;
-import com.nostra13.universalimageloader.core.download.ImageDownloader;
-import com.nostra13.universalimageloader.core.imageaware.NonViewAware;
-import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
-import com.nostra13.universalimageloader.utils.MemoryCacheUtils;
 
-import java.io.IOException;
+import java.io.File;
 
 public class MsgThumbImageView extends ImageView {
-
-    private Drawable mask; // blend mask drawable
 
     public MsgThumbImageView(Context context) {
         super(context);
@@ -43,24 +29,15 @@ public class MsgThumbImageView extends ImageView {
         super(context, attrs, defStyle);
     }
 
-    private DisplayImageOptions options = createImageOptions();
+    /**
+     * *************************** 自定义绘制 **********************************
+     */
 
-    private boolean hasLoaded = false;
-
-    private static final DisplayImageOptions createImageOptions() {
-        int defaultIcon = R.drawable.nim_image_default;
-        return new DisplayImageOptions.Builder()
-                .showImageOnLoading(defaultIcon)
-                .showImageOnFail(defaultIcon)
-                .cacheInMemory(true)
-                .cacheOnDisk(true)
-                .bitmapConfig(Bitmap.Config.RGB_565)
-                .build();
-    }
+    private Drawable mask; // blend mask drawable
 
     private static final Paint paintMask = createMaskPaint();
 
-    private static final Paint createMaskPaint() {
+    private static Paint createMaskPaint() {
         Paint paint = new Paint();
 
         paint.setAntiAlias(true);
@@ -109,85 +86,28 @@ public class MsgThumbImageView extends ImageView {
         return false;
     }
 
-    public void loadAsPath(String pathName, int width, int height, int maskId) {
+    /**
+     * *************************** 对外接口 **********************************
+     */
+
+    public void loadAsResource(final int resId, final int maskId) {
         setBlendDrawable(maskId);
-        setImageBitmap(BitmapDecoder.decodeSampled(pathName, width, height));
+        Glide.with(getContext().getApplicationContext()).load(resId).into(this);
     }
 
-    public void loadAsPath(boolean isOriginal, final String path, final String tag, final int width, final int height, final int maskId) {
+    public void loadAsPath(final String path, final int width, final int height, final int maskId) {
         if (TextUtils.isEmpty(path)) {
-            setTag(null);
             loadAsResource(R.drawable.nim_image_default, maskId);
             return;
         }
 
-        if (!isOriginal || getTag() == null || !getTag().equals(tag)) {
-            hasLoaded = false; // 由于ViewHolder复用，使得tag发生变化，必须重新加载
-        }
-        setTag(tag); // 解决ViewHolder复用问题
-
-        // async load
-        if (!hasLoaded) {
-            // load default image first
-            loadAsResource(R.drawable.nim_image_default, maskId);
-
-            final String uri = ImageDownloader.Scheme.FILE.wrap(path);
-            final ImageSize imageSize = new ImageSize(width, height);
-            ImageLoader.getInstance().displayImage(uri, new NonViewAware(imageSize,
-                    ViewScaleType.CROP), options, new SimpleImageLoadingListener() {
-                @Override
-                public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-                    if (getTag() != null && getTag().equals(tag) && !hasLoaded) {
-                        setImageBitmap(loadedImage);
-                        hasLoaded = true; // 没有复用情况下，已经加载过了，不要重复加载，会闪烁
-                    }
-                }
-
-                @Override
-                public void onLoadingFailed(final String imageUri, View view, FailReason failReason) {
-                    // 视频缩略图后缀.mp4等导致ImageLoader解码失败
-                    if (failReason.getType() == FailReason.FailType.DECODING_ERROR) {
-                        loadBmpAsync(imageUri, path, imageSize, tag);
-                    }
-                }
-            });
-        }
-    }
-
-    private void loadBmpAsync(final String imageUri, final String path, final ImageSize imageSize, final String tag) {
-        NimSingleThreadExecutor.getInstance().execute(new NimSingleThreadExecutor.NimTask<Bitmap>() {
-            @Override
-            public Bitmap runInBackground() {
-                return decodeBmpAndSave(path, imageSize, imageUri);
-            }
-
-            @Override
-            public void onCompleted(Bitmap result) {
-                if (result != null && (getTag() != null && getTag().equals(tag) && !hasLoaded)) {
-                    setImageBitmap(result);
-                    hasLoaded = true;
-                }
-            }
-        });
-    }
-
-    private Bitmap decodeBmpAndSave(String path, ImageSize imageSize, String imageUri) {
-        Bitmap bitmap = BitmapDecoder.decodeSampled(path, imageSize.getWidth(), imageSize.getHeight());
-        if (bitmap != null) {
-            String memoryCacheKey = MemoryCacheUtils.generateKey(imageUri, imageSize);
-            ImageLoader.getInstance().getMemoryCache().put(memoryCacheKey, bitmap);
-            try {
-                ImageLoader.getInstance().getDiskCache().save(imageUri, bitmap);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return bitmap;
-    }
-
-    public void loadAsResource(int resId, int maskId) {
         setBlendDrawable(maskId);
-        setImageResource(resId);
+        Glide.with(getContext().getApplicationContext())
+                .load(new File(path)).asBitmap().fitCenter()
+                .placeholder(R.drawable.nim_image_default)
+                .error(R.drawable.nim_image_default)
+                .override(width, height)
+                .into(this);
     }
 
     private void setBlendDrawable(int maskId) {

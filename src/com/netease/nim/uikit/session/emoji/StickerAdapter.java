@@ -7,9 +7,9 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.netease.nim.uikit.R;
-import com.netease.nim.uikit.common.util.sys.ScreenUtil;
-import com.nostra13.universalimageloader.core.ImageLoader;
 
 /**
  * 每屏显示的贴图
@@ -65,8 +65,12 @@ public class StickerAdapter extends BaseAdapter {
             return convertView;
         }
 
-        ImageLoader.getInstance().displayImage(StickerManager.getInstance().getStickerBitmapUri(sticker.getCategory()
-                , sticker.getName()), viewHolder.imageView, StickerManager.getInstance().getStickerImageOptions(ScreenUtil.dip2px(64)));
+        Glide.with(context)
+                .load(StickerManager.getInstance().getStickerUri(sticker.getCategory(), sticker.getName()))
+                .error(com.netease.nim.uikit.R.drawable.nim_default_img_failed)
+                .diskCacheStrategy(DiskCacheStrategy.NONE)
+                .dontAnimate()
+                .into(viewHolder.imageView);
 
         viewHolder.descLabel.setVisibility(View.GONE);
 

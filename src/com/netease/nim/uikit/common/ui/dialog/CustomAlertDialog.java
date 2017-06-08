@@ -111,6 +111,11 @@ public class CustomAlertDialog extends AlertDialog {
 		};
 	}
 
+	public void setAdapter(final BaseAdapter adapter, final OnItemClickListener listener) {
+		listAdapter = adapter;
+		itemListener = listener;
+	}
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -119,6 +124,7 @@ public class CustomAlertDialog extends AlertDialog {
 		ViewGroup.LayoutParams params = root.getLayoutParams();
 		params.width = (int) ScreenUtil.getDialogWidth();
 		root.setLayoutParams(params);
+		addFootView(root);
 		titleView = findViewById(R.id.easy_dialog_title_view);
 		if (titleView != null) {
 			setTitleVisible(isTitleVisible);
@@ -136,6 +142,10 @@ public class CustomAlertDialog extends AlertDialog {
 		if (itemSize > 0) {
 			updateListView();
 		}
+	}
+
+	protected void addFootView(LinearLayout parent) {
+
 	}
 
 	public void setTitle(String title) {

@@ -409,18 +409,18 @@ public class TeamDataCache {
 
     /**
      * 获取显示名称。用户本人也显示昵称
-     * 高级群：首先返回群昵称。没有群昵称，则返回备注名。没有设置备注名，则返回用户昵称。
-     * 讨论组：首先返回备注名。没有设置备注名，则返回用户昵称。
+     * 备注>群昵称>昵称
      */
     public String getDisplayNameWithoutMe(String tid, String account) {
-        String memberNick = getTeamNick(tid, account);
-        if (!TextUtils.isEmpty(memberNick)) {
-            return memberNick;
-        }
 
         String alias = NimUserInfoCache.getInstance().getAlias(account);
         if (!TextUtils.isEmpty(alias)) {
             return alias;
+        }
+
+        String memberNick = getTeamNick(tid, account);
+        if (!TextUtils.isEmpty(memberNick)) {
+            return memberNick;
         }
 
         return NimUserInfoCache.getInstance().getUserName(account);

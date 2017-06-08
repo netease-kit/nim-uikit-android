@@ -85,8 +85,10 @@ public class DropManager {
     public void destroy() {
         this.isTouchable = false;
         this.statusBarHeight = 0;
-        this.dropCover.removeAllDropCompletedListeners();
-        this.dropCover = null;
+        if (this.dropCover != null) {
+            this.dropCover.removeAllDropCompletedListeners();
+            this.dropCover = null;
+        }
         this.currentId = null;
         this.textPaint = null;
         this.textYOffset = 0;

@@ -17,8 +17,9 @@ import com.netease.nim.uikit.contact_selector.activity.ContactSelectActivity;
 import com.netease.nim.uikit.custom.DefalutContactEventListener;
 import com.netease.nim.uikit.custom.DefalutP2PSessionCustomization;
 import com.netease.nim.uikit.custom.DefalutTeamSessionCustomization;
-import com.netease.nim.uikit.custom.DefalutUserInfoProvider;
+import com.netease.nim.uikit.custom.DefaultUserInfoProvider;
 import com.netease.nim.uikit.custom.DefaultContactProvider;
+import com.netease.nim.uikit.glide.ImageLoaderKit;
 import com.netease.nim.uikit.session.SessionCustomization;
 import com.netease.nim.uikit.session.SessionEventListener;
 import com.netease.nim.uikit.session.activity.P2PMessageActivity;
@@ -98,7 +99,7 @@ public final class NimUIKit {
     private static List<OnlineStateChangeListener> onlineStateChangeListeners;
 
     /**
-     * 初始化UIKit, 用户信息、联系人信息使用 {@link DefalutUserInfoProvider}，{@link DefaultContactProvider}
+     * 初始化UIKit, 用户信息、联系人信息使用 {@link DefaultUserInfoProvider}，{@link DefaultContactProvider}
      * 若用户自行提供 userInfoProvider，contactProvider，请使用 {@link NimUIKit#init(Context, UserInfoProvider, ContactProvider)}
      *
      * @param context
@@ -122,13 +123,14 @@ public final class NimUIKit {
         initDefalutSessionCustomization();
         initDefalutContactEventListener();
 
-        NimUIKit.imageLoaderKit = new ImageLoaderKit(context, null);
+        NimUIKit.imageLoaderKit = new ImageLoaderKit(context);
 
         // init data cache
         LoginSyncDataStatusObserver.getInstance().registerLoginSyncDataStatus(true);  // 监听登录同步数据完成通知
         DataCacheManager.observeSDKDataChanged(true);
         if (!TextUtils.isEmpty(getAccount())) {
             DataCacheManager.buildDataCache(); // build data cache on auto login
+            getImageLoaderKit().buildImageCache(); // build image cache on auto login
         }
 
         // init tools
@@ -145,7 +147,7 @@ public final class NimUIKit {
     private static void initUserInfoProvider(UserInfoProvider userInfoProvider) {
 
         if (userInfoProvider == null) {
-            userInfoProvider = new DefalutUserInfoProvider(context);
+            userInfoProvider = new DefaultUserInfoProvider(context);
         }
 
         NimUIKit.userInfoProvider = userInfoProvider;
@@ -240,6 +242,7 @@ public final class NimUIKit {
             public void onSuccess(LoginInfo loginInfo) {
                 NimUIKit.setAccount(loginInfo.getAccount());
                 DataCacheManager.buildDataCacheAsync();
+                getImageLoaderKit().buildImageCache();
                 callback.onSuccess(loginInfo);
             }
 
@@ -261,6 +264,7 @@ public final class NimUIKit {
      */
     public static void clearCache() {
         DataCacheManager.clearDataCache();
+        getImageLoaderKit().clear();
     }
 
     /**

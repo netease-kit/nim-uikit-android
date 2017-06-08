@@ -4,11 +4,9 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Handler;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.SimpleItemAnimator;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.view.View;
@@ -170,9 +168,7 @@ public class MessageListPanelEx {
                 }
             }
         });
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
-            messageListView.setOverScrollMode(View.OVER_SCROLL_NEVER);
-        }
+        messageListView.setOverScrollMode(View.OVER_SCROLL_NEVER);
 
         // adapter
         items = new ArrayList<>();
@@ -343,6 +339,7 @@ public class MessageListPanelEx {
         public void onClearMessages(String account) {
             items.clear();
             refreshMessageList();
+            adapter.fetchMoreEnd(null, true);
         }
     };
 
@@ -537,6 +534,8 @@ public class MessageListPanelEx {
                 return;
             }
 
+            boolean noMoreMessage = messages.size() < LOAD_MESSAGE_COUNT;
+
             if (remote) {
                 Collections.reverse(messages);
             }
@@ -573,20 +572,19 @@ public class MessageListPanelEx {
             updateReceipt(total); // 更新已读回执标签
 
             // 加载状态修改,刷新界面
-            int count = messages.size();
             if (isBottomLoad) {
                 // 底部加载
-                if (count <= 0) {
-                    adapter.loadMoreEnd(true);
+                if (noMoreMessage) {
+                    adapter.loadMoreEnd(messages, true);
                 } else {
                     adapter.loadMoreComplete(messages);
                 }
             } else {
                 // 顶部加载
-                if (count <= 0) {
-                    adapter.fetchMoreEnd(true);
+                if (noMoreMessage) {
+                    adapter.fetchMoreEnd(messages, true);
                 } else {
-                    adapter.fetchMoreComplete(messageListView, messages);
+                    adapter.fetchMoreComplete(messages);
                 }
             }
 
@@ -618,9 +616,10 @@ public class MessageListPanelEx {
             updateReceipt(messages); // 更新已读回执标签
 
             // new data
-            adapter.appendData(messages);
             if (loadCount < LOAD_MESSAGE_COUNT) {
-                adapter.loadMoreEnd(true);
+                adapter.loadMoreEnd(messages, true);
+            } else {
+                adapter.appendData(messages);
             }
 
             firstLoad = false;

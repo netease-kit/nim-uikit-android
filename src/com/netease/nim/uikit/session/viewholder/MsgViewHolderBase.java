@@ -2,6 +2,7 @@ package com.netease.nim.uikit.session.viewholder;
 
 import android.content.Context;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,6 +26,7 @@ import com.netease.nimlib.sdk.msg.MsgService;
 import com.netease.nimlib.sdk.msg.attachment.FileAttachment;
 import com.netease.nimlib.sdk.msg.constant.MsgDirectionEnum;
 import com.netease.nimlib.sdk.msg.constant.MsgStatusEnum;
+import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
 import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
 
@@ -154,6 +156,10 @@ public abstract class MsgViewHolderBase extends RecyclerViewHolder<BaseMultiItem
         view = holder.getConvertView();
         context = holder.getContext();
         message = data;
+
+        if(message.getMsgType() == MsgTypeEnum.audio) {
+            Log.i("huangjun", "convert msg=" + message.getUuid());
+        }
 
         inflate();
         refresh();

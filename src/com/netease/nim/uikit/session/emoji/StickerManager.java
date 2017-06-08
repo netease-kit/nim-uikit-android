@@ -1,16 +1,10 @@
 package com.netease.nim.uikit.session.emoji;
 
 import android.content.res.AssetManager;
-import android.graphics.Bitmap;
-import android.media.ThumbnailUtils;
 import android.util.Log;
 
 import com.netease.nim.uikit.NimUIKit;
-import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.common.util.file.FileUtil;
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
-import com.nostra13.universalimageloader.core.download.ImageDownloader;
-import com.nostra13.universalimageloader.core.process.BitmapProcessor;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -24,7 +18,7 @@ import java.util.Map;
  * 贴图管理类
  */
 public class StickerManager {
-    private final String TAG = "StickerManager";
+    private static final String TAG = "StickerManager";
 
     private static StickerManager instance;
     private static final String CATEGORY_AJMD = "ajmd";
@@ -37,11 +31,6 @@ public class StickerManager {
     private List<StickerCategory> stickerCategories = new ArrayList<>();
     private Map<String, StickerCategory> stickerCategoryMap = new HashMap<>();
     private Map<String, Integer> stickerOrder = new HashMap<>(3);
-
-    /**
-     * ImageLoader
-     */
-    private Map<Integer, DisplayImageOptions> stickerImageOptions = new HashMap<>(2);
 
     public static StickerManager getInstance() {
         if (instance == null) {
@@ -113,7 +102,7 @@ public class StickerManager {
         return stickerCategoryMap.get(name);
     }
 
-    public String getStickerBitmapUri(String categoryName, String stickerName) {
+    public String getStickerUri(String categoryName, String stickerName) {
         StickerManager manager = StickerManager.getInstance();
         StickerCategory category = manager.getCategory(categoryName);
         if (category == null) {
@@ -126,72 +115,9 @@ public class StickerManager {
             }
 
             String path = "sticker/" + category.getName() + "/" + stickerName;
-            return ImageDownloader.Scheme.ASSETS.wrap(path);
+            return "file:///android_asset/" + path;
         }
 
         return null;
-    }
-
-    /**
-     * **************************** StickerImageLoader ****************************
-     */
-
-    public DisplayImageOptions getStickerImageOptions(int resize) {
-        if (resize < 0) {
-            resize = 0;
-        }
-
-        if (!stickerImageOptions.containsKey(resize)) {
-            stickerImageOptions.put(resize, createStickerImageOption(resize));
-        }
-
-        return stickerImageOptions.get(resize);
-    }
-
-    private DisplayImageOptions createStickerImageOption(int resize) {
-        int defaultIcon = R.drawable.nim_default_img_failed;
-        return new DisplayImageOptions.Builder()
-                .showImageOnFail(defaultIcon)
-                .resetViewBeforeLoading(true)
-                .cacheInMemory(true)
-                .cacheOnDisk(false)
-                .preProcessor(new StickerBitmapResizeProcessor(resize))
-                .bitmapConfig(Bitmap.Config.RGB_565)
-                .build();
-    }
-
-    private class StickerBitmapResizeProcessor implements BitmapProcessor {
-        private int resize = 0;
-
-        public StickerBitmapResizeProcessor(int resize) {
-            this.resize = resize;
-        }
-
-        @Override
-        public Bitmap process(Bitmap bitmap) {
-            return resize(bitmap, resize);
-        }
-    }
-
-    private Bitmap resize(Bitmap source, int size) {
-        if (source == null) {
-            return null;
-        }
-        int scale = 1;
-        if (size < source.getWidth() / 4) {
-            scale = 4;
-        } else if (size < source.getWidth() * 3 / 4) {
-            scale = 2;
-        } else if (size < source.getWidth()) {
-            scale = 1;
-        }
-        int width = source.getWidth() / scale;
-        int height = source.getHeight() / scale;
-
-        if (width >= source.getWidth() && height >= source.getHeight()) {
-            return source;
-        } else {
-            return ThumbnailUtils.extractThumbnail(source, width, height, ThumbnailUtils.OPTIONS_RECYCLE_INPUT);
-        }
     }
 }

@@ -88,7 +88,7 @@ public abstract class MsgViewHolderThumbBase extends MsgViewHolderBase {
         setImageSize(path);
         if (path != null) {
             //thumbnail.loadAsPath(thumbPath, getImageMaxEdge(), getImageMaxEdge(), maskBg());
-            thumbnail.loadAsPath(isOriginal, path, message.getUuid(), getImageMaxEdge(), getImageMaxEdge(), maskBg());
+            thumbnail.loadAsPath(path,getImageMaxEdge(), getImageMaxEdge(), maskBg());
         } else {
             thumbnail.loadAsResource(R.drawable.nim_image_default, maskBg());
         }

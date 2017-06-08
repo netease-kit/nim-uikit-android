@@ -91,6 +91,7 @@ public abstract class UI extends AppCompatActivity {
 
         if (options.isNeedNavigate) {
             toolbar.setNavigationIcon(options.navigateId);
+            toolbar.setContentInsetStartWithNavigation(0);
             toolbar.setNavigationOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

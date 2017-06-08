@@ -140,6 +140,8 @@ public class MsgViewHolderAudio extends MsgViewHolderBase {
         long duration = msgAttachment.getDuration();
         setAudioBubbleWidth(duration);
 
+        durationLabel.setTag(message.getUuid());
+
         if (!isMessagePlaying(audioControl, message)) {
             if (audioControl.getAudioControlListener() != null
                     && audioControl.getAudioControlListener().equals(onPlayListener)) {
@@ -216,6 +218,10 @@ public class MsgViewHolderAudio extends MsgViewHolderBase {
 
         @Override
         public void updatePlayingProgress(Playable playable, long curPosition) {
+            if(!isTheSame(message.getUuid())) {
+                return;
+            }
+
             if (curPosition > playable.getDuration()) {
                 return;
             }
@@ -224,15 +230,25 @@ public class MsgViewHolderAudio extends MsgViewHolderBase {
 
         @Override
         public void onAudioControllerReady(Playable playable) {
+            if(!isTheSame(message.getUuid())) {
+                return;
+            }
+
             play();
         }
 
         @Override
         public void onEndPlay(Playable playable) {
+            if(!isTheSame(message.getUuid())) {
+                return;
+            }
+
             updateTime(playable.getDuration());
 
             stop();
         }
+
+
     };
 
     private void play() {
@@ -267,14 +283,10 @@ public class MsgViewHolderAudio extends MsgViewHolderBase {
         }
     }
 
-//    @Override
-//    public void reclaim() {
-//        super.reclaim();
-//        if (audioControl.getAudioControlListener() != null
-//                && audioControl.getAudioControlListener().equals(onPlayListener)) {
-//            audioControl.changeAudioControlListener(null);
-//        }
-//    }
+    private boolean isTheSame(String uuid) {
+        String current = durationLabel.getTag().toString();
+        return !TextUtils.isEmpty(uuid) && uuid.equals(current);
+    }
 
     @Override
     protected int leftBackground() {

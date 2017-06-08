@@ -5,6 +5,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
@@ -34,12 +35,12 @@ import com.netease.nim.uikit.contact.core.viewholder.OnlineStateContactHolder;
 import com.netease.nim.uikit.uinfo.UserInfoHelper;
 import com.netease.nim.uikit.uinfo.UserInfoObservable;
 import com.netease.nimlib.sdk.Observer;
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.listener.PauseOnScrollListener;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+
+import me.everything.android.ui.overscroll.OverScrollDecoratorHelper;
 
 
 /**
@@ -155,11 +156,25 @@ public class ContactsFragment extends TFragment {
         listView = findView(R.id.contact_list_view);
         listView.addFooterView(countLayout); // 注意：addFooter要放在setAdapter之前，否则旧版本手机可能会add不上
         listView.setAdapter(adapter);
-        listView.setOnScrollListener(new PauseOnScrollListener(ImageLoader.getInstance(), true, true));
+        listView.setOnScrollListener(new AbsListView.OnScrollListener() {
+
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+
+            }
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+
+            }
+        });
 
         ContactItemClickListener listener = new ContactItemClickListener();
         listView.setOnItemClickListener(listener);
         listView.setOnItemLongClickListener(listener);
+
+        // ios style
+        OverScrollDecoratorHelper.setUpOverScroll(listView);
     }
 
     private void buildLitterIdx(View view) {

@@ -3,6 +3,11 @@
 
 
     <application>
+
+        <meta-data
+            android:name="com.netease.nim.uikit.glide.NIMGlideModule"
+            android:value="GlideModule"/>
+
         <!-- 会话窗口 -->
         <!-- UI组件中包含了语音选文字功能，该界面是全屏显示，为了视觉上的美观，该界面主题ActionBar使用Overlay模式。
              如果开发者不需要该功能或效果，使用普通主题即可。 同时，还需要将message_activity.xml这个layout中的根节点的paddingTop去掉。 -->

@@ -2,7 +2,7 @@ package com.netease.nim.uikit.recent.holder;
 
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Handler;
-import android.text.style.ImageSpan;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -196,8 +196,13 @@ public abstract class RecentViewHolder extends RecyclerViewHolder<BaseQuickAdapt
         if (recent.getSessionType() == SessionTypeEnum.Team) {
             tvOnlineState.setVisibility(View.GONE);
         } else {
-            tvOnlineState.setVisibility(View.VISIBLE);
-            tvOnlineState.setText(getOnlineStateContent(recent));
+            String onlineStateContent = getOnlineStateContent(recent);
+            if (TextUtils.isEmpty(onlineStateContent)) {
+                tvOnlineState.setVisibility(View.GONE);
+            } else {
+                tvOnlineState.setVisibility(View.VISIBLE);
+                tvOnlineState.setText(getOnlineStateContent(recent));
+            }
         }
     }
 

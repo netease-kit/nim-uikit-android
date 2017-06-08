@@ -175,6 +175,11 @@ public class ContactSelectActivity extends UI implements View.OnClickListener, a
          * 允许不选任何人点击确定
          */
         public boolean allowSelectEmpty = false;
+
+        /**
+         * 是否显示最大数目，结合maxSelectNum,与搜索位置相同
+         */
+        public boolean maxSelectNumVisible = false;
     }
 
     public static void startActivityForResult(Context context, Option option, int requestCode) {
@@ -187,8 +192,10 @@ public class ContactSelectActivity extends UI implements View.OnClickListener, a
 
     @Override
     public void onBackPressed() {
-        searchView.setQuery("", true);
-        searchView.setIconified(true);
+        if (searchView != null) {
+            searchView.setQuery("", true);
+            searchView.setIconified(true);
+        }
         showKeyboard(false);
         finish();
     }
@@ -198,6 +205,11 @@ public class ContactSelectActivity extends UI implements View.OnClickListener, a
         // search view
         getMenuInflater().inflate(R.menu.contacts_search_menu, menu);
         MenuItem item = menu.findItem(R.id.action_search);
+        if (!option.searchVisible) {
+            item.setVisible(false);
+            return true;
+        }
+
         MenuItemCompat.setOnActionExpandListener(item, new MenuItemCompat.OnActionExpandListener() {
 
             @Override
@@ -217,7 +229,6 @@ public class ContactSelectActivity extends UI implements View.OnClickListener, a
         searchView.setOnQueryTextListener(this);
         return true;
     }
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -249,6 +260,8 @@ public class ContactSelectActivity extends UI implements View.OnClickListener, a
     private class ContactDataProviderEx extends ContactDataProvider {
         private String teamId;
 
+        private boolean loadedTeamMember = false;
+
         public ContactDataProviderEx(String teamId, int... itemTypes) {
             super(itemTypes);
             this.teamId = teamId;
@@ -256,7 +269,23 @@ public class ContactSelectActivity extends UI implements View.OnClickListener, a
 
         @Override
         public List<AbsContactItem> provide(TextQuery query) {
-            return TeamMemberDataProvider.provide(query, teamId);
+            List<AbsContactItem> data = new ArrayList<>();
+            // 异步加载
+            if (!loadedTeamMember) {
+                TeamMemberDataProvider.loadTeamMemberDataAsync(teamId, new TeamMemberDataProvider.LoadTeamMemberCallback() {
+                    @Override
+                    public void onResult(boolean success) {
+                        if (success) {
+                            loadedTeamMember = true;
+                            // 列表重新加载数据
+                            loadData();
+                        }
+                    }
+                });
+            } else {
+                data = TeamMemberDataProvider.provide(query, teamId);
+            }
+            return data;
         }
     }
 
@@ -506,7 +535,16 @@ public class ContactSelectActivity extends UI implements View.OnClickListener, a
 
     private String getOKBtnText(int count) {
         String caption = getString(R.string.ok);
-        return caption + " (" + (count < 1 ? 0 : (count - 1)) + ")";
+        int showCount = (count < 1 ? 0 : (count - 1));
+        StringBuilder sb = new StringBuilder(caption);
+        sb.append(" (");
+        sb.append(showCount);
+        if (option.maxSelectNumVisible) {
+            sb.append("/");
+            sb.append(option.maxSelectNum);
+        }
+        sb.append(")");
+        return sb.toString();
     }
 
     /**

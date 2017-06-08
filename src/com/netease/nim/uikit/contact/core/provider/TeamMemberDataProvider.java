@@ -1,11 +1,15 @@
 package com.netease.nim.uikit.contact.core.provider;
 
-import com.netease.nim.uikit.contact.core.model.TeamMemberContact;
+import android.text.TextUtils;
+
+import com.netease.nim.uikit.cache.SimpleCallback;
 import com.netease.nim.uikit.cache.TeamDataCache;
 import com.netease.nim.uikit.contact.core.item.AbsContactItem;
 import com.netease.nim.uikit.contact.core.item.ContactItem;
 import com.netease.nim.uikit.contact.core.item.ItemTypes;
 import com.netease.nim.uikit.contact.core.model.ContactGroupStrategy;
+import com.netease.nim.uikit.contact.core.model.IContact;
+import com.netease.nim.uikit.contact.core.model.TeamMemberContact;
 import com.netease.nim.uikit.contact.core.query.TextComparator;
 import com.netease.nim.uikit.contact.core.query.TextQuery;
 import com.netease.nimlib.sdk.team.model.TeamMember;
@@ -38,7 +42,13 @@ public class TeamMemberDataProvider {
 
             @Override
             public String belongsGroup() {
-                return ContactGroupStrategy.GROUP_TEAM;
+                String group = TextComparator.getLeadingUp(getCompare());
+                return !TextUtils.isEmpty(group) ? group : ContactGroupStrategy.GROUP_TEAM;
+            }
+
+            private String getCompare() {
+                IContact contact = getContact();
+                return contact != null ? contact.getDisplayName() : null;
             }
         };
     }
@@ -61,5 +71,26 @@ public class TeamMemberDataProvider {
         }
 
         return contacts;
+    }
+
+    /**
+     * 发起异步任务load群成员进入缓存
+     *
+     * @param tid
+     * @param callback
+     */
+    public static void loadTeamMemberDataAsync(String tid, final LoadTeamMemberCallback callback) {
+        TeamDataCache.getInstance().fetchTeamMemberList(tid, new SimpleCallback<List<TeamMember>>() {
+            @Override
+            public void onResult(boolean success, List<TeamMember> result) {
+                if (callback != null) {
+                    callback.onResult(success);
+                }
+            }
+        });
+    }
+
+    public interface LoadTeamMemberCallback {
+        void onResult(boolean success);
     }
 }

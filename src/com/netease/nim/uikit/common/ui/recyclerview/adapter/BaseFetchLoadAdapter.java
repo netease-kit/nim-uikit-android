@@ -43,6 +43,8 @@ public abstract class BaseFetchLoadAdapter<T, K extends BaseViewHolder> extends 
         void onFetchMoreRequested();
     }
 
+    protected RecyclerView mRecyclerView;
+
     private boolean mFetching = false;
     private boolean mFetchMoreEnable = false;
     private boolean mNextFetchEnable = false;
@@ -132,6 +134,7 @@ public abstract class BaseFetchLoadAdapter<T, K extends BaseViewHolder> extends 
      * @param data        A new list is created out of this one to avoid mutable list
      */
     public BaseFetchLoadAdapter(RecyclerView recyclerView, int layoutResId, List<T> data) {
+        this.mRecyclerView = recyclerView;
         this.mData = data == null ? new ArrayList<T>() : data;
         if (layoutResId != 0) {
             this.mLayoutResId = layoutResId;
@@ -222,17 +225,17 @@ public abstract class BaseFetchLoadAdapter<T, K extends BaseViewHolder> extends 
     /**
      * fetch complete
      */
-    public void fetchMoreComplete(final RecyclerView recyclerView, final List<T> newData) {
+    public void fetchMoreComplete(final List<T> newData) {
         addFrontData(newData); // notifyItemRangeInserted从顶部向下加入View，顶部View并没有改变
 
         if (getFetchMoreViewCount() == 0) {
             return;
         }
 
-        fetchMoreComplete(recyclerView, newData.size());
+        fetchMoreComplete(newData.size());
     }
 
-    public void fetchMoreComplete(final RecyclerView recyclerView, int newDataSize) {
+    public void fetchMoreComplete(int newDataSize) {
         if (getFetchMoreViewCount() == 0) {
             return;
         }
@@ -242,8 +245,8 @@ public abstract class BaseFetchLoadAdapter<T, K extends BaseViewHolder> extends 
         notifyItemChanged(0);
 
         // 定位到insert新消息前的top消息位置。必须移动，否则还在顶部，会继续fetch!!!
-        if (recyclerView != null) {
-            RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
+        if (mRecyclerView != null) {
+            RecyclerView.LayoutManager layoutManager = mRecyclerView.getLayoutManager();
             // 只有LinearLayoutManager才有查找第一个和最后一个可见view位置的方法
             if (layoutManager instanceof LinearLayoutManager) {
                 LinearLayoutManager linearManager = (LinearLayoutManager) layoutManager;
@@ -251,10 +254,10 @@ public abstract class BaseFetchLoadAdapter<T, K extends BaseViewHolder> extends 
                 int firstItemPosition = linearManager.findFirstVisibleItemPosition();
                 if (firstItemPosition == 0) {
                     // 最顶部可见的View已经是FetchMoreView了，那么add数据&局部刷新后，要进行定位到上次的最顶部消息。
-                    recyclerView.scrollToPosition(newDataSize + getFetchMoreViewCount());
+                    mRecyclerView.scrollToPosition(newDataSize + getFetchMoreViewCount());
                 }
             } else {
-                recyclerView.scrollToPosition(newDataSize);
+                mRecyclerView.scrollToPosition(newDataSize);
             }
         }
     }
@@ -262,9 +265,12 @@ public abstract class BaseFetchLoadAdapter<T, K extends BaseViewHolder> extends 
     /**
      * fetch end, no more data
      *
+     * @param data last load data to add
      * @param gone if true gone the fetch more view
      */
-    public void fetchMoreEnd(boolean gone) {
+    public void fetchMoreEnd(List<T> data, boolean gone) {
+        addFrontData(data);
+
         if (getFetchMoreViewCount() == 0) {
             return;
         }
@@ -380,9 +386,12 @@ public abstract class BaseFetchLoadAdapter<T, K extends BaseViewHolder> extends 
     /**
      * load end, no more data
      *
+     * @param data last data to append
      * @param gone if true gone the load more view
      */
-    public void loadMoreEnd(boolean gone) {
+    public void loadMoreEnd(List<T> data, boolean gone) {
+        appendData(data);
+
         if (getLoadMoreViewCount() == 0) {
             return;
         }
@@ -551,6 +560,10 @@ public abstract class BaseFetchLoadAdapter<T, K extends BaseViewHolder> extends 
      * @param newData
      */
     public void appendData(List<T> newData) {
+        if (newData == null || newData.isEmpty()) {
+            return;
+        }
+
         this.mData.addAll(newData);
         notifyItemRangeInserted(mData.size() - newData.size() + getFetchMoreViewCount(), newData.size());
     }
