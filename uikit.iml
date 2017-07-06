@@ -93,8 +93,8 @@
     <orderEntry type="jdk" jdkName="Android API 25 Platform" jdkType="Android SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" exported="" name="support-annotations-25.0.1" level="project" />
+    <orderEntry type="library" exported="" name="nrtc-3.9.0" level="project" />
     <orderEntry type="library" exported="" name="design-25.0.1" level="project" />
-    <orderEntry type="library" exported="" name="nrtc-3.8.0" level="project" />
     <orderEntry type="library" exported="" name="constraint-layout-solver-1.0.2" level="project" />
     <orderEntry type="library" exported="" name="constraint-layout-1.0.2" level="project" />
     <orderEntry type="library" exported="" name="transition-25.0.1" level="project" />
