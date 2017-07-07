@@ -1,4 +1,4 @@
-package com.netease.nim.uikit.team.ui;
+package com.netease.nim.uikit.common.ui.recyclerview.decoration;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -13,7 +13,7 @@ import android.view.View;
  * Created by hzchenkang on 2016/12/2.
  */
 
-public class DividerItemDecoration extends RecyclerView.ItemDecoration{
+public class DividerItemDecoration extends RecyclerView.ItemDecoration {
     private static final int[] ATTRS = new int[]{
             android.R.attr.listDivider
     };
@@ -50,12 +50,19 @@ public class DividerItemDecoration extends RecyclerView.ItemDecoration{
         }
     }
 
+    protected boolean needDrawDecoration(RecyclerView parent, int position) {
+        return true;
+    }
+
     public void drawVertical(Canvas c, RecyclerView parent) {
         final int left = parent.getPaddingLeft();
         final int right = parent.getWidth() - parent.getPaddingRight();
 
         final int childCount = parent.getChildCount();
         for (int i = 0; i < childCount; i++) {
+            if (!needDrawDecoration(parent, i)) {
+                continue;
+            }
             final View child = parent.getChildAt(i);
             android.support.v7.widget.RecyclerView v = new android.support.v7.widget.RecyclerView(parent.getContext());
             final RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) child
@@ -66,12 +73,16 @@ public class DividerItemDecoration extends RecyclerView.ItemDecoration{
             mDivider.draw(c);
         }
     }
+
     public void drawHorizontal(Canvas c, RecyclerView parent) {
         final int top = parent.getPaddingTop();
         final int bottom = parent.getHeight() - parent.getPaddingBottom();
 
         final int childCount = parent.getChildCount();
         for (int i = 0; i < childCount; i++) {
+            if (!needDrawDecoration(parent, i)) {
+                continue;
+            }
             final View child = parent.getChildAt(i);
             final RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) child
                     .getLayoutParams();
@@ -84,6 +95,9 @@ public class DividerItemDecoration extends RecyclerView.ItemDecoration{
 
     @Override
     public void getItemOffsets(Rect outRect, int itemPosition, RecyclerView parent) {
+        if (!needDrawDecoration(parent, itemPosition)) {
+            return;
+        }
         if (mOrientation == VERTICAL_LIST) {
             outRect.set(0, 0, 0, mDivider.getIntrinsicHeight());
         } else {

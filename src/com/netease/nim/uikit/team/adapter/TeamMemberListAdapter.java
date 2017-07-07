@@ -48,7 +48,7 @@ public class TeamMemberListAdapter extends RecyclerView.Adapter<TeamMemberListHo
             return null;
         }
         LayoutInflater inflater = LayoutInflater.from(context);
-        View v = inflater.inflate(R.layout.nim_team_member_list_item, parent, false);
+        View v = inflater.inflate(R.layout.nim_ait_contact_team_member_item, parent, false);
         v.setOnClickListener(this);
         return new TeamMemberListHolder(v);
     }

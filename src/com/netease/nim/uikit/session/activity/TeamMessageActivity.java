@@ -55,7 +55,7 @@ public class TeamMessageActivity extends BaseMessageActivity {
             intent.putExtra(Extras.EXTRA_ANCHOR, anchor);
         }
         intent.setClass(context, TeamMessageActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
         context.startActivity(intent);
     }

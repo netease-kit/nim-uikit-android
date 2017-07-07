@@ -18,7 +18,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.netease.nim.uikit.recent.AitHelper;
+import com.netease.nim.uikit.recent.TeamMemberAitHelper;
 
 public class MoonUtil {
 	private static final float DEF_SCALE = 0.6f;
@@ -57,7 +57,7 @@ public class MoonUtil {
 	public static void identifyRecentVHFaceExpressionAndTags(Context context, View textView,
 			String value, int align, float scale) {
 		SpannableString mSpannableString = makeSpannableStringTags(context, value, scale, align, false);
-		AitHelper.replaceAitForeground(value, mSpannableString);
+		TeamMemberAitHelper.replaceAitForeground(value, mSpannableString);
 		viewSetText(textView, mSpannableString);
 	}
 

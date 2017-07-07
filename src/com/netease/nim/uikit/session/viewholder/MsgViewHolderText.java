@@ -17,6 +17,8 @@ import com.netease.nim.uikit.session.emoji.MoonUtil;
  */
 public class MsgViewHolderText extends MsgViewHolderBase {
 
+    protected TextView bodyTextView;
+
     public MsgViewHolderText(BaseMultiItemFetchLoadAdapter adapter) {
         super(adapter);
     }
@@ -28,13 +30,12 @@ public class MsgViewHolderText extends MsgViewHolderBase {
 
     @Override
     protected void inflateContentView() {
+        bodyTextView = findViewById(R.id.nim_message_item_text_body);
     }
 
     @Override
     protected void bindContentView() {
         layoutDirection();
-
-        TextView bodyTextView = findViewById(R.id.nim_message_item_text_body);
         bodyTextView.setTextColor(isReceivedMessage() ? Color.BLACK : Color.WHITE);
         bodyTextView.setOnClickListener(new View.OnClickListener() {
             @Override

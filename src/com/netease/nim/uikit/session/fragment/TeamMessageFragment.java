@@ -1,24 +1,17 @@
 package com.netease.nim.uikit.session.fragment;
 
-import android.app.Activity;
-import android.content.Intent;
-import android.os.Bundle;
-import android.text.Editable;
 import android.widget.Toast;
 
 import com.netease.nim.uikit.R;
-import com.netease.nim.uikit.recent.AitHelper;
-import com.netease.nim.uikit.session.module.input.MessageEditWatcher;
-import com.netease.nim.uikit.team.activity.TeamMemberListActivity;
-import com.netease.nim.uikit.team.model.TeamExtras;
-import com.netease.nim.uikit.team.model.TeamRequestCode;
+import com.netease.nim.uikit.contact.ait.AitContactSelectorActivity;
+import com.netease.nim.uikit.contact.ait.AitedContacts;
+import com.netease.nim.uikit.recent.TeamMemberAitHelper;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
 import com.netease.nimlib.sdk.msg.model.MemberPushOption;
 import com.netease.nimlib.sdk.team.model.Team;
 import com.netease.nimlib.sdk.team.model.TeamMember;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -32,14 +25,6 @@ public class TeamMessageFragment extends MessageFragment {
 
     private Team team;
 
-    private Map<String, TeamMember> selectedMembers;
-
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        inputPanel.setWatcher(watcher);
-    }
-
     @Override
     public boolean isAllowSendMessage(IMMessage message) {
         if (team == null || !team.isMyTeam()) {
@@ -51,13 +36,20 @@ public class TeamMessageFragment extends MessageFragment {
     }
 
     @Override
-    public boolean sendMessage(IMMessage message) {
+    public void startAitContactActivity() {
+        AitContactSelectorActivity.start(getActivity(), team == null ? null : team.getId(), true);
+    }
 
-        if (selectedMembers != null && !selectedMembers.isEmpty()) {
+    @Override
+    public boolean sendMessage(IMMessage message) {
+        Map<String, TeamMember> aitedTeamMembers = AitedContacts.getInstance().getSelectedMembers();
+        if (!aitedTeamMembers.isEmpty()) {
+            // 移走后面又删掉的账号
+            removeInvalidAccount(aitedTeamMembers, message);
             // 从消息中构造 option 字段
-            MemberPushOption option = createMemPushOption(selectedMembers, message);
-            message.setMemberPushOption(option);
-            selectedMembers = null;
+            setMemPushOption(aitedTeamMembers, message);
+            // 替换文本中的账号为昵称
+            replaceNickName(aitedTeamMembers, message);
         }
         return super.sendMessage(message);
     }
@@ -66,51 +58,34 @@ public class TeamMessageFragment extends MessageFragment {
         this.team = team;
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        selectedMembers = null;
-    }
-
-    // inputPanel 文本输入框监听
-    MessageEditWatcher watcher = new MessageEditWatcher() {
-        @Override
-        public void afterTextChanged(Editable editable, int start, int count) {
-            if (count <= 0 || editable.length() < start + count)
-                return;
-            CharSequence s = editable.subSequence(start, start + count);
-            if (s != null && s.toString().equals("@")) {
-                // 选择联系人
-                TeamMemberListActivity.start(getActivity(), team.getId());
-            }
-        }
-    };
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode != Activity.RESULT_OK) {
-            return;
-        }
-        if (requestCode == TeamRequestCode.REQUEST_TEAM_AIT_MEMBER) {
-            TeamMember member = (TeamMember) data.getSerializableExtra(TeamExtras.RESULT_EXTRA_DATA);
-            if (selectedMembers == null) {
-                selectedMembers = new HashMap<>();
-            }
-            selectedMembers.put(member.getAccount(), member);
-        }
-        super.onActivityResult(requestCode, resultCode, data);
-    }
-
-    private MemberPushOption createMemPushOption(Map<String, TeamMember> selectedMembers, IMMessage message) {
+    private void setMemPushOption(Map<String, TeamMember> selectedMembers, IMMessage message) {
         if (message == null || selectedMembers == null) {
-            return null;
+            return;
         }
 
         List<String> pushList = new ArrayList<>();
 
-        String text = message.getContent();
-
         // remove invalid account
+        Iterator<String> keys = selectedMembers.keySet().iterator();
+        while (keys.hasNext()) {
+            String account = keys.next();
+            pushList.add(account);
+        }
+        if (pushList.isEmpty()) {
+            return;
+        }
+        MemberPushOption memberPushOption = new MemberPushOption();
+        memberPushOption.setForcePush(true);
+        memberPushOption.setForcePushContent(message.getContent());
+        memberPushOption.setForcePushList(pushList);
+        message.setMemberPushOption(memberPushOption);
+    }
+
+    private void removeInvalidAccount(Map<String, TeamMember> selectedMembers, IMMessage message) {
+        if (message == null || selectedMembers == null) {
+            return;
+        }
+        String text = message.getContent();
         Iterator<String> keys = selectedMembers.keySet().iterator();
         while (keys.hasNext()) {
             String account = keys.next();
@@ -121,26 +96,19 @@ public class TeamMessageFragment extends MessageFragment {
             }
             keys.remove();
         }
+    }
 
-        // replace
-        keys = selectedMembers.keySet().iterator();
+    private void replaceNickName(Map<String, TeamMember> selectedMembers, IMMessage message) {
+        if (message == null || selectedMembers == null) {
+            return;
+        }
+        String text = message.getContent();
+        Iterator<String> keys = selectedMembers.keySet().iterator();
         while (keys.hasNext()) {
             String account = keys.next();
-            String aitName = AitHelper.getAitName(selectedMembers.get(account));
+            String aitName = TeamMemberAitHelper.getAitName(selectedMembers.get(account));
             text = text.replaceAll("(@" + account + " )", "@" + aitName + " ");
-
-            pushList.add(account);
         }
         message.setContent(text);
-
-        if (pushList.isEmpty()) {
-            return null;
-        }
-
-        MemberPushOption memberPushOption = new MemberPushOption();
-        memberPushOption.setForcePush(true);
-        memberPushOption.setForcePushContent(message.getContent());
-        memberPushOption.setForcePushList(pushList);
-        return memberPushOption;
     }
 }

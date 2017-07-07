@@ -2,7 +2,6 @@ package com.netease.nim.uikit.session.viewholder;
 
 import android.content.Context;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +13,7 @@ import android.widget.TextView;
 
 import com.netease.nim.uikit.NimUIKit;
 import com.netease.nim.uikit.R;
+import com.netease.nim.uikit.cache.RobotInfoCache;
 import com.netease.nim.uikit.cache.TeamDataCache;
 import com.netease.nim.uikit.common.ui.imageview.HeadImageView;
 import com.netease.nim.uikit.common.ui.recyclerview.adapter.BaseMultiItemFetchLoadAdapter;
@@ -29,6 +29,8 @@ import com.netease.nimlib.sdk.msg.constant.MsgStatusEnum;
 import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
 import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
+import com.netease.nimlib.sdk.robot.model.NimRobotInfo;
+import com.netease.nimlib.sdk.robot.model.RobotAttachment;
 
 /**
  * 会话窗口消息列表项的ViewHolder基类，负责每个消息项的外层框架，包括头像，昵称，发送/接收进度条，重发按钮等。<br>
@@ -73,6 +75,11 @@ public abstract class MsgViewHolderBase extends RecyclerViewHolder<BaseMultiItem
 
     // 在该接口中根据layout对各控件成员变量赋值
     abstract protected void inflateContentView();
+
+    // 在该接口操作BaseViewHolder中的数据，进行事件绑定，可选
+    protected void bindHolder(BaseViewHolder holder) {
+
+    }
 
     // 将消息数据项与内容的view进行绑定
     abstract protected void bindContentView();
@@ -157,12 +164,9 @@ public abstract class MsgViewHolderBase extends RecyclerViewHolder<BaseMultiItem
         context = holder.getContext();
         message = data;
 
-        if(message.getMsgType() == MsgTypeEnum.audio) {
-            Log.i("huangjun", "convert msg=" + message.getUuid());
-        }
-
         inflate();
         refresh();
+        bindHolder(holder);
     }
 
     protected final void inflate() {
@@ -178,7 +182,7 @@ public abstract class MsgViewHolderBase extends RecyclerViewHolder<BaseMultiItem
         readReceiptTextView = findViewById(R.id.textViewAlreadyRead);
 
         // 这里只要inflate出来后加入一次即可
-        if(contentContainer.getChildCount() == 0) {
+        if (contentContainer.getChildCount() == 0) {
             View.inflate(view.getContext(), getContentResId(), contentContainer);
         }
         inflateContentView();
@@ -251,7 +255,7 @@ public abstract class MsgViewHolderBase extends RecyclerViewHolder<BaseMultiItem
             show.setVisibility(View.GONE);
         } else {
             show.setVisibility(View.VISIBLE);
-            show.loadBuddyAvatar(message.getFromAccount());
+            show.loadBuddyAvatar(message);
         }
 
     }
@@ -326,8 +330,18 @@ public abstract class MsgViewHolderBase extends RecyclerViewHolder<BaseMultiItem
     public void setNameTextView() {
         if (message.getSessionType() == SessionTypeEnum.Team && isReceivedMessage() && !isMiddleItem()) {
             nameTextView.setVisibility(View.VISIBLE);
+            if (message.getMsgType() == MsgTypeEnum.robot) {
+                RobotAttachment attachment = (RobotAttachment) message.getAttachment();
+                if (attachment.isRobotSend()) {
+                    String robotAccount = attachment.getFromRobotAccount();
+                    NimRobotInfo robotInfo = RobotInfoCache.getInstance().getRobotByAccount(robotAccount);
+                    nameTextView.setText(robotInfo != null ? robotInfo.getName() : "");
+                    return;
+                }
+            }
             nameTextView.setText(TeamDataCache.getInstance().getTeamMemberDisplayName(message.getSessionId(), message
                     .getFromAccount()));
+
         } else {
             nameTextView.setVisibility(View.GONE);
         }

@@ -143,8 +143,7 @@ public class MsgViewHolderAudio extends MsgViewHolderBase {
         durationLabel.setTag(message.getUuid());
 
         if (!isMessagePlaying(audioControl, message)) {
-            if (audioControl.getAudioControlListener() != null
-                    && audioControl.getAudioControlListener().equals(onPlayListener)) {
+            if (audioControl.getAudioControlListener() != null) {
                 audioControl.changeAudioControlListener(null);
             }
 

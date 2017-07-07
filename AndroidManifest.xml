@@ -83,6 +83,11 @@
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateHidden|adjustPan" />
 
+        <!-- @ 选择器 -->
+        <activity android:name=".contact.ait.AitContactSelectorActivity"
+                  android:screenOrientation="portrait"
+                  android:theme="@style/AppTheme.NoActionBar"/>
+
         <!-- 照片选择 -->
         <activity
             android:name="com.netease.nim.uikit.common.media.picker.activity.PickImageActivity"

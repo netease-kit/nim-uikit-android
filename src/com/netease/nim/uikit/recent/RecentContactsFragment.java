@@ -468,7 +468,7 @@ public class RecentContactsFragment extends TFragment {
         public void onEvent(List<IMMessage> imMessages) {
             if (imMessages != null) {
                 for (IMMessage imMessage : imMessages) {
-                    if (!AitHelper.isAitMessage(imMessage)) {
+                    if (!TeamMemberAitHelper.isAitMessage(imMessage)) {
                         continue;
                     }
                     Set<IMMessage> cacheMessageSet = cacheMessages.get(imMessage.getSessionId());
@@ -516,7 +516,7 @@ public class RecentContactsFragment extends TFragment {
 
             items.add(r);
             if (r.getSessionType() == SessionTypeEnum.Team && cacheMessages.get(r.getContactId()) != null) {
-                AitHelper.setRecentContactAited(r, cacheMessages.get(r.getContactId()));
+                TeamMemberAitHelper.setRecentContactAited(r, cacheMessages.get(r.getContactId()));
             }
         }
 
@@ -701,7 +701,7 @@ public class RecentContactsFragment extends TFragment {
                     Set<IMMessage> messages = null;
                     // 过滤存在的@我的消息
                     for (IMMessage msg : result) {
-                        if (AitHelper.isAitMessage(msg)) {
+                        if (TeamMemberAitHelper.isAitMessage(msg)) {
                             if (messages == null) {
                                 messages = new HashSet<>();
                             }
@@ -711,7 +711,7 @@ public class RecentContactsFragment extends TFragment {
 
                     // 更新并展示
                     if (messages != null) {
-                        AitHelper.setRecentContactAited(recentContact, messages);
+                        TeamMemberAitHelper.setRecentContactAited(recentContact, messages);
                         notifyDataSetChanged();
                     }
                 }

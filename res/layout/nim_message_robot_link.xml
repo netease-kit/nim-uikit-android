@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:id="@+id/fm_robot_link"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content">
+
+    <com.netease.nim.uikit.session.viewholder.robot.RobotContentLinearLayout
+        android:id="@+id/robot_content_view"
+        android:layout_width="@dimen/robot_message_link_width"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:paddingTop="6dp"
+        android:paddingBottom="6dp"
+        android:background="@drawable/nim_robot_link_view_selector"
+        android:gravity="center_horizontal"
+        android:orientation="vertical">
+    </com.netease.nim.uikit.session.viewholder.robot.RobotContentLinearLayout>
+</FrameLayout>

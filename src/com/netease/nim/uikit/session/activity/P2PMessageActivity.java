@@ -45,7 +45,7 @@ public class P2PMessageActivity extends BaseMessageActivity {
             intent.putExtra(Extras.EXTRA_ANCHOR, anchor);
         }
         intent.setClass(context, P2PMessageActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
         context.startActivity(intent);
     }

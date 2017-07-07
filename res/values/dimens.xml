@@ -51,6 +51,7 @@
     <dimen name="avatar_size_in_session">40dip</dimen>
     <dimen name="avatar_size_in_contact">30dip</dimen>
     <dimen name="avatar_size_in_profile">60dip</dimen>
+    <dimen name="avatar_size_robot">40dip</dimen>
 
     <!-- bubble -->
     <dimen name="message_thumb_size">50dip</dimen>
@@ -88,4 +89,7 @@
     <dimen name="input_panel_image_margin_top">20dip</dimen>
     <dimen name="message_list_panel_jump_offset_y">30dip</dimen>
 
+    <dimen name="robot_message_text_max_width">220dp</dimen>
+    <dimen name="robot_message_image_width">200dp</dimen>
+    <dimen name="robot_message_link_width">220dp</dimen>
 </resources>

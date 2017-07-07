@@ -1,6 +1,7 @@
 package com.netease.nim.uikit.session.module.list;
 
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -16,21 +17,27 @@ import android.widget.Toast;
 import com.netease.nim.uikit.NimUIKit;
 import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.UserPreferences;
+import com.netease.nim.uikit.cache.RobotInfoCache;
 import com.netease.nim.uikit.common.ui.dialog.CustomAlertDialog;
 import com.netease.nim.uikit.common.ui.dialog.EasyAlertDialog;
 import com.netease.nim.uikit.common.ui.dialog.EasyAlertDialogHelper;
 import com.netease.nim.uikit.common.ui.recyclerview.adapter.BaseFetchLoadAdapter;
+import com.netease.nim.uikit.common.ui.recyclerview.adapter.IRecyclerView;
+import com.netease.nim.uikit.common.ui.recyclerview.listener.OnItemClickListener;
 import com.netease.nim.uikit.common.ui.recyclerview.loadmore.MsgListFetchLoadMoreView;
 import com.netease.nim.uikit.common.util.media.BitmapDecoder;
 import com.netease.nim.uikit.common.util.sys.ClipboardUtil;
 import com.netease.nim.uikit.common.util.sys.NetworkUtil;
 import com.netease.nim.uikit.common.util.sys.ScreenUtil;
+import com.netease.nim.uikit.contact.ait.AitedContacts;
 import com.netease.nim.uikit.contact_selector.activity.ContactSelectActivity;
+import com.netease.nim.uikit.robot.parser.elements.group.LinkElement;
 import com.netease.nim.uikit.session.activity.VoiceTrans;
 import com.netease.nim.uikit.session.audio.MessageAudioControl;
 import com.netease.nim.uikit.session.helper.MessageHelper;
 import com.netease.nim.uikit.session.helper.MessageListPanelHelper;
 import com.netease.nim.uikit.session.module.Container;
+import com.netease.nim.uikit.session.viewholder.robot.RobotLinkView;
 import com.netease.nim.uikit.uinfo.UserInfoHelper;
 import com.netease.nim.uikit.uinfo.UserInfoObservable;
 import com.netease.nimlib.sdk.NIMClient;
@@ -52,6 +59,9 @@ import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.msg.model.AttachmentProgress;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
 import com.netease.nimlib.sdk.msg.model.QueryDirectionEnum;
+import com.netease.nimlib.sdk.robot.model.NimRobotInfo;
+import com.netease.nimlib.sdk.robot.model.RobotAttachment;
+import com.netease.nimlib.sdk.robot.model.RobotMsgType;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -178,6 +188,56 @@ public class MessageListPanelEx {
         adapter.setEventListener(new MsgItemEventListener());
         initFetchLoadListener(anchor);
         messageListView.setAdapter(adapter);
+        messageListView.addOnItemTouchListener(listener);
+    }
+
+    private OnItemClickListener listener = new OnItemClickListener() {
+        @Override
+        public void onItemClick(IRecyclerView adapter, View view, int position) {
+
+        }
+
+        @Override
+        public void onItemLongClick(IRecyclerView adapter, View view, int position) {
+        }
+
+        @Override
+        public void onItemChildClick(IRecyclerView adapter2, View view, int position) {
+            if (sessionMode() && view != null && view instanceof RobotLinkView) {
+                RobotLinkView robotLinkView = (RobotLinkView) view;
+                // robotLinkView.onClick();
+                LinkElement element = robotLinkView.getElement();
+                if (element != null) {
+                    element.getTarget();
+                    if (LinkElement.TYPE_URL.equals(element.getType())) {
+                        Intent intent = new Intent();
+                        intent.setAction("android.intent.action.VIEW");
+                        Uri content_url = Uri.parse(element.getTarget());
+                        intent.setData(content_url);
+                        try {
+                            container.activity.startActivity(intent);
+                        } catch (ActivityNotFoundException e) {
+                            Toast.makeText(container.activity, "路径错误", Toast.LENGTH_SHORT).show();
+                        }
+
+                    } else if (LinkElement.TYPE_BLOCK.equals(element.getType())) {
+                        // 发送点击的block
+                        IMMessage message = adapter.getItem(position);
+                        if (message != null) {
+                            String robotAccount = ((RobotAttachment) message.getAttachment()).getFromRobotAccount();
+                            IMMessage robotMsg = MessageBuilder.createRobotMessage(message.getSessionId(), message.getSessionType(), robotAccount,
+                                    robotLinkView.getShowContent(), RobotMsgType.LINK, "", element.getTarget(), element.getParams());
+                            NIMClient.getService(MsgService.class).sendMessage(robotMsg, false);
+                            onMsgSend(robotMsg);
+                        }
+                    }
+                }
+            }
+        }
+    };
+
+    private boolean sessionMode() {
+        return !recordOnly && !remote;
     }
 
     private void initFetchLoadListener(IMMessage anchor) {
@@ -676,6 +736,16 @@ public class MessageListPanelEx {
             return true;
         }
 
+        @Override
+        public void onFooterClick(IMMessage message) {
+            if(sessionMode()){
+                RobotAttachment attachment = (RobotAttachment) message.getAttachment();
+                NimRobotInfo robotInfo = RobotInfoCache.getInstance().getRobotByAccount(attachment.getFromRobotAccount());
+                // 强制ait，不是从输入框输入@触发
+                AitedContacts.getInstance().aitRobotForce(robotInfo);
+            }
+        }
+
         // 重新下载(对话框提示)
         private void showReDownloadConfirmDlg(final IMMessage message) {
             EasyAlertDialogHelper.OnDialogActionListener listener = new EasyAlertDialogHelper.OnDialogActionListener() {
@@ -805,16 +875,16 @@ public class MessageListPanelEx {
 
         // 长按菜单项--复制
         private void longClickItemCopy(final IMMessage item, CustomAlertDialog alertDialog, MsgTypeEnum msgType) {
-            if (msgType != MsgTypeEnum.text) {
-                return;
-            }
-            alertDialog.addItem(container.activity.getString(R.string.copy_has_blank), new CustomAlertDialog.onSeparateItemClickListener() {
+            if (msgType == MsgTypeEnum.text ||
+                    (msgType == MsgTypeEnum.robot && item.getAttachment() != null && !((RobotAttachment) item.getAttachment()).isRobotSend())) {
+                alertDialog.addItem(container.activity.getString(R.string.copy_has_blank), new CustomAlertDialog.onSeparateItemClickListener() {
 
-                @Override
-                public void onClick() {
-                    onCopyMessageItem(item);
-                }
-            });
+                    @Override
+                    public void onClick() {
+                        onCopyMessageItem(item);
+                    }
+                });
+            }
         }
 
         private void onCopyMessageItem(IMMessage item) {
@@ -1113,14 +1183,34 @@ public class MessageListPanelEx {
 
     // 转发消息
     private void doForwardMessage(final String sessionId, SessionTypeEnum sessionTypeEnum) {
-        IMMessage message = MessageBuilder.createForwardMessage(forwardMessage, sessionId, sessionTypeEnum);
+        IMMessage message;
+        if (forwardMessage.getMsgType() == MsgTypeEnum.robot) {
+            message = buildForwardRobotMessage(sessionId, sessionTypeEnum);
+        } else {
+            message = MessageBuilder.createForwardMessage(forwardMessage, sessionId, sessionTypeEnum);
+        }
+
         if (message == null) {
             Toast.makeText(container.activity, "该类型不支持转发", Toast.LENGTH_SHORT).show();
             return;
         }
+
         NIMClient.getService(MsgService.class).sendMessage(message, false);
         if (container.account.equals(sessionId)) {
             onMsgSend(message);
         }
+    }
+
+    private IMMessage buildForwardRobotMessage(final String sessionId, SessionTypeEnum sessionTypeEnum) {
+        if (forwardMessage.getMsgType() == MsgTypeEnum.robot && forwardMessage.getAttachment() != null) {
+            RobotAttachment robotAttachment = (RobotAttachment) forwardMessage.getAttachment();
+            if (robotAttachment.isRobotSend()) {
+                return null; // 机器人发的消息不能转发了
+            }
+
+            return MessageBuilder.createTextMessage(sessionId, sessionTypeEnum, forwardMessage.getContent());
+        }
+
+        return null;
     }
 }

@@ -3,6 +3,8 @@ package com.netease.nim.uikit.session.fragment;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,7 +12,10 @@ import android.view.ViewGroup;
 import com.netease.nim.uikit.CustomPushContentProvider;
 import com.netease.nim.uikit.NimUIKit;
 import com.netease.nim.uikit.R;
+import com.netease.nim.uikit.cache.RobotInfoCache;
 import com.netease.nim.uikit.common.fragment.TFragment;
+import com.netease.nim.uikit.contact.ait.AitContactSelectorActivity;
+import com.netease.nim.uikit.contact.ait.AitedContacts;
 import com.netease.nim.uikit.session.SessionCustomization;
 import com.netease.nim.uikit.session.actions.BaseAction;
 import com.netease.nim.uikit.session.actions.ImageAction;
@@ -20,18 +25,26 @@ import com.netease.nim.uikit.session.constant.Extras;
 import com.netease.nim.uikit.session.module.Container;
 import com.netease.nim.uikit.session.module.ModuleProxy;
 import com.netease.nim.uikit.session.module.input.InputPanel;
+import com.netease.nim.uikit.session.module.input.MessageEditWatcher;
 import com.netease.nim.uikit.session.module.list.MessageListPanelEx;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.Observer;
+import com.netease.nimlib.sdk.msg.MessageBuilder;
 import com.netease.nimlib.sdk.msg.MsgService;
 import com.netease.nimlib.sdk.msg.MsgServiceObserve;
+import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
 import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
 import com.netease.nimlib.sdk.msg.model.MessageReceipt;
+import com.netease.nimlib.sdk.robot.model.NimRobotInfo;
+import com.netease.nimlib.sdk.robot.model.RobotMsgType;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * 聊天界面基类
@@ -97,6 +110,7 @@ public class MessageFragment extends TFragment implements ModuleProxy {
         if (inputPanel != null) {
             inputPanel.onDestroy();
         }
+        AitedContacts.getInstance().clearAitContact();
     }
 
     public boolean onBackPressed() {
@@ -112,6 +126,27 @@ public class MessageFragment extends TFragment implements ModuleProxy {
 
     public void refreshMessageList() {
         messageListPanel.refreshMessageList();
+    }
+
+    // inputPanel 文本输入框监听
+    MessageEditWatcher watcher = new MessageEditWatcher() {
+        @Override
+        public void afterTextChanged(Editable editable, int start, int count) {
+            if (count <= 0 || editable.length() < start + count)
+                return;
+            CharSequence s = editable.subSequence(start, start + count);
+            if (s != null && s.toString().equals("@")) {
+                // 选择联系人
+                if (!isChatWithRobot()) {
+                    startAitContactActivity();
+                }
+            }
+        }
+    };
+
+    // 选择 @ 联系人
+    protected void startAitContactActivity() {
+        AitContactSelectorActivity.start(getActivity(), null, true);
     }
 
     private void parseIntent() {
@@ -134,6 +169,9 @@ public class MessageFragment extends TFragment implements ModuleProxy {
         } else {
             inputPanel.reload(container, customization);
         }
+        inputPanel.setWatcher(watcher);
+
+        inputPanel.switchRobotMode(RobotInfoCache.getInstance().getRobotByAccount(sessionId) != null);
 
         registerObservers(true);
 
@@ -191,13 +229,74 @@ public class MessageFragment extends TFragment implements ModuleProxy {
         if (!isAllowSendMessage(message)) {
             return false;
         }
+
+        message = changeToRobotMsg(message);
         appendPushConfig(message);
         // send message to server and save to db
         NIMClient.getService(MsgService.class).sendMessage(message, false);
 
         messageListPanel.onMsgSend(message);
 
+        AitedContacts.getInstance().clearAitContact();
+
         return true;
+    }
+
+    // 添加机器人信息
+    private IMMessage changeToRobotMsg(IMMessage message) {
+        Map<String, NimRobotInfo> selectedRobots = AitedContacts.getInstance().getSelectedRobots();
+        if (!selectedRobots.isEmpty()) {
+            Iterator<String> keySet = selectedRobots.keySet().iterator();
+            String text = message.getContent();
+            String firstAccount = null;
+            int firstIndex = -1;
+            // 找出第一个@的账号
+            while (keySet.hasNext()) {
+                String account = keySet.next();
+                // 查一下有没有被删除
+                Pattern p = Pattern.compile("(@" + account + " )");
+                Matcher matcher = p.matcher(text);
+                if (matcher.find()) {
+                    int index = text.indexOf(account);
+                    if (firstIndex < 0 || firstIndex > index) {
+                        firstAccount = account;
+                        firstIndex = index;
+                    }
+                    continue;
+                }
+                keySet.remove();
+            }
+            if (firstAccount == null) {
+                return message;
+            }
+            // 构建机器人content
+            String robotContent = text.replaceAll("(@" + firstAccount + " )", "");
+            // 使用空格代替空串，防止发送机器人空串返回14413
+            if (TextUtils.isEmpty(robotContent)) {
+                robotContent = " ";
+            }
+            // 将所有的account替换成nick，作为消息的文本
+            keySet = selectedRobots.keySet().iterator();
+            while (keySet.hasNext()) {
+                String account = keySet.next();
+                NimRobotInfo robotInfo = selectedRobots.get(account);
+                String aitName = robotInfo.getName();
+                text = text.replaceAll("(@" + account + " )", "@" + aitName + " ");
+            }
+            message = MessageBuilder.createRobotMessage(message.getSessionId(), message.getSessionType(), firstAccount, text, RobotMsgType.TEXT, robotContent, null, null);
+
+        } else if (isChatWithRobot()) {
+            if (message.getMsgType() == MsgTypeEnum.text && message.getContent() != null) {
+                String content = message.getContent().equals("") ? " " : message.getContent();
+                message = MessageBuilder.createRobotMessage(message.getSessionId(), message.getSessionType(), message.getSessionId(), content, RobotMsgType.TEXT, content, null, null);
+            }
+        }
+
+        return message;
+    }
+
+    private boolean isChatWithRobot() {
+        return RobotInfoCache.getInstance().getRobotByAccount(sessionId) != null;
     }
 
     private void appendPushConfig(IMMessage message) {
@@ -228,7 +327,6 @@ public class MessageFragment extends TFragment implements ModuleProxy {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
         inputPanel.onActivityResult(requestCode, resultCode, data);
         messageListPanel.onActivityResult(requestCode, resultCode, data);
     }

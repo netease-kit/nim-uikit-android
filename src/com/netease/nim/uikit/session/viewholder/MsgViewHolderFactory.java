@@ -8,6 +8,7 @@ import com.netease.nimlib.sdk.msg.attachment.NotificationAttachment;
 import com.netease.nimlib.sdk.msg.attachment.VideoAttachment;
 import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
+import com.netease.nimlib.sdk.robot.model.RobotAttachment;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,6 +30,7 @@ public class MsgViewHolderFactory {
         register(VideoAttachment.class, MsgViewHolderVideo.class);
         register(LocationAttachment.class, MsgViewHolderLocation.class);
         register(NotificationAttachment.class, MsgViewHolderNotification.class);
+        register(RobotAttachment.class, MsgViewHolderRobot.class);
     }
 
     public static void register(Class<? extends MsgAttachment> attach, Class<? extends MsgViewHolderBase> viewHolder) {

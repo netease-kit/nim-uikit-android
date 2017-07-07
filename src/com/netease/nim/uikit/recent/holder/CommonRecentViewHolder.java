@@ -123,6 +123,8 @@ public class CommonRecentViewHolder extends RecentViewHolder {
                         return ("[音频电话]");
                     }
                 }
+            case robot:
+                return "[机器人消息]";
             default:
                 return "[自定义消息] ";
         }

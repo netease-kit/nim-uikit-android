@@ -7,8 +7,11 @@ import android.util.AttributeSet;
 import com.bumptech.glide.Glide;
 import com.netease.nim.uikit.NimUIKit;
 import com.netease.nim.uikit.R;
+import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
+import com.netease.nimlib.sdk.msg.model.IMMessage;
 import com.netease.nimlib.sdk.nos.model.NosThumbParam;
 import com.netease.nimlib.sdk.nos.util.NosThumbImageUtil;
+import com.netease.nimlib.sdk.robot.model.RobotAttachment;
 import com.netease.nimlib.sdk.team.model.Team;
 import com.netease.nimlib.sdk.uinfo.UserInfoProvider;
 
@@ -35,12 +38,37 @@ public class HeadImageView extends CircleImageView {
     /**
      * 加载用户头像（默认大小的缩略图）
      *
+     * @param url 头像地址
+     */
+    public void loadAvatar(final String url) {
+        doLoadImage(url, NimUIKit.getUserInfoProvider().getDefaultIconResId(), DEFAULT_AVATAR_THUMB_SIZE);
+    }
+
+    /**
+     * 加载用户头像（默认大小的缩略图）
+     *
      * @param account 用户账号
      */
     public void loadBuddyAvatar(String account) {
         final UserInfoProvider.UserInfo userInfo = NimUIKit.getUserInfoProvider().getUserInfo(account);
         doLoadImage(userInfo != null ? userInfo.getAvatar() : null, NimUIKit.getUserInfoProvider()
                 .getDefaultIconResId(), DEFAULT_AVATAR_THUMB_SIZE);
+    }
+
+    /**
+     * 加载用户头像（默认大小的缩略图）
+     *
+     * @param message 消息
+     */
+    public void loadBuddyAvatar(IMMessage message) {
+        String account = message.getFromAccount();
+        if (message.getMsgType() == MsgTypeEnum.robot) {
+            RobotAttachment attachment = (RobotAttachment) message.getAttachment();
+            if (attachment.isRobotSend()) {
+                account = attachment.getFromRobotAccount();
+            }
+        }
+        loadBuddyAvatar(account);
     }
 
     /**

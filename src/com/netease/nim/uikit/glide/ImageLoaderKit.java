@@ -69,6 +69,9 @@ public class ImageLoaderKit {
      * 注意：该方法在后台线程执行
      */
     public Bitmap getNotificationBitmapFromCache(String url) {
+        if (TextUtils.isEmpty(url)) {
+            return null;
+        }
         final int imageSize = HeadImageView.DEFAULT_AVATAR_NOTIFICATION_ICON_SIZE;
 
         Bitmap cachedBitmap = null;

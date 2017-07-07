@@ -21,6 +21,7 @@ public class DataCacheManager {
         FriendDataCache.getInstance().registerObservers(register);
         NimUserInfoCache.getInstance().registerObservers(register);
         TeamDataCache.getInstance().registerObservers(register);
+        RobotInfoCache.getInstance().registerObservers(register);
     }
 
     /**
@@ -48,6 +49,7 @@ public class DataCacheManager {
         FriendDataCache.getInstance().buildCache();
         NimUserInfoCache.getInstance().buildCache();
         TeamDataCache.getInstance().buildCache();
+        RobotInfoCache.getInstance().buildCache();
     }
 
     /**
@@ -58,6 +60,7 @@ public class DataCacheManager {
         FriendDataCache.getInstance().clear();
         NimUserInfoCache.getInstance().clear();
         TeamDataCache.getInstance().clear();
+        RobotInfoCache.getInstance().clear();
     }
 
     /**

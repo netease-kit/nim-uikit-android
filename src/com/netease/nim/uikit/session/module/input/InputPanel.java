@@ -31,15 +31,15 @@ import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.common.ui.dialog.EasyAlertDialogHelper;
 import com.netease.nim.uikit.common.util.log.LogUtil;
 import com.netease.nim.uikit.common.util.string.StringUtil;
-import com.netease.nim.uikit.recent.AitHelper;
+import com.netease.nim.uikit.contact.ait.AitContactsDataChangeListener;
+import com.netease.nim.uikit.contact.ait.AitedContacts;
+import com.netease.nim.uikit.recent.TeamMemberAitHelper;
 import com.netease.nim.uikit.session.SessionCustomization;
 import com.netease.nim.uikit.session.actions.BaseAction;
 import com.netease.nim.uikit.session.emoji.EmoticonPickerView;
 import com.netease.nim.uikit.session.emoji.IEmoticonSelectedListener;
 import com.netease.nim.uikit.session.emoji.MoonUtil;
 import com.netease.nim.uikit.session.module.Container;
-import com.netease.nim.uikit.team.model.TeamExtras;
-import com.netease.nim.uikit.team.model.TeamRequestCode;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.media.record.AudioRecorder;
 import com.netease.nimlib.sdk.media.record.IAudioRecordCallback;
@@ -51,6 +51,7 @@ import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.msg.model.CustomNotification;
 import com.netease.nimlib.sdk.msg.model.CustomNotificationConfig;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
+import com.netease.nimlib.sdk.robot.model.NimRobotInfo;
 import com.netease.nimlib.sdk.team.model.TeamMember;
 
 import java.io.File;
@@ -60,7 +61,7 @@ import java.util.List;
  * 底部文本编辑，语音等模块
  * Created by hzxuwen on 2015/6/16.
  */
-public class InputPanel implements IEmoticonSelectedListener, IAudioRecordCallback {
+public class InputPanel implements IEmoticonSelectedListener, IAudioRecordCallback, AitContactsDataChangeListener {
 
     private static final String TAG = "MsgSendLayout";
 
@@ -108,6 +109,8 @@ public class InputPanel implements IEmoticonSelectedListener, IAudioRecordCallba
     // data
     private long typingTime = 0;
 
+    private boolean isRobotSession;
+
     // message edit watcher
 
     private MessageEditWatcher watcher;
@@ -137,6 +140,7 @@ public class InputPanel implements IEmoticonSelectedListener, IAudioRecordCallba
         if (audioMessageHelper != null) {
             audioMessageHelper.destroyAudioRecorder();
         }
+        setAitListener(false);
     }
 
     public boolean collapse(boolean immediately) {
@@ -158,6 +162,7 @@ public class InputPanel implements IEmoticonSelectedListener, IAudioRecordCallba
         initTextEdit();
         initAudioRecordButton();
         restoreText(false);
+        setAitListener(true);
 
         for (int i = 0; i < actions.size(); ++i) {
             actions.get(i).setIndex(i);
@@ -217,6 +222,14 @@ public class InputPanel implements IEmoticonSelectedListener, IAudioRecordCallba
         emojiButtonInInputBar.setOnClickListener(clickListener);
         sendMessageButtonInInputBar.setOnClickListener(clickListener);
         moreFuntionButtonInInputBar.setOnClickListener(clickListener);
+    }
+
+    private void setAitListener(boolean add) {
+        if (add) {
+            AitedContacts.getInstance().setAitContactsDataChangeListener(this);
+        } else {
+            AitedContacts.getInstance().removeAitContactsDataChangeListener(this);
+        }
     }
 
     private void initTextEdit() {
@@ -519,6 +532,9 @@ public class InputPanel implements IEmoticonSelectedListener, IAudioRecordCallba
      * @param editText
      */
     private void checkSendButtonEnable(EditText editText) {
+        if (isRobotSession) {
+            return;
+        }
         String textMessage = editText.getText().toString();
         if (!TextUtils.isEmpty(StringUtil.removeBlanks(textMessage)) && editText.hasFocus()) {
             moreFuntionButtonInInputBar.setVisibility(View.GONE);
@@ -557,6 +573,24 @@ public class InputPanel implements IEmoticonSelectedListener, IAudioRecordCallba
             IMMessage stickerMessage = MessageBuilder.createCustomMessage(container.account, container.sessionType, "贴图消息", attachment);
             container.proxy.sendMessage(stickerMessage);
         }
+    }
+
+    @Override
+    public void onAitTeamMemberAdded(TeamMember member) {
+        String account = member.getAccount();
+        String aitName = TeamMemberAitHelper.getAitName(member);
+        insertAitMember(account, aitName, false);
+    }
+
+    @Override
+    public void onAitRobotAdded(NimRobotInfo robotInfo, boolean force) {
+        String account = robotInfo.getAccount();
+        if (force) {
+            account = "@" + account;
+        }
+        String aitName = robotInfo.getName();
+        switchToTextLayout(true);
+        insertAitMember(account, aitName, force);
     }
 
     /**
@@ -764,12 +798,6 @@ public class InputPanel implements IEmoticonSelectedListener, IAudioRecordCallba
         if (resultCode != Activity.RESULT_OK) {
             return;
         }
-        // 从@返回
-        if (requestCode == TeamRequestCode.REQUEST_TEAM_AIT_MEMBER) {
-            insertAitMember(data);
-            return;
-        }
-
         int index = (requestCode << 16) >> 24;
         if (index != 0) {
             index--;
@@ -784,15 +812,11 @@ public class InputPanel implements IEmoticonSelectedListener, IAudioRecordCallba
         }
     }
 
-    private void insertAitMember(Intent data) {
-        TeamMember member = (TeamMember) data.getSerializableExtra(TeamExtras.RESULT_EXTRA_DATA);
-        if (member == null) {
-            return;
-        }
-
+    private void insertAitMember(String account, String aitName, boolean force) {
+        account += " ";
+        aitName += " ";
         // insert account
         int start = messageEditText.getSelectionStart();
-        String account = member.getAccount() + " ";
         if (start < 0 || start >= messageEditText.length()) {
             messageEditText.append(account);
         } else {
@@ -800,14 +824,36 @@ public class InputPanel implements IEmoticonSelectedListener, IAudioRecordCallba
         }
 
         // 替换成昵称
-        String aitName = AitHelper.getAitName(member) + " ";
         Editable editable = messageEditText.getText();
         aitName = "@" + aitName;
-        start--;
-        editable.setSpan(AitHelper.getInputAitSpan(aitName, messageEditText.getTextSize()),
-                start, start + account.length() + 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+        int length = account.length();
+        // 不是输入的@，而是插进来的
+        if (!force) {
+            start--;
+            length++;
+        }
+
+        editable.setSpan(TeamMemberAitHelper.getInputAitSpan(aitName, messageEditText.getTextSize(), messageEditText.getMeasuredWidth()),
+                start, start + length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 
         // 显示键盘
         uiHandler.postDelayed(showTextRunnable, SHOW_LAYOUT_DELAY);
+    }
+
+    public void switchRobotMode(boolean isRobot) {
+        isRobotSession = isRobot;
+        if (isRobot) {
+            textAudioSwitchLayout.setVisibility(View.GONE);
+            emojiButtonInInputBar.setVisibility(View.GONE);
+            sendMessageButtonInInputBar.setVisibility(View.VISIBLE);
+            moreFuntionButtonInInputBar.setVisibility(View.GONE);
+        } else {
+            textAudioSwitchLayout.setVisibility(View.VISIBLE);
+            emojiButtonInInputBar.setVisibility(View.VISIBLE);
+            sendMessageButtonInInputBar.setVisibility(View.GONE);
+            moreFuntionButtonInInputBar.setVisibility(View.VISIBLE);
+        }
+
     }
 }

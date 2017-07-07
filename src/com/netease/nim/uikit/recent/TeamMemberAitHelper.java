@@ -34,7 +34,7 @@ import java.util.regex.Pattern;
  * Created by hzchenkang on 2016/12/5.
  */
 
-public class AitHelper {
+public class TeamMemberAitHelper {
 
     private static final String KEY_AIT = "ait";
 
@@ -142,7 +142,7 @@ public class AitHelper {
         NIMClient.getService(MsgService.class).updateRecent(recentContact);
     }
 
-    public static ImageSpan getInputAitSpan(String name, float textsize) {
+    public static ImageSpan getInputAitSpan(String name, float textsize, int editTextSize) {
         if (TextUtils.isEmpty(name)) {
             return null;
         }

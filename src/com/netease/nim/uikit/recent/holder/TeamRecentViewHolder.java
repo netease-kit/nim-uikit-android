@@ -5,7 +5,7 @@ import android.text.TextUtils;
 import com.netease.nim.uikit.NimUIKit;
 import com.netease.nim.uikit.cache.TeamDataCache;
 import com.netease.nim.uikit.common.ui.recyclerview.adapter.BaseQuickAdapter;
-import com.netease.nim.uikit.recent.AitHelper;
+import com.netease.nim.uikit.recent.TeamMemberAitHelper;
 import com.netease.nimlib.sdk.msg.attachment.NotificationAttachment;
 import com.netease.nimlib.sdk.msg.model.RecentContact;
 
@@ -27,11 +27,11 @@ public class TeamRecentViewHolder extends CommonRecentViewHolder {
             String teamNick = getTeamUserDisplayName(tid, fromId);
             content = teamNick + ": " + content;
 
-            if (AitHelper.hasAitExtention(recent)) {
+            if (TeamMemberAitHelper.hasAitExtention(recent)) {
                 if (recent.getUnreadCount() == 0) {
-                    AitHelper.clearRecentContactAited(recent);
+                    TeamMemberAitHelper.clearRecentContactAited(recent);
                 } else {
-                    content = AitHelper.getAitAlertString(content);
+                    content = TeamMemberAitHelper.getAitAlertString(content);
                 }
             }
         }

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent"
+             android:orientation="vertical">
+
+    <include
+        android:id="@+id/robot_in"
+        layout="@layout/nim_message_item_text"
+        android:visibility="gone"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <com.netease.nim.uikit.session.viewholder.robot.RobotContentLinearLayout
+            android:id="@+id/robot_out"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/nim_message_item_left_selector"
+            android:orientation="vertical"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"
+            android:visibility="visible">
+
+        </com.netease.nim.uikit.session.viewholder.robot.RobotContentLinearLayout>
+
+        <TextView
+            android:id="@+id/tv_robot_session_continue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/robot_out"
+            android:textColor="@color/color_blue_0888ff"
+            android:textSize="@dimen/text_size_15"
+            android:layout_marginTop="@dimen/dp_4"
+            android:layout_alignRight="@id/robot_out"
+            android:text="继续对话"
+            android:visibility="visible"
+            />
+    </RelativeLayout>
+
+</FrameLayout>
