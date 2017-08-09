@@ -17,4 +17,6 @@ public interface ModuleProxy {
 
     // 是否正在录音
     boolean isLongClickEnabled();
+
+    void onItemFooterClick(IMMessage message);
 }

@@ -15,6 +15,7 @@ import com.netease.nim.uikit.OnlineStateChangeListener;
 import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.cache.FriendDataCache;
 import com.netease.nim.uikit.cache.TeamDataCache;
+import com.netease.nim.uikit.common.badger.Badger;
 import com.netease.nim.uikit.common.fragment.TFragment;
 import com.netease.nim.uikit.common.ui.dialog.CustomAlertDialog;
 import com.netease.nim.uikit.common.ui.drop.DropCover;
@@ -181,7 +182,7 @@ public class RecentContactsFragment extends TFragment {
             }
 
             @Override
-            public String getDigestOfAttachment(MsgAttachment attachment) {
+            public String getDigestOfAttachment(RecentContact recentContact, MsgAttachment attachment) {
                 return null;
             }
 
@@ -371,19 +372,20 @@ public class RecentContactsFragment extends TFragment {
         if (unreadChanged) {
 
             // 方式一：累加每个最近联系人的未读（快）
-            /*
+
             int unreadNum = 0;
             for (RecentContact r : items) {
                 unreadNum += r.getUnreadCount();
             }
-            */
 
             // 方式二：直接从SDK读取（相对慢）
-            int unreadNum = NIMClient.getService(MsgService.class).getTotalUnreadCount();
+            //int unreadNum = NIMClient.getService(MsgService.class).getTotalUnreadCount();
 
             if (callback != null) {
                 callback.onUnreadCountChange(unreadNum);
             }
+
+            Badger.updateBadgerCount(unreadNum);
         }
     }
 

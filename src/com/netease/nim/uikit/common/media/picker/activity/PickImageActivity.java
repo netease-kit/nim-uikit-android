@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.provider.MediaStore.Images;
@@ -14,6 +15,7 @@ import android.widget.Toast;
 
 import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.common.activity.UI;
+import com.netease.nim.uikit.common.media.picker.model.GenericFileProvider;
 import com.netease.nim.uikit.common.media.picker.model.PhotoInfo;
 import com.netease.nim.uikit.common.media.picker.model.PickerContract;
 import com.netease.nim.uikit.model.ToolBarOptions;
@@ -130,7 +132,11 @@ public class PickImageActivity extends UI {
             }
             File outputFile = new File(outPath);
             Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(outputFile));
+            if (Build.VERSION.SDK_INT > 23) {
+                intent.putExtra(MediaStore.EXTRA_OUTPUT, GenericFileProvider.getUriForFile(this, getApplicationContext().getPackageName() + ".generic.file.provider", outputFile));
+            } else {
+                intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(outputFile));
+            }
             startActivityForResult(intent, REQUEST_CODE_CAMERA);
         } catch (ActivityNotFoundException e) {
             finish();

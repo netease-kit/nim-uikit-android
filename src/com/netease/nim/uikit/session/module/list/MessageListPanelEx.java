@@ -17,7 +17,6 @@ import android.widget.Toast;
 import com.netease.nim.uikit.NimUIKit;
 import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.UserPreferences;
-import com.netease.nim.uikit.cache.RobotInfoCache;
 import com.netease.nim.uikit.common.ui.dialog.CustomAlertDialog;
 import com.netease.nim.uikit.common.ui.dialog.EasyAlertDialog;
 import com.netease.nim.uikit.common.ui.dialog.EasyAlertDialogHelper;
@@ -29,7 +28,6 @@ import com.netease.nim.uikit.common.util.media.BitmapDecoder;
 import com.netease.nim.uikit.common.util.sys.ClipboardUtil;
 import com.netease.nim.uikit.common.util.sys.NetworkUtil;
 import com.netease.nim.uikit.common.util.sys.ScreenUtil;
-import com.netease.nim.uikit.contact.ait.AitedContacts;
 import com.netease.nim.uikit.contact_selector.activity.ContactSelectActivity;
 import com.netease.nim.uikit.robot.parser.elements.group.LinkElement;
 import com.netease.nim.uikit.session.activity.VoiceTrans;
@@ -59,7 +57,6 @@ import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.msg.model.AttachmentProgress;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
 import com.netease.nimlib.sdk.msg.model.QueryDirectionEnum;
-import com.netease.nimlib.sdk.robot.model.NimRobotInfo;
 import com.netease.nimlib.sdk.robot.model.RobotAttachment;
 import com.netease.nimlib.sdk.robot.model.RobotMsgType;
 
@@ -182,7 +179,7 @@ public class MessageListPanelEx {
 
         // adapter
         items = new ArrayList<>();
-        adapter = new MsgAdapter(messageListView, items);
+        adapter = new MsgAdapter(messageListView, items, container);
         adapter.setFetchMoreView(new MsgListFetchLoadMoreView());
         adapter.setLoadMoreView(new MsgListFetchLoadMoreView());
         adapter.setEventListener(new MsgItemEventListener());
@@ -203,7 +200,7 @@ public class MessageListPanelEx {
 
         @Override
         public void onItemChildClick(IRecyclerView adapter2, View view, int position) {
-            if (sessionMode() && view != null && view instanceof RobotLinkView) {
+            if (isSessionMode() && view != null && view instanceof RobotLinkView) {
                 RobotLinkView robotLinkView = (RobotLinkView) view;
                 // robotLinkView.onClick();
                 LinkElement element = robotLinkView.getElement();
@@ -236,7 +233,7 @@ public class MessageListPanelEx {
         }
     };
 
-    private boolean sessionMode() {
+    public boolean isSessionMode() {
         return !recordOnly && !remote;
     }
 
@@ -738,12 +735,8 @@ public class MessageListPanelEx {
 
         @Override
         public void onFooterClick(IMMessage message) {
-            if(sessionMode()){
-                RobotAttachment attachment = (RobotAttachment) message.getAttachment();
-                NimRobotInfo robotInfo = RobotInfoCache.getInstance().getRobotByAccount(attachment.getFromRobotAccount());
-                // 强制ait，不是从输入框输入@触发
-                AitedContacts.getInstance().aitRobotForce(robotInfo);
-            }
+            // 与 robot 对话
+            container.proxy.onItemFooterClick(message);
         }
 
         // 重新下载(对话框提示)

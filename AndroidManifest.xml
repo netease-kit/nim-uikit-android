@@ -84,7 +84,7 @@
             android:windowSoftInputMode="stateHidden|adjustPan" />
 
         <!-- @ 选择器 -->
-        <activity android:name=".contact.ait.AitContactSelectorActivity"
+        <activity android:name=".ait.selector.AitContactSelectorActivity"
                   android:screenOrientation="portrait"
                   android:theme="@style/AppTheme.NoActionBar"/>
 
@@ -139,8 +139,14 @@
             android:configChanges="keyboardHidden"
             android:theme="@style/AppTheme.NoActionBar"/>
 
-        <activity android:name=".team.activity.TeamMemberListActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar"/>
+        <provider
+            android:name="com.netease.nim.uikit.common.media.picker.model.GenericFileProvider"
+            android:authorities="${applicationId}.generic.file.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_paths"/>
+        </provider>
     </application>
 </manifest>

@@ -56,7 +56,7 @@ public class CommonRecentViewHolder extends RecentViewHolder {
         } else if (recent.getAttachment() != null) {
             String digest = null;
             if (getCallback() != null) {
-                digest = getCallback().getDigestOfAttachment(recent.getAttachment());
+                digest = getCallback().getDigestOfAttachment(recent, recent.getAttachment());
             }
 
             if (digest == null) {

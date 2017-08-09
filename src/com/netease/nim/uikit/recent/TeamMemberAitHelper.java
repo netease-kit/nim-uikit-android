@@ -1,25 +1,18 @@
 package com.netease.nim.uikit.recent;
 
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Rect;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
-import android.text.style.ImageSpan;
 
 import com.netease.nim.uikit.NimUIKit;
-import com.netease.nim.uikit.cache.NimUserInfoCache;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.msg.MsgService;
 import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
 import com.netease.nimlib.sdk.msg.model.MemberPushOption;
 import com.netease.nimlib.sdk.msg.model.RecentContact;
-import com.netease.nimlib.sdk.team.model.TeamMember;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -69,16 +62,7 @@ public class TeamMemberAitHelper {
         return isForce;
     }
 
-    private static boolean isContentAit(String content) {
-        if (TextUtils.isEmpty(content)) {
-            return false;
-        }
-        Pattern pattern = Pattern.compile("(@" + NimUIKit.getAccount() + " )");
-        Matcher matcher = pattern.matcher(content);
-        return matcher.find();
-    }
-
-    public static boolean hasAitExtention(RecentContact recentContact) {
+    public static boolean hasAitExtension(RecentContact recentContact) {
         if (recentContact == null || recentContact.getSessionType() != SessionTypeEnum.Team) {
             return false;
         }
@@ -104,7 +88,7 @@ public class TeamMemberAitHelper {
     }
 
 
-    public static void buildAitExtentionByMessage(Map<String, Object> extention, IMMessage message) {
+    public static void buildAitExtensionByMessage(Map<String, Object> extention, IMMessage message) {
 
         if (extention == null || message == null || message.getSessionType() != SessionTypeEnum.Team) {
             return;
@@ -126,58 +110,19 @@ public class TeamMemberAitHelper {
             return;
         }
 
-        Map<String, Object> extention = recentContact.getExtension();
+        Map<String, Object> extension = recentContact.getExtension();
 
-        if (extention == null) {
-            extention = new HashMap<>();
+        if (extension == null) {
+            extension = new HashMap<>();
         }
 
         Iterator<IMMessage> iterator = messages.iterator();
         while (iterator.hasNext()) {
             IMMessage msg = iterator.next();
-            buildAitExtentionByMessage(extention, msg);
+            buildAitExtensionByMessage(extension, msg);
         }
 
-        recentContact.setExtension(extention);
+        recentContact.setExtension(extension);
         NIMClient.getService(MsgService.class).updateRecent(recentContact);
-    }
-
-    public static ImageSpan getInputAitSpan(String name, float textsize, int editTextSize) {
-        if (TextUtils.isEmpty(name)) {
-            return null;
-        }
-        Paint paint = new Paint();
-        paint.setColor(Color.BLACK);
-        paint.setAntiAlias(true);
-        paint.setTextSize(textsize);
-        Rect rect = new Rect();
-
-        paint.getTextBounds(name, 0, name.length(), rect);
-
-        // 获取字符串在屏幕上的长度
-        int width = (int) (paint.measureText(name));
-
-        final Bitmap bmp = Bitmap.createBitmap(width, rect.height(),
-                Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bmp);
-
-        canvas.drawText(name, rect.left, rect.height() - rect.bottom, paint);
-
-        return new ImageSpan(NimUIKit.getContext(), bmp, ImageSpan.ALIGN_BOTTOM);
-    }
-
-    // 群昵称 > 用户昵称 > 账号
-    public static String getAitName(TeamMember member) {
-
-        if (member == null) {
-            return "";
-        }
-        String memberNick = member.getTeamNick();
-        if (!TextUtils.isEmpty(memberNick)) {
-            return memberNick;
-        }
-
-        return NimUserInfoCache.getInstance().getUserName(member.getAccount());
-
     }
 }

@@ -34,7 +34,7 @@ public interface RecentContactsCallback {
      * @param attachment 消息附件对象
      * @return 消息摘要
      */
-    String getDigestOfAttachment(MsgAttachment attachment);
+    String getDigestOfAttachment(RecentContact recent, MsgAttachment attachment);
 
     /**
      * 设置Tip消息的摘要信息，展示在最近联系人列表的消息缩略栏上

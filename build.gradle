@@ -35,5 +35,7 @@ dependencies {
     compile 'me.everything:overscroll-decor-android:1.0.4'
     compile 'com.github.bumptech.glide:glide:3.7.0'
     compile 'jp.wasabeef:glide-transformations:2.0.2'
-    //compile 'jp.co.cyberagent.android.gpuimage:gpuimage-library:1.4.1' // if you want to use the Glide GPU Filters
+    //compile 'jp.co.cyberagent.android.gpuimage:gpuimage-library:1.4.1' // if you want to use the Glide GPU Filters
+
+    compile "me.leolin:ShortcutBadger:1.1.17@aar"
 }

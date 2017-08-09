@@ -101,7 +101,7 @@ public class CropImageActivity extends UI {
                 }
                 finish();
             } else {
-                if (cropImageView.saveCroppedIamge(filePath)) {
+                if (cropImageView.saveCroppedImage(filePath)) {
                     setResult(RESULT_OK);
                 }
                 finish();

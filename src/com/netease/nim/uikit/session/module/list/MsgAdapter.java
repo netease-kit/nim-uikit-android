@@ -6,6 +6,7 @@ import android.view.View;
 import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.common.ui.recyclerview.adapter.BaseMultiItemFetchLoadAdapter;
 import com.netease.nim.uikit.common.ui.recyclerview.holder.BaseViewHolder;
+import com.netease.nim.uikit.session.module.Container;
 import com.netease.nim.uikit.session.viewholder.MsgViewHolderBase;
 import com.netease.nim.uikit.session.viewholder.MsgViewHolderFactory;
 import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
@@ -27,8 +28,9 @@ public class MsgAdapter extends BaseMultiItemFetchLoadAdapter<IMMessage, BaseVie
     private ViewHolderEventListener eventListener;
     private Map<String, Float> progresses; // 有文件传输，需要显示进度条的消息ID map
     private String messageId;
+    private Container container;
 
-    public MsgAdapter(RecyclerView recyclerView, List<IMMessage> data) {
+    MsgAdapter(RecyclerView recyclerView, List<IMMessage> data, Container container) {
         super(recyclerView, data);
 
         timedItems = new HashSet<>();
@@ -43,6 +45,8 @@ public class MsgAdapter extends BaseMultiItemFetchLoadAdapter<IMMessage, BaseVie
             addItemType(viewType, R.layout.nim_message_item, holder);
             holder2ViewType.put(holder, viewType);
         }
+
+        this.container = container;
     }
 
     @Override
@@ -232,5 +236,9 @@ public class MsgAdapter extends BaseMultiItemFetchLoadAdapter<IMMessage, BaseVie
 
     public String getUuid() {
         return messageId;
+    }
+
+    public Container getContainer() {
+        return container;
     }
 }

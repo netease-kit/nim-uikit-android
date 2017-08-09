@@ -14,9 +14,9 @@ import com.netease.nim.uikit.common.util.sys.ScreenUtil;
 import com.netease.nim.uikit.contact.ContactEventListener;
 import com.netease.nim.uikit.contact.ContactProvider;
 import com.netease.nim.uikit.contact_selector.activity.ContactSelectActivity;
-import com.netease.nim.uikit.custom.DefalutContactEventListener;
-import com.netease.nim.uikit.custom.DefalutP2PSessionCustomization;
-import com.netease.nim.uikit.custom.DefalutTeamSessionCustomization;
+import com.netease.nim.uikit.custom.DefaultContactEventListener;
+import com.netease.nim.uikit.custom.DefaultP2PSessionCustomization;
+import com.netease.nim.uikit.custom.DefaultTeamSessionCustomization;
 import com.netease.nim.uikit.custom.DefaultUserInfoProvider;
 import com.netease.nim.uikit.custom.DefaultContactProvider;
 import com.netease.nim.uikit.glide.ImageLoaderKit;
@@ -120,8 +120,8 @@ public final class NimUIKit {
 
         initUserInfoProvider(userInfoProvider);
         initContactProvider(contactProvider);
-        initDefalutSessionCustomization();
-        initDefalutContactEventListener();
+        initDefaultSessionCustomization();
+        initDefaultContactEventListener();
 
         NimUIKit.imageLoaderKit = new ImageLoaderKit(context);
 
@@ -164,25 +164,25 @@ public final class NimUIKit {
     }
 
     // 初始化会话定制，群、P2P
-    private static void initDefalutSessionCustomization() {
+    private static void initDefaultSessionCustomization() {
         if (commonP2PSessionCustomization == null) {
-            commonP2PSessionCustomization = new DefalutP2PSessionCustomization();
+            commonP2PSessionCustomization = new DefaultP2PSessionCustomization();
         }
         if (commonTeamSessionCustomization == null) {
-            commonTeamSessionCustomization = new DefalutTeamSessionCustomization();
+            commonTeamSessionCustomization = new DefaultTeamSessionCustomization();
         }
     }
 
     // 初始化联系人点击事件
-    private static void initDefalutContactEventListener() {
+    private static void initDefaultContactEventListener() {
         if (contactEventListener == null) {
-            contactEventListener = new DefalutContactEventListener();
+            contactEventListener = new DefaultContactEventListener();
         }
     }
 
     /**
      * 打开单聊界面，若开发者未设置 {@link NimUIKit#setCommonP2PSessionCustomization(SessionCustomization)},
-     * 则定制化信息 SessionCustomization 为{@link DefalutP2PSessionCustomization}
+     * 则定制化信息 SessionCustomization 为{@link DefaultP2PSessionCustomization}
      * <p>
      * 若需要为目标会话提供单独定义的SessionCustomization，请使用{@link NimUIKit#startChatting(Context, String, SessionTypeEnum, SessionCustomization, IMMessage)}
      *
@@ -206,7 +206,7 @@ public final class NimUIKit {
 
     /**
      * 打开群聊界面，若开发者未设置 {@link NimUIKit#setCommonTeamSessionCustomization(SessionCustomization)},
-     * 则定制化信息 SessionCustomization 为{@link DefalutTeamSessionCustomization}
+     * 则定制化信息 SessionCustomization 为{@link DefaultTeamSessionCustomization}
      * <p>
      * 若需要为目标会话提供单独定义的SessionCustomization，请使用{@link NimUIKit#startChatting(Context, String, SessionTypeEnum, SessionCustomization, IMMessage)}
      *

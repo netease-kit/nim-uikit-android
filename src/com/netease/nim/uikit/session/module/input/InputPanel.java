@@ -7,7 +7,6 @@ import android.os.Handler;
 import android.os.SystemClock;
 import android.text.Editable;
 import android.text.InputType;
-import android.text.Spannable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -31,9 +30,7 @@ import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.common.ui.dialog.EasyAlertDialogHelper;
 import com.netease.nim.uikit.common.util.log.LogUtil;
 import com.netease.nim.uikit.common.util.string.StringUtil;
-import com.netease.nim.uikit.contact.ait.AitContactsDataChangeListener;
-import com.netease.nim.uikit.contact.ait.AitedContacts;
-import com.netease.nim.uikit.recent.TeamMemberAitHelper;
+import com.netease.nim.uikit.ait.AitTextChangeListener;
 import com.netease.nim.uikit.session.SessionCustomization;
 import com.netease.nim.uikit.session.actions.BaseAction;
 import com.netease.nim.uikit.session.emoji.EmoticonPickerView;
@@ -51,8 +48,6 @@ import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.msg.model.CustomNotification;
 import com.netease.nimlib.sdk.msg.model.CustomNotificationConfig;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
-import com.netease.nimlib.sdk.robot.model.NimRobotInfo;
-import com.netease.nimlib.sdk.team.model.TeamMember;
 
 import java.io.File;
 import java.util.List;
@@ -61,7 +56,7 @@ import java.util.List;
  * 底部文本编辑，语音等模块
  * Created by hzxuwen on 2015/6/16.
  */
-public class InputPanel implements IEmoticonSelectedListener, IAudioRecordCallback, AitContactsDataChangeListener {
+public class InputPanel implements IEmoticonSelectedListener, IAudioRecordCallback, AitTextChangeListener {
 
     private static final String TAG = "MsgSendLayout";
 
@@ -111,9 +106,7 @@ public class InputPanel implements IEmoticonSelectedListener, IAudioRecordCallba
 
     private boolean isRobotSession;
 
-    // message edit watcher
-
-    private MessageEditWatcher watcher;
+    private TextWatcher aitTextWatcher;
 
     public InputPanel(Container container, View view, List<BaseAction> actions, boolean isTextAudioSwitchShow) {
         this.container = container;
@@ -140,7 +133,6 @@ public class InputPanel implements IEmoticonSelectedListener, IAudioRecordCallba
         if (audioMessageHelper != null) {
             audioMessageHelper.destroyAudioRecorder();
         }
-        setAitListener(false);
     }
 
     public boolean collapse(boolean immediately) {
@@ -152,8 +144,8 @@ public class InputPanel implements IEmoticonSelectedListener, IAudioRecordCallba
         return respond;
     }
 
-    public void setWatcher(MessageEditWatcher watcher) {
-        this.watcher = watcher;
+    public void addAitTextWatcher(TextWatcher watcher) {
+        aitTextWatcher = watcher;
     }
 
     private void init() {
@@ -162,7 +154,6 @@ public class InputPanel implements IEmoticonSelectedListener, IAudioRecordCallba
         initTextEdit();
         initAudioRecordButton();
         restoreText(false);
-        setAitListener(true);
 
         for (int i = 0; i < actions.size(); ++i) {
             actions.get(i).setIndex(i);
@@ -224,14 +215,6 @@ public class InputPanel implements IEmoticonSelectedListener, IAudioRecordCallba
         moreFuntionButtonInInputBar.setOnClickListener(clickListener);
     }
 
-    private void setAitListener(boolean add) {
-        if (add) {
-            AitedContacts.getInstance().setAitContactsDataChangeListener(this);
-        } else {
-            AitedContacts.getInstance().removeAitContactsDataChangeListener(this);
-        }
-    }
-
     private void initTextEdit() {
         messageEditText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
         messageEditText.setOnTouchListener(new View.OnTouchListener() {
@@ -261,20 +244,22 @@ public class InputPanel implements IEmoticonSelectedListener, IAudioRecordCallba
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 this.start = start;
                 this.count = count;
+                if (aitTextWatcher != null) {
+                    aitTextWatcher.onTextChanged(s, start, before, count);
+                }
             }
 
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                if (aitTextWatcher != null) {
+                    aitTextWatcher.beforeTextChanged(s, start, count, after);
+                }
             }
 
             @Override
             public void afterTextChanged(Editable s) {
                 checkSendButtonEnable(messageEditText);
                 MoonUtil.replaceEmoticons(container.activity, s, start, count);
-
-                if (watcher != null) {
-                    watcher.afterTextChanged(s, start, count);
-                }
 
                 int editEnd = messageEditText.getSelectionEnd();
                 messageEditText.removeTextChangedListener(this);
@@ -284,6 +269,10 @@ public class InputPanel implements IEmoticonSelectedListener, IAudioRecordCallba
                 }
                 messageEditText.setSelection(editEnd);
                 messageEditText.addTextChangedListener(this);
+
+                if (aitTextWatcher != null) {
+                    aitTextWatcher.afterTextChanged(s);
+                }
 
                 sendTypingCommand();
             }
@@ -576,22 +565,30 @@ public class InputPanel implements IEmoticonSelectedListener, IAudioRecordCallba
     }
 
     @Override
-    public void onAitTeamMemberAdded(TeamMember member) {
-        String account = member.getAccount();
-        String aitName = TeamMemberAitHelper.getAitName(member);
-        insertAitMember(account, aitName, false);
+    public void onTextAdd(String content, int start, int length) {
+        if (messageEditText.getVisibility() != View.VISIBLE) {
+            switchToTextLayout(true);
+        } else {
+            uiHandler.postDelayed(showTextRunnable, SHOW_LAYOUT_DELAY);
+        }
+        messageEditText.getEditableText().insert(start, content);
     }
 
     @Override
-    public void onAitRobotAdded(NimRobotInfo robotInfo, boolean force) {
-        String account = robotInfo.getAccount();
-        if (force) {
-            account = "@" + account;
+    public void onTextDelete(int start, int length) {
+        if (messageEditText.getVisibility() != View.VISIBLE) {
+            switchToTextLayout(true);
+        } else {
+            uiHandler.postDelayed(showTextRunnable, SHOW_LAYOUT_DELAY);
         }
-        String aitName = robotInfo.getName();
-        switchToTextLayout(true);
-        insertAitMember(account, aitName, force);
+        int end = start + length - 1;
+        messageEditText.getEditableText().replace(start, end, "");
     }
+
+    public int getEditSelectionStart() {
+        return messageEditText.getSelectionStart();
+    }
+
 
     /**
      * 隐藏所有输入布局
@@ -810,35 +807,6 @@ public class InputPanel implements IEmoticonSelectedListener, IAudioRecordCallba
                 action.onActivityResult(requestCode & 0xff, resultCode, data);
             }
         }
-    }
-
-    private void insertAitMember(String account, String aitName, boolean force) {
-        account += " ";
-        aitName += " ";
-        // insert account
-        int start = messageEditText.getSelectionStart();
-        if (start < 0 || start >= messageEditText.length()) {
-            messageEditText.append(account);
-        } else {
-            messageEditText.getEditableText().insert(start, account);// 光标所在位置插入文字
-        }
-
-        // 替换成昵称
-        Editable editable = messageEditText.getText();
-        aitName = "@" + aitName;
-
-        int length = account.length();
-        // 不是输入的@，而是插进来的
-        if (!force) {
-            start--;
-            length++;
-        }
-
-        editable.setSpan(TeamMemberAitHelper.getInputAitSpan(aitName, messageEditText.getTextSize(), messageEditText.getMeasuredWidth()),
-                start, start + length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-
-        // 显示键盘
-        uiHandler.postDelayed(showTextRunnable, SHOW_LAYOUT_DELAY);
     }
 
     public void switchRobotMode(boolean isRobot) {

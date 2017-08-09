@@ -27,7 +27,7 @@ public class TeamRecentViewHolder extends CommonRecentViewHolder {
             String teamNick = getTeamUserDisplayName(tid, fromId);
             content = teamNick + ": " + content;
 
-            if (TeamMemberAitHelper.hasAitExtention(recent)) {
+            if (TeamMemberAitHelper.hasAitExtension(recent)) {
                 if (recent.getUnreadCount() == 0) {
                     TeamMemberAitHelper.clearRecentContactAited(recent);
                 } else {

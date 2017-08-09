@@ -318,7 +318,7 @@ public class AttachmentStore {
 		}
 	}
 
-    public static boolean saveBitmap(Bitmap bitmap, String path, boolean recyle) {
+    public static boolean saveBitmap(Bitmap bitmap, String path, boolean recycle) {
         if (bitmap == null || TextUtils.isEmpty(path)) {
             return false;
         }
@@ -339,7 +339,7 @@ public class AttachmentStore {
                 } catch (IOException e) {
                 }
             }
-            if (recyle) {
+            if (recycle) {
                 bitmap.recycle();
             }
         }
