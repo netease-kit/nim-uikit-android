@@ -8,6 +8,6 @@
         android:width="1px"
         android:color="@color/robot_link_element_text_blue" />
     <corners
-        android:radius="12dp">
+        android:radius="16dp">
     </corners>
 </shape>

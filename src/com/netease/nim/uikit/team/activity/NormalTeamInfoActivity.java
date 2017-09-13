@@ -29,6 +29,7 @@ import com.netease.nim.uikit.contact.core.item.ContactIdFilter;
 import com.netease.nim.uikit.contact_selector.activity.ContactSelectActivity;
 import com.netease.nim.uikit.model.ToolBarOptions;
 import com.netease.nim.uikit.team.adapter.TeamMemberAdapter;
+import com.netease.nim.uikit.team.helper.TeamHelper;
 import com.netease.nim.uikit.team.model.TeamExtras;
 import com.netease.nim.uikit.team.model.TeamRequestCode;
 import com.netease.nim.uikit.team.ui.TeamInfoGridView;
@@ -226,7 +227,7 @@ public class NormalTeamInfoActivity extends UI implements OnClickListener, TAdap
             }
 
             if (!accounts.isEmpty()) {
-                addMember(accounts, false);
+                addMember(accounts, null, false);
             }
         }
 
@@ -426,7 +427,7 @@ public class NormalTeamInfoActivity extends UI implements OnClickListener, TAdap
                             }
                             accounts.add(member.getAccount());
                         }
-                        addMember(accounts, true);
+                        addMember(accounts, null, true);
                     } else {
                         Toast.makeText(NormalTeamInfoActivity.this, "获取成员列表失败", Toast.LENGTH_SHORT).show();
                     }
@@ -435,7 +436,7 @@ public class NormalTeamInfoActivity extends UI implements OnClickListener, TAdap
         }
     }
 
-    private void addMember(List<String> accounts, boolean clear) {
+    private void addMember(List<String> accounts, List<String> failed, boolean clear) {
         if (accounts == null || accounts.isEmpty()) {
             return;
         }
@@ -449,7 +450,7 @@ public class NormalTeamInfoActivity extends UI implements OnClickListener, TAdap
             this.memberAccounts.addAll(accounts);
         } else {
             for (String account : accounts) {
-                if (!this.memberAccounts.contains(account)) {
+                if (!this.memberAccounts.contains(account) && (failed == null || !failed.contains(account))) {
                     this.memberAccounts.add(account);
                 }
             }
@@ -580,12 +581,16 @@ public class NormalTeamInfoActivity extends UI implements OnClickListener, TAdap
     private void addMembersToTeam(final ArrayList<String> selected) {
         // add members
         DialogMaker.showProgressDialog(this, getString(R.string.empty), true);
-        NIMClient.getService(TeamService.class).addMembers(teamId, selected).setCallback(new RequestCallback<Void>() {
+        NIMClient.getService(TeamService.class).addMembers(teamId, selected).setCallback(new RequestCallback<List<String>>() {
             @Override
-            public void onSuccess(Void param) {
+            public void onSuccess(List<String> failedAccounts) {
                 DialogMaker.dismissProgressDialog();
-                addMember(selected, false);
-                Toast.makeText(NormalTeamInfoActivity.this, R.string.invite_member_success, Toast.LENGTH_SHORT).show();
+                addMember(selected, failedAccounts, false);
+                if (failedAccounts != null && !failedAccounts.isEmpty()) {
+                    TeamHelper.onMemberTeamNumOverrun(failedAccounts, NormalTeamInfoActivity.this);
+                } else {
+                    Toast.makeText(NormalTeamInfoActivity.this, R.string.invite_member_success, Toast.LENGTH_SHORT).show();
+                }
             }
 
             @Override

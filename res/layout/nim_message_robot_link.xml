@@ -4,15 +4,16 @@
              android:layout_width="wrap_content"
              android:layout_height="wrap_content">
 
-    <com.netease.nim.uikit.session.viewholder.robot.RobotContentLinearLayout
+    <LinearLayout
         android:id="@+id/robot_content_view"
         android:layout_width="@dimen/robot_message_link_width"
         android:layout_height="wrap_content"
-        android:layout_margin="8dp"
+        android:layout_marginTop="6dp"
+        android:layout_marginBottom="6dp"
         android:paddingTop="6dp"
         android:paddingBottom="6dp"
         android:background="@drawable/nim_robot_link_view_selector"
         android:gravity="center_horizontal"
         android:orientation="vertical">
-    </com.netease.nim.uikit.session.viewholder.robot.RobotContentLinearLayout>
+    </LinearLayout>
 </FrameLayout>

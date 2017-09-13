@@ -3,11 +3,10 @@ package com.netease.nim.uikit.session.viewholder.robot;
 import android.content.Context;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
-import android.view.Gravity;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
-import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.robot.model.RobotBotContent;
 import com.netease.nim.uikit.robot.model.RobotResponseContent;
 import com.netease.nim.uikit.robot.parser.elements.base.Element;
@@ -15,7 +14,6 @@ import com.netease.nim.uikit.robot.parser.elements.element.ImageElement;
 import com.netease.nim.uikit.robot.parser.elements.element.TextElement;
 import com.netease.nim.uikit.robot.parser.elements.group.LinkElement;
 import com.netease.nim.uikit.robot.parser.elements.group.TemplateRoot;
-import com.netease.nim.uikit.session.viewholder.MsgViewHolderRobot;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,9 +27,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class RobotContentLinearLayout extends LinearLayout {
 
     private List<RobotViewBase> robotViews;
-
-    private static final int MODE_ROBOT_CONTENT = 0;
-    private static final int MODE_LINK_ELEMENT = 1;
+    private RobotLinkViewStyle linkViewStyle;
 
     public RobotContentLinearLayout(Context context) {
         this(context, null);
@@ -40,6 +36,15 @@ public class RobotContentLinearLayout extends LinearLayout {
     public RobotContentLinearLayout(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         robotViews = new ArrayList<>();
+    }
+
+    public void setLinkStyle(RobotLinkViewStyle style) {
+        linkViewStyle = style;
+    }
+
+    // 添加点击view 的id
+    public interface ClickableChildView {
+        void addClickableChildView(Class<? extends View> clazz, int id);
     }
 
     @Override
@@ -51,36 +56,9 @@ public class RobotContentLinearLayout extends LinearLayout {
     }
 
     /**
-     * LinkElement容器
-     */
-    public void bindContentView(LinkElement element) {
-        robotViews = new ArrayList<>();
-        if (element == null) {
-            return;
-        }
-        List<Element> elements = element.getElements();
-        for (Element e : elements) {
-            RobotViewBase v;
-            if (e instanceof TextElement) {
-                // 文本
-                v = RobotViewFactory.createRobotTextView(getContext(), (TextElement) e, null);
-                ((RobotTextView) v).setTextColor(getContext().getResources().getColor(R.color.robot_link_element_text_blue));
-            } else if (e instanceof ImageElement) {
-                // 图片
-                v = RobotViewFactory.createRobotImageView(getContext(), (ImageElement) e, null);
-            } else {
-                continue;
-            }
-            robotViews.add(v);
-        }
-
-        bindChildContentViews(MODE_LINK_ELEMENT);
-    }
-
-    /**
      * 机器人消息容器
      */
-    public void bindContentView(final MsgViewHolderRobot robot, final RobotResponseContent content) {
+    public void bindContentView(final ClickableChildView robot, final RobotResponseContent content) {
         robotViews = new ArrayList<>();
         if (RobotResponseContent.FLAG_BOT.equals(content.getFlag())) {
             // bot回复
@@ -104,10 +82,10 @@ public class RobotContentLinearLayout extends LinearLayout {
             robotViews.add(RobotViewFactory.createRobotTextView(getContext(), null, faqContent));
         }
 
-        bindChildContentViews(MODE_ROBOT_CONTENT);
+        bindChildContentViews();
     }
 
-    private void convertTemplateToViews(final TemplateRoot template, final MsgViewHolderRobot robot) {
+    private void convertTemplateToViews(final TemplateRoot template, final ClickableChildView robot) {
         List<com.netease.nim.uikit.robot.parser.elements.group.LinearLayout> robotLinearLayouts = template.getElements();
         if (robotLinearLayouts == null) {
             return;
@@ -126,8 +104,11 @@ public class RobotContentLinearLayout extends LinearLayout {
                     view = RobotViewFactory.createRobotImageView(getContext(), (ImageElement) e, null);
                 } else if (e instanceof LinkElement) {
                     view = RobotViewFactory.createRobotLinkView(getContext(), (LinkElement) e);
+                    if (linkViewStyle != null) {
+                        ((RobotLinkView) view).setLinkViewStyle(linkViewStyle);
+                    }
                     view.setId(GenerateViewID.generateViewId());
-                    robot.addOnClickListener(view.getId());
+                    robot.addClickableChildView(RobotLinkView.class, view.getId());
                 } else {
                     continue;
                 }
@@ -137,17 +118,12 @@ public class RobotContentLinearLayout extends LinearLayout {
         }
     }
 
-    private void bindChildContentViews(int mode) {
+    private void bindChildContentViews() {
         removeAllViews();
         for (RobotViewBase child : robotViews) {
             LayoutParams params = child.createLayoutParams();
             if (params == null) {
                 params = new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            }
-            if (mode == MODE_ROBOT_CONTENT && child instanceof RobotTextView) {
-                params.gravity = Gravity.NO_GRAVITY;
-            }else {
-                params.gravity = Gravity.CENTER_HORIZONTAL;
             }
             addView(child, params);
             child.onBindContentView();

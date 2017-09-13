@@ -70,7 +70,7 @@ public class AdvancedTeamInfoActivity extends UI implements
     private static final int REQUEST_CODE_TRANSFER = 101;
     private static final int REQUEST_CODE_MEMBER_LIST = 102;
     private static final int REQUEST_CODE_CONTACT_SELECT = 103;
-    private static final int REQUEST_PICK_ICON  = 104;
+    private static final int REQUEST_PICK_ICON = 104;
 
     private static final int ICON_TIME_OUT = 30000;
 
@@ -258,7 +258,7 @@ public class AdvancedTeamInfoActivity extends UI implements
         headerLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               showSelector(R.string.set_head_image, REQUEST_PICK_ICON);
+                showSelector(R.string.set_head_image, REQUEST_PICK_ICON);
             }
         });
 
@@ -832,10 +832,14 @@ public class AdvancedTeamInfoActivity extends UI implements
      * @param accounts 邀请帐号
      */
     private void inviteMembers(ArrayList<String> accounts) {
-        NIMClient.getService(TeamService.class).addMembers(teamId, accounts).setCallback(new RequestCallback<Void>() {
+        NIMClient.getService(TeamService.class).addMembers(teamId, accounts).setCallback(new RequestCallback<List<String>>() {
             @Override
-            public void onSuccess(Void param) {
-                Toast.makeText(AdvancedTeamInfoActivity.this, "添加群成员成功", Toast.LENGTH_SHORT).show();
+            public void onSuccess(List<String> failedAccounts) {
+                if (failedAccounts == null || failedAccounts.isEmpty()) {
+                    Toast.makeText(AdvancedTeamInfoActivity.this, "添加群成员成功", Toast.LENGTH_SHORT).show();
+                } else {
+                    TeamHelper.onMemberTeamNumOverrun(failedAccounts, AdvancedTeamInfoActivity.this);
+                }
             }
 
             @Override
@@ -1175,6 +1179,7 @@ public class AdvancedTeamInfoActivity extends UI implements
 
     /**
      * 更新邀请他人权限
+     *
      * @param type 邀请他人类型
      */
     private void updateInviteMode(final TeamInviteModeEnum type) {
@@ -1203,6 +1208,7 @@ public class AdvancedTeamInfoActivity extends UI implements
 
     /**
      * 更新邀请他人detail显示
+     *
      * @param type 邀请他人类型
      */
     private void updateInviteText(TeamInviteModeEnum type) {
@@ -1211,6 +1217,7 @@ public class AdvancedTeamInfoActivity extends UI implements
 
     /**
      * 更新群资料修改权限
+     *
      * @param type 群资料修改类型
      */
     private void updateInfoUpdateMode(final TeamUpdateModeEnum type) {
@@ -1239,6 +1246,7 @@ public class AdvancedTeamInfoActivity extends UI implements
 
     /**
      * 更新群资料修改detail显示
+     *
      * @param type 群资料修改类型
      */
     private void updateInfoUpateText(TeamUpdateModeEnum type) {
@@ -1247,6 +1255,7 @@ public class AdvancedTeamInfoActivity extends UI implements
 
     /**
      * 更新被邀请人权限
+     *
      * @param type 被邀请人类型
      */
     private void updateBeInvitedMode(final TeamBeInviteModeEnum type) {
@@ -1275,6 +1284,7 @@ public class AdvancedTeamInfoActivity extends UI implements
 
     /**
      * 更新被邀请人detail显示
+     *
      * @param type 被邀请人类型
      */
     private void updateBeInvitedText(TeamBeInviteModeEnum type) {

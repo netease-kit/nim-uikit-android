@@ -17,7 +17,7 @@ import java.util.Set;
  * Created by hzchenkang on 2017/6/26.
  */
 
-public class MsgViewHolderRobot extends MsgViewHolderText {
+public class MsgViewHolderRobot extends MsgViewHolderText implements RobotContentLinearLayout.ClickableChildView {
 
     private android.widget.LinearLayout containerIn;
 
@@ -87,7 +87,8 @@ public class MsgViewHolderRobot extends MsgViewHolderText {
         onClickIds.clear();
     }
 
-    public void addOnClickListener(int id) {
+    @Override
+    public void addClickableChildView(Class<? extends View> clazz, int id) {
         onClickIds.add(id);
     }
 }

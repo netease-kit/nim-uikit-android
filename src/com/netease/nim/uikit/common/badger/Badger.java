@@ -32,8 +32,8 @@ public class Badger {
                 int badgerCount = unreadCount;
                 if (badgerCount < 0) {
                     badgerCount = 0;
-                } else if (badgerCount > 999) {
-                    badgerCount = 999;
+                } else if (badgerCount > 99) {
+                    badgerCount = 99;
                 }
 
                 boolean res = ShortcutBadger.applyCount(NimUIKit.getContext(), badgerCount);

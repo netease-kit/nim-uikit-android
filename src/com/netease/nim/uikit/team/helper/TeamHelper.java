@@ -1,7 +1,11 @@
 package com.netease.nim.uikit.team.helper;
 
+import android.content.Context;
+import android.widget.Toast;
+
 import com.netease.nim.uikit.NimUIKit;
 import com.netease.nim.uikit.R;
+import com.netease.nim.uikit.cache.NimUserInfoCache;
 import com.netease.nim.uikit.contact.core.item.ContactIdFilter;
 import com.netease.nim.uikit.contact_selector.activity.ContactSelectActivity;
 import com.netease.nimlib.sdk.team.constant.TeamBeInviteModeEnum;
@@ -156,6 +160,7 @@ public class TeamHelper {
 
     /**
      * 获取创建群通讯录选择器option
+     *
      * @return
      */
     public static ContactSelectActivity.Option getCreateContactSelectOption(ArrayList<String> memberAccounts, int teamCapacity) {
@@ -195,14 +200,35 @@ public class TeamHelper {
         teamMemberLevelMap.put(TeamMemberType.Apply, 3);
     }
 
+    /**
+     * 邀请的成员，所在群数量已经超限
+     *
+     * @param failedAccounts 超限的账号列表
+     * @param context        context
+     */
+    public static void onMemberTeamNumOverrun(List<String> failedAccounts, Context context) {
+        if (failedAccounts != null && !failedAccounts.isEmpty()) {
+            StringBuilder tipContent = new StringBuilder("好友：");
+            for (int i = 0; i < failedAccounts.size(); i++) {
+                String name = NimUserInfoCache.getInstance().getUserDisplayName(failedAccounts.get(i));
+                tipContent.append(name);
+                if (i != failedAccounts.size() - 1) {
+                    tipContent.append("、");
+                }
+            }
+            tipContent.append("所在群组数量达到上限，邀请失败");
+            Toast.makeText(context, tipContent.toString(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
     public static Comparator<TeamMember> teamMemberComparator = new Comparator<TeamMember>() {
         @Override
         public int compare(TeamMember l, TeamMember r) {
-            if(l == null) {
+            if (l == null) {
                 return 1;
             }
 
-            if(r == null) {
+            if (r == null) {
                 return -1;
             }
 
