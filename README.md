@@ -142,7 +142,7 @@ loginRequest = NimUIKit.doLogin(new LoginInfo(account, token), new RequestCallba
 ```java
 public class SessionListFragment extends MainTabFragment {
 
-    private RecentContactsFragment contactsFragment;
+    private RecentContactsFragment fragment;
 
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -152,15 +152,14 @@ public class SessionListFragment extends MainTabFragment {
 
  	// 将最近联系人列表fragment动态集成进来。
  	private void addRecentContactsFragment() {
-        contactsFragment = new RecentContactsFragment();
-
+        fragment = new RecentContactsFragment();
         // 设置要集成联系人列表fragment的布局文件
-        contactsFragment.setContainerId(R.id.messages_fragment);
+        fragment.setContainerId(R.id.messages_fragment);
 
-        TActionBarActivity activity = (TActionBarActivity) getActivity();
+        final UI activity = (UI) getActivity();
 
         // 如果是activity从堆栈恢复，FM中已经存在恢复而来的fragment，此时会使用恢复来的，而new出来这个会被丢弃掉
-        contactsFragment = (RecentContactsFragment) activity.addFragment(contactsFragment);
+        fragment = (RecentContactsFragment) activity.addFragment(fragment);
     }
 }
 ```
@@ -507,7 +506,7 @@ public class ContactListFragment extends MainTabFragment {
         fragment = new ContactsFragment();
         fragment.setContainerId(R.id.contact_fragment);
 
-        TActionBarActivity activity = (TActionBarActivity) getActivity();
+        UI activity = (UI) getActivity();
 
         // 如果是activity从堆栈恢复，FM中已经存在恢复而来的fragment，此时会使用恢复来的，而new出来这个会被丢弃掉
         fragment = (ContactsFragment) activity.addFragment(fragment);
