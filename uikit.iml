@@ -15,7 +15,7 @@
           <task>generateDebugSources</task>
         </afterSyncTasks>
         <option name="ALLOW_USER_CONFIGURATION" value="false" />
-        <option name="RES_FOLDERS_RELATIVE_PATH" value="file://$MODULE_DIR$/res;file://$MODULE_DIR$/res-ptr2" />
+        <option name="RES_FOLDERS_RELATIVE_PATH" value="file://$MODULE_DIR$/res;file://$MODULE_DIR$/res-ptr2;file://$MODULE_DIR$/res-chatroom" />
         <option name="PROJECT_TYPE" value="1" />
       </configuration>
     </facet>
@@ -54,6 +54,7 @@
       <sourceFolder url="file://$MODULE_DIR$/src/testDebug/shaders" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/res" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/res-ptr2" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/res-chatroom" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/assets" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
@@ -91,30 +92,32 @@
     </content>
     <orderEntry type="jdk" jdkName="Android API 25 Platform" jdkType="Android SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" exported="" name="support-annotations-25.0.1" level="project" />
     <orderEntry type="library" exported="" name="design-25.0.1" level="project" />
-    <orderEntry type="library" exported="" name="constraint-layout-solver-1.0.2" level="project" />
+    <orderEntry type="library" exported="" name="glide-4.0.0" level="project" />
     <orderEntry type="library" exported="" name="constraint-layout-1.0.2" level="project" />
     <orderEntry type="library" exported="" name="java-json" level="project" />
+    <orderEntry type="library" exported="" name="annotations-4.0.0" level="project" />
     <orderEntry type="library" exported="" name="transition-25.0.1" level="project" />
-    <orderEntry type="library" exported="" name="support-compat-25.0.1" level="project" />
     <orderEntry type="library" exported="" name="support-fragment-25.0.1" level="project" />
+    <orderEntry type="library" exported="" name="renderscript-v8" level="project" />
+    <orderEntry type="library" exported="" name="support-core-ui-25.0.1" level="project" />
+    <orderEntry type="library" exported="" name="gifdecoder-4.0.0" level="project" />
+    <orderEntry type="library" exported="" name="support-core-utils-25.0.1" level="project" />
+    <orderEntry type="library" exported="" name="constraint-layout-solver-1.0.2" level="project" />
+    <orderEntry type="library" exported="" name="glide-transformations-3.0.1" level="project" />
+    <orderEntry type="library" exported="" name="support-compat-25.0.1" level="project" />
     <orderEntry type="library" exported="" name="animated-vector-drawable-25.0.1" level="project" />
     <orderEntry type="library" exported="" name="support-v4-25.0.1" level="project" />
     <orderEntry type="library" exported="" name="overscroll-decor-android-1.0.4" level="project" />
     <orderEntry type="library" exported="" name="ShortcutBadger-1.1.17" level="project" />
-    <orderEntry type="library" exported="" name="renderscript-v8" level="project" />
-    <orderEntry type="library" exported="" name="support-core-ui-25.0.1" level="project" />
-    <orderEntry type="library" exported="" name="nrtc-4.2.0" level="project" />
     <orderEntry type="library" exported="" name="fastjson-1.1.34.android" level="project" />
     <orderEntry type="library" exported="" name="support-media-compat-25.0.1" level="project" />
     <orderEntry type="library" exported="" name="support-vector-drawable-25.0.1" level="project" />
     <orderEntry type="library" exported="" name="appcompat-v7-25.0.1" level="project" />
-    <orderEntry type="library" exported="" name="glide-3.7.0" level="project" />
+    <orderEntry type="library" exported="" name="support-annotations-25.3.1" level="project" />
+    <orderEntry type="library" exported="" name="disklrucache-4.0.0" level="project" />
     <orderEntry type="library" exported="" name="recyclerview-v7-25.0.1" level="project" />
-    <orderEntry type="library" exported="" name="support-core-utils-25.0.1" level="project" />
-    <orderEntry type="library" exported="" name="glide-transformations-2.0.2" level="project" />
-    <orderEntry type="module" module-name="avchat" exported="" />
+    <orderEntry type="module" module-name="chatroom" exported="" />
     <orderEntry type="module" module-name="lucene" exported="" />
     <orderEntry type="module" module-name="basesdk" exported="" />
     <orderEntry type="library" exported="" name="mi_push_sdk_3.2.2" level="project" />

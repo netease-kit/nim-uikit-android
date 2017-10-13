@@ -5,6 +5,7 @@ import android.text.TextUtils;
 import android.util.AttributeSet;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.netease.nim.uikit.NimUIKit;
 import com.netease.nim.uikit.R;
 import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
@@ -89,11 +90,14 @@ public class HeadImageView extends CircleImageView {
          * 如果图片来源是非网易云信云存储，请不要使用NosThumbImageUtil
          */
         final String thumbUrl = makeAvatarThumbNosUrl(url, thumbSize);
-        Glide.with(getContext().getApplicationContext())
-                .load(thumbUrl).asBitmap().centerCrop()
+        RequestOptions requestOptions = new RequestOptions()
+                .centerCrop()
                 .placeholder(defaultResId)
                 .error(defaultResId)
-                .override(thumbSize, thumbSize)
+                .override(thumbSize, thumbSize);
+        Glide.with(getContext().getApplicationContext()).asBitmap()
+                .load(thumbUrl)
+                .apply(requestOptions)
                 .into(this);
     }
 

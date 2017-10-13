@@ -4,7 +4,8 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.netease.nim.uikit.NimUIKit;
-import com.netease.nim.uikit.UIKitLogTag;
+import com.netease.nim.uikit.core.NimUIKitImpl;
+import com.netease.nim.uikit.core.UIKitLogTag;
 import com.netease.nim.uikit.common.util.log.LogUtil;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.Observer;
@@ -276,7 +277,7 @@ public class NimUserInfoCache {
 
         // 通知变更
         if (notify && accounts != null && !accounts.isEmpty()) {
-            NimUIKit.notifyUserInfoChanged(accounts); // 通知到UI组件
+            NimUIKitImpl.notifyUserInfoChanged(accounts); // 通知到UI组件
         }
     }
 

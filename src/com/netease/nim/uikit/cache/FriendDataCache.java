@@ -3,7 +3,7 @@ package com.netease.nim.uikit.cache;
 import android.text.TextUtils;
 
 import com.netease.nim.uikit.NimUIKit;
-import com.netease.nim.uikit.UIKitLogTag;
+import com.netease.nim.uikit.core.UIKitLogTag;
 import com.netease.nim.uikit.common.util.log.LogUtil;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.Observer;

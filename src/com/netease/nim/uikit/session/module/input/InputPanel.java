@@ -27,10 +27,10 @@ import android.widget.Toast;
 import com.alibaba.fastjson.JSONObject;
 import com.netease.nim.uikit.NimUIKit;
 import com.netease.nim.uikit.R;
+import com.netease.nim.uikit.ait.AitTextChangeListener;
 import com.netease.nim.uikit.common.ui.dialog.EasyAlertDialogHelper;
 import com.netease.nim.uikit.common.util.log.LogUtil;
 import com.netease.nim.uikit.common.util.string.StringUtil;
-import com.netease.nim.uikit.ait.AitTextChangeListener;
 import com.netease.nim.uikit.session.SessionCustomization;
 import com.netease.nim.uikit.session.actions.BaseAction;
 import com.netease.nim.uikit.session.emoji.EmoticonPickerView;
@@ -566,7 +566,8 @@ public class InputPanel implements IEmoticonSelectedListener, IAudioRecordCallba
 
     @Override
     public void onTextAdd(String content, int start, int length) {
-        if (messageEditText.getVisibility() != View.VISIBLE) {
+        if (messageEditText.getVisibility() != View.VISIBLE ||
+                (emoticonPickerView != null && emoticonPickerView.getVisibility() == View.VISIBLE)) {
             switchToTextLayout(true);
         } else {
             uiHandler.postDelayed(showTextRunnable, SHOW_LAYOUT_DELAY);

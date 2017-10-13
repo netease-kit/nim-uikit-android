@@ -16,7 +16,6 @@ import android.widget.Toast;
 
 import com.netease.nim.uikit.NimUIKit;
 import com.netease.nim.uikit.R;
-import com.netease.nim.uikit.UserPreferences;
 import com.netease.nim.uikit.common.ui.dialog.CustomAlertDialog;
 import com.netease.nim.uikit.common.ui.dialog.EasyAlertDialog;
 import com.netease.nim.uikit.common.ui.dialog.EasyAlertDialogHelper;
@@ -29,6 +28,8 @@ import com.netease.nim.uikit.common.util.sys.ClipboardUtil;
 import com.netease.nim.uikit.common.util.sys.NetworkUtil;
 import com.netease.nim.uikit.common.util.sys.ScreenUtil;
 import com.netease.nim.uikit.contact_selector.activity.ContactSelectActivity;
+import com.netease.nim.uikit.core.NimUIKitImpl;
+import com.netease.nim.uikit.core.UserPreferences;
 import com.netease.nim.uikit.robot.parser.elements.group.LinkElement;
 import com.netease.nim.uikit.session.activity.VoiceTrans;
 import com.netease.nim.uikit.session.audio.MessageAudioControl;
@@ -43,7 +44,6 @@ import com.netease.nimlib.sdk.Observer;
 import com.netease.nimlib.sdk.RequestCallback;
 import com.netease.nimlib.sdk.RequestCallbackWrapper;
 import com.netease.nimlib.sdk.ResponseCode;
-import com.netease.nimlib.sdk.avchat.model.AVChatAttachment;
 import com.netease.nimlib.sdk.msg.MessageBuilder;
 import com.netease.nimlib.sdk.msg.MsgService;
 import com.netease.nimlib.sdk.msg.MsgServiceObserve;
@@ -224,8 +224,7 @@ public class MessageListPanelEx {
                             String robotAccount = ((RobotAttachment) message.getAttachment()).getFromRobotAccount();
                             IMMessage robotMsg = MessageBuilder.createRobotMessage(message.getSessionId(), message.getSessionType(), robotAccount,
                                     robotLinkView.getShowContent(), RobotMsgType.LINK, "", element.getTarget(), element.getParams());
-                            NIMClient.getService(MsgService.class).sendMessage(robotMsg, false);
-                            onMsgSend(robotMsg);
+                            container.proxy.sendMessage(robotMsg);
                         }
                     }
                 }
@@ -360,7 +359,7 @@ public class MessageListPanelEx {
     /**
      * 消息状态变化观察者
      */
-    Observer<IMMessage> messageStatusObserver = new Observer<IMMessage>() {
+    private Observer<IMMessage> messageStatusObserver = new Observer<IMMessage>() {
         @Override
         public void onEvent(IMMessage message) {
             if (isMyMessage(message)) {
@@ -372,7 +371,7 @@ public class MessageListPanelEx {
     /**
      * 消息附件上传/下载进度观察者
      */
-    Observer<AttachmentProgress> attachmentProgressObserver = new Observer<AttachmentProgress>() {
+    private Observer<AttachmentProgress> attachmentProgressObserver = new Observer<AttachmentProgress>() {
         @Override
         public void onEvent(AttachmentProgress progress) {
             onAttachmentProgressChange(progress);
@@ -382,7 +381,7 @@ public class MessageListPanelEx {
     /**
      * 本地消息接收观察者
      */
-    MessageListPanelHelper.LocalMessageObserver incomingLocalMessageObserver = new MessageListPanelHelper.LocalMessageObserver() {
+    private MessageListPanelHelper.LocalMessageObserver incomingLocalMessageObserver = new MessageListPanelHelper.LocalMessageObserver() {
         @Override
         public void onAddMessage(IMMessage message) {
             if (message == null || !container.account.equals(message.getSessionId())) {
@@ -403,7 +402,7 @@ public class MessageListPanelEx {
     /**
      * 消息撤回观察者
      */
-    Observer<IMMessage> revokeMessageObserver = new Observer<IMMessage>() {
+    private Observer<IMMessage> revokeMessageObserver = new Observer<IMMessage>() {
         @Override
         public void onEvent(IMMessage message) {
             if (message == null || !container.account.equals(message.getSessionId())) {
@@ -420,9 +419,10 @@ public class MessageListPanelEx {
             IMMessage item = items.get(index);
             item.setStatus(message.getStatus());
             item.setAttachStatus(message.getAttachStatus());
-            if (item.getAttachment() instanceof AVChatAttachment
-                    || item.getAttachment() instanceof AudioAttachment) {
-                item.setAttachment(message.getAttachment());
+
+            // 处理语音、音视频通话
+            if (item.getMsgType() == MsgTypeEnum.audio || item.getMsgType() == MsgTypeEnum.avchat) {
+                item.setAttachment(message.getAttachment()); // 附件可能更新了
             }
 
             // resend的的情况，可能时间已经变化了，这里要重新检查是否要显示时间
@@ -812,7 +812,7 @@ public class MessageListPanelEx {
             longClickItemCopy(selectedItem, alertDialog, msgType);
             // 3 revoke
             if (selectedItem.getDirect() == MsgDirectionEnum.Out && selectedItem.getStatus() == MsgStatusEnum.success
-                    && !NimUIKit.getMsgRevokeFilter().shouldIgnore(selectedItem) && !recordOnly) {
+                    && !NimUIKitImpl.getMsgRevokeFilter().shouldIgnore(selectedItem) && !recordOnly) {
                 longClickRevokeMsg(selectedItem, alertDialog);
             }
             // 4 delete
@@ -820,7 +820,7 @@ public class MessageListPanelEx {
             // 5 trans
             longClickItemVoidToText(selectedItem, alertDialog, msgType);
 
-            if (!NimUIKit.getMsgForwardFilter().shouldIgnore(selectedItem) && !recordOnly) {
+            if (!NimUIKitImpl.getMsgForwardFilter().shouldIgnore(selectedItem) && !recordOnly) {
                 // 6 forward to person
                 longClickItemForwardToPerson(selectedItem, alertDialog);
                 // 7 forward to team
@@ -958,7 +958,7 @@ public class MessageListPanelEx {
                     option.type = ContactSelectActivity.ContactSelectType.BUDDY;
                     option.multi = false;
                     option.maxSelectNum = 1;
-                    NimUIKit.startContactSelect(container.activity, option, REQUEST_CODE_FORWARD_PERSON);
+                    NimUIKit.startContactSelector(container.activity, option, REQUEST_CODE_FORWARD_PERSON);
                 }
             });
         }
@@ -975,7 +975,7 @@ public class MessageListPanelEx {
                     option.type = ContactSelectActivity.ContactSelectType.TEAM;
                     option.multi = false;
                     option.maxSelectNum = 1;
-                    NimUIKit.startContactSelect(container.activity, option, REQUEST_CODE_FORWARD_TEAM);
+                    NimUIKit.startContactSelector(container.activity, option, REQUEST_CODE_FORWARD_TEAM);
                 }
             });
         }

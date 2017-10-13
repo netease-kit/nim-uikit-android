@@ -13,11 +13,11 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.netease.nim.uikit.LoginSyncDataStatusObserver;
-import com.netease.nim.uikit.NimUIKit;
-import com.netease.nim.uikit.OnlineStateChangeListener;
+import com.netease.nim.uikit.plugin.LoginSyncDataStatusObserver;
+import com.netease.nim.uikit.core.NimUIKitImpl;
+import com.netease.nim.uikit.plugin.OnlineStateChangeListener;
 import com.netease.nim.uikit.R;
-import com.netease.nim.uikit.UIKitLogTag;
+import com.netease.nim.uikit.core.UIKitLogTag;
 import com.netease.nim.uikit.cache.FriendDataCache;
 import com.netease.nim.uikit.common.fragment.TFragment;
 import com.netease.nim.uikit.common.ui.liv.LetterIndexView;
@@ -129,7 +129,7 @@ public class ContactsFragment extends TFragment {
             @Override
             protected void onPostLoad(boolean empty, String queryText, boolean all) {
                 loadingFrame.setVisibility(View.GONE);
-                int userCount = NimUIKit.getContactProvider().getMyFriendsCount();
+                int userCount = NimUIKitImpl.getContactProvider().getMyFriendsCount();
                 countText.setText("共有好友" + userCount + "名");
 
                 onReloadCompleted();
@@ -204,8 +204,8 @@ public class ContactsFragment extends TFragment {
                 return;
             }
 
-            if (type == ItemTypes.FRIEND && item instanceof ContactItem && NimUIKit.getContactEventListener() != null) {
-                NimUIKit.getContactEventListener().onItemClick(getActivity(), (((ContactItem) item).getContact()).getContactId());
+            if (type == ItemTypes.FRIEND && item instanceof ContactItem && NimUIKitImpl.getContactEventListener() != null) {
+                NimUIKitImpl.getContactEventListener().onItemClick(getActivity(), (((ContactItem) item).getContact()).getContactId());
             }
         }
 
@@ -217,8 +217,8 @@ public class ContactsFragment extends TFragment {
                 return false;
             }
 
-            if (item instanceof ContactItem && NimUIKit.getContactEventListener() != null) {
-                NimUIKit.getContactEventListener().onItemLongClick(getActivity(), (((ContactItem) item).getContact()).getContactId());
+            if (item instanceof ContactItem && NimUIKitImpl.getContactEventListener() != null) {
+                NimUIKitImpl.getContactEventListener().onItemLongClick(getActivity(), (((ContactItem) item).getContact()).getContactId());
             }
 
             return true;
@@ -441,13 +441,13 @@ public class ContactsFragment extends TFragment {
     };
 
     private void registerOnlineStateChangeListener(boolean register) {
-        if (!NimUIKit.enableOnlineState()) {
+        if (!NimUIKitImpl.enableOnlineState()) {
             return;
         }
         if (register) {
-            NimUIKit.addOnlineStateChangeListeners(onlineStateChangeListener);
+            NimUIKitImpl.addOnlineStateChangeListeners(onlineStateChangeListener);
         } else {
-            NimUIKit.removeOnlineStateChangeListeners(onlineStateChangeListener);
+            NimUIKitImpl.removeOnlineStateChangeListeners(onlineStateChangeListener);
         }
     }
 }

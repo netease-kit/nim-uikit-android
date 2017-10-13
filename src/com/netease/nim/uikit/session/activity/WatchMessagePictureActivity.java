@@ -16,9 +16,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.common.activity.UI;
 import com.netease.nim.uikit.common.ui.dialog.CustomAlertDialog;
@@ -30,6 +32,8 @@ import com.netease.nim.uikit.common.util.file.AttachmentStore;
 import com.netease.nim.uikit.common.util.media.BitmapDecoder;
 import com.netease.nim.uikit.common.util.media.ImageUtil;
 import com.netease.nim.uikit.common.util.storage.StorageUtil;
+import com.netease.nim.uikit.common.util.sys.TimeUtil;
+import com.netease.nim.uikit.model.ToolBarOptions;
 import com.netease.nimlib.sdk.AbortableFuture;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.Observer;
@@ -42,6 +46,7 @@ import com.netease.nimlib.sdk.msg.constant.AttachStatusEnum;
 import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -53,11 +58,16 @@ import java.util.List;
  */
 public class WatchMessagePictureActivity extends UI {
 
-    private static final String INTENT_EXTRA_IMAGE = "INTENT_EXTRA_IMAGE";
     private static final String TAG = WatchMessagePictureActivity.class.getSimpleName();
+    private static final String INTENT_EXTRA_IMAGE = "INTENT_EXTRA_IMAGE";
+    private static final String INTENT_EXTRA_MENU = "INTENT_EXTRA_MENU";
+
+    private static final int MODE_NOMARL = 0;
+    private static final int MODE_GIF = 1;
 
     private Handler handler;
     private IMMessage message;
+    private boolean isShowMenu;
     private List<IMMessage> imageMsgList = new ArrayList<>();
     private int firstDisplayImageIndex = 0;
 
@@ -65,6 +75,8 @@ public class WatchMessagePictureActivity extends UI {
 
     private View loadingLayout;
     private BaseZoomableImageView image;
+    private ImageView simpleImageView;
+    private int mode;
     protected CustomAlertDialog alertDialog;
     private ViewPager imageViewPager;
     private PagerAdapter adapter;
@@ -77,19 +89,39 @@ public class WatchMessagePictureActivity extends UI {
         context.startActivity(intent);
     }
 
+    public static void start(Context context, IMMessage message, boolean isShowMenu) {
+        Intent intent = new Intent();
+        intent.putExtra(INTENT_EXTRA_IMAGE, message);
+        intent.putExtra(INTENT_EXTRA_MENU, isShowMenu);
+        intent.setClass(context, WatchMessagePictureActivity.class);
+        context.startActivity(intent);
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.nim_watch_picture_activity);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-        this.message = (IMMessage) getIntent().getSerializableExtra(INTENT_EXTRA_IMAGE);
+        ToolBarOptions options = new ToolBarOptions();
+        options.titleString = "图片";
+        options.navigateId = R.drawable.nim_actionbar_white_back_icon;
+        setToolBar(R.id.toolbar, options);
+
+        handleIntent();
+
+        initActionbar();
         findViews();
         queryImageMessages();
 
         handler = new Handler();
         registerObservers(true);
+    }
+
+    private void handleIntent() {
+        this.message = (IMMessage) getIntent().getSerializableExtra(INTENT_EXTRA_IMAGE);
+        mode = ((ImageAttachment) message.getAttachment()).getExtension().toLowerCase().equals("gif") ? MODE_GIF : MODE_NOMARL;
+        setTitle(message);
+        isShowMenu = getIntent().getBooleanExtra(INTENT_EXTRA_MENU, true);
     }
 
     @Override
@@ -103,31 +135,72 @@ public class WatchMessagePictureActivity extends UI {
         super.onDestroy();
     }
 
-    private void queryImageMessages() {
-        IMMessage anchor = MessageBuilder.createEmptyMessage(message.getSessionId(), message.getSessionType(), 0);
-
-        NIMClient.getService(MsgService.class).queryMessageListByType(MsgTypeEnum.image, anchor, Integer.MAX_VALUE).setCallback(new RequestCallback<List<IMMessage>>() {
-            @Override
-            public void onSuccess(List<IMMessage> param) {
-                imageMsgList.addAll(param);
-                Collections.reverse(imageMsgList);
-                setDisplayIndex();
-                setViewPagerAdapter();
-            }
-
-            @Override
-            public void onFailed(int code) {
-                Log.i(TAG, "query msg by type failed, code:" + code);
-            }
-
-            @Override
-            public void onException(Throwable exception) {
-
-            }
-        });
+    private void setTitle(IMMessage message) {
+        if (message == null) {
+            return;
+        }
+        super.setTitle(String.format("图片发送于%s", TimeUtil.getDateString(message.getTime())));
     }
 
-     // 设置第一个选中的图片index
+    private void initActionbar() {
+        TextView menuBtn = findView(R.id.actionbar_menu);
+        if (isShowMenu) {
+            menuBtn.setVisibility(View.VISIBLE);
+            menuBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    WatchPicAndVideoMenuActivity.startActivity(WatchMessagePictureActivity.this, message);
+                }
+            });
+        } else {
+            menuBtn.setVisibility(View.GONE);
+        }
+    }
+
+    private void queryImageMessages() {
+        if (mode == MODE_NOMARL) {
+            IMMessage anchor = MessageBuilder.createEmptyMessage(message.getSessionId(), message.getSessionType(), 0);
+
+            NIMClient.getService(MsgService.class).queryMessageListByType(MsgTypeEnum.image, anchor, Integer.MAX_VALUE).setCallback(new RequestCallback<List<IMMessage>>() {
+                @Override
+                public void onSuccess(List<IMMessage> param) {
+                    for (IMMessage imMessage : param) {
+                        if (!((ImageAttachment) imMessage.getAttachment()).getExtension().toLowerCase().equals("gif")) {
+                            imageMsgList.add(imMessage);
+                        }
+                    }
+                    // imageMsgList.addAll(param);
+                    Collections.reverse(imageMsgList);
+                    setDisplayIndex();
+                    setViewPagerAdapter();
+                }
+
+                @Override
+                public void onFailed(int code) {
+                    Log.i(TAG, "query msg by type failed, code:" + code);
+                }
+
+                @Override
+                public void onException(Throwable exception) {
+
+                }
+            });
+        } else if (mode == MODE_GIF) {
+            showSimpleImage();
+        }
+    }
+
+    private void showSimpleImage() {
+        String path;
+        if (isOriginImageHasDownloaded(message)) {
+            path = ((ImageAttachment) message.getAttachment()).getPath();
+        } else {
+            path = ((ImageAttachment) message.getAttachment()).getThumbPath();
+        }
+        Glide.with(this).asGif().load(new File(path)).into(simpleImageView);
+    }
+
+    // 设置第一个选中的图片index
     private void setDisplayIndex() {
         for (int i = 0; i < imageMsgList.size(); i++) {
             IMMessage imageObject = imageMsgList.get(i);
@@ -147,6 +220,15 @@ public class WatchMessagePictureActivity extends UI {
         loadingLayout = findViewById(R.id.loading_layout);
 
         imageViewPager = (ViewPager) findViewById(R.id.view_pager_image);
+        simpleImageView = (ImageView) findViewById(R.id.simple_image_view);
+
+        if (mode == MODE_GIF) {
+            simpleImageView.setVisibility(View.VISIBLE);
+            imageViewPager.setVisibility(View.GONE);
+        } else {
+            simpleImageView.setVisibility(View.GONE);
+            imageViewPager.setVisibility(View.VISIBLE);
+        }
     }
 
     private void setViewPagerAdapter() {
@@ -225,6 +307,7 @@ public class WatchMessagePictureActivity extends UI {
             downloadFuture.abort();
             downloadFuture = null;
         }
+        setTitle(imageMsgList.get(position));
         updateCurrentImageView(position);
         onImageViewFound(image);
         requestOriImage(imageMsgList.get(position));
@@ -242,7 +325,7 @@ public class WatchMessagePictureActivity extends UI {
                 }
             });
             return;
-        };
+        }
         image = (BaseZoomableImageView) currentLayout.findViewById(R.id.watch_image_view);
     }
 
@@ -342,11 +425,13 @@ public class WatchMessagePictureActivity extends UI {
     };
 
     private void onDownloadStart(final IMMessage msg) {
-        setThumbnail(msg);
-        if(TextUtils.isEmpty(((ImageAttachment)msg.getAttachment()).getPath())){
-            loadingLayout.setVisibility(View.VISIBLE);
-        } else {
-            loadingLayout.setVisibility(View.GONE);
+        if (mode == MODE_NOMARL) {
+            setThumbnail(msg);
+            if (TextUtils.isEmpty(((ImageAttachment) msg.getAttachment()).getPath())) {
+                loadingLayout.setVisibility(View.VISIBLE);
+            } else {
+                loadingLayout.setVisibility(View.GONE);
+            }
         }
     }
 
@@ -398,7 +483,7 @@ public class WatchMessagePictureActivity extends UI {
     }
 
     // 图片长按
-    protected  void showWatchPictureAction() {
+    protected void showWatchPictureAction() {
         if (alertDialog.isShowing()) {
             alertDialog.dismiss();
             return;

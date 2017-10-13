@@ -11,7 +11,7 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.netease.nim.uikit.NimUIKit;
+import com.netease.nim.uikit.core.NimUIKitImpl;
 import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.cache.RobotInfoCache;
 import com.netease.nim.uikit.cache.TeamDataCache;
@@ -281,11 +281,11 @@ public abstract class MsgViewHolderBase extends RecyclerViewHolder<BaseMultiItem
         });
 
         // 头像点击事件响应
-        if (NimUIKit.getSessionListener() != null) {
+        if (NimUIKitImpl.getSessionListener() != null) {
             View.OnClickListener portraitListener = new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    NimUIKit.getSessionListener().onAvatarClicked(context, message);
+                    NimUIKitImpl.getSessionListener().onAvatarClicked(context, message);
                 }
             };
             avatarLeft.setOnClickListener(portraitListener);
@@ -314,11 +314,11 @@ public abstract class MsgViewHolderBase extends RecyclerViewHolder<BaseMultiItem
         contentContainer.setOnLongClickListener(longClickListener);
 
         // 头像长按事件响应处理
-        if (NimUIKit.getSessionListener() != null) {
+        if (NimUIKitImpl.getSessionListener() != null) {
             View.OnLongClickListener longClickListener = new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
-                    NimUIKit.getSessionListener().onAvatarLongClicked(context, message);
+                    NimUIKitImpl.getSessionListener().onAvatarLongClicked(context, message);
                     return true;
                 }
             };

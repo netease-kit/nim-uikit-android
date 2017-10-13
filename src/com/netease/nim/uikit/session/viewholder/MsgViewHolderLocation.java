@@ -2,7 +2,7 @@ package com.netease.nim.uikit.session.viewholder;
 
 import android.widget.TextView;
 
-import com.netease.nim.uikit.NimUIKit;
+import com.netease.nim.uikit.core.NimUIKitImpl;
 import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.common.ui.imageview.MsgThumbImageView;
 import com.netease.nim.uikit.common.ui.recyclerview.adapter.BaseMultiItemFetchLoadAdapter;
@@ -51,9 +51,9 @@ public class MsgViewHolderLocation extends MsgViewHolderBase {
 
     @Override
     protected void onItemClick() {
-        if (NimUIKit.getLocationProvider() != null) {
+        if (NimUIKitImpl.getLocationProvider() != null) {
             LocationAttachment location = (LocationAttachment) message.getAttachment();
-            NimUIKit.getLocationProvider().openMap(context, location.getLongitude(), location.getLatitude(), location.getAddress());
+            NimUIKitImpl.getLocationProvider().openMap(context, location.getLongitude(), location.getLatitude(), location.getAddress());
         }
     }
 

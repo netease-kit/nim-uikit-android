@@ -50,6 +50,7 @@ import com.netease.nimlib.sdk.team.constant.TeamBeInviteModeEnum;
 import com.netease.nimlib.sdk.team.constant.TeamFieldEnum;
 import com.netease.nimlib.sdk.team.constant.TeamInviteModeEnum;
 import com.netease.nimlib.sdk.team.constant.TeamMemberType;
+import com.netease.nimlib.sdk.team.constant.TeamMessageNotifyTypeEnum;
 import com.netease.nimlib.sdk.team.constant.TeamUpdateModeEnum;
 import com.netease.nimlib.sdk.team.constant.VerifyTypeEnum;
 import com.netease.nimlib.sdk.team.model.Team;
@@ -97,6 +98,7 @@ public class AdvancedTeamInfoActivity extends UI implements
     private MenuDialog inviteDialog;
     private MenuDialog teamInfoUpdateDialog;
     private MenuDialog teamInviteeDialog;
+    private MenuDialog teamNotifyDialog;
     private List<String> managerList;
     private UserInfoObservable.UserInfoObserver userInfoObserver;
     private AbortableFuture<String> uploadFuture;
@@ -368,25 +370,11 @@ public class AdvancedTeamInfoActivity extends UI implements
         layoutNotificationConfig.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                NIMClient.getService(TeamService.class).muteTeam(teamId, !team.mute()).setCallback(new RequestCallback<Void>() {
-                    @Override
-                    public void onSuccess(Void param) {
-                        notificationConfigText.setText(team.mute() ? getString(R.string.close) : getString(R.string.open));
-                    }
-
-                    @Override
-                    public void onFailed(int code) {
-                        Log.d(TAG, "muteTeam failed code:" + code);
-                    }
-
-                    @Override
-                    public void onException(Throwable exception) {
-
-                    }
-                });
+                showTeamNotifyMenu();
             }
         });
     }
+
 
     /**
      * 身份验证布局初始化
@@ -545,11 +533,11 @@ public class AdvancedTeamInfoActivity extends UI implements
         ((TextView) layoutTeamName.findViewById(R.id.item_detail)).setText(team.getName());
         introduceEdit.setText(team.getIntroduce());
         extensionTextView.setText(team.getExtension());
-        notificationConfigText.setText(team.mute() ? "关闭" : "开启");
         memberCountText.setText(String.format("共%d人", team.getMemberCount()));
 
         setAnnouncement(team.getAnnouncement());
         setAuthenticationText(team.getVerifyType());
+        updateTeamNotifyText(team.getMessageNotifyType());
         updateInviteText(team.getTeamInviteMode());
         updateInfoUpateText(team.getTeamUpdateMode());
         updateBeInvitedText(team.getTeamBeInviteMode());
@@ -764,8 +752,10 @@ public class AdvancedTeamInfoActivity extends UI implements
         }
 
         @Override
-        public void onRemoveTeamMember(TeamMember member) {
-            removeMember(member.getAccount());
+        public void onRemoveTeamMember(List<TeamMember> members) {
+            for (TeamMember member : members) {
+                removeMember(member.getAccount());
+            }
         }
     };
 
@@ -800,7 +790,7 @@ public class AdvancedTeamInfoActivity extends UI implements
     @Override
     public void onAddMember() {
         ContactSelectActivity.Option option = TeamHelper.getContactSelectOption(memberAccounts);
-        NimUIKit.startContactSelect(AdvancedTeamInfoActivity.this, option, REQUEST_CODE_CONTACT_SELECT);
+        NimUIKit.startContactSelector(AdvancedTeamInfoActivity.this, option, REQUEST_CODE_CONTACT_SELECT);
     }
 
     /**
@@ -822,7 +812,7 @@ public class AdvancedTeamInfoActivity extends UI implements
         ArrayList<String> includeAccounts = new ArrayList<>();
         includeAccounts.addAll(memberAccounts);
         option.itemFilter = new ContactIdFilter(includeAccounts, false);
-        NimUIKit.startContactSelect(this, option, REQUEST_CODE_TRANSFER);
+        NimUIKit.startContactSelector(this, option, REQUEST_CODE_TRANSFER);
         dialog.dismiss();
     }
 
@@ -983,6 +973,46 @@ public class AdvancedTeamInfoActivity extends UI implements
         dialog.show();
     }
 
+
+    private void showTeamNotifyMenu() {
+        if (teamNotifyDialog == null) {
+            List<String> btnNames = TeamHelper.createNotifyMenuStrings();
+            int type = team.getMessageNotifyType().getValue();
+            teamNotifyDialog = new MenuDialog(AdvancedTeamInfoActivity.this, btnNames, type, 3, new MenuDialog
+                    .MenuDialogOnButtonClickListener() {
+                @Override
+                public void onButtonClick(String name) {
+                    teamNotifyDialog.dismiss();
+
+                    TeamMessageNotifyTypeEnum type = TeamHelper.getNotifyType(name);
+                    if (type == null) {
+                        return;
+                    }
+                    DialogMaker.showProgressDialog(AdvancedTeamInfoActivity.this, getString(R.string.empty), true);
+                    NIMClient.getService(TeamService.class).muteTeam(teamId, type).setCallback(new RequestCallback<Void>() {
+                        @Override
+                        public void onSuccess(Void param) {
+                            DialogMaker.dismissProgressDialog();
+                            updateTeamNotifyText(team.getMessageNotifyType());
+                        }
+
+                        @Override
+                        public void onFailed(int code) {
+                            DialogMaker.dismissProgressDialog();
+                            teamNotifyDialog.undoLastSelect();
+                            Log.d(TAG, "muteTeam failed code:" + code);
+                        }
+
+                        @Override
+                        public void onException(Throwable exception) {
+                            DialogMaker.dismissProgressDialog();
+                        }
+                    });
+                }
+            });
+        }
+        teamNotifyDialog.show();
+    }
 
     /**
      * 显示验证菜单
@@ -1175,6 +1205,16 @@ public class AdvancedTeamInfoActivity extends UI implements
      */
     private void setAuthenticationText(VerifyTypeEnum type) {
         authenticationText.setText(TeamHelper.getVerifyString(type));
+    }
+
+    private void updateTeamNotifyText(TeamMessageNotifyTypeEnum typeEnum) {
+        if (typeEnum == TeamMessageNotifyTypeEnum.All) {
+            notificationConfigText.setText(getString(R.string.team_notify_all));
+        } else if (typeEnum == TeamMessageNotifyTypeEnum.Manager) {
+            notificationConfigText.setText(getString(R.string.team_notify_manager));
+        } else if (typeEnum == TeamMessageNotifyTypeEnum.Mute) {
+            notificationConfigText.setText(getString(R.string.team_notify_mute));
+        }
     }
 
     /**

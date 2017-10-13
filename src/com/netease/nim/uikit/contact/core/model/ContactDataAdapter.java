@@ -9,7 +9,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.netease.nim.uikit.UIKitLogTag;
+import com.netease.nim.uikit.core.UIKitLogTag;
 import com.netease.nim.uikit.common.ui.liv.LetterIndexView;
 import com.netease.nim.uikit.common.ui.liv.LivIndex;
 import com.netease.nim.uikit.common.util.log.LogUtil;

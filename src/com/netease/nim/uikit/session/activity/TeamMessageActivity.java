@@ -190,7 +190,7 @@ public class TeamMessageActivity extends BaseMessageActivity {
         }
 
         @Override
-        public void onRemoveTeamMember(TeamMember member) {
+        public void onRemoveTeamMember(List<TeamMember> member) {
         }
     };
 

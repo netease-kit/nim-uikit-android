@@ -46,6 +46,7 @@ import com.netease.nimlib.sdk.msg.model.IMMessage;
  */
 public class WatchVideoActivity extends UI implements Callback {
     public static final String INTENT_EXTRA_DATA = "EXTRA_DATA";
+    public static final String INTENT_EXTRA_MENU = "EXTRA_MENU";
 
     // player
 
@@ -80,6 +81,7 @@ public class WatchVideoActivity extends UI implements Callback {
     private TextView playTimeTextView;
 
     // state
+    private boolean isShowMenu = true;
 
     private boolean isSurfaceCreated = false;
 
@@ -109,6 +111,14 @@ public class WatchVideoActivity extends UI implements Callback {
         context.startActivity(intent);
     }
 
+    public static void start(Context context, IMMessage message, boolean isShowMenu) {
+        Intent intent = new Intent();
+        intent.putExtra(WatchVideoActivity.INTENT_EXTRA_DATA, message);
+        intent.putExtra(INTENT_EXTRA_MENU, isShowMenu);
+        intent.setClass(context, WatchVideoActivity.class);
+        context.startActivity(intent);
+    }
+
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
@@ -120,6 +130,7 @@ public class WatchVideoActivity extends UI implements Callback {
 
         parseIntent();
         findViews();
+        initActionbar();
 
         showVideoInfo();
 
@@ -157,6 +168,8 @@ public class WatchVideoActivity extends UI implements Callback {
 
     private void parseIntent() {
         message = (IMMessage) getIntent().getSerializableExtra(INTENT_EXTRA_DATA);
+        setTitle(String.format("视频发送于%s", TimeUtil.getDateString(message.getTime())));
+        isShowMenu = getIntent().getBooleanExtra(INTENT_EXTRA_MENU, true);
     }
 
     private void findViews() {
@@ -190,6 +203,21 @@ public class WatchVideoActivity extends UI implements Callback {
         });
 
         actionBar = getSupportActionBar();
+    }
+
+    private void initActionbar() {
+        TextView menuBtn = findView(R.id.actionbar_menu);
+        if (isShowMenu) {
+            menuBtn.setVisibility(View.VISIBLE);
+            menuBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    WatchPicAndVideoMenuActivity.startActivity(WatchVideoActivity.this, message);
+                }
+            });
+        } else {
+            menuBtn.setVisibility(View.GONE);
+        }
     }
 
     private void initVideoSize() {

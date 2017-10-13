@@ -3,7 +3,7 @@ package com.netease.nim.uikit.cache;
 import android.text.TextUtils;
 
 import com.netease.nim.uikit.NimUIKit;
-import com.netease.nim.uikit.UIKitLogTag;
+import com.netease.nim.uikit.core.UIKitLogTag;
 import com.netease.nim.uikit.common.util.log.LogUtil;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.Observer;
@@ -62,9 +62,11 @@ public class TeamDataCache {
     }
 
     public interface TeamMemberDataChangedObserver {
+        // 成员更新
         void onUpdateTeamMember(List<TeamMember> members);
 
-        void onRemoveTeamMember(TeamMember member);
+        // 成员移除
+        void onRemoveTeamMember(List<TeamMember> member);
     }
 
     private List<TeamDataChangedObserver> teamObservers = new ArrayList<>();
@@ -108,12 +110,12 @@ public class TeamDataCache {
         }
     };
 
-    // 移除群成员的观察者通知。
-    private Observer<TeamMember> memberRemoveObserver = new Observer<TeamMember>() {
+    // 移除群成员的观察者通知，仅仅 member的validFlag被更新，db 仍存在数据
+    private Observer<List<TeamMember>> memberRemoveObserver = new Observer<List<TeamMember>>() {
         @Override
-        public void onEvent(TeamMember member) {
+        public void onEvent(List<TeamMember> member) {
             // member的validFlag被更新，isInTeam为false
-            addOrUpdateTeamMember(member);
+            addOrUpdateTeamMembers(member);
             notifyTeamMemberRemove(member);
         }
     };
@@ -160,12 +162,11 @@ public class TeamDataCache {
         }
     }
 
-    private void notifyTeamMemberRemove(TeamMember member) {
+    private void notifyTeamMemberRemove(List<TeamMember> members) {
         for (TeamMemberDataChangedObserver o : memberObservers) {
-            o.onRemoveTeamMember(member);
+            o.onRemoveTeamMember(members);
         }
     }
-
     /**
      * *
      * ******************************************** 群资料缓存 ********************************************

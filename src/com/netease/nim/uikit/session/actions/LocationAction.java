@@ -1,7 +1,7 @@
 package com.netease.nim.uikit.session.actions;
 
-import com.netease.nim.uikit.LocationProvider;
-import com.netease.nim.uikit.NimUIKit;
+import com.netease.nim.uikit.plugin.LocationProvider;
+import com.netease.nim.uikit.core.NimUIKitImpl;
 import com.netease.nim.uikit.R;
 import com.netease.nimlib.sdk.msg.MessageBuilder;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
@@ -18,8 +18,8 @@ public class LocationAction extends BaseAction {
 
     @Override
     public void onClick() {
-        if (NimUIKit.getLocationProvider() != null) {
-            NimUIKit.getLocationProvider().requestLocation(getActivity(), new LocationProvider.Callback() {
+        if (NimUIKitImpl.getLocationProvider() != null) {
+            NimUIKitImpl.getLocationProvider().requestLocation(getActivity(), new LocationProvider.Callback() {
                 @Override
                 public void onSuccess(double longitude, double latitude, String address) {
                     IMMessage message = MessageBuilder.createLocationMessage(getAccount(), getSessionType(), latitude, longitude,

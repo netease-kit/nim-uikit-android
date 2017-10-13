@@ -112,11 +112,11 @@ public class SendImageHelper {
 			String photoPath = info.getAbsolutePath();
 			if (TextUtils.isEmpty(photoPath))
 				return null;
+			String extension = FileUtil.getExtensionName(photoPath);
 
-			if (isOrig) {
+			if (isOrig || extension.toLowerCase().equals("gif")) {
 				// 把原图按md5存放
 				String origMD5 = MD5.getStreamMD5(photoPath);
-				String extension = FileUtil.getExtensionName(photoPath);
 				String origMD5Path = StorageUtil.getWritePath(origMD5 + "."
 						+ extension, StorageType.TYPE_IMAGE);
 				AttachmentStore.copy(photoPath, origMD5Path);
@@ -127,8 +127,8 @@ public class SendImageHelper {
 				return new File(origMD5Path);
 			} else {
 				File imageFile = new File(photoPath);
-				String mimeType = FileUtil.getExtensionName(photoPath);
-				imageFile = ImageUtil.getScaledImageFileWithMD5(imageFile, mimeType);
+				extension = FileUtil.getExtensionName(photoPath);
+				imageFile = ImageUtil.getScaledImageFileWithMD5(imageFile, extension);
 				if (imageFile == null) {
 					new Handler(context.getMainLooper()).post(new Runnable() {
 						@Override

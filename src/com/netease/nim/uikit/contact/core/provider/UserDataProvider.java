@@ -1,7 +1,7 @@
 package com.netease.nim.uikit.contact.core.provider;
 
-import com.netease.nim.uikit.NimUIKit;
-import com.netease.nim.uikit.UIKitLogTag;
+import com.netease.nim.uikit.core.NimUIKitImpl;
+import com.netease.nim.uikit.core.UIKitLogTag;
 import com.netease.nim.uikit.cache.FriendDataCache;
 import com.netease.nim.uikit.common.util.log.LogUtil;
 import com.netease.nim.uikit.contact.core.item.AbsContactItem;
@@ -30,7 +30,7 @@ public final class UserDataProvider {
 
     private static final List<UserInfoProvider.UserInfo> query(TextQuery query) {
         if (query != null) {
-            List<UserInfoProvider.UserInfo> users = NimUIKit.getContactProvider().getUserInfoOfMyFriends();
+            List<UserInfoProvider.UserInfo> users = NimUIKitImpl.getContactProvider().getUserInfoOfMyFriends();
             UserInfoProvider.UserInfo user;
             for (Iterator<UserInfoProvider.UserInfo> iter = users.iterator(); iter.hasNext(); ) {
                 user = iter.next();
@@ -42,7 +42,7 @@ public final class UserDataProvider {
             }
             return users;
         } else {
-            return NimUIKit.getContactProvider().getUserInfoOfMyFriends();
+            return NimUIKitImpl.getContactProvider().getUserInfoOfMyFriends();
         }
     }
 }

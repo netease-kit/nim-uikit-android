@@ -11,7 +11,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.netease.nim.uikit.NimUIKit;
-import com.netease.nim.uikit.OnlineStateChangeListener;
+import com.netease.nim.uikit.core.NimUIKitImpl;
+import com.netease.nim.uikit.plugin.OnlineStateChangeListener;
 import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.cache.FriendDataCache;
 import com.netease.nim.uikit.cache.TeamDataCache;
@@ -226,13 +227,13 @@ public class RecentContactsFragment extends TFragment {
     };
 
     private void registerOnlineStateChangeListener(boolean register) {
-        if (!NimUIKit.enableOnlineState()) {
+        if (!NimUIKitImpl.enableOnlineState()) {
             return;
         }
         if (register) {
-            NimUIKit.addOnlineStateChangeListeners(onlineStateChangeListener);
+            NimUIKitImpl.addOnlineStateChangeListeners(onlineStateChangeListener);
         } else {
-            NimUIKit.removeOnlineStateChangeListeners(onlineStateChangeListener);
+            NimUIKitImpl.removeOnlineStateChangeListeners(onlineStateChangeListener);
         }
     }
 
@@ -604,7 +605,7 @@ public class RecentContactsFragment extends TFragment {
         }
 
         @Override
-        public void onRemoveTeamMember(TeamMember member) {
+        public void onRemoveTeamMember(List<TeamMember> member) {
 
         }
     };

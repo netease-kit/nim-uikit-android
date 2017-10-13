@@ -52,6 +52,7 @@
     <string name="unsupport_title">无法显示该内容</string>
     <string name="unsupport_desc">客户端版本不支持该内容</string>
     <string name="revoke_failed">发送时间超过2分钟的消息，不能被撤回</string>
+    <string name="pic_and_video">图片和视频</string>
 
     <!-- 语音 -->
     <string name="record_audio">按住 说话</string>
@@ -101,6 +102,9 @@
     <string name="team_everyone_update">所有人修改</string>
     <string name="team_invitee_need_authen">需要验证</string>
     <string name="team_invitee_not_need_authen">不需要验证</string>
+    <string name="team_notify_mute">不提醒任何消息</string>
+    <string name="team_notify_all">提醒所有消息</string>
+    <string name="team_notify_manager">只提醒管理员消息</string>
     <string name="team_nickname">群昵称</string>
     <string name="team_nickname_none">未填写</string>
     <string name="team_identity">身份</string>

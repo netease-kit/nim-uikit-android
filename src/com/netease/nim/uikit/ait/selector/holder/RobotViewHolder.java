@@ -37,6 +37,6 @@ public class RobotViewHolder extends RecyclerViewHolder<BaseQuickAdapter, BaseVi
     public void refresh(NimRobotInfo robot) {
         headImageView.resetImageView();
         nameTextView.setText(robot.getName());
-        headImageView.loadBuddyAvatar(robot.getAccount());
+        headImageView.loadAvatar(robot.getAvatar());
     }
 }

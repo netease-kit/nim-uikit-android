@@ -11,6 +11,8 @@ import android.util.AttributeSet;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.RequestBuilder;
+import com.bumptech.glide.request.RequestOptions;
 import com.netease.nim.uikit.R;
 
 import java.io.File;
@@ -95,19 +97,33 @@ public class MsgThumbImageView extends ImageView {
         Glide.with(getContext().getApplicationContext()).load(resId).into(this);
     }
 
-    public void loadAsPath(final String path, final int width, final int height, final int maskId) {
+    public void loadAsPath(final String path, final int width, final int height, final int maskId, final String ext) {
         if (TextUtils.isEmpty(path)) {
             loadAsResource(R.drawable.nim_image_default, maskId);
             return;
         }
 
         setBlendDrawable(maskId);
-        Glide.with(getContext().getApplicationContext())
-                .load(new File(path)).asBitmap().fitCenter()
-                .placeholder(R.drawable.nim_image_default)
-                .error(R.drawable.nim_image_default)
-                .override(width, height)
-                .into(this);
+
+        boolean gif = ext != null && ext.toLowerCase().equals("gif");
+
+        RequestBuilder builder;
+        if (gif) {
+            builder = Glide.with(getContext().getApplicationContext()).asGif().load(new File(path));
+        } else {
+            RequestOptions options = new RequestOptions()
+                    .override(width, height)
+                    .fitCenter()
+                    .placeholder(R.drawable.nim_image_default)
+                    .error(R.drawable.nim_image_default);
+
+            builder = Glide.with(getContext().getApplicationContext())
+                    .asBitmap()
+                    .apply(options)
+                    .load(new File(path))
+            ;
+        }
+        builder.into(this);
     }
 
     private void setBlendDrawable(int maskId) {

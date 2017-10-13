@@ -19,7 +19,7 @@ public class UserInfoHelper {
             } else {
                 return NimUserInfoCache.getInstance().getUserDisplayName(id);
             }
-        }  else if (sessionType == SessionTypeEnum.Team) {
+        } else if (sessionType == SessionTypeEnum.Team) {
             return TeamDataCache.getInstance().getTeamName(id);
         }
         return id;
@@ -27,7 +27,8 @@ public class UserInfoHelper {
 
     /**
      * 注册用户资料变化观察者。<br>
-     *     注意：不再观察时(如Activity destroy后)，要unregister，否则会造成资源泄露
+     * 注意：不再观察时(如Activity destroy后)，要unregister，否则会造成资源泄露
+     *
      * @param observer 观察者
      */
     public static void registerObserver(UserInfoObservable.UserInfoObserver observer) {
@@ -39,6 +40,7 @@ public class UserInfoHelper {
 
     /**
      * 注销用户资料变化观察者。
+     *
      * @param observer 观察者
      */
     public static void unregisterObserver(UserInfoObservable.UserInfoObserver observer) {
@@ -49,6 +51,7 @@ public class UserInfoHelper {
 
     /**
      * 当用户资料发生改动时，请调用此接口，通知更新UI
+     *
      * @param accounts 有用户信息改动的帐号列表
      */
     public static void notifyChanged(List<String> accounts) {

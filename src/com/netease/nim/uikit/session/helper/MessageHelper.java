@@ -1,7 +1,6 @@
 package com.netease.nim.uikit.session.helper;
 
 import com.netease.nim.uikit.NimUIKit;
-import com.netease.nim.uikit.cache.NimUserInfoCache;
 import com.netease.nim.uikit.cache.TeamDataCache;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.msg.MessageBuilder;

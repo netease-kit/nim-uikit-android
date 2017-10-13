@@ -5,7 +5,7 @@ import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.netease.nim.uikit.NimUIKit;
+import com.netease.nim.uikit.core.NimUIKitImpl;
 import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.cache.TeamDataCache;
 import com.netease.nim.uikit.common.ui.imageview.HeadImageView;
@@ -39,8 +39,8 @@ public class ContactHolder extends AbsContactViewHolder<ContactItem> {
             @Override
             public void onClick(View v) {
                 if (contact.getContactType() == IContact.Type.Friend) {
-                    if (NimUIKit.getContactEventListener() != null) {
-                        NimUIKit.getContactEventListener().onAvatarClick(context, item.getContact().getContactId());
+                    if (NimUIKitImpl.getContactEventListener() != null) {
+                        NimUIKitImpl.getContactEventListener().onAvatarClick(context, item.getContact().getContactId());
                     }
                 }
             }

@@ -20,6 +20,15 @@
             android:background="?attr/colorPrimary"
             app:titleTextAppearance="@style/Toolbar.TitleText">
 
+            <TextView
+                android:id="@+id/actionbar_menu"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:gravity="center_vertical"
+                android:layout_gravity="right|center"
+                android:background="@drawable/nim_ic_menu_selector"
+                android:layout_marginRight="15dp" />
+
         </android.support.v7.widget.Toolbar>
     </android.support.design.widget.AppBarLayout>
 

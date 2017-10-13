@@ -1,6 +1,6 @@
 package com.netease.nim.uikit.contact.core.util;
 
-import com.netease.nim.uikit.NimUIKit;
+import com.netease.nim.uikit.core.NimUIKitImpl;
 import com.netease.nim.uikit.cache.NimUserInfoCache;
 import com.netease.nim.uikit.cache.TeamDataCache;
 import com.netease.nim.uikit.contact.core.model.IContact;
@@ -26,7 +26,7 @@ public class ContactHelper {
 
             @Override
             public String getDisplayName() {
-                return NimUIKit.getContactProvider().getUserDisplayName(userInfo.getAccount());
+                return NimUIKitImpl.getContactProvider().getUserDisplayName(userInfo.getAccount());
             }
         };
     }

@@ -16,6 +16,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.netease.nim.uikit.NimUIKit;
+import com.netease.nim.uikit.core.NimUIKitImpl;
 import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.cache.SimpleCallback;
 import com.netease.nim.uikit.cache.TeamDataCache;
@@ -43,6 +44,7 @@ import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.team.TeamService;
 import com.netease.nimlib.sdk.team.constant.TeamFieldEnum;
 import com.netease.nimlib.sdk.team.constant.TeamMemberType;
+import com.netease.nimlib.sdk.team.constant.TeamMessageNotifyTypeEnum;
 import com.netease.nimlib.sdk.team.model.Team;
 import com.netease.nimlib.sdk.team.model.TeamMember;
 
@@ -232,12 +234,30 @@ public class NormalTeamInfoActivity extends UI implements OnClickListener, TAdap
         }
 
         @Override
-        public void onRemoveTeamMember(TeamMember member) {
-            if (member.getTid().equals(teamId)) {
-                removeMember(member.getAccount());
+        public void onRemoveTeamMember(List<TeamMember> members) {
+            for (TeamMember member : members) {
+                if (member.getTid().equals(teamId)) {
+                    removeMember(member.getAccount());
+                }
             }
         }
     };
+
+    private void refreshMembers(List<TeamMember> members) {
+        gridView.setVisibility(View.VISIBLE);
+        List<String> accounts = new ArrayList<>();
+        for (TeamMember member : members) {
+            // 标记创建者（群主）
+            if (member.getType() == TeamMemberType.Owner) {
+                creator = member.getAccount();
+                if (creator.equals(NimUIKit.getAccount())) {
+                    isSelfAdmin = true;
+                }
+            }
+            accounts.add(member.getAccount());
+        }
+        addMember(accounts, null, true);
+    }
 
     private void parseIntentData() {
         teamId = getIntent().getStringExtra(EXTRA_ID);
@@ -250,7 +270,7 @@ public class NormalTeamInfoActivity extends UI implements OnClickListener, TAdap
 
     private void setToggleBtn(Team team) {
         if (noticeBtn != null) {
-            noticeBtn.setCheck(!team.mute());
+            noticeBtn.setCheck(team.getMessageNotifyType() == TeamMessageNotifyTypeEnum.All);
         }
     }
 
@@ -281,7 +301,8 @@ public class NormalTeamInfoActivity extends UI implements OnClickListener, TAdap
                 noticeBtn.setCheck(!checkState);
                 return;
             }
-            NIMClient.getService(TeamService.class).muteTeam(team.getId(), !checkState).setCallback(new RequestCallback<Void>() {
+            TeamMessageNotifyTypeEnum typeEnum = checkState ? TeamMessageNotifyTypeEnum.All : TeamMessageNotifyTypeEnum.Mute;
+            NIMClient.getService(TeamService.class).muteTeam(team.getId(), typeEnum).setCallback(new RequestCallback<Void>() {
                 @Override
                 public void onSuccess(Void param) {
                     if (checkState) {
@@ -415,19 +436,7 @@ public class NormalTeamInfoActivity extends UI implements OnClickListener, TAdap
                 @Override
                 public void onResult(boolean success, List<TeamMember> members) {
                     if (success && members != null && !members.isEmpty()) {
-                        gridView.setVisibility(View.VISIBLE);
-                        List<String> accounts = new ArrayList<>();
-                        for (TeamMember member : members) {
-                            // 标记创建者（群主）
-                            if (member.getType() == TeamMemberType.Owner) {
-                                creator = member.getAccount();
-                                if (creator.equals(NimUIKit.getAccount())) {
-                                    isSelfAdmin = true;
-                                }
-                            }
-                            accounts.add(member.getAccount());
-                        }
-                        addMember(accounts, null, true);
+                        refreshMembers(members);
                     } else {
                         Toast.makeText(NormalTeamInfoActivity.this, "获取成员列表失败", Toast.LENGTH_SHORT).show();
                     }
@@ -543,7 +552,7 @@ public class NormalTeamInfoActivity extends UI implements OnClickListener, TAdap
         int capacity = teamCapacity - memberAccounts.size();
         option.maxSelectNum = capacity;
         option.maxSelectedTip = getString(R.string.reach_team_member_capacity, teamCapacity);
-        NimUIKit.startContactSelect(NormalTeamInfoActivity.this, option, REQUEST_CODE_CONTACT_SELECT);
+        NimUIKit.startContactSelector(NormalTeamInfoActivity.this, option, REQUEST_CODE_CONTACT_SELECT);
     }
 
     /**
@@ -672,8 +681,8 @@ public class NormalTeamInfoActivity extends UI implements OnClickListener, TAdap
 
     @Override
     public void onHeadImageViewClick(String account) {
-        if (NimUIKit.getContactEventListener() != null) {
-            NimUIKit.getContactEventListener().onAvatarClick(this, account);
+        if (NimUIKitImpl.getContactEventListener() != null) {
+            NimUIKitImpl.getContactEventListener().onAvatarClick(this, account);
         }
     }
 

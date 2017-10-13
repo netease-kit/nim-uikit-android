@@ -8,12 +8,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.netease.nim.uikit.CustomPushContentProvider;
-import com.netease.nim.uikit.NimUIKit;
 import com.netease.nim.uikit.R;
+import com.netease.nim.uikit.ait.AitManager;
 import com.netease.nim.uikit.cache.RobotInfoCache;
 import com.netease.nim.uikit.common.fragment.TFragment;
-import com.netease.nim.uikit.ait.AitManager;
+import com.netease.nim.uikit.core.NimUIKitImpl;
+import com.netease.nim.uikit.plugin.CustomPushContentProvider;
 import com.netease.nim.uikit.session.SessionCustomization;
 import com.netease.nim.uikit.session.actions.BaseAction;
 import com.netease.nim.uikit.session.actions.ImageAction;
@@ -239,6 +239,9 @@ public class MessageFragment extends TFragment implements ModuleProxy {
     }
 
     private IMMessage changeToRobotMsg(IMMessage message) {
+        if (message.getMsgType() == MsgTypeEnum.robot) {
+            return message;
+        }
         if (isChatWithRobot()) {
             if (message.getMsgType() == MsgTypeEnum.text && message.getContent() != null) {
                 String content = message.getContent().equals("") ? " " : message.getContent();
@@ -263,7 +266,7 @@ public class MessageFragment extends TFragment implements ModuleProxy {
     }
 
     private void appendPushConfig(IMMessage message) {
-        CustomPushContentProvider customConfig = NimUIKit.getCustomPushContentProvider();
+        CustomPushContentProvider customConfig = NimUIKitImpl.getCustomPushContentProvider();
         if (customConfig != null) {
             String content = customConfig.getPushContent(message);
             Map<String, Object> payload = customConfig.getPushPayload(message);

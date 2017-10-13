@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.text.TextUtils;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.netease.nim.uikit.NimUIKit;
 import com.netease.nim.uikit.common.framework.NimSingleThreadExecutor;
 import com.netease.nim.uikit.common.ui.imageview.HeadImageView;
@@ -77,11 +78,14 @@ public class ImageLoaderKit {
         Bitmap cachedBitmap = null;
         try {
             cachedBitmap = Glide.with(context)
-                    .load(url)
                     .asBitmap()
-                    .centerCrop()
-                    .into(imageSize, imageSize)
-                    .get(200, TimeUnit.MILLISECONDS); // 最大等待200ms
+                    .load(url)
+                    .apply(new RequestOptions()
+                            .centerCrop()
+                            .override(imageSize, imageSize))
+                    .submit()
+                    .get(200, TimeUnit.MILLISECONDS)// 最大等待200ms
+            ;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -103,7 +107,7 @@ public class ImageLoaderKit {
             public void run() {
                 Glide.with(context)
                         .load(url)
-                        .downloadOnly(imageSize, imageSize);
+                        .submit(imageSize, imageSize);
             }
         });
     }

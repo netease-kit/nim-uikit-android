@@ -11,6 +11,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.netease.nim.uikit.NimUIKit;
+import com.netease.nim.uikit.core.NimUIKitImpl;
 import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.cache.SimpleCallback;
 import com.netease.nim.uikit.cache.TeamDataCache;
@@ -272,7 +273,7 @@ public class AdvancedTeamMemberInfoActivity extends UI implements View.OnClickLi
     }
 
     private void initMemberInfo() {
-        memberName.setText(NimUIKit.getContactProvider().getUserDisplayName(account));
+        memberName.setText(NimUIKitImpl.getContactProvider().getUserDisplayName(account));
         headImageView.loadBuddyAvatar(account);
     }
 

@@ -3,7 +3,7 @@ package com.netease.nim.uikit.contact.core.viewholder;
 import android.text.TextUtils;
 import android.view.View;
 
-import com.netease.nim.uikit.NimUIKit;
+import com.netease.nim.uikit.core.NimUIKitImpl;
 import com.netease.nim.uikit.contact.core.item.ContactItem;
 import com.netease.nim.uikit.contact.core.model.ContactDataAdapter;
 import com.netease.nim.uikit.contact.core.model.IContact;
@@ -19,10 +19,10 @@ public class OnlineStateContactHolder extends ContactHolder{
         super.refresh(adapter, position, item);
         IContact contact = item.getContact();
         // 在线状态
-        if (contact.getContactType() != IContact.Type.Friend || !NimUIKit.enableOnlineState()) {
+        if (contact.getContactType() != IContact.Type.Friend || !NimUIKitImpl.enableOnlineState()) {
             desc.setVisibility(View.GONE);
         } else {
-            String onlineStateContent = NimUIKit.getOnlineStateContentProvider().getSimpleDisplay(contact.getContactId());
+            String onlineStateContent = NimUIKitImpl.getOnlineStateContentProvider().getSimpleDisplay(contact.getContactId());
             if (TextUtils.isEmpty(onlineStateContent)) {
                 desc.setVisibility(View.GONE);
             }else {

@@ -47,11 +47,11 @@ public abstract class MsgViewHolderThumbBase extends MsgViewHolderBase {
         String path = msgAttachment.getPath();
         String thumbPath = msgAttachment.getThumbPath();
         if (!TextUtils.isEmpty(thumbPath)) {
-            loadThumbnailImage(thumbPath, false);
+            loadThumbnailImage(thumbPath, false, msgAttachment.getExtension());
         } else if (!TextUtils.isEmpty(path)) {
-            loadThumbnailImage(thumbFromSourceFile(path), true);
+            loadThumbnailImage(thumbFromSourceFile(path), true,  msgAttachment.getExtension());
         } else {
-            loadThumbnailImage(null, false);
+            loadThumbnailImage(null, false,  msgAttachment.getExtension());
             if (message.getAttachStatus() == AttachStatusEnum.transferred
                     || message.getAttachStatus() == AttachStatusEnum.def) {
                 downloadAttachment();
@@ -84,11 +84,11 @@ public abstract class MsgViewHolderThumbBase extends MsgViewHolderBase {
         }
     }
 
-    private void loadThumbnailImage(String path, boolean isOriginal) {
+    private void loadThumbnailImage(String path, boolean isOriginal, String ext) {
         setImageSize(path);
         if (path != null) {
             //thumbnail.loadAsPath(thumbPath, getImageMaxEdge(), getImageMaxEdge(), maskBg());
-            thumbnail.loadAsPath(path,getImageMaxEdge(), getImageMaxEdge(), maskBg());
+            thumbnail.loadAsPath(path,getImageMaxEdge(), getImageMaxEdge(), maskBg(), ext);
         } else {
             thumbnail.loadAsResource(R.drawable.nim_image_default, maskBg());
         }

@@ -11,6 +11,7 @@ import com.netease.nim.uikit.contact_selector.activity.ContactSelectActivity;
 import com.netease.nimlib.sdk.team.constant.TeamBeInviteModeEnum;
 import com.netease.nimlib.sdk.team.constant.TeamInviteModeEnum;
 import com.netease.nimlib.sdk.team.constant.TeamMemberType;
+import com.netease.nimlib.sdk.team.constant.TeamMessageNotifyTypeEnum;
 import com.netease.nimlib.sdk.team.constant.TeamUpdateModeEnum;
 import com.netease.nimlib.sdk.team.constant.VerifyTypeEnum;
 import com.netease.nimlib.sdk.team.model.TeamMember;
@@ -57,6 +58,34 @@ public class TeamHelper {
         } else {
             return R.string.team_not_allow_anyone_join;
         }
+    }
+
+    // 群消息提醒类型菜单项名称
+    public static List<String> createNotifyMenuStrings() {
+        int[] res = new int[]{
+                R.string.team_notify_all,
+                R.string.team_notify_manager,
+                R.string.team_notify_mute,
+                R.string.cancel
+        };
+        List<String> btnNames = new ArrayList<>();
+        for (int r : res) {
+            btnNames.add(NimUIKit.getContext().getString(r));
+        }
+        return btnNames;
+    }
+
+    // 获取提醒类型
+    public static TeamMessageNotifyTypeEnum getNotifyType(String name) {
+        TeamMessageNotifyTypeEnum type = null;
+        if (name.equals(NimUIKit.getContext().getString(R.string.team_notify_all))) {
+            type = TeamMessageNotifyTypeEnum.All;
+        } else if (name.equals(NimUIKit.getContext().getString(R.string.team_notify_manager))) {
+            type = TeamMessageNotifyTypeEnum.Manager;
+        } else if (name.equals(NimUIKit.getContext().getString(R.string.team_notify_mute))) {
+            type = TeamMessageNotifyTypeEnum.Mute;
+        }
+        return type;
     }
 
     // 邀请他人菜单项名称

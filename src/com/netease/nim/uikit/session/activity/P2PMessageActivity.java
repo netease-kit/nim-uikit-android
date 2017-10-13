@@ -7,8 +7,8 @@ import android.widget.Toast;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.netease.nim.uikit.NimUIKit;
-import com.netease.nim.uikit.OnlineStateChangeListener;
+import com.netease.nim.uikit.core.NimUIKitImpl;
+import com.netease.nim.uikit.plugin.OnlineStateChangeListener;
 import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.cache.FriendDataCache;
 import com.netease.nim.uikit.model.ToolBarOptions;
@@ -130,21 +130,21 @@ public class P2PMessageActivity extends BaseMessageActivity {
     };
 
     private void registerOnlineStateChangeListener(boolean register) {
-        if (!NimUIKit.enableOnlineState()) {
+        if (!NimUIKitImpl.enableOnlineState()) {
             return;
         }
         if (register) {
-            NimUIKit.addOnlineStateChangeListeners(onlineStateChangeListener);
+            NimUIKitImpl.addOnlineStateChangeListeners(onlineStateChangeListener);
         } else {
-            NimUIKit.removeOnlineStateChangeListeners(onlineStateChangeListener);
+            NimUIKitImpl.removeOnlineStateChangeListeners(onlineStateChangeListener);
         }
     }
 
     private void displayOnlineState() {
-        if (!NimUIKit.enableOnlineState()) {
+        if (!NimUIKitImpl.enableOnlineState()) {
             return;
         }
-        String detailContent = NimUIKit.getOnlineStateContentProvider().getDetailDisplay(sessionId);
+        String detailContent = NimUIKitImpl.getOnlineStateContentProvider().getDetailDisplay(sessionId);
         setSubTitle(detailContent);
     }
 

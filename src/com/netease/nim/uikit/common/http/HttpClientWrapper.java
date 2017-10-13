@@ -1,5 +1,6 @@
 package com.netease.nim.uikit.common.http;
 
+import com.alibaba.fastjson.JSONObject;
 import com.netease.nim.uikit.common.util.log.LogUtil;
 
 import java.io.ByteArrayOutputStream;
@@ -129,6 +130,9 @@ public class HttpClientWrapper {
         // headers
         buildHeaders(urlConnection, headers);
 
+        // json body
+        buildJsonHeaders(urlConnection, body);
+
         // body
         OutputStream os = urlConnection.getOutputStream();
         DataOutputStream out = new DataOutputStream(os);
@@ -138,6 +142,10 @@ public class HttpClientWrapper {
                 out.write(((String) body).getBytes(CHARSET));
             } else if (body instanceof byte[]) {
                 out.write((byte[]) body);
+            } else if (body instanceof JSONObject) {
+                out.write(((JSONObject) body).toJSONString().getBytes(CHARSET));
+            } else if (body instanceof org.json.JSONObject) {
+                out.write(body.toString().getBytes(CHARSET));
             }
             os.flush(); // 开始与对方建立三次握手。
         } catch (IOException e) {
@@ -169,6 +177,12 @@ public class HttpClientWrapper {
             for (String key : headers.keySet()) {
                 urlConnection.setRequestProperty(key, headers.get(key));
             }
+        }
+    }
+
+    private static <T> void buildJsonHeaders(HttpURLConnection urlConnection, T body) {
+        if (body instanceof JSONObject || body instanceof org.json.JSONObject) {
+            urlConnection.setRequestProperty("Content-Type", "application/json");
         }
     }
 
