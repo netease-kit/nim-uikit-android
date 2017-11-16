@@ -14,8 +14,6 @@ import com.netease.nim.uikit.common.ui.recyclerview.holder.BaseViewHolder;
 import java.util.Iterator;
 import java.util.Set;
 
-import static com.netease.nim.uikit.common.ui.recyclerview.adapter.IRecyclerView.FETCHING_VIEW;
-
 /**
  * This can be useful for applications that wish to implement various forms of click and longclick and childView click
  * manipulation of item views within the RecyclerView. SimpleClickListener may intercept
@@ -52,7 +50,7 @@ public abstract class SimpleClickListener<T extends IRecyclerView> implements Re
         if (!mGestureDetector.onTouchEvent(e) && e.getActionMasked() == MotionEvent.ACTION_UP && mIsShowPress) {
             if (mPressedView != null) {
                 BaseViewHolder vh = (BaseViewHolder) recyclerView.getChildViewHolder(mPressedView);
-                if (vh == null || vh.getItemViewType() != IRecyclerView.LOADING_VIEW || vh.getItemViewType() != FETCHING_VIEW) {
+                if (vh == null || vh.getItemViewType() != IRecyclerView.LOADING_VIEW || vh.getItemViewType() != IRecyclerView.FETCHING_VIEW) {
                     mPressedView.setPressed(false);
                 }
                 mPressedView = null;
@@ -282,7 +280,7 @@ public abstract class SimpleClickListener<T extends IRecyclerView> implements Re
         }
         int type = baseAdapter.getItemViewType(position);
         return (type == IRecyclerView.EMPTY_VIEW || type == IRecyclerView.HEADER_VIEW || type == IRecyclerView.FOOTER_VIEW
-                || type == IRecyclerView.LOADING_VIEW || type == FETCHING_VIEW);
+                || type == IRecyclerView.LOADING_VIEW || type == IRecyclerView.FETCHING_VIEW);
     }
 
     public void setShouldDetectGesture(boolean shouldDetectGesture) {

@@ -6,7 +6,7 @@ public final class SimpleLoadMoreView extends LoadMoreView {
 
     @Override
     public int getLayoutId() {
-        return R.layout.simple_load_more;
+        return R.layout.nim_simple_load_more;
     }
 
     @Override

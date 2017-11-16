@@ -21,9 +21,9 @@ import java.nio.channels.FileChannel;
  */
 public class AttachmentStore {
     public static long copy(String srcPath, String dstPath) {
-    	if (TextUtils.isEmpty(srcPath) || TextUtils.isEmpty(dstPath)) {
-    		return -1;
-    	}
+        if (TextUtils.isEmpty(srcPath) || TextUtils.isEmpty(dstPath)) {
+            return -1;
+        }
 
         File source = new File(srcPath);
         if (!source.exists()) {
@@ -36,7 +36,7 @@ public class AttachmentStore {
 
         FileChannel fcin = null;
         FileChannel fcout = null;
-    	try {
+        try {
             fcin = new FileInputStream(source).getChannel();
             fcout = new FileOutputStream(create(dstPath)).getChannel();
             ByteBuffer tmpBuffer = ByteBuffer.allocateDirect(4096);
@@ -45,39 +45,39 @@ public class AttachmentStore {
                 fcout.write(tmpBuffer);
                 tmpBuffer.clear();
             }
-			return source.length();
-			
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} finally {
-			try {
-				if (fcin != null) {
-                    fcin.close();
-				}
-				if (fcout != null) {
-                    fcout.close();
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-    	return -1;
-    }
-	
-    public static long getFileLength(String srcPath) {
-    	if (TextUtils.isEmpty(srcPath)) {
-			return -1;
-		}
+            return source.length();
 
-    	File srcFile = new File(srcPath);
-    	if (!srcFile.exists()) {
-			return -1;
-		}
-    	
-    	return srcFile.length();
-	}
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (fcin != null) {
+                    fcin.close();
+                }
+                if (fcout != null) {
+                    fcout.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return -1;
+    }
+
+    public static long getFileLength(String srcPath) {
+        if (TextUtils.isEmpty(srcPath)) {
+            return -1;
+        }
+
+        File srcFile = new File(srcPath);
+        if (!srcFile.exists()) {
+            return -1;
+        }
+
+        return srcFile.length();
+    }
 
     public static long save(String path, String content) {
         return save(content.getBytes(), path);
@@ -85,21 +85,21 @@ public class AttachmentStore {
 
     /**
      * 把数据保存到文件系统中，并且返回其大小
-     * 
+     *
      * @param data
      * @param filePath
-     * @return 如果保存失败,则返回-1
+     * @return 如果保存失败, 则返回-1
      */
     public static long save(byte[] data, String filePath) {
-    	if (TextUtils.isEmpty(filePath)) {
-    		return -1;
-    	}
-    	
-        File f = new File(filePath);        
-        if(f.getParentFile() == null) {
-        	return -1;
+        if (TextUtils.isEmpty(filePath)) {
+            return -1;
         }
-        
+
+        File f = new File(filePath);
+        if (f.getParentFile() == null) {
+            return -1;
+        }
+
         if (!f.getParentFile().exists()) {// 如果不存在上级文件夹
             f.getParentFile().mkdirs();
         }
@@ -109,34 +109,34 @@ public class AttachmentStore {
             fout.write(data);
             fout.close();
         } catch (IOException e) {
-        	e.printStackTrace();
+            e.printStackTrace();
             return -1;
         }
         return f.length();
     }
-    
-    public static boolean move(String srcFilePath, String dstFilePath) {
-    	if (TextUtils.isEmpty(srcFilePath) || TextUtils.isEmpty(dstFilePath)) {
-			return false;
-		}
 
-    	File srcFile = new File(srcFilePath);
-    	if (!srcFile.exists() || !srcFile.isFile()) {
-			return false;
-		}
-    	
-        File dstFile = new File(dstFilePath);        
-        if(dstFile.getParentFile() == null) {
-        	return false;
+    public static boolean move(String srcFilePath, String dstFilePath) {
+        if (TextUtils.isEmpty(srcFilePath) || TextUtils.isEmpty(dstFilePath)) {
+            return false;
         }
-        
+
+        File srcFile = new File(srcFilePath);
+        if (!srcFile.exists() || !srcFile.isFile()) {
+            return false;
+        }
+
+        File dstFile = new File(dstFilePath);
+        if (dstFile.getParentFile() == null) {
+            return false;
+        }
+
         if (!dstFile.getParentFile().exists()) {// 如果不存在上级文件夹
-        	dstFile.getParentFile().mkdirs();
+            dstFile.getParentFile().mkdirs();
         }
-  
+
         return srcFile.renameTo(dstFile);
     }
-    
+
     public static File create(String filePath) {
         if (TextUtils.isEmpty(filePath)) {
             return null;
@@ -150,11 +150,11 @@ public class AttachmentStore {
             f.createNewFile();
             return f;
         } catch (IOException e) {
-        	if(f!=null && f.exists()){
-        		f.delete();
-        	}
+            if (f != null && f.exists()) {
+                f.delete();
+            }
             return null;
-        }    
+        }
     }
 
     /**
@@ -178,10 +178,10 @@ public class AttachmentStore {
             }
             return f.length();
         } catch (IOException e) {
-        	if(f!=null && f.exists()){
-        		f.delete();
-        	}
-        	LogUtil.e("file", "save is to " + filePath + " failed: " + e.getMessage());
+            if (f != null && f.exists()) {
+                f.delete();
+            }
+            LogUtil.e("file", "save is to " + filePath + " failed: " + e.getMessage());
             return -1;
         } finally {
             try {
@@ -201,22 +201,22 @@ public class AttachmentStore {
 
     /**
      * 把文件从文件系统中读取出来
-     * 
+     *
      * @param path
-     * @return 如果无法读取,则返回null
+     * @return 如果无法读取, 则返回null
      */
     public static byte[] load(String path) {
         try {
-        	File f = new File(path);
-        	int unread = (int) f.length();
-        	int read = 0;
+            File f = new File(path);
+            int unread = (int) f.length();
+            int read = 0;
             byte[] buf = new byte[unread]; // 读取文件长度
             FileInputStream fin = new FileInputStream(f);
             do {
-            	int count = fin.read(buf, read, unread);
-            	read += count;
-            	unread -= count;
-			} while (unread != 0);
+                int count = fin.read(buf, read, unread);
+                read += count;
+                unread -= count;
+            } while (unread != 0);
             fin.close();
             return buf;
         } catch (FileNotFoundException e) {
@@ -237,11 +237,11 @@ public class AttachmentStore {
 
     /**
      * 删除指定路径文件
-     * 
+     *
      * @param path
      */
     public static boolean delete(String path) {
-        if(TextUtils.isEmpty(path)){
+        if (TextUtils.isEmpty(path)) {
             return false;
         }
         File f = new File(path);
@@ -249,12 +249,12 @@ public class AttachmentStore {
             f = renameOnDelete(f);
             return f.delete();
         } else {
-			return false;
-		}
+            return false;
+        }
     }
-    
+
     public static void deleteOnExit(String path) {
-        if(TextUtils.isEmpty(path)){
+        if (TextUtils.isEmpty(path)) {
             return;
         }
         File f = new File(path);
@@ -308,15 +308,14 @@ public class AttachmentStore {
             return file;
         }
     }
-    
+
     public static boolean isFileExist(String path) {
-		if (!TextUtils.isEmpty(path) && new File(path).exists()) {
-			return true;
-		}
-		else {
-			return false;
-		}
-	}
+        if (!TextUtils.isEmpty(path) && new File(path).exists()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
     public static boolean saveBitmap(Bitmap bitmap, String path, boolean recycle) {
         if (bitmap == null || TextUtils.isEmpty(path)) {

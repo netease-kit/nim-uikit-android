@@ -31,212 +31,206 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 
 public class MultiTouchZoomableImageView extends BaseZoomableImageView {
-	// Scale and gesture listeners for the view
-	private GestureDetector mGestureDetector;
-	private ScaleGestureDetector mScaleDetector;
-	protected boolean transIgnoreScale = false;
-	private boolean scaleRecognized = false;
-	
-	// Programatic entry point
-	public MultiTouchZoomableImageView(Context context) {
-		super(context);
-		initMultiTouchZoomableImageView( context );
-	}
+    // Scale and gesture listeners for the view
+    private GestureDetector mGestureDetector;
+    private ScaleGestureDetector mScaleDetector;
+    protected boolean transIgnoreScale = false;
+    private boolean scaleRecognized = false;
 
-	// XML entry point
-	public MultiTouchZoomableImageView(Context context, AttributeSet attrs) {
-		super(context, attrs);
-		initMultiTouchZoomableImageView( context );
-	}
+    // Programatic entry point
+    public MultiTouchZoomableImageView(Context context) {
+        super(context);
+        initMultiTouchZoomableImageView(context);
+    }
 
-	// Setup the view
-	protected void initMultiTouchZoomableImageView( Context context) {
-		// Setup the gesture and scale listeners
-		mScaleDetector = new ScaleGestureDetector( context, new ScaleListener() );
-		mGestureDetector = new GestureDetector(context, new MyGestureListener());
-	}
+    // XML entry point
+    public MultiTouchZoomableImageView(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        initMultiTouchZoomableImageView(context);
+    }
+
+    // Setup the view
+    protected void initMultiTouchZoomableImageView(Context context) {
+        // Setup the gesture and scale listeners
+        mScaleDetector = new ScaleGestureDetector(context, new ScaleListener());
+        mGestureDetector = new GestureDetector(context, new MyGestureListener());
+    }
 
 
-	// Adjusts the zoom of the view
-	class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
+    // Adjusts the zoom of the view
+    class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
 
-		@Override
-		public boolean onScale( ScaleGestureDetector detector )
-		{	
-			// Check if the detector is in progress in order to proceed
-			if(detector!=null && detector.isInProgress() ){
-				try{
-					// Grab the scale
-					float targetScale = getScale() * detector.getScaleFactor();
-					// Correct for the min scale
-					targetScale = Math.min( maxZoom(), Math.max( targetScale, 1.0f) );
+        @Override
+        public boolean onScale(ScaleGestureDetector detector) {
+            // Check if the detector is in progress in order to proceed
+            if (detector != null && detector.isInProgress()) {
+                try {
+                    // Grab the scale
+                    float targetScale = getScale() * detector.getScaleFactor();
+                    // Correct for the min scale
+                    targetScale = Math.min(maxZoom(), Math.max(targetScale, 1.0f));
 
-					// Zoom and invalidate the view
-					zoomTo( targetScale, detector.getFocusX(), detector.getFocusY() );
-					invalidate();
+                    // Zoom and invalidate the view
+                    zoomTo(targetScale, detector.getFocusX(), detector.getFocusY());
+                    invalidate();
 
-					scaleRecognized = true;
-					
-					return true;
-				}catch(IllegalArgumentException e){
-					e.printStackTrace();
-				}
-			}
-			return false;
-		}
-	}
+                    scaleRecognized = true;
 
-	// Handles taps and scrolls of the view
-	private class MyGestureListener extends GestureDetector.SimpleOnGestureListener {
-		
-		@Override
-		public boolean onSingleTapConfirmed(MotionEvent e) {
-			if(mImageGestureListener!=null){
-				mImageGestureListener.onImageGestureSingleTapConfirmed();
-				return false;
-			}
-			
-			return super.onSingleTapConfirmed(e);
-		}
-		
-        public void onLongPress(MotionEvent e) {
-			if(mImageGestureListener!=null && !scaleRecognized){
-				mImageGestureListener.onImageGestureLongPress();
-			}			
+                    return true;
+                } catch (IllegalArgumentException e) {
+                    e.printStackTrace();
+                }
+            }
+            return false;
+        }
+    }
+
+    // Handles taps and scrolls of the view
+    private class MyGestureListener extends GestureDetector.SimpleOnGestureListener {
+
+        @Override
+        public boolean onSingleTapConfirmed(MotionEvent e) {
+            if (mImageGestureListener != null) {
+                mImageGestureListener.onImageGestureSingleTapConfirmed();
+                return false;
+            }
+
+            return super.onSingleTapConfirmed(e);
         }
 
-		@Override
-		public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-			try {
-				// Skip if there are multiple points of contact
-				if ( (e1!=null&&e1.getPointerCount() > 1) || (e2!=null&&e2.getPointerCount() > 1) || (mScaleDetector!=null && mScaleDetector.isInProgress()) ) 
-					return false;
+        public void onLongPress(MotionEvent e) {
+            if (mImageGestureListener != null && !scaleRecognized) {
+                mImageGestureListener.onImageGestureLongPress();
+            }
+        }
 
-				// Scroll the bitmap
-				if (transIgnoreScale || getScale() > zoomDefault()) {
+        @Override
+        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            try {
+                // Skip if there are multiple points of contact
+                if ((e1 != null && e1.getPointerCount() > 1) || (e2 != null && e2.getPointerCount() > 1) || (mScaleDetector != null && mScaleDetector.isInProgress()))
+                    return false;
+
+                // Scroll the bitmap
+                if (transIgnoreScale || getScale() > zoomDefault()) {
                     stopFling();
-					postTranslate(-distanceX, -distanceY);
-					
-					if (isScrollOver(distanceX)) {
-						if (mViewPager!=null) {
-							mViewPager.requestDisallowInterceptTouchEvent(false);
-						}
-					}
-					else {
-						if (mViewPager!=null) {
-							mViewPager.requestDisallowInterceptTouchEvent(true);
-						}
-					}
-					
-					center(true, true, false);
-				}
-				else {
-					if (mViewPager!=null) {
-						mViewPager.requestDisallowInterceptTouchEvent(false);
-					}					
-				}
-			} 			
-			catch (IllegalArgumentException e) {  
-		        e.printStackTrace();  
-		    } 
+                    postTranslate(-distanceX, -distanceY);
 
-			// Default case
-			return true;
-		}
+                    if (isScrollOver(distanceX)) {
+                        if (mViewPager != null) {
+                            mViewPager.requestDisallowInterceptTouchEvent(false);
+                        }
+                    } else {
+                        if (mViewPager != null) {
+                            mViewPager.requestDisallowInterceptTouchEvent(true);
+                        }
+                    }
 
-		@Override
-		public boolean onDoubleTap(MotionEvent e) {
-			// If the zoom is over 1x, reset to 1x
-			if ( getScale() != zoomDefault() ){
-				zoomTo(zoomDefault());
-			}
-			// If the zoom is default, zoom into 2x
-			else 
-				zoomTo(zoomDefault()*3, e.getX(), e.getY(),200);
+                    center(true, true, false);
+                } else {
+                    if (mViewPager != null) {
+                        mViewPager.requestDisallowInterceptTouchEvent(false);
+                    }
+                }
+            } catch (IllegalArgumentException e) {
+                e.printStackTrace();
+            }
 
-			// Always true as double tap was performed
-			return true;
-		}
+            // Default case
+            return true;
+        }
 
-		@Override
-		public boolean onFling( MotionEvent e1, MotionEvent e2, float velocityX, float velocityY )
-		{
-			if ( (e1!=null&&e1.getPointerCount() > 1) || (e2!=null&&e2.getPointerCount() > 1) ) return false;
-			if ( mScaleDetector.isInProgress() ) return false;
+        @Override
+        public boolean onDoubleTap(MotionEvent e) {
+            // If the zoom is over 1x, reset to 1x
+            if (getScale() != zoomDefault()) {
+                zoomTo(zoomDefault());
+            }
+            // If the zoom is default, zoom into 2x
+            else
+                zoomTo(zoomDefault() * 3, e.getX(), e.getY(), 200);
 
-			final float FLING_MIN_DISTANCE = 100;
-			final float FLING_MIN_VELOCITY = 200;
-			if (e1.getX() - e2.getX() > FLING_MIN_DISTANCE 
-					&& Math.abs(velocityX) > FLING_MIN_VELOCITY) { 
-				Log.i("MultiTouchZoomableImageView","Fling Left");
-			} else if (e2.getX() - e1.getX() > FLING_MIN_DISTANCE 
-					&& Math.abs(velocityX) > FLING_MIN_VELOCITY) {
-				Log.i("MultiTouchZoomableImageView","Fling Right");
-			} else if (e1.getY() - e2.getY() > FLING_MIN_DISTANCE 
-					&& Math.abs(velocityY) > FLING_MIN_VELOCITY) {
-				Log.i("MultiTouchZoomableImageView","Fling Up");
-			} else if (e2.getY() - e1.getY() > FLING_MIN_DISTANCE 
-					&& Math.abs(velocityY) > FLING_MIN_VELOCITY) {
-				Log.i("MultiTouchZoomableImageView","Fling Down");
-				
-				if (!transIgnoreScale && getScale() <= zoomDefault()) {
-					mImageGestureListener.onImageGestureFlingDown();
-					return true;	
-				}
-			} 
+            // Always true as double tap was performed
+            return true;
+        }
 
-			try {
-				float diffX = e2.getX() - e1.getX();
-				float diffY = e2.getY() - e1.getY();
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            if ((e1 != null && e1.getPointerCount() > 1) || (e2 != null && e2.getPointerCount() > 1))
+                return false;
+            if (mScaleDetector.isInProgress()) return false;
 
-				if ( Math.abs( velocityX ) > 800 || Math.abs( velocityY ) > 800 ) {
-					scrollBy( diffX / 2, diffY / 2, 300 );
-					invalidate();
-				}
-			}
-			catch(NullPointerException  e){
+            final float FLING_MIN_DISTANCE = 100;
+            final float FLING_MIN_VELOCITY = 200;
+            if (e1.getX() - e2.getX() > FLING_MIN_DISTANCE
+                    && Math.abs(velocityX) > FLING_MIN_VELOCITY) {
+                Log.i("MultiTouchZoomableImageView", "Fling Left");
+            } else if (e2.getX() - e1.getX() > FLING_MIN_DISTANCE
+                    && Math.abs(velocityX) > FLING_MIN_VELOCITY) {
+                Log.i("MultiTouchZoomableImageView", "Fling Right");
+            } else if (e1.getY() - e2.getY() > FLING_MIN_DISTANCE
+                    && Math.abs(velocityY) > FLING_MIN_VELOCITY) {
+                Log.i("MultiTouchZoomableImageView", "Fling Up");
+            } else if (e2.getY() - e1.getY() > FLING_MIN_DISTANCE
+                    && Math.abs(velocityY) > FLING_MIN_VELOCITY) {
+                Log.i("MultiTouchZoomableImageView", "Fling Down");
 
-			}
-			catch (IllegalArgumentException e) {  
-				e.printStackTrace();  
-			}  
+                if (!transIgnoreScale && getScale() <= zoomDefault()) {
+                    mImageGestureListener.onImageGestureFlingDown();
+                    return true;
+                }
+            }
 
-			return super.onFling( e1, e2, velocityX, velocityY );
-		}
-	}
+            try {
+                float diffX = e2.getX() - e1.getX();
+                float diffY = e2.getY() - e1.getY();
 
-	@Override
-	public boolean onTouchEvent(MotionEvent event) {
-		try {
-			if (mViewPager!=null) {
-				switch (event.getAction()) {
-				case MotionEvent.ACTION_MOVE: 
-					mViewPager.requestDisallowInterceptTouchEvent(true);
-					break;
-				case MotionEvent.ACTION_UP:
-				case MotionEvent.ACTION_CANCEL:
-					mViewPager.requestDisallowInterceptTouchEvent(false);
-					scaleRecognized = false;
-					break;
-				}
-			}
+                if (Math.abs(velocityX) > 800 || Math.abs(velocityY) > 800) {
+                    scrollBy(diffX / 2, diffY / 2, 300);
+                    invalidate();
+                }
+            } catch (NullPointerException e) {
 
-			// If the bitmap was set, check the scale and gesture detectors
-			if(mBitmap!=null){
-				// Check the scale detector
-				mScaleDetector.onTouchEvent(event);
-				
-				// Check the gesture detector
-				if(!mScaleDetector.isInProgress())
-					mGestureDetector.onTouchEvent(event);
-			} else {
-				mImageGestureListener.onImageGestureSingleTapConfirmed();
-				return false;
-			}
-		} catch (Exception e) {
-			e.printStackTrace();  
-		}
+            } catch (IllegalArgumentException e) {
+                e.printStackTrace();
+            }
 
-		return true;
-	}
+            return super.onFling(e1, e2, velocityX, velocityY);
+        }
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        try {
+            if (mViewPager != null) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_MOVE:
+                        mViewPager.requestDisallowInterceptTouchEvent(true);
+                        break;
+                    case MotionEvent.ACTION_UP:
+                    case MotionEvent.ACTION_CANCEL:
+                        mViewPager.requestDisallowInterceptTouchEvent(false);
+                        scaleRecognized = false;
+                        break;
+                }
+            }
+
+            // If the bitmap was set, check the scale and gesture detectors
+            if (mBitmap != null) {
+                // Check the scale detector
+                mScaleDetector.onTouchEvent(event);
+
+                // Check the gesture detector
+                if (!mScaleDetector.isInProgress())
+                    mGestureDetector.onTouchEvent(event);
+            } else {
+                mImageGestureListener.onImageGestureSingleTapConfirmed();
+                return false;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return true;
+    }
 }

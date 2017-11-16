@@ -11,15 +11,15 @@ import android.graphics.drawable.Drawable;
 import android.media.ExifInterface;
 import android.text.TextUtils;
 
-import com.netease.nim.uikit.NimUIKit;
 import com.netease.nim.uikit.R;
+import com.netease.nim.uikit.api.NimUIKit;
+import com.netease.nim.uikit.business.session.viewholder.MsgViewHolderThumbBase;
 import com.netease.nim.uikit.common.util.file.AttachmentStore;
 import com.netease.nim.uikit.common.util.file.FileUtil;
 import com.netease.nim.uikit.common.util.log.LogUtil;
 import com.netease.nim.uikit.common.util.storage.StorageType;
 import com.netease.nim.uikit.common.util.storage.StorageUtil;
 import com.netease.nim.uikit.common.util.string.StringUtil;
-import com.netease.nim.uikit.session.viewholder.MsgViewHolderThumbBase;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -442,5 +442,9 @@ public class ImageUtil {
         return (lowerCaseFilepath.contains("jpg") || lowerCaseFilepath.contains("jpeg")
                 || lowerCaseFilepath.toLowerCase().contains("png") || lowerCaseFilepath.toLowerCase().contains("bmp") || lowerCaseFilepath
                 .toLowerCase().contains("gif"));
+    }
+
+    public static boolean isGif(String extension) {
+        return !TextUtils.isEmpty(extension) && extension.toLowerCase().equals("gif");
     }
 }

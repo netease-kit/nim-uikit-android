@@ -14,79 +14,78 @@ import java.util.List;
 
 public class PopupMenuAdapter extends BaseAdapter {
 
-	public static int TYPE_BG_WHITE = 0;
-	public static int TYPE_BG_BLACK = 1;
+    public static int TYPE_BG_WHITE = 0;
+    public static int TYPE_BG_BLACK = 1;
 
-	private int typeBg = 0;
-	
-	private Context context;
+    private int typeBg = 0;
 
-	private List<PopupMenuItem> list;
+    private Context context;
 
-	private LayoutInflater inflater;
+    private List<PopupMenuItem> list;
 
-	public PopupMenuAdapter(Context context, List<PopupMenuItem> list,int typeBg) {
-		this.list = list;
-		inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		this.typeBg = typeBg;
-	}
-	
-	
+    private LayoutInflater inflater;
 
-	@Override
-	public int getCount() {
-		return list.size();
-	}
+    public PopupMenuAdapter(Context context, List<PopupMenuItem> list, int typeBg) {
+        this.list = list;
+        inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        this.typeBg = typeBg;
+    }
 
-	@Override
-	public Object getItem(int position) {
-		return list.get(position);
-	}
 
-	@Override
-	public long getItemId(int position) {
-		return position;
-	}
+    @Override
+    public int getCount() {
+        return list.size();
+    }
 
-	@Override
-	public View getView(final int position, View convertView, ViewGroup parent) {
-		ImageView icon = null;
-		TextView title = null;
-		if (convertView == null) {
-			if(typeBg == TYPE_BG_BLACK){
-				convertView = inflater.inflate(R.layout.nim_popup_menu_list_black_item, null);
-			}else {
-				convertView = inflater.inflate(R.layout.nim_popup_menu_list_item, null);
+    @Override
+    public Object getItem(int position) {
+        return list.get(position);
+    }
 
-			}
-			icon = (ImageView) convertView.findViewById(R.id.popup_menu_icon);
-			title = (TextView) convertView.findViewById(R.id.popup_menu_title);
-			ViewHolder cache = new ViewHolder();
-			cache.icon = icon;
-			cache.title = title;
-			convertView.setTag(cache);
-		} else {
-			ViewHolder cache = (ViewHolder) convertView.getTag();
-			icon = cache.icon;
-			title = cache.title;
-		}
-		PopupMenuItem item = list.get(position);
-		if (item.getIcon() != 0) {
-			icon.setVisibility(View.VISIBLE);
-			icon.setImageResource(item.getIcon());
-		} else {
-			icon.setVisibility(View.GONE);
-		}
-		title.setText(item.getTitle());
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
 
-		// 下面代码实现数据绑定
-		return convertView;
-	}
+    @Override
+    public View getView(final int position, View convertView, ViewGroup parent) {
+        ImageView icon = null;
+        TextView title = null;
+        if (convertView == null) {
+            if (typeBg == TYPE_BG_BLACK) {
+                convertView = inflater.inflate(R.layout.nim_popup_menu_list_black_item, null);
+            } else {
+                convertView = inflater.inflate(R.layout.nim_popup_menu_list_item, null);
 
-	private final class ViewHolder {
+            }
+            icon = (ImageView) convertView.findViewById(R.id.popup_menu_icon);
+            title = (TextView) convertView.findViewById(R.id.popup_menu_title);
+            ViewHolder cache = new ViewHolder();
+            cache.icon = icon;
+            cache.title = title;
+            convertView.setTag(cache);
+        } else {
+            ViewHolder cache = (ViewHolder) convertView.getTag();
+            icon = cache.icon;
+            title = cache.title;
+        }
+        PopupMenuItem item = list.get(position);
+        if (item.getIcon() != 0) {
+            icon.setVisibility(View.VISIBLE);
+            icon.setImageResource(item.getIcon());
+        } else {
+            icon.setVisibility(View.GONE);
+        }
+        title.setText(item.getTitle());
 
-		public ImageView icon;
+        // 下面代码实现数据绑定
+        return convertView;
+    }
 
-		public TextView title;
-	}
+    private final class ViewHolder {
+
+        public ImageView icon;
+
+        public TextView title;
+    }
 }

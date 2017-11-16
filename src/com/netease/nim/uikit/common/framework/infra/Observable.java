@@ -8,11 +8,11 @@ public abstract class Observable<T> {
 
     public void registerObserver(T observer) {
         if (observer == null) {
-        	return;
+            return;
         }
-        synchronized(mObservers) {
+        synchronized (mObservers) {
             if (mObservers.contains(observer)) {
-            	return;
+                return;
             }
             mObservers.add(observer);
         }
@@ -20,34 +20,34 @@ public abstract class Observable<T> {
 
     public void unregisterObserver(T observer) {
         if (observer == null) {
-        	return;
+            return;
         }
-        synchronized(mObservers) {
+        synchronized (mObservers) {
             int index = mObservers.indexOf(observer);
             if (index == -1) {
-            	return;
+                return;
             }
             mObservers.remove(index);
         }
     }
 
     public void unregisterAll() {
-        synchronized(mObservers) {
+        synchronized (mObservers) {
             mObservers.clear();
-        }        
+        }
     }
-	
-	protected List<T> getObservers() {
-    	return getObservers(true);
+
+    protected List<T> getObservers() {
+        return getObservers(true);
     }
-    
+
     protected List<T> getObservers(boolean sync) {
-    	if (sync) {
-	        synchronized(mObservers) {
-	        	return new ArrayList<T>(mObservers);
-	        }
-    	} else {
-    		return mObservers;
-    	}
+        if (sync) {
+            synchronized (mObservers) {
+                return new ArrayList<T>(mObservers);
+            }
+        } else {
+            return mObservers;
+        }
     }
 }

@@ -14,12 +14,13 @@ import android.text.TextUtils;
 import android.widget.Toast;
 
 import com.netease.nim.uikit.R;
+import com.netease.nim.uikit.api.wrapper.NimToolBarOptions;
+import com.netease.nim.uikit.business.session.constant.Extras;
+import com.netease.nim.uikit.common.activity.ToolBarOptions;
 import com.netease.nim.uikit.common.activity.UI;
 import com.netease.nim.uikit.common.media.picker.model.GenericFileProvider;
 import com.netease.nim.uikit.common.media.picker.model.PhotoInfo;
 import com.netease.nim.uikit.common.media.picker.model.PickerContract;
-import com.netease.nim.uikit.model.ToolBarOptions;
-import com.netease.nim.uikit.session.constant.Extras;
 
 import java.io.File;
 import java.util.List;
@@ -66,7 +67,7 @@ public class PickImageActivity extends UI {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.nim_pick_image_activity);
-        ToolBarOptions options = new ToolBarOptions();
+        ToolBarOptions options = new NimToolBarOptions();
         setToolBar(R.id.toolbar, options);
     }
 

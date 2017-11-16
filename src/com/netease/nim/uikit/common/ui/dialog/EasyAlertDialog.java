@@ -29,7 +29,7 @@ import java.util.Map;
  * 特殊布局需求可以自定义布局.
  */
 public class EasyAlertDialog extends Dialog {
-	private Context context;
+    private Context context;
 
     public static final int NO_TEXT_COLOR = -99999999;
 
@@ -61,7 +61,7 @@ public class EasyAlertDialog extends Dialog {
 
     private boolean isPositiveBtnVisible = true, isNegativeBtnVisible = false;
 
-    private boolean isTitleVisible = false , isMessageVisble = true, isTitleBtnVisible = false;
+    private boolean isTitleVisible = false, isMessageVisble = true, isTitleBtnVisible = false;
 
     private View.OnClickListener positiveBtnListener, negativeBtnListener;
 
@@ -90,29 +90,29 @@ public class EasyAlertDialog extends Dialog {
         resourceId = R.layout.nim_easy_alert_dialog_default_layout;
     }
 
-	public void setTitle(CharSequence title) {
-		isTitleVisible = TextUtils.isEmpty(title) ? false : true;
-		setTitleVisible(isTitleVisible);
-		if (null != title) {
-			this.title = title;
-			if (null != titleTV)
-				titleTV.setText(title);
-		}
-	}
+    public void setTitle(CharSequence title) {
+        isTitleVisible = TextUtils.isEmpty(title) ? false : true;
+        setTitleVisible(isTitleVisible);
+        if (null != title) {
+            this.title = title;
+            if (null != titleTV)
+                titleTV.setText(title);
+        }
+    }
 
-    public void setTitleVisible(boolean visible){
+    public void setTitleVisible(boolean visible) {
         isTitleVisible = visible;
-        if(titleView != null){
-        	titleView.setVisibility(isTitleVisible ? View.VISIBLE : View.GONE);
+        if (titleView != null) {
+            titleView.setVisibility(isTitleVisible ? View.VISIBLE : View.GONE);
         }
     }
 
     public void setTitleBtnVisible(boolean visible) {
-    	isTitleBtnVisible = visible;
-    	if (titleBtn != null) {
-    		titleBtn.setVisibility(isTitleBtnVisible ? View.VISIBLE : View.GONE);
-    	}
-	}
+        isTitleBtnVisible = visible;
+        if (titleBtn != null) {
+            titleBtn.setVisibility(isTitleBtnVisible ? View.VISIBLE : View.GONE);
+        }
+    }
 
     public void setTitleTextColor(int color) {
         titleTextColor = color;
@@ -139,9 +139,9 @@ public class EasyAlertDialog extends Dialog {
             titleTV.setTextSize(size);
     }
 
-    public void setMessageVisible(boolean visible){
+    public void setMessageVisible(boolean visible) {
         isMessageVisble = visible;
-        if(messageTV != null){
+        if (messageTV != null) {
             messageTV.setVisibility(visible ? View.VISIBLE : View.GONE);
         }
     }
@@ -155,80 +155,80 @@ public class EasyAlertDialog extends Dialog {
     }
 
     public void setMessage2(CharSequence message) {
-        if(!TextUtils.isEmpty(message)) {
+        if (!TextUtils.isEmpty(message)) {
             this.message2 = message;
-            if(null != message2TV) {
+            if (null != message2TV) {
                 message2TV.setText(message);
             }
         }
     }
 
-	public void addPositiveButton(CharSequence title, int color, float size,
-			View.OnClickListener positiveBtnListener) {
-		isPositiveBtnVisible = true;
-		positiveBtnTitle = TextUtils.isEmpty(title) ? context
-				.getString(R.string.ok) : title;
-		positiveBtnTitleTextColor = color;
-		positiveBtnTitleTextSize = size;
-		this.positiveBtnListener = positiveBtnListener;
+    public void addPositiveButton(CharSequence title, int color, float size,
+                                  View.OnClickListener positiveBtnListener) {
+        isPositiveBtnVisible = true;
+        positiveBtnTitle = TextUtils.isEmpty(title) ? context
+                .getString(R.string.ok) : title;
+        positiveBtnTitleTextColor = color;
+        positiveBtnTitleTextSize = size;
+        this.positiveBtnListener = positiveBtnListener;
 
-		if (positiveBtn != null) {
-			positiveBtn.setText(positiveBtnTitle);
-			positiveBtn.setTextColor(positiveBtnTitleTextColor);
-			positiveBtn.setTextSize(positiveBtnTitleTextSize);
-			positiveBtn.setOnClickListener(positiveBtnListener);
-		}
-	}
+        if (positiveBtn != null) {
+            positiveBtn.setText(positiveBtnTitle);
+            positiveBtn.setTextColor(positiveBtnTitleTextColor);
+            positiveBtn.setTextSize(positiveBtnTitleTextSize);
+            positiveBtn.setOnClickListener(positiveBtnListener);
+        }
+    }
 
-	public void addNegativeButton(CharSequence title, int color, float size,
-			View.OnClickListener negativeBtnListener) {
-		isNegativeBtnVisible = true;
-		negativeBtnTitle = TextUtils.isEmpty(title) ? context
-				.getString(R.string.cancel) : title;
-		negativeBtnTitleTextColor = color;
-		negativeBtnTitleTextSize = size;
-		this.negativeBtnListener = negativeBtnListener;
+    public void addNegativeButton(CharSequence title, int color, float size,
+                                  View.OnClickListener negativeBtnListener) {
+        isNegativeBtnVisible = true;
+        negativeBtnTitle = TextUtils.isEmpty(title) ? context
+                .getString(R.string.cancel) : title;
+        negativeBtnTitleTextColor = color;
+        negativeBtnTitleTextSize = size;
+        this.negativeBtnListener = negativeBtnListener;
 
-		if (negativeBtn != null) {
-			negativeBtn.setText(negativeBtnTitle);
-			negativeBtn.setTextColor(negativeBtnTitleTextColor);
-			negativeBtn.setTextSize(negativeBtnTitleTextSize);
-			negativeBtn.setOnClickListener(negativeBtnListener);
-		}
-	}
+        if (negativeBtn != null) {
+            negativeBtn.setText(negativeBtnTitle);
+            negativeBtn.setTextColor(negativeBtnTitleTextColor);
+            negativeBtn.setTextSize(negativeBtnTitleTextSize);
+            negativeBtn.setOnClickListener(negativeBtnListener);
+        }
+    }
 
-	public void addPositiveButton(CharSequence title,
-			View.OnClickListener positiveBtnListener) {
-		addPositiveButton(title, NO_TEXT_COLOR, NO_TEXT_SIZE,
-				positiveBtnListener);
-	}
+    public void addPositiveButton(CharSequence title,
+                                  View.OnClickListener positiveBtnListener) {
+        addPositiveButton(title, NO_TEXT_COLOR, NO_TEXT_SIZE,
+                positiveBtnListener);
+    }
 
-	public void addNegativeButton(CharSequence title,
-			View.OnClickListener negativeBtnListener) {
-		addNegativeButton(title, NO_TEXT_COLOR, NO_TEXT_SIZE,
-				negativeBtnListener);
-	}
+    public void addNegativeButton(CharSequence title,
+                                  View.OnClickListener negativeBtnListener) {
+        addNegativeButton(title, NO_TEXT_COLOR, NO_TEXT_SIZE,
+                negativeBtnListener);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(resourceId);
         try {
-        	ViewGroup root = (ViewGroup) findViewById(R.id.easy_alert_dialog_layout);
-        	if (root != null) {
-        		ViewGroup.LayoutParams params = root.getLayoutParams();
-                params.width = (int)ScreenUtil.getDialogWidth();
+            ViewGroup root = (ViewGroup) findViewById(R.id.easy_alert_dialog_layout);
+            if (root != null) {
+                ViewGroup.LayoutParams params = root.getLayoutParams();
+                params.width = (int) ScreenUtil.getDialogWidth();
                 root.setLayoutParams(params);
-        	}
+            }
 
-        	titleView = findViewById(R.id.easy_dialog_title_view);
-        	if (titleView != null) {
-        		setTitleVisible(isTitleVisible);
-        	}
-        	titleBtn = (ImageButton) findViewById(R.id.easy_dialog_title_button);
-        	if (titleBtn != null) {
-        		setTitleBtnVisible(isTitleBtnVisible);
-        	}
+            titleView = findViewById(R.id.easy_dialog_title_view);
+            if (titleView != null) {
+                setTitleVisible(isTitleVisible);
+            }
+            titleBtn = (ImageButton) findViewById(R.id.easy_dialog_title_button);
+            if (titleBtn != null) {
+                setTitleBtnVisible(isTitleBtnVisible);
+            }
             titleTV = (TextView) findViewById(R.id.easy_dialog_title_text_view);
             if (titleTV != null) {
                 titleTV.setText(title);
@@ -249,8 +249,8 @@ public class EasyAlertDialog extends Dialog {
             }
 
             message2TV = (TextView) findViewById(R.id.easy_dialog_message_2);
-            if(message2TV != null && !TextUtils.isEmpty(message2)) {
-            	message2TV.setVisibility(View.VISIBLE);
+            if (message2TV != null && !TextUtils.isEmpty(message2)) {
+                message2TV.setVisibility(View.VISIBLE);
                 message2TV.setText(message2);
             }
 
@@ -288,7 +288,7 @@ public class EasyAlertDialog extends Dialog {
                 while (iter.hasNext()) {
                     Map.Entry<Integer, View.OnClickListener> entry = (Map.Entry) iter.next();
                     view = findViewById(entry.getKey());
-                    if(view != null && entry.getValue() != null) {
+                    if (view != null && entry.getValue() != null) {
                         view.setOnClickListener(entry.getValue());
                     }
                 }
@@ -299,7 +299,7 @@ public class EasyAlertDialog extends Dialog {
         }
     }
 
-	public int getResourceId() {
+    public int getResourceId() {
         return resourceId;
     }
 

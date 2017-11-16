@@ -18,7 +18,9 @@ package com.netease.nim.uikit.common.ui.imageview;
 
 public interface ImageGestureListener {
 
-	void onImageGestureSingleTapConfirmed();
-	void onImageGestureLongPress();
-	void onImageGestureFlingDown();
+    void onImageGestureSingleTapConfirmed();
+
+    void onImageGestureLongPress();
+
+    void onImageGestureFlingDown();
 }

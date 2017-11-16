@@ -8,7 +8,7 @@
 
     <include layout="@layout/nim_message_activity_text_layout"/>
 
-    <com.netease.nim.uikit.session.emoji.EmoticonPickerView
+    <com.netease.nim.uikit.business.session.emoji.EmoticonPickerView
         android:id="@+id/emoticon_picker_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

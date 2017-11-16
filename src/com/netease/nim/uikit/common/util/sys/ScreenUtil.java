@@ -5,7 +5,7 @@ import android.content.res.Resources;
 import android.util.DisplayMetrics;
 import android.util.Log;
 
-import com.netease.nim.uikit.NimUIKit;
+import com.netease.nim.uikit.api.NimUIKit;
 
 import java.lang.reflect.Field;
 

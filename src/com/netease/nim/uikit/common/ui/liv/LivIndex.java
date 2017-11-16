@@ -5,8 +5,6 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.netease.nim.uikit.common.ui.liv.LetterIndexView.OnTouchingLetterChangedListener;
-
 import java.util.Map;
 
 /**
@@ -51,7 +49,7 @@ public class LivIndex {
         this.livIndex.setVisibility(View.GONE);
     }
 
-    private class LetterChangedListener implements OnTouchingLetterChangedListener {
+    private class LetterChangedListener implements LetterIndexView.OnTouchingLetterChangedListener {
 
         @Override
         public void onHit(String letter) {

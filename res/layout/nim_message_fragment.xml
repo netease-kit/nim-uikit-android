@@ -12,7 +12,7 @@
         android:layout_height="0dip"
         android:layout_weight="1">
 
-        <com.netease.nim.uikit.session.helper.MsgBkImageView
+        <com.netease.nim.uikit.business.session.helper.MsgBkImageView
             android:id="@+id/message_activity_background"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>

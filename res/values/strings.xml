@@ -53,6 +53,7 @@
     <string name="unsupport_desc">客户端版本不支持该内容</string>
     <string name="revoke_failed">发送时间超过2分钟的消息，不能被撤回</string>
     <string name="pic_and_video">图片和视频</string>
+    <string name="black_list_send_tip">消息已发送，但对方拒收</string>
 
     <!-- 语音 -->
     <string name="record_audio">按住 说话</string>

@@ -9,6 +9,7 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import com.netease.nim.uikit.R;
+import com.netease.nim.uikit.common.ui.recyclerview.callback.ItemDragAndSwipeCallback;
 import com.netease.nim.uikit.common.ui.recyclerview.holder.BaseViewHolder;
 import com.netease.nim.uikit.common.ui.recyclerview.listener.OnItemDragListener;
 import com.netease.nim.uikit.common.ui.recyclerview.listener.OnItemSwipeListener;
@@ -159,7 +160,7 @@ public abstract class BaseItemDraggableAdapter<T, K extends BaseViewHolder> exte
 
     /**
      * <p>Enable swipe items.</p>
-     * You should attach {@link ItemTouchHelper} which construct with {@link com.netease.nim.uikit.common.ui.recyclerview.callback.ItemDragAndSwipeCallback} to the Recycler when you enable
+     * You should attach {@link ItemTouchHelper} which construct with {@link ItemDragAndSwipeCallback} to the Recycler when you enable
      * this.
      */
     public void enableSwipeItem() {

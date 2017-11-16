@@ -12,7 +12,7 @@ public class TaskFrequencyController {
 
     private static Map<String, Long> taskTime = new HashMap<String, Long>();
 
-    public static<T> T runTask(ControllableTask<T> task, int frequencyInS, T def) {
+    public static <T> T runTask(ControllableTask<T> task, int frequencyInS, T def) {
         String key = makeKey(task);
         Long lastTime = taskTime.get(key);
         long current = new Date().getTime() / 1000;
@@ -49,6 +49,7 @@ public class TaskFrequencyController {
         public String tag() {
             return getClass().getSimpleName();
         }
+
         public abstract T run();
     }
 
@@ -56,6 +57,7 @@ public class TaskFrequencyController {
         public String tag() {
             return getClass().getSimpleName();
         }
+
         public abstract void run();
     }
 

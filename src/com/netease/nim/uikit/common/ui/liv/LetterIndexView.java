@@ -72,19 +72,19 @@ public class LetterIndexView extends View {
 
     public boolean dispatchTouchEvent(MotionEvent event) {
         switch (event.getAction()) {
-        case MotionEvent.ACTION_DOWN:
-            hit = true;
-            setBackgroundColor(getResources().getColor(R.color.contact_letter_idx_bg));
-            mPaint.setColor(touchColor);
-            onHit(event.getY());
-            break;
-        case MotionEvent.ACTION_MOVE:
-            onHit(event.getY());
-            break;
-        case MotionEvent.ACTION_UP:
-        case MotionEvent.ACTION_CANCEL:
-            onCancel();
-            break;
+            case MotionEvent.ACTION_DOWN:
+                hit = true;
+                setBackgroundColor(getResources().getColor(R.color.contact_letter_idx_bg));
+                mPaint.setColor(touchColor);
+                onHit(event.getY());
+                break;
+            case MotionEvent.ACTION_MOVE:
+                onHit(event.getY());
+                break;
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_CANCEL:
+                onCancel();
+                break;
         }
         invalidate();
         return true;
@@ -92,7 +92,7 @@ public class LetterIndexView extends View {
 
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        float letterHeight = ((float)getHeight()) / letters.length;
+        float letterHeight = ((float) getHeight()) / letters.length;
         float width = getWidth();
         float textSize = letterHeight * 5 / 6;
         mPaint.setTextSize(textSize);

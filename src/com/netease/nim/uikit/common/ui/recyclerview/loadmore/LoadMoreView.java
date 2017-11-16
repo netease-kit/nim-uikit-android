@@ -3,6 +3,7 @@ package com.netease.nim.uikit.common.ui.recyclerview.loadmore;
 import android.support.annotation.IdRes;
 import android.support.annotation.LayoutRes;
 
+import com.netease.nim.uikit.common.ui.recyclerview.adapter.BaseQuickAdapter;
 import com.netease.nim.uikit.common.ui.recyclerview.holder.BaseViewHolder;
 
 public abstract class LoadMoreView {
@@ -73,7 +74,7 @@ public abstract class LoadMoreView {
      * No more data is hidden
      *
      * @return true for no more data hidden load more
-     * @deprecated Use {@link com.netease.nim.uikit.common.ui.recyclerview.adapter.BaseQuickAdapter#loadMoreEnd(boolean)} instead.
+     * @deprecated Use {@link BaseQuickAdapter#loadMoreEnd(boolean)} instead.
      */
     @Deprecated
     public boolean isLoadEndGone() {

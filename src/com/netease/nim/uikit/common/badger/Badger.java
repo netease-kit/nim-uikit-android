@@ -1,9 +1,10 @@
 package com.netease.nim.uikit.common.badger;
 
+import android.os.Build;
 import android.os.Handler;
 import android.util.Log;
 
-import com.netease.nim.uikit.NimUIKit;
+import com.netease.nim.uikit.api.NimUIKit;
 import com.netease.nim.uikit.common.framework.infra.Handlers;
 
 import me.leolin.shortcutbadger.ShortcutBadger;
@@ -20,7 +21,17 @@ public class Badger {
 
     private static Handler handler;
 
+    private static boolean support = false;
+
+    static {
+        support = Build.VERSION.SDK_INT < Build.VERSION_CODES.O;
+    }
+
     public static void updateBadgerCount(final int unreadCount) {
+        if (!support) {
+            return; // O版本及以上不再支持
+        }
+
         if (handler == null) {
             handler = Handlers.sharedInstance().newHandler("Badger");
         }
@@ -37,6 +48,9 @@ public class Badger {
                 }
 
                 boolean res = ShortcutBadger.applyCount(NimUIKit.getContext(), badgerCount);
+                if (!res) {
+                    support = false; // 如果失败就不要再使用了!
+                }
                 Log.i(TAG, "update badger count " + (res ? "success" : "failed"));
             }
         }, 200);

@@ -1,11 +1,5 @@
 package com.netease.nim.uikit.common.util.media;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-
 import android.annotation.TargetApi;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -16,6 +10,12 @@ import android.provider.MediaStore;
 
 import com.netease.nim.uikit.common.util.file.AttachmentStore;
 import com.netease.nim.uikit.common.util.sys.ScreenUtil;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 
 public class BitmapDecoder {
     public static Bitmap decode(InputStream is) {

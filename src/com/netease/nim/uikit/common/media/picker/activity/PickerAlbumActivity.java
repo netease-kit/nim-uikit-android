@@ -10,18 +10,18 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.netease.nim.uikit.R;
+import com.netease.nim.uikit.api.wrapper.NimToolBarOptions;
+import com.netease.nim.uikit.business.session.constant.Extras;
+import com.netease.nim.uikit.business.session.constant.RequestCode;
+import com.netease.nim.uikit.common.activity.ToolBarOptions;
 import com.netease.nim.uikit.common.activity.UI;
 import com.netease.nim.uikit.common.media.picker.fragment.PickerAlbumFragment;
 import com.netease.nim.uikit.common.media.picker.fragment.PickerAlbumFragment.OnAlbumItemClickListener;
 import com.netease.nim.uikit.common.media.picker.fragment.PickerImageFragment;
-import com.netease.nim.uikit.common.media.picker.fragment.PickerImageFragment.OnPhotoSelectClickListener;
 import com.netease.nim.uikit.common.media.picker.loader.PickerImageLoader;
 import com.netease.nim.uikit.common.media.picker.model.AlbumInfo;
 import com.netease.nim.uikit.common.media.picker.model.PhotoInfo;
 import com.netease.nim.uikit.common.media.picker.model.PickerContract;
-import com.netease.nim.uikit.model.ToolBarOptions;
-import com.netease.nim.uikit.session.constant.Extras;
-import com.netease.nim.uikit.session.constant.RequestCode;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -31,7 +31,7 @@ import java.util.List;
  * Inner image picker, no longer use third-part application
  */
 public class PickerAlbumActivity extends UI implements OnAlbumItemClickListener,
-        OnPhotoSelectClickListener, OnClickListener {
+        PickerImageFragment.OnPhotoSelectClickListener, OnClickListener {
 
     private FrameLayout pickerAlbumLayout;
 
@@ -64,7 +64,7 @@ public class PickerAlbumActivity extends UI implements OnAlbumItemClickListener,
         super.onCreate(savedInstanceState);
         setContentView(R.layout.nim_picker_album_activity);
 
-        ToolBarOptions options = new ToolBarOptions();
+        ToolBarOptions options = new NimToolBarOptions();
         setToolBar(R.id.toolbar, options);
 
         proceedExtra();

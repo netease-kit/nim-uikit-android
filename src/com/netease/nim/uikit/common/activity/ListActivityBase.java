@@ -6,11 +6,11 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 import com.netease.nim.uikit.R;
+import com.netease.nim.uikit.api.wrapper.NimToolBarOptions;
 import com.netease.nim.uikit.common.ui.recyclerview.adapter.BaseQuickAdapter;
+import com.netease.nim.uikit.common.ui.recyclerview.decoration.DividerItemDecoration;
 import com.netease.nim.uikit.common.ui.recyclerview.holder.BaseViewHolder;
 import com.netease.nim.uikit.common.ui.recyclerview.listener.OnItemClickListener;
-import com.netease.nim.uikit.model.ToolBarOptions;
-import com.netease.nim.uikit.common.ui.recyclerview.decoration.DividerItemDecoration;
 
 import java.util.List;
 
@@ -42,7 +42,7 @@ public abstract class ListActivityBase<T> extends UI {
         setContentView(R.layout.nim_list_activity_layout);
 
         // toolbar
-        ToolBarOptions options = new ToolBarOptions();
+        ToolBarOptions options = new NimToolBarOptions();
         options.titleString = getTitleString();
         setToolBar(R.id.toolbar, options);
 

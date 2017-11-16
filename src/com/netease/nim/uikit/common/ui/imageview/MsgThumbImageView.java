@@ -14,6 +14,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestBuilder;
 import com.bumptech.glide.request.RequestOptions;
 import com.netease.nim.uikit.R;
+import com.netease.nim.uikit.common.util.media.ImageUtil;
 
 import java.io.File;
 
@@ -105,10 +106,8 @@ public class MsgThumbImageView extends ImageView {
 
         setBlendDrawable(maskId);
 
-        boolean gif = ext != null && ext.toLowerCase().equals("gif");
-
         RequestBuilder builder;
-        if (gif) {
+        if (ImageUtil.isGif(ext)) {
             builder = Glide.with(getContext().getApplicationContext()).asGif().load(new File(path));
         } else {
             RequestOptions options = new RequestOptions()

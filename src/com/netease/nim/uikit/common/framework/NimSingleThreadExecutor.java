@@ -2,7 +2,7 @@ package com.netease.nim.uikit.common.framework;
 
 import android.os.Handler;
 
-import com.netease.nim.uikit.NimUIKit;
+import com.netease.nim.uikit.api.NimUIKit;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;

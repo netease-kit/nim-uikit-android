@@ -5,7 +5,6 @@ import android.content.res.ColorStateList;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.widget.FrameLayout;
 
 import com.netease.nim.uikit.R;
@@ -21,15 +20,15 @@ public class CustomLoadingLayout extends LoadingLayout {
 
     public CustomLoadingLayout(Context context) {
         super(context);
-        LayoutInflater.from(context).inflate(R.layout.pull_to_refresh_header_custom, this);
+        LayoutInflater.from(context).inflate(R.layout.nim_pull_to_refresh_header_custom, this);
         mInnerLayout = (FrameLayout) findViewById(R.id.fl_inner);
         loadingView = (LoadingView) mInnerLayout.findViewById(R.id.custom_loading);
     }
 
     @Override
     public void hideAllViews() {
-        if (View.VISIBLE == loadingView.getVisibility()) {
-            loadingView.setVisibility(View.INVISIBLE);
+        if (VISIBLE == loadingView.getVisibility()) {
+            loadingView.setVisibility(INVISIBLE);
         }
     }
 
@@ -61,8 +60,8 @@ public class CustomLoadingLayout extends LoadingLayout {
 
     @Override
     protected void showInvisibleViews() {
-        if (View.INVISIBLE == loadingView.getVisibility()) {
-            loadingView.setVisibility(View.VISIBLE);
+        if (INVISIBLE == loadingView.getVisibility()) {
+            loadingView.setVisibility(VISIBLE);
         }
     }
 

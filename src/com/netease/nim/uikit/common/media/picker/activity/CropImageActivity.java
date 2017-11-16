@@ -8,12 +8,13 @@ import android.os.Handler;
 import android.view.View;
 
 import com.netease.nim.uikit.R;
+import com.netease.nim.uikit.api.wrapper.NimToolBarOptions;
+import com.netease.nim.uikit.business.session.constant.Extras;
+import com.netease.nim.uikit.common.activity.ToolBarOptions;
 import com.netease.nim.uikit.common.activity.UI;
 import com.netease.nim.uikit.common.ui.imageview.CropImageView;
 import com.netease.nim.uikit.common.util.media.BitmapDecoder;
 import com.netease.nim.uikit.common.util.media.ImageUtil;
-import com.netease.nim.uikit.model.ToolBarOptions;
-import com.netease.nim.uikit.session.constant.Extras;
 
 public class CropImageActivity extends UI {
 
@@ -49,7 +50,7 @@ public class CropImageActivity extends UI {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.nim_crop_image_activity);
 
-        ToolBarOptions options = new ToolBarOptions();
+        ToolBarOptions options = new NimToolBarOptions();
         options.titleId = R.string.crop;
         setToolBar(R.id.toolbar, options);
 

@@ -58,11 +58,11 @@ public class DropManager {
 
     private boolean enable;
     private int[] explosionResIds = new int[]{
-            R.drawable.explosion_one,
-            R.drawable.explosion_two,
-            R.drawable.explosion_three,
-            R.drawable.explosion_four,
-            R.drawable.explosion_five
+            R.drawable.nim_explosion_one,
+            R.drawable.nim_explosion_two,
+            R.drawable.nim_explosion_three,
+            R.drawable.nim_explosion_four,
+            R.drawable.nim_explosion_five
     };
 
     // interface

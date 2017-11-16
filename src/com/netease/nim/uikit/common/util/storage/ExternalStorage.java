@@ -3,7 +3,6 @@ package com.netease.nim.uikit.common.util.storage;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Environment;
 import android.os.StatFs;
 import android.text.TextUtils;
@@ -41,7 +40,6 @@ public class ExternalStorage {
     }
 
     public void init(Context context, String sdkStorageRoot) {
-
         this.context = context;
         // 判断权限
         hasPermission = checkPermission(context);
@@ -220,16 +218,12 @@ public class ExternalStorage {
             return false;
         }
 
-        // M permission
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            String p1 = Manifest.permission.WRITE_EXTERNAL_STORAGE;
-            String p2 = Manifest.permission.READ_EXTERNAL_STORAGE;
-            // M 先看看有没有读写权限
-            if (context.checkSelfPermission(p1) != PackageManager.PERMISSION_GRANTED ||
-                    context.checkSelfPermission(p2) != PackageManager.PERMISSION_GRANTED) {
-                Log.e(TAG, "without permission to access storage");
-                return false;
-            }
+        // 写权限有了默认就赋予了读权限
+        PackageManager pm = context.getPackageManager();
+        if (PackageManager.PERMISSION_GRANTED !=
+                pm.checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, context.getApplicationInfo().packageName)) {
+            Log.e(TAG, "without permission to access storage");
+            return false;
         }
 
         return true;

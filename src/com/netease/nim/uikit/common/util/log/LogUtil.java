@@ -5,7 +5,7 @@ import com.netease.nim.uikit.common.util.log.sdk.LogBase;
 import com.netease.nim.uikit.common.util.log.sdk.wrapper.NimLog;
 import com.netease.nim.uikit.common.util.storage.ExternalStorage;
 
-public class LogUtil extends com.netease.nim.uikit.common.util.log.sdk.wrapper.NimLog {
+public class LogUtil extends NimLog {
 
     private static final String LOG_FILE_NAME_PREFIX = "demo";
 

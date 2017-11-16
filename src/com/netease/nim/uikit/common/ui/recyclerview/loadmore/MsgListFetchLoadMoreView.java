@@ -6,7 +6,7 @@ public final class MsgListFetchLoadMoreView extends LoadMoreView {
 
     @Override
     public int getLayoutId() {
-        return R.layout.msg_list_fetch_load_more;
+        return R.layout.nim_msg_list_fetch_load_more;
     }
 
     @Override

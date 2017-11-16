@@ -36,7 +36,7 @@
             android:layout_height="match_parent"
             android:orientation="horizontal">
 
-            <com.netease.nim.uikit.team.ui.TeamInfoGridView
+            <com.netease.nim.uikit.business.team.ui.TeamInfoGridView
                 android:id="@+id/team_member_grid"
                 style="@style/grid_view"
                 android:layout_width="fill_parent"

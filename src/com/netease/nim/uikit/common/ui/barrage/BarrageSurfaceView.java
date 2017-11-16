@@ -23,7 +23,7 @@ import java.util.Set;
 
 /**
  * 弹幕控件
- *
+ * <p>
  * Created by huangjun on 2016/5/8.
  */
 public class BarrageSurfaceView extends SurfaceViewTemplate {

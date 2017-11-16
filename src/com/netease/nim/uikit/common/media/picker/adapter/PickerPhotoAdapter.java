@@ -13,7 +13,7 @@ import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.netease.nim.uikit.R;
-import com.netease.nim.uikit.common.media.picker.fragment.PickerImageFragment.OnPhotoSelectClickListener;
+import com.netease.nim.uikit.common.media.picker.fragment.PickerImageFragment;
 import com.netease.nim.uikit.common.media.picker.loader.PickerImageLoader;
 import com.netease.nim.uikit.common.media.picker.model.PhotoInfo;
 import com.netease.nim.uikit.common.media.picker.util.ThumbnailsUtil;
@@ -32,7 +32,7 @@ public class PickerPhotoAdapter extends BaseAdapter {
     private boolean isMutiMode;
     private int maxSelectSize;
 
-    private OnPhotoSelectClickListener onPhotoSelectClickListener;
+    private PickerImageFragment.OnPhotoSelectClickListener onPhotoSelectClickListener;
 
     public PickerPhotoAdapter(Context context, List<PhotoInfo> list, GridView gridView,
                               boolean isMutiMode, int hasSelect, int maxSelectSize) {
@@ -45,7 +45,7 @@ public class PickerPhotoAdapter extends BaseAdapter {
         this.maxSelectSize = maxSelectSize;
 
         if (onPhotoSelectClickListener == null) {
-            onPhotoSelectClickListener = (OnPhotoSelectClickListener) context;
+            onPhotoSelectClickListener = (PickerImageFragment.OnPhotoSelectClickListener) context;
         }
     }
 

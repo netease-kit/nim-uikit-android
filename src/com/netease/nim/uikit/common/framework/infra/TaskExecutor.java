@@ -1,5 +1,8 @@
 package com.netease.nim.uikit.common.framework.infra;
 
+import android.annotation.TargetApi;
+import android.os.Build;
+
 import java.util.Comparator;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
@@ -10,224 +13,221 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import android.annotation.TargetApi;
-import android.os.Build;
-
 
 public class TaskExecutor implements Executor {
-	private final static int QUEUE_INIT_CAPACITY = 11;
+    private final static int QUEUE_INIT_CAPACITY = 11;
 
-	private static final int CORE = 3;
+    private static final int CORE = 3;
 
-	private static final int MAX = 5;
+    private static final int MAX = 5;
 
-	private static final int TIMEOUT = 30 * 1000;
-	
-	public static final Executor IMMEDIATE_EXECUTOR = new Executor() {
-		@Override
-		public void execute(Runnable command) {
-			 command.run();			
-		}
-	};
-	
-	public static class Config {
-		public int core;
+    private static final int TIMEOUT = 30 * 1000;
 
-		public int max;
+    public static final Executor IMMEDIATE_EXECUTOR = new Executor() {
+        @Override
+        public void execute(Runnable command) {
+            command.run();
+        }
+    };
 
-		public int timeout;
+    public static class Config {
+        public int core;
 
-		public boolean allowCoreTimeOut;
+        public int max;
 
-		public Config(int core, int max, int timeout, boolean allowCoreTimeOut) {
-			this.core = core;
-			this.max = max;
-			this.timeout = timeout;
-			this.allowCoreTimeOut = allowCoreTimeOut;
-		}
-	}
+        public int timeout;
 
-	public static Config defaultConfig = new Config(CORE, MAX, TIMEOUT, true);
+        public boolean allowCoreTimeOut;
 
-	private final String name;
+        public Config(int core, int max, int timeout, boolean allowCoreTimeOut) {
+            this.core = core;
+            this.max = max;
+            this.timeout = timeout;
+            this.allowCoreTimeOut = allowCoreTimeOut;
+        }
+    }
 
-	private final Config config;
+    public static Config defaultConfig = new Config(CORE, MAX, TIMEOUT, true);
 
-	private ExecutorService service;
+    private final String name;
 
-	public TaskExecutor(String name) {
-		this(name, defaultConfig);
-	}
+    private final Config config;
 
-	public TaskExecutor(String name, Config config) {
-		this(name, config, true);
-	}
+    private ExecutorService service;
 
-	public TaskExecutor(String name, Config config, boolean startup) {
-		this.name = name;
-		this.config = config;
+    public TaskExecutor(String name) {
+        this(name, defaultConfig);
+    }
 
-		if (startup) {
-			startup();
-		}
-	}
+    public TaskExecutor(String name, Config config) {
+        this(name, config, true);
+    }
 
-	public void startup() {
-		synchronized (this) {
-			// has startup
-			if (service != null && !service.isShutdown()) {
-				return;
-			}
+    public TaskExecutor(String name, Config config, boolean startup) {
+        this.name = name;
+        this.config = config;
 
-			// create
-			service = createExecutor(config);
-		}
-	}
+        if (startup) {
+            startup();
+        }
+    }
 
-	public void shutdown() {
-		ExecutorService executor = null;
+    public void startup() {
+        synchronized (this) {
+            // has startup
+            if (service != null && !service.isShutdown()) {
+                return;
+            }
 
-		synchronized (this) {
-			// swap
-			if (service != null) {
-				executor = service;
-				service = null;
-			}
-		}
+            // create
+            service = createExecutor(config);
+        }
+    }
 
-		if (executor != null) {
-			// shutdown
-			if (!executor.isShutdown()) {
-				executor.shutdown();
-			}
+    public void shutdown() {
+        ExecutorService executor = null;
 
-			// recycle
-			executor = null;
-		}
-	}
+        synchronized (this) {
+            // swap
+            if (service != null) {
+                executor = service;
+                service = null;
+            }
+        }
 
-	@Override
-	public void execute(Runnable runnable) {
-		// executeRunnable runnable with default priority
-		executeRunnable(new PRunnable(runnable, 0));
-	}
+        if (executor != null) {
+            // shutdown
+            if (!executor.isShutdown()) {
+                executor.shutdown();
+            }
 
-	public Future<?> submit(Runnable runnable) {
-		synchronized (this) {
-			if (service == null || service.isShutdown()) {
-				return null;
-			}
-			return service.submit(new PRunnable(runnable, 0));
-		}
-	}
+            // recycle
+            executor = null;
+        }
+    }
 
-	public void execute(Runnable runnable, int priority) {
-		// executeRunnable runnable with priority
-		executeRunnable(new PRunnable(runnable, priority));
-	}
+    @Override
+    public void execute(Runnable runnable) {
+        // executeRunnable runnable with default priority
+        executeRunnable(new PRunnable(runnable, 0));
+    }
 
-	private void executeRunnable(Runnable runnable) {
-		synchronized (this) {
-			// has shutdown, reject
-			if (service == null || service.isShutdown()) {
-				return;
-			}
+    public Future<?> submit(Runnable runnable) {
+        synchronized (this) {
+            if (service == null || service.isShutdown()) {
+                return null;
+            }
+            return service.submit(new PRunnable(runnable, 0));
+        }
+    }
 
-			// execute
-			service.execute(runnable);
-		}
-	}
+    public void execute(Runnable runnable, int priority) {
+        // executeRunnable runnable with priority
+        executeRunnable(new PRunnable(runnable, priority));
+    }
 
-	private ExecutorService createExecutor(Config config) {
-		ThreadPoolExecutor service = new ThreadPoolExecutor(config.core, config.max, config.timeout,
-				TimeUnit.MILLISECONDS, new PriorityBlockingQueue<Runnable>(QUEUE_INIT_CAPACITY, mQueueComparator),
-				new TaskThreadFactory(name), new ThreadPoolExecutor.DiscardPolicy());
+    private void executeRunnable(Runnable runnable) {
+        synchronized (this) {
+            // has shutdown, reject
+            if (service == null || service.isShutdown()) {
+                return;
+            }
 
-		allowCoreThreadTimeOut(service, config.allowCoreTimeOut);
+            // execute
+            service.execute(runnable);
+        }
+    }
 
-		return service;
-	}
+    private ExecutorService createExecutor(Config config) {
+        ThreadPoolExecutor service = new ThreadPoolExecutor(config.core, config.max, config.timeout,
+                TimeUnit.MILLISECONDS, new PriorityBlockingQueue<Runnable>(QUEUE_INIT_CAPACITY, mQueueComparator),
+                new TaskThreadFactory(name), new ThreadPoolExecutor.DiscardPolicy());
 
-	private static class PRunnable implements Runnable {
-		private static int sSerial = 0;
+        allowCoreThreadTimeOut(service, config.allowCoreTimeOut);
 
-		private Runnable runnable;
+        return service;
+    }
 
-		private int priority;
+    private static class PRunnable implements Runnable {
+        private static int sSerial = 0;
 
-		private int serial;
+        private Runnable runnable;
 
-		public PRunnable(Runnable r, int p) {
-			serial = sSerial++;
-			runnable = r;
-			priority = p;
-		}
+        private int priority;
 
-		@Override
-		public void run() {
-			if (runnable != null) {
-				runnable.run();
-			}
-		}
+        private int serial;
 
-		public static final int compare(PRunnable r1, PRunnable r2) {
-			if (r1.priority != r2.priority) {
-				return r2.priority - r1.priority;
-			} else {
-				return r1.serial - r2.serial;
-			}
-		}
-	}
+        public PRunnable(Runnable r, int p) {
+            serial = sSerial++;
+            runnable = r;
+            priority = p;
+        }
 
-	Comparator<Runnable> mQueueComparator = new Comparator<Runnable>() {
+        @Override
+        public void run() {
+            if (runnable != null) {
+                runnable.run();
+            }
+        }
 
-		@Override
-		public int compare(Runnable lhs, Runnable rhs) {
-			PRunnable r1 = (PRunnable) lhs;
-			PRunnable r2 = (PRunnable) rhs;
+        public static final int compare(PRunnable r1, PRunnable r2) {
+            if (r1.priority != r2.priority) {
+                return r2.priority - r1.priority;
+            } else {
+                return r1.serial - r2.serial;
+            }
+        }
+    }
 
-			return PRunnable.compare(r1, r2);
-		}
-	};
+    Comparator<Runnable> mQueueComparator = new Comparator<Runnable>() {
 
-	static class TaskThreadFactory implements ThreadFactory {
-		private final ThreadGroup mThreadGroup;
+        @Override
+        public int compare(Runnable lhs, Runnable rhs) {
+            PRunnable r1 = (PRunnable) lhs;
+            PRunnable r2 = (PRunnable) rhs;
 
-		private final AtomicInteger mThreadNumber = new AtomicInteger(1);
+            return PRunnable.compare(r1, r2);
+        }
+    };
 
-		private final String mNamePrefix;
+    static class TaskThreadFactory implements ThreadFactory {
+        private final ThreadGroup mThreadGroup;
 
-		TaskThreadFactory(String name) {
-			SecurityManager s = System.getSecurityManager();
+        private final AtomicInteger mThreadNumber = new AtomicInteger(1);
 
-			mThreadGroup = (s != null) ? s.getThreadGroup() : Thread.currentThread().getThreadGroup();
+        private final String mNamePrefix;
 
-			mNamePrefix = name + "#";
-		}
+        TaskThreadFactory(String name) {
+            SecurityManager s = System.getSecurityManager();
 
-		public Thread newThread(Runnable r) {
-			Thread t = new Thread(mThreadGroup, r, mNamePrefix + mThreadNumber.getAndIncrement(), 0);
+            mThreadGroup = (s != null) ? s.getThreadGroup() : Thread.currentThread().getThreadGroup();
 
-			// no daemon
-			if (t.isDaemon())
-				t.setDaemon(false);
+            mNamePrefix = name + "#";
+        }
 
-			// normal priority
-			if (t.getPriority() != Thread.NORM_PRIORITY)
-				t.setPriority(Thread.NORM_PRIORITY);
+        public Thread newThread(Runnable r) {
+            Thread t = new Thread(mThreadGroup, r, mNamePrefix + mThreadNumber.getAndIncrement(), 0);
 
-			return t;
-		}
-	}
+            // no daemon
+            if (t.isDaemon())
+                t.setDaemon(false);
 
-	private static final void allowCoreThreadTimeOut(ThreadPoolExecutor service, boolean value) {
-		if (Build.VERSION.SDK_INT >= 9) {
-			allowCoreThreadTimeOut9(service, value);
-		}
-	}
+            // normal priority
+            if (t.getPriority() != Thread.NORM_PRIORITY)
+                t.setPriority(Thread.NORM_PRIORITY);
 
-	@TargetApi(9)
-	private static final void allowCoreThreadTimeOut9(ThreadPoolExecutor service, boolean value) {
-		service.allowCoreThreadTimeOut(value);
-	}
+            return t;
+        }
+    }
+
+    private static final void allowCoreThreadTimeOut(ThreadPoolExecutor service, boolean value) {
+        if (Build.VERSION.SDK_INT >= 9) {
+            allowCoreThreadTimeOut9(service, value);
+        }
+    }
+
+    @TargetApi(9)
+    private static final void allowCoreThreadTimeOut9(ThreadPoolExecutor service, boolean value) {
+        service.allowCoreThreadTimeOut(value);
+    }
 }
