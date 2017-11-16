@@ -24,7 +24,7 @@ public static void init(Context context, IUserInfoProvider userInfoProvider, Con
 public static void init(Context context, UIKitOptions option, IUserInfoProvider userInfoProvider, ContactProvider contactProvider);
 ```
 
-> 全局配置项 UIKitOptions 的参考文档：[Uikit全局配置项介绍](\Uikit全局配置项介绍.md)
+> 全局配置项 UIKitOptions 的参考文档：[Uikit全局配置项介绍](Uikit全局配置项介绍.md)
 
 ## 登陆IM、聊天室
 
