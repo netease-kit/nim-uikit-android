@@ -326,8 +326,12 @@ public class MessageFragment extends TFragment implements ModuleProxy {
         if (customConfig != null) {
             String content = customConfig.getPushContent(message);
             Map<String, Object> payload = customConfig.getPushPayload(message);
-            message.setPushContent(content);
-            message.setPushPayload(payload);
+            if(!TextUtils.isEmpty(content)){
+                message.setPushContent(content);
+            }
+            if (payload != null) {
+                message.setPushPayload(payload);
+            }
         }
     }
 

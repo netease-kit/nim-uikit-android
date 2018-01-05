@@ -15,7 +15,6 @@
           <task>generateDebugSources</task>
         </afterSyncTasks>
         <option name="ALLOW_USER_CONFIGURATION" value="false" />
-        <option name="RES_FOLDERS_RELATIVE_PATH" value="file://$MODULE_DIR$/res;file://$MODULE_DIR$/res-ptr2;file://$MODULE_DIR$/res-chatroom" />
         <option name="PROJECT_TYPE" value="1" />
       </configuration>
     </facet>
@@ -23,6 +22,7 @@
   <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_7">
     <output url="file://$MODULE_DIR$/build/intermediates/classes/debug" />
     <output-test url="file://$MODULE_DIR$/build/intermediates/classes/test/debug" />
+    <exclude-output />
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/build/generated/source/apt/debug" isTestSource="false" generated="true" />
       <sourceFolder url="file://$MODULE_DIR$/build/generated/source/r/debug" isTestSource="false" generated="true" />
@@ -107,6 +107,7 @@
     <orderEntry type="library" name="com.android.support:recyclerview-v7-26.1.0" level="project" />
     <orderEntry type="library" name="com.github.bumptech.glide:annotations:4.2.0@jar" level="project" />
     <orderEntry type="library" name="android.arch.lifecycle:common:1.0.0@jar" level="project" />
+    <orderEntry type="library" name="__local_aars__:F.\develop\nim\uikit\libs\java-json.jar:unspecified@jar" level="project" />
     <orderEntry type="library" name="com.android.support:support-fragment-26.1.0" level="project" />
     <orderEntry type="library" name="jp.wasabeef:glide-transformations-3.0.1" level="project" />
     <orderEntry type="library" name="com.android.support:support-vector-drawable-26.1.0" level="project" />
@@ -124,8 +125,7 @@
     <orderEntry type="library" name="__local_aars__:F.\Android\SDK\build-tools\26.0.2\renderscript\lib\renderscript-v8.jar:unspecified@jar" level="project" />
     <orderEntry type="library" name="android.arch.core:common:1.0.0@jar" level="project" />
     <orderEntry type="library" name="com.android.support:support-v4-26.1.0" level="project" />
-    <orderEntry type="library" name="__local_aars__:F.\develop\nim_new\nim\uikit\libs\fastjson-1.1.34.android.jar:unspecified@jar" level="project" />
-    <orderEntry type="library" name="__local_aars__:F.\develop\nim_new\nim\uikit\libs\java-json.jar:unspecified@jar" level="project" />
+    <orderEntry type="library" name="__local_aars__:F.\develop\nim\uikit\libs\fastjson-1.1.34.android.jar:unspecified@jar" level="project" />
     <orderEntry type="library" name="com.android.support:animated-vector-drawable-26.1.0" level="project" />
     <orderEntry type="library" name="me.everything:overscroll-decor-android-1.0.4" level="project" />
     <orderEntry type="library" name="org.aspectj:aspectjrt:1.8.13@jar" level="project" />

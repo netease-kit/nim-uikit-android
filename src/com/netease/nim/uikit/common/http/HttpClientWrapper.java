@@ -20,7 +20,7 @@ public class HttpClientWrapper {
 
     private static final String TAG = "http";
 
-    private static final int TIMEOUT = 30 * 1000;
+    private static final Integer TIMEOUT = 30 * 1000; // 允许反射修此常量，如果是基本类型，那么编译时会被优化直接替换，运行时无法在修改。
     private static final int BUFFER_SIZE = 1024;
     private static final int RES_CODE_SUCCESS = 200;
     private static final String CHARSET = "UTF-8";
@@ -37,6 +37,19 @@ public class HttpClientWrapper {
             e = null;
             obj = null;
         }
+    }
+
+    public static String buildRequestParams(Map<String, Object> params) {
+        if (params == null) {
+            return null;
+        }
+
+        StringBuilder result = new StringBuilder();
+        for (Map.Entry<String, Object> entry : params.entrySet()) {
+            result.append("&").append(entry.getKey()).append("=").append(entry.getValue());
+        }
+
+        return result.toString();
     }
 
     public static HttpResult<String> get(final String urlStr, final Map<String, String> headers) {

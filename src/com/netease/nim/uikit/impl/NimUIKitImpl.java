@@ -175,22 +175,27 @@ public final class NimUIKitImpl {
         // init tools
         StorageUtil.init(context, options.appCacheDir);
         ScreenUtil.init(context);
-        StickerManager.getInstance().init();
+
+        if (options.loadSticker) {
+            StickerManager.getInstance().init();
+        }
 
         // init log
         String path = StorageUtil.getDirectoryByDirType(StorageType.TYPE_LOG);
         LogUtil.init(path, Log.DEBUG);
 
-        initUserInfoProvider(userInfoProvider);
-        initContactProvider(contactProvider);
-        initDefaultSessionCustomization();
-        initDefaultContactEventListener();
-
         NimUIKitImpl.imageLoaderKit = new ImageLoaderKit(context);
 
-        // init data cache
-        LoginSyncDataStatusObserver.getInstance().registerLoginSyncDataStatus(true);  // 监听登录同步数据完成通知
-        DataCacheManager.observeSDKDataChanged(true);
+        if (!options.independentChatRoom) {
+            initUserInfoProvider(userInfoProvider);
+            initContactProvider(contactProvider);
+            initDefaultSessionCustomization();
+            initDefaultContactEventListener();
+            // init data cache
+            LoginSyncDataStatusObserver.getInstance().registerLoginSyncDataStatus(true);  // 监听登录同步数据完成通知
+            DataCacheManager.observeSDKDataChanged(true);
+        }
+
         ChatRoomCacheManager.initCache();
         if (!TextUtils.isEmpty(getAccount())) {
             if (options.initAsync) {

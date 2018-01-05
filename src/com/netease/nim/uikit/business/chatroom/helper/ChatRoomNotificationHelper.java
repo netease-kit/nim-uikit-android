@@ -76,7 +76,7 @@ public class ChatRoomNotificationHelper {
             case ChatRoomRoomDeMuted:
                 text = buildText("解除全体禁言");
                 break;
-            case CHATROOM_QUEUE_BATCH_CHANGE:
+            case ChatRoomQueueBatchChange:
                 text = buildText("批量变更");
                 break;
             default:

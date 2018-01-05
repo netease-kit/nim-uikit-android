@@ -1,7 +1,5 @@
 package com.netease.nim.uikit.api;
 
-import android.os.Environment;
-
 import com.netease.nim.uikit.R;
 import com.netease.nimlib.sdk.media.record.RecordType;
 
@@ -17,6 +15,17 @@ public class UIKitOptions {
      * 默认为 /sdcard/{packageName}/
      */
     public String appCacheDir;
+
+    /**
+     * 独立聊天室模式，没有 IM 业务
+     */
+    public boolean independentChatRoom = false;
+
+    /**
+     * 是否加载表情贴图
+     */
+
+    public boolean loadSticker = true;
 
     /**
      * 开启@功能
@@ -128,4 +137,27 @@ public class UIKitOptions {
      * 禁止音频轮播
      */
     public boolean disableAutoPlayNextAudio = false;
+
+
+    /**
+     * 是否开启允许群管理员撤回他人消息
+     */
+    public boolean enableTeamManagerRevokeMsg = true;
+
+
+    /**
+     * 返回默认的针对独立模式聊天室的 UIKitOptions
+     * @return
+     */
+
+    public static UIKitOptions buildForIndependentChatRoom() {
+        UIKitOptions options = new UIKitOptions();
+        options.buildFriendCache = false;
+        options.buildNimUserCache = false;
+        options.buildTeamCache = false;
+        options.buildRobotInfoCache = false;
+        options.loadSticker = false;
+        options.independentChatRoom = true;
+        return options;
+    }
 }

@@ -96,9 +96,7 @@ public class DataCacheManager {
     }
 
     public static void buildRobotCacheIndependent(String roomId) {
-        if (NimUIKitImpl.getOptions().buildRobotInfoCache) {
-            RobotInfoCache.getInstance().pullRobotListIndependent(roomId, null);
-        }
+        RobotInfoCache.getInstance().pullRobotListIndependent(roomId, null);
     }
 
     /**

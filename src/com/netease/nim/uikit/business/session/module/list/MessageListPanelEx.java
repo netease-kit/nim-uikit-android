@@ -55,8 +55,11 @@ import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.msg.model.AttachmentProgress;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
 import com.netease.nimlib.sdk.msg.model.QueryDirectionEnum;
+import com.netease.nimlib.sdk.msg.model.RevokeMsgNotification;
 import com.netease.nimlib.sdk.robot.model.RobotAttachment;
 import com.netease.nimlib.sdk.robot.model.RobotMsgType;
+import com.netease.nimlib.sdk.team.constant.TeamMemberType;
+import com.netease.nimlib.sdk.team.model.TeamMember;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -400,10 +403,15 @@ public class MessageListPanelEx {
     /**
      * 消息撤回观察者
      */
-    private Observer<IMMessage> revokeMessageObserver = new Observer<IMMessage>() {
+    private Observer<RevokeMsgNotification> revokeMessageObserver = new Observer<RevokeMsgNotification>() {
         @Override
-        public void onEvent(IMMessage message) {
-            if (message == null || !container.account.equals(message.getSessionId())) {
+        public void onEvent(RevokeMsgNotification notification) {
+            if (notification == null || notification.getMessage() == null) {
+                return;
+            }
+            IMMessage message = notification.getMessage();
+
+            if (!container.account.equals(message.getSessionId())) {
                 return;
             }
 
@@ -809,8 +817,7 @@ public class MessageListPanelEx {
             // 2 copy
             longClickItemCopy(selectedItem, alertDialog, msgType);
             // 3 revoke
-            if (selectedItem.getDirect() == MsgDirectionEnum.Out && selectedItem.getStatus() == MsgStatusEnum.success
-                    && !NimUIKitImpl.getMsgRevokeFilter().shouldIgnore(selectedItem) && !recordOnly) {
+            if (enableRevokeButton(selectedItem)) {
                 longClickRevokeMsg(selectedItem, alertDialog);
             }
             // 4 delete
@@ -824,6 +831,20 @@ public class MessageListPanelEx {
                 // 7 forward to team
                 longClickItemForwardToTeam(selectedItem, alertDialog);
             }
+        }
+
+        private boolean enableRevokeButton(IMMessage selectedItem) {
+            if (selectedItem.getStatus() == MsgStatusEnum.success
+                    && !NimUIKitImpl.getMsgRevokeFilter().shouldIgnore(selectedItem)
+                    && !recordOnly) {
+                if (selectedItem.getDirect() == MsgDirectionEnum.Out) {
+                    return true;
+                } else if (NimUIKit.getOptions().enableTeamManagerRevokeMsg && selectedItem.getSessionType() == SessionTypeEnum.Team) {
+                    TeamMember member = NimUIKit.getTeamProvider().getTeamMember(selectedItem.getSessionId(), NimUIKit.getAccount());
+                    return member != null && member.getType() == TeamMemberType.Owner || member.getType() == TeamMemberType.Manager;
+                }
+            }
+            return false;
         }
 
         // 长按菜单项--重发
@@ -992,7 +1013,7 @@ public class MessageListPanelEx {
                         @Override
                         public void onSuccess(Void param) {
                             deleteItem(item, false);
-                            MessageHelper.getInstance().onRevokeMessage(item);
+                            MessageHelper.getInstance().onRevokeMessage(item, NimUIKit.getAccount());
                         }
 
                         @Override

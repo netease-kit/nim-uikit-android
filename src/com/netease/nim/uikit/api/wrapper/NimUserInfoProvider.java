@@ -9,7 +9,6 @@ import android.text.TextUtils;
 import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.api.NimUIKit;
 import com.netease.nim.uikit.business.team.helper.TeamHelper;
-import com.netease.nim.uikit.business.uinfo.UserInfoHelper;
 import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.team.model.Team;
 import com.netease.nimlib.sdk.uinfo.UserInfoProvider;
@@ -66,9 +65,12 @@ public class NimUserInfoProvider implements UserInfoProvider {
     public String getDisplayNameForMessageNotifier(String account, String sessionId, SessionTypeEnum sessionType) {
         String nick = null;
         if (sessionType == SessionTypeEnum.P2P) {
-            nick = UserInfoHelper.getUserDisplayName(account);
+            nick = NimUIKit.getContactProvider().getAlias(account);
         } else if (sessionType == SessionTypeEnum.Team) {
-            nick = TeamHelper.getDisplayNameWithoutMe(sessionId, account);
+            nick = NimUIKit.getContactProvider().getAlias(account);
+            if (TextUtils.isEmpty(nick)) {
+                nick = TeamHelper.getTeamNick(sessionId, account);
+            }
         }
 
         if (TextUtils.isEmpty(nick)) {
