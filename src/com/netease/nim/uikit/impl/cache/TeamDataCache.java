@@ -146,6 +146,9 @@ public class TeamDataCache {
      * 同步从本地获取Team（先从缓存中查询，如果不存在再从SDK DB中查询）
      */
     public Team getTeamById(String teamId) {
+        if (teamId == null) {
+            return null;
+        }
         Team team = id2TeamMap.get(teamId);
 
         if (team == null) {
