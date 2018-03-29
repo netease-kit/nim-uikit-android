@@ -21,6 +21,7 @@ import com.netease.nim.uikit.common.ui.recyclerview.holder.RecyclerViewHolder;
 import com.netease.nim.uikit.common.util.sys.TimeUtil;
 import com.netease.nim.uikit.impl.NimUIKitImpl;
 import com.netease.nimlib.sdk.NIMClient;
+import com.netease.nimlib.sdk.NIMSDK;
 import com.netease.nimlib.sdk.msg.MsgService;
 import com.netease.nimlib.sdk.msg.attachment.FileAttachment;
 import com.netease.nimlib.sdk.msg.constant.MsgDirectionEnum;
@@ -55,6 +56,7 @@ public abstract class MsgViewHolderBase extends RecyclerViewHolder<BaseMultiItem
     protected FrameLayout contentContainer;
     protected LinearLayout nameContainer;
     protected TextView readReceiptTextView;
+    protected TextView ackMsgTextView;
 
     private HeadImageView avatarLeft;
     private HeadImageView avatarRight;
@@ -186,6 +188,7 @@ public abstract class MsgViewHolderBase extends RecyclerViewHolder<BaseMultiItem
         nameIconView = findViewById(R.id.message_item_name_icon);
         nameContainer = findViewById(R.id.message_item_name_layout);
         readReceiptTextView = findViewById(R.id.textViewAlreadyRead);
+        ackMsgTextView = findViewById(R.id.team_ack_msg);
 
         // 这里只要inflate出来后加入一次即可
         if (contentContainer.getChildCount() == 0) {
@@ -203,6 +206,7 @@ public abstract class MsgViewHolderBase extends RecyclerViewHolder<BaseMultiItem
         setLongClickListener();
         setContent();
         setReadReceipt();
+        setAckMsg();
 
         bindContentView();
     }
@@ -297,6 +301,15 @@ public abstract class MsgViewHolderBase extends RecyclerViewHolder<BaseMultiItem
             avatarLeft.setOnClickListener(portraitListener);
             avatarRight.setOnClickListener(portraitListener);
         }
+        // 已读回执响应事件
+        if (NimUIKitImpl.getSessionListener() != null) {
+            ackMsgTextView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    NimUIKitImpl.getSessionListener().onAckMsgClicked(context, message);
+                }
+            });
+        }
     }
 
     /**
@@ -358,7 +371,7 @@ public abstract class MsgViewHolderBase extends RecyclerViewHolder<BaseMultiItem
         LinearLayout bodyContainer = (LinearLayout) view.findViewById(R.id.message_item_body);
 
         // 调整container的位置
-        int index = isReceivedMessage() ? 0 : 3;
+        int index = isReceivedMessage() ? 0 : 4;
         if (bodyContainer.getChildAt(index) != contentContainer) {
             bodyContainer.removeView(contentContainer);
             bodyContainer.addView(contentContainer, index);
@@ -382,6 +395,26 @@ public abstract class MsgViewHolderBase extends RecyclerViewHolder<BaseMultiItem
             readReceiptTextView.setVisibility(View.VISIBLE);
         } else {
             readReceiptTextView.setVisibility(View.GONE);
+        }
+    }
+
+    private void setAckMsg() {
+        if (message.getSessionType() == SessionTypeEnum.Team && message.needMsgAck()) {
+            if (isReceivedMessage()) {
+                // 收到的需要已读回执的消息，需要给个反馈
+                ackMsgTextView.setVisibility(View.GONE);
+                NIMSDK.getTeamService().sendTeamMessageReceipt(message);
+            } else {
+                // 自己发的需要已读回执的消息，显示未读人数
+                ackMsgTextView.setVisibility(View.VISIBLE);
+                if (message.getTeamMsgAckCount() == 0 && message.getTeamMsgUnAckCount() == 0) {
+                    ackMsgTextView.setText("还未查看");
+                } else {
+                    ackMsgTextView.setText(message.getTeamMsgUnAckCount() + "人未读");
+                }
+            }
+        } else {
+            ackMsgTextView.setVisibility(View.GONE);
         }
     }
 }

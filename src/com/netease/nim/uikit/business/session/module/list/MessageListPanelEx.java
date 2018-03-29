@@ -39,6 +39,7 @@ import com.netease.nim.uikit.common.util.sys.NetworkUtil;
 import com.netease.nim.uikit.common.util.sys.ScreenUtil;
 import com.netease.nim.uikit.impl.NimUIKitImpl;
 import com.netease.nimlib.sdk.NIMClient;
+import com.netease.nimlib.sdk.NIMSDK;
 import com.netease.nimlib.sdk.Observer;
 import com.netease.nimlib.sdk.RequestCallback;
 import com.netease.nimlib.sdk.RequestCallbackWrapper;
@@ -56,6 +57,7 @@ import com.netease.nimlib.sdk.msg.model.AttachmentProgress;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
 import com.netease.nimlib.sdk.msg.model.QueryDirectionEnum;
 import com.netease.nimlib.sdk.msg.model.RevokeMsgNotification;
+import com.netease.nimlib.sdk.msg.model.TeamMessageReceipt;
 import com.netease.nimlib.sdk.robot.model.RobotAttachment;
 import com.netease.nimlib.sdk.robot.model.RobotMsgType;
 import com.netease.nimlib.sdk.team.constant.TeamMemberType;
@@ -353,6 +355,7 @@ public class MessageListPanelEx {
         } else {
             unregisterUserInfoObserver();
         }
+        service.observeTeamMessageReceipt(teamMessageReceiptObserver, register);
 
         MessageListPanelHelper.getInstance().registerObserver(incomingLocalMessageObserver, register);
     }
@@ -416,6 +419,18 @@ public class MessageListPanelEx {
             }
 
             deleteItem(message, false);
+        }
+    };
+
+    private Observer<List<TeamMessageReceipt>> teamMessageReceiptObserver = new Observer<List<TeamMessageReceipt>>() {
+        @Override
+        public void onEvent(List<TeamMessageReceipt> teamMessageReceipts) {
+            for (TeamMessageReceipt teamMessageReceipt : teamMessageReceipts) {
+                int index = getItemIndex(teamMessageReceipt.getMsgId());
+                if (index >= 0 && index < items.size()) {
+                    refreshViewHolderByIndex(index);
+                }
+            }
         }
     };
 
@@ -655,6 +670,11 @@ public class MessageListPanelEx {
             if (firstLoad) {
                 doScrollToBottom();
                 sendReceipt(); // 发送已读回执
+            }
+
+            // 通过历史记录加载的群聊消息，需要刷新一下已读未读最新数据
+            if (container.sessionType == SessionTypeEnum.Team) {
+                NIMSDK.getTeamService().refreshTeamMessageReceipt(messages);
             }
 
             firstLoad = false;

@@ -10,6 +10,7 @@ import com.netease.nim.uikit.common.media.audioplayer.Playable;
 import com.netease.nim.uikit.common.ui.recyclerview.adapter.BaseMultiItemFetchLoadAdapter;
 import com.netease.nim.uikit.common.util.storage.StorageUtil;
 import com.netease.nimlib.sdk.NIMClient;
+import com.netease.nimlib.sdk.RequestCallbackWrapper;
 import com.netease.nimlib.sdk.msg.MsgService;
 import com.netease.nimlib.sdk.msg.attachment.AudioAttachment;
 import com.netease.nimlib.sdk.msg.constant.AttachStatusEnum;
@@ -18,6 +19,7 @@ import com.netease.nimlib.sdk.msg.constant.MsgStatusEnum;
 import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
 
+import java.io.File;
 import java.util.List;
 
 public class MessageAudioControl extends BaseAudioControl<IMMessage> {
@@ -111,9 +113,21 @@ public class MessageAudioControl extends BaseAudioControl<IMMessage> {
 
     @Override
     public void startPlayAudioDelay(
-            long delayMillis,
-            IMMessage message,
-            AudioControlListener audioControlListener, int audioStreamType) {
+            final long delayMillis,
+            final IMMessage message,
+            final AudioControlListener audioControlListener, final int audioStreamType) {
+        // 如果不存在则下载
+        AudioAttachment audioAttachment = (AudioAttachment) message.getAttachment();
+        File file = new File(audioAttachment.getPathForSave());
+        if (!file.exists()) {
+            NIMClient.getService(MsgService.class).downloadAttachment(message, false).setCallback(new RequestCallbackWrapper() {
+                @Override
+                public void onResult(int code, Object result, Throwable exception) {
+                    startPlayAudio(message, audioControlListener, audioStreamType, true, delayMillis);
+                }
+            });
+            return;
+        }
         startPlayAudio(message, audioControlListener, audioStreamType, true, delayMillis);
     }
 
@@ -125,7 +139,6 @@ public class MessageAudioControl extends BaseAudioControl<IMMessage> {
             boolean resetOrigAudioStreamType,
             long delayMillis) {
         if (StorageUtil.isExternalStorageExist()) {
-
             if (startAudio(new AudioMessagePlayable(message), audioControlListener, audioStreamType, resetOrigAudioStreamType, delayMillis)) {
                 // 将未读标识去掉,更新数据库
                 if (isUnreadAudioMessage(message)) {

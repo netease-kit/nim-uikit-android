@@ -343,6 +343,18 @@ public class NimUIKit {
     }
 
     /**
+     * 同 {@link NimUIKitImpl#startTeamSession(Context, String)},同时聊天界面打开后，列表跳转至anchor位置
+     *
+     * @param context 上下文
+     * @param tid     群id
+     * @param customization 定制化信息。针对不同的聊天对象，可提供不同的定制化。
+     * @param anchor  跳转到指定消息的位置，不需要跳转填null
+     */
+    public static void startTeamSession(Context context, String tid, SessionCustomization customization, IMMessage anchor) {
+        NimUIKitImpl.startTeamSession(context, tid, customization, anchor);
+    }
+
+    /**
      * 打开一个聊天窗口，开始聊天
      *
      * @param context       上下文

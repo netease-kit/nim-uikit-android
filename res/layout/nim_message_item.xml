@@ -111,6 +111,17 @@
 
             <include layout="@layout/nim_read_recipt_layout" />
 
+            <TextView
+                android:id="@+id/team_ack_msg"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:paddingTop="5dp"
+                android:layout_marginBottom="3dip"
+                android:background="@color/transparent"
+                android:textColor="#666666"
+                android:textSize="12sp"/>
+
             <FrameLayout
                 android:id="@+id/message_item_content"
                 android:layout_width="wrap_content"
