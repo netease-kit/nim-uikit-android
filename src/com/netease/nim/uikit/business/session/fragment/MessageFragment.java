@@ -178,7 +178,7 @@ public class MessageFragment extends TFragment implements ModuleProxy {
      */
     // 是否允许发送消息
     protected boolean isAllowSendMessage(final IMMessage message) {
-        return true;
+        return customization.isAllowSendMessage(message);
     }
 
     /**
@@ -223,30 +223,36 @@ public class MessageFragment extends TFragment implements ModuleProxy {
     @Override
     public boolean sendMessage(IMMessage message) {
         if (!isAllowSendMessage(message)) {
-            return false;
+            // 替换成tip
+            message = MessageBuilder.createTipMessage(message.getSessionId(), message.getSessionType());
+            message.setContent("该消息无法发送");
+            message.setStatus(MsgStatusEnum.success);
+            NIMClient.getService(MsgService.class).saveMessageToLocal(message, false);
+        }else {
+            appendTeamMemberPush(message);
+            message = changeToRobotMsg(message);
+            final IMMessage msg = message;
+            appendPushConfig(message);
+            // send message to server and save to db
+            NIMClient.getService(MsgService.class).sendMessage(message, false).setCallback(new RequestCallback<Void>() {
+                @Override
+                public void onSuccess(Void param) {
+
+                }
+
+                @Override
+                public void onFailed(int code) {
+                    sendFailWithBlackList(code, msg);
+                }
+
+                @Override
+                public void onException(Throwable exception) {
+
+                }
+            });
         }
 
-        appendTeamMemberPush(message);
-        message = changeToRobotMsg(message);
-        final IMMessage msg = message;
-        appendPushConfig(message);
-        // send message to server and save to db
-        NIMClient.getService(MsgService.class).sendMessage(message, false).setCallback(new RequestCallback<Void>() {
-            @Override
-            public void onSuccess(Void param) {
 
-            }
-
-            @Override
-            public void onFailed(int code) {
-                sendFailWithBlackList(code, msg);
-            }
-
-            @Override
-            public void onException(Throwable exception) {
-
-            }
-        });
 
         messageListPanel.onMsgSend(message);
 

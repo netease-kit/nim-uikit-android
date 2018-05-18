@@ -25,7 +25,7 @@ public class TeamMessageFragment extends MessageFragment {
             return false;
         }
 
-        return true;
+        return super.isAllowSendMessage(message);
     }
 
     public void setTeam(Team team) {

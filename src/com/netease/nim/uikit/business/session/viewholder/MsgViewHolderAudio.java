@@ -16,6 +16,8 @@ import com.netease.nim.uikit.common.ui.recyclerview.adapter.BaseMultiItemFetchLo
 import com.netease.nim.uikit.common.util.sys.ScreenUtil;
 import com.netease.nim.uikit.common.util.sys.TimeUtil;
 import com.netease.nim.uikit.impl.NimUIKitImpl;
+import com.netease.nimlib.sdk.NIMClient;
+import com.netease.nimlib.sdk.msg.MsgService;
 import com.netease.nimlib.sdk.msg.attachment.AudioAttachment;
 import com.netease.nimlib.sdk.msg.constant.AttachStatusEnum;
 import com.netease.nimlib.sdk.msg.constant.MsgDirectionEnum;
@@ -68,6 +70,9 @@ public class MsgViewHolderAudio extends MsgViewHolderBase {
     protected void onItemClick() {
         if (audioControl != null) {
             if (message.getDirect() == MsgDirectionEnum.In && message.getAttachStatus() != AttachStatusEnum.transferred) {
+                if (message.getAttachStatus() == AttachStatusEnum.fail || message.getAttachStatus() == AttachStatusEnum.def) {
+                    NIMClient.getService(MsgService.class).downloadAttachment(message, false);
+                }
                 return;
             }
 
