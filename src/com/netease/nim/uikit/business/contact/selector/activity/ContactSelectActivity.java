@@ -21,7 +21,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
+import com.netease.nim.uikit.common.ToastHelper;
 
 import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.api.wrapper.NimToolBarOptions;
@@ -396,7 +396,7 @@ public class ContactSelectActivity extends UI implements View.OnClickListener, a
                                 contactSelectedAdapter.addContact(contact);
                             }
                         } else {
-                            Toast.makeText(ContactSelectActivity.this, option.maxSelectedTip, Toast.LENGTH_SHORT).show();
+                            ToastHelper.showToast(ContactSelectActivity.this, option.maxSelectedTip);
                         }
 
                         if (!TextUtils.isEmpty(queryText) && searchView != null) {
@@ -579,9 +579,9 @@ public class ContactSelectActivity extends UI implements View.OnClickListener, a
 
     private boolean showMaxMinSelectTip(boolean min) {
         if (min) {
-            Toast.makeText(this, option.minSelectedTip, Toast.LENGTH_SHORT).show();
+            ToastHelper.showToast(this, option.minSelectedTip);
         } else {
-            Toast.makeText(this, option.maxSelectedTip, Toast.LENGTH_SHORT).show();
+            ToastHelper.showToast(this, option.maxSelectedTip);
         }
         return false;
     }

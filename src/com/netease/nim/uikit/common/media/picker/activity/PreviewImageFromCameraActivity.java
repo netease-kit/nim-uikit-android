@@ -14,7 +14,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
+import com.netease.nim.uikit.common.ToastHelper;
 
 import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.api.wrapper.NimToolBarOptions;
@@ -160,10 +160,10 @@ public class PreviewImageFromCameraActivity extends UI {
             if (bitmap != null) {
                 previewImageView.setImageBitmap(bitmap);
             } else {
-                Toast.makeText(this, R.string.image_show_error, Toast.LENGTH_LONG).show();
+                ToastHelper.showToastLong(this, R.string.image_show_error);
             }
         } catch (OutOfMemoryError e) {
-            Toast.makeText(this, R.string.memory_out, Toast.LENGTH_LONG).show();
+            ToastHelper.showToastLong(this, R.string.memory_out);
         }
     }
 
@@ -179,7 +179,7 @@ public class PreviewImageFromCameraActivity extends UI {
 
             @Override
             protected void onPreExecute() {
-                Toast.makeText(PreviewImageFromCameraActivity.this, R.string.waitfor_image_local, Toast.LENGTH_LONG).show();
+                ToastHelper.showToastLong(PreviewImageFromCameraActivity.this, R.string.waitfor_image_local);
             }
 
             @Override
@@ -196,7 +196,7 @@ public class PreviewImageFromCameraActivity extends UI {
                 try {
                     PreviewImageFromCameraActivity.this.startActivityForResult(intent, RequestCode.GET_LOCAL_IMAGE);
                 } catch (ActivityNotFoundException e) {
-                    Toast.makeText(PreviewImageFromCameraActivity.this, R.string.gallery_invalid, Toast.LENGTH_LONG).show();
+                    ToastHelper.showToastLong(PreviewImageFromCameraActivity.this, R.string.gallery_invalid);
                 }
             }
         }.execute();

@@ -55,7 +55,6 @@ public abstract class TFragment extends Fragment {
             @Override
             public void run() {
                 // validate
-                // TODO use getActivity ?
                 if (!isAdded()) {
                     return;
                 }
@@ -71,7 +70,6 @@ public abstract class TFragment extends Fragment {
             @Override
             public void run() {
                 // validate
-                // TODO use getActivity ?
                 if (!isAdded()) {
                     return;
                 }

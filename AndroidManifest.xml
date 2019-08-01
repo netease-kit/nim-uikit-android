@@ -145,7 +145,7 @@
 
 
         <provider
-            android:name="com.netease.nim.uikit.common.media.picker.model.GenericFileProvider"
+            android:name="com.netease.nim.uikit.common.media.model.GenericFileProvider"
             android:authorities="${applicationId}.generic.file.provider"
             android:exported="false"
             android:grantUriPermissions="true">
@@ -153,5 +153,48 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths"/>
         </provider>
+
+
+        <activity
+            android:name=".common.media.imagepicker.ui.ImageGridActivity"
+            android:configChanges="orientation|screenSize"
+            android:screenOrientation="portrait"
+            android:theme="@style/LightBaseTheme"/>
+
+        <activity
+            android:name=".common.media.imagepicker.ui.ImageCropActivity"
+            android:configChanges="orientation|screenSize"
+            android:hardwareAccelerated="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/ImagePickerTheme.BlackStatusBar"/>
+        <activity
+            android:name=".common.media.imagepicker.ui.ImagePreviewActivity"
+            android:configChanges="orientation|screenSize"
+            android:theme="@style/ImagePickerTheme.BlackStatusBar"/>
+
+        <activity
+            android:name=".common.media.imagepicker.ui.ImagePreviewRetakeActivity"
+            android:configChanges="orientation|screenSize"
+            android:theme="@style/ImagePickerTheme.BlackStatusBar"/>
+        <activity
+            android:name=".common.media.imagepicker.ui.ImageTakeActivity"
+            android:configChanges="orientation|screenSize"
+            android:screenOrientation="portrait"
+            android:theme="@style/ImagePickerTheme.BlackStatusBar"/>
+        <activity
+            android:name=".common.media.imagepicker.video.GLVideoActivity"
+            android:configChanges="orientation|screenSize"
+            android:screenOrientation="portrait"
+            android:theme="@style/VideoTheme"/>
+        <activity
+            android:name=".common.media.imagepicker.video.GLVideoConfirmActivity"
+            android:configChanges="orientation|screenSize"
+            android:screenOrientation="portrait"
+            android:theme="@style/VideoTheme"/>
+
+        <activity
+            android:name=".common.media.imagepicker.camera.CaptureActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
     </application>
 </manifest>

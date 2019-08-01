@@ -9,6 +9,9 @@ import com.bumptech.glide.request.RequestOptions;
 import com.netease.nim.uikit.api.NimUIKit;
 import com.netease.nim.uikit.common.framework.NimSingleThreadExecutor;
 import com.netease.nim.uikit.common.ui.imageview.HeadImageView;
+import com.netease.nimlib.sdk.NIMClient;
+import com.netease.nimlib.sdk.RequestCallbackWrapper;
+import com.netease.nimlib.sdk.nos.NosService;
 import com.netease.nimlib.sdk.uinfo.model.UserInfo;
 
 import java.util.concurrent.TimeUnit;
@@ -40,7 +43,6 @@ public class ImageLoaderKit {
     public void buildImageCache() {
         // 不必清除缓存，并且这个缓存清除比较耗时
         // clear();
-
         // build self avatar cache
         asyncLoadAvatarBitmapToCache(NimUIKit.getAccount());
     }
@@ -54,22 +56,15 @@ public class ImageLoaderKit {
             return null;
         }
         final int imageSize = HeadImageView.DEFAULT_AVATAR_NOTIFICATION_ICON_SIZE;
-
         Bitmap cachedBitmap = null;
         try {
-            cachedBitmap = Glide.with(context)
-                    .asBitmap()
-                    .load(url)
-                    .apply(new RequestOptions()
-                            .centerCrop()
-                            .override(imageSize, imageSize))
-                    .submit()
-                    .get(200, TimeUnit.MILLISECONDS)// 最大等待200ms
+            cachedBitmap = Glide.with(context).asBitmap().load(url).apply(
+                    new RequestOptions().centerCrop().override(imageSize, imageSize)).submit().get(200,
+                                                                                                   TimeUnit.MILLISECONDS)// 最大等待200ms
             ;
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         return cachedBitmap;
     }
 
@@ -78,6 +73,7 @@ public class ImageLoaderKit {
      */
     private void asyncLoadAvatarBitmapToCache(final String account) {
         NimSingleThreadExecutor.getInstance().execute(new Runnable() {
+
             @Override
             public void run() {
                 UserInfo userInfo = NimUIKit.getUserInfoProvider().getUserInfo(account);
@@ -88,14 +84,31 @@ public class ImageLoaderKit {
         });
     }
 
-    private void loadAvatarBitmapToCache(String url) {
+    /**
+     * 如果图片是上传到云信服务器，并且用户开启了文件安全功能，那么这里可能是短链，需要先换成源链才能下载。
+     * 如果没有使用云信存储或没开启文件安全，那么不用这样做
+     */
+    private void loadAvatarBitmapToCache(final String url) {
         if (TextUtils.isEmpty(url)) {
             return;
         }
+        /*
+         * 若使用网易云信云存储，这里可以设置下载图片的压缩尺寸，生成下载URL
+         * 如果图片来源是非网易云信云存储，请不要使用NosThumbImageUtil
+         */
+        NIMClient.getService(NosService.class).getOriginUlrFromShortUrl(url).setCallback(
+                new RequestCallbackWrapper<String>() {
 
-        final int imageSize = HeadImageView.DEFAULT_AVATAR_THUMB_SIZE;
-        Glide.with(context)
-                .load(url)
-                .submit(imageSize, imageSize);
+                    @Override
+                    public void onResult(int code, String result, Throwable exception) {
+                        if (TextUtils.isEmpty(result)) {
+                            result = url;
+                        }
+                        final int imageSize = HeadImageView.DEFAULT_AVATAR_THUMB_SIZE;
+                        Glide.with(context).load(result).submit(imageSize, imageSize);
+                    }
+                });
+
+
     }
 }

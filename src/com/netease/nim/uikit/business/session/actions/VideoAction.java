@@ -16,8 +16,9 @@ import java.io.File;
  * Created by hzxuwen on 2015/6/12.
  */
 public class VideoAction extends BaseAction {
+
     // 视频
-    protected VideoMessageHelper videoMessageHelper;
+    protected transient VideoMessageHelper videoMessageHelper;
 
     public VideoAction() {
         super(R.drawable.nim_message_plus_video_selector, R.string.input_panel_video);

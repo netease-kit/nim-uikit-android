@@ -9,11 +9,9 @@ import com.netease.nim.uikit.api.NimUIKit;
 
 public class PickerImageLoader {
     public static void initCache() {
-        // TODO:HUANGJUN
     }
 
     public static void clearCache() {
-        // TODO:HUANGJUN
     }
 
     public static void display(final String thumbPath, final String originalPath, final ImageView imageView, final int defResource) {

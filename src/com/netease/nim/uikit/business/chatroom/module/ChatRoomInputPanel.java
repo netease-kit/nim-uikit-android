@@ -19,10 +19,6 @@ public class ChatRoomInputPanel extends InputPanel {
         super(container, view, actions, isTextAudioSwitchShow);
     }
 
-    public ChatRoomInputPanel(Container container, View view, List<BaseAction> actions) {
-        super(container, view, actions);
-    }
-
     @Override
     protected IMMessage createTextMessage(String text) {
         return ChatRoomMessageBuilder.createChatRoomTextMessage(container.account, text);

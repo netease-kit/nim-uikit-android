@@ -8,7 +8,7 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
+import com.netease.nim.uikit.common.ToastHelper;
 
 import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.api.NimUIKit;
@@ -88,12 +88,12 @@ public class AdvancedTeamCreateAnnounceActivity extends UI {
 
     private void requestAnnounceData() {
         if (!NetworkUtil.isNetAvailable(this)) {
-            Toast.makeText(this, R.string.network_is_not_available, Toast.LENGTH_LONG).show();
+            ToastHelper.showToast(this, R.string.network_is_not_available);
             return;
         }
 
         if (TextUtils.isEmpty(teamAnnounceTitle.getText().toString())) {
-            Toast.makeText(AdvancedTeamCreateAnnounceActivity.this, R.string.team_announce_notice, Toast.LENGTH_SHORT).show();
+            ToastHelper.showToast(AdvancedTeamCreateAnnounceActivity.this, R.string.team_announce_notice);
             return;
         }
 
@@ -125,7 +125,7 @@ public class AdvancedTeamCreateAnnounceActivity extends UI {
      */
     private void updateTeamData(Team team) {
         if (team == null) {
-            Toast.makeText(this, getString(R.string.team_not_exist), Toast.LENGTH_SHORT).show();
+            ToastHelper.showToast(this, getString(R.string.team_not_exist));
             showKeyboard(false);
             finish();
         } else {
@@ -146,14 +146,14 @@ public class AdvancedTeamCreateAnnounceActivity extends UI {
                 setResult(Activity.RESULT_OK);
                 showKeyboard(false);
                 finish();
-                Toast.makeText(AdvancedTeamCreateAnnounceActivity.this, R.string.update_success, Toast.LENGTH_SHORT).show();
+                ToastHelper.showToast(AdvancedTeamCreateAnnounceActivity.this, R.string.update_success);
             }
 
             @Override
             public void onFailed(int code) {
                 DialogMaker.dismissProgressDialog();
                 toolbarView.setEnabled(true);
-                Toast.makeText(AdvancedTeamCreateAnnounceActivity.this, String.format(getString(R.string.update_failed), code), Toast.LENGTH_SHORT).show();
+                ToastHelper.showToast(AdvancedTeamCreateAnnounceActivity.this, String.format(getString(R.string.update_failed), code));
             }
 
             @Override

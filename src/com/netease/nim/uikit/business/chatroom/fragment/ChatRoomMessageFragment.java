@@ -6,7 +6,7 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
+import com.netease.nim.uikit.common.ToastHelper;
 
 import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.api.NimUIKit;
@@ -45,7 +45,7 @@ import java.util.List;
 public class ChatRoomMessageFragment extends TFragment implements ModuleProxy {
     private String roomId;
     protected View rootView;
-    private static ChatRoomSessionCustomization customization;
+    private static ChatRoomSessionCustomization sCustomization;
 
     // modules
     protected ChatRoomInputPanel inputPanel;
@@ -53,7 +53,7 @@ public class ChatRoomMessageFragment extends TFragment implements ModuleProxy {
     protected AitManager aitManager;
 
     public static void setChatRoomSessionCustomization(ChatRoomSessionCustomization roomSessionCustomization) {
-        customization = roomSessionCustomization;
+        sCustomization = roomSessionCustomization;
     }
 
     @Override
@@ -148,7 +148,7 @@ public class ChatRoomMessageFragment extends TFragment implements ModuleProxy {
 
         if (NimUIKitImpl.getOptions().aitEnable && NimUIKitImpl.getOptions().aitChatRoomRobot) {
             if (aitManager == null) {
-                aitManager = new AitManager(getContext(), null, true);
+                aitManager = new AitManager(getContext(), null, false);
             }
             inputPanel.addAitTextWatcher(aitManager);
             aitManager.setTextChangeListener(inputPanel);
@@ -190,17 +190,17 @@ public class ChatRoomMessageFragment extends TFragment implements ModuleProxy {
                     @Override
                     public void onFailed(int code) {
                         if (code == ResponseCode.RES_CHATROOM_MUTED) {
-                            Toast.makeText(NimUIKit.getContext(), "用户被禁言", Toast.LENGTH_SHORT).show();
+                            ToastHelper.showToast(NimUIKit.getContext(), "用户被禁言");
                         } else if (code == ResponseCode.RES_CHATROOM_ROOM_MUTED) {
-                            Toast.makeText(NimUIKit.getContext(), "全体禁言", Toast.LENGTH_SHORT).show();
+                            ToastHelper.showToast(NimUIKit.getContext(), "全体禁言");
                         } else {
-                            Toast.makeText(NimUIKit.getContext(), "消息发送失败：code:" + code, Toast.LENGTH_SHORT).show();
+                            ToastHelper.showToast(NimUIKit.getContext(), "消息发送失败：code:" + code);
                         }
                     }
 
                     @Override
                     public void onException(Throwable exception) {
-                        Toast.makeText(NimUIKit.getContext(), "消息发送失败！", Toast.LENGTH_SHORT).show();
+                        ToastHelper.showToast(NimUIKit.getContext(), "消息发送失败！");
                     }
                 });
         messageListPanel.onMsgSend(message);
@@ -254,10 +254,10 @@ public class ChatRoomMessageFragment extends TFragment implements ModuleProxy {
     }
 
     // 操作面板集合
-    protected List<BaseAction> getActionList() {
+    private List<BaseAction> getActionList() {
         List<BaseAction> actions = new ArrayList<>();
-        if (customization != null) {
-            actions.addAll(customization.actions);
+        if (sCustomization != null) {
+            actions.addAll(sCustomization.actions);
         }
 
         return actions;

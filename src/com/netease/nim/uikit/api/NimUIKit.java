@@ -17,6 +17,8 @@ import com.netease.nim.uikit.api.model.recent.RecentCustomization;
 import com.netease.nim.uikit.api.model.robot.RobotInfoProvider;
 import com.netease.nim.uikit.api.model.session.SessionCustomization;
 import com.netease.nim.uikit.api.model.session.SessionEventListener;
+import com.netease.nim.uikit.api.model.superteam.SuperTeamChangedObservable;
+import com.netease.nim.uikit.api.model.superteam.SuperTeamProvider;
 import com.netease.nim.uikit.api.model.team.TeamChangedObservable;
 import com.netease.nim.uikit.api.model.team.TeamProvider;
 import com.netease.nim.uikit.api.model.user.IUserInfoProvider;
@@ -455,6 +457,7 @@ public class NimUIKit {
         return NimUIKitImpl.getTeamProvider();
     }
 
+
     /**
      * 设置群、群成员信息提供者
      * 不设置则采用 UIKit 内部默认 teamProvider
@@ -471,6 +474,34 @@ public class NimUIKit {
     public static TeamChangedObservable getTeamChangedObservable() {
         return NimUIKitImpl.getTeamChangedObservable();
     }
+
+    /**
+     * 获取群、群成员信息提供者
+     *
+     * @return TeamProvider
+     */
+    public static SuperTeamProvider getSuperTeamProvider() {
+        return NimUIKitImpl.getSuperTeamProvider();
+    }
+
+
+    /**
+     * 设置群、群成员信息提供者
+     * 不设置则采用 UIKit 内部默认 teamProvider
+     */
+    public static void setSuperTeamProvider(SuperTeamProvider teamProvider) {
+        NimUIKitImpl.setSuperTeamProvider(teamProvider);
+    }
+
+    /**
+     * 获取群成员变化通知
+     *
+     * @return TeamChangedObservable
+     */
+    public static SuperTeamChangedObservable getSuperTeamChangedObservable() {
+        return NimUIKitImpl.getSuperTeamChangedObservable();
+    }
+
 
     /**
      * 获取机器人信息提供者

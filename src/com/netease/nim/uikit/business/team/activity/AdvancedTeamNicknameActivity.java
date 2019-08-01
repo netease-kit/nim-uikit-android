@@ -13,7 +13,7 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
+import com.netease.nim.uikit.common.ToastHelper;
 
 import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.api.wrapper.NimToolBarOptions;
@@ -135,7 +135,7 @@ public class AdvancedTeamNicknameActivity extends UI implements TextWatcher, Vie
 
     private void complete() {
         if (TextUtils.isEmpty(regularTeamNickname.getText().toString())) {
-            Toast.makeText(this, R.string.team_name_toast, Toast.LENGTH_SHORT).show();
+            ToastHelper.showToast(this, R.string.team_name_toast);
         } else {
             Intent intent = getIntent();
             intent.putExtra(EXTRA_NAME, regularTeamNickname.getText().toString());

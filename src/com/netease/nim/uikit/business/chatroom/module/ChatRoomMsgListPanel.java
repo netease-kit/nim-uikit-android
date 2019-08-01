@@ -8,7 +8,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.View;
-import android.widget.Toast;
+import com.netease.nim.uikit.common.ToastHelper;
 
 import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.api.NimUIKit;
@@ -380,7 +380,7 @@ public class ChatRoomMsgListPanel {
                         try {
                             container.activity.startActivity(intent);
                         } catch (ActivityNotFoundException e) {
-                            Toast.makeText(container.activity, "路径错误", Toast.LENGTH_SHORT).show();
+                            ToastHelper.showToast(container.activity, "路径错误");
                         }
 
                     } else if (LinkElement.TYPE_BLOCK.equals(element.getType())) {

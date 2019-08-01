@@ -87,7 +87,7 @@ public class NIMPopupMenu {
             } else {
                 rootView = LayoutInflater.from(context).inflate(R.layout.nim_popup_menu_layout, null);
             }
-            ListView listView = (ListView) rootView.findViewById(R.id.popmenu_listview);
+            ListView listView = rootView.findViewById(R.id.popmenu_listview);
             listView.setOnItemClickListener(new OnItemClickListener() {
 
                 @Override

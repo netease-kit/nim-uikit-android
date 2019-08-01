@@ -13,9 +13,11 @@ import com.netease.nim.uikit.common.util.string.StringUtil;
 /**
  * Created by huangjun on 2015/9/22.
  */
+@Deprecated
 public class PickImageHelper {
 
     public static class PickImageOption {
+
         /**
          * 图片选择器标题
          */
@@ -59,41 +61,44 @@ public class PickImageHelper {
         if (context == null) {
             return;
         }
-
         CustomAlertDialog dialog = new CustomAlertDialog(context);
         dialog.setTitle(option.titleResId);
+        dialog.addItem(context.getString(R.string.input_panel_take),
+                       new CustomAlertDialog.onSeparateItemClickListener() {
 
-        dialog.addItem(context.getString(R.string.input_panel_take), new CustomAlertDialog.onSeparateItemClickListener() {
-            @Override
-            public void onClick() {
-                int from = PickImageActivity.FROM_CAMERA;
-                if (!option.crop) {
-                    PickImageActivity.start((Activity) context, requestCode, from, option.outputPath, option.multiSelect, 1,
-                            true, false, 0, 0);
-                } else {
-                    PickImageActivity.start((Activity) context, requestCode, from, option.outputPath, false, 1,
-                            false, true, option.cropOutputImageWidth, option.cropOutputImageHeight);
-                }
+                           @Override
+                           public void onClick() {
+                               int from = PickImageActivity.FROM_CAMERA;
+                               if (!option.crop) {
+                                   PickImageActivity.start((Activity) context, requestCode, from, option.outputPath,
+                                                           option.multiSelect, 1, true, false, 0, 0);
+                               } else {
+                                   PickImageActivity.start((Activity) context, requestCode, from, option.outputPath,
+                                                           false, 1, false, true, option.cropOutputImageWidth,
+                                                           option.cropOutputImageHeight);
+                               }
 
-            }
-        });
+                           }
+                       });
+        dialog.addItem(context.getString(R.string.choose_from_photo_album),
+                       new CustomAlertDialog.onSeparateItemClickListener() {
 
-        dialog.addItem(context.getString(R.string.choose_from_photo_album), new CustomAlertDialog
-                .onSeparateItemClickListener() {
-            @Override
-            public void onClick() {
-                int from = PickImageActivity.FROM_LOCAL;
-                if (!option.crop) {
-                    PickImageActivity.start((Activity) context, requestCode, from, option.outputPath, option.multiSelect,
-                            option.multiSelectMaxCount, true, false, 0, 0);
-                } else {
-                    PickImageActivity.start((Activity) context, requestCode, from, option.outputPath, false, 1,
-                            false, true, option.cropOutputImageWidth, option.cropOutputImageHeight);
-                }
+                           @Override
+                           public void onClick() {
+                               int from = PickImageActivity.FROM_LOCAL;
+                               if (!option.crop) {
+                                   PickImageActivity.start((Activity) context, requestCode, from, option.outputPath,
+                                                           option.multiSelect, option.multiSelectMaxCount, true, false,
+                                                           0, 0);
+                               } else {
+                                   PickImageActivity.start((Activity) context, requestCode, from, option.outputPath,
+                                                           false, 1, false, true, option.cropOutputImageWidth,
+                                                           option.cropOutputImageHeight);
+                               }
 
-            }
-        });
-
+                           }
+                       });
         dialog.show();
     }
+
 }

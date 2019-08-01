@@ -3,7 +3,7 @@ package com.netease.nim.uikit.business.session.activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.widget.Toast;
+import com.netease.nim.uikit.common.ToastHelper;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -55,19 +55,16 @@ public class P2PMessageActivity extends BaseMessageActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         // 单聊特例话数据，包括个人信息，
         requestBuddyInfo();
         displayOnlineState();
         registerObservers(true);
-        registerOnlineStateChangeListener(true);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         registerObservers(false);
-        registerOnlineStateChangeListener(false);
     }
 
     @Override
@@ -86,17 +83,46 @@ public class P2PMessageActivity extends BaseMessageActivity {
         setTitle(UserInfoHelper.getUserTitleName(sessionId, SessionTypeEnum.P2P));
     }
 
-    private void registerObservers(boolean register) {
-        if (register) {
-            registerUserInfoObserver();
-        } else {
-            unregisterUserInfoObserver();
+    private void displayOnlineState() {
+        if (!NimUIKitImpl.enableOnlineState()) {
+            return;
         }
-        NIMClient.getService(MsgServiceObserve.class).observeCustomNotification(commandObserver, register);
-        NimUIKit.getContactChangedObservable().registerObserver(friendDataChangedObserver, register);
+        String detailContent = NimUIKitImpl.getOnlineStateContentProvider().getDetailDisplay(sessionId);
+        setSubTitle(detailContent);
     }
 
-    ContactChangedObserver friendDataChangedObserver = new ContactChangedObserver() {
+
+    /**
+     * 命令消息接收观察者
+     */
+    private Observer<CustomNotification> commandObserver = new Observer<CustomNotification>() {
+        @Override
+        public void onEvent(CustomNotification message) {
+            if (!sessionId.equals(message.getSessionId()) || message.getSessionType() != SessionTypeEnum.P2P) {
+                return;
+            }
+            showCommandMessage(message);
+        }
+    };
+
+
+    /**
+     * 用户信息变更观察者
+     */
+    private UserInfoObserver userInfoObserver = new UserInfoObserver() {
+        @Override
+        public void onUserInfoChanged(List<String> accounts) {
+            if (!accounts.contains(sessionId)) {
+                return;
+            }
+            requestBuddyInfo();
+        }
+    };
+
+    /**
+     * 好友资料变更（eg:关系）
+     */
+    private ContactChangedObserver friendDataChangedObserver = new ContactChangedObserver() {
         @Override
         public void onAddedOrUpdatedFriends(List<String> accounts) {
             setTitle(UserInfoHelper.getUserTitleName(sessionId, SessionTypeEnum.P2P));
@@ -118,84 +144,45 @@ public class P2PMessageActivity extends BaseMessageActivity {
         }
     };
 
-    private UserInfoObserver uinfoObserver;
-
-    OnlineStateChangeObserver onlineStateChangeObserver = new OnlineStateChangeObserver() {
+    /**
+     * 好友在线状态观察者
+     */
+    private OnlineStateChangeObserver onlineStateChangeObserver = new OnlineStateChangeObserver() {
         @Override
         public void onlineStateChange(Set<String> accounts) {
-            // 更新 toolbar
-            if (accounts.contains(sessionId)) {
-                // 按照交互来展示
-                displayOnlineState();
-            }
-        }
-    };
-
-    private void registerOnlineStateChangeListener(boolean register) {
-        if (!NimUIKitImpl.enableOnlineState()) {
-            return;
-        }
-        NimUIKitImpl.getOnlineStateChangeObservable().registerOnlineStateChangeListeners(onlineStateChangeObserver, register);
-    }
-
-    private void displayOnlineState() {
-        if (!NimUIKitImpl.enableOnlineState()) {
-            return;
-        }
-        String detailContent = NimUIKitImpl.getOnlineStateContentProvider().getDetailDisplay(sessionId);
-        setSubTitle(detailContent);
-    }
-
-    private void registerUserInfoObserver() {
-        if (uinfoObserver == null) {
-            uinfoObserver = new UserInfoObserver() {
-                @Override
-                public void onUserInfoChanged(List<String> accounts) {
-                    if (accounts.contains(sessionId)) {
-                        requestBuddyInfo();
-                    }
-                }
-            };
-        }
-        NimUIKit.getUserInfoObservable().registerObserver(uinfoObserver, true);
-    }
-
-    private void unregisterUserInfoObserver() {
-        if (uinfoObserver != null) {
-            NimUIKit.getUserInfoObservable().registerObserver(uinfoObserver, false);
-        }
-    }
-
-    /**
-     * 命令消息接收观察者
-     */
-    Observer<CustomNotification> commandObserver = new Observer<CustomNotification>() {
-        @Override
-        public void onEvent(CustomNotification message) {
-            if (!sessionId.equals(message.getSessionId()) || message.getSessionType() != SessionTypeEnum.P2P) {
+            if (!accounts.contains(sessionId)) {
                 return;
             }
-            showCommandMessage(message);
+            // 按照交互来展示
+            displayOnlineState();
         }
     };
+
+    private void registerObservers(boolean register) {
+        NIMClient.getService(MsgServiceObserve.class).observeCustomNotification(commandObserver, register);
+        NimUIKit.getUserInfoObservable().registerObserver(userInfoObserver, register);
+        NimUIKit.getContactChangedObservable().registerObserver(friendDataChangedObserver, register);
+        if (NimUIKit.enableOnlineState()) {
+            NimUIKit.getOnlineStateChangeObservable().registerOnlineStateChangeListeners(onlineStateChangeObserver, register);
+        }
+    }
+
 
     protected void showCommandMessage(CustomNotification message) {
         if (!isResume) {
             return;
         }
-
         String content = message.getContent();
         try {
             JSONObject json = JSON.parseObject(content);
             int id = json.getIntValue("id");
             if (id == 1) {
                 // 正在输入
-                Toast.makeText(P2PMessageActivity.this, "对方正在输入...", Toast.LENGTH_LONG).show();
+                ToastHelper.showToastLong(P2PMessageActivity.this, "对方正在输入...");
             } else {
-                Toast.makeText(P2PMessageActivity.this, "command: " + content, Toast.LENGTH_SHORT).show();
+                ToastHelper.showToast(P2PMessageActivity.this, "command: " + content);
             }
-
-        } catch (Exception e) {
+        } catch (Exception ignored) {
 
         }
     }
@@ -219,5 +206,10 @@ public class P2PMessageActivity extends BaseMessageActivity {
     protected void initToolBar() {
         ToolBarOptions options = new NimToolBarOptions();
         setToolBar(R.id.toolbar, options);
+    }
+
+    @Override
+    protected boolean enableSensor() {
+        return true;
     }
 }

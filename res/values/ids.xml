@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="widget_video_view_time" type="id"/>
+    <item name="widget_video_view_texture" type="id"/>
+    <item name="widget_video_view_pause" type="id"/>
+    <item name="widget_video_view_cover" type="id"/>
+    <item name="widget_video_view_icon" type="id"/>
+    <item name="widget_video_view_indicator" type="id"/>
+    <item name="widget_video_view_full" type="id"/>
+    <item name="widget_video_view_mask" type="id"/>
+</resources>

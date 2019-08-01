@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <View android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/black"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.netease.nim.uikit.common.media.imagepicker.video.GLVideoView
+            android:id="@id/widget_video_view_texture"
+            android:layout_centerInParent="true"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <TextView android:id="@id/widget_video_view_time"
+            android:textColor="#FFFFFF"
+            android:textSize="12sp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@id/widget_video_view_texture"
+            android:layout_alignRight="@id/widget_video_view_texture" />
+
+    </RelativeLayout>
+
+    <View
+        android:id="@id/widget_video_view_pause"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <ImageView
+        android:id="@id/widget_video_view_cover"
+        android:layout_gravity="center"
+        android:scaleType="centerCrop"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <View
+        android:id="@id/widget_video_view_mask"
+        android:background="@color/color_7f111111"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        />
+
+    <ImageView
+        android:src="@drawable/icon_video"
+        android:id="@id/widget_video_view_icon"
+        android:layout_gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <com.netease.nim.uikit.common.media.imagepicker.view.GLBusyIndicatorView
+        android:id="@id/widget_video_view_indicator"
+        android:layout_gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@id/widget_video_view_full"
+        android:visibility="gone"
+        android:text="全屏"
+        android:layout_gravity="bottom|right"
+        android:textColor="#FFFFFF"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:paddingTop="6dp"
+        android:paddingBottom="6dp"
+        android:drawableLeft="@drawable/icon_full"
+        android:drawablePadding="3dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginBottom="10dp"
+        android:background="@drawable/nim_selector_widget_video_view_full_bg"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+</merge>

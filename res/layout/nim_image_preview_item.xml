@@ -1,0 +1,20 @@
+<RelativeLayout android:id="@+id/content"
+                xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:layout_width="65dp"
+                android:layout_height="@dimen/dp_size_55"
+                android:paddingLeft="@dimen/dp_size_10">
+
+    <ImageView
+        android:id="@+id/choose_item"
+        android:layout_width="@dimen/dp_size_55"
+        android:layout_height="@dimen/dp_size_55"
+        android:scaleType="centerCrop"/>
+
+    <View
+        android:id="@+id/mask_item"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/blue_stroke_box_4"></View>
+
+</RelativeLayout>

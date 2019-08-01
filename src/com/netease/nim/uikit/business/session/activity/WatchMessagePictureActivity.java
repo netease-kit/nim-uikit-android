@@ -18,7 +18,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
+import com.netease.nim.uikit.common.ToastHelper;
 
 import com.bumptech.glide.Glide;
 import com.netease.nim.uikit.R;
@@ -412,7 +412,7 @@ public class WatchMessagePictureActivity extends UI {
         Bitmap bitmap = BitmapDecoder.decodeSampledForDisplay(path, false);
         bitmap = ImageUtil.rotateBitmapInNeeded(path, bitmap);
         if (bitmap == null) {
-            Toast.makeText(this, R.string.picker_image_error, Toast.LENGTH_LONG).show();
+            ToastHelper.showToastLong(this, R.string.picker_image_error);
             image.setImageBitmap(ImageUtil.getBitmapFromDrawableRes(getImageResOnFailed()));
         } else {
             image.setImageBitmap(bitmap);
@@ -483,7 +483,7 @@ public class WatchMessagePictureActivity extends UI {
         } else if (mode == MODE_GIF) {
             simpleImageView.setImageBitmap(ImageUtil.getBitmapFromDrawableRes(getImageResOnFailed()));
         }
-        Toast.makeText(this, R.string.download_picture_fail, Toast.LENGTH_LONG).show();
+        ToastHelper.showToastLong(this, R.string.download_picture_fail);
     }
 
     /**
@@ -562,13 +562,13 @@ public class WatchMessagePictureActivity extends UI {
                 values.put(MediaStore.Images.Media.MIME_TYPE, C.MimeType.MIME_JPEG);
                 values.put(MediaStore.Images.Media.DATA, dstPath);
                 getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
-                Toast.makeText(WatchMessagePictureActivity.this, getString(R.string.picture_save_to), Toast.LENGTH_LONG).show();
+                ToastHelper.showToastLong(WatchMessagePictureActivity.this, getString(R.string.picture_save_to));
             } catch (Exception e) {
                 // may be java.lang.UnsupportedOperationException
-                Toast.makeText(WatchMessagePictureActivity.this, getString(R.string.picture_save_fail), Toast.LENGTH_LONG).show();
+                ToastHelper.showToastLong(WatchMessagePictureActivity.this, getString(R.string.picture_save_fail));
             }
         } else {
-            Toast.makeText(WatchMessagePictureActivity.this, getString(R.string.picture_save_fail), Toast.LENGTH_LONG).show();
+            ToastHelper.showToastLong(WatchMessagePictureActivity.this, getString(R.string.picture_save_fail));
         }
     }
 }

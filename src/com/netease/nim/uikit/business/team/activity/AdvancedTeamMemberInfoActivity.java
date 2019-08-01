@@ -8,13 +8,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.api.NimUIKit;
 import com.netease.nim.uikit.api.model.SimpleCallback;
 import com.netease.nim.uikit.api.wrapper.NimToolBarOptions;
 import com.netease.nim.uikit.business.uinfo.UserInfoHelper;
+import com.netease.nim.uikit.common.ToastHelper;
 import com.netease.nim.uikit.common.activity.ToolBarOptions;
 import com.netease.nim.uikit.common.activity.UI;
 import com.netease.nim.uikit.common.ui.dialog.DialogMaker;
@@ -26,6 +26,8 @@ import com.netease.nim.uikit.common.ui.widget.SwitchButton;
 import com.netease.nim.uikit.common.util.sys.NetworkUtil;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.RequestCallback;
+import com.netease.nimlib.sdk.RequestCallbackWrapper;
+import com.netease.nimlib.sdk.ResponseCode;
 import com.netease.nimlib.sdk.team.TeamService;
 import com.netease.nimlib.sdk.team.constant.TeamMemberType;
 import com.netease.nimlib.sdk.team.model.TeamMember;
@@ -42,36 +44,59 @@ import java.util.Map;
 public class AdvancedTeamMemberInfoActivity extends UI implements View.OnClickListener {
 
     private static final String TAG = AdvancedTeamMemberInfoActivity.class.getSimpleName();
+
     // constant
     public static final int REQ_CODE_REMOVE_MEMBER = 11;
+
     private static final String EXTRA_ID = "EXTRA_ID";
+
     private static final String EXTRA_TID = "EXTRA_TID";
+
     public static final String EXTRA_ISADMIN = "EXTRA_ISADMIN";
+
     public static final String EXTRA_ISREMOVE = "EXTRA_ISREMOVE";
+
     private final String KEY_MUTE_MSG = "mute_msg";
 
     // data
     private String account;
+
     private String teamId;
+
     private TeamMember viewMember;
+
     private boolean isSetAdmin;
+
     private Map<String, Boolean> toggleStateMap;
 
     // view
     private HeadImageView headImageView;
+
     private TextView memberName;
+
     private TextView nickName;
+
     private TextView identity;
+
     private View nickContainer;
+
     private Button removeBtn;
+
     private View identityContainer;
+
     private MenuDialog setAdminDialog;
+
     private MenuDialog cancelAdminDialog;
+
     private ViewGroup toggleLayout;
+
     private SwitchButton muteSwitch;
+
+    private TextView invitorInfo;
 
     // state
     private boolean isSelfCreator = false;
+
     private boolean isSelfManager = false;
 
     public static void startActivityForResult(Activity activity, String account, String tid) {
@@ -86,24 +111,18 @@ public class AdvancedTeamMemberInfoActivity extends UI implements View.OnClickLi
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.nim_advanced_team_member_info_layout);
-
         ToolBarOptions options = new NimToolBarOptions();
         options.titleId = R.string.team_member_info;
         setToolBar(R.id.toolbar, options);
-
         parseIntentData();
-
         findViews();
-
         loadMemberInfo();
-
         initMemberInfo();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-
         updateToggleView();
     }
 
@@ -126,12 +145,13 @@ public class AdvancedTeamMemberInfoActivity extends UI implements View.OnClickLi
     private void findViews() {
         nickContainer = findViewById(R.id.nickname_container);
         identityContainer = findViewById(R.id.identity_container);
-        headImageView = (HeadImageView) findViewById(R.id.team_member_head_view);
-        memberName = (TextView) findViewById(R.id.team_member_name);
-        nickName = (TextView) findViewById(R.id.team_nickname_detail);
-        identity = (TextView) findViewById(R.id.team_member_identity_detail);
-        removeBtn = (Button) findViewById(R.id.team_remove_member);
+        headImageView = findViewById(R.id.team_member_head_view);
+        memberName = findViewById(R.id.team_member_name);
+        nickName = findViewById(R.id.team_nickname_detail);
+        identity = findViewById(R.id.team_member_identity_detail);
+        removeBtn = findViewById(R.id.team_remove_member);
         toggleLayout = findView(R.id.toggle_layout);
+        invitorInfo = findView(R.id.invitor_info);
         setClickListener();
     }
 
@@ -175,20 +195,17 @@ public class AdvancedTeamMemberInfoActivity extends UI implements View.OnClickLi
 
     private SwitchButton addToggleItemView(String key, int titleResId, boolean initState) {
         ViewGroup vp = (ViewGroup) getLayoutInflater().inflate(R.layout.nim_user_profile_toggle_item, null);
-        ViewGroup.LayoutParams vlp = new ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, (int) getResources().getDimension(R.dimen.isetting_item_height));
+        ViewGroup.LayoutParams vlp = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                                                                (int) getResources()
+                                                                        .getDimension(R.dimen.isetting_item_height));
         vp.setLayoutParams(vlp);
-
-        TextView titleText = ((TextView) vp.findViewById(R.id.user_profile_title));
+        TextView titleText = vp.findViewById(R.id.user_profile_title);
         titleText.setText(titleResId);
-
-        SwitchButton switchButton = (SwitchButton) vp.findViewById(R.id.user_profile_toggle);
+        SwitchButton switchButton = vp.findViewById(R.id.user_profile_toggle);
         switchButton.setCheck(initState);
         switchButton.setOnChangedListener(onChangedListener);
         switchButton.setTag(key);
-
         toggleLayout.addView(vp);
-
         if (toggleStateMap == null) {
             toggleStateMap = new HashMap<>();
         }
@@ -197,46 +214,47 @@ public class AdvancedTeamMemberInfoActivity extends UI implements View.OnClickLi
     }
 
     private SwitchButton.OnChangedListener onChangedListener = new SwitchButton.OnChangedListener() {
+
         @Override
         public void OnChanged(View v, final boolean checkState) {
             final String key = (String) v.getTag();
             if (!NetworkUtil.isNetAvailable(AdvancedTeamMemberInfoActivity.this)) {
-                Toast.makeText(AdvancedTeamMemberInfoActivity.this, R.string.network_is_not_available, Toast.LENGTH_SHORT).show();
+                ToastHelper.showToast(AdvancedTeamMemberInfoActivity.this, R.string.network_is_not_available);
                 if (key.equals(KEY_MUTE_MSG)) {
                     muteSwitch.setCheck(!checkState);
                 }
                 return;
             }
-
             updateStateMap(checkState, key);
-
             if (key.equals(KEY_MUTE_MSG)) {
-                NIMClient.getService(TeamService.class).muteTeamMember(teamId, account, checkState).setCallback(new RequestCallback<Void>() {
-                    @Override
-                    public void onSuccess(Void param) {
-                        if (checkState) {
-                            Toast.makeText(AdvancedTeamMemberInfoActivity.this, "群禁言成功", Toast.LENGTH_SHORT).show();
-                        } else {
-                            Toast.makeText(AdvancedTeamMemberInfoActivity.this, "取消群禁言成功", Toast.LENGTH_SHORT).show();
-                        }
-                    }
+                NIMClient.getService(TeamService.class).muteTeamMember(teamId, account, checkState).setCallback(
+                        new RequestCallback<Void>() {
 
-                    @Override
-                    public void onFailed(int code) {
-                        if (code == 408) {
-                            Toast.makeText(AdvancedTeamMemberInfoActivity.this, R.string.network_is_not_available, Toast.LENGTH_SHORT).show();
-                        } else {
-                            Toast.makeText(AdvancedTeamMemberInfoActivity.this, "on failed:" + code, Toast.LENGTH_SHORT).show();
-                        }
-                        updateStateMap(!checkState, key);
-                        muteSwitch.setCheck(!checkState);
-                    }
+                            @Override
+                            public void onSuccess(Void param) {
+                                if (checkState) {
+                                    ToastHelper.showToast(AdvancedTeamMemberInfoActivity.this, "群禁言成功");
+                                } else {
+                                    ToastHelper.showToast(AdvancedTeamMemberInfoActivity.this, "取消群禁言成功");
+                                }
+                            }
 
-                    @Override
-                    public void onException(Throwable exception) {
+                            @Override
+                            public void onFailed(int code) {
+                                if (code == 408) {
+                                    ToastHelper.showToast(AdvancedTeamMemberInfoActivity.this,
+                                                          R.string.network_is_not_available);
+                                } else {
+                                    ToastHelper.showToast(AdvancedTeamMemberInfoActivity.this, "on failed:" + code);
+                                }
+                                updateStateMap(!checkState, key);
+                                muteSwitch.setCheck(!checkState);
+                            }
 
-                    }
-                });
+                            @Override
+                            public void onException(Throwable exception) {
+                            }
+                        });
             }
         }
     };
@@ -262,6 +280,7 @@ public class AdvancedTeamMemberInfoActivity extends UI implements View.OnClickLi
      */
     private void requestMemberInfo() {
         NimUIKit.getTeamProvider().fetchTeamMember(teamId, account, new SimpleCallback<TeamMember>() {
+
             @Override
             public void onResult(boolean success, TeamMember member, int code) {
                 if (success && member != null) {
@@ -282,6 +301,29 @@ public class AdvancedTeamMemberInfoActivity extends UI implements View.OnClickLi
         updateMemberNickname();
         updateSelfIndentity();
         updateRemoveBtn();
+        updateMemberInvitor();
+    }
+
+    private void updateMemberInvitor() {
+        if (viewMember.getInvitorAccid() == null) {
+            List<String> accids = new ArrayList<>();
+            accids.add(viewMember.getAccount());
+            NIMClient.getService(TeamService.class).getMemberInvitor(viewMember.getTid(), accids).setCallback(
+                    new RequestCallbackWrapper<Map<String, String>>() {
+
+                        @Override
+                        public void onResult(int code, Map<String, String> result, Throwable exception) {
+                            if (code == ResponseCode.RES_SUCCESS && result != null) {
+                                String invitor = result.get(viewMember.getAccount());
+                                if (invitor != null) {
+                                    invitorInfo.setText(invitor);
+                                }
+                            }
+                        }
+                    });
+        } else {
+            invitorInfo.setText(viewMember.getInvitorAccid());
+        }
     }
 
     /**
@@ -305,7 +347,8 @@ public class AdvancedTeamMemberInfoActivity extends UI implements View.OnClickLi
      * 更新成员群昵称
      */
     private void updateMemberNickname() {
-        nickName.setText(viewMember.getTeamNick() != null ? viewMember.getTeamNick() : getString(R.string.team_nickname_none));
+        nickName.setText(
+                viewMember.getTeamNick() != null ? viewMember.getTeamNick() : getString(R.string.team_nickname_none));
     }
 
     /**
@@ -354,26 +397,28 @@ public class AdvancedTeamMemberInfoActivity extends UI implements View.OnClickLi
      */
     private void setNickname(final String name) {
         DialogMaker.showProgressDialog(this, getString(R.string.empty), true);
-        NIMClient.getService(TeamService.class).updateMemberNick(teamId, account, name).setCallback(new RequestCallback<Void>() {
-            @Override
-            public void onSuccess(Void param) {
-                DialogMaker.dismissProgressDialog();
-                nickName.setText(name != null ? name : getString(R.string.team_nickname_none));
-                Toast.makeText(AdvancedTeamMemberInfoActivity.this, R.string.update_success, Toast.LENGTH_SHORT).show();
-            }
+        NIMClient.getService(TeamService.class).updateMemberNick(teamId, account, name).setCallback(
+                new RequestCallback<Void>() {
 
-            @Override
-            public void onFailed(int code) {
-                DialogMaker.dismissProgressDialog();
-                Toast.makeText(AdvancedTeamMemberInfoActivity.this, String.format(getString(R.string.update_failed), code),
-                        Toast.LENGTH_SHORT).show();
-            }
+                    @Override
+                    public void onSuccess(Void param) {
+                        DialogMaker.dismissProgressDialog();
+                        nickName.setText(name != null ? name : getString(R.string.team_nickname_none));
+                        ToastHelper.showToast(AdvancedTeamMemberInfoActivity.this, R.string.update_success);
+                    }
 
-            @Override
-            public void onException(Throwable exception) {
-                DialogMaker.dismissProgressDialog();
-            }
-        });
+                    @Override
+                    public void onFailed(int code) {
+                        DialogMaker.dismissProgressDialog();
+                        ToastHelper.showToast(AdvancedTeamMemberInfoActivity.this,
+                                              String.format(getString(R.string.update_failed), code));
+                    }
+
+                    @Override
+                    public void onException(Throwable exception) {
+                        DialogMaker.dismissProgressDialog();
+                    }
+                });
     }
 
     @Override
@@ -410,7 +455,7 @@ public class AdvancedTeamMemberInfoActivity extends UI implements View.OnClickLi
         } else if (isSelfManager && identity.getText().toString().equals(getString(R.string.team_member))) {
             AdvancedTeamNicknameActivity.start(AdvancedTeamMemberInfoActivity.this, nickName.getText().toString());
         } else {
-            Toast.makeText(this, R.string.no_permission, Toast.LENGTH_SHORT).show();
+            ToastHelper.showToast(this, R.string.no_permission);
         }
     }
 
@@ -422,9 +467,9 @@ public class AdvancedTeamMemberInfoActivity extends UI implements View.OnClickLi
         if (identity.getText().toString().equals(getString(R.string.team_creator))) {
             return;
         }
-        if (!isSelfCreator)
+        if (!isSelfCreator) {
             return;
-
+        }
         if (identity.getText().toString().equals(getString(R.string.team_member))) {
             switchManagerButton(true);
         } else {
@@ -443,6 +488,7 @@ public class AdvancedTeamMemberInfoActivity extends UI implements View.OnClickLi
                 List<String> btnNames = new ArrayList<>();
                 btnNames.add(getString(R.string.set_team_admin));
                 setAdminDialog = new MenuDialog(this, btnNames, new MenuDialog.MenuDialogOnButtonClickListener() {
+
                     @Override
                     public void onButtonClick(String name) {
                         addManagers();
@@ -456,6 +502,7 @@ public class AdvancedTeamMemberInfoActivity extends UI implements View.OnClickLi
                 List<String> btnNames = new ArrayList<>();
                 btnNames.add(getString(R.string.cancel_team_admin));
                 cancelAdminDialog = new MenuDialog(this, btnNames, new MenuDialog.MenuDialogOnButtonClickListener() {
+
                     @Override
                     public void onButtonClick(String name) {
                         removeManagers();
@@ -474,28 +521,30 @@ public class AdvancedTeamMemberInfoActivity extends UI implements View.OnClickLi
         DialogMaker.showProgressDialog(this, getString(R.string.empty));
         ArrayList<String> accountList = new ArrayList<>();
         accountList.add(account);
-        NIMClient.getService(TeamService.class).addManagers(teamId, accountList).setCallback(new RequestCallback<List<TeamMember>>() {
-            @Override
-            public void onSuccess(List<TeamMember> managers) {
-                DialogMaker.dismissProgressDialog();
-                identity.setText(R.string.team_admin);
-                Toast.makeText(AdvancedTeamMemberInfoActivity.this, R.string.update_success, Toast.LENGTH_LONG).show();
+        NIMClient.getService(TeamService.class).addManagers(teamId, accountList).setCallback(
+                new RequestCallback<List<TeamMember>>() {
 
-                viewMember = managers.get(0);
-                updateMemberInfo();
-            }
+                    @Override
+                    public void onSuccess(List<TeamMember> managers) {
+                        DialogMaker.dismissProgressDialog();
+                        identity.setText(R.string.team_admin);
+                        ToastHelper.showToastLong(AdvancedTeamMemberInfoActivity.this, R.string.update_success);
+                        viewMember = managers.get(0);
+                        updateMemberInfo();
+                    }
 
-            @Override
-            public void onFailed(int code) {
-                DialogMaker.dismissProgressDialog();
-                Toast.makeText(AdvancedTeamMemberInfoActivity.this, String.format(getString(R.string.update_failed), code), Toast.LENGTH_LONG).show();
-            }
+                    @Override
+                    public void onFailed(int code) {
+                        DialogMaker.dismissProgressDialog();
+                        ToastHelper.showToastLong(AdvancedTeamMemberInfoActivity.this,
+                                                  String.format(getString(R.string.update_failed), code));
+                    }
 
-            @Override
-            public void onException(Throwable exception) {
-                DialogMaker.dismissProgressDialog();
-            }
-        });
+                    @Override
+                    public void onException(Throwable exception) {
+                        DialogMaker.dismissProgressDialog();
+                    }
+                });
     }
 
     /**
@@ -505,28 +554,30 @@ public class AdvancedTeamMemberInfoActivity extends UI implements View.OnClickLi
         DialogMaker.showProgressDialog(this, getString(R.string.empty));
         ArrayList<String> accountList = new ArrayList<>();
         accountList.add(account);
-        NIMClient.getService(TeamService.class).removeManagers(teamId, accountList).setCallback(new RequestCallback<List<TeamMember>>() {
-            @Override
-            public void onSuccess(List<TeamMember> members) {
-                DialogMaker.dismissProgressDialog();
-                identity.setText(R.string.team_member);
-                Toast.makeText(AdvancedTeamMemberInfoActivity.this, R.string.update_success, Toast.LENGTH_LONG).show();
+        NIMClient.getService(TeamService.class).removeManagers(teamId, accountList).setCallback(
+                new RequestCallback<List<TeamMember>>() {
 
-                viewMember = members.get(0);
-                updateMemberInfo();
-            }
+                    @Override
+                    public void onSuccess(List<TeamMember> members) {
+                        DialogMaker.dismissProgressDialog();
+                        identity.setText(R.string.team_member);
+                        ToastHelper.showToastLong(AdvancedTeamMemberInfoActivity.this, R.string.update_success);
+                        viewMember = members.get(0);
+                        updateMemberInfo();
+                    }
 
-            @Override
-            public void onFailed(int code) {
-                DialogMaker.dismissProgressDialog();
-                Toast.makeText(AdvancedTeamMemberInfoActivity.this, String.format(getString(R.string.update_failed), code), Toast.LENGTH_LONG).show();
-            }
+                    @Override
+                    public void onFailed(int code) {
+                        DialogMaker.dismissProgressDialog();
+                        ToastHelper.showToastLong(AdvancedTeamMemberInfoActivity.this,
+                                                  String.format(getString(R.string.update_failed), code));
+                    }
 
-            @Override
-            public void onException(Throwable exception) {
-                DialogMaker.dismissProgressDialog();
-            }
-        });
+                    @Override
+                    public void onException(Throwable exception) {
+                        DialogMaker.dismissProgressDialog();
+                    }
+                });
     }
 
     /**
@@ -544,8 +595,9 @@ public class AdvancedTeamMemberInfoActivity extends UI implements View.OnClickLi
                 removeMember();
             }
         };
-        final EasyAlertDialog dialog = EasyAlertDialogHelper.createOkCancelDiolag(this, null, getString(R.string.team_member_remove_confirm),
-                getString(R.string.remove), getString(R.string.cancel), true, listener);
+        final EasyAlertDialog dialog = EasyAlertDialogHelper.createOkCancelDiolag(this, null, getString(
+                R.string.team_member_remove_confirm), getString(R.string.remove), getString(R.string.cancel), true,
+                                                                                  listener);
         dialog.show();
     }
 
@@ -555,18 +607,20 @@ public class AdvancedTeamMemberInfoActivity extends UI implements View.OnClickLi
     private void removeMember() {
         DialogMaker.showProgressDialog(this, getString(R.string.empty));
         NIMClient.getService(TeamService.class).removeMember(teamId, account).setCallback(new RequestCallback<Void>() {
+
             @Override
             public void onSuccess(Void param) {
                 DialogMaker.dismissProgressDialog();
                 makeIntent(account, isSetAdmin, true);
                 finish();
-                Toast.makeText(AdvancedTeamMemberInfoActivity.this, R.string.update_success, Toast.LENGTH_LONG).show();
+                ToastHelper.showToastLong(AdvancedTeamMemberInfoActivity.this, R.string.update_success);
             }
 
             @Override
             public void onFailed(int code) {
                 DialogMaker.dismissProgressDialog();
-                Toast.makeText(AdvancedTeamMemberInfoActivity.this, String.format(getString(R.string.update_failed), code), Toast.LENGTH_LONG).show();
+                ToastHelper.showToastLong(AdvancedTeamMemberInfoActivity.this,
+                                          String.format(getString(R.string.update_failed), code));
             }
 
             @Override

@@ -89,7 +89,6 @@ public class ActionsPagerAdapter extends PagerAdapter {
 
     @Override
     public void destroyItem(ViewGroup container, int position, Object object) {
-        // TODO
     }
 
     @Override

@@ -125,4 +125,8 @@
     <style name="edit_text_style">
         <item name="android:textCursorDrawable">@color/black</item>
     </style>
+
+    <style name="SuperCheckboxTheme" parent="@android:style/Widget.CompoundButton.CheckBox">
+        <item name="android:button">@drawable/image_original_selector</item>
+    </style>
 </resources>

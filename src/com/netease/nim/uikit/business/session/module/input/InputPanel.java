@@ -22,7 +22,8 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import com.netease.nim.uikit.common.ToastHelper;
 
 import com.alibaba.fastjson.JSONObject;
 import com.netease.nim.uikit.R;
@@ -177,31 +178,31 @@ public class InputPanel implements IEmoticonSelectedListener, IAudioRecordCallba
 
     private void initViews() {
         // input bar
-        messageActivityBottomLayout = (LinearLayout) view.findViewById(R.id.messageActivityBottomLayout);
+        messageActivityBottomLayout = view.findViewById(R.id.messageActivityBottomLayout);
         messageInputBar = view.findViewById(R.id.textMessageLayout);
         switchToTextButtonInInputBar = view.findViewById(R.id.buttonTextMessage);
         switchToAudioButtonInInputBar = view.findViewById(R.id.buttonAudioMessage);
         moreFuntionButtonInInputBar = view.findViewById(R.id.buttonMoreFuntionInText);
         emojiButtonInInputBar = view.findViewById(R.id.emoji_button);
         sendMessageButtonInInputBar = view.findViewById(R.id.buttonSendMessage);
-        messageEditText = (EditText) view.findViewById(R.id.editTextMessage);
+        messageEditText = view.findViewById(R.id.editTextMessage);
 
         // 语音
-        audioRecordBtn = (Button) view.findViewById(R.id.audioRecord);
+        audioRecordBtn = view.findViewById(R.id.audioRecord);
         audioAnimLayout = view.findViewById(R.id.layoutPlayAudio);
-        time = (Chronometer) view.findViewById(R.id.timer);
-        timerTip = (TextView) view.findViewById(R.id.timer_tip);
-        timerTipContainer = (LinearLayout) view.findViewById(R.id.timer_tip_container);
+        time = view.findViewById(R.id.timer);
+        timerTip = view.findViewById(R.id.timer_tip);
+        timerTipContainer = view.findViewById(R.id.timer_tip_container);
 
         // 表情
-        emoticonPickerView = (EmoticonPickerView) view.findViewById(R.id.emoticon_picker_view);
+        emoticonPickerView = view.findViewById(R.id.emoticon_picker_view);
 
         // 显示录音按钮
         switchToTextButtonInInputBar.setVisibility(View.GONE);
         switchToAudioButtonInInputBar.setVisibility(View.VISIBLE);
 
         // 文本录音按钮切换布局
-        textAudioSwitchLayout = (FrameLayout) view.findViewById(R.id.switchLayout);
+        textAudioSwitchLayout = view.findViewById(R.id.switchLayout);
         if (isTextAudioSwitchShow) {
             textAudioSwitchLayout.setVisibility(View.VISIBLE);
         } else {
@@ -767,7 +768,7 @@ public class InputPanel implements IEmoticonSelectedListener, IAudioRecordCallba
     @Override
     public void onRecordFail() {
         if (started) {
-            Toast.makeText(container.activity, R.string.recording_error, Toast.LENGTH_SHORT).show();
+            ToastHelper.showToast(container.activity, R.string.recording_error);
         }
     }
 

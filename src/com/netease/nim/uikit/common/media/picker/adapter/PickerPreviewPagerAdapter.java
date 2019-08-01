@@ -18,25 +18,20 @@ import java.util.List;
 
 public class PickerPreviewPagerAdapter extends PagerAdapter {
 
-    private Context mContext;
     private List<PhotoInfo> mList;
     private LayoutInflater mInflater;
-    private int viewPagerWidth, viewPagerHeight;
     private UI mActivity;
 
     public PickerPreviewPagerAdapter(Context cx, List<PhotoInfo> list, LayoutInflater inflater, int width, int height, UI activity) {
-        mContext = cx;
         mList = list;
         mInflater = inflater;
-        viewPagerHeight = height;
-        viewPagerWidth = width;
         mActivity = activity;
     }
 
     @Override
     public void destroyItem(ViewGroup container, int position, Object object) {
         View layout = (View) object;
-        BaseZoomableImageView iv = (BaseZoomableImageView) layout.findViewById(R.id.imageView);
+        BaseZoomableImageView iv = layout.findViewById(R.id.imageView);
         iv.clear();
         container.removeView(layout);
     }
@@ -53,17 +48,9 @@ public class PickerPreviewPagerAdapter extends PagerAdapter {
 
     @Override
     public Object instantiateItem(ViewGroup container, int position) {
-        View layout = null;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
-            layout = mInflater.inflate(R.layout.nim_preview_image_layout_multi_touch, null);
-        } else {
-            layout = mInflater.inflate(R.layout.nim_preview_image_layout_zoom_control, null);
-        }
-
+        View layout = mInflater.inflate(R.layout.nim_preview_image_layout_multi_touch, null);
         container.addView(layout);
         layout.setTag(position);
-        viewPagerWidth = ScreenUtil.screenWidth;
-        viewPagerHeight = ScreenUtil.screenHeight;
 
         return layout;
     }

@@ -4,7 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.view.View;
-import android.widget.Toast;
+import com.netease.nim.uikit.common.ToastHelper;
 
 import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.api.NimUIKit;
@@ -38,7 +38,7 @@ public class DefaultTeamSessionCustomization extends SessionCustomization {
                 if (team != null && team.isMyTeam()) {
                     NimUIKit.startTeamInfo(context, sessionId);
                 } else {
-                    Toast.makeText(context, R.string.team_invalid_tip, Toast.LENGTH_SHORT).show();
+                    ToastHelper.showToast(context, R.string.team_invalid_tip);
                 }
             }
         };

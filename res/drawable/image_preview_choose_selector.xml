@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@drawable/image_preview_choose_selected" android:state_selected="true"/>
+    <item android:drawable="@drawable/image_choose_normal"/>
+</selector>

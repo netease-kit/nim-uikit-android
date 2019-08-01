@@ -1,0 +1,65 @@
+<RelativeLayout android:id="@+id/content"
+                xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#000">
+
+    <include
+        android:id="@+id/top_bar"
+        layout="@layout/nim_include_top_bar_select"/>
+
+    <com.netease.nim.uikit.common.media.imagepicker.view.ViewPagerFixed
+        android:id="@+id/viewpager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/top_bar"
+        android:background="#000"/>
+
+    <RelativeLayout
+        android:id="@+id/bottom_bar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_size_125"
+        android:layout_alignParentBottom="true"
+        android:background="@color/black_opacity_80">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/choose_list"
+            android:layout_width="match_parent"
+            android:layout_height="77dp"
+            android:paddingTop="@dimen/dp_size_10">
+        </android.support.v7.widget.RecyclerView>
+
+        <com.netease.nim.uikit.common.media.imagepicker.view.SuperCheckBox
+            android:id="@+id/cb_origin"
+            style="@style/SuperCheckboxTheme"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_below="@id/choose_list"
+            android:layout_marginLeft="10dp"
+            android:button="@drawable/image_original_selector"
+            android:paddingLeft="8dp"
+            android:text="原图"
+            android:textColor="#FFF"
+            android:visibility="gone"/>
+
+        <TextView
+            android:id="@+id/btn_ok"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/dp_size_28"
+            android:layout_alignParentRight="true"
+            android:layout_below="@id/choose_list"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="14dp"
+            android:background="@drawable/blue_round_box_4"
+            android:gravity="center"
+            android:paddingLeft="@dimen/dp_size_10"
+            android:paddingRight="@dimen/dp_size_10"
+            android:text="@string/complete"
+            android:textColor="@color/white"
+            android:textSize="@dimen/text_size_14"/>
+    </RelativeLayout>
+
+
+</RelativeLayout>

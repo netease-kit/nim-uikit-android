@@ -54,7 +54,6 @@ public class NimUserInfoCache {
         if (TextUtils.isEmpty(account)) {
             return;
         }
-
         if (requestUserInfoMap.containsKey(account)) {
             if (callback != null) {
                 requestUserInfoMap.get(account).add(callback);
@@ -67,71 +66,69 @@ public class NimUserInfoCache {
             }
             requestUserInfoMap.put(account, cbs);
         }
-
         List<String> accounts = new ArrayList<>(1);
         accounts.add(account);
+        NIMClient.getService(UserService.class).fetchUserInfo(accounts).setCallback(
+                new RequestCallbackWrapper<List<NimUserInfo>>() {
 
-        NIMClient.getService(UserService.class).fetchUserInfo(accounts).setCallback(new RequestCallbackWrapper<List<NimUserInfo>>() {
-
-            @Override
-            public void onResult(int code, List<NimUserInfo> users, Throwable exception) {
-                if (exception != null) {
-                    callback.onException(exception);
-                    return;
-                }
-
-                NimUserInfo user = null;
-                boolean hasCallback = requestUserInfoMap.get(account).size() > 0;
-                if (code == ResponseCode.RES_SUCCESS && users != null && !users.isEmpty()) {
-                    user = users.get(0);
-                    // 这里不需要更新缓存，由监听用户资料变更（添加）来更新缓存
-                }
-
-                // 处理回调
-                if (hasCallback) {
-                    List<RequestCallback<NimUserInfo>> cbs = requestUserInfoMap.get(account);
-                    for (RequestCallback<NimUserInfo> cb : cbs) {
-                        if (code == ResponseCode.RES_SUCCESS) {
-                            cb.onSuccess(user);
-                        } else {
-                            cb.onFailed(code);
+                    @Override
+                    public void onResult(int code, List<NimUserInfo> users, Throwable exception) {
+                        if (exception != null) {
+                            callback.onException(exception);
+                            return;
                         }
+                        NimUserInfo user = null;
+                        boolean hasCallback = requestUserInfoMap.get(account).size() > 0;
+                        if (code == ResponseCode.RES_SUCCESS && users != null && !users.isEmpty()) {
+                            user = users.get(0);
+                            // 这里不需要更新缓存，由监听用户资料变更（添加）来更新缓存
+                        }
+                        // 处理回调
+                        if (hasCallback) {
+                            List<RequestCallback<NimUserInfo>> cbs = requestUserInfoMap.get(account);
+                            for (RequestCallback<NimUserInfo> cb : cbs) {
+                                if (code == ResponseCode.RES_SUCCESS) {
+                                    cb.onSuccess(user);
+                                } else {
+                                    cb.onFailed(code);
+                                }
+                            }
+                        }
+                        requestUserInfoMap.remove(account);
                     }
-                }
-
-                requestUserInfoMap.remove(account);
-            }
-        });
+                });
     }
 
     /**
      * 从云信服务器获取批量用户信息[异步]
      */
     public void getUserInfoFromRemote(List<String> accounts, final RequestCallback<List<NimUserInfo>> callback) {
-        NIMClient.getService(UserService.class).fetchUserInfo(accounts).setCallback(new RequestCallback<List<NimUserInfo>>() {
-            @Override
-            public void onSuccess(List<NimUserInfo> users) {
-                Log.i(UIKitLogTag.USER_CACHE, "fetch userInfo completed, add users size =" + users.size());
-                // 这里不需要更新缓存，由监听用户资料变更（添加）来更新缓存
-                if (callback != null) {
-                    callback.onSuccess(users);
-                }
-            }
+        NIMClient.getService(UserService.class).fetchUserInfo(accounts).setCallback(
+                new RequestCallback<List<NimUserInfo>>() {
 
-            @Override
-            public void onFailed(int code) {
-                if (callback != null) {
-                    callback.onFailed(code);
-                }
-            }
+                    @Override
+                    public void onSuccess(List<NimUserInfo> users) {
+                        Log.i(UIKitLogTag.USER_CACHE, "fetch userInfo completed, add users size =" + users.size());
+                        // 这里不需要更新缓存，由监听用户资料变更（添加）来更新缓存
+                        if (callback != null) {
+                            callback.onSuccess(users);
+                        }
+                    }
 
-            @Override
-            public void onException(Throwable exception) {
-                if (callback != null) {
-                    callback.onException(exception);
-                }
-            }
-        });
+                    @Override
+                    public void onFailed(int code) {
+                        if (callback != null) {
+                            callback.onFailed(code);
+                        }
+                    }
+
+                    @Override
+                    public void onException(Throwable exception) {
+                        if (callback != null) {
+                            callback.onException(exception);
+                        }
+                    }
+                });
     }
 
     /**
@@ -140,19 +137,19 @@ public class NimUserInfoCache {
 
     public NimUserInfo getUserInfo(String account) {
         if (TextUtils.isEmpty(account) || account2UserMap == null) {
-            LogUtil.e(UIKitLogTag.USER_CACHE, "getUserInfo null, account=" + account + ", account2UserMap=" + account2UserMap);
+            LogUtil.e(UIKitLogTag.USER_CACHE,
+                      "getUserInfo null, account=" + account + ", account2UserMap=" + account2UserMap);
             return null;
         }
-
         return account2UserMap.get(account);
     }
 
     private boolean hasUser(String account) {
         if (TextUtils.isEmpty(account) || account2UserMap == null) {
-            LogUtil.e(UIKitLogTag.USER_CACHE, "hasUser null, account=" + account + ", account2UserMap=" + account2UserMap);
+            LogUtil.e(UIKitLogTag.USER_CACHE,
+                      "hasUser null, account=" + account + ", account2UserMap=" + account2UserMap);
             return false;
         }
-
         return account2UserMap.containsKey(account);
     }
 
@@ -160,7 +157,6 @@ public class NimUserInfoCache {
     private void clearUserCache() {
         account2UserMap.clear();
     }
-
     /**
      * ************************************ 用户资料变更监听(监听SDK) *****************************************
      */
@@ -173,12 +169,12 @@ public class NimUserInfoCache {
     }
 
     private Observer<List<NimUserInfo>> userInfoUpdateObserver = new Observer<List<NimUserInfo>>() {
+
         @Override
         public void onEvent(List<NimUserInfo> users) {
             if (users == null || users.isEmpty()) {
                 return;
             }
-
             addOrUpdateUsers(users, true);
         }
     };
@@ -191,16 +187,13 @@ public class NimUserInfoCache {
         if (users == null || users.isEmpty()) {
             return;
         }
-
         // update cache
         for (NimUserInfo u : users) {
             account2UserMap.put(u.getAccount(), u);
         }
-
         // log
         List<String> accounts = getAccounts(users);
         DataCacheManager.Log(accounts, "on userInfo changed", UIKitLogTag.USER_CACHE);
-
         // 通知变更
         if (notify && accounts != null && !accounts.isEmpty()) {
             NimUIKitImpl.getUserInfoObservable().notifyUserInfoChanged(accounts); // 通知到UI组件
@@ -211,12 +204,10 @@ public class NimUserInfoCache {
         if (users == null || users.isEmpty()) {
             return null;
         }
-
         List<String> accounts = new ArrayList<>(users.size());
         for (NimUserInfo user : users) {
             accounts.add(user.getAccount());
         }
-
         return accounts;
     }
 
@@ -225,6 +216,7 @@ public class NimUserInfoCache {
      */
 
     static class InstanceHolder {
+
         final static NimUserInfoCache instance = new NimUserInfoCache();
     }
 }

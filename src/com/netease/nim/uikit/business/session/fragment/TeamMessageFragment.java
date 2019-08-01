@@ -1,6 +1,6 @@
 package com.netease.nim.uikit.business.session.fragment;
 
-import android.widget.Toast;
+import com.netease.nim.uikit.common.ToastHelper;
 
 import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.api.NimUIKit;
@@ -21,7 +21,7 @@ public class TeamMessageFragment extends MessageFragment {
         }
 
         if (team == null || !team.isMyTeam()) {
-            Toast.makeText(getActivity(), R.string.team_send_message_not_allow, Toast.LENGTH_SHORT).show();
+            ToastHelper.showToast(getActivity(), R.string.team_send_message_not_allow);
             return false;
         }
 

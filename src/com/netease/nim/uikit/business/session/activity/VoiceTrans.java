@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.common.util.log.LogUtil;
+import com.netease.nimlib.NimNosSceneKeyConstant;
 import com.netease.nimlib.sdk.AbortableFuture;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.RequestCallback;
@@ -96,11 +97,15 @@ public class VoiceTrans {
     }
 
     public void voiceToText(IMMessage msg) {
+        voiceToText(msg, NimNosSceneKeyConstant.NIM_DEFAULT_IM);
+    }
+
+    public void voiceToText(IMMessage msg, String sceneKey) {
         AudioAttachment attachment = (AudioAttachment) msg.getAttachment();
         String voiceUrl = attachment.getUrl();
         String path = attachment.getPath();
         refreshStartUI();
-        callFuture = NIMClient.getService(MsgService.class).transVoiceToText(voiceUrl, path, attachment.getDuration());
+        callFuture = NIMClient.getService(MsgService.class).transVoiceToTextEnableForce(voiceUrl, path, attachment.getDuration(), sceneKey, false);
         callFuture.setCallback(new RequestCallback<String>() {
             @Override
             public void onSuccess(String param) {

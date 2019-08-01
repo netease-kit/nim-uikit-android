@@ -38,6 +38,9 @@ public class TeamDataCache {
 
     public void buildCache() {
         final List<Team> teams = NIMClient.getService(TeamService.class).queryTeamListBlock();
+        if (teams == null) {
+            return;
+        }
         LogUtil.i(UIKitLogTag.TEAM_CACHE, "start build TeamDataCache");
 
         addOrUpdateTeam(teams);
@@ -66,9 +69,10 @@ public class TeamDataCache {
     private Observer<List<Team>> teamUpdateObserver = new Observer<List<Team>>() {
         @Override
         public void onEvent(final List<Team> teams) {
-            if (teams != null) {
-                LogUtil.i(UIKitLogTag.TEAM_CACHE, "team update size:" + teams.size());
+            if (teams == null) {
+                return;
             }
+            LogUtil.i(UIKitLogTag.TEAM_CACHE, "team update size:" + teams.size());
             addOrUpdateTeam(teams);
             NimUIKit.getTeamChangedObservable().notifyTeamDataUpdate(teams);
         }

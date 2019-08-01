@@ -26,6 +26,7 @@ import com.netease.nim.uikit.common.util.sys.TimeUtil;
 import com.netease.nimlib.sdk.msg.constant.MsgStatusEnum;
 import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.msg.model.RecentContact;
+import com.netease.nimlib.sdk.superteam.SuperTeam;
 import com.netease.nimlib.sdk.team.model.Team;
 
 public abstract class RecentViewHolder extends RecyclerViewHolder<BaseQuickAdapter, BaseViewHolder, RecentContact> {
@@ -82,8 +83,8 @@ public abstract class RecentViewHolder extends RecyclerViewHolder<BaseQuickAdapt
         this.topLine = holder.getView(R.id.top_line);
         this.tvOnlineState = holder.getView(R.id.tv_online_state);
         holder.addOnClickListener(R.id.unread_number_tip);
-
         this.tvUnread.setTouchListener(new DropFake.ITouchListener() {
+
             @Override
             public void onDown() {
                 DropManager.getInstance().setCurrentId(recent);
@@ -106,25 +107,19 @@ public abstract class RecentViewHolder extends RecyclerViewHolder<BaseQuickAdapt
         // unread count animation
         boolean shouldBoom = lastUnreadCount > 0 && recent.getUnreadCount() == 0; // 未读数从N->0执行爆裂动画;
         lastUnreadCount = recent.getUnreadCount();
-
         updateBackground(holder, recent, position);
-
         loadPortrait(recent);
-
         updateNickLabel(UserInfoHelper.getUserTitleName(recent.getContactId(), recent.getSessionType()));
-
         updateOnlineState(recent);
-
         updateMsgLabel(holder, recent);
-
         updateNewIndicator(recent);
-
         if (shouldBoom) {
             Object o = DropManager.getInstance().getCurrentId();
             if (o instanceof String && o.equals("0")) {
                 imgUnreadExplosion.setImageResource(R.drawable.nim_explosion);
                 imgUnreadExplosion.setVisibility(View.VISIBLE);
                 new Handler().post(new Runnable() {
+
                     @Override
                     public void run() {
                         ((AnimationDrawable) imgUnreadExplosion.getDrawable()).start();
@@ -155,6 +150,9 @@ public abstract class RecentViewHolder extends RecyclerViewHolder<BaseQuickAdapt
         } else if (recent.getSessionType() == SessionTypeEnum.Team) {
             Team team = NimUIKit.getTeamProvider().getTeamById(recent.getContactId());
             imgHead.loadTeamIconByTeam(team);
+        } else if (recent.getSessionType() == SessionTypeEnum.SUPER_TEAM) {
+            SuperTeam team = NimUIKit.getSuperTeamProvider().getTeamById(recent.getContactId());
+            imgHead.loadSuperTeamIconByTeam(team);
         }
     }
 
@@ -168,7 +166,6 @@ public abstract class RecentViewHolder extends RecyclerViewHolder<BaseQuickAdapt
         // 显示消息具体内容
         MoonUtil.identifyRecentVHFaceExpressionAndTags(holder.getContext(), tvMessage, getContent(recent), -1, 0.45f);
         //tvMessage.setText(getContent());
-
         MsgStatusEnum status = recent.getMsgStatus();
         switch (status) {
             case fail:
@@ -183,7 +180,6 @@ public abstract class RecentViewHolder extends RecyclerViewHolder<BaseQuickAdapt
                 imgMsgStatus.setVisibility(View.GONE);
                 break;
         }
-
         String timeString = TimeUtil.getTimeShowString(recent.getTime(), true);
         tvDatetime.setText(timeString);
     }
@@ -193,7 +189,7 @@ public abstract class RecentViewHolder extends RecyclerViewHolder<BaseQuickAdapt
     }
 
     protected void updateOnlineState(RecentContact recent) {
-        if (recent.getSessionType() == SessionTypeEnum.Team) {
+        if (recent.getSessionType() == SessionTypeEnum.Team || recent.getSessionType() == SessionTypeEnum.SUPER_TEAM) {
             tvOnlineState.setVisibility(View.GONE);
         } else {
             String onlineStateContent = getOnlineStateContent(recent);
@@ -209,11 +205,9 @@ public abstract class RecentViewHolder extends RecyclerViewHolder<BaseQuickAdapt
     protected void updateNickLabel(String nick) {
         int labelWidth = ScreenUtil.screenWidth;
         labelWidth -= ScreenUtil.dip2px(50 + 70); // 减去固定的头像和时间宽度
-
         if (labelWidth > 0) {
             tvNickname.setMaxWidth(labelWidth);
         }
-
         tvNickname.setText(nick);
     }
 

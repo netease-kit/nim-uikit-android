@@ -11,8 +11,14 @@ import java.util.TimeZone;
 
 public class TimeUtil {
 
+    public static final int MIN_IN_MS = 60 * 1000;
+
     public static boolean isEarly(int days, long time) {
         return (currentTimeMillis() - time) > (days * 24 * 3600 * 1000);
+    }
+
+    public static long getNow_millisecond() {
+        return (new Date()).getTime();
     }
 
     public static int currentTimeSecond() {

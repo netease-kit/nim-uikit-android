@@ -76,7 +76,7 @@ public abstract class UI extends AppCompatActivity {
     }
 
     public void setToolBar(int toolBarId, ToolBarOptions options) {
-        toolbar = (Toolbar) findViewById(toolBarId);
+        toolbar = findViewById(toolBarId);
         if (options.titleId != 0) {
             toolbar.setTitle(options.titleId);
         }
@@ -101,7 +101,7 @@ public abstract class UI extends AppCompatActivity {
     }
 
     public void setToolBar(int toolbarId, int titleId, int logoId) {
-        toolbar = (Toolbar) findViewById(toolbarId);
+        toolbar = findViewById(toolbarId);
         toolbar.setTitle(titleId);
         toolbar.setLogo(logoId);
         setSupportActionBar(toolbar);
@@ -198,7 +198,7 @@ public abstract class UI extends AppCompatActivity {
      * fragment management
      */
     public TFragment addFragment(TFragment fragment) {
-        List<TFragment> fragments = new ArrayList<TFragment>(1);
+        List<TFragment> fragments = new ArrayList<>(1);
         fragments.add(fragment);
 
         List<TFragment> fragments2 = addFragments(fragments);
@@ -206,7 +206,7 @@ public abstract class UI extends AppCompatActivity {
     }
 
     public List<TFragment> addFragments(List<TFragment> fragments) {
-        List<TFragment> fragments2 = new ArrayList<TFragment>(fragments.size());
+        List<TFragment> fragments2 = new ArrayList<>(fragments.size());
 
         FragmentManager fm = getSupportFragmentManager();
         FragmentTransaction transaction = fm.beginTransaction();

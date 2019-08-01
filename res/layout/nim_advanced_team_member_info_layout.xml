@@ -128,6 +128,41 @@
         android:layout_height="1px"
         android:background="@color/color_split_line_d9d9d9" />
 
+    <RelativeLayout
+        android:id="@+id/invitor_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="15dp"
+        android:paddingTop="15dp">
+
+        <TextView
+            android:id="@+id/invitor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:text="@string/member_invitor"
+            android:textColor="@color/color_black_333333"
+            android:textSize="@dimen/text_size_16" />
+
+        <TextView
+            android:id="@+id/invitor_info"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="15dp"
+            android:paddingRight="@dimen/dp_size_20"
+            android:layout_toRightOf="@id/invitor"
+            android:gravity="right|center_vertical"
+            android:hint="@string/no_invitor"
+            android:textColor="@color/grey"
+            android:textSize="@dimen/text_size_17" />
+    </RelativeLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1px"
+        android:background="@color/color_split_line_d9d9d9" />
+
     <LinearLayout
         android:id="@+id/toggle_layout"
         android:layout_width="match_parent"

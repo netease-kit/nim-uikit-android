@@ -11,14 +11,14 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.provider.MediaStore.Images;
 import android.text.TextUtils;
-import android.widget.Toast;
+import com.netease.nim.uikit.common.ToastHelper;
 
 import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.api.wrapper.NimToolBarOptions;
 import com.netease.nim.uikit.business.session.constant.Extras;
 import com.netease.nim.uikit.common.activity.ToolBarOptions;
 import com.netease.nim.uikit.common.activity.UI;
-import com.netease.nim.uikit.common.media.picker.model.GenericFileProvider;
+import com.netease.nim.uikit.common.media.model.GenericFileProvider;
 import com.netease.nim.uikit.common.media.picker.model.PhotoInfo;
 import com.netease.nim.uikit.common.media.picker.model.PickerContract;
 
@@ -113,12 +113,10 @@ public class PickImageActivity extends UI {
         try {
             startActivityForResult(intent, REQUEST_CODE_LOCAL);
         } catch (ActivityNotFoundException e) {
-            Toast.makeText(this, R.string.gallery_invalid, Toast.LENGTH_LONG)
-                    .show();
+            ToastHelper.showToastLong(this, R.string.gallery_invalid);
             finish();
         } catch (Exception e) {
-            Toast.makeText(this, R.string.sdcard_not_enough_head_error,
-                    Toast.LENGTH_LONG).show();
+            ToastHelper.showToastLong(this, R.string.sdcard_not_enough_head_error);
             finish();
         }
     }
@@ -127,7 +125,7 @@ public class PickImageActivity extends UI {
         try {
             String outPath = getIntent().getStringExtra(Extras.EXTRA_FILE_PATH);
             if (TextUtils.isEmpty(outPath)) {
-                Toast.makeText(this, R.string.sdcard_not_enough_error, Toast.LENGTH_LONG).show();
+                ToastHelper.showToastLong(this, R.string.sdcard_not_enough_error);
                 finish();
                 return;
             }
@@ -142,7 +140,7 @@ public class PickImageActivity extends UI {
         } catch (ActivityNotFoundException e) {
             finish();
         } catch (Exception e) {
-            Toast.makeText(this, R.string.sdcard_not_enough_head_error, Toast.LENGTH_LONG).show();
+            ToastHelper.showToastLong(this, R.string.sdcard_not_enough_head_error);
             finish();
         }
     }
@@ -231,7 +229,7 @@ public class PickImageActivity extends UI {
                 }
             }
         } catch (Exception e) {
-            Toast.makeText(this, R.string.picker_image_error, Toast.LENGTH_LONG).show();
+            ToastHelper.showToastLong(this, R.string.picker_image_error);
             finish();
         }
     }
@@ -252,7 +250,7 @@ public class PickImageActivity extends UI {
                 finish();
             }
         } catch (Exception e) {
-            Toast.makeText(this, R.string.picker_image_error, Toast.LENGTH_LONG).show();
+            ToastHelper.showToastLong(this, R.string.picker_image_error);
             finish();
         }
     }

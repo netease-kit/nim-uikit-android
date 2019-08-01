@@ -8,6 +8,7 @@ import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
 
 import java.io.Serializable;
+import java.lang.ref.WeakReference;
 
 /**
  * Action基类。<br>
@@ -21,7 +22,9 @@ public abstract class BaseAction implements Serializable {
     private int titleId;
 
     private transient int index;
-    private transient Container container;
+
+    // Container持有activity ， 防止内存泄露
+    private transient WeakReference<Container> containerRef;
 
     /**
      * 构造函数
@@ -35,15 +38,15 @@ public abstract class BaseAction implements Serializable {
     }
 
     public Activity getActivity() {
-        return container.activity;
+        return getContainer().activity;
     }
 
     public String getAccount() {
-        return container.account;
+        return getContainer().account;
     }
 
     public SessionTypeEnum getSessionType() {
-        return container.sessionType;
+        return getContainer().sessionType;
     }
 
     public int getIconResId() {
@@ -55,6 +58,10 @@ public abstract class BaseAction implements Serializable {
     }
 
     public Container getContainer() {
+        Container container = containerRef.get();
+        if (container == null) {
+            throw new RuntimeException("container be recycled by vm ");
+        }
         return container;
     }
 
@@ -65,7 +72,7 @@ public abstract class BaseAction implements Serializable {
     }
 
     protected void sendMessage(IMMessage message) {
-        container.proxy.sendMessage(message);
+        getContainer().proxy.sendMessage(message);
     }
 
     protected int makeRequestCode(int requestCode) {
@@ -76,7 +83,7 @@ public abstract class BaseAction implements Serializable {
     }
 
     public void setContainer(Container container) {
-        this.container = container;
+        this.containerRef = new WeakReference<>(container);
     }
 
     public void setIndex(int index) {

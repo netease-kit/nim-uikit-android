@@ -107,7 +107,9 @@
     <string name="team_notify_all">提醒所有消息</string>
     <string name="team_notify_manager">只提醒管理员消息</string>
     <string name="team_nickname">群昵称</string>
+    <string name="member_invitor">邀请人</string>
     <string name="team_nickname_none">未填写</string>
+    <string name="no_invitor">主动入群</string>
     <string name="team_identity">身份</string>
     <string name="remove_member">移出本群</string>
     <string name="team_member_info">成员信息</string>
@@ -224,5 +226,31 @@
     <string name="fts_prefix_hit">前缀匹配高亮检索结果</string>
     <string name="msg_search">全文检索</string>
     <string name="msg_search_limit">全文检索显示条数</string>
+
+    <string name="pick_image">选择图片</string>
+    <string name="pick_video">选择视频</string>
+    <string name="pick_album">相册</string>
+    <string name="all_images">全部图片</string>
+    <string name="folder_image_count">(%1$d)</string>
+    <string name="preview_image_count">%1$d/%2$d</string>
+    <string name="complete">完成</string>
+    <string name="preview_count">预览(%1$s)</string>
+    <string name="photo_crop">图片裁剪</string>
+    <string name="origin">原图</string>
+    <string name="origin_size">原图(%1$s)</string>
+    <string name="choose_all">全选</string>
+    <string name="choose_max_num">最多选择%d张</string>
+    <string name="choose_min_num">至少选择%d张</string>
+    <string name="choose_max_num_video">最多选择%d个视频</string>
+    <string name="choose_video_photo">图片和视频无法同时选择</string>
+    <string name="choose_video_duration_max_tip">只能选择%d秒内的视频，请编辑好后再选择</string>
+    <string name="choose_video_duration_min_tip">不可导入小于3秒的视频</string>
+    <string name="back">返回</string>
+    <string name="network_unavailable">网络连接失败</string>
+    <string name="send_d">发送(%d)</string>
+    <string name="delete">删除</string>
+    <string name="video_network_not_good">网络不给力，稍后重试</string>
+    <string name="permission_request">需要语音和摄像头权限</string>
+    <string name="sure">确定</string>
 
 </resources>

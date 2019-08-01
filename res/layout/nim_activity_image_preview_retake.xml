@@ -1,0 +1,39 @@
+<RelativeLayout android:id="@+id/content"
+                xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#000">
+
+    <include
+        android:id="@+id/top_bar"
+        layout="@layout/nim_include_top_bar_select"
+        android:visibility="gone"/>
+
+
+    <com.netease.nim.uikit.common.media.imagepicker.view.ViewPagerFixed
+        android:id="@+id/viewpager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/top_bar"
+        android:background="#000"/>
+
+    <ImageView
+        android:id="@+id/retake"
+        android:layout_width="@dimen/dp_size_60"
+        android:layout_height="@dimen/dp_size_60"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_marginBottom="@dimen/dp_size_60"
+        android:layout_marginLeft="@dimen/dp_size_60"
+        android:src="@drawable/capture_preview_back"/>
+
+    <ImageView
+        android:id="@+id/btn_ok"
+        android:layout_width="@dimen/dp_size_60"
+        android:layout_height="@dimen/dp_size_60"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="@dimen/dp_size_60"
+        android:layout_marginRight="@dimen/dp_size_60"
+        android:src="@drawable/capture_preview_finish"/>
+</RelativeLayout>

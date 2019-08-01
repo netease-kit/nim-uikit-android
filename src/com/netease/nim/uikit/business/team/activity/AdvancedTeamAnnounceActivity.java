@@ -10,7 +10,7 @@ import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
+import com.netease.nim.uikit.common.ToastHelper;
 
 import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.api.NimUIKit;
@@ -199,7 +199,7 @@ public class AdvancedTeamAnnounceActivity extends UI implements TAdapterDelegate
      */
     private void updateAnnounceInfo(Team team) {
         if (team == null) {
-            Toast.makeText(this, getString(R.string.team_not_exist), Toast.LENGTH_SHORT).show();
+            ToastHelper.showToast(this, getString(R.string.team_not_exist));
             finish();
         } else {
             announce = team.getAnnouncement();

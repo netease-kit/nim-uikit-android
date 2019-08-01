@@ -39,7 +39,7 @@ public class TeamRecentViewHolder extends CommonRecentViewHolder {
         return content;
     }
 
-    private String getTeamUserDisplayName(String tid, String account) {
+    protected String getTeamUserDisplayName(String tid, String account) {
         return TeamHelper.getTeamMemberDisplayName(tid, account);
     }
 }

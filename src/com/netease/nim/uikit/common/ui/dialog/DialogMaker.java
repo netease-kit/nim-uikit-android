@@ -6,8 +6,11 @@ import android.text.TextUtils;
 
 import com.netease.nim.uikit.common.util.log.LogUtil;
 
+import java.lang.ref.WeakReference;
+
 public class DialogMaker {
-    private static EasyProgressDialog progressDialog;
+
+    private static WeakReference<EasyProgressDialog> sProgressDialogRef;
 
     public static EasyProgressDialog showProgressDialog(Context context, String message) {
         return showProgressDialog(context, null, message, true, null);
@@ -18,59 +21,71 @@ public class DialogMaker {
     }
 
     @Deprecated
-    public static EasyProgressDialog showProgressDialog(Context context,
-                                                        String title, String message, boolean canCancelable, OnCancelListener listener) {
+    public static EasyProgressDialog showProgressDialog(Context context, String title, String message,
+                                                        boolean canCancelable, OnCancelListener listener) {
 
-        if (progressDialog == null) {
-            progressDialog = new EasyProgressDialog(context, message);
-        } else if (progressDialog.getContext() != context) {
-            // maybe existing dialog is running in a destroyed activity cotext
-            // we should recreate one
-            LogUtil.e("dialog", "there is a leaked window here,orign context: "
-                    + progressDialog.getContext() + " now: " + context);
+        EasyProgressDialog dialog = getDialog();
+
+        if (dialog != null && dialog.getContext() != context) {
+            // maybe existing dialog is running in a destroyed activity cotext we should recreate one
             dismissProgressDialog();
-            progressDialog = new EasyProgressDialog(context, message);
+            LogUtil.e("dialog", "there is a leaked window here,orign context: " + dialog.getContext() + " now: " + context);
+            dialog = null;
         }
 
-        progressDialog.setCancelable(canCancelable);
-        progressDialog.setOnCancelListener(listener);
+        if (dialog == null) {
+            dialog = new EasyProgressDialog(context, message);
+            sProgressDialogRef = new WeakReference<>(dialog);
+        }
 
-        progressDialog.show();
-
-        return progressDialog;
+        if (!TextUtils.isEmpty(title)) {
+            dialog.setTitle(title);
+        }
+        if (!TextUtils.isEmpty(message)) {
+            dialog.setMessage(message);
+        }
+        dialog.setCancelable(canCancelable);
+        dialog.setOnCancelListener(listener);
+        dialog.show();
+        return dialog;
     }
 
     public static void dismissProgressDialog() {
-        if (null == progressDialog) {
+        EasyProgressDialog dialog = getDialog();
+        if (null == dialog) {
             return;
         }
-        if (progressDialog.isShowing()) {
+        sProgressDialogRef.clear();
+        if (dialog.isShowing()) {
             try {
-                progressDialog.dismiss();
-                progressDialog = null;
+                dialog.dismiss();
             } catch (Exception e) {
                 // maybe we catch IllegalArgumentException here.
             }
-
         }
 
     }
 
     public static void setMessage(String message) {
-        if (null != progressDialog && progressDialog.isShowing()
-                && !TextUtils.isEmpty(message)) {
-            progressDialog.setMessage(message);
+        EasyProgressDialog dialog = getDialog();
+        if (null != dialog && dialog.isShowing() && !TextUtils.isEmpty(message)) {
+            dialog.setMessage(message);
         }
     }
 
     public static void updateLoadingMessage(String message) {
-        if (null != progressDialog && progressDialog.isShowing()
-                && !TextUtils.isEmpty(message)) {
-            progressDialog.updateLoadingMessage(message);
+        EasyProgressDialog dialog = getDialog();
+        if (null != dialog && dialog.isShowing() && !TextUtils.isEmpty(message)) {
+            dialog.updateLoadingMessage(message);
         }
     }
 
     public static boolean isShowing() {
-        return (progressDialog != null && progressDialog.isShowing());
+        EasyProgressDialog dialog = getDialog();
+        return (dialog != null && dialog.isShowing());
+    }
+
+    private static EasyProgressDialog getDialog() {
+        return sProgressDialogRef == null ? null : sProgressDialogRef.get();
     }
 }

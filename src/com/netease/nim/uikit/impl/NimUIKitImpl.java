@@ -23,6 +23,8 @@ import com.netease.nim.uikit.api.model.recent.RecentCustomization;
 import com.netease.nim.uikit.api.model.robot.RobotInfoProvider;
 import com.netease.nim.uikit.api.model.session.SessionCustomization;
 import com.netease.nim.uikit.api.model.session.SessionEventListener;
+import com.netease.nim.uikit.api.model.superteam.SuperTeamChangedObservable;
+import com.netease.nim.uikit.api.model.superteam.SuperTeamProvider;
 import com.netease.nim.uikit.api.model.team.TeamChangedObservable;
 import com.netease.nim.uikit.api.model.team.TeamProvider;
 import com.netease.nim.uikit.api.model.user.IUserInfoProvider;
@@ -55,6 +57,7 @@ import com.netease.nim.uikit.impl.customization.DefaultTeamSessionCustomization;
 import com.netease.nim.uikit.impl.provider.DefaultChatRoomProvider;
 import com.netease.nim.uikit.impl.provider.DefaultContactProvider;
 import com.netease.nim.uikit.impl.provider.DefaultRobotProvider;
+import com.netease.nim.uikit.impl.provider.DefaultSuperTeamProvider;
 import com.netease.nim.uikit.impl.provider.DefaultTeamProvider;
 import com.netease.nim.uikit.impl.provider.DefaultUserInfoProvider;
 import com.netease.nim.uikit.support.glide.ImageLoaderKit;
@@ -136,8 +139,16 @@ public final class NimUIKitImpl {
     //群、群成员信息提供者
     private static TeamProvider teamProvider;
 
+    /**
+     * 超大群。群成员信息提供者
+     */
+    private static SuperTeamProvider superTeamProvider;
+
     //群、群成员变化监听
     private static TeamChangedObservable teamChangedObservable;
+
+    //群、群成员变化监听
+    private static SuperTeamChangedObservable superTeamChangedObservable;
 
     //智能机器人提供者
     private static RobotInfoProvider robotInfoProvider;
@@ -412,11 +423,29 @@ public final class NimUIKitImpl {
         return teamProvider;
     }
 
+    public static SuperTeamProvider getSuperTeamProvider() {
+        if (superTeamProvider == null) {
+            superTeamProvider = new DefaultSuperTeamProvider();
+        }
+        return superTeamProvider;
+    }
+
+    public static void setSuperTeamProvider(SuperTeamProvider provider) {
+        superTeamProvider = provider;
+    }
+
     public static TeamChangedObservable getTeamChangedObservable() {
         if (teamChangedObservable == null) {
             teamChangedObservable = new TeamChangedObservable(context);
         }
         return teamChangedObservable;
+    }
+
+    public static SuperTeamChangedObservable getSuperTeamChangedObservable() {
+        if (superTeamChangedObservable == null) {
+            superTeamChangedObservable = new SuperTeamChangedObservable(context);
+        }
+        return superTeamChangedObservable;
     }
 
     public static void setRobotInfoProvider(RobotInfoProvider provider) {

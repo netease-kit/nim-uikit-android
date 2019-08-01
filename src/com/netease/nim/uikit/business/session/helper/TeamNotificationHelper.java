@@ -90,6 +90,7 @@ public class TeamNotificationHelper {
             case MuteTeamMember:
                 text = buildMuteTeamNotification((MuteMemberAttachment) attachment);
                 break;
+                // todo super team
             default:
                 text = getTeamMemberDisplayName(fromAccount) + ": unknown message";
                 break;
@@ -182,7 +183,7 @@ public class TeamNotificationHelper {
                 }
             } else if (field.getKey() == TeamFieldEnum.Extension) {
                 sb.append("群扩展字段被更新为 " + field.getValue());
-            } else if (field.getKey() == TeamFieldEnum.Ext_Server) {
+            } else if (field.getKey() == TeamFieldEnum.Ext_Server_Only) {
                 sb.append("群扩展字段(服务器)被更新为 " + field.getValue());
             } else if (field.getKey() == TeamFieldEnum.ICON) {
                 sb.append("群头像已更新");

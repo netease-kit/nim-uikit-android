@@ -23,7 +23,8 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import com.netease.nim.uikit.common.ToastHelper;
 
 import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.common.activity.UI;
@@ -47,24 +48,21 @@ public class CaptureVideoActivity extends UI implements SurfaceHolder.Callback {
 
     private static final String TAG = "video";
 
-    private static final String EXTRA_DATA_FILE_NAME = "EXTRA_DATA_FILE_NAME";
+    public static final String EXTRA_DATA_FILE_NAME = "EXTRA_DATA_FILE_NAME";
 
     private static final int VIDEO_TIMES = 180;
 
     private static final int VIDEO_WIDTH = 320;
 
     private static final int VIDEO_HEIGHT = 240;
-
     // context
 
     public Handler handler = new Handler();
-
     // media
 
     private MediaRecorder mediaRecorder;// 录制视频的类
 
     private Camera camera;
-
     // view
 
     private SurfaceView surfaceview;
@@ -78,7 +76,6 @@ public class CaptureVideoActivity extends UI implements SurfaceHolder.Callback {
     private TextView recordingTimeTextView;
 
     private ImageView switchCamera; // 切换摄像头
-
     // state
 
     private int cameraId = 0;
@@ -117,9 +114,7 @@ public class CaptureVideoActivity extends UI implements SurfaceHolder.Callback {
             end = new Date().getTime();
             duration = (end - start);
             int invs = (int) (duration / 1000);
-
             recordingTimeTextView.setText(TimeUtil.secToTime(invs));
-
             // 录制过程中红点闪烁效果
             if (invs % 2 == 0) {
                 recordingState.setBackgroundResource(R.drawable.nim_record_start);
@@ -138,25 +133,19 @@ public class CaptureVideoActivity extends UI implements SurfaceHolder.Callback {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().setFormat(PixelFormat.TRANSLUCENT); // 使得窗口支持透明度
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.nim_capture_video_activity);
         setTitle(R.string.video_record);
-
         parseIntent();
         findViews();
         initActionBar();
-
         setViewsListener();
         updateRecordUI();
-
         getVideoPreviewSize();
-
-        surfaceview = (SurfaceView) this.findViewById(R.id.videoView);
+        surfaceview = this.findViewById(R.id.videoView);
         SurfaceHolder holder = surfaceview.getHolder();
         holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
         holder.addCallback(this);
-
         resizeSurfaceView();
     }
 
@@ -165,11 +154,10 @@ public class CaptureVideoActivity extends UI implements SurfaceHolder.Callback {
     }
 
     private void findViews() {
-        recordingTimeTextView = (TextView) findViewById(R.id.record_times);
-        recordingState = (ImageView) findViewById(R.id.recording_id);
-
-        recordBtn = (ImageView) findViewById(R.id.record_btn);
-        switchCamera = (ImageView) findViewById(R.id.switch_cameras);
+        recordingTimeTextView = findViewById(R.id.record_times);
+        recordingState = findViewById(R.id.recording_id);
+        recordBtn = findViewById(R.id.record_btn);
+        switchCamera = findViewById(R.id.switch_cameras);
     }
 
     private void initActionBar() {
@@ -211,16 +199,13 @@ public class CaptureVideoActivity extends UI implements SurfaceHolder.Callback {
 
     public void onResume() {
         super.onResume();
-
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
-                WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+                             WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
     public void onPause() {
         super.onPause();
-
         getWindow().setFlags(0, WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-
         if (recording) {
             stopRecorder();
             sendVideo();
@@ -232,9 +217,7 @@ public class CaptureVideoActivity extends UI implements SurfaceHolder.Callback {
 
     public void onDestroy() {
         super.onDestroy();
-
         shutdownCamera();
-
         destroyed = true;
     }
 
@@ -243,9 +226,7 @@ public class CaptureVideoActivity extends UI implements SurfaceHolder.Callback {
         if (recording) {
             stopRecorder();
         }
-
         shutdownCamera();
-
         setResult(RESULT_CANCELED);
         finish();
     }
@@ -254,7 +235,6 @@ public class CaptureVideoActivity extends UI implements SurfaceHolder.Callback {
     private void getVideoPreviewSize(boolean isFront) {
         CamcorderProfile profile;
         int cameraId = 0;
-
         if (super.isCompatible(9)) {
             if (isFront) {
                 cameraId = Camera.CameraInfo.CAMERA_FACING_FRONT;
@@ -262,7 +242,6 @@ public class CaptureVideoActivity extends UI implements SurfaceHolder.Callback {
                 cameraId = Camera.CameraInfo.CAMERA_FACING_BACK;
             }
         }
-
         if (super.isCompatible(11)) {
             if (CamcorderProfile.hasProfile(cameraId, CamcorderProfile.QUALITY_480P)) {
                 profile = CamcorderProfile.get(cameraId, CamcorderProfile.QUALITY_480P);
@@ -279,7 +258,6 @@ public class CaptureVideoActivity extends UI implements SurfaceHolder.Callback {
             } else {
                 LogUtil.e(TAG, (isFront ? "Back Camera" : "Front Camera") + " no QUALITY_480P");
             }
-
             if (CamcorderProfile.hasProfile(cameraId, CamcorderProfile.QUALITY_CIF)) {
                 profile = CamcorderProfile.get(cameraId, CamcorderProfile.QUALITY_CIF);
                 if (profile != null) {
@@ -295,7 +273,6 @@ public class CaptureVideoActivity extends UI implements SurfaceHolder.Callback {
             } else {
                 LogUtil.e(TAG, (isFront ? "Back Camera" : "Front Camera") + " no QUALITY_CIF");
             }
-
             if (super.isCompatible(15)) {
                 if (CamcorderProfile.hasProfile(cameraId, CamcorderProfile.QUALITY_QVGA)) {
                     profile = CamcorderProfile.get(cameraId, CamcorderProfile.QUALITY_QVGA);
@@ -314,7 +291,6 @@ public class CaptureVideoActivity extends UI implements SurfaceHolder.Callback {
                 }
             }
         }
-
         if (super.isCompatible(9)) {
             profile = CamcorderProfile.get(cameraId, CamcorderProfile.QUALITY_LOW);
             if (profile == null) {
@@ -397,23 +373,19 @@ public class CaptureVideoActivity extends UI implements SurfaceHolder.Callback {
     @SuppressLint("NewApi")
     private void setCamcorderProfile() {
         CamcorderProfile profile;
-
         profile = CamcorderProfile.get(CamcorderProfile.QUALITY_480P);
-
         if (profile != null) {
             if (currentUsePoint != null) {
                 profile.videoFrameWidth = currentUsePoint.x;
                 profile.videoFrameHeight = currentUsePoint.y;
             }
-
             profile.fileFormat = MediaRecorder.OutputFormat.MPEG_4;
-
-            if (Build.MODEL.equalsIgnoreCase("MB525") || Build.MODEL.equalsIgnoreCase("C8812") || Build.MODEL.equalsIgnoreCase("C8650")) {
+            if (Build.MODEL.equalsIgnoreCase("MB525") || Build.MODEL.equalsIgnoreCase("C8812") ||
+                Build.MODEL.equalsIgnoreCase("C8650")) {
                 profile.videoCodec = MediaRecorder.VideoEncoder.H263;
             } else {
                 profile.videoCodec = MediaRecorder.VideoEncoder.H264;
             }
-
             if (Build.VERSION.SDK_INT >= 14) {
                 profile.audioCodec = MediaRecorder.AudioEncoder.AAC;
             } else {
@@ -451,27 +423,22 @@ public class CaptureVideoActivity extends UI implements SurfaceHolder.Callback {
 
     private boolean startRecorderInternal() throws Exception {
         shutdownCamera();
-        if (!initCamera())
+        if (!initCamera()) {
             return false;
-
+        }
         switchCamera.setVisibility(View.GONE);
         mediaRecorder = new MediaRecorder();
-
         camera.unlock();
         mediaRecorder.setCamera(camera);
         mediaRecorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);
         mediaRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
-
         setCamcorderProfile();
-
         mediaRecorder.setPreviewDisplay(surfaceHolder.getSurface());
         mediaRecorder.setMaxDuration(1000 * VIDEO_TIMES);
         mediaRecorder.setOutputFile(filename);
         setVideoOrientation();
-
         mediaRecorder.prepare();
         mediaRecorder.start();
-
         return true;
     }
 
@@ -480,7 +447,7 @@ public class CaptureVideoActivity extends UI implements SurfaceHolder.Callback {
             startRecorderInternal();
         } catch (Exception e) {
             LogUtil.e(TAG, "start MediaRecord failed: " + e);
-            Toast.makeText(this, R.string.start_camera_to_record_failed, Toast.LENGTH_SHORT).show();
+            ToastHelper.showToast(this, R.string.start_camera_to_record_failed);
             mediaRecorder.release();
             mediaRecorder = null;
             camera.release();
@@ -491,9 +458,7 @@ public class CaptureVideoActivity extends UI implements SurfaceHolder.Callback {
         recording = true;
         start = new Date().getTime();
         handler.postDelayed(runnable, 1000);
-
         recordingTimeTextView.setText("00:00");
-
         updateRecordUI();
     }
 
@@ -511,7 +476,6 @@ public class CaptureVideoActivity extends UI implements SurfaceHolder.Callback {
             camera.release();
             camera = null;
         }
-
         handler.removeCallbacks(runnable);
         recordingState.setBackgroundResource(R.drawable.nim_record_start);
         recording = false;
@@ -544,13 +508,12 @@ public class CaptureVideoActivity extends UI implements SurfaceHolder.Callback {
             public void doOkAction() {
                 Intent intent = new Intent();
                 intent.putExtra("duration", duration);
+                intent.putExtra(EXTRA_DATA_FILE_NAME, filename);
                 setResult(RESULT_OK, intent);
                 finish();
             }
         };
-
         final EasyAlertDialog dialog = EasyAlertDialogHelper.createOkCancelDiolag(this, null, message, true, listener);
-
         if (!isFinishing() && !destroyed) {
             dialog.show();
         }
@@ -560,12 +523,14 @@ public class CaptureVideoActivity extends UI implements SurfaceHolder.Callback {
      * 视频录制太短
      */
     private void tooShortAlert() {
-        EasyAlertDialogHelper.showOneButtonDiolag(this, null, getString(R.string.video_record_short), getString(R.string.iknow), true, new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                cancelRecord();
-            }
-        });
+        EasyAlertDialogHelper.showOneButtonDiolag(this, null, getString(R.string.video_record_short),
+                                                  getString(R.string.iknow), true, new OnClickListener() {
+
+                    @Override
+                    public void onClick(View v) {
+                        cancelRecord();
+                    }
+                });
     }
 
     /**
@@ -607,39 +572,32 @@ public class CaptureVideoActivity extends UI implements SurfaceHolder.Callback {
             }
         } catch (RuntimeException e) {
             LogUtil.e(TAG, "init camera failed: " + e);
-            Toast.makeText(this, R.string.connect_vedio_device_fail, Toast.LENGTH_SHORT).show();
+            ToastHelper.showToast(this, R.string.connect_vedio_device_fail);
             return false;
         }
-
         if (camera != null) {
             setCameraParameters();
         }
-
         return camera != null;
     }
 
     @SuppressLint("NewApi")
     private void setCameraParameters() {
         Camera.Parameters params = camera.getParameters();
-
         if (Build.VERSION.SDK_INT >= 15) {
             if (params.isVideoStabilizationSupported()) {
                 params.setVideoStabilization(true);
             }
         }
-
         List<String> focusMode = params.getSupportedFocusModes();
         if (focusMode.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO)) {
             params.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
         }
-
         if (params != null) {
             mAngle = setCameraDisplayOrientation(this, cameraId, camera);
             Log.i(TAG, "camera angle = " + mAngle);
         }
-
         params.setPreviewSize(currentUsePoint.x, currentUsePoint.y);
-
         try {
             camera.setParameters(params);
         } catch (RuntimeException e) {
@@ -670,10 +628,10 @@ public class CaptureVideoActivity extends UI implements SurfaceHolder.Callback {
 
     public void surfaceCreated(SurfaceHolder holder) {
         surfaceHolder = holder;
-
         shutdownCamera();
-        if (!initCamera())
+        if (!initCamera()) {
             return;
+        }
         startPreview();
     }
 
@@ -692,7 +650,7 @@ public class CaptureVideoActivity extends UI implements SurfaceHolder.Callback {
             camera.startPreview();
             previewing = true;
         } catch (Exception e) {
-            Toast.makeText(this, R.string.connect_vedio_device_fail, Toast.LENGTH_SHORT).show();
+            ToastHelper.showToast(this, R.string.connect_vedio_device_fail);
             shutdownCamera();
             e.printStackTrace();
         }
@@ -711,7 +669,6 @@ public class CaptureVideoActivity extends UI implements SurfaceHolder.Callback {
             orientation = info.orientation;
             front = (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT);
         }
-
         WindowManager manager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         int rotation = manager.getDefaultDisplay().getRotation();
         int activityOrientation = roundRotation(rotation);

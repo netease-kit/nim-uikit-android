@@ -10,7 +10,7 @@ import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
+import com.netease.nim.uikit.common.ToastHelper;
 
 import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.common.media.picker.fragment.PickerImageFragment;
@@ -115,8 +115,8 @@ public class PickerPhotoAdapter extends BaseAdapter {
                     photo.setChoose(true);
                     hasSelect++;
                 } else {
-                    Toast.makeText(mContext, String.format(mContext.getResources().getString(
-                            R.string.picker_image_exceed_max_image_select), maxSelectSize), Toast.LENGTH_SHORT).show();
+                    ToastHelper.showToast(mContext, String.format(mContext.getResources().getString(
+                            R.string.picker_image_exceed_max_image_select), maxSelectSize));
                     return;
                 }
 

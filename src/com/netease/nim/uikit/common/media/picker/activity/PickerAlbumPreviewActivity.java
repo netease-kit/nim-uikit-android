@@ -13,7 +13,8 @@ import android.view.View.OnClickListener;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import com.netease.nim.uikit.common.ToastHelper;
 
 import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.api.wrapper.NimToolBarOptions;
@@ -121,25 +122,25 @@ public class PickerAlbumPreviewActivity extends UI implements OnClickListener, O
     }
 
     private void initActionBar() {
-        previewSelectBtn = (ImageButton) findViewById(R.id.picker_image_preview_photos_select);
+        previewSelectBtn = findViewById(R.id.picker_image_preview_photos_select);
         previewSelectBtn.setOnClickListener(this);
     }
 
     private void initUI() {
-        previewOperationBar = (LinearLayout) findViewById(R.id.picker_image_preview_operator_bar);
-        originalImage = (ImageButton) findViewById(R.id.picker_image_preview_orignal_image);
+        previewOperationBar = findViewById(R.id.picker_image_preview_operator_bar);
+        originalImage = findViewById(R.id.picker_image_preview_orignal_image);
         originalImage.setOnClickListener(this);
-        originalImageSizeTip = (TextView) findViewById(R.id.picker_image_preview_orignal_image_tip);
+        originalImageSizeTip = findViewById(R.id.picker_image_preview_orignal_image_tip);
         if (!isSupportOriginal) {
             originalImage.setVisibility(View.INVISIBLE);
             originalImageSizeTip.setVisibility(View.INVISIBLE);
         }
-        previewSendBtn = (TextView) findViewById(R.id.picker_image_preview_send);
+        previewSendBtn = findViewById(R.id.picker_image_preview_send);
         previewSendBtn.setOnClickListener(this);
         updateSelectBtnStatus();
         updateOriImageSizeTip(isSendOriginalImage);
 
-        imageViewPager = (ViewPager) findViewById(R.id.picker_image_preview_viewpager);
+        imageViewPager = findViewById(R.id.picker_image_preview_viewpager);
         imageViewPager.setOnPageChangeListener(this);
         imageViewPager.setOffscreenPageLimit(2);
         imageViewPagerAdapter = new PickerPreviewPagerAdapter(this, photoLists, getLayoutInflater(),
@@ -184,7 +185,7 @@ public class PickerAlbumPreviewActivity extends UI implements OnClickListener, O
             currentPosition = position;
         }
 
-        LinearLayout currentLayout = (LinearLayout) imageViewPager.findViewWithTag(position);
+        LinearLayout currentLayout = imageViewPager.findViewWithTag(position);
         if (currentLayout == null) {
             Handler mHandler = new Handler();
             mHandler.postDelayed(new Runnable() {
@@ -213,7 +214,7 @@ public class PickerAlbumPreviewActivity extends UI implements OnClickListener, O
         Bitmap bitmap = BitmapDecoder.decodeSampledForDisplay(info.getAbsolutePath());
         if (bitmap == null) {
             currentImageView.setImageBitmap(ImageUtil.getDefaultBitmapWhenGetFail());
-            Toast.makeText(this, R.string.picker_image_error, Toast.LENGTH_LONG).show();
+            ToastHelper.showToastLong(this, R.string.picker_image_error);
         } else {
             try {
                 bitmap = ImageUtil.rotateBitmapInNeeded(info.getAbsolutePath(), bitmap);
@@ -321,8 +322,8 @@ public class PickerAlbumPreviewActivity extends UI implements OnClickListener, O
             PhotoInfo selectPhoto = photoLists.get(currentPosition);
             boolean isChoose = selectPhoto.isChoose();
             if (selectPhotoList != null && selectPhotoList.size() >= mutiSelectLimitSize && !isChoose) {
-                Toast.makeText(this, String.format(getResources().getString(R.string.picker_image_exceed_max_image_select)
-                        , mutiSelectLimitSize), Toast.LENGTH_SHORT).show();
+                ToastHelper.showToast(this, String.format(getResources().getString(R.string.picker_image_exceed_max_image_select)
+                        , mutiSelectLimitSize));
                 return;
             }
             selectPhoto.setChoose(!isChoose);

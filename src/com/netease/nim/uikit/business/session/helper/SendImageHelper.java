@@ -5,12 +5,12 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.text.TextUtils;
-import android.widget.Toast;
 
 import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.business.session.constant.Extras;
-import com.netease.nim.uikit.common.media.picker.model.PhotoInfo;
-import com.netease.nim.uikit.common.media.picker.model.PickerContract;
+import com.netease.nim.uikit.common.ToastHelper;
+import com.netease.nim.uikit.common.media.imagepicker.Constants;
+import com.netease.nim.uikit.common.media.model.GLImage;
 import com.netease.nim.uikit.common.util.file.AttachmentStore;
 import com.netease.nim.uikit.common.util.file.FileUtil;
 import com.netease.nim.uikit.common.util.media.ImageUtil;
@@ -20,7 +20,6 @@ import com.netease.nim.uikit.common.util.string.MD5;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.List;
 
 public class SendImageHelper {
     public interface Callback {
@@ -67,13 +66,13 @@ public class SendImageHelper {
     public static void sendImageAfterSelfImagePicker(Context context, Intent data, final Callback callback) {
         boolean isOrig = data.getBooleanExtra(Extras.EXTRA_IS_ORIGINAL, false);
 
-        List<PhotoInfo> photos = PickerContract.getPhotos(data);
-        if (photos == null) {
-            Toast.makeText(context, R.string.picker_image_error, Toast.LENGTH_LONG).show();
+        ArrayList<GLImage> images = (ArrayList<GLImage>) data.getSerializableExtra(Constants.EXTRA_RESULT_ITEMS);
+        if (images == null) {
+            ToastHelper.showToastLong(context, R.string.picker_image_error);
             return;
         }
 
-        for (PhotoInfo photoInfo : photos) {
+        for (GLImage photoInfo : images) {
             new SendImageTask(context, isOrig, photoInfo, new Callback() {
 
                 @Override
@@ -91,11 +90,10 @@ public class SendImageHelper {
 
         private Context context;
         private boolean isOrig;
-        private PhotoInfo info;
+        private GLImage info;
         private Callback callback;
 
-        public SendImageTask(Context context, boolean isOrig, PhotoInfo info,
-                             Callback callback) {
+        public SendImageTask(Context context, boolean isOrig, GLImage info, Callback callback) {
             this.context = context;
             this.isOrig = isOrig;
             this.info = info;
@@ -109,9 +107,10 @@ public class SendImageHelper {
 
         @Override
         protected File doInBackground(Void... params) {
-            String photoPath = info.getAbsolutePath();
-            if (TextUtils.isEmpty(photoPath))
+            String photoPath = info.getPath();
+            if (TextUtils.isEmpty(photoPath)) {
                 return null;
+            }
             String extension = FileUtil.getExtensionName(photoPath);
             // gif 强制设置成原图
             boolean gif = ImageUtil.isGif(extension);
@@ -119,13 +118,12 @@ public class SendImageHelper {
             if (isOrig) {
                 // 把原图按md5存放
                 String origMD5 = MD5.getStreamMD5(photoPath);
-                String origMD5Path = StorageUtil.getWritePath(origMD5 + "."
-                        + extension, StorageType.TYPE_IMAGE);
+                String origMD5Path = StorageUtil.getWritePath(origMD5 + "." + extension, StorageType.TYPE_IMAGE);
                 AttachmentStore.copy(photoPath, origMD5Path);
                 // 生成缩略图
                 if (!gif) {
                     File imageFile = new File(origMD5Path);
-                    ImageUtil.makeThumbnail(context, imageFile);
+                    ImageUtil.makeThumbnail(imageFile);
                 }
                 return new File(origMD5Path);
             } else {
@@ -136,12 +134,12 @@ public class SendImageHelper {
                     new Handler(context.getMainLooper()).post(new Runnable() {
                         @Override
                         public void run() {
-                            Toast.makeText(context, R.string.picker_image_error, Toast.LENGTH_LONG).show();
+                            ToastHelper.showToastLong(context, R.string.picker_image_error);
                         }
                     });
                     return null;
                 } else {
-                    ImageUtil.makeThumbnail(context, imageFile);
+                    ImageUtil.makeThumbnail(imageFile);
                 }
 
                 return imageFile;
@@ -151,16 +149,8 @@ public class SendImageHelper {
         @Override
         protected void onPostExecute(File result) {
             super.onPostExecute(result);
-
-            if (result != null) {
-                if (callback != null) {
-                    String imageFilepath = result.getAbsolutePath();
-                    String md5 = FileUtil.getFileNameNoEx(FileUtil.getFileNameFromPath(imageFilepath));
-
-                    if (callback != null) {
-                        callback.sendImage(result, isOrig);
-                    }
-                }
+            if (result != null && callback != null) {
+                callback.sendImage(result, isOrig);
             }
         }
     }

@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clipChildren="false"
+    android:background="@color/black">
+
+    <FrameLayout
+        android:id="@+id/camera_preview"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent" />
+
+    <RelativeLayout
+        android:id="@+id/rl_takePhoto"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="25dp"
+        android:clipChildren="false"
+        android:paddingLeft="38dp"
+        android:paddingRight="38dp">
+        <TextView
+            android:id="@+id/camera_tip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:text="单击拍照，长按录像"
+            android:textColor="@color/white"
+            android:textSize="12sp" />
+
+        <RelativeLayout
+            android:layout_below="@+id/camera_tip"
+            android:id="@+id/button_capture_wrapper"
+            android:layout_width="wrap_content"
+            android:clipChildren="false"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true">
+
+            <ImageView
+                android:id="@+id/button_capture_bg"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:layout_centerInParent="true"
+                android:src="@drawable/ic_capture_bg"/>
+
+
+            <ImageView
+                android:id="@+id/button_capture"
+                android:layout_width="@dimen/dp_size_60"
+                android:layout_height="@dimen/dp_size_60"
+                android:layout_centerInParent="true"
+                android:background="@drawable/ic_capture_btn_1" />
+
+            <com.netease.nim.uikit.common.media.imagepicker.camera.CircleProgressView
+                android:id="@+id/progressView"
+                android:layout_width="@dimen/dp_size_125"
+                android:layout_height="@dimen/dp_size_125"
+                android:layout_centerInParent="true"
+                android:visibility="invisible"
+                app:cp_radius="52dp"
+                app:ringColor="#FF3251"
+                app:strokeWidth="10dp" />
+        </RelativeLayout>
+
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/rl_time"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="11dp"
+        android:layout_marginRight="11dp"
+        android:layout_marginTop="35dp">
+
+        <ImageView
+            android:id="@+id/iv_close"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:background="@drawable/ic_capture_delete" />
+
+        <TextView
+            android:id="@+id/tv_balanceTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text=""
+            android:textColor="@color/white"
+            android:textSize="15sp" />
+
+        <ImageView
+            android:id="@+id/iv_lightOn"
+            android:layout_width="27dp"
+            android:layout_height="27dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:background="@drawable/nim_selector_capture_light"
+            android:visibility="gone" />
+
+        <ImageView
+            android:id="@+id/iv_switchCamera"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:background="@drawable/ic_capture_switch" />
+    </RelativeLayout>
+</RelativeLayout>

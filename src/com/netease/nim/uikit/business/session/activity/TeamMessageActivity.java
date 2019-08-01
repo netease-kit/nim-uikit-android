@@ -6,7 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
+import com.netease.nim.uikit.common.ToastHelper;
 
 import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.api.NimUIKit;
@@ -19,6 +19,7 @@ import com.netease.nim.uikit.api.wrapper.NimToolBarOptions;
 import com.netease.nim.uikit.business.session.constant.Extras;
 import com.netease.nim.uikit.business.session.fragment.MessageFragment;
 import com.netease.nim.uikit.business.session.fragment.TeamMessageFragment;
+import com.netease.nim.uikit.common.ToastHelper;
 import com.netease.nim.uikit.common.activity.ToolBarOptions;
 import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
@@ -112,11 +113,11 @@ public class TeamMessageActivity extends BaseMessageActivity {
     }
 
     private void onRequestTeamInfoFailed() {
-        Toast.makeText(TeamMessageActivity.this, "获取群组信息失败!", Toast.LENGTH_SHORT).show();
+        ToastHelper.showToast(TeamMessageActivity.this, "获取群组信息失败!");
         finish();
     }
 
-    /**
+    /**R
      * 更新群信息
      *
      * @param d
@@ -232,6 +233,11 @@ public class TeamMessageActivity extends BaseMessageActivity {
         ToolBarOptions options = new NimToolBarOptions();
         options.titleString = "群聊";
         setToolBar(R.id.toolbar, options);
+    }
+
+    @Override
+    protected boolean enableSensor() {
+        return true;
     }
 
     @Override

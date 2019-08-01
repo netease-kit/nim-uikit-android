@@ -1,10 +1,10 @@
 package com.netease.nim.uikit.common.util.media;
 
-import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.Bitmap.Config;
+import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -121,9 +121,8 @@ public class ImageUtil {
         return f;
     }
 
-    public static String makeThumbnail(Context context, File imageFile) {
-        String thumbFilePath = StorageUtil.getWritePath(imageFile.getName(),
-                StorageType.TYPE_THUMB_IMAGE);
+    public static String makeThumbnail(File imageFile) {
+        String thumbFilePath = StorageUtil.getWritePath(imageFile.getName(), StorageType.TYPE_THUMB_IMAGE);
         File thumbFile = AttachmentStore.create(thumbFilePath);
         if (thumbFile == null) {
             return null;
@@ -446,5 +445,12 @@ public class ImageUtil {
 
     public static boolean isGif(String extension) {
         return !TextUtils.isEmpty(extension) && extension.toLowerCase().equals("gif");
+    }
+
+    public static BitmapFactory.Options getOptions(String path) {
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(path, options);
+        return options;
     }
 }

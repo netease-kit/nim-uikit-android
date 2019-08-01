@@ -5,6 +5,7 @@ import android.support.v7.widget.RecyclerView;
 import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.business.recent.RecentContactsCallback;
 import com.netease.nim.uikit.business.recent.holder.CommonRecentViewHolder;
+import com.netease.nim.uikit.business.recent.holder.SuperTeamRecentViewHolder;
 import com.netease.nim.uikit.business.recent.holder.TeamRecentViewHolder;
 import com.netease.nim.uikit.common.ui.recyclerview.adapter.BaseMultiItemQuickAdapter;
 import com.netease.nim.uikit.common.ui.recyclerview.holder.BaseViewHolder;
@@ -22,6 +23,7 @@ public class RecentContactAdapter extends BaseMultiItemQuickAdapter<RecentContac
     interface ViewType {
         int VIEW_TYPE_COMMON = 1;
         int VIEW_TYPE_TEAM = 2;
+        int VIEW_TYPE_SUPER_TEAM = 3;
     }
 
     private RecentContactsCallback callback;
@@ -30,6 +32,7 @@ public class RecentContactAdapter extends BaseMultiItemQuickAdapter<RecentContac
         super(recyclerView, data);
         addItemType(ViewType.VIEW_TYPE_COMMON, R.layout.nim_recent_contact_list_item, CommonRecentViewHolder.class);
         addItemType(ViewType.VIEW_TYPE_TEAM, R.layout.nim_recent_contact_list_item, TeamRecentViewHolder.class);
+        addItemType(ViewType.VIEW_TYPE_SUPER_TEAM, R.layout.nim_recent_contact_list_item, SuperTeamRecentViewHolder.class);
     }
 
     @Override

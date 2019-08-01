@@ -15,7 +15,7 @@ import android.view.View.OnClickListener;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
+import com.netease.nim.uikit.common.ToastHelper;
 
 import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.business.session.constant.Extras;
@@ -273,7 +273,7 @@ public class PreviewImageFromLocalActivity extends UI {
         new AsyncTask<String, Integer, Boolean>() {
             @Override
             protected void onPreExecute() {
-                Toast.makeText(PreviewImageFromLocalActivity.this, R.string.waitfor_image_local, Toast.LENGTH_LONG).show();
+                ToastHelper.showToastLong(PreviewImageFromLocalActivity.this, R.string.waitfor_image_local);
             }
 
             @Override
@@ -317,11 +317,10 @@ public class PreviewImageFromLocalActivity extends UI {
         String mimeType = FileUtil.getExtensionName(photoPath);
         imageFile = ImageUtil.getScaledImageFileWithMD5(imageFile, mimeType);
         if (imageFile == null) {
-            Toast.makeText(this, R.string.picker_image_error, Toast.LENGTH_LONG).show();
+            ToastHelper.showToastLong(this, R.string.picker_image_error);
             return;
         } else {
-            ImageUtil.makeThumbnail(PreviewImageFromLocalActivity.this,
-                    imageFile);
+            ImageUtil.makeThumbnail(imageFile);
         }
 
         origImageList.add(photoPath);
@@ -382,7 +381,7 @@ public class PreviewImageFromLocalActivity extends UI {
         Bitmap bitmap = BitmapDecoder.decodeSampledForDisplay(imageFilePath);
         if (bitmap == null) {
             currentImageView.setImageBitmap(ImageUtil.getDefaultBitmapWhenGetFail());
-            Toast.makeText(this, R.string.picker_image_error, Toast.LENGTH_LONG).show();
+            ToastHelper.showToastLong(this, R.string.picker_image_error);
         } else {
             currentImageView.setImageBitmap(bitmap);
         }

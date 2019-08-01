@@ -22,7 +22,7 @@ import android.view.ViewGroup.LayoutParams;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
+import com.netease.nim.uikit.common.ToastHelper;
 
 import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.api.wrapper.NimToolBarOptions;
@@ -335,8 +335,7 @@ public class WatchVideoActivity extends UI implements Callback {
                 if (isSurfaceCreated) {
                     mediaPlayer.setDisplay(surfaceHolder);
                 } else {
-                    Toast.makeText(WatchVideoActivity.this, R.string.look_video_fail_try_again,
-                            Toast.LENGTH_SHORT).show();
+                    ToastHelper.showToast(WatchVideoActivity.this, R.string.look_video_fail_try_again);
                     return;
                 }
             }
@@ -344,8 +343,7 @@ public class WatchVideoActivity extends UI implements Callback {
             try {
                 mediaPlayer.setDataSource(videoFilePath);
             } catch (Exception e) {
-                Toast.makeText(WatchVideoActivity.this, R.string.look_video_fail_try_again,
-                        Toast.LENGTH_SHORT).show();
+                ToastHelper.showToast(WatchVideoActivity.this, R.string.look_video_fail_try_again);
                 e.printStackTrace();
                 return;
             }
@@ -380,8 +378,7 @@ public class WatchVideoActivity extends UI implements Callback {
                     startActivity(intent);
                     finish();
                 } catch (Exception e) {
-                    Toast.makeText(WatchVideoActivity.this, R.string.look_video_fail,
-                            Toast.LENGTH_SHORT).show();
+                    ToastHelper.showToastLong(WatchVideoActivity.this, R.string.look_video_fail);
                 }
                 return true;
             }
@@ -531,7 +528,7 @@ public class WatchVideoActivity extends UI implements Callback {
         downloadFuture = null;
 
         downloadLayout.setVisibility(View.GONE);
-        Toast.makeText(WatchVideoActivity.this, R.string.download_video_fail, Toast.LENGTH_SHORT).show();
+        ToastHelper.showToast(WatchVideoActivity.this, R.string.download_video_fail);
     }
 
     private void onDownloadStart(IMMessage message) {

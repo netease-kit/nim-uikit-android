@@ -15,7 +15,7 @@ public class TeamMemberAdapter extends TAdapter {
     /**
      * 当前GridView显示模式：显示讨论组成员，正在移除讨论组成员
      */
-    public static enum Mode {
+    public enum Mode {
         NORMAL,
         DELETE
     }
@@ -23,7 +23,7 @@ public class TeamMemberAdapter extends TAdapter {
     /**
      * 每个Item的类型：讨论组成员，添加成员，移除成员
      */
-    public static enum TeamMemberItemTag {
+    public enum TeamMemberItemTag {
         NORMAL,
         ADD,
         DELETE
@@ -65,12 +65,12 @@ public class TeamMemberAdapter extends TAdapter {
     /**
      * 群成员移除回调函数
      */
-    public static interface RemoveMemberCallback {
-        public void onRemoveMember(String account);
+    public interface RemoveMemberCallback {
+        void onRemoveMember(String account);
     }
 
-    public static interface AddMemberCallback {
-        public void onAddMember();
+    public interface AddMemberCallback {
+        void onAddMember();
     }
 
     private Context context;

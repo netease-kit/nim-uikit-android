@@ -1,6 +1,7 @@
 package com.netease.nim.uikit.business.session.module.list;
 
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 
 import com.netease.nim.uikit.R;
@@ -48,6 +49,12 @@ public class MsgAdapter extends BaseMultiItemFetchLoadAdapter<IMMessage, BaseVie
         }
 
         this.container = container;
+//        registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+//            @Override
+//            public void onChanged() {
+//                Log.e("TAG","AdapterData Change....");
+//            }
+//        });
     }
 
     @Override
@@ -86,7 +93,7 @@ public class MsgAdapter extends BaseMultiItemFetchLoadAdapter<IMMessage, BaseVie
             if (isRelocateTime) {
                 relocateShowTimeItemAfterDelete(message, index);
             }
-            notifyDataSetChanged(); // 可以不要！！！
+//            notifyDataSetChanged(); // 可以不要！！！
         }
     }
 

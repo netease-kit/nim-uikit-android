@@ -49,11 +49,11 @@ public class TeamMemberHolder extends TViewHolder {
 
     @Override
     protected void inflate() {
-        headImageView = (HeadImageView) view.findViewById(R.id.imageViewHeader);
-        nameTextView = (TextView) view.findViewById(R.id.textViewName);
-        ownerImageView = (ImageView) view.findViewById(R.id.imageViewOwner);
-        adminImageView = (ImageView) view.findViewById(R.id.imageViewAdmin);
-        deleteImageView = (ImageView) view.findViewById(R.id.imageViewDeleteTag);
+        headImageView = view.findViewById(R.id.imageViewHeader);
+        nameTextView = view.findViewById(R.id.textViewName);
+        ownerImageView = view.findViewById(R.id.imageViewOwner);
+        adminImageView = view.findViewById(R.id.imageViewAdmin);
+        deleteImageView = view.findViewById(R.id.imageViewDeleteTag);
     }
 
     @Override
