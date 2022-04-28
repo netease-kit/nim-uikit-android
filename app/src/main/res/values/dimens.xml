@@ -5,6 +5,17 @@
   -->
 
 <resources>
-    <dimen name="dimen_139_dp">139dp</dimen>
+    <dimen name="dimen_8_dp">8dp</dimen>
+    <dimen name="dimen_15_dp">15dp</dimen>
+    <dimen name="dimen_16_dp">16dp</dimen>
+    <dimen name="dimen_21_dp">21dp</dimen>
+    <dimen name="dimen_22_dp">22dp</dimen>
+    <dimen name="dimen_50_dp">50dp</dimen>
+    <dimen name="dimen_82_dp">82dp</dimen>
+    <dimen name="dimen_120_dp">120dp</dimen>
+    <dimen name="dimen_124_dp">124dp</dimen>
+    <dimen name="dimen_127_dp">127dp</dimen>
+    <dimen name="dimen_171_dp">171dp</dimen>
     <dimen name="dimen_187_dp">187dp</dimen>
+    <dimen name="dimen_315_dp">315dp</dimen>
 </resources>

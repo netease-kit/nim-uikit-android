@@ -38,14 +38,14 @@ android {
 
 dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
-    api("com.netease.yunxin.kit.team:teamkit:1.0.0-beta03")
-    api("com.netease.yunxin.kit.common:common-ui:1.0.4")
+    api("com.netease.yunxin.kit.team:teamkit:1.0.0-beta03") 
+    api("com.netease.yunxin.kit.common:common-ui:1.0.4") 
     api("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.10") 
     implementation("androidx.appcompat:appcompat:1.4.1") 
     implementation("com.google.android.material:material:1.5.0") 
     implementation("androidx.recyclerview:recyclerview:1.2.1") 
     implementation("com.github.bumptech.glide:glide:4.13.1") 
-    implementation("com.netease.yunxin.kit.common:common:1.0.4")
+    implementation("com.netease.yunxin.kit.common:common:1.0.4") 
 
     testImplementation("junit:junit:4.13.2") 
     androidTestImplementation("androidx.test.ext:junit:1.1.3") 

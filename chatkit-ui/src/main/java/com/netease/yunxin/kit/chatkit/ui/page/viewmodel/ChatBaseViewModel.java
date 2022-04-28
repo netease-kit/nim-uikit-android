@@ -222,7 +222,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
 
     public void sendForwardMessage(IMMessage message, String sessionId, SessionTypeEnum sessionType) {
         IMMessage forwardMessage = MessageBuilder.createForwardMessage(message, sessionId, sessionType);
-        sendMessage(forwardMessage, false, false);
+        sendMessage(forwardMessage, false, TextUtils.equals(sessionId, mSessionId));
     }
 
     public void replyImageMessage(File imageFile, IMMessage message) {
