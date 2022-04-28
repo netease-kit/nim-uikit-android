@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (c) 2022 NetEase, Inc.  All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be found in the LICENSE file.
+  -->
+
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root_view"
+    android:layout_width="match_parent"
+    android:background="@drawable/view_normal_selector"
+    android:layout_height="@dimen/dimen_62_dp">
+
+    <FrameLayout
+        android:id="@+id/conversation_avatar_fl"
+        android:layout_width="@dimen/dimen_52_dp"
+        android:layout_height="@dimen/dimen_42_dp"
+        android:layout_marginVertical="@dimen/dimen_10_dp"
+        android:layout_marginStart="@dimen/dimen_20_dp">
+
+        <com.netease.yunxin.kit.common.ui.widgets.ContactAvatarView
+            android:id="@+id/avatar_view"
+            android:layout_width="@dimen/dimen_42_dp"
+            android:layout_height="@dimen/dimen_42_dp" />
+
+        <TextView android:id="@+id/conversation_unread_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|end"
+            android:layout_marginEnd="@dimen/dimen_5_dp"
+            android:background="@drawable/bg_shape_red_dot"
+            android:gravity="center"
+            android:paddingStart="@dimen/dimen_5_dp"
+            android:paddingEnd="@dimen/dimen_5_dp"
+            android:textColor="@color/color_white"
+            android:textSize="@dimen/text_size_12"
+            android:visibility="gone" />
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/conversation_time_fl"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginStart="@dimen/dimen_74_dp"
+        android:layout_marginEnd="@dimen/dimen_20_dp">
+
+        <TextView
+            android:id="@+id/conversation_name_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dimen_10_dp"
+            android:layout_marginEnd="@dimen/dimen_100_dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textColor="@color/color_333333"
+            android:textSize="@dimen/text_size_16" />
+
+        <TextView
+            android:id="@+id/conversation_message_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:layout_marginTop="@dimen/dimen_35_dp"
+            android:layout_marginEnd="@dimen/dimen_18_dp"
+            android:textColor="@color/color_999999" />
+
+        <TextView
+            android:id="@+id/conversation_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_marginTop="@dimen/dimen_12_dp"
+            android:ellipsize="end"
+            android:maxWidth="@dimen/dimen_100_dp"
+            android:maxLines="1"
+            android:textColor="@color/color_cccccc"
+            android:textSize="@dimen/text_size_12" />
+
+        <ImageView android:id="@+id/conversation_mute_iv"
+            android:layout_width="@dimen/dimen_12_dp"
+            android:layout_height="@dimen/dimen_12_dp"
+            android:layout_gravity="end"
+            android:layout_marginTop="@dimen/dimen_38_dp"
+            android:src="@drawable/ic_mute"
+            android:visibility="gone"
+            />
+    </FrameLayout>
+
+</FrameLayout>

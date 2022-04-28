@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/chat_message_action_item"
+    android:layout_width="@dimen/dimen_60_dp"
+    android:layout_height="match_parent">
+
+    <RadioButton
+        android:id="@+id/chat_message_action_item_btn"
+        android:layout_width="@dimen/dimen_24_dp"
+        android:layout_height="@dimen/dimen_24_dp"
+        android:layout_gravity="center"
+        android:button="@null"
+        android:checked="false"
+        android:clickable="false"
+        tools:background="@drawable/ic_send_voice_selector" />
+</FrameLayout>

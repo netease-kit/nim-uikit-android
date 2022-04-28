@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="PhotoView">
+        <attr name="photo_crop_width" format="dimension" />
+        <attr name="photo_crop_dim_color" format="color" />
+        <attr name="photo_crop_highlight_color" format="color" />
+        <attr name="photo_crop_stroke_width" format="dimension" />
+    </declare-styleable>
+</resources>

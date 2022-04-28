@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (c) 2022 NetEase, Inc.  All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be found in the LICENSE file.
+  -->
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.netease.yunxin.kit.teamkit.ui">
+    <application>
+        <provider
+            android:name="com.netease.yunxin.kit.corekit.startup.InitializationProvider"
+            android:authorities="${applicationId}.xkit-startup"
+            android:exported="false"
+            tools:node="merge">
+            <meta-data
+                android:name="com.netease.yunxin.kit.teamkit.ui.TeamUIService"
+                android:value="xkit.startup" />
+        </provider>
+
+        <activity
+            android:name=".activity.TeamSettingActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".activity.TeamInfoActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".activity.TeamUpdateNicknameActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".activity.TeamMemberListActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".activity.TeamUpdateIconActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".activity.TeamUpdateNameActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".activity.TeamUpdateIntroduceActivity"
+            android:screenOrientation="portrait" />
+
+    </application>
+
+</manifest>

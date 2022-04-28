@@ -1,0 +1,47 @@
+<!--
+  ~ Copyright (c) 2022 NetEase, Inc.  All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be found in the LICENSE file.
+  -->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="14dp"
+    android:height="14dp"
+    android:viewportWidth="14"
+    android:viewportHeight="14">
+    <path
+        android:strokeWidth="1"
+        android:pathData="M10,10H13"
+        android:fillColor="#00000000"
+        android:strokeColor="#656A72"
+        android:strokeLineCap="round"/>
+    <path
+        android:strokeWidth="1"
+        android:pathData="M11.5,8.5L11.5,11.5"
+        android:fillColor="#00000000"
+        android:strokeColor="#656A72"
+        android:strokeLineCap="round"/>
+    <path
+        android:strokeWidth="1"
+        android:pathData="M9.8014,3.922m-2.1986,0a2.1986,2.1986 0,1 1,4.3972 0a2.1986,2.1986 0,1 1,-4.3972 0"
+        android:fillColor="#00000000"
+        android:strokeColor="#656A72"
+        android:strokeLineCap="round"/>
+    <path
+        android:strokeWidth="1"
+        android:pathData="M3.8888,5.8889m-1.3889,0a1.3889,1.3889 0,1 1,2.7778 0a1.3889,1.3889 0,1 1,-2.7778 0"
+        android:fillColor="#00000000"
+        android:strokeColor="#656A72"
+        android:strokeLineCap="round"/>
+    <path
+        android:strokeWidth="1"
+        android:pathData="M8.8653,7.8794H8.2977C6.4763,7.8794 4.9998,9.3559 4.9998,11.1773V11.1773C4.9998,11.7844 5.4919,12.2766 6.0991,12.2766H8.9858"
+        android:fillColor="#00000000"
+        android:strokeColor="#656A72"
+        android:strokeLineCap="round"/>
+    <path
+        android:strokeWidth="1"
+        android:pathData="M3.5182,9.2227H3.0834C1.9327,9.2227 1,10.1554 1,11.306V11.306C1,11.6895 1.3109,12.0005 1.6945,12.0005H3.5182"
+        android:fillColor="#00000000"
+        android:strokeColor="#656A72"
+        android:strokeLineCap="round"/>
+</vector>

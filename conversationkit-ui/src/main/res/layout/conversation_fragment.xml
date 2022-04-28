@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2022 NetEase, Inc.  All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be found in the LICENSE file.
+  -->
+
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <com.netease.yunxin.kit.common.ui.widgets.TitleBarView
+        android:id="@+id/conversation_title_bar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dimen_60_dp"
+        app:head_img_visible="visible"
+        app:head_title="@string/conversation_title"
+        app:head_title_color="@color/color_black"
+        tools:ignore="MissingConstraints" />
+
+
+    <View android:id="@+id/conversation_line"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dimen_1_dp"
+        android:background="@color/color_e9eff5"
+        android:alpha="0.4"
+        app:layout_constraintTop_toBottomOf="@+id/conversation_title_bar"
+        tools:ignore="MissingConstraints" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        app:layout_constraintTop_toBottomOf="@+id/conversation_line"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+    <TextView android:id="@+id/conversation_network_error_tv"
+        android:layout_width="match_parent"
+        android:layout_height="36dp"
+        android:background="@color/color_fee3e6"
+        android:text="@string/conversation_network_error_tip"
+        android:textColor="@color/color_fc596a"
+        android:gravity="center"
+        android:visibility="gone"
+        android:textSize="14dp" />
+
+    <com.netease.yunxin.kit.conversationkit.ui.view.ConversationView
+        android:id="@+id/conversation_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+    </LinearLayout>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

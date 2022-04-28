@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+
+    <com.netease.yunxin.kit.common.ui.widgets.ContactAvatarView
+        android:id="@+id/avatar"
+        android:layout_width="@dimen/dimen_42_dp"
+        android:layout_height="@dimen/dimen_42_dp"
+        android:layout_marginEnd="@dimen/dimen_10_dp"
+        android:layout_marginVertical="@dimen/dimen_10_dp" />
+
+    <TextView
+        android:id="@+id/nickname"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:layout_gravity="center_vertical" />
+
+</LinearLayout>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<scale xmlns:android="http://schemas.android.com/apk/res/android"
+    android:fromXScale="@dimen/dimen_103_dp"
+    android:fromYScale="@dimen/dimen_103_dp"
+    android:pivotX="50%"
+    android:pivotY="50%"
+    android:toXScale="@dimen/dimen_150_dp"
+    android:toYScale="@dimen/dimen_150_dp" />
