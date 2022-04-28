@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2022 NetEase, Inc.  All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be found in the LICENSE file.
+  -->
+
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/qchat_three_status_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <FrameLayout
+        android:id="@+id/qchat_three_status_close_layout"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1">
+
+        <ImageView
+            android:id="@+id/qchat_three_status_close_iv"
+            android:layout_width="@dimen/dimen_10_dp"
+            android:layout_height="@dimen/dimen_10_dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_red_close" />
+    </FrameLayout>
+
+    <View
+        android:layout_width="@dimen/dimen_1_dp"
+        android:layout_height="match_parent"
+        android:background="@color/color_dbdde4" />
+
+    <FrameLayout
+        android:id="@+id/qchat_three_status_neutral_layout"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1">
+
+        <ImageView
+            android:id="@+id/qchat_three_status_neutral_iv"
+            android:layout_width="@dimen/dimen_10_dp"
+            android:layout_height="@dimen/dimen_10_dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_gray_neutral" />
+    </FrameLayout>
+
+    <View
+        android:layout_width="@dimen/dimen_1_dp"
+        android:layout_height="match_parent"
+        android:background="@color/color_dbdde4" />
+
+    <FrameLayout
+        android:id="@+id/qchat_three_status_open_layout"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1">
+
+        <ImageView
+            android:id="@+id/qchat_three_status_open_iv"
+            android:layout_width="@dimen/dimen_10_dp"
+            android:layout_height="@dimen/dimen_10_dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_green_open" />
+    </FrameLayout>
+</merge>

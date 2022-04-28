@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2022 NetEase, Inc.  All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be found in the LICENSE file.
+  -->
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.netease.yunxin.kit.contactkit.ui">
+
+    <application>
+        <provider
+            android:name="com.netease.yunxin.kit.corekit.startup.InitializationProvider"
+            android:authorities="${applicationId}.xkit-startup"
+            android:exported="false"
+            tools:node="merge">
+            <meta-data
+                android:name="com.netease.yunxin.kit.contactkit.ui.ContactUIService"
+                android:value="xkit.startup" />
+        </provider>
+
+        <activity
+            android:name=".addfriend.AddFriendActivity"
+            android:exported="false" />
+
+
+        <activity
+            android:name=".blacklist.BlackListActivity"
+            android:screenOrientation="portrait"
+            android:launchMode="singleTop" />
+
+        <activity
+            android:name=".team.TeamListActivity"
+            android:screenOrientation="portrait"
+            android:launchMode="singleTop" />
+
+        <activity
+            android:name=".verify.VerifyListActivity"
+            android:screenOrientation="portrait"
+            android:launchMode="singleTop" />
+
+        <activity
+            android:name=".userinfo.UserInfoActivity"
+            android:screenOrientation="portrait"
+            android:launchMode="singleTop" />
+
+        <activity
+            android:name=".userinfo.CommentActivity"
+            android:screenOrientation="portrait"
+            android:launchMode="singleTop" />
+
+        <activity
+            android:name=".selector.ContactSelectorActivity"
+            android:screenOrientation="portrait"
+            android:launchMode="singleTop" />
+
+    </application>
+
+</manifest>

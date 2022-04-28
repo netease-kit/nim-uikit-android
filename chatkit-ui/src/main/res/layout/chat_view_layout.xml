@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <com.netease.yunxin.kit.common.ui.widgets.BackTitleBar
+        android:id="@+id/title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <com.netease.yunxin.kit.chatkit.ui.view.message.ChatMessageListView
+            android:id="@+id/messageView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/tv_notification"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/text_size_10"
+            android:textColor="@color/color_333333"
+            android:gravity="center"
+            android:visibility="gone"
+            android:background="@color/color_white"
+            android:padding="@dimen/dimen_5_dp" />
+
+    </FrameLayout>
+
+    <com.netease.yunxin.kit.chatkit.ui.view.input.MessageBottomLayout
+        android:id="@+id/inputView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+</LinearLayout>

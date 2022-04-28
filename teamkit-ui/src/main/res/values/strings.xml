@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2022 NetEase, Inc.  All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be found in the LICENSE file.
+  -->
+
+<resources>
+    <string name="team_setting_title">设置</string>
+    <string name="team_info_title">群信息</string>
+    <string name="team_group_info_title">讨论组信息</string>
+    <string name="team_name_title">群名称</string>
+    <string name="team_group_name_title">讨论组名称</string>
+    <string name="team_member_title">群成员</string>
+    <string name="team_group_member_title">讨论组成员</string>
+    <string name="team_icon_title">群头像</string>
+    <string name="team_group_icon_title">讨论组头像</string>
+    <string name="team_introduce_title">群介绍</string>
+    <string name="team_my_nickname_title">我在群里的昵称</string>
+    <string name="team_mark">标记</string>
+    <string name="team_history">历史记录</string>
+    <string name="team_message_tip">开启消息提醒</string>
+    <string name="team_session_pin">聊天置顶</string>
+    <string name="team_mute">群禁言</string>
+    <string name="team_invite_other_permission">邀请他人权限</string>
+    <string name="team_update_info_permission">群资料修改权限</string>
+    <string name="team_need_agreed_when_be_invited_permission">是否需要被邀请者同意</string>
+    <string name="team_advanced_dismiss">解散群聊</string>
+    <string name="team_advanced_quit">退出群聊</string>
+    <string name="team_group_quit">退出讨论组</string>
+    <string name="team_default_icon">选择默认图标</string>
+    <string name="team_all_member">所有人</string>
+    <string name="team_owner">群主</string>
+    <string name="team_update_icon">修改头像</string>
+    <string name="team_cancel">取消</string>
+    <string name="team_confirm">确认</string>
+    <string name="team_quit_advanced_team_query">是否退出群聊？</string>
+    <string name="team_quit_group_team_query">是否退出讨论组？</string>
+    <string name="team_dismiss_advanced_team_query">是否解散群聊？</string>
+    <string name="team_save">保存</string>
+    <string name="team_search_friend">搜索好友</string>
+</resources>

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/color_black">
+
+    <FrameLayout
+        android:id="@+id/media_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <ImageView
+        android:id="@+id/media_close"
+        android:layout_width="@dimen/dimen_28_dp"
+        android:layout_height="@dimen/dimen_28_dp"
+        android:layout_marginStart="@dimen/dimen_20_dp"
+        android:layout_marginBottom="@dimen/dimen_20_dp"
+        android:src="@drawable/ic_close_round"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent" />
+
+
+    <ImageView
+        android:id="@+id/media_download"
+        android:layout_width="@dimen/dimen_28_dp"
+        android:layout_height="@dimen/dimen_28_dp"
+        android:layout_marginEnd="@dimen/dimen_12_dp"
+        android:layout_marginBottom="@dimen/dimen_20_dp"
+        android:src="@drawable/ic_download"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toLeftOf="@+id/media_more"
+        app:layout_goneMarginEnd="@dimen/dimen_20_dp" />
+
+    <ImageView
+        android:id="@+id/media_more"
+        android:layout_width="@dimen/dimen_28_dp"
+        android:layout_height="@dimen/dimen_28_dp"
+        android:layout_marginEnd="@dimen/dimen_20_dp"
+        android:layout_marginBottom="@dimen/dimen_20_dp"
+        android:src="@drawable/ic_more_media"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        tools:visibility="visible" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
