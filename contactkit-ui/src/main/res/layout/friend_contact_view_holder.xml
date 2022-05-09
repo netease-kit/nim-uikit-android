@@ -10,6 +10,7 @@
     android:layout_height="wrap_content"
     android:paddingStart="@dimen/dimen_8_dp"
     android:paddingEnd="@dimen/dimen_20_dp"
+    android:background="@drawable/view_normal_selector"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 

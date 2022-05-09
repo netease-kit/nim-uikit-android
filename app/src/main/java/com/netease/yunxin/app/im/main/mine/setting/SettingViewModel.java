@@ -11,27 +11,27 @@ import com.netease.yunxin.kit.corekit.im.repo.ConfigRepo;
 public class SettingViewModel extends BaseViewModel {
 
     public boolean getDeleteAlias(){
-       return ConfigRepo.INSTANCE.getDeleteAlias();
+       return ConfigRepo.getDeleteAlias();
     }
 
     public void setDeleteAlias(boolean delete){
-        ConfigRepo.INSTANCE.updateDeleteAlias(delete);
+        ConfigRepo.updateDeleteAlias(delete);
     }
 
     public boolean getShowReadStatus(){
-        return ConfigRepo.INSTANCE.getShowReadStatus();
+        return ConfigRepo.getShowReadStatus();
     }
 
     public void setShowReadStatus(boolean delete){
-        ConfigRepo.INSTANCE.updateShowReadStatus(delete);
+        ConfigRepo.updateShowReadStatus(delete);
     }
 
     public int getAudioPlayMode(){
-        return ConfigRepo.INSTANCE.getAudioPlayModel();
+        return ConfigRepo.getAudioPlayModel();
     }
 
     public void setAudioPlayMode(int mode){
-        ConfigRepo.INSTANCE.updateAudioPlayMode(mode);
+        ConfigRepo.updateAudioPlayMode(mode);
     }
 
 }

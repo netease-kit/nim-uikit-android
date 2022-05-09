@@ -7,10 +7,12 @@ package com.netease.yunxin.app.im.welcome;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.netease.nimlib.sdk.auth.LoginInfo;
 import com.netease.nimlib.sdk.qchat.result.QChatLoginResult;
@@ -25,10 +27,14 @@ import com.netease.yunxin.kit.corekit.im.login.LoginCallback;
  */
 public class WelcomeActivity extends AppCompatActivity {
 
+    private ActivityWelcomeBinding activityWelcomeBinding;
+    private WelcomeViewModel viewModel;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ActivityWelcomeBinding activityWelcomeBinding = ActivityWelcomeBinding.inflate(getLayoutInflater());
+        activityWelcomeBinding = ActivityWelcomeBinding.inflate(getLayoutInflater());
+        viewModel = new ViewModelProvider(this).get(WelcomeViewModel.class);
         setContentView(activityWelcomeBinding.getRoot());
         startLogin();
     }
@@ -48,9 +54,25 @@ public class WelcomeActivity extends AppCompatActivity {
     private void startLogin() {
         //start you login account and token , or with loginIm
         LoginInfo loginInfo = LoginInfo.LoginInfoBuilder.loginInfoDefault("account","token").withAppKey(DataUtils.readAppKey(this)).build();
-        loginIM(loginInfo);
+
+        // modify me, manager your own login state
+        boolean hasLogin = false;
+
+        if (hasLogin) {
+            loginIM(loginInfo);
+        } else {
+            activityWelcomeBinding.appDesc.setVisibility(View.GONE);
+            activityWelcomeBinding.loginButton.setVisibility(View.VISIBLE);
+            activityWelcomeBinding.loginButton.setOnClickListener(view -> launchLoginPage());
+        }
     }
 
+    /**
+     * launch login activity
+     */
+    private void launchLoginPage() {
+        // jump to your own LoginPage here
+    }
 
     /**
      * when your own page login success, you should login IM SDK
@@ -61,11 +83,12 @@ public class WelcomeActivity extends AppCompatActivity {
         XKitImClient.loginIMWithQChat(loginInfo,new LoginCallback<QChatLoginResult>() {
             @Override
             public void onError(int errorCode, @NonNull String errorMsg) {
-                // login error
+                launchLoginPage();
             }
 
             @Override
             public void onSuccess(@Nullable QChatLoginResult data) {
+                viewModel.updateNotificationConfig();
                 showMainActivityAndFinish();
             }
         });

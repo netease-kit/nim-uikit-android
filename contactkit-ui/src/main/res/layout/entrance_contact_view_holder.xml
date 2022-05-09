@@ -8,6 +8,7 @@
     android:id="@+id/root_view"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@drawable/view_normal_selector"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <ImageView

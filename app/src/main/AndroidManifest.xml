@@ -218,6 +218,7 @@
         <!--Vivo推送配置项-->
         <service
             android:name="com.vivo.push.sdk.service.CommandClientService"
+            android:permission="com.push.permission.UPSTAGESERVICE"
             android:exported="true"/>
         <activity
             android:name="com.vivo.push.sdk.LinkProxyClientActivity"

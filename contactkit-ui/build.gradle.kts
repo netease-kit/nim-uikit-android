@@ -10,13 +10,14 @@ plugins {
 }
 
 android {
-    compileSdk = 30
+    compileSdk = 31
 
     defaultConfig {
-        minSdk = 31
-        targetSdk = 21
+        minSdk = 21
+        targetSdk = 30
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
+        buildConfigField("String", "versionName", "9.0.0")
     }
 
     buildTypes {
@@ -38,17 +39,17 @@ android {
 
 dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
-    api("com.netease.yunxin.kit.contact:contactkit:1.0.0-beta04") 
-    api("com.netease.yunxin.kit.common:common-ui:1.0.4") 
-    api("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.10") 
-    implementation("androidx.appcompat:appcompat:1.4.1") 
-    implementation("com.google.android.material:material:1.5.0") 
-    implementation("androidx.recyclerview:recyclerview:1.2.1") 
-    implementation("com.github.bumptech.glide:glide:4.13.1") 
-    implementation("com.netease.yunxin.kit.common:common:1.0.4") 
+    api("com.netease.yunxin.kit.contact:contactkit:9.0.0")
+    api("com.netease.yunxin.kit.common:common-ui:1.0.5")
+    api("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.10")
+    implementation("androidx.appcompat:appcompat:1.4.1")
+    implementation("com.google.android.material:material:1.5.0")
+    implementation("androidx.recyclerview:recyclerview:1.2.1")
+    implementation("com.github.bumptech.glide:glide:4.13.1")
+    implementation("com.netease.yunxin.kit.common:common:1.0.5")
 
-    testImplementation("junit:junit:4.13.2") 
-    androidTestImplementation("androidx.test.ext:junit:1.1.3") 
+    testImplementation("junit:junit:4.13.2")
+    androidTestImplementation("androidx.test.ext:junit:1.1.3")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.4.0")
 }
 

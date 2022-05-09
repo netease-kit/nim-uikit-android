@@ -39,7 +39,7 @@ public class ContactConfig {
     public ContactViewHolderFactory viewHolderFactory;
     public ContactActions contactActions;
     public List<ContactEntranceBean> headerData;
-    public SparseArray<IContactClickListener> itemClickListeners = new SparseArray<>();;
-    public SparseArray<IContactSelectorListener> itemSelectorListeners = new SparseArray<>();;
+    public SparseArray<IContactClickListener> itemClickListeners = new SparseArray<>();
+    public SparseArray<IContactSelectorListener> itemSelectorListeners = new SparseArray<>();
 
 }

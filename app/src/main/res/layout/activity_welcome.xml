@@ -6,6 +6,7 @@
 
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -31,6 +32,21 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/app_icon" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/login_button"
+        android:layout_width="@dimen/dimen_315_dp"
+        android:layout_height="@dimen/dimen_50_dp"
+        android:layout_marginTop="@dimen/dimen_127_dp"
+        android:background="@drawable/bg_login_button"
+        android:text="@string/welcome_button"
+        android:textColor="@color/white"
+        android:textSize="@dimen/dimen_15_dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/app_icon"
+        tools:ignore="SpUsage" />
 
     <androidx.appcompat.widget.AppCompatImageView
         android:layout_width="@dimen/dimen_82_dp"

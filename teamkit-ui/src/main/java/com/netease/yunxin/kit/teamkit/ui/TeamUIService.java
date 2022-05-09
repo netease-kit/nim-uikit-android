@@ -16,6 +16,7 @@ import androidx.annotation.Nullable;
 import com.netease.yunxin.kit.corekit.XKitService;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 import com.netease.yunxin.kit.corekit.startup.Initializer;
+import com.netease.yunxin.kit.teamkit.TeamService;
 import com.netease.yunxin.kit.teamkit.ui.activity.TeamSettingActivity;
 
 import java.util.Collections;
@@ -28,11 +29,17 @@ import java.util.Map;
  * it need to config in manifest
  */
 @Keep
-public class TeamUIService implements XKitService {
+public class TeamUIService extends TeamService {
     @NonNull
     @Override
     public String getServiceName() {
         return "TeamUIService";
+    }
+
+    @NonNull
+    @Override
+    public String getVersionName() {
+        return BuildConfig.versionName;
     }
 
     @Nullable
@@ -44,7 +51,7 @@ public class TeamUIService implements XKitService {
     @Override
     public XKitService create(@NonNull Context context) {
         XKitRouter.registerRouter(PATH_TEAM_SETTING, TeamSettingActivity.class);
-        return null;
+        return this;
     }
 
     @NonNull

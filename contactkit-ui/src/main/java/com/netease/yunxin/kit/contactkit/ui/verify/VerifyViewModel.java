@@ -22,9 +22,7 @@ import com.netease.yunxin.kit.corekit.im.provider.SystemMessageInfoObserver;
 import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class VerifyViewModel extends BaseViewModel {
 
@@ -37,9 +35,6 @@ public class VerifyViewModel extends BaseViewModel {
     private final List<ContactVerifyInfoBean> verifyBeanList = new ArrayList<>();
     private final SystemMessageInfoObserver infoObserver;
     private final ContactRepo contactRepo = new ContactRepo();
-    private final boolean MERGE_ADD_FRIEND_VERIFY = true;
-    private final Set<String> addFriendSet = new HashSet<>();
-
 
     public MutableLiveData<FetchResult<List<ContactVerifyInfoBean>>> getFetchResult() {
         return resultLiveData;
@@ -58,7 +53,6 @@ public class VerifyViewModel extends BaseViewModel {
                             resetMessageStatus(param);
                             for (SystemMessageInfo msg : param) {
                                 ContactVerifyInfoBean friendBean = new ContactVerifyInfoBean(msg);
-                                mergeNotify(msg);
                                 verifyBeanList.add(0, friendBean);
                                 add.add(friendBean);
                             }
@@ -102,10 +96,8 @@ public class VerifyViewModel extends BaseViewModel {
                     fetchResult.setStatus(LoadStatus.Success);
                     resetMessageStatus(param);
                     for (SystemMessageInfo contactInfo : param) {
-                        if (!mergeNotify(contactInfo)) {
-                            ContactVerifyInfoBean friendBean = new ContactVerifyInfoBean(contactInfo);
-                            verifyBeanList.add(friendBean);
-                        }
+                        ContactVerifyInfoBean friendBean = new ContactVerifyInfoBean(contactInfo);
+                        verifyBeanList.add(friendBean);
                     }
                     fetchResult.setData(verifyBeanList);
                 } else {
@@ -127,17 +119,6 @@ public class VerifyViewModel extends BaseViewModel {
                 resultLiveData.postValue(fetchResult);
             }
         });
-    }
-
-    private boolean mergeNotify(SystemMessageInfo info) {
-        if (info.getInfoType() == SystemMessageInfoType.AddFriend) {
-            if (addFriendSet.contains(info.getFromAccount())) {
-                return true;
-            }
-            addFriendSet.add(info.getFromAccount());
-        }
-
-        return false;
     }
 
     public void clearNotify() {

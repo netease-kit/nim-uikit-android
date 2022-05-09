@@ -150,7 +150,6 @@ public class ConversationFragment extends BaseFragment implements ILoadListener 
                 }
             }
         };
-        registerObserver();
         viewBinding.conversationView.setViewHolderFactory(new ConversationViewHolderFactory());
         viewBinding.conversationView.setComparator(conversationComparator);
         viewBinding.conversationView.setItemClickListener(new ViewHolderClickListener() {
@@ -166,6 +165,7 @@ public class ConversationFragment extends BaseFragment implements ILoadListener 
             }
         });
         NetworkUtils.registerStateListener(networkStateListener);
+        registerObserver();
 
         viewBinding.conversationTitleBar.setMoreImageClick(v -> {
             Context context = getContext();

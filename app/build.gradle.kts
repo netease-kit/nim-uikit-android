@@ -16,7 +16,7 @@ android {
         minSdk = 21
         targetSdk = 30
         versionCode = 1
-        versionName = "1.3.0-beta"
+        versionName = "9.0.0"
         multiDexEnabled = true
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -49,14 +49,13 @@ dependencies {
     implementation("com.google.android.material:material:1.5.0") 
     implementation("androidx.constraintlayout:constraintlayout:2.1.3") 
     implementation("androidx.multidex:multidex:2.0.1") 
-    implementation("com.netease.yunxin.kit.contact:contactkit-ui:1.0.0-beta04") 
-    implementation("com.netease.yunxin.kit.qchat:qchatkit-ui:1.0.0-beta03") 
-    implementation("com.netease.yunxin.kit.conversation:conversationkit-ui:1.0.0-beta03") 
-    implementation("com.netease.yunxin.kit.team:teamkit-ui:1.0.0-beta03") 
-    implementation("com.netease.yunxin.kit.chat:chatkit-ui:1.0.0-beta04") 
-    implementation("com.netease.yunxin.kit.search:searchkit-ui:1.0.0-beta03") 
-    implementation("com.netease.yunxin.kit.auth:auth-yunxin-login:1.0.3") 
-    implementation("com.airbnb.android:lottie:5.0.3") 
+    implementation("com.netease.yunxin.kit.contact:contactkit-ui:9.0.0")
+    implementation("com.netease.yunxin.kit.qchat:qchatkit-ui:9.0.0")
+    implementation("com.netease.yunxin.kit.conversation:conversationkit-ui:9.0.0")
+    implementation("com.netease.yunxin.kit.team:teamkit-ui:9.0.0")
+    implementation("com.netease.yunxin.kit.chat:chatkit-ui:9.0.0")
+    implementation("com.netease.yunxin.kit.search:searchkit-ui:9.0.0")
+    implementation("com.airbnb.android:lottie:5.0.3")
     implementation("com.github.bumptech.glide:glide:4.13.1") 
     implementation("com.squareup.retrofit2:retrofit:2.9.0") 
     implementation("com.squareup.retrofit2:converter-gson:2.9.0") 
@@ -64,6 +63,7 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.9.3") 
     implementation("com.huawei.hms:push:6.3.0.302") 
     implementation("com.meizu.flyme.internet:push-internal:4.1.0") 
+    implementation("com.huawei.agconnect:agconnect-core:1.6.5.300") 
 
     testImplementation("junit:junit:4.13.2") 
     androidTestImplementation("androidx.test.ext:junit:1.1.3") 

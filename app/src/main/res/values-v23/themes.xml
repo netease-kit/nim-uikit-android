@@ -8,8 +8,6 @@
 
     <style name="Theme.Xkit" parent="Theme.MaterialComponents.Light.NoActionBar">
         <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/color_blue</item>
-        <item name="colorPrimaryVariant">@color/color_blue</item>
         <item name="colorOnPrimary">@color/white</item>
         <!-- Status bar color. -->
         <item name="colorPrimaryDark">@color/white</item>
