@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (c) 2022 NetEase, Inc.  All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be found in the LICENSE file.
+  -->
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.netease.yunxin.kit.qchatkit.ui">
+
+    <!-- permission -->
+    <!-- network-->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
+
+    <!-- storage -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+
+    <!-- media -->
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+
+    <uses-permission android:name="android.permission.FLASHLIGHT" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+
+    <!-- 8.0+ need-->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+
+    <application>
+
+        <provider
+            android:name="com.netease.yunxin.kit.corekit.startup.InitializationProvider"
+            android:authorities="${applicationId}.xkit-startup"
+            android:exported="false"
+            tools:node="merge">
+            <meta-data
+                android:name="com.netease.yunxin.kit.qchatkit.ui.QChatUIService"
+                android:value="xkit.startup"/>
+        </provider>
+
+        <activity
+            android:name=".server.QChatServerSettingActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".server.QChatRoleListActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".server.QChatRoleSortActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".server.QChatServerMemberInfoActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".server.QChatRoleCreateActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".server.QChatRoleMemberActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".server.QChatRoleSettingActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".server.QChatMemberSelectorActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".server.QChatCreateWayActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".server.QChatCreateBySelfActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".server.QChatServerMemberListActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".server.QChatJoinOtherServerActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".common.photo.crop.CropImageActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".channel.setting.ChannelSettingActivity"
+            android:exported="false" />
+        <activity
+            android:name=".channel.QChatChannelTypeSelectActivity"
+            android:exported="false" />
+        <activity
+            android:name=".channel.QChatChannelCreateActivity"
+            android:exported="false" />
+        <activity
+            android:name=".channel.permission.QChatChannelPermissionActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".channel.permission.QChatRolePermissionActivity"
+            android:exported="false" />
+        <activity
+            android:name=".channel.add.QChatChannelAddRoleActivity"
+            android:exported="false" />
+        <activity
+            android:name=".channel.add.QChatChannelAddMemberActivity"
+            android:exported="false" />
+        <activity
+            android:name=".channel.permission.QChatMemberPermissionActivity"
+            android:exported="false" />
+        <activity
+            android:name=".channel.blackwhite.QChatBlackWhiteActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".message.QChatChannelMessageActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".common.WatchImageActivity"
+            android:windowSoftInputMode="adjustPan"
+            android:exported="false" />
+
+    </application>
+
+</manifest>

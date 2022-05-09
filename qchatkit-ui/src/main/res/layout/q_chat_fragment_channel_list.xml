@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (c) 2022 NetEase, Inc.  All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be found in the LICENSE file.
+  -->
+
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingStart="12dp"
+    android:clipToPadding="false"
+    android:paddingEnd="12dp">
+
+    <TextView
+        android:id="@+id/tvTitle"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:gravity="center_vertical|start"
+        android:singleLine="true"
+        android:textColor="@color/color_333333"
+        android:textSize="16dp"
+        app:layout_constraintEnd_toStartOf="@id/ivAddChannel"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="SpUsage" />
+
+    <ImageView
+        android:id="@+id/ivMore"
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:src="@drawable/ic_more_point"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <View
+        android:id="@+id/divide"
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:layout_marginTop="50dp"
+        android:background="@color/color_f5f8fc"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <include
+        android:id="@+id/networkTip"
+        layout="@layout/q_chat_view_network_error"
+        android:layout_width="match_parent"
+        android:layout_height="36dp"
+        android:layout_marginStart="-12dp"
+        android:layout_marginEnd="-12dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/tvTitle" />
+
+    <TextView
+        android:id="@+id/tvTitleTip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@string/qchat_msg_channel"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/networkTip" />
+
+    <ImageView
+        android:id="@+id/ivAddChannel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingStart="16dp"
+        android:paddingTop="16dp"
+        android:paddingEnd="0dp"
+        android:src="@drawable/ic_add_cross"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/networkTip" />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/groupChannelInfo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="visible"
+        app:constraint_referenced_ids="tvTitle,ivMore,divide,tvTitleTip,ivAddChannel" />
+
+
+    <ImageView
+        android:id="@+id/ivNoChannelTip"
+        android:layout_width="122dp"
+        android:layout_height="91dp"
+        android:layout_marginTop="80dp"
+        android:background="@drawable/ic_qchat_tip_no_channels"
+        app:layout_constraintBottom_toTopOf="@id/tvNoChannelTip"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/ivAddChannel"
+        app:layout_constraintVertical_chainStyle="packed" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/ryChannelList"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="18dp"
+        android:overScrollMode="never"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/ivAddChannel" />
+
+    <TextView
+        android:id="@+id/tvNoChannelTip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:gravity="center"
+        android:text="@string/qchat_no_Channel_with_server"
+        android:textColor="@color/color_b3b7bc"
+        android:textSize="14dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/ivNoChannelTip"
+        tools:ignore="SpUsage" />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/groupNoChannelTip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:constraint_referenced_ids="ivNoChannelTip,tvNoChannelTip" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

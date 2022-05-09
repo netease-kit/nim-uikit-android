@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2022 NetEase, Inc.  All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be found in the LICENSE file.
+  -->
+
+<resources>
+    <dimen name="photo_crop_width">280dip</dimen>
+    <dimen name="photo_crop_stroke_width">1dip</dimen>
+    <dimen name="photo_preview_size">200dip</dimen>
+    <dimen name="retry_button_size">48dip</dimen>
+    <dimen name="photo_page_margin">32dip</dimen>
+</resources>

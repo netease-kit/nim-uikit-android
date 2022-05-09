@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2022 NetEase, Inc.  All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be found in the LICENSE file.
+  -->
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    android:installLocation="auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.netease.yunxin.app.im">
+
+    <!-- replace com.netease.yunxin.app.im with your package name -->
+    <!-- add uses-permission into your AndroidManifest -->
+    <permission
+        android:name="com.netease.yunxin.app.im.permission.RECEIVE_MSG"
+        android:protectionLevel="signature"/>
+
+    <!-- receive SDK broadcast， replace com.netease.yunxin.app.im with your package name -->
+    <uses-permission android:name="com.netease.yunxin.app.im.permission.RECEIVE_MSG"/>
+
+    <!-- xiaomi push -->
+    <permission
+        android:name="com.netease.yunxin.app.im.permission.MIPUSH_RECEIVE"
+        android:protectionLevel="signature"/>
+    <uses-permission android:name="com.netease.yunxin.app.im.permission.MIPUSH_RECEIVE"/>
+
+    <uses-sdk tools:overrideLibrary="com.huawei.android.hms.base,com.huawei.android.hms.push"/>
+    <!--meuzu push-->
+    <!-- down Flyme5 version -->
+    <uses-permission android:name="com.meizu.flyme.push.permission.RECEIVE"/>
+    <permission
+        android:name="com.netease.yunxin.app.im.push.permission.MESSAGE"
+        android:protectionLevel="signature"/>
+    <uses-permission android:name="com.netease.yunxin.app.im.push.permission.MESSAGE"/>
+    <!--  Flyme3 -->
+    <uses-permission android:name="com.meizu.c2dm.permission.RECEIVE" />
+    <permission
+        android:name="com.netease.yunxin.app.im.permission.C2D_MESSAGE"
+        android:protectionLevel="signature"/>
+    <uses-permission android:name="com.netease.yunxin.app.im.permission.C2D_MESSAGE"/>
+
+    <!--  oppo push-->
+    <uses-permission android:name="com.coloros.mcs.permission.RECIEVE_MCS_MESSAGE"/>
+    <uses-permission android:name="com.heytap.mcs.permission.RECIEVE_MCS_MESSAGE"/>
+
+
+    <application android:name=".IMApplication"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_logo"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_logo"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Xkit">
+        <meta-data
+            android:name="com.netease.nim.appKey"
+            android:value="your app key" />
+
+        <activity android:name=".welcome.WelcomeActivity" android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".main.MainActivity"
+            android:screenOrientation="unspecified"
+            android:launchMode="singleTask"
+            android:exported="true">
+
+            <intent-filter>
+                <action android:name="https://netease.yunxin.im.demo.home"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".main.mine.UserInfoActivity"
+            android:screenOrientation="unspecified"
+            android:exported="false" />
+
+        <activity
+            android:name=".main.mine.EditUserInfoActivity"
+            android:screenOrientation="unspecified"
+            android:exported="false" />
+
+        <activity
+            android:name=".main.mine.TypeSelectActivity"
+            android:screenOrientation="unspecified"
+            android:exported="false" />
+
+        <activity
+            android:name=".about.AboutActivity"
+            android:screenOrientation="unspecified"
+            android:exported="false" />
+
+        <activity
+            android:name=".main.mine.setting.SettingActivity"
+            android:screenOrientation="unspecified"
+            android:exported="false" />
+
+        <activity
+            android:name=".main.mine.setting.SettingNotifyActivity"
+            android:screenOrientation="unspecified"
+            android:exported="false" />
+
+        <activity
+            android:name=".main.mine.setting.ClearCacheActivity"
+            android:screenOrientation="unspecified"
+            android:exported="false" />
+
+        <meta-data
+            android:name="com.netease.yunxin.app.im.XKitInitOptionsImpl"
+            android:value="com.netease.yunxin.xkit.options"/>
+
+        <!-- 小米推送配置 -->
+        <service
+            android:name="com.xiaomi.push.service.XMJobService"
+            android:enabled="true"
+            android:exported="false"
+            android:permission="android.permission.BIND_JOB_SERVICE"
+            android:process=":mixpush"/>
+
+        <service
+            android:name="com.xiaomi.push.service.XMPushService"
+            android:enabled="true"
+            android:process=":mixpush"/>
+
+        <receiver
+            android:name="com.xiaomi.push.service.receivers.PingReceiver"
+            android:exported="false"
+            android:process=":mixpush">
+            <intent-filter>
+                <action android:name="com.xiaomi.push.PING_TIMER"/>
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name="com.xiaomi.push.service.receivers.NetworkStatusReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </receiver>
+
+        <service
+            android:name="com.xiaomi.mipush.sdk.PushMessageHandler"
+            android:enabled="true"
+            android:exported="true"/>
+
+        <service
+            android:name="com.xiaomi.mipush.sdk.MessageHandleService"
+            android:enabled="true"/>
+
+        <receiver
+            android:name="com.netease.nimlib.mixpush.mi.MiPushReceiver"
+            android:exported="true">
+            <intent-filter android:priority="0x7fffffff">
+                <action android:name="com.xiaomi.mipush.RECEIVE_MESSAGE"/>
+                <action android:name="com.xiaomi.mipush.MESSAGE_ARRIVED"/>
+                <action android:name="com.xiaomi.mipush.ERROR"/>
+            </intent-filter>
+        </receiver>
+
+        <!--华为推送配置-->
+        <service
+            android:name="com.netease.nimlib.mixpush.hw.HWPushService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.huawei.push.action.MESSAGING_EVENT" />
+            </intent-filter>
+
+        </service>
+        <service
+            android:name=".push.HWPushMessageService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.netease.nimlib.mixpush.hw.action.MESSAGING_EVENT" />
+            </intent-filter>
+
+        </service>
+
+        <!-- fcm -->
+        <service
+            android:name="com.netease.nimlib.mixpush.fcm.FCMTokenService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+        <!--设置收到 fcm 通知展示的图标和颜色-->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/ic_yunxin"/>
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_color"
+            android:resource="@color/color_blue_3a9efb"/>
+
+        <!--魅族推送配置项-->
+        <receiver android:name="com.netease.nimlib.mixpush.mz.MZPushReceiver">
+            <intent-filter android:priority="0x7fffffff">
+                <!-- 接收 push 消息 -->
+                <action android:name="com.meizu.flyme.push.intent.MESSAGE" />
+                <!-- 接收 register 消息 -->
+                <action android:name="com.meizu.flyme.push.intent.REGISTER.FEEDBACK" />
+                <!-- 接收 unregister 消息-->
+                <action android:name="com.meizu.flyme.push.intent.UNREGISTER.FEEDBACK"/>
+                <!-- 兼容低版本 Flyme3 推送服务配置 -->
+                <action android:name="com.meizu.c2dm.intent.REGISTRATION" />
+                <action android:name="com.meizu.c2dm.intent.RECEIVE" />
+
+                <category android:name="com.netease.nim.demo"/>
+            </intent-filter>
+        </receiver>
+
+        <!--Vivo推送配置项-->
+        <service
+            android:name="com.vivo.push.sdk.service.CommandClientService"
+            android:permission="com.push.permission.UPSTAGESERVICE"
+            android:exported="true"/>
+        <activity
+            android:name="com.vivo.push.sdk.LinkProxyClientActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
+
+        <meta-data
+            android:name="com.vivo.push.api_key"
+            android:value="vivo push api key"/>
+        <meta-data
+            android:name="com.vivo.push.app_id"
+            android:value="vivo push app id"/>
+
+        <receiver android:name="com.netease.nimlib.mixpush.vivo.VivoPushReceiver">
+            <intent-filter>
+                <!-- 接收 push 消息 -->
+                <action android:name="com.vivo.pushclient.action.RECEIVE"/>
+            </intent-filter>
+        </receiver>
+
+        <!--Oppo推送配置项 需要配置以下两项-->
+        <service
+            android:name="com.netease.nimlib.mixpush.oppo.OppoPushService"
+
+            android:permission="com.coloros.mcs.permission.SEND_MCS_MESSAGE">
+            <intent-filter>
+                <action android:name="com.coloros.mcs.action.RECEIVE_MCS_MESSAGE"/>
+            </intent-filter>
+        </service> <!--兼容Q以下版本-->
+
+        <service
+            android:name="com.netease.nimlib.mixpush.oppo.OppoAppPushService"
+
+            android:permission="com.heytap.mcs.permission.SEND_PUSH_MESSAGE">
+
+            <intent-filter>
+                <action android:name="com.heytap.mcs.action.RECEIVE_MCS_MESSAGE"/>
+
+                <action android:name="com.heytap.msp.push.RECEIVE_MCS_MESSAGE"/>
+            </intent-filter>
+        </service> <!--兼容Q版本-->
+    </application>
+
+</manifest>

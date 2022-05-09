@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2022 NetEase, Inc.  All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be found in the LICENSE file.
+  -->
+
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <LinearLayout android:id="@+id/contact_header_layout"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/page_title_bar_height"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="MissingConstraints">
+
+        <com.netease.yunxin.kit.common.ui.widgets.TitleBarView
+            android:id="@+id/contact_title_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:head_title="@string/contact_title"
+            app:head_title_color="@color/title_color"/>
+
+    </LinearLayout>
+
+    <FrameLayout android:id="@+id/contact_body_layout"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintVertical_weight="1"
+        app:layout_constraintTop_toBottomOf="@+id/contact_header_layout"
+        app:layout_constraintBottom_toTopOf="@+id/contact_bottom_layout">
+        <com.netease.yunxin.kit.contactkit.ui.view.ContactListView
+            android:id="@+id/contact_listview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:head_img_visible="gone"
+            app:head_title="@string/contact_title"
+            app:head_title_color="@color/title_color"/>
+
+    </FrameLayout>
+
+    <LinearLayout android:id="@+id/contact_bottom_layout"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:orientation="horizontal"
+        tools:ignore="MissingConstraints"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

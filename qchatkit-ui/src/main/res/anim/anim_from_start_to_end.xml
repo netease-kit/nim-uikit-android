@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (c) 2022 NetEase, Inc.  All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be found in the LICENSE file.
+  -->
+
+<set xmlns:android="http://schemas.android.com/apk/res/android"
+    android:duration="300">
+    <translate
+        android:fromXDelta="0"
+        android:interpolator="@android:anim/decelerate_interpolator"
+        android:toXDelta="100%" />
+</set>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2022 NetEase, Inc.  All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be found in the LICENSE file.
+  -->
+
+<resources>
+    <color name="color_e6605c">#ffe6605c</color>
+    <color name="color_e0ecff">#ffe0ecff</color>
+    <color name="color_b9d3ff">#ffb9d3ff</color>
+    <color name="color_dedede">#ffdedede</color>
+</resources>

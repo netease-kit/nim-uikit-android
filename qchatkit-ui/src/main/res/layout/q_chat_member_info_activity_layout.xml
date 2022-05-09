@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2022 NetEase, Inc.  All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be found in the LICENSE file.
+  -->
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:background="@color/color_eef1f4">
+
+    <com.netease.yunxin.kit.common.ui.widgets.BackTitleBar
+        android:id="@+id/title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/title">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingHorizontal="@dimen/dimen_20_dp"
+            android:orientation="vertical">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/white_round_bg"
+                android:padding="@dimen/dimen_16_dp"
+                android:layout_marginVertical="@dimen/dimen_15_dp">
+
+                <com.netease.yunxin.kit.common.ui.widgets.ContactAvatarView
+                    android:id="@+id/avatar"
+                    android:layout_width="@dimen/dimen_60_dp"
+                    android:layout_height="@dimen/dimen_60_dp"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/tv_member"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/color_333333"
+                    android:textSize="@dimen/text_size_16"
+                    android:layout_marginStart="@dimen/dimen_16_dp"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintLeft_toRightOf="@+id/avatar" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/color_666666"
+                android:textSize="@dimen/text_size_12"
+                android:text="@string/qchat_nickname"
+                android:layout_marginTop="@dimen/dimen_16_dp"
+                android:layout_marginStart="@dimen/dimen_12_dp" />
+
+            <com.netease.yunxin.kit.common.ui.widgets.CleanableEditText
+                android:id="@+id/edt_member_name"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dimen_50_dp"
+                android:gravity="center_vertical"
+                android:textSize="@dimen/text_size_16"
+                app:hintText="@string/qchat_click_edit_and_edit_nickname"
+                app:corner_radius="@dimen/dimen_8_dp"
+                android:maxEms="50"
+                tools:ignore="MissingConstraints"
+                android:textColor="@color/color_333333"
+                android:background="@color/color_white"
+                android:layout_marginTop="@dimen/dimen_8_dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/color_666666"
+                android:text="@string/qchat_roles"
+                android:textSize="@dimen/text_size_12"
+                android:layout_marginTop="@dimen/dimen_16_dp"
+                android:layout_marginStart="@dimen/dimen_12_dp" />
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/white_round_bg"
+                android:layout_marginTop="@dimen/dimen_8_dp"
+                android:orientation="vertical">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rv_identity_group"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                </androidx.recyclerview.widget.RecyclerView>
+
+                <LinearLayout
+                    android:id="@+id/ly_more"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="@dimen/dimen_14_dp"
+                    android:visibility="gone"
+                    android:gravity="center"
+                    android:paddingBottom="@dimen/dimen_16_dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/tv_more"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="@dimen/text_size_14"
+                        android:textColor="@color/color_666666" />
+
+                    <ImageView
+                        android:id="@+id/iv_down"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/dimen_4_dp"
+                        android:src="@drawable/ic_down" />
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dimen_20_dp"
+                android:background="@drawable/white_round_bg"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tv_kick"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/dimen_50_dp"
+                    android:textSize="@dimen/text_size_16"
+                    android:textColor="@color/color_e6605c"
+                    android:text="@string/qchat_kick_someone"
+                    android:gravity="center"
+                    android:paddingVertical="@dimen/dimen_12_dp" />
+
+                <!--            一期没有封禁功能-->
+                <!--            <View-->
+                <!--                android:layout_width="match_parent"-->
+                <!--                android:layout_height="@dimen/dimen_1_dp"-->
+                <!--                android:background="@color/color_f5f8fc" />-->
+
+                <!--            <TextView-->
+                <!--                android:id="@+id/tv_forbid"-->
+                <!--                android:layout_width="match_parent"-->
+                <!--                android:layout_height="@dimen/dimen_50_dp"-->
+                <!--                android:textSize="@dimen/text_size_16"-->
+                <!--                android:textColor="@color/color_e6605c"-->
+                <!--                android:text="@string/forbid_someone"-->
+                <!--                android:gravity="center"-->
+                <!--                android:paddingVertical="@dimen/dimen_12_dp" />-->
+
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+
+
+    <FrameLayout
+        android:id="@+id/fly_process"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/title"
+        android:visibility="gone">
+
+
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center" />
+    </FrameLayout>
+</RelativeLayout>

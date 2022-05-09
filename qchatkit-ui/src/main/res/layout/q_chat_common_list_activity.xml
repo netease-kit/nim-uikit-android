@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2022 NetEase, Inc.  All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be found in the LICENSE file.
+  -->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/common_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/color_eff1f4"
+    android:orientation="vertical">
+
+    <com.netease.yunxin.kit.common.ui.widgets.BackTitleBar
+        android:id="@+id/common_act_title_view"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dimen_55_dp"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="MissingConstraints" />
+
+    <LinearLayout android:id="@+id/common_empty_layout"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dimen_188_dp"
+        android:layout_marginTop="@dimen/dimen_150_dp"
+        android:visibility="gone"
+        android:orientation="vertical">
+
+        <ImageView
+            android:layout_width="@dimen/dimen_118_dp"
+            android:layout_height="@dimen/dimen_96_dp"
+            android:layout_gravity="center_horizontal"
+            android:src="@drawable/ic_qchat_list_empty"/>
+        <TextView android:id="@+id/common_empty_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"/>
+
+    </LinearLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/common_act_recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="@dimen/dimen_8_dp"
+        app:layout_constraintTop_toBottomOf="@+id/common_act_title_view" />
+
+</LinearLayout>
