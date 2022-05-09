@@ -85,21 +85,30 @@
             android:visibility="gone"/>
 
     </LinearLayout>
-    <FrameLayout android:id="@+id/add_friend_result_layout"
+    <LinearLayout android:id="@+id/add_friend_empty_layout"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintTop_toBottomOf="@id/layout_add_friend_input"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintVertical_weight="1"
+        android:orientation="vertical"
+        android:visibility="gone"
         tools:ignore="MissingConstraints" >
+        <ImageView
+            android:layout_width="@dimen/dimen_188_dp"
+            android:layout_height="@dimen/dimen_120_dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="@dimen/dimen_70_dp"
+            android:layout_marginBottom="@dimen/dimen_16_dp"
+            android:src="@drawable/ic_search_empty"/>
+
         <TextView android:id="@+id/add_friend_empty_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
+            android:layout_gravity="center_horizontal"
             android:text="@string/add_friend_search_empty_tips"
-            android:visibility="gone"
-            android:textColor="@color/color_537ff4"/>
+            android:textColor="@color/color_b3b7bc"/>
 
-    </FrameLayout>
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

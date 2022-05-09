@@ -41,6 +41,7 @@ public class P2PViewHolder extends BaseViewHolder<ConversationBean> {
         }
         if (data.infoData.getMute()){
             viewBinding.conversationMuteIv.setVisibility(View.VISIBLE);
+            viewBinding.conversationUnreadTv.setVisibility(View.GONE);
         }else {
             viewBinding.conversationMuteIv.setVisibility(View.GONE);
             if (data.infoData.getUnreadCount() > 0){

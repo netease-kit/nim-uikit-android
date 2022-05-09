@@ -10,7 +10,7 @@ import com.netease.yunxin.kit.alog.ALog;
 
 public class HWPushMessageService extends com.netease.nimlib.sdk.mixpush.HWPushMessageService {
 
-    private static final String TAG = "DemoHwPushMessageService";
+    private static final String TAG = "HWPushMessageService";
 
     public void onNewToken(String token) {
         ALog.i(TAG, " onNewToken, token=" + token);

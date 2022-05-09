@@ -5,8 +5,6 @@
 
 package com.netease.yunxin.kit.contactkit.ui.model;
 
-import android.text.TextUtils;
-
 import com.netease.yunxin.kit.corekit.im.model.FriendInfo;
 
 import java.util.Objects;
@@ -46,11 +44,7 @@ public class ContactFriendBean extends BaseContactBean {
 
     @Override
     public String getTarget() {
-        if (TextUtils.isEmpty(data.getAlias())) {
-            return data.getAccount();
-        } else {
-            return data.getAlias();
-        }
+        return data.getName();
     }
 
     @Override

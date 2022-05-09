@@ -19,8 +19,6 @@ import com.netease.yunxin.app.im.welcome.WelcomeActivity;
 import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
 import com.netease.yunxin.kit.corekit.im.XKitImClient;
 import com.netease.yunxin.kit.corekit.im.repo.ConfigRepo;
-import com.netease.yunxin.kit.login.AuthorManager;
-import com.netease.yunxin.kit.login.model.LoginCallback;
 
 public class SettingActivity extends BaseActivity {
 
@@ -63,30 +61,26 @@ public class SettingActivity extends BaseActivity {
 
         viewBinding.clearFl.setOnClickListener( v -> startActivity(new Intent(SettingActivity.this, ClearCacheActivity.class)));
 
-        viewBinding.tvLogout.setOnClickListener(v -> AuthorManager.INSTANCE.logoutWitDialog(this, new LoginCallback<Void>() {
-            @Override
-            public void onSuccess(@Nullable Void unused) {
-                XKitImClient.logoutIMWithQChat(new com.netease.yunxin.kit.corekit.im.login.LoginCallback<Void>() {
-                    @Override
-                    public void onError(int errorCode, @NonNull String errorMsg) {
-                        Toast.makeText(SettingActivity.this, "error code is " + errorCode + ", message is " + errorMsg, Toast.LENGTH_SHORT).show();
-                    }
+        viewBinding.tvLogout.setOnClickListener(v -> {
+            // logout your own account here
+            //...
 
-                    @Override
-                    public void onSuccess(@Nullable Void data) {
-                        if (getApplicationContext() instanceof IMApplication){
-                            ((IMApplication) getApplicationContext()).clearActivity(SettingActivity.this);
-                        }
-                        startActivity(new Intent(SettingActivity.this, WelcomeActivity.class));
-                        finish();
-                    }
-                });
-            }
+            XKitImClient.logoutIMWithQChat(new com.netease.yunxin.kit.corekit.im.login.LoginCallback<Void>() {
+                @Override
+                public void onError(int errorCode, @NonNull String errorMsg) {
+                    Toast.makeText(SettingActivity.this, "error code is " + errorCode + ", message is " + errorMsg, Toast.LENGTH_SHORT).show();
+                }
 
-            @Override
-            public void onError(int i, @NonNull String s) {
-            }
-        }));
+                @Override
+                public void onSuccess(@Nullable Void data) {
+                    if (getApplicationContext() instanceof IMApplication){
+                        ((IMApplication) getApplicationContext()).clearActivity(SettingActivity.this);
+                    }
+                    startActivity(new Intent(SettingActivity.this, WelcomeActivity.class));
+                    finish();
+                }
+            });
+        });
 
         viewBinding.settingTitleBar.setOnBackIconClickListener(v -> onBackPressed());
     }

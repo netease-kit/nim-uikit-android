@@ -27,6 +27,8 @@ import com.netease.yunxin.kit.corekit.im.repo.ConfigRepo;
 import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.im.utils.XKitImUtils;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
+import com.vivo.push.PushClient;
+import com.vivo.push.util.VivoPushException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,9 +47,8 @@ public class IMApplication extends MultiDexApplication {
         AppCrashHandler.getInstance().initCrashHandler(this);
         Thread.setDefaultUncaughtExceptionHandler(AppCrashHandler.getInstance());
 
-        initIMSDK();
+        initUIKit();
         initALog(this);
-        initCommonKit(this);
         // temp register for mine
         XKitRouter.registerRouter(RouterConstant.PATH_MINE_USER_INFO, UserInfoActivity.class);
         //set custom config for chat UI
@@ -67,21 +68,23 @@ public class IMApplication extends MultiDexApplication {
                 .build());
     }
 
-    private void initCommonKit(Context context){
-        CommonUIClient.init(context);
-    }
-
-
-    private void initIMSDK() {
+    private void initUIKit() {
         XKitImClient.setContext(this);
         SDKOptions options = NimSDKOptionConfig.getSDKOptions(this, DataUtils.readAppKey(this));
         XKitImClient.config(null,options);
         if (XKitImUtils.isMainProcess(this)) {
             ActivityMgr.INST.init(this);
             HeytapPushManager.init(this, true);
+            try {
+                PushClient.getInstance(this).initialize();
+            }catch (VivoPushException e){
+
+            }
             XKitImClient.toggleNotification(ConfigRepo.getMixNotification());
             XKitImClient.registerMixPushMessageHandler(new PushMessageHandler());
         }
+        //config ui
+        CommonUIClient.init(this);
     }
 
     private final List<Activity> activities = new ArrayList<>();

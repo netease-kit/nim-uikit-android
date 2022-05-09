@@ -57,6 +57,7 @@ public class AddFriendActivity extends BaseActivity {
             public void afterTextChanged(Editable s) {
                 if (TextUtils.isEmpty(s.toString())){
                     viewBinding.ivFriendClear.setVisibility(View.GONE);
+                    showEmptyView(false);
                 }else {
                     viewBinding.ivFriendClear.setVisibility(View.VISIBLE);
                 }
@@ -93,9 +94,9 @@ public class AddFriendActivity extends BaseActivity {
 
     private void showEmptyView(boolean show) {
         if (show) {
-            viewBinding.addFriendEmptyTv.setVisibility(View.VISIBLE);
+            viewBinding.addFriendEmptyLayout.setVisibility(View.VISIBLE);
         } else {
-            viewBinding.addFriendEmptyTv.setVisibility(View.GONE);
+            viewBinding.addFriendEmptyLayout.setVisibility(View.GONE);
         }
 
     }

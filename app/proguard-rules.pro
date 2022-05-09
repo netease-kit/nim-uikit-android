@@ -57,7 +57,7 @@
 -keepattributes Signature
 -keepattributes SourceFile,LineNumberTable
 # hmscore-support: remote transport
--keep class com.hianalytics.android.**{*;}
+-keep class com.huawei.hianalytics.**{*;}
 -keep class com.huawei.updatesdk.**{*;}
 -keep class com.huawei.hms.**{*;}
 
@@ -69,6 +69,7 @@
 -dontwarn com.vivo.push.**
 -keep class com.vivo.push.** {*;}
 -keep class com.vivo.vms.** {*;}
+-keep class com.netease.nimlib.mixpush.vivo.VivoPushReceiver {*;}
 
 ### APP 3rd party jars(glide)
 -keep public class * implements com.bumptech.glide.module.GlideModule

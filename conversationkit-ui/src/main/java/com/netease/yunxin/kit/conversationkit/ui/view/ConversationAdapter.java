@@ -162,7 +162,7 @@ public class ConversationAdapter extends RecyclerView.Adapter<BaseViewHolder> {
             return 0;
         }
         for (int i = 0; i < conversationList.size(); i++) {
-            if (dataComparator.compare(data.infoData, conversationList.get(i).infoData) < 1) {
+            if (dataComparator != null && dataComparator.compare(data.infoData, conversationList.get(i).infoData) < 1) {
                 index = i;
                 break;
             }

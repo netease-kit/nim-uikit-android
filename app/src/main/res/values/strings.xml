@@ -7,6 +7,7 @@
     <string name="app_name">云信IM</string>
     <string name="yunxin_name">网易云信</string>
 
+    <string name="welcome_button">注册/登录</string>
     <string name="tab_session_tab_text">消息</string>
     <string name="tab_contact_tab_text">通讯录</string>
     <string name="tab_qchat_tab_text">圈组</string>

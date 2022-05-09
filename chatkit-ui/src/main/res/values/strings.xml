@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2022 NetEase, Inc.  All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be found in the LICENSE file.
+  -->
+
 <resources>
     <string name="chat_pressed_to_speak">按住说话</string>
     <string name="chat_record_failed">录音失败，请重试</string>

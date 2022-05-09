@@ -9,6 +9,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
+    android:background="@drawable/view_normal_selector"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <com.netease.yunxin.kit.common.ui.widgets.ContactAvatarView

@@ -41,7 +41,7 @@ public class SettingNotifyViewModel extends BaseViewModel {
                 ToastX.showShortToast(R.string.setting_success);
                 FetchResult<Boolean> fetchResult = new FetchResult<>(LoadStatus.Success);
                 fetchResult.setData(value);
-                notifyDetailLiveData.postValue(fetchResult);
+                toggleNotificationLiveDataLiveData.postValue(fetchResult);
             }
 
             @Override
@@ -49,7 +49,7 @@ public class SettingNotifyViewModel extends BaseViewModel {
                 ToastX.showShortToast(R.string.setting_fail);
                 FetchResult<Boolean> fetchResult = new FetchResult<>(LoadStatus.Error);
                 fetchResult.setData(value);
-                notifyDetailLiveData.postValue(fetchResult);
+                toggleNotificationLiveDataLiveData.postValue(fetchResult);
             }
 
             @Override
@@ -57,7 +57,7 @@ public class SettingNotifyViewModel extends BaseViewModel {
                 ToastX.showShortToast(R.string.setting_fail);
                 FetchResult<Boolean> fetchResult = new FetchResult<>(LoadStatus.Error);
                 fetchResult.setData(value);
-                notifyDetailLiveData.postValue(fetchResult);
+                toggleNotificationLiveDataLiveData.postValue(fetchResult);
             }
         });
     }

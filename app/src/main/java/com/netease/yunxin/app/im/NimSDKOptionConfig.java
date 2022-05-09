@@ -34,7 +34,7 @@ public class NimSDKOptionConfig {
     static SDKOptions getSDKOptions(Context context, String appKey) {
         SDKOptions options = new SDKOptions();
         options.appKey = appKey;
-        initStatusBarNotificationConfig(options);
+        options.statusBarNotificationConfig = initStatusBarNotificationConfig();
         options.sdkStorageRootPath = getAppCacheDir(context);
         options.preloadAttach = true;
         options.thumbnailSize = ImageUtil.getImageThumbMaxEdge();
@@ -55,7 +55,7 @@ public class NimSDKOptionConfig {
         return options;
     }
 
-    private static void initStatusBarNotificationConfig(SDKOptions options) {
+    public static StatusBarNotificationConfig initStatusBarNotificationConfig() {
         // load notification
         StatusBarNotificationConfig config = loadStatusBarNotificationConfig();
         // load user StatusBarNotificationConfig
@@ -70,7 +70,7 @@ public class NimSDKOptionConfig {
         // 持久化生效
         ConfigRepo.localSaveStatusBarNotificationConfig(userConfig);
         // SDK statusBarNotificationConfig 生效
-        options.statusBarNotificationConfig = userConfig;
+        return userConfig;
     }
 
     // config StatusBarNotificationConfig
@@ -122,6 +122,9 @@ public class NimSDKOptionConfig {
         config.mzAppId = "meizu push app id";//apply in meizu
         config.mzAppKey = "meizu push app key";//apply in meizu
         config.mzCertificateName = "Certificate Name";//config in yunxin platform
+
+        // fcm
+//        config.fcmCertificateName = "DEMO_FCM_PUSH";
 
         // vivo
         config.vivoCertificateName = "Certificate Name";//config in yunxin platform

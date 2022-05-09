@@ -30,6 +30,12 @@ public class ContactUIService extends ContactService {
 
     @NonNull
     @Override
+    public String getVersionName() {
+        return BuildConfig.versionName;
+    }
+
+    @NonNull
+    @Override
     public ContactService create(@NonNull Context context) {
         XKitRouter.registerRouter(RouterConstant.PATH_SELECTOR_ACTIVITY, ContactSelectorActivity.class);
         XKitRouter.registerRouter(RouterConstant.PATH_ADD_FRIEND_ACTIVITY, AddFriendActivity.class);
