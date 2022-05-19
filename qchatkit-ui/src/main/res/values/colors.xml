@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (c) 2022 NetEase, Inc.  All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be found in the LICENSE file.
+  -->
+
+<resources>
+    <color name="color_f6f8fa">#fff6f8fa</color>
+    <color name="color_e9eff5">#ffe9eff5</color>
+    <color name="color_b3b7bc">#ffb3b7bc</color>
+    <color name="color_333333">#ff333333</color>
+    <color name="color_eff1f4">#ffeff1f4</color>
+    <color name="color_656a72">#ff656a72</color>
+    <color name="color_a6adb6">#ffa6adb6</color>
+    <color name="color_337eff">#ff337eff</color>
+    <color name="color_f2f4f5">#fff2f4f5</color>
+    <color name="color_f24957">#fff24957</color>
+    <color name="color_f5f8fc">#fff5f8fc</color>
+    <color name="color_dedede">#ffdedede</color>
+    <color name="color_e3e3e3">#ffe3e3e3</color>
+    <color name="color_fee3e6">#fffee3e6</color>
+    <color name="color_fc596a">#fffc596a</color>
+    <color name="color_transparent">#00000000</color>
+</resources>

@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2022 NetEase, Inc.  All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be found in the LICENSE file.
+  -->
+
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <SurfaceView
+        android:id="@+id/video_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/video_play"
+        android:layout_width="@dimen/dimen_80_dp"
+        android:layout_height="@dimen/dimen_80_dp"
+        android:src="@drawable/ic_video_player"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/video_progress_action"
+        android:layout_width="@dimen/dimen_26_dp"
+        android:layout_height="@dimen/dimen_26_dp"
+        android:layout_marginLeft="@dimen/dimen_20_dp"
+        android:layout_marginBottom="@dimen/dimen_75_dp"
+        android:src="@drawable/ic_video_resume"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent" />
+
+    <TextView
+        android:id="@+id/video_progress_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/dimen_20_dp"
+        android:textColor="@color/color_white"
+        android:textSize="@dimen/dimen_12_dp"
+        app:layout_constraintBottom_toBottomOf="@+id/video_progress_action"
+        app:layout_constraintLeft_toRightOf="@+id/video_progress_action"
+        app:layout_constraintRight_toLeftOf="@+id/video_progress"
+        app:layout_constraintTop_toTopOf="@+id/video_progress_action"
+        tools:text="00:00" />
+
+    <com.google.android.material.progressindicator.LinearProgressIndicator
+        android:id="@+id/video_progress"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/dimen_10_dp"
+        app:indicatorColor="@color/color_white"
+        app:layout_constraintBottom_toBottomOf="@+id/video_progress_time"
+        app:layout_constraintLeft_toRightOf="@+id/video_progress_time"
+        app:layout_constraintRight_toLeftOf="@+id/video_total_time"
+        app:layout_constraintTop_toTopOf="@+id/video_progress_time"
+        app:trackColor="@color/color_4d000000"
+        app:trackCornerRadius="@dimen/dimen_2_dp"
+        app:trackThickness="@dimen/dimen_2_dp" />
+
+    <TextView
+        android:id="@+id/video_total_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/dimen_10_dp"
+        android:layout_marginEnd="@dimen/dimen_20_dp"
+        android:textColor="@color/color_white"
+        android:textSize="@dimen/dimen_12_dp"
+        app:layout_constraintBottom_toBottomOf="@+id/video_progress"
+        app:layout_constraintLeft_toRightOf="@+id/video_progress"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/video_progress"
+        tools:text="00:00" />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/video_progress_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="visible"
+        app:constraint_referenced_ids="video_progress_action, video_progress, video_progress_time, video_total_time" />
+</merge>

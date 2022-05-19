@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2022 NetEase, Inc.  All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be found in the LICENSE file.
+  -->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:background="@color/color_eef1f4">
+
+    <com.netease.yunxin.kit.common.ui.widgets.BackTitleBar
+        android:id="@+id/title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingHorizontal="@dimen/dimen_20_dp"
+        android:orientation="vertical">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/white_round_bg"
+            android:padding="@dimen/dimen_16_dp"
+            android:layout_marginVertical="@dimen/dimen_15_dp">
+
+            <com.netease.yunxin.kit.common.ui.widgets.ContactAvatarView
+                android:id="@+id/avatar"
+                android:layout_width="@dimen/dimen_60_dp"
+                android:layout_height="@dimen/dimen_60_dp"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <ImageView
+                android:id="@+id/iv_camera"
+                android:layout_width="@dimen/dimen_24_dp"
+                android:layout_height="@dimen/dimen_24_dp"
+                app:layout_constraintBottom_toBottomOf="@+id/avatar"
+                app:layout_constraintEnd_toEndOf="@+id/avatar"
+                android:background="@drawable/bg_white_round"
+                android:src="@drawable/ic_camera" />
+
+            <TextView
+                android:id="@+id/tv_server_name"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textColor="@color/color_333333"
+                android:textSize="@dimen/text_size_16"
+                android:layout_marginTop="@dimen/dimen_8_dp"
+                android:layout_marginStart="@dimen/dimen_10_dp"
+                android:maxLines="1"
+                android:ellipsize="end"
+                app:layout_constraintHorizontal_weight="1"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintLeft_toRightOf="@+id/avatar" />
+
+            <TextView
+                android:id="@+id/tv_id"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/color_b3b7bc"
+                android:textSize="@dimen/text_size_12"
+                app:layout_constraintTop_toBottomOf="@+id/tv_server_name"
+                android:layout_marginStart="@dimen/dimen_10_dp"
+                app:layout_constraintLeft_toRightOf="@+id/avatar" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/color_666666"
+            android:textSize="@dimen/text_size_12"
+            android:text="@string/qchat_server_name"
+            android:layout_marginTop="@dimen/dimen_16_dp"
+            android:layout_marginStart="@dimen/dimen_12_dp" />
+
+        <EditText
+            android:id="@+id/edt_server_name"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dimen_50_dp"
+            android:gravity="center_vertical"
+            android:textSize="@dimen/text_size_16"
+            android:textColor="@color/color_333333"
+            android:background="@drawable/white_round_bg"
+            android:paddingStart="@dimen/dimen_10_dp"
+            android:maxLines="1"
+            android:inputType="text"
+            android:maxLength="50"
+            android:layout_marginTop="@dimen/dimen_8_dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/color_666666"
+            android:paddingStart="@dimen/dimen_10_dp"
+            android:text="@string/qchat_server_topic"
+            android:textSize="@dimen/text_size_12"
+            android:layout_marginTop="@dimen/dimen_16_dp" />
+
+        <EditText
+            android:id="@+id/edt_server_topic"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dimen_50_dp"
+            android:gravity="center_vertical"
+            android:textSize="@dimen/text_size_16"
+            android:paddingStart="@dimen/dimen_10_dp"
+            android:maxLines="1"
+            android:inputType="text"
+            android:maxLength="64"
+            android:textColor="@color/color_333333"
+            android:background="@drawable/white_round_bg"
+            android:layout_marginTop="@dimen/dimen_8_dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/color_666666"
+            android:textSize="@dimen/text_size_12"
+            android:text="@string/qchat_permission"
+            android:layout_marginTop="@dimen/dimen_16_dp"
+            android:layout_marginStart="@dimen/dimen_12_dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dimen_8_dp"
+            android:background="@drawable/white_round_bg"
+            android:orientation="vertical">
+
+            <RelativeLayout
+                android:id="@+id/rly_member"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dimen_50_dp"
+                android:padding="@dimen/dimen_16_dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/qchat_member"
+                    android:textColor="@color/color_666666"
+                    android:textSize="@dimen/text_size_12"
+                    android:layout_centerVertical="true" />
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:src="@drawable/ic_right_arrow"
+                    android:layout_centerVertical="true" />
+            </RelativeLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dimen_1_dp"
+                android:background="@color/color_f5f8fc" />
+
+            <RelativeLayout
+                android:id="@+id/rly_team"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dimen_50_dp"
+                android:padding="@dimen/dimen_16_dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/qchat_roles"
+                    android:textColor="@color/color_666666"
+                    android:textSize="@dimen/text_size_12"
+                    android:layout_centerVertical="true" />
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:src="@drawable/ic_right_arrow"
+                    android:layout_centerVertical="true" />
+            </RelativeLayout>
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tv_delete"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dimen_50_dp"
+            android:textSize="@dimen/text_size_16"
+            android:textColor="@color/color_e6605c"
+            android:text="@string/qchat_delete_server"
+            android:gravity="center"
+            android:paddingVertical="@dimen/dimen_12_dp"
+            android:layout_marginTop="@dimen/dimen_24_dp"
+            android:background="@drawable/white_round_bg" />
+
+    </LinearLayout>
+
+
+</LinearLayout>

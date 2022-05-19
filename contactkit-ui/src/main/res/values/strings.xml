@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2022 NetEase, Inc.  All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be found in the LICENSE file.
+  -->
+
+<resources>
+    <!-- contact list -->
+    <string name="contact_title">通讯录</string>
+    <string name="contact_list_verify_msg">验证消息</string>
+    <string name="contact_list_black_list">黑名单</string>
+    <string name="contact_list_my_group">我的群聊</string>
+    <string name="contact_list_my_computer">我的电脑</string>
+
+    <!-- add friend page-->
+    <string name="add_friend_title">添加好友</string>
+    <string name="add_friend_search_hint">请输入账号</string>
+    <string name="add_friend_search_empty_tips">该用户不存在</string>
+
+    <!-- verify page -->
+    <string name="contact_verify_agree">同意</string>
+    <string name="contact_verify_reject">拒绝</string>
+    <string name="contact_verify_agreed">已同意</string>
+    <string name="contact_verify_rejected">已拒绝</string>
+    <string name="contact_verify_expired">已过期</string>
+    <string name="friend_apply">好友申请</string>
+    <string name="invited_to_join_group">邀请你加入群&#160;%s</string>
+    <string name="apply_to_join_group">申请加入%s群</string>
+    <string name="accept_your_friend_apply">同意了你的好友请求</string>
+    <string name="direct_add_your_friend_apply">直接添加你为好友</string>
+    <string name="reject_your_friend_apply">拒绝了你的好友请求</string>
+    <string name="verify_msg">验证消息</string>
+    <string name="verify_max_count_text">99+</string>
+
+    <!-- my team page -->
+    <string name="my_team">我的群聊</string>
+
+    <!-- black page -->
+    <string name="black_list">黑名单</string>
+    <string name="black_list_tips">你不会收到列表中任何联系人的消息</string>
+    <string name="contact_black_list_relieve">解除</string>
+    <string name="add_black_error">%s加入黑名单失败</string>
+
+    <!-- userinfo page -->
+    <string name="clear_all">清空</string>
+    <string name="birthday">生日</string>
+    <string name="phone">手机</string>
+    <string name="email">邮箱</string>
+    <string name="personal_signature">个性签名</string>
+    <string name="comment_name">备注名</string>
+    <string name="notify_message">消息通知</string>
+    <string name="add_black_list">加入黑名单</string>
+    <string name="chat">聊天</string>
+    <string name="delete_friend">删除好友</string>
+    <string name="add_friend">添加好友</string>
+    <string name="contact_user_info_account">账号:%s</string>
+    <string name="contact_user_info_nickname">昵称:%s</string>
+    <string name="delete_contact_account">将联系人“%s”删除</string>
+    <string name="save">保存</string>
+    <string name="add_friend_operate_success">好友申请已发送</string>
+    <string name="add_friend_operate_fail">好友申请失败 %s</string>
+
+    <!--添加好友页面 -->
+    <string name="add_friend_search_error">搜索失败</string>
+
+
+    <!-- error toast -->
+    <string name="agree_add_friend_fail">同意好友申请失败</string>
+    <string name="disagree_add_friend_fail">拒绝好友申请失败</string>
+    <string name="agree_apply_join_team_fail">同意入群申请失败</string>
+    <string name="disagree_apply_join_team_fail">拒绝入群申请失败</string>
+    <string name="agree_invite_team_fail">同意入群邀请失败</string>
+    <string name="disagree_invite_team_fail">拒绝入群邀请失败</string>
+
+    <string name="remove_black_fail">黑名单移除失败</string>
+
+    <!--    selector-->
+    <string name="select">选择</string>
+    <string name="selector_sure">确定(%d)</string>
+    <string name="contact_selector_max_count">最多选择%s个好友</string>
+
+    <!--    common-->
+    <string name="cancel">取消</string>
+
+</resources>
