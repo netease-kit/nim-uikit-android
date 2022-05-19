@@ -17,12 +17,15 @@
     <string name="user_info_title">个人信息</string>
     <string name="tab_mine_account">账号:%s</string>
     <string name="user_info_avatar">头像</string>
+    <string name="user_info_account">账号</string>
     <string name="user_info_nickname">昵称</string>
     <string name="user_info_sexual">性别</string>
     <string name="user_info_birthday">生日</string>
     <string name="user_info_phone">手机</string>
     <string name="user_info_email">邮箱</string>
     <string name="user_info_sign">个性签名</string>
+    <string name="action_copy_success">复制成功！</string>
+
 
     <string name="mine_collect">收藏</string>
     <string name="mine_about">关于云信</string>

@@ -69,13 +69,16 @@ public class IMApplication extends MultiDexApplication {
     }
 
     private void initUIKit() {
-        XKitImClient.setContext(this);
+        XKitImClient.init(this);
         SDKOptions options = NimSDKOptionConfig.getSDKOptions(this, DataUtils.readAppKey(this));
         XKitImClient.config(null,options);
         if (XKitImUtils.isMainProcess(this)) {
+            //huawei push
             ActivityMgr.INST.init(this);
+            //oppo push
             HeytapPushManager.init(this, true);
             try {
+                //vivo push
                 PushClient.getInstance(this).initialize();
             }catch (VivoPushException e){
 

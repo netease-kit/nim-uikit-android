@@ -110,30 +110,30 @@ public class NimSDKOptionConfig {
     private static MixPushConfig buildMixPushConfig() {
         MixPushConfig config = new MixPushConfig();
         // xiaomi
-        config.xmAppId = "xiao mi push app id"; //apply in xiaomi
-        config.xmAppKey = "xiao mi push app key";//apply in xiaomi
-        config.xmCertificateName = "Certificate Name";//config in yunxin platform
+//        config.xmAppId = "xiao mi push app id"; //apply in xiaomi
+//        config.xmAppKey = "xiao mi push app key";//apply in xiaomi
+//        config.xmCertificateName = "Certificate Name";//config in yunxin platform
 
         // huawei
-        config.hwAppId = "huawei app id";//apply in huawei
-        config.hwCertificateName = "Certificate Name";//config in yunxin platform
+//        config.hwAppId = "huawei app id";//apply in huawei
+//        config.hwCertificateName = "Certificate Name";//config in yunxin platform
 
         // meizu
-        config.mzAppId = "meizu push app id";//apply in meizu
-        config.mzAppKey = "meizu push app key";//apply in meizu
-        config.mzCertificateName = "Certificate Name";//config in yunxin platform
+//        config.mzAppId = "meizu push app id";//apply in meizu
+//        config.mzAppKey = "meizu push app key";//apply in meizu
+//        config.mzCertificateName = "Certificate Name";//config in yunxin platform
 
         // fcm
 //        config.fcmCertificateName = "DEMO_FCM_PUSH";
 
         // vivo
-        config.vivoCertificateName = "Certificate Name";//config in yunxin platform
+//        config.vivoCertificateName = "Certificate Name";//config in yunxin platform
 
         // oppo
-        config.oppoAppId = "oppo push app id";//apply in oppo
-        config.oppoAppKey = "oppo push app key";//apply in oppo
-        config.oppoAppSercet = "oppo push app secret"; //apply in oppo
-        config.oppoCertificateName = "Certificate Name";//config in yunxin platform
+//        config.oppoAppId = "oppo push app id";//apply in oppo
+//        config.oppoAppKey = "oppo push app key";//apply in oppo
+//        config.oppoAppSercet = "oppo push app secret"; //apply in oppo
+//        config.oppoCertificateName = "Certificate Name";//config in yunxin platform
         return config;
     }
 }

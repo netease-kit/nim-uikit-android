@@ -5,6 +5,8 @@
 
 package com.netease.yunxin.app.im.main.mine;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -26,6 +28,7 @@ import com.netease.yunxin.app.im.R;
 import com.netease.yunxin.app.im.databinding.ActivityUserInfoBinding;
 import com.netease.yunxin.app.im.utils.Constant;
 import com.netease.yunxin.kit.common.ui.utils.AvatarColor;
+import com.netease.yunxin.kit.common.ui.utils.ToastX;
 import com.netease.yunxin.kit.common.ui.widgets.datepicker.CustomDatePicker;
 import com.netease.yunxin.kit.common.ui.widgets.datepicker.DateFormatUtils;
 import com.netease.yunxin.kit.corekit.im.XKitImClient;
@@ -119,6 +122,14 @@ public class UserInfoActivity extends AppCompatActivity {
         binding.flBirthday.setOnClickListener(v -> {
             showTimerPicker(userInfo.getBirthday());
         });
+
+        binding.ivAccountCopy.setOnClickListener(v -> {
+            copyAccount();
+        });
+        binding.tvAccount.setOnClickListener( v -> {
+            copyAccount();
+        });
+
         binding.flSexual.setOnClickListener(v ->{
             ArrayList<String> content = new ArrayList<>();
             content.add(getResources().getString(R.string.sexual_unknown));
@@ -135,6 +146,17 @@ public class UserInfoActivity extends AppCompatActivity {
 
     }
 
+    private void copyAccount(){
+        ClipboardManager cmb = (ClipboardManager) XKitImClient.getApplicationContext()
+                .getSystemService(Context.CLIPBOARD_SERVICE);
+        ClipData clipData = null;
+        if (userInfo != null) {
+            clipData = ClipData.newPlainText(null, userInfo.getAccount());
+        }
+        cmb.setPrimaryClip(clipData);
+        ToastX.showShortToast(R.string.action_copy_success);
+    }
+
     private void refreshUserInfo(NimUserInfo userInfo) {
         if (userInfo == null) {
             return;
@@ -148,6 +170,7 @@ public class UserInfoActivity extends AppCompatActivity {
         }else if (userInfo.getGenderEnum() == GenderEnum.FEMALE){
             sexualValue = R.string.sexual_female;
         }
+        binding.tvAccount.setText(userInfo.getAccount());
         binding.tvSexual.setText(sexualValue);
         binding.tvBirthday.setText(userInfo.getBirthday());
         binding.tvPhone.setText(userInfo.getMobile());
