@@ -11,6 +11,7 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.netease.yunxin.kit.common.ui.CommonUIClient;
 import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
 import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.im.utils.TransHelper;
@@ -66,6 +67,7 @@ public class QChatUIService extends QChatService {
             }, intentResultInfo -> null);
             return false;
         }));
+        CommonUIClient.init(context);
         return this;
     }
 }

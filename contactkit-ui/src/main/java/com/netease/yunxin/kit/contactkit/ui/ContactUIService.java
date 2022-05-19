@@ -11,6 +11,7 @@ import android.content.Context;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 
+import com.netease.yunxin.kit.common.ui.CommonUIClient;
 import com.netease.yunxin.kit.contactkit.ContactService;
 import com.netease.yunxin.kit.contactkit.ui.addfriend.AddFriendActivity;
 import com.netease.yunxin.kit.contactkit.ui.selector.ContactSelectorActivity;
@@ -41,6 +42,7 @@ public class ContactUIService extends ContactService {
         XKitRouter.registerRouter(RouterConstant.PATH_ADD_FRIEND_ACTIVITY, AddFriendActivity.class);
         XKitRouter.registerRouter(RouterConstant.PATH_USER_INFO_ACTIVITY, UserInfoActivity.class);
         XKitRouter.registerRouter(RouterConstant.PATH_TEAM_LIST, TeamListActivity.class);
+        CommonUIClient.init(context);
         return this;
     }
 }

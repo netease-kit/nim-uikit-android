@@ -5,9 +5,18 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.netease.yunxin.kit.conversationkit.ui">
     <application>
-
+        <provider
+            android:name="com.netease.yunxin.kit.corekit.startup.InitializationProvider"
+            android:authorities="${applicationId}.xkit-startup"
+            android:exported="false"
+            tools:node="merge">
+            <meta-data
+                android:name="com.netease.yunxin.kit.conversationkit.ui.ConversationUIService"
+                android:value="xkit.startup" />
+        </provider>
         <activity android:name=".page.ConversationSelectActivity" android:exported="false"/>
     </application>
 

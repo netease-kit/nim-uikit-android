@@ -36,6 +36,9 @@ public class QChatImageMessageViewHolder extends QChatBaseMessageViewHolder {
     public void bindData(QChatMessageInfo data, QChatMessageInfo lastMessage) {
         super.bindData(data, lastMessage);
         String imageAttachStr = data.getAttachStr();
+        if (TextUtils.isEmpty(imageAttachStr)){
+            return;
+        }
         ImageAttachment imageAttachment = new ImageAttachment(imageAttachStr);
         if (TextUtils.isEmpty(imageAttachment.getPath()) && TextUtils.isEmpty(imageAttachment.getUrl())){
             return;
