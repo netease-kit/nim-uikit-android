@@ -44,8 +44,6 @@ public class ContactViewModel extends BaseViewModel {
     private ContactEntranceBean verifyBean;
     private int unreadCount = 0;
 
-    private final ContactRepo contactRepo = new ContactRepo();
-
     public ContactViewModel() {
         registerObserver();
     }
@@ -59,7 +57,7 @@ public class ContactViewModel extends BaseViewModel {
     }
 
     public void fetchContactList() {
-        contactRepo.fetchContactList(new FetchCallback<List<FriendInfo>>() {
+        ContactRepo.fetchContactList(new FetchCallback<List<FriendInfo>>() {
             @Override
             public void onSuccess(@Nullable List<FriendInfo> param) {
                 contactFriendBeanList.clear();
@@ -88,7 +86,7 @@ public class ContactViewModel extends BaseViewModel {
             }
         });
 
-        contactRepo.fetchSystemMessageUnreadCount(new FetchCallback<Integer>() {
+        ContactRepo.fetchSystemMessageUnreadCount(new FetchCallback<Integer>() {
             @Override
             public void onSuccess(@Nullable Integer count) {
                 updateVerifyNumber(count);
@@ -108,9 +106,9 @@ public class ContactViewModel extends BaseViewModel {
 
 
     private void registerObserver() {
-        contactRepo.registerFriendObserver(friendObserver,true);
-        contactRepo.registerSystemUnreadCountObserver(unreadCountObserver);
-        contactRepo.registerLoginSyncObserver(loginSyncObserver);
+        ContactRepo.registerFriendObserver(friendObserver,true);
+        ContactRepo.registerSystemUnreadCountObserver(unreadCountObserver);
+        ContactRepo.registerLoginSyncObserver(loginSyncObserver);
     }
 
     private final FriendObserver friendObserver = (friendChangeType, accountList) -> {
@@ -127,7 +125,7 @@ public class ContactViewModel extends BaseViewModel {
         List<String> addFriendList = new ArrayList<>();
         if (friendChangeType == FriendChangeType.RemoveBlack) {
             for (String account : accountList) {
-                if (contactRepo.isFriend(account)) {
+                if (ContactRepo.isFriend(account)) {
                     addFriendList.add(account);
                 }
             }
@@ -193,12 +191,12 @@ public class ContactViewModel extends BaseViewModel {
 
     private void addFriend(List<String> accountList, FetchResult.FetchType type) {
         if (!accountList.isEmpty()) {
-            contactRepo.fetchUserInfo(accountList, new FetchCallback<List<UserInfo>>() {
+            ContactRepo.fetchUserInfo(accountList, new FetchCallback<List<UserInfo>>() {
                 @Override
                 public void onSuccess(@Nullable List<UserInfo> param) {
                     List<ContactFriendBean> addList = new ArrayList<>();
                     for (int index = 0; param != null && index < param.size(); index++) {
-                        FriendInfo friendInfo = contactRepo.getFriendInfo(param.get(index).getAccount());
+                        FriendInfo friendInfo = ContactRepo.getFriendInfo(param.get(index).getAccount());
                         if (friendInfo != null) {
                             friendInfo.setUserInfo(param.get(index));
                             ContactFriendBean bean = new ContactFriendBean(friendInfo);
@@ -228,7 +226,7 @@ public class ContactViewModel extends BaseViewModel {
     private void updateFriend(List<String> accountList) {
         List<ContactFriendBean> updateBean = new ArrayList<>();
         for (String account : accountList) {
-            FriendInfo friendInfo = contactRepo.getFriendInfo(account);
+            FriendInfo friendInfo = ContactRepo.getFriendInfo(account);
             if (friendInfo == null) {
                 continue;
             }
@@ -271,7 +269,7 @@ public class ContactViewModel extends BaseViewModel {
     @Override
     protected void onCleared() {
         super.onCleared();
-        contactRepo.registerFriendObserver(friendObserver,false);
-        contactRepo.unregisterSystemUnreadCountObserver(unreadCountObserver);
+        ContactRepo.registerFriendObserver(friendObserver,false);
+        ContactRepo.unregisterSystemUnreadCountObserver(unreadCountObserver);
     }
 }

@@ -21,6 +21,7 @@ import com.netease.nimlib.sdk.msg.attachment.FileAttachment;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.ui.R;
+import com.netease.yunxin.kit.chatkit.ui.databinding.ChatBaseMessageViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatMessageThumbnailViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.common.ui.widgets.ShapeDrawable;
@@ -34,7 +35,7 @@ public abstract class ChatThumbBaseViewHolder extends ChatBaseMessageViewHolder 
 
     ChatMessageThumbnailViewHolderBinding binding;
 
-    public ChatThumbBaseViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public ChatThumbBaseViewHolder(@NonNull ChatBaseMessageViewHolderBinding parent, int viewType) {
         super(parent, viewType);
     }
 
@@ -44,7 +45,7 @@ public abstract class ChatThumbBaseViewHolder extends ChatBaseMessageViewHolder 
 
     @Override
     public void addContainer() {
-        binding = ChatMessageThumbnailViewHolderBinding.inflate(LayoutInflater.from(getParent().getContext()),
+        binding = ChatMessageThumbnailViewHolderBinding.inflate(LayoutInflater.from(parent.getContext()),
                 getContainer(), true);
     }
 

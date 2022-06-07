@@ -7,7 +7,6 @@ package com.netease.yunxin.kit.qchatkit.ui.message.viewholder;
 
 import android.text.TextUtils;
 import android.view.LayoutInflater;
-import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 
@@ -17,12 +16,13 @@ import com.netease.yunxin.kit.common.utils.ScreenUtil;
 import com.netease.yunxin.kit.qchatkit.repo.model.QChatMessageInfo;
 import com.netease.yunxin.kit.qchatkit.ui.common.WatchImageActivity;
 import com.netease.yunxin.kit.qchatkit.ui.databinding.QChatImageMessageViewHolderBinding;
+import com.netease.yunxin.kit.qchatkit.ui.databinding.QchatBaseMessageViewHolderBinding;
 
 public class QChatImageMessageViewHolder extends QChatBaseMessageViewHolder {
 
     private QChatImageMessageViewHolderBinding imageBinding;
 
-    public QChatImageMessageViewHolder(@NonNull ViewGroup parent) {
+    public QChatImageMessageViewHolder(@NonNull QchatBaseMessageViewHolderBinding parent) {
         super(parent);
     }
 

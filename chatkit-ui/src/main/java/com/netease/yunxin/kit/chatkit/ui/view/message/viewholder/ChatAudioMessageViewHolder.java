@@ -22,6 +22,7 @@ import androidx.annotation.NonNull;
 
 import com.netease.nimlib.sdk.msg.attachment.AudioAttachment;
 import com.netease.yunxin.kit.chatkit.ui.R;
+import com.netease.yunxin.kit.chatkit.ui.databinding.ChatBaseMessageViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatMessageAudioViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.view.message.audio.ChatMessageAudioControl;
@@ -122,13 +123,13 @@ public class ChatAudioMessageViewHolder extends ChatBaseMessageViewHolder {
     }
 
 
-    public ChatAudioMessageViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public ChatAudioMessageViewHolder(@NonNull ChatBaseMessageViewHolderBinding parent, int viewType) {
         super(parent, viewType);
     }
 
     @Override
     public void addContainer() {
-        audioBinding = ChatMessageAudioViewHolderBinding.inflate(LayoutInflater.from(getParent().getContext()),
+        audioBinding = ChatMessageAudioViewHolderBinding.inflate(LayoutInflater.from(parent.getContext()),
                 getContainer(), true);
     }
 
@@ -152,10 +153,10 @@ public class ChatAudioMessageViewHolder extends ChatBaseMessageViewHolder {
         long len = audioAttachment.getDuration() / 1000;
         LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) getContainer().getLayoutParams();
         if (len <= 2) {
-            layoutParams.width = PxUtils.dpToPx(getParent().getContext(), MIN_LENGTH_FOR_AUDIO);
+            layoutParams.width = PxUtils.dpToPx(parent.getContext(), MIN_LENGTH_FOR_AUDIO);
         } else {
-            layoutParams.width = Math.min(PxUtils.dpToPx(getParent().getContext(), MAX_LENGTH_FOR_AUDIO),
-                    PxUtils.dpToPx(getParent().getContext(), MIN_LENGTH_FOR_AUDIO + (len - 2) * 8));
+            layoutParams.width = Math.min(PxUtils.dpToPx(parent.getContext(), MAX_LENGTH_FOR_AUDIO),
+                    PxUtils.dpToPx(parent.getContext(), MIN_LENGTH_FOR_AUDIO + (len - 2) * 8));
         }
         getContainer().setLayoutParams(layoutParams);
         RelativeLayout.LayoutParams aniLp = (RelativeLayout.LayoutParams) audioBinding.animation.getLayoutParams();

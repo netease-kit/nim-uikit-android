@@ -15,6 +15,7 @@ import com.netease.nimlib.sdk.msg.constant.AttachStatusEnum;
 import com.netease.nimlib.sdk.msg.constant.MsgStatusEnum;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
 import com.netease.yunxin.kit.chatkit.ui.R;
+import com.netease.yunxin.kit.chatkit.ui.databinding.ChatBaseMessageViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.common.ui.utils.ToastX;
 import com.netease.yunxin.kit.common.utils.ScreenUtil;
@@ -28,7 +29,7 @@ public class ChatVideoMessageViewHolder extends ChatThumbBaseViewHolder {
     private final static String TAG = "ChatVideoMessageViewHolder";
     private static final int PROGRESS_MAX = 100;
 
-    public ChatVideoMessageViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public ChatVideoMessageViewHolder(@NonNull ChatBaseMessageViewHolderBinding parent, int viewType) {
         super(parent, viewType);
     }
 

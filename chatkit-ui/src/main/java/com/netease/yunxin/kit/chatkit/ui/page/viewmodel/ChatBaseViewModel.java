@@ -41,7 +41,7 @@ import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.common.utils.file.FileUtil;
 import com.netease.yunxin.kit.common.utils.media.ImageUtil;
-import com.netease.yunxin.kit.common.utils.media.SendMediaHelper;
+import com.netease.yunxin.kit.chatkit.utils.SendMediaHelper;
 import com.netease.yunxin.kit.common.utils.storage.RealPathUtil;
 import com.netease.yunxin.kit.corekit.im.XKitImClient;
 import com.netease.yunxin.kit.corekit.im.model.EventObserver;

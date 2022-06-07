@@ -87,6 +87,13 @@ public class ChatMessageBean {
         return messageData.getPinOption() == null ? null : messageData.getPinOption().getAccount();
     }
 
+    public boolean isSameMessage(ChatMessageBean bean) {
+        if (bean == null) {
+            return false;
+        }
+        return this.messageData != null && bean.messageData != null && this.messageData.getMessage().isTheSame(bean.messageData.getMessage());
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

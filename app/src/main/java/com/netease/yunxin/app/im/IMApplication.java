@@ -58,6 +58,7 @@ public class IMApplication extends MultiDexApplication {
         KitCustomConfig.initContactUICustom();
     }
 
+    //init log sdk
     private void initALog(Context context) {
         ALog.logFirst(new BasicInfo.Builder()
                 .packageName(context)
@@ -72,6 +73,7 @@ public class IMApplication extends MultiDexApplication {
         XKitImClient.init(this);
         SDKOptions options = NimSDKOptionConfig.getSDKOptions(this, DataUtils.readAppKey(this));
         XKitImClient.config(null,options);
+
         if (XKitImUtils.isMainProcess(this)) {
             //huawei push
             ActivityMgr.INST.init(this);
@@ -86,8 +88,6 @@ public class IMApplication extends MultiDexApplication {
             XKitImClient.toggleNotification(ConfigRepo.getMixNotification());
             XKitImClient.registerMixPushMessageHandler(new PushMessageHandler());
         }
-        //config ui
-        CommonUIClient.init(this);
     }
 
     private final List<Activity> activities = new ArrayList<>();

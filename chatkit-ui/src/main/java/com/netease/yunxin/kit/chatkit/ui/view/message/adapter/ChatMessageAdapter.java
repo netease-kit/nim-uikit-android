@@ -128,9 +128,29 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatBaseMessageView
 
 
     public void appendMessages(List<ChatMessageBean> message) {
+        removeSameMessage(message);
         int pos = messageList.size();
         messageList.addAll(message);
         notifyItemRangeInserted(pos, message.size());
+    }
+
+    private void removeSameMessage(List<ChatMessageBean> message){
+        if (message == null || message.size() < 1){
+            return;
+        }
+        for (ChatMessageBean bean : message) {
+            int index = -1;
+            for (int j = 0; j < messageList.size(); j++) {
+                if (bean.isSameMessage(messageList.get(j))) {
+                    index = j;
+                    break;
+                }
+            }
+            if (index > -1) {
+                messageList.remove(index);
+                notifyItemRemoved(index);
+            }
+        }
     }
 
     public void appendMessage(ChatMessageBean message) {
@@ -213,6 +233,7 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatBaseMessageView
     }
 
     public void forwardMessages(List<ChatMessageBean> message) {
+        removeSameMessage(message);
         messageList.addAll(0, message);
         notifyItemRangeInserted(0, message.size());
     }
@@ -249,7 +270,7 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatBaseMessageView
     }
 
     public int searchMessagePosition(String messageId) {
-        for (int i = 0; i <  messageList.size() ; i++) {
+        for (int i = 0; i < messageList.size(); i++) {
             if (TextUtils.equals(messageId, messageList.get(i).getMessageData().getMessage().getUuid())) {
                 return i;
             }

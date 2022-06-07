@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 
 import com.netease.yunxin.kit.chatkit.ui.R;
+import com.netease.yunxin.kit.chatkit.ui.databinding.ChatBaseMessageViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatMessageTextViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.corekit.im.XKitImClient;
@@ -29,13 +30,13 @@ public class ChatTipsMessageViewHolder extends ChatBaseMessageViewHolder {
 
     ChatMessageTextViewHolderBinding textBinding;
 
-    public ChatTipsMessageViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public ChatTipsMessageViewHolder(@NonNull ChatBaseMessageViewHolderBinding parent, int viewType) {
         super(parent, viewType);
     }
 
     @Override
     public void addContainer() {
-        textBinding = ChatMessageTextViewHolderBinding.inflate(LayoutInflater.from(getParent().getContext()),
+        textBinding = ChatMessageTextViewHolderBinding.inflate(LayoutInflater.from(parent.getContext()),
                 getContainer(), true);
     }
 
@@ -48,7 +49,7 @@ public class ChatTipsMessageViewHolder extends ChatBaseMessageViewHolder {
             textBinding.messageText.setTextSize(12);
             textBinding.messageText.setText(extension.get(KEY_TEAM_CREATED_TIP).toString());
         } else {
-            getBaseRoot().setVisibility(View.GONE);
+            baseViewBinding.baseRoot.setVisibility(View.GONE);
         }
 
     }

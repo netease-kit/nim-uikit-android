@@ -7,6 +7,7 @@ package com.netease.yunxin.app.im.welcome;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -19,6 +20,7 @@ import com.netease.nimlib.sdk.qchat.result.QChatLoginResult;
 import com.netease.yunxin.app.im.databinding.ActivityWelcomeBinding;
 import com.netease.yunxin.app.im.main.MainActivity;
 import com.netease.yunxin.app.im.utils.DataUtils;
+import com.netease.yunxin.kit.common.ui.utils.ToastX;
 import com.netease.yunxin.kit.corekit.im.XKitImClient;
 import com.netease.yunxin.kit.corekit.im.login.LoginCallback;
 
@@ -52,13 +54,14 @@ public class WelcomeActivity extends AppCompatActivity {
      * start login page, you can use to launch your own login
      */
     private void startLogin() {
-        //start you login account and token , or with loginIm
-        LoginInfo loginInfo = LoginInfo.LoginInfoBuilder.loginInfoDefault("account","token").withAppKey(DataUtils.readAppKey(this)).build();
+        //start you login account and token
+        String account = "";
+        String token = "";
+        // if you config in manifest,you can use DataUtils.readAppKey(this) to instead of;
+        String appkey = "";
+        LoginInfo loginInfo = LoginInfo.LoginInfoBuilder.loginInfoDefault(account,token).withAppKey(appkey).build();
 
-        // modify me, manager your own login state
-        boolean hasLogin = false;
-
-        if (hasLogin) {
+        if (!TextUtils.isEmpty(account) && !TextUtils.isEmpty(token) && !TextUtils.isEmpty(appkey)) {
             loginIM(loginInfo);
         } else {
             activityWelcomeBinding.appDesc.setVisibility(View.GONE);
@@ -72,6 +75,7 @@ public class WelcomeActivity extends AppCompatActivity {
      */
     private void launchLoginPage() {
         // jump to your own LoginPage here
+        ToastX.showShortToast("请在WelcomeActivity类startLogin方法添加账号信息即可进入");
     }
 
     /**

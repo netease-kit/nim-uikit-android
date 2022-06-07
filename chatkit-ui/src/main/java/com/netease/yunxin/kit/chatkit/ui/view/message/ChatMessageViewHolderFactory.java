@@ -13,6 +13,7 @@ import static com.netease.yunxin.kit.chatkit.ui.ChatMessageType.NORMAL_MESSAGE_V
 import static com.netease.yunxin.kit.chatkit.ui.ChatMessageType.NOTICE_MESSAGE_VIEW_TYPE;
 import static com.netease.yunxin.kit.chatkit.ui.ChatMessageType.TIP_MESSAGE_VIEW_TYPE;
 
+import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
@@ -22,6 +23,7 @@ import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
 import com.netease.yunxin.kit.chatkit.ui.custom.ChatStickerViewHolder;
 import com.netease.yunxin.kit.chatkit.ui.custom.CustomAttachment;
 import com.netease.yunxin.kit.chatkit.ui.custom.CustomAttachmentType;
+import com.netease.yunxin.kit.chatkit.ui.databinding.ChatBaseMessageViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.view.message.viewholder.ChatAudioMessageViewHolder;
 import com.netease.yunxin.kit.chatkit.ui.view.message.viewholder.ChatBaseMessageViewHolder;
@@ -51,21 +53,22 @@ public abstract class ChatMessageViewHolderFactory {
     private ChatBaseMessageViewHolder getViewHolderDefault(@NonNull ViewGroup parent, int viewType) {
 
         ChatBaseMessageViewHolder viewHolder;
+        ChatBaseMessageViewHolderBinding viewHolderBinding = ChatBaseMessageViewHolderBinding.inflate(LayoutInflater.from(parent.getContext()),parent,false);
         if (viewType == NORMAL_MESSAGE_VIEW_TYPE_AUDIO) {
-            viewHolder = new ChatAudioMessageViewHolder(parent, viewType);
+            viewHolder = new ChatAudioMessageViewHolder(viewHolderBinding, viewType);
         } else if (viewType == NORMAL_MESSAGE_VIEW_TYPE_IMAGE) {
-            viewHolder = new ChatImageMessageViewHolder(parent, viewType);
+            viewHolder = new ChatImageMessageViewHolder(viewHolderBinding, viewType);
         } else if (viewType == NORMAL_MESSAGE_VIEW_TYPE_VIDEO) {
-            viewHolder = new ChatVideoMessageViewHolder(parent, viewType);
+            viewHolder = new ChatVideoMessageViewHolder(viewHolderBinding, viewType);
         } else if (viewType == NOTICE_MESSAGE_VIEW_TYPE) {
-            viewHolder = new ChatNotificationMessageViewHolder(parent, viewType);
+            viewHolder = new ChatNotificationMessageViewHolder(viewHolderBinding, viewType);
         } else if (viewType == TIP_MESSAGE_VIEW_TYPE) {
-            viewHolder = new ChatTipsMessageViewHolder(parent, viewType);
+            viewHolder = new ChatTipsMessageViewHolder(viewHolderBinding, viewType);
         } else if (viewType == CUSTOM_MESSAGE_VIEW_TYPE_STICKER) {
-            viewHolder = new ChatStickerViewHolder(parent, viewType);
+            viewHolder = new ChatStickerViewHolder(viewHolderBinding, viewType);
         } else {
             //default as text message
-            viewHolder = new ChatTextMessageViewHolder(parent, viewType);
+            viewHolder = new ChatTextMessageViewHolder(viewHolderBinding, viewType);
         }
 
         return viewHolder;

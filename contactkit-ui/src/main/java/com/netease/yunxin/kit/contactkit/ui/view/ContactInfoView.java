@@ -64,7 +64,7 @@ public class ContactInfoView extends FrameLayout {
     }
 
     public void setData(ContactUserInfoBean userInfo) {
-        String name = userInfo.data.getName();
+        String name = userInfo.data.getUserInfoName();
         String nickName = null;
         if (userInfo.friendInfo != null) {
             nickName = userInfo.friendInfo.getAlias();

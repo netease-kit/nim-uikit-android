@@ -14,6 +14,7 @@ import androidx.annotation.NonNull;
 import com.netease.nimlib.sdk.msg.attachment.NotificationAttachmentWithExtension;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.common.TeamNotificationHelper;
+import com.netease.yunxin.kit.chatkit.ui.databinding.ChatBaseMessageViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatMessageTextViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.corekit.im.XKitImClient;
@@ -27,13 +28,13 @@ public class ChatNotificationMessageViewHolder extends ChatBaseMessageViewHolder
 
     ChatMessageTextViewHolderBinding textBinding;
 
-    public ChatNotificationMessageViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public ChatNotificationMessageViewHolder(@NonNull ChatBaseMessageViewHolderBinding parent, int viewType) {
         super(parent, viewType);
     }
 
     @Override
     public void addContainer() {
-        textBinding = ChatMessageTextViewHolderBinding.inflate(LayoutInflater.from(getParent().getContext()),
+        textBinding = ChatMessageTextViewHolderBinding.inflate(LayoutInflater.from(parent.getContext()),
                 getContainer(), true);
     }
 
@@ -45,7 +46,7 @@ public class ChatNotificationMessageViewHolder extends ChatBaseMessageViewHolder
             textBinding.messageText.setTextSize(12);
             textBinding.messageText.setText(TeamNotificationHelper.getTeamNotificationText(message.getMessageData().getMessage()));
         } else {
-            getBaseRoot().setVisibility(View.GONE);
+            baseViewBinding.baseRoot.setVisibility(View.GONE);
         }
 
     }

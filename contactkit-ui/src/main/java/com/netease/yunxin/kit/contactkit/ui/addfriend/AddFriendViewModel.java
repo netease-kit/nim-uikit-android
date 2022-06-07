@@ -22,7 +22,6 @@ public class AddFriendViewModel extends BaseViewModel {
 
     private final MutableLiveData<FetchResult<UserInfo>> resultLiveData = new MutableLiveData<>();
     private FetchResult<UserInfo> fetchResult = new FetchResult<>(LoadStatus.Finish);
-    private final ContactRepo contactRepo = new ContactRepo();
 
     public MutableLiveData<FetchResult<UserInfo>> getFetchResult() {
         return resultLiveData;
@@ -33,7 +32,7 @@ public class AddFriendViewModel extends BaseViewModel {
         accountList.add(account);
         fetchResult.setStatus(LoadStatus.Loading);
         resultLiveData.postValue(fetchResult);
-        contactRepo.fetchUserInfo(accountList, new FetchCallback<List<UserInfo>>() {
+        ContactRepo.fetchUserInfo(accountList, new FetchCallback<List<UserInfo>>() {
             @Override
             public void onSuccess(@Nullable List<UserInfo> param) {
                 if (param != null && param.size() > 0) {

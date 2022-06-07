@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 
 import com.netease.yunxin.kit.chatkit.ui.common.MessageUtil;
+import com.netease.yunxin.kit.chatkit.ui.databinding.ChatBaseMessageViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatMessageTextViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 
@@ -23,13 +24,13 @@ public class ChatTextMessageViewHolder extends ChatBaseMessageViewHolder {
 
     ChatMessageTextViewHolderBinding textBinding;
 
-    public ChatTextMessageViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public ChatTextMessageViewHolder(@NonNull ChatBaseMessageViewHolderBinding parent, int viewType) {
         super(parent, viewType);
     }
 
     @Override
     public void addContainer() {
-        textBinding = ChatMessageTextViewHolderBinding.inflate(LayoutInflater.from(getParent().getContext()),
+        textBinding = ChatMessageTextViewHolderBinding.inflate(LayoutInflater.from(parent.getContext()),
                 getContainer(), true);
     }
 
