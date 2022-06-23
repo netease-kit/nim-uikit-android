@@ -13,18 +13,14 @@ import android.view.Window;
 import android.view.WindowManager;
 
 import androidx.annotation.ColorRes;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentOnAttachListener;
 
 import com.netease.yunxin.app.im.R;
 import com.netease.yunxin.app.im.databinding.ActivityMainBinding;
 import com.netease.yunxin.app.im.main.mine.MineFragment;
-import com.netease.yunxin.kit.contactkit.ui.ContactUIConfig;
 import com.netease.yunxin.kit.contactkit.ui.contact.ContactFragment;
 import com.netease.yunxin.kit.conversationkit.ui.page.ConversationFragment;
 import com.netease.yunxin.kit.qchatkit.ui.common.NetworkUtils;
@@ -76,11 +72,7 @@ public class MainActivity extends AppCompatActivity {
         QChatServerFragment qChatServerFragment = new QChatServerFragment();
         fragments.add(qChatServerFragment);
         //Contact
-        if (ContactUIConfig.getInstance().getContactBuilder() != null) {
-            contactBuilder = ContactUIConfig.getInstance().getContactBuilder();
-        } else {
-            contactBuilder = new ContactFragment.Builder();
-        }
+        contactBuilder = new ContactFragment.Builder();
         ContactFragment contactFragment = contactBuilder.build();
         initContactFragment(contactFragment);
         fragments.add(contactFragment);
@@ -95,15 +87,6 @@ public class MainActivity extends AppCompatActivity {
         activityMainBinding.viewPager.setOffscreenPageLimit(4);
         mCurrentTab = activityMainBinding.conversationBtnGroup;
         changeStatusBarColor(R.color.color_white);
-
-        getSupportFragmentManager().addFragmentOnAttachListener(new FragmentOnAttachListener() {
-            @Override
-            public void onAttachFragment(@NonNull FragmentManager fragmentManager, @NonNull Fragment fragment) {
-                if (fragment instanceof ContactFragment) {
-                    contactBuilder.attachFragment((ContactFragment) fragment);
-                }
-            }
-        });
     }
 
     @SuppressLint("UseCompatLoadingForDrawables")

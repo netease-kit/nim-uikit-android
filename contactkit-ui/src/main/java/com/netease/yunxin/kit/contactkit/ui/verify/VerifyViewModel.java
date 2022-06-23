@@ -44,7 +44,7 @@ public class VerifyViewModel extends BaseViewModel {
             if (info.getId() > 0) {
                 List<SystemMessageInfo> msgInfo = new ArrayList<>();
                 msgInfo.add(info);
-                ContactRepo.fillSystemMessageInfo(msgInfo, new FetchCallback<List<SystemMessageInfo>>() {
+                ContactRepo.fillNotification(msgInfo, new FetchCallback<List<SystemMessageInfo>>() {
                     @Override
                     public void onSuccess(@Nullable List<SystemMessageInfo> param) {
                         List<ContactVerifyInfoBean> add = new ArrayList<>();
@@ -77,7 +77,7 @@ public class VerifyViewModel extends BaseViewModel {
 
             }
         };
-        ContactRepo.registerSystemMessageInfoObserver(infoObserver);
+        ContactRepo.registerNotificationObserver(infoObserver);
     }
 
     public void fetchVerifyList(boolean nextPage) {
@@ -88,7 +88,7 @@ public class VerifyViewModel extends BaseViewModel {
         } else {
             index = 0;
         }
-        ContactRepo.fetchAndFillSystemMessageInfoList(index, pageSize, new FetchCallback<List<SystemMessageInfo>>() {
+        ContactRepo.getNotificationList(index, pageSize, new FetchCallback<List<SystemMessageInfo>>() {
             @Override
             public void onSuccess(@Nullable List<SystemMessageInfo> param) {
                 if (param != null && param.size() > 0) {
@@ -121,7 +121,7 @@ public class VerifyViewModel extends BaseViewModel {
     }
 
     public void clearNotify() {
-        ContactRepo.clearNotify();
+        ContactRepo.clearNotification();
         fetchResult.setFetchType(FetchResult.FetchType.Remove);
         fetchResult.setData(new ArrayList<>(verifyBeanList));
         verifyBeanList.clear();
@@ -135,9 +135,9 @@ public class VerifyViewModel extends BaseViewModel {
         String account = info.getFromAccount();
         if (status == SystemMessageInfoStatus.Init && !TextUtils.isEmpty(account)) {
             if (type == SystemMessageInfoType.AddFriend) {
-                ContactRepo.ackAddFriend(account, true, callback);
+                ContactRepo.acceptAddFriend(account, true, callback);
             } else if (type == SystemMessageInfoType.ApplyJoinTeam) {
-                ContactRepo.passApplyJoinTeam(info.getTargetId(), account, callback);
+                ContactRepo.agreeTeamApply(info.getTargetId(), account, callback);
             } else if (type == SystemMessageInfoType.TeamInvite) {
                 ContactRepo.acceptTeamInvite(info.getTargetId(), account, callback);
             }
@@ -152,23 +152,23 @@ public class VerifyViewModel extends BaseViewModel {
         String account = info.getFromAccount();
         if (status == SystemMessageInfoStatus.Init && !TextUtils.isEmpty(account)) {
             if (type == SystemMessageInfoType.AddFriend) {
-                ContactRepo.ackAddFriend(info.getFromAccount(), false, callback);
+                ContactRepo.acceptAddFriend(info.getFromAccount(), false, callback);
 
             } else if (type == SystemMessageInfoType.ApplyJoinTeam && !TextUtils.isEmpty(info.getTargetId())) {
-                ContactRepo.rejectApplyJoinTeam(info.getTargetId(), account, "", callback);
+                ContactRepo.rejectTeamApply(info.getTargetId(), account, "", callback);
 
             } else if (type == SystemMessageInfoType.TeamInvite && !TextUtils.isEmpty(info.getTargetId())) {
-                ContactRepo.declineTeamInvite(info.getTargetId(), account, "", callback);
+                ContactRepo.rejectTeamInvite(info.getTargetId(), account, "", callback);
             }
         }
     }
 
     public void setVerifyStatus(Long id, SystemMessageInfoStatus status) {
-        ContactRepo.setVerifyStatus(id, status);
+        ContactRepo.setNotificationStatus(id, status);
     }
 
     public void resetUnreadCount() {
-        ContactRepo.resetVerifyUnreadCount();
+        ContactRepo.clearNotificationUnreadCount();
     }
 
     private void resetMessageStatus(List<SystemMessageInfo> infoList) {
@@ -186,6 +186,6 @@ public class VerifyViewModel extends BaseViewModel {
     @Override
     protected void onCleared() {
         super.onCleared();
-        ContactRepo.registerSystemMessageInfoObserver(infoObserver);
+        ContactRepo.registerNotificationObserver(infoObserver);
     }
 }

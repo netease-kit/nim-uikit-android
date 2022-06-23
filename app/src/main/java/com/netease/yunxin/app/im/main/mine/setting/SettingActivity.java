@@ -17,7 +17,7 @@ import com.netease.yunxin.app.im.IMApplication;
 import com.netease.yunxin.app.im.databinding.ActivityMineSettingBinding;
 import com.netease.yunxin.app.im.welcome.WelcomeActivity;
 import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
-import com.netease.yunxin.kit.corekit.im.XKitImClient;
+import com.netease.yunxin.kit.corekit.im.IMKitClient;
 import com.netease.yunxin.kit.corekit.im.repo.ConfigRepo;
 
 public class SettingActivity extends BaseActivity {
@@ -65,7 +65,7 @@ public class SettingActivity extends BaseActivity {
             // logout your own account here
             //...
 
-            XKitImClient.logoutIMWithQChat(new com.netease.yunxin.kit.corekit.im.login.LoginCallback<Void>() {
+            IMKitClient.logoutIMWithQChat(new com.netease.yunxin.kit.corekit.im.login.LoginCallback<Void>() {
                 @Override
                 public void onError(int errorCode, @NonNull String errorMsg) {
                     Toast.makeText(SettingActivity.this, "error code is " + errorCode + ", message is " + errorMsg, Toast.LENGTH_SHORT).show();

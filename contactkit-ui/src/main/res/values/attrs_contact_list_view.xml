@@ -8,8 +8,13 @@
     <declare-styleable name="ContactListView">
 
         <attr name="nameTextColor" format="color" />
+        <attr name="nameTextSize" format="dimension" />
+        <attr name="indexTextColor" format="color" />
+        <attr name="indexTextSize" format="dimension" />
+        <attr name="divideLineColor" format="color" />
         <attr name="showIndexBar" format="boolean" />
         <attr name="showSelector" format="boolean" />
+        <attr name="avatarCornerRadius" format="dimension" />
 
     </declare-styleable>
 </resources>

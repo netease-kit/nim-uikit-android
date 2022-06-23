@@ -5,7 +5,7 @@
 
 package com.netease.yunxin.kit.teamkit.ui;
 
-import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.PATH_TEAM_SETTING;
+import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.PATH_TEAM_SETTING_PAGE;
 
 import android.content.Context;
 
@@ -51,7 +51,7 @@ public class TeamUIService extends TeamService {
 
     @Override
     public XKitService create(@NonNull Context context) {
-        XKitRouter.registerRouter(PATH_TEAM_SETTING, TeamSettingActivity.class);
+        XKitRouter.registerRouter(PATH_TEAM_SETTING_PAGE, TeamSettingActivity.class);
         CommonUIClient.init(context);
         return this;
     }

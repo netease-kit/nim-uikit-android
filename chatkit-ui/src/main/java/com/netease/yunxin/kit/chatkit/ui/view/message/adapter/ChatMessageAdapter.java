@@ -14,6 +14,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.netease.nimlib.sdk.msg.model.AttachmentProgress;
 import com.netease.nimlib.sdk.msg.model.MsgPinOption;
 import com.netease.nimlib.sdk.team.model.Team;
+import com.netease.yunxin.kit.chatkit.ui.ChatDefaultFactory;
+import com.netease.yunxin.kit.chatkit.ui.IChatFactory;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.view.interfaces.IMessageItemClickListener;
 import com.netease.yunxin.kit.chatkit.ui.view.interfaces.IMessageReader;
@@ -34,7 +36,7 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatBaseMessageView
     public static final String REVOKE_PAYLOAD = "messageRevoke";
     public static final String SIGNAL_PAYLOAD = "messageSignal";
 
-    ChatMessageViewHolderFactory viewHolderFactory;
+    IChatFactory viewHolderFactory;
 
     private IMessageItemClickListener itemClickListener;
 
@@ -46,8 +48,8 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatBaseMessageView
 
     private MessageProperties messageProperties;
 
-    public ChatMessageAdapter(ChatMessageViewHolderFactory viewHolderFactory) {
-        this.viewHolderFactory = viewHolderFactory;
+    public ChatMessageAdapter() {
+        viewHolderFactory = new ChatDefaultFactory();
     }
 
     private final List<ChatMessageBean> messageList = new ArrayList<>();
@@ -59,7 +61,7 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatBaseMessageView
     @NonNull
     @Override
     public ChatBaseMessageViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return viewHolderFactory.getViewHolder(parent, viewType);
+        return viewHolderFactory.createViewHolder(parent, viewType);
     }
 
     @Override
@@ -93,8 +95,10 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatBaseMessageView
         return messageList.size();
     }
 
-    public void setViewHolderFactory(ChatMessageViewHolderFactory viewHolderFactory) {
-        this.viewHolderFactory = viewHolderFactory;
+    public void setViewHolderFactory(IChatFactory factory) {
+        if (factory != null){
+            this.viewHolderFactory = factory;
+        }
     }
 
     public void setMessageReader(IMessageReader messageReader) {

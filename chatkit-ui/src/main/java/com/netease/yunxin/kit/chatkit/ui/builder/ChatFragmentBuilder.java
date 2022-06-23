@@ -5,36 +5,47 @@
 
 package com.netease.yunxin.kit.chatkit.ui.builder;
 
+import com.netease.yunxin.kit.chatkit.ui.ChatUIConfig;
+import com.netease.yunxin.kit.chatkit.ui.IChatFactory;
 import com.netease.yunxin.kit.chatkit.ui.page.fragment.ChatBaseFragment;
-import com.netease.yunxin.kit.chatkit.ui.view.message.ChatMessageViewHolderFactory;
+import com.netease.yunxin.kit.chatkit.ui.view.message.MessageProperties;
 
 public abstract class ChatFragmentBuilder<T extends ChatBaseFragment> {
 
-    protected ChatMessageViewHolderFactory chatMessageViewHolderFactory;
-
-    protected IChatViewCustom chatViewCustom;
+    protected ChatUIConfig chatConfig;
 
     abstract T getFragment();
 
     public T build() {
-        return getFragment();
+        T fragment = getFragment();
+        if (chatConfig != null) {
+            fragment.setChatConfig(chatConfig);
+        }
+        return fragment;
     }
 
     public ChatFragmentBuilder<T> setChatViewCustom(IChatViewCustom chatViewCustom) {
-        this.chatViewCustom = chatViewCustom;
+        if (chatConfig == null){
+            chatConfig = new ChatUIConfig();
+        }
+        this.chatConfig.chatViewCustom = chatViewCustom;
         return this;
     }
 
-    public ChatFragmentBuilder<T> setChatMessageViewHolderFactory(ChatMessageViewHolderFactory chatMessageViewHolderFactory) {
-        this.chatMessageViewHolderFactory = chatMessageViewHolderFactory;
+    public ChatFragmentBuilder<T> setChatMessageViewHolderFactory(IChatFactory factory) {
+        if (chatConfig == null){
+            chatConfig = new ChatUIConfig();
+        }
+        this.chatConfig.chatFactory = factory;
         return this;
     }
 
-    /**
-     * must call when fragment attach to activity
-     */
-    public void attachFragment(T fragment) {
-        fragment.setMessageViewHolderFactory(chatMessageViewHolderFactory);
-        fragment.setChatViewCustom(chatViewCustom);
+    public ChatFragmentBuilder<T> setChatMessageProperties(MessageProperties properties) {
+        if (chatConfig == null){
+            chatConfig = new ChatUIConfig();
+        }
+        this.chatConfig.messageProperties = properties;
+        return this;
     }
+
 }

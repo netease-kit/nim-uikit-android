@@ -8,7 +8,6 @@ package com.netease.yunxin.kit.conversationkit.ui.view;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.View;
-import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 
@@ -16,6 +15,8 @@ import com.netease.nimlib.sdk.team.model.Team;
 import com.netease.yunxin.kit.common.ui.utils.AvatarColor;
 import com.netease.yunxin.kit.common.ui.utils.TimeFormatUtils;
 import com.netease.yunxin.kit.common.ui.viewholder.BaseViewHolder;
+import com.netease.yunxin.kit.conversationkit.ui.ConversationUIConfig;
+import com.netease.yunxin.kit.conversationkit.ui.ConversationKitClient;
 import com.netease.yunxin.kit.conversationkit.ui.R;
 import com.netease.yunxin.kit.conversationkit.ui.databinding.TeamViewHolderLayoutBinding;
 import com.netease.yunxin.kit.conversationkit.ui.model.ConversationBean;
@@ -24,12 +25,8 @@ public class TeamViewHolder extends BaseViewHolder<ConversationBean> {
 
     private TeamViewHolderLayoutBinding viewBinding;
 
-    public TeamViewHolder(@NonNull ViewGroup itemView) {
-        super(itemView);
-    }
-
     public TeamViewHolder(@NonNull TeamViewHolderLayoutBinding binding) {
-        this(binding.getRoot());
+        super(binding.getRoot());
         viewBinding = binding;
     }
 
@@ -37,6 +34,7 @@ public class TeamViewHolder extends BaseViewHolder<ConversationBean> {
     @Override
     public void onBindData(ConversationBean data, int position) {
         Context context = viewBinding.getRoot().getContext();
+        loadUIConfig();
         if(data.infoData.getTeamInfo() != null) {
             Team teamInfo = data.infoData.getTeamInfo();
             viewBinding.avatarView.setData(teamInfo.getIcon(), teamInfo.getName(), AvatarColor.avatarColor(teamInfo.getId()));
@@ -71,6 +69,36 @@ public class TeamViewHolder extends BaseViewHolder<ConversationBean> {
         viewBinding.conversationTime.setText(TimeFormatUtils.formatMillisecond(context, data.infoData.getTime()));
         viewBinding.rootView.setOnClickListener( v -> itemListener.onClick(data,position));
         viewBinding.rootView.setOnLongClickListener(v -> itemListener.onLongClick(data,position));
+    }
+
+    private void loadUIConfig(){
+        if(ConversationKitClient.getConversationUIConfig() != null){
+            ConversationUIConfig config = ConversationKitClient.getConversationUIConfig();
+            if (config.itemTitleColor != ConversationUIConfig.INT_DEFAULT_NULL){
+                viewBinding.conversationNameTv.setTextColor(config.itemTitleColor);
+            }
+            if (config.itemTitleSize != ConversationUIConfig.INT_DEFAULT_NULL){
+                viewBinding.conversationNameTv.setTextSize(config.itemTitleSize);
+            }
+
+            if (config.itemContentColor != ConversationUIConfig.INT_DEFAULT_NULL){
+                viewBinding.conversationMessageTv.setTextColor(config.itemContentColor);
+            }
+            if (config.itemContentSize != ConversationUIConfig.INT_DEFAULT_NULL){
+                viewBinding.conversationMessageTv.setTextSize(config.itemContentSize);
+            }
+
+            if (config.itemDateColor != ConversationUIConfig.INT_DEFAULT_NULL){
+                viewBinding.conversationTime.setTextColor(config.itemDateColor);
+            }
+            if (config.itemDateSize != ConversationUIConfig.INT_DEFAULT_NULL){
+                viewBinding.conversationTime.setTextSize(config.itemDateSize);
+            }
+
+            if (config.avatarCornerRadius != ConversationUIConfig.INT_DEFAULT_NULL){
+                viewBinding.avatarView.setCornerRadius(config.avatarCornerRadius);
+            }
+        }
     }
 
 }

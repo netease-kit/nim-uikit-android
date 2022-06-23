@@ -38,8 +38,8 @@ public class UserInfoViewModel extends BaseViewModel {
         }
         List<String> accountList = new ArrayList<>();
         accountList.add(account);
-        FriendInfo friendInfo = ContactRepo.getFriendInfo(account);
-        ContactRepo.fetchUserInfo(accountList, new FetchCallback<List<UserInfo>>() {
+        FriendInfo friendInfo = ContactRepo.getFriend(account);
+        ContactRepo.getUserInfo(accountList, new FetchCallback<List<UserInfo>>() {
             @Override
             public void onSuccess(@Nullable List<UserInfo> param) {
                 if (param != null && param.size() > 0) {
@@ -71,7 +71,7 @@ public class UserInfoViewModel extends BaseViewModel {
     }
 
     public boolean isBlack(String account){
-        return ContactRepo.isBlack(account);
+        return ContactRepo.isBlackList(account);
     }
 
     public boolean isFriend(String account){
@@ -98,7 +98,7 @@ public class UserInfoViewModel extends BaseViewModel {
     }
 
     public void removeBlack(String account){
-        ContactRepo.removeFromBlacklist(account, new FetchCallback<Void>() {
+        ContactRepo.removeBlacklist(account, new FetchCallback<Void>() {
             @Override
             public void onSuccess(@Nullable Void param) {
                 fetchData(account);

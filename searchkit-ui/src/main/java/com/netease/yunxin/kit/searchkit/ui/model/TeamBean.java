@@ -19,7 +19,7 @@ public class TeamBean extends BaseBean {
     public TeamBean(TeamSearchInfo searchInfo){
         this.teamSearchInfo = searchInfo;
         this.viewType = SearchConstant.ViewType.TEAM;
-        this.router = RouterConstant.PATH_CHAT_GROUP;
+        this.router = RouterConstant.PATH_CHAT_TEAM_PAGE;
         this.paramKey = RouterConstant.CHAT_KRY;
         this.param = searchInfo.getTeam();
     }

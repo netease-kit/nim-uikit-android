@@ -36,7 +36,6 @@ public class TeamListViewHolder extends BaseContactViewHolder {
     public void onBind(BaseContactBean bean, int position, ContactListViewAttrs attrs) {
         Team teamInfo = ((ContactTeamBean) bean).data;
         binding.tvName.setText(teamInfo.getName());
-        binding.tvName.setTextColor(attrs.getNameTextColor());
 
         binding.avatarView.setData(teamInfo.getIcon(), teamInfo.getName());
 
@@ -45,6 +44,25 @@ public class TeamListViewHolder extends BaseContactViewHolder {
                 itemClickListener.onClick((ContactTeamBean) bean);
             }
         });
+
+        loadConfig(attrs);
+    }
+
+    private void loadConfig(ContactListViewAttrs attrs){
+        if (attrs == null){
+            return;
+        }
+        if (attrs.getNameTextColor() != ContactListViewAttrs.INT_NULL){
+            binding.tvName.setTextColor(attrs.getNameTextColor());
+        }
+        if (attrs.getNameTextSize() != ContactListViewAttrs.INT_NULL){
+            binding.tvName.setTextSize(attrs.getNameTextSize());
+        }
+
+        if (attrs.getAvatarCornerRadius() != ContactListViewAttrs.INT_NULL){
+            binding.avatarView.setCornerRadius(attrs.getAvatarCornerRadius());
+        }
+
     }
 
     public void setItemClickListener(TeamListViewHolder.itemClickListener itemClickListener) {

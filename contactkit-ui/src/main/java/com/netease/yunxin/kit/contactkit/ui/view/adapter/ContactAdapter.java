@@ -14,13 +14,15 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.netease.yunxin.kit.contactkit.ui.IContactFactory;
 import com.netease.yunxin.kit.contactkit.ui.R;
+import com.netease.yunxin.kit.contactkit.ui.contact.ContactDefaultFactory;
 import com.netease.yunxin.kit.contactkit.ui.interfaces.ContactActions;
 import com.netease.yunxin.kit.contactkit.ui.model.BaseContactBean;
 import com.netease.yunxin.kit.contactkit.ui.model.ContactFriendBean;
 import com.netease.yunxin.kit.contactkit.ui.view.ContactListViewAttrs;
 import com.netease.yunxin.kit.contactkit.ui.view.viewholder.BaseContactViewHolder;
-import com.netease.yunxin.kit.contactkit.ui.view.viewholder.ContactViewHolderFactory;
+import com.netease.yunxin.kit.contactkit.ui.view.ContactViewHolderFactory;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -38,15 +40,10 @@ public class ContactAdapter extends RecyclerView.Adapter<BaseContactViewHolder> 
         dataList = new ArrayList<>();
         friendList = new LinkedList<>();
         contactListViewAttrs = new ContactListViewAttrs();
-        viewHolderFactory = new ContactViewHolderFactory() {
-            @Override
-            protected BaseContactViewHolder getCustomViewHolder(ViewGroup view, int viewType) {
-                return null;
-            }
-        };
+        viewHolderFactory = new ContactDefaultFactory();
     }
 
-    private ContactViewHolderFactory viewHolderFactory;
+    private IContactFactory viewHolderFactory;
 
     private final ContactListViewAttrs contactListViewAttrs;
 
@@ -55,7 +52,7 @@ public class ContactAdapter extends RecyclerView.Adapter<BaseContactViewHolder> 
     @Override
     public BaseContactViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.contact_list_item_container_layout, parent, false);
-        BaseContactViewHolder viewHolder = viewHolderFactory.getViewHolder((ViewGroup) view, viewType);
+        BaseContactViewHolder viewHolder = viewHolderFactory.createViewHolder((ViewGroup) view, viewType);
         viewHolder.setActions(defaultActions);
         return viewHolder;
     }
@@ -211,7 +208,7 @@ public class ContactAdapter extends RecyclerView.Adapter<BaseContactViewHolder> 
     @Override
     public int getItemViewType(int position) {
         if (dataList.get(position) != null) {
-            return dataList.get(position).viewType;
+            return viewHolderFactory.getItemViewType(dataList.get(position));
         }
         return super.getItemViewType(position);
     }
@@ -221,7 +218,7 @@ public class ContactAdapter extends RecyclerView.Adapter<BaseContactViewHolder> 
         return contactListViewAttrs;
     }
 
-    public void setViewHolderFactory(ContactViewHolderFactory factory) {
+    public void setViewHolderFactory(IContactFactory factory) {
         viewHolderFactory = factory;
     }
 

@@ -13,30 +13,31 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.ViewModelProvider;
 
 import com.netease.nimlib.sdk.auth.LoginInfo;
 import com.netease.nimlib.sdk.qchat.result.QChatLoginResult;
+import com.netease.yunxin.app.im.BuildConfig;
 import com.netease.yunxin.app.im.databinding.ActivityWelcomeBinding;
 import com.netease.yunxin.app.im.main.MainActivity;
 import com.netease.yunxin.app.im.utils.DataUtils;
 import com.netease.yunxin.kit.common.ui.utils.ToastX;
-import com.netease.yunxin.kit.corekit.im.XKitImClient;
+import com.netease.yunxin.kit.corekit.im.IMKitClient;
 import com.netease.yunxin.kit.corekit.im.login.LoginCallback;
+
 
 /**
  * Welcome Page is launch page
  */
 public class WelcomeActivity extends AppCompatActivity {
 
+    private static final int LOGIN_PARENT_SCOPE = 2;
+    private static final int LOGIN_SCOPE = 7;
     private ActivityWelcomeBinding activityWelcomeBinding;
-    private WelcomeViewModel viewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         activityWelcomeBinding = ActivityWelcomeBinding.inflate(getLayoutInflater());
-        viewModel = new ViewModelProvider(this).get(WelcomeViewModel.class);
         setContentView(activityWelcomeBinding.getRoot());
         startLogin();
     }
@@ -57,11 +58,9 @@ public class WelcomeActivity extends AppCompatActivity {
         //start you login account and token
         String account = "";
         String token = "";
-        // if you config in manifest,you can use DataUtils.readAppKey(this) to instead of;
-        String appkey = "";
-        LoginInfo loginInfo = LoginInfo.LoginInfoBuilder.loginInfoDefault(account,token).withAppKey(appkey).build();
+        LoginInfo loginInfo = LoginInfo.LoginInfoBuilder.loginInfoDefault(account,token).build();
 
-        if (!TextUtils.isEmpty(account) && !TextUtils.isEmpty(token) && !TextUtils.isEmpty(appkey)) {
+        if (!TextUtils.isEmpty(account) && !TextUtils.isEmpty(token)) {
             loginIM(loginInfo);
         } else {
             activityWelcomeBinding.appDesc.setVisibility(View.GONE);
@@ -84,7 +83,7 @@ public class WelcomeActivity extends AppCompatActivity {
      */
     private void loginIM(LoginInfo loginInfo) {
 
-        XKitImClient.loginIMWithQChat(loginInfo,new LoginCallback<QChatLoginResult>() {
+        IMKitClient.loginIMWithQChat(loginInfo,new LoginCallback<QChatLoginResult>() {
             @Override
             public void onError(int errorCode, @NonNull String errorMsg) {
                 launchLoginPage();
@@ -92,7 +91,6 @@ public class WelcomeActivity extends AppCompatActivity {
 
             @Override
             public void onSuccess(@Nullable QChatLoginResult data) {
-                viewModel.updateNotificationConfig();
                 showMainActivityAndFinish();
             }
         });

@@ -18,9 +18,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.netease.nimlib.sdk.friend.model.MuteListChangedNotify;
 import com.netease.nimlib.sdk.team.model.Team;
 import com.netease.yunxin.kit.conversationkit.model.ConversationInfo;
+import com.netease.yunxin.kit.conversationkit.ui.IConversationFactory;
 import com.netease.yunxin.kit.conversationkit.ui.page.interfaces.ILoadListener;
 import com.netease.yunxin.kit.conversationkit.ui.model.ConversationBean;
-import com.netease.yunxin.kit.common.ui.viewholder.IViewHolderFactory;
 import com.netease.yunxin.kit.common.ui.viewholder.ViewHolderClickListener;
 import com.netease.yunxin.kit.conversationkit.ui.common.XLog;
 import com.netease.yunxin.kit.corekit.im.model.FriendInfo;
@@ -90,7 +90,7 @@ public class ConversationView extends FrameLayout {
         adapter.setViewHolderClickListener(listener);
     }
 
-    public void setViewHolderFactory(IViewHolderFactory factory) {
+    public void setViewHolderFactory(IConversationFactory factory) {
         adapter.setViewHolderFactory(factory);
     }
 

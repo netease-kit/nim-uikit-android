@@ -28,6 +28,7 @@ import com.netease.yunxin.kit.corekit.im.provider.LoginSyncObserver;
 import com.netease.yunxin.kit.corekit.im.provider.SyncStatus;
 import com.netease.yunxin.kit.corekit.im.provider.SystemUnreadCountObserver;
 import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
+import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,7 +58,7 @@ public class ContactViewModel extends BaseViewModel {
     }
 
     public void fetchContactList() {
-        ContactRepo.fetchContactList(new FetchCallback<List<FriendInfo>>() {
+        ContactRepo.getContactList(new FetchCallback<List<FriendInfo>>() {
             @Override
             public void onSuccess(@Nullable List<FriendInfo> param) {
                 contactFriendBeanList.clear();
@@ -86,7 +87,7 @@ public class ContactViewModel extends BaseViewModel {
             }
         });
 
-        ContactRepo.fetchSystemMessageUnreadCount(new FetchCallback<Integer>() {
+        ContactRepo.getNotificationUnreadCount(new FetchCallback<Integer>() {
             @Override
             public void onSuccess(@Nullable Integer count) {
                 updateVerifyNumber(count);
@@ -106,8 +107,8 @@ public class ContactViewModel extends BaseViewModel {
 
 
     private void registerObserver() {
-        ContactRepo.registerFriendObserver(friendObserver,true);
-        ContactRepo.registerSystemUnreadCountObserver(unreadCountObserver);
+        ContactRepo.registerFriendObserver(friendObserver);
+        ContactRepo.registerNotificationUnreadCountObserver(unreadCountObserver);
         ContactRepo.registerLoginSyncObserver(loginSyncObserver);
     }
 
@@ -191,12 +192,12 @@ public class ContactViewModel extends BaseViewModel {
 
     private void addFriend(List<String> accountList, FetchResult.FetchType type) {
         if (!accountList.isEmpty()) {
-            ContactRepo.fetchUserInfo(accountList, new FetchCallback<List<UserInfo>>() {
+            ContactRepo.getUserInfo(accountList, new FetchCallback<List<UserInfo>>() {
                 @Override
                 public void onSuccess(@Nullable List<UserInfo> param) {
                     List<ContactFriendBean> addList = new ArrayList<>();
                     for (int index = 0; param != null && index < param.size(); index++) {
-                        FriendInfo friendInfo = ContactRepo.getFriendInfo(param.get(index).getAccount());
+                        FriendInfo friendInfo = ContactRepo.getFriend(param.get(index).getAccount());
                         if (friendInfo != null) {
                             friendInfo.setUserInfo(param.get(index));
                             ContactFriendBean bean = new ContactFriendBean(friendInfo);
@@ -226,7 +227,7 @@ public class ContactViewModel extends BaseViewModel {
     private void updateFriend(List<String> accountList) {
         List<ContactFriendBean> updateBean = new ArrayList<>();
         for (String account : accountList) {
-            FriendInfo friendInfo = ContactRepo.getFriendInfo(account);
+            FriendInfo friendInfo = ContactRepo.getFriend(account);
             if (friendInfo == null) {
                 continue;
             }
@@ -252,13 +253,13 @@ public class ContactViewModel extends BaseViewModel {
         //verify message
         verifyBean = new ContactEntranceBean(R.mipmap.ic_contact_verfiy_msg, context.getString(R.string.contact_list_verify_msg));
         verifyBean.number = unreadCount;
-        verifyBean.router = ContactEntranceBean.EntranceRouter.VERIFY_LIST;
+        verifyBean.router = RouterConstant.PATH_MY_NOTIFICATION_PAGE;
         //black list
         ContactEntranceBean blackBean = new ContactEntranceBean(R.mipmap.ic_contact_black_list, context.getString(R.string.contact_list_black_list));
-        blackBean.router = ContactEntranceBean.EntranceRouter.BLACK_LIST;
+        blackBean.router = RouterConstant.PATH_MY_BLACK_PAGE;
         //my group
         ContactEntranceBean groupBean = new ContactEntranceBean(R.mipmap.ic_contact_my_group, context.getString(R.string.contact_list_my_group));
-        groupBean.router = ContactEntranceBean.EntranceRouter.TEAM_LIST;
+        groupBean.router = RouterConstant.PATH_MY_TEAM_PAGE;
 
         contactDataList.add(verifyBean);
         contactDataList.add(blackBean);
@@ -269,7 +270,7 @@ public class ContactViewModel extends BaseViewModel {
     @Override
     protected void onCleared() {
         super.onCleared();
-        ContactRepo.registerFriendObserver(friendObserver,false);
-        ContactRepo.unregisterSystemUnreadCountObserver(unreadCountObserver);
+        ContactRepo.unregisterFriendObserver(friendObserver);
+        ContactRepo.unregisterNotificationUnreadCountObserver(unreadCountObserver);
     }
 }

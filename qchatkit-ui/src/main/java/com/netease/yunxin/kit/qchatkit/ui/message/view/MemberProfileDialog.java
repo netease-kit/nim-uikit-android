@@ -73,7 +73,7 @@ public class MemberProfileDialog extends BaseBottomDialog {
             viewBinding.qChatMemberProfileFlGroup.setData(roleInfoList);
         }
         viewBinding.qChatMemberProfileAvatar.setOnClickListener(v -> {
-            XKitRouter.withKey(RouterConstant.PATH_USER_INFO_ACTIVITY)
+            XKitRouter.withKey(RouterConstant.PATH_USER_INFO_PAGE)
                     .withContext(v.getContext())
                     .withParam(RouterConstant.KEY_ACCOUNT_ID_KEY, memberInfo.getAccId())
                     .navigate();

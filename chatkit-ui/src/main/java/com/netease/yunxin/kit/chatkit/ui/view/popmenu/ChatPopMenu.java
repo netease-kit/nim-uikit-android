@@ -26,7 +26,7 @@ import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatPopMenuLayoutBinding;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.common.utils.ScreenUtil;
-import com.netease.yunxin.kit.corekit.im.XKitImClient;
+import com.netease.yunxin.kit.corekit.im.IMKitClient;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,8 +55,8 @@ public class ChatPopMenu {
 
 
     public ChatPopMenu() {
-        com.netease.yunxin.kit.chatkit.ui.databinding.ChatPopMenuLayoutBinding layoutBinding = ChatPopMenuLayoutBinding.inflate(LayoutInflater.from(XKitImClient.getApplicationContext()));
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(XKitImClient.getApplicationContext(), COLUMN_NUM);
+        ChatPopMenuLayoutBinding layoutBinding = ChatPopMenuLayoutBinding.inflate(LayoutInflater.from(IMKitClient.getApplicationContext()));
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(IMKitClient.getApplicationContext(), COLUMN_NUM);
         layoutBinding.recyclerView.setLayoutManager(gridLayoutManager);
         adapter = new MenuAdapter();
         layoutBinding.recyclerView.setAdapter(adapter);
@@ -131,7 +131,7 @@ public class ChatPopMenu {
         @NonNull
         @Override
         public MenuAdapter.MenuItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(XKitImClient.getApplicationContext()).inflate(R.layout.chat_pop_menu_item_layout, parent, false);
+            View view = LayoutInflater.from(IMKitClient.getApplicationContext()).inflate(R.layout.chat_pop_menu_item_layout, parent, false);
             return new MenuItemViewHolder(view);
         }
 
@@ -139,7 +139,7 @@ public class ChatPopMenu {
         public void onBindViewHolder(@NonNull MenuAdapter.MenuItemViewHolder holder, int position) {
             ChatPopMenuAction chatPopMenuAction = getChatPopMenuAction(position);
             holder.title.setText(chatPopMenuAction.getActionName());
-            Drawable drawable = ResourcesCompat.getDrawable(XKitImClient.getApplicationContext().getResources(), chatPopMenuAction.getActionIcon(), null);
+            Drawable drawable = ResourcesCompat.getDrawable(IMKitClient.getApplicationContext().getResources(), chatPopMenuAction.getActionIcon(), null);
             holder.icon.setImageDrawable(drawable);
             holder.itemView.setOnClickListener(v -> {
                 chatPopMenuAction.getActionClickListener().onClick();

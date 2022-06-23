@@ -33,7 +33,7 @@ public class QChatUIService extends QChatService {
     @NonNull
     @Override
     public QChatService create(@NonNull Context context) {
-        XKitRouter.registerRouter(RouterConstant.PATH_QCHAT_PICKING_PHOTO, new XKitRouter.RouterValue("", (value, params, observer) -> {
+        XKitRouter.registerRouter(RouterConstant.PATH_QCHAT_PICKING_PHOTO_ACTION, new XKitRouter.RouterValue("", (value, params, observer) -> {
             int requestCode = 95201;
             TransHelper.launchTask(context, requestCode, (activity, integer) -> {
                 PhotoChoiceDialog dialog = new PhotoChoiceDialog(activity);

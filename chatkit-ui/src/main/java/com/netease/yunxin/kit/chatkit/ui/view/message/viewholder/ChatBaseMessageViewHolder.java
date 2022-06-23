@@ -38,7 +38,7 @@ import com.netease.yunxin.kit.chatkit.ui.view.message.adapter.ChatMessageAdapter
 import com.netease.yunxin.kit.common.ui.utils.AvatarColor;
 import com.netease.yunxin.kit.common.ui.utils.TimeFormatUtils;
 import com.netease.yunxin.kit.common.utils.ScreenUtil;
-import com.netease.yunxin.kit.corekit.im.XKitImClient;
+import com.netease.yunxin.kit.corekit.im.IMKitClient;
 
 import java.util.List;
 
@@ -127,10 +127,10 @@ public abstract class ChatBaseMessageViewHolder extends RecyclerView.ViewHolder 
         if (!TextUtils.isEmpty(data.getPinAccid())) {
             baseViewBinding.tvSignal.setVisibility(View.VISIBLE);
             if (data.getMessageData().getMessage().getSessionType() == SessionTypeEnum.P2P) {
-                baseViewBinding.tvSignal.setText(String.format(XKitImClient.getApplicationContext().getString(R.string.chat_message_signal_tip),
+                baseViewBinding.tvSignal.setText(String.format(IMKitClient.getApplicationContext().getString(R.string.chat_message_signal_tip),
                         MessageHelper.getUserNickByAccId(data.getPinAccid(), true)));
             } else if (data.getMessageData().getMessage().getSessionType() == SessionTypeEnum.Team) {
-                baseViewBinding.tvSignal.setText(String.format(XKitImClient.getApplicationContext().getString(R.string.chat_message_signal_tip_for_team),
+                baseViewBinding.tvSignal.setText(String.format(IMKitClient.getApplicationContext().getString(R.string.chat_message_signal_tip_for_team),
                         MessageHelper.getUserNickByAccId(data.getPinAccid(), true)));
             }
             ConstraintLayout.LayoutParams layoutParams = (ConstraintLayout.LayoutParams) baseViewBinding.tvSignal.getLayoutParams();
@@ -139,7 +139,14 @@ public abstract class ChatBaseMessageViewHolder extends RecyclerView.ViewHolder 
             } else {
                 layoutParams.horizontalBias = 1f;
             }
-            baseViewBinding.baseRoot.setBackgroundColor(parent.getContext().getResources().getColor(R.color.color_fffbea));
+
+            if (properties.getSignalBgColor() != MessageProperties.INT_NULL){
+                baseViewBinding.baseRoot.setBackgroundColor(properties.getSignalBgColor());
+
+            }else {
+                baseViewBinding.baseRoot.setBackgroundColor(parent.getContext().getResources().getColor(R.color.color_fffbea));
+            }
+
         } else {
             baseViewBinding.tvSignal.setVisibility(View.GONE);
             baseViewBinding.baseRoot.setBackgroundColor(parent.getContext().getResources().getColor(R.color.title_transfer));
@@ -193,14 +200,20 @@ public abstract class ChatBaseMessageViewHolder extends RecyclerView.ViewHolder 
             if (message.getMessageData().getMessage().getSessionType() == SessionTypeEnum.Team) {
                 baseViewBinding.tvName.setVisibility(View.VISIBLE);
                 baseViewBinding.tvName.setText(name);
-                if (properties.getUserNickColor() != 0) {
+                if (properties.getUserNickColor() != MessageProperties.INT_NULL) {
                     baseViewBinding.tvName.setTextColor(properties.getUserNickColor());
+                }
+                if (properties.getUserNickTextSize() != MessageProperties.INT_NULL) {
+                    baseViewBinding.tvName.setTextSize(properties.getUserNickTextSize());
                 }
                 layoutParams.topToBottom = R.id.tv_name;
             }
             String avatar = message.getMessageData().getFromUser() == null ? "" : message.getMessageData().getFromUser().getAvatar();
             baseViewBinding.fromAvatar.setVisibility(View.VISIBLE);
             baseViewBinding.fromAvatar.setData(avatar, name, AvatarColor.avatarColor(message.getMessageData().getMessage().getFromAccount()));
+            if (properties.getAvatarCornerRadius() >= 0){
+                baseViewBinding.fromAvatar.setCornerRadius(properties.getAvatarCornerRadius());
+            }
             baseViewBinding.avatarMine.setVisibility(View.GONE);
             if (properties.getReceiveMessageBg() != null) {
                 baseViewBinding.llyMessage.setBackground(properties.getReceiveMessageBg());
@@ -211,8 +224,11 @@ public abstract class ChatBaseMessageViewHolder extends RecyclerView.ViewHolder 
             layoutParams.horizontalBias = 0f;
         } else {
             baseViewBinding.avatarMine.setVisibility(View.VISIBLE);
+            if (properties.getAvatarCornerRadius() >= 0){
+                baseViewBinding.avatarMine.setCornerRadius(properties.getAvatarCornerRadius());
+            }
             baseViewBinding.tvName.setVisibility(View.GONE);
-            NimUserInfo userInfo = XKitImClient.getUserInfo();
+            NimUserInfo userInfo = IMKitClient.getUserInfo();
             if (userInfo != null) {
                 String nickname = userInfo.getName() == null ? "" : userInfo.getName();
                 baseViewBinding.avatarMine.setData(userInfo.getAvatar(),
@@ -261,6 +277,12 @@ public abstract class ChatBaseMessageViewHolder extends RecyclerView.ViewHolder 
             baseViewBinding.tvTime.setVisibility(View.GONE);
         } else {
             baseViewBinding.tvTime.setVisibility(View.VISIBLE);
+            if (properties.getTimeTextColor() != MessageProperties.INT_NULL){
+                baseViewBinding.tvTime.setTextColor(properties.getTimeTextColor());
+            }
+            if (properties.getTimeTextSize() != MessageProperties.INT_NULL){
+                baseViewBinding.tvTime.setTextSize(properties.getTimeTextSize());
+            }
             baseViewBinding.tvTime.setText(TimeFormatUtils.formatMillisecond(itemView.getContext(), createTime));
         }
     }

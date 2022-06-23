@@ -53,7 +53,7 @@
         android:theme="@style/Theme.Xkit">
         <meta-data
             android:name="com.netease.nim.appKey"
-            android:value="your app key" />
+            android:value="app key" />
 
         <activity android:name=".welcome.WelcomeActivity" android:exported="true">
             <intent-filter>
@@ -228,10 +228,10 @@
 
         <meta-data
             android:name="com.vivo.push.api_key"
-            android:value="vivo push api key"/>
+            android:value="your api_key"/>
         <meta-data
             android:name="com.vivo.push.app_id"
-            android:value="vivo push app id"/>
+            android:value="your app_id"/>
 
         <receiver android:name="com.netease.nimlib.mixpush.vivo.VivoPushReceiver">
             <intent-filter>

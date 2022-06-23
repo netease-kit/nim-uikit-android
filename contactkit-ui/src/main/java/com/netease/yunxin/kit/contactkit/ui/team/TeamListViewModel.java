@@ -36,14 +36,14 @@ public class TeamListViewModel extends BaseViewModel {
     public TeamListViewModel() {
         teamUpdateObserver = (teamList) -> updateTeamData(teamList);
         teamRemoveObserver = (team) -> removeTeamData(team);
-        ContactRepo.registerTeamUpdateObserver(teamUpdateObserver, true);
-        ContactRepo.registerTeamRemoveObserver(teamRemoveObserver, true);
+        ContactRepo.registerTeamUpdateObserver(teamUpdateObserver);
+        ContactRepo.registerTeamRemoveObserver(teamRemoveObserver);
     }
 
     public void fetchTeamList() {
         fetchResult.setStatus(LoadStatus.Loading);
         resultLiveData.postValue(fetchResult);
-        ContactRepo.fetchMyTeamList(new FetchCallback<List<Team>>() {
+        ContactRepo.getTeamList(new FetchCallback<List<Team>>() {
             @Override
             public void onSuccess(List<Team> param) {
                 teamBeanList.clear();
@@ -125,8 +125,8 @@ public class TeamListViewModel extends BaseViewModel {
     @Override
     protected void onCleared() {
         super.onCleared();
-        ContactRepo.registerTeamUpdateObserver(teamUpdateObserver, false);
-        ContactRepo.registerTeamRemoveObserver(teamRemoveObserver, false);
+        ContactRepo.unregisterTeamUpdateObserver(teamUpdateObserver);
+        ContactRepo.unregisterTeamRemoveObserver(teamRemoveObserver);
 
     }
 }

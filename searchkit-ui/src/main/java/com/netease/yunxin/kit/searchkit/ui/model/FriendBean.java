@@ -19,7 +19,7 @@ public class FriendBean extends BaseBean {
     public FriendBean(FriendSearchInfo searchInfo){
         this.friendSearchInfo = searchInfo;
         this.viewType = SearchConstant.ViewType.USER;
-        this.router = RouterConstant.PATH_CHAT_P2P;
+        this.router = RouterConstant.PATH_CHAT_P2P_PAGE;
         this.paramKey = RouterConstant.CHAT_KRY;
         this.param = searchInfo.getFriendInfo().getUserInfo();
     }

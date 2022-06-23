@@ -9,7 +9,6 @@ import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.KEY_TEAM_CR
 
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 
@@ -17,7 +16,7 @@ import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatBaseMessageViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatMessageTextViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
-import com.netease.yunxin.kit.corekit.im.XKitImClient;
+import com.netease.yunxin.kit.corekit.im.IMKitClient;
 
 import java.util.Map;
 
@@ -45,7 +44,7 @@ public class ChatTipsMessageViewHolder extends ChatBaseMessageViewHolder {
         super.bindData(message, lastMessage);
         Map<String, Object> extension = message.getMessageData().getMessage().getRemoteExtension();
         if (extension != null && extension.get(KEY_TEAM_CREATED_TIP) != null) {
-            textBinding.messageText.setTextColor(XKitImClient.getApplicationContext().getResources().getColor(R.color.color_999999));
+            textBinding.messageText.setTextColor(IMKitClient.getApplicationContext().getResources().getColor(R.color.color_999999));
             textBinding.messageText.setTextSize(12);
             textBinding.messageText.setText(extension.get(KEY_TEAM_CREATED_TIP).toString());
         } else {

@@ -6,7 +6,6 @@
 package com.netease.yunxin.kit.chatkit.ui;
 
 import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
-import com.netease.yunxin.kit.chatkit.ui.custom.CustomAttachmentType;
 
 public interface ChatMessageType {
 
@@ -21,8 +20,6 @@ public interface ChatMessageType {
     
     int NORMAL_MESSAGE_VIEW_TYPE_VIDEO = MsgTypeEnum.video.getValue();
 
-    int CUSTOM_MESSAGE_VIEW_TYPE_STICKER = CustomAttachmentType.CustomStart + CustomAttachmentType.Sticker;
-
     /**
      * notice message type
      */
@@ -32,4 +29,14 @@ public interface ChatMessageType {
      * tip message type
      */
     int TIP_MESSAGE_VIEW_TYPE = MsgTypeEnum.tip.getValue();
+
+    /**
+     * 自定义消息类型从1000开始
+     */
+    int CUSTOM_START = 1000;
+
+    /**
+     * 自定义消息贴图
+     */
+    int CUSTOM_STICKER = 1001;
 }

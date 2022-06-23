@@ -13,8 +13,10 @@ import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.conversationkit.model.ConversationInfo;
 import com.netease.yunxin.kit.conversationkit.repo.ConversationRepo;
+import com.netease.yunxin.kit.conversationkit.ui.IConversationFactory;
 import com.netease.yunxin.kit.conversationkit.ui.model.ConversationBean;
 import com.netease.yunxin.kit.conversationkit.ui.common.XLog;
+import com.netease.yunxin.kit.conversationkit.ui.page.DefaultViewHolderFactory;
 import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
 
 import java.util.ArrayList;
@@ -27,6 +29,7 @@ public class SelectorViewModel extends BaseViewModel {
     private final String TAG = "SelectorViewModel";
 
     private final MutableLiveData<FetchResult<List<ConversationBean>>> queryLiveData = new MutableLiveData<>();
+    private IConversationFactory conversationFactory = new DefaultViewHolderFactory();
     private final static int PAGE_LIMIT = 50;
     private boolean hasMore = true;
 
@@ -44,8 +47,12 @@ public class SelectorViewModel extends BaseViewModel {
         }
     }
 
+    public void setConversationFactory(IConversationFactory factory) {
+        this.conversationFactory = factory;
+    }
+
     private void queryConversation(ConversationInfo data){
-        ConversationRepo.INSTANCE.queryConversationListWithStickSort(data,PAGE_LIMIT, new FetchCallback<List<ConversationInfo>>() {
+        ConversationRepo.INSTANCE.getSessionList(data,PAGE_LIMIT, new FetchCallback<List<ConversationInfo>>() {
             @Override
             public void onSuccess(@Nullable List<ConversationInfo> param) {
                 FetchResult<List<ConversationBean>> result = new FetchResult<>(LoadStatus.Success);
@@ -54,7 +61,7 @@ public class SelectorViewModel extends BaseViewModel {
                 }
                 List<ConversationBean> resultData = new ArrayList<>();
                 for (int index = 0; param != null && index < param.size(); index++) {
-                    resultData.add(new ConversationBean(param.get(index)));
+                    resultData.add(conversationFactory.CreateBean(param.get(index)));
                     XLog.d(TAG, "queryConversation:onSuccess", param.get(index).getContactId());
                 }
                 hasMore = param != null && param.size() == PAGE_LIMIT;

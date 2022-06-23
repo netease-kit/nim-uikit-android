@@ -75,7 +75,7 @@ public class ChatSettingActivity extends BaseActivity {
                 ArrayList<String> friends = data.getStringArrayListExtra(REQUEST_CONTACT_SELECTOR_KEY);
                 if (friends != null && !friends.isEmpty()) {
                     friends.add(userInfo.getAccount());
-                    XKitRouter.withKey(RouterConstant.PATH_CREATE_NORMAL_TEAM)
+                    XKitRouter.withKey(RouterConstant.PATH_CREATE_NORMAL_TEAM_ACTION)
                             .withParam(REQUEST_CONTACT_SELECTOR_KEY, friends)
                             .withParam(KEY_REQUEST_SELECTOR_NAME, data.getStringArrayListExtra(KEY_REQUEST_SELECTOR_NAME))
                             .navigate(res -> {
@@ -94,28 +94,28 @@ public class ChatSettingActivity extends BaseActivity {
 
     private void initData() {
         if (userInfo == null) return;
-        binding.scSessionTop.setChecked(ChatMessageRepo.isStick(userInfo.getAccount()));
+        binding.scSessionTop.setChecked(ChatMessageRepo.isStickTop(userInfo.getAccount()));
         binding.rlySessionTop.setOnClickListener(v -> {
             if (!binding.scSessionTop.isChecked()) {
-                ChatMessageRepo.addStick(userInfo.getAccount(), new ChatCallback<StickTopSessionInfo>() {
+                ChatMessageRepo.addStickTop(userInfo.getAccount(), new ChatCallback<StickTopSessionInfo>() {
                     @Override
                     public void onSuccess(@Nullable StickTopSessionInfo param) {
                         binding.scSessionTop.setChecked(true);
-                        ChatMessageRepo.notifyP2PStickNotify(userInfo.getAccount());
+                        ChatMessageRepo.notifyP2PStickTop(userInfo.getAccount());
                     }
                 });
             } else {
-                ChatMessageRepo.removeStick(userInfo.getAccount(), new ChatCallback<Void>() {
+                ChatMessageRepo.removeStickTop(userInfo.getAccount(), new ChatCallback<Void>() {
                     @Override
                     public void onSuccess(@Nullable Void param) {
                         binding.scSessionTop.setChecked(false);
-                        ChatMessageRepo.notifyP2PStickNotify(userInfo.getAccount());
+                        ChatMessageRepo.notifyP2PStickTop(userInfo.getAccount());
                     }
                 });
             }
         });
 
-        binding.scMessageNotice.setChecked(ChatMessageRepo.isNotify(userInfo.getAccount()));
+        binding.scMessageNotice.setChecked(ChatMessageRepo.isNeedNotify(userInfo.getAccount()));
         binding.rlyMessageNotice.setOnClickListener(v -> ChatMessageRepo.setNotify(userInfo.getAccount(),
                 !binding.scMessageNotice.isChecked(), new ChatCallback<Void>() {
                     @Override
@@ -129,7 +129,7 @@ public class ChatSettingActivity extends BaseActivity {
     private void selectUsersCreateGroup() {
         ArrayList<String> filterList = new ArrayList<>();
         filterList.add(userInfo.getAccount());
-        XKitRouter.withKey(RouterConstant.PATH_SELECTOR_ACTIVITY)
+        XKitRouter.withKey(RouterConstant.PATH_CONTACT_SELECTOR_PAGE)
                 .withParam(RouterConstant.KEY_CONTACT_SELECTOR_MAX_COUNT, 199)
                 .withParam(RouterConstant.KEY_REQUEST_SELECTOR_NAME_ENABLE, true)
                 .withContext(this)

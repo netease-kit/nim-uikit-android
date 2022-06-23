@@ -18,7 +18,7 @@ import com.netease.nimlib.sdk.msg.constant.MsgStatusEnum;
 import com.netease.nimlib.sdk.uinfo.model.NimUserInfo;
 import com.netease.yunxin.kit.common.ui.utils.AvatarColor;
 import com.netease.yunxin.kit.common.ui.utils.TimeFormatUtils;
-import com.netease.yunxin.kit.corekit.im.XKitImClient;
+import com.netease.yunxin.kit.corekit.im.IMKitClient;
 import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 import com.netease.yunxin.kit.qchatkit.repo.QChatUserRepo;
@@ -62,7 +62,7 @@ public abstract class QChatBaseMessageViewHolder extends RecyclerView.ViewHolder
 
     public void bindData(QChatMessageInfo data, QChatMessageInfo lastMessage) {
         String name = TextUtils.isEmpty(data.getFromNick()) ? data.getFromAccount() : data.getFromNick();
-        String myAccId = XKitImClient.account();
+        String myAccId = IMKitClient.account();
         ConstraintLayout.LayoutParams layoutParams = (ConstraintLayout.LayoutParams) baseViewBinding.messageBody.getLayoutParams();
         isMine = TextUtils.equals(myAccId, data.getFromAccount());
         if (!isMine) {
@@ -78,14 +78,14 @@ public abstract class QChatBaseMessageViewHolder extends RecyclerView.ViewHolder
             baseViewBinding.messageStatus.setVisibility(View.GONE);
             layoutParams.horizontalBias = 0f;
             baseViewBinding.fromAvatar.setOnClickListener(v ->{
-                XKitRouter.withKey(RouterConstant.PATH_USER_INFO_ACTIVITY)
+                XKitRouter.withKey(RouterConstant.PATH_USER_INFO_PAGE)
                         .withContext(v.getContext())
                         .withParam(RouterConstant.KEY_ACCOUNT_ID_KEY, data.getFromAccount())
                         .navigate();
             });
         } else {
             baseViewBinding.avatarMine.setVisibility(View.VISIBLE);
-            NimUserInfo userInfo = XKitImClient.getUserInfo();
+            NimUserInfo userInfo = IMKitClient.getUserInfo();
             if (userInfo != null) {
                 String nickname = TextUtils.isEmpty(userInfo.getName()) ? userInfo.getAccount() : userInfo.getName();
                 baseViewBinding.avatarMine.setData(userInfo.getAvatar(), nickname, AvatarColor.avatarColor(userInfo.getAccount()));

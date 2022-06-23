@@ -22,7 +22,7 @@ import com.netease.yunxin.kit.common.ui.activities.CommonActivity;
 import com.netease.yunxin.kit.common.ui.dialog.ChoiceListener;
 import com.netease.yunxin.kit.common.ui.dialog.CommonChoiceDialog;
 import com.netease.yunxin.kit.common.ui.utils.AvatarColor;
-import com.netease.yunxin.kit.corekit.im.XKitImClient;
+import com.netease.yunxin.kit.corekit.im.IMKitClient;
 import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
 import com.netease.yunxin.kit.qchatkit.repo.QChatServerRepo;
 import com.netease.yunxin.kit.qchatkit.repo.model.QChatServerInfo;
@@ -108,7 +108,7 @@ public class QChatServerSettingActivity extends CommonActivity {
         if (serverInfo == null) {
             return;
         }
-        boolean isOwner = TextUtils.equals(serverInfo.getOwner(), XKitImClient.account());
+        boolean isOwner = TextUtils.equals(serverInfo.getOwner(), IMKitClient.account());
         if (isOwner) {
             binding.tvDelete.setText(R.string.qchat_delete_server);
         } else {

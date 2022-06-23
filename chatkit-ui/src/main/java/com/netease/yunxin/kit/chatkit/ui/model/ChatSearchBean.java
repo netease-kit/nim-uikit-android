@@ -29,7 +29,7 @@ public class ChatSearchBean extends BaseBean {
         this.msgRecord = record;
         this.paramKey = RouterConstant.KEY_MESSAGE;
         this.param = getMessage();
-        this.router = RouterConstant.PATH_CHAT_GROUP;
+        this.router = RouterConstant.PATH_CHAT_TEAM_PAGE;
     }
 
     public String getNickName(){

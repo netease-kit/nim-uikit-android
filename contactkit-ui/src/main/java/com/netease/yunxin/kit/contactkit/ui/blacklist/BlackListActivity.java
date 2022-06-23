@@ -26,7 +26,7 @@ import com.netease.yunxin.kit.contactkit.ui.model.IViewTypeConstant;
 import com.netease.yunxin.kit.contactkit.ui.selector.ContactSelectorActivity;
 import com.netease.yunxin.kit.contactkit.ui.view.viewholder.BaseContactViewHolder;
 import com.netease.yunxin.kit.contactkit.ui.view.viewholder.BlackListViewHolder;
-import com.netease.yunxin.kit.contactkit.ui.view.viewholder.ContactViewHolderFactory;
+import com.netease.yunxin.kit.contactkit.ui.view.ContactViewHolderFactory;
 import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
 
 import java.util.ArrayList;

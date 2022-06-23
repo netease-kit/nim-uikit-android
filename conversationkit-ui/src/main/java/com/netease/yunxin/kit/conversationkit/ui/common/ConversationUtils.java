@@ -10,7 +10,7 @@ import android.text.TextUtils;
 import com.netease.nimlib.sdk.msg.attachment.NotificationAttachment;
 import com.netease.nimlib.sdk.msg.constant.NotificationType;
 import com.netease.yunxin.kit.conversationkit.model.ConversationInfo;
-import com.netease.yunxin.kit.corekit.im.XKitImClient;
+import com.netease.yunxin.kit.corekit.im.IMKitClient;
 
 public class ConversationUtils {
 
@@ -20,7 +20,7 @@ public class ConversationUtils {
             if (notify.getType() == NotificationType.DismissTeam
                     || notify.getType() == NotificationType.KickMember
                     || (notify.getType() == NotificationType.LeaveTeam &&
-                    TextUtils.equals(conversationInfo.getFromAccount(), XKitImClient.account()))) {
+                    TextUtils.equals(conversationInfo.getFromAccount(), IMKitClient.account()))) {
                 return true;
             }
         }

@@ -14,6 +14,7 @@ import androidx.annotation.ColorInt;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.netease.yunxin.kit.contactkit.ui.IContactFactory;
 import com.netease.yunxin.kit.contactkit.ui.R;
 import com.netease.yunxin.kit.contactkit.ui.databinding.ContactListViewBinding;
 import com.netease.yunxin.kit.contactkit.ui.indexbar.suspension.SuspensionDecoration;
@@ -24,7 +25,6 @@ import com.netease.yunxin.kit.contactkit.ui.interfaces.IContactViewAttrs;
 import com.netease.yunxin.kit.contactkit.ui.model.BaseContactBean;
 import com.netease.yunxin.kit.contactkit.ui.model.ContactFriendBean;
 import com.netease.yunxin.kit.contactkit.ui.view.adapter.ContactAdapter;
-import com.netease.yunxin.kit.contactkit.ui.view.viewholder.ContactViewHolderFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -63,9 +63,6 @@ public class ContactListView extends FrameLayout implements IContactDataChanged,
         contactListViewAttrs = new ContactListViewAttrs();
         contactListViewAttrs.parseAttrs(getContext(), attrs);
         initRecyclerView();
-        if (!contactListViewAttrs.getShowIndexBar()) {
-            binding.indexBar.setVisibility(GONE);
-        }
     }
 
 
@@ -73,15 +70,15 @@ public class ContactListView extends FrameLayout implements IContactDataChanged,
         decoration = new SuspensionDecoration(getContext(), new ArrayList<>());
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         contactAdapter = new ContactAdapter();
-        contactAdapter.setContactListViewAttrs(contactListViewAttrs);
         binding.contactList.setLayoutManager(layoutManager);
         binding.contactList.addItemDecoration(decoration.setPaddingLeft(getContext().getResources().getDimension(R.dimen.dimen_20_dp)));
         binding.contactList.setAdapter(contactAdapter);
         binding.indexBar.setLayoutManager(layoutManager);
+        loadAttar();
     }
 
     @Override
-    public void setViewHolderFactory(ContactViewHolderFactory viewHolderFactory) {
+    public void setViewHolderFactory(IContactFactory viewHolderFactory) {
         if (contactAdapter != null) {
             contactAdapter.setViewHolderFactory(viewHolderFactory);
         }
@@ -90,8 +87,24 @@ public class ContactListView extends FrameLayout implements IContactDataChanged,
     @Override
     public void setViewConfig(ContactListViewAttrs attrs) {
         contactListViewAttrs = attrs;
+        loadAttar();
+    }
+
+    private void loadAttar(){
+        if (contactListViewAttrs.getShowIndexBar() != null) {
+            binding.indexBar.setVisibility(contactListViewAttrs.getShowIndexBar()?VISIBLE:GONE);
+        }
         if (contactAdapter != null) {
-            contactAdapter.setContactListViewAttrs(attrs);
+            contactAdapter.setContactListViewAttrs(contactListViewAttrs);
+        }
+        if (contactListViewAttrs.getIndexTextSize() != ContactListViewAttrs.INT_NULL){
+            decoration.setTitleFontSize(contactListViewAttrs.getIndexTextSize());
+        }
+        if (contactListViewAttrs.getIndexTextColor() != ContactListViewAttrs.INT_NULL){
+            decoration.setColorTitleFont(contactListViewAttrs.getIndexTextColor());
+        }
+        if (contactListViewAttrs.getDivideLineColor() != ContactListViewAttrs.INT_NULL){
+            decoration.setColorTitleBottomLine(contactListViewAttrs.getDivideLineColor());
         }
     }
 

@@ -42,9 +42,9 @@ public class ChatUIService extends ChatService {
     @NonNull
     @Override
     public ChatService create(@NonNull Context context) {
-        XKitRouter.registerRouter(RouterConstant.PATH_CHAT_P2P, ChatP2PActivity.class);
-        XKitRouter.registerRouter(RouterConstant.PATH_CHAT_GROUP, ChatTeamActivity.class);
-        XKitRouter.registerRouter(RouterConstant.PATH_CHAT_SEARCH, ChatSearchActivity.class);
+        XKitRouter.registerRouter(RouterConstant.PATH_CHAT_P2P_PAGE, ChatP2PActivity.class);
+        XKitRouter.registerRouter(RouterConstant.PATH_CHAT_TEAM_PAGE, ChatTeamActivity.class);
+        XKitRouter.registerRouter(RouterConstant.PATH_CHAT_SEARCH_PAGE, ChatSearchActivity.class);
         ChatMessageRepo.setCustomAttachParser(new CustomAttachParser());
         EmojiManager.init(context);
         CommonUIClient.init(context);

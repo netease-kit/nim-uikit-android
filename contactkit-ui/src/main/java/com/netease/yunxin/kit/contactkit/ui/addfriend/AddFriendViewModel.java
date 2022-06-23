@@ -32,7 +32,7 @@ public class AddFriendViewModel extends BaseViewModel {
         accountList.add(account);
         fetchResult.setStatus(LoadStatus.Loading);
         resultLiveData.postValue(fetchResult);
-        ContactRepo.fetchUserInfo(accountList, new FetchCallback<List<UserInfo>>() {
+        ContactRepo.getUserInfo(accountList, new FetchCallback<List<UserInfo>>() {
             @Override
             public void onSuccess(@Nullable List<UserInfo> param) {
                 if (param != null && param.size() > 0) {

@@ -20,6 +20,10 @@
         </provider>
 
         <activity
+            android:name=".contact.ContactActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".addfriend.AddFriendActivity"
             android:exported="false" />
 

@@ -43,13 +43,13 @@ public class BlackListViewModel extends BaseViewModel {
                 addBlackData(accountList);
             }
         };
-        ContactRepo.registerFriendObserver(friendObserver,true);
+        ContactRepo.registerFriendObserver(friendObserver);
     }
 
     public void fetchBlackList() {
         fetchResult.setStatus(LoadStatus.Loading);
         resultLiveData.postValue(fetchResult);
-        ContactRepo.fetchBlackList(new FetchCallback<List<UserInfo>>() {
+        ContactRepo.getBlackList(new FetchCallback<List<UserInfo>>() {
             @Override
             public void onSuccess(@Nullable List<UserInfo> param) {
                 blackList.clear();
@@ -88,7 +88,7 @@ public class BlackListViewModel extends BaseViewModel {
     }
 
     public void removeBlackOp(String account, FetchCallback<Void> callback) {
-        ContactRepo.removeFromBlacklist(account, callback);
+        ContactRepo.removeBlacklist(account, callback);
     }
 
     private void removeBlackData(List<String> accountList) {
@@ -124,7 +124,7 @@ public class BlackListViewModel extends BaseViewModel {
             return;
         }
         List<ContactBlackListBean> add = new ArrayList<>();
-        ContactRepo.fetchUserInfo(accountList, new FetchCallback<List<UserInfo>>() {
+        ContactRepo.getUserInfo(accountList, new FetchCallback<List<UserInfo>>() {
             @Override
             public void onSuccess(@Nullable List<UserInfo> param) {
                 if (param != null && param.size() > 0) {
@@ -153,6 +153,6 @@ public class BlackListViewModel extends BaseViewModel {
     @Override
     protected void onCleared() {
         super.onCleared();
-        ContactRepo.registerFriendObserver(friendObserver,false);
+        ContactRepo.unregisterFriendObserver(friendObserver);
     }
 }

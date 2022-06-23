@@ -12,6 +12,4 @@ import com.netease.yunxin.kit.contactkit.ui.contact.ContactFragment;
 public abstract class FragmentBuilder {
 
     public abstract Fragment build();
-
-    public abstract void attachFragment(ContactFragment fragment);
 }

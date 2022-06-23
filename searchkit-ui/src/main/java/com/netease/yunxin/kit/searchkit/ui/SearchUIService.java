@@ -31,7 +31,7 @@ public class SearchUIService extends SearchKitService {
     @NonNull
     @Override
     public SearchKitService create(@NonNull Context context) {
-        XKitRouter.registerRouter(RouterConstant.PATH_GLOBAL_SEARCH, GlobalSearchActivity.class);
+        XKitRouter.registerRouter(RouterConstant.PATH_GLOBAL_SEARCH_PAGE, GlobalSearchActivity.class);
         CommonUIClient.init(context);
         return this;
     }

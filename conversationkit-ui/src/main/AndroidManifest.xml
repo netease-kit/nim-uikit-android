@@ -18,6 +18,7 @@
                 android:value="xkit.startup" />
         </provider>
         <activity android:name=".page.ConversationSelectActivity" android:exported="false"/>
+        <activity android:name=".page.ConversationActivity" android:exported="false"/>
     </application>
 
 </manifest>

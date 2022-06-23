@@ -27,7 +27,7 @@ import com.netease.yunxin.app.im.main.mine.setting.SettingActivity;
 import com.netease.yunxin.kit.common.ui.fragments.BaseFragment;
 import com.netease.yunxin.kit.common.ui.utils.AvatarColor;
 import com.netease.yunxin.kit.common.ui.utils.ToastX;
-import com.netease.yunxin.kit.corekit.im.XKitImClient;
+import com.netease.yunxin.kit.corekit.im.IMKitClient;
 
 public class MineFragment extends BaseFragment {
     private FragmentMineBinding binding;
@@ -46,7 +46,7 @@ public class MineFragment extends BaseFragment {
 
         launcher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
             if (result.getResultCode() == Activity.RESULT_OK){
-                refreshUserInfo(XKitImClient.getUserInfo());
+                refreshUserInfo(IMKitClient.getUserInfo());
             }
         });
 
@@ -77,21 +77,21 @@ public class MineFragment extends BaseFragment {
         binding.collectLl.setOnClickListener( v -> ToastX.showShortToast(R.string.not_usable));
 
         binding.settingLl.setOnClickListener( v -> startActivity(new Intent(getContext(), SettingActivity.class)));
-        binding.tvAccount.setText(getString(R.string.tab_mine_account, XKitImClient.account()));
+        binding.tvAccount.setText(getString(R.string.tab_mine_account, IMKitClient.account()));
     }
 
     private void refreshUserInfo(NimUserInfo userInfo) {
         if (userInfo == null) {
             return;
         }
-        binding.cavIcon.setData(userInfo.getAvatar(), userInfo.getName() == null ? "" : userInfo.getName(), AvatarColor.avatarColor(XKitImClient.account()));
+        binding.cavIcon.setData(userInfo.getAvatar(), userInfo.getName() == null ? "" : userInfo.getName(), AvatarColor.avatarColor(IMKitClient.account()));
         binding.tvName.setText(userInfo.getName());
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        NimUserInfo userInfo = XKitImClient.getUserInfo();
+        NimUserInfo userInfo = IMKitClient.getUserInfo();
         if (userInfo == null) {
             return;
         }

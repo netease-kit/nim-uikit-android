@@ -6,8 +6,8 @@
 package com.netease.yunxin.kit.contactkit.ui.contact;
 
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,11 +19,11 @@ import androidx.lifecycle.ViewModelProvider;
 import com.netease.yunxin.kit.common.ui.fragments.BaseFragment;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
-import com.netease.yunxin.kit.contactkit.ui.ContactConfig;
+import com.netease.yunxin.kit.contactkit.ui.ContactUIConfig;
+import com.netease.yunxin.kit.contactkit.ui.ContactKitClient;
 import com.netease.yunxin.kit.contactkit.ui.FragmentBuilder;
 import com.netease.yunxin.kit.contactkit.ui.R;
 import com.netease.yunxin.kit.contactkit.ui.addfriend.AddFriendActivity;
-import com.netease.yunxin.kit.contactkit.ui.blacklist.BlackListActivity;
 import com.netease.yunxin.kit.contactkit.ui.databinding.ContactFragmentBinding;
 import com.netease.yunxin.kit.contactkit.ui.interfaces.ContactActions;
 import com.netease.yunxin.kit.contactkit.ui.interfaces.IContactCallback;
@@ -33,9 +33,8 @@ import com.netease.yunxin.kit.contactkit.ui.model.ContactEntranceBean;
 import com.netease.yunxin.kit.contactkit.ui.model.ContactFriendBean;
 import com.netease.yunxin.kit.contactkit.ui.model.IViewTypeConstant;
 import com.netease.yunxin.kit.contactkit.ui.model.MenuBean;
-import com.netease.yunxin.kit.contactkit.ui.team.TeamListActivity;
 import com.netease.yunxin.kit.contactkit.ui.userinfo.UserInfoActivity;
-import com.netease.yunxin.kit.contactkit.ui.verify.VerifyListActivity;
+import com.netease.yunxin.kit.contactkit.ui.view.ContactListViewAttrs;
 import com.netease.yunxin.kit.corekit.im.model.FriendInfo;
 import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
@@ -50,20 +49,24 @@ public class ContactFragment extends BaseFragment {
 
     private ContactViewModel viewModel;
     private ContactFragmentBinding viewBinding;
-    private ContactConfig contactConfig = new ContactConfig();
+    private ContactUIConfig contactConfig;
     private Observer<FetchResult<List<ContactFriendBean>>> contactObserver;
     private IContactCallback contactCallback;
 
-    public void setContactConfig(ContactConfig config) {
-        if (config != null) {
-            contactConfig = config;
-        }
+    public void setContactConfig(ContactUIConfig config) {
+        contactConfig = config;
     }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         viewBinding = ContactFragmentBinding.inflate(inflater, container, false);
         viewModel = new ViewModelProvider(this).get(ContactViewModel.class);
+        if (ContactKitClient.getContactUIConfig() != null && contactConfig == null) {
+            contactConfig = ContactKitClient.getContactUIConfig();
+        }
+        if (contactConfig == null){
+            contactConfig = new ContactUIConfig();
+        }
         return viewBinding.getRoot();
     }
 
@@ -85,11 +88,18 @@ public class ContactFragment extends BaseFragment {
             }
         };
 
+        initView();
         viewModel.getContactLiveData().observeForever(contactObserver);
         viewModel.fetchContactList();
+    }
 
+    private void initView() {
         loadTitle();
+        initContactAction();
+        loadConfig();
+    }
 
+    private void initContactAction() {
         ContactActions actions = new ContactActions();
         //entrance data
         loadHeader(actions);
@@ -104,17 +114,28 @@ public class ContactFragment extends BaseFragment {
     private void loadContactAction(ContactActions actions) {
         if (contactConfig.itemClickListeners.size() > 0) {
             for (int index = 0; index < contactConfig.itemClickListeners.size(); index++) {
-                actions.addContactListener(index, contactConfig.itemClickListeners.get(index));
+                actions.addContactListener(contactConfig.itemClickListeners.keyAt(index), contactConfig.itemClickListeners.valueAt(index));
             }
         }
 
         if (contactConfig.itemSelectorListeners.size() > 0) {
             for (int index = 0; index < contactConfig.itemSelectorListeners.size(); index++) {
-                actions.addSelectorListener(index, contactConfig.itemSelectorListeners.get(index));
+                actions.addSelectorListener(contactConfig.itemSelectorListeners.keyAt(index), contactConfig.itemSelectorListeners.valueAt(index));
             }
         }
         viewBinding.contactListview.setContactAction(actions);
 
+    }
+
+    private void loadConfig(){
+        if(contactConfig != null){
+            if(contactConfig.viewHolderFactory != null){
+                viewBinding.contactListview.setViewHolderFactory(contactConfig.viewHolderFactory);
+            }
+            if (contactConfig.contactAttrs != null) {
+                viewBinding.contactListview.setViewConfig(contactConfig.contactAttrs);
+            }
+        }
     }
 
     private void loadDefaultContactAction(ContactActions actions) {
@@ -128,13 +149,13 @@ public class ContactFragment extends BaseFragment {
 
     }
 
-    public int getUnreadCount(){
+    public int getUnreadCount() {
         return viewModel.getVerifyCount();
     }
 
     public void setContactCallback(IContactCallback contactCallback) {
         this.contactCallback = contactCallback;
-        if (viewModel != null && contactCallback != null){
+        if (viewModel != null && contactCallback != null) {
             this.contactCallback.updateUnreadCount(getUnreadCount());
         }
     }
@@ -147,26 +168,16 @@ public class ContactFragment extends BaseFragment {
                     viewBinding.contactListview.addContactData(bean);
                 }
                 viewModel.getContactEntranceLiveData().observe(getViewLifecycleOwner(), contactEntranceBean -> {
-                    if (contactCallback != null){
+                    if (contactCallback != null) {
                         contactCallback.updateUnreadCount(contactEntranceBean.number);
                     }
                     viewBinding.contactListview.updateContactData(contactEntranceBean);
                 });
 
                 actions.addContactListener(IViewTypeConstant.CONTACT_ACTION_ENTER, (position, data) -> {
-                    Intent intent = new Intent();
-                    switch (data.router) {
-                        case ContactEntranceBean.EntranceRouter.BLACK_LIST:
-                            intent.setClass(getContext(), BlackListActivity.class);
-                            break;
-                        case ContactEntranceBean.EntranceRouter.VERIFY_LIST:
-                            intent.setClass(getContext(), VerifyListActivity.class);
-                            break;
-                        case ContactEntranceBean.EntranceRouter.TEAM_LIST:
-                            intent.setClass(getContext(), TeamListActivity.class);
-                            break;
+                    if (!TextUtils.isEmpty(data.router)) {
+                        XKitRouter.withKey(data.router).withContext(ContactFragment.this.getContext()).navigate();
                     }
-                    startActivity(intent);
                 });
 
             } else {
@@ -178,7 +189,7 @@ public class ContactFragment extends BaseFragment {
     private void loadTitle() {
         if (contactConfig.showTitleBar) {
             viewBinding.contactTitleLayout.setVisibility(View.VISIBLE);
-            if (contactConfig.titleColor != -1) {
+            if (contactConfig.titleColor != ContactUIConfig.INT_DEFAULT_NULL) {
                 viewBinding.contactTitleLayout.setTitleColor(contactConfig.titleColor);
             }
             if (contactConfig.title != null) {
@@ -190,35 +201,33 @@ public class ContactFragment extends BaseFragment {
         } else {
             viewBinding.contactTitleLayout.setVisibility(View.GONE);
         }
-        //search icon
-        if (contactConfig.showTitleSearchIcon) {
-            viewBinding.contactTitleLayout.showMiddleImageView(true);
-            if (contactConfig.titleSearchIcon != null) {
-                viewBinding.contactTitleLayout.setMiddleImageRes(contactConfig.titleSearchIcon);
+        if (contactConfig.showTitleBarRight2Icon) {
+            viewBinding.contactTitleLayout.showRight2ImageView(true);
+            if (contactConfig.titleBarRight2Res != ContactUIConfig.INT_DEFAULT_NULL) {
+                viewBinding.contactTitleLayout.setRight2ImageRes(contactConfig.titleBarRight2Res);
             }
 
-            viewBinding.contactTitleLayout.setMiddleImageClick(v -> {
-                if (contactConfig.titleSearchClick != null) {
-                    contactConfig.titleSearchClick.onClick(v);
-                }else {
-                    XKitRouter.withKey(RouterConstant.PATH_GLOBAL_SEARCH).withContext(getContext()).navigate();
+            viewBinding.contactTitleLayout.setRight2ImageClick(v -> {
+                if (contactConfig.titleBarRight2Click != null) {
+                    contactConfig.titleBarRight2Click.onClick(v);
+                } else {
+                    XKitRouter.withKey(RouterConstant.PATH_GLOBAL_SEARCH_PAGE).withContext(getContext()).navigate();
                 }
             });
 
         } else {
-            viewBinding.contactTitleLayout.showMiddleImageView(false);
+            viewBinding.contactTitleLayout.showRight2ImageView(false);
         }
 
-        //more icon
-        if (contactConfig.showTitleMoreIcon) {
-            viewBinding.contactTitleLayout.showMoreImageView(true);
-            if (contactConfig.titleSearchIcon != null) {
-                viewBinding.contactTitleLayout.setMoreImageRes(contactConfig.titleSearchIcon);
+        if (contactConfig.showTitleBarRightIcon) {
+            viewBinding.contactTitleLayout.showRightImageView(true);
+            if (contactConfig.titleBarRight2Res != ContactUIConfig.INT_DEFAULT_NULL) {
+                viewBinding.contactTitleLayout.setRightImageRes(contactConfig.titleBarRight2Res);
             }
-            if (contactConfig.titleSearchClick != null) {
-                viewBinding.contactTitleLayout.setMoreImageClick(contactConfig.titleSearchClick);
+            if (contactConfig.titleBarRight2Click != null) {
+                viewBinding.contactTitleLayout.setRightImageClick(contactConfig.titleBarRight2Click);
             } else {
-                viewBinding.contactTitleLayout.setMoreImageClick(v -> {
+                viewBinding.contactTitleLayout.setRightImageClick(v -> {
                     Intent intent = new Intent(getContext(), AddFriendActivity.class);
                     startActivity(intent);
                 });
@@ -226,7 +235,7 @@ public class ContactFragment extends BaseFragment {
             }
 
         } else {
-            viewBinding.contactTitleLayout.showMoreImageView(false);
+            viewBinding.contactTitleLayout.showRightImageView(false);
         }
     }
 
@@ -242,102 +251,140 @@ public class ContactFragment extends BaseFragment {
      */
     public static class Builder extends FragmentBuilder {
 
-        ContactConfig contactConfig;
+        ContactUIConfig contactConfig;
 
         public Builder() {
-            contactConfig = new ContactConfig();
         }
 
         @Override
         public ContactFragment build() {
-            return new ContactFragment();
+            ContactFragment fragment = new ContactFragment();
+            if (contactConfig != null) {
+                fragment.setContactConfig(contactConfig);
+            }
+            return fragment;
         }
 
-        @Override
-        public void attachFragment(ContactFragment fragment) {
-            fragment.setContactConfig(contactConfig);
-        }
-
-        public void setContactConfig(ContactConfig contactConfig) {
+        public void setContactConfig(ContactUIConfig contactConfig) {
             this.contactConfig = contactConfig;
         }
 
         public Builder setShowTitleBar(boolean show) {
+            if (contactConfig == null){
+                contactConfig = new ContactUIConfig();
+            }
             contactConfig.showTitleBar = show;
             return this;
         }
 
         public Builder setTitle(String title) {
+            if (contactConfig == null){
+                contactConfig = new ContactUIConfig();
+            }
             contactConfig.title = title;
             return this;
         }
 
         public Builder setTitleColor(int color) {
+            if (contactConfig == null){
+                contactConfig = new ContactUIConfig();
+            }
             contactConfig.titleColor = color;
             return this;
         }
 
-        public Builder setShowSearchIcon(boolean show) {
-            contactConfig.showTitleSearchIcon = show;
+        public Builder setShowTitleBarRight2Icon(boolean show) {
+            if (contactConfig == null){
+                contactConfig = new ContactUIConfig();
+            }
+            contactConfig.showTitleBarRight2Icon = show;
             return this;
         }
 
-        public Builder setSearchIcon(Drawable searchDrawable) {
-            contactConfig.titleSearchIcon = searchDrawable;
+        public Builder setSearchIcon(int res) {
+            if (contactConfig == null){
+                contactConfig = new ContactUIConfig();
+            }
+            contactConfig.titleBarRight2Res = res;
             return this;
         }
 
         public Builder setSearchClickListener(View.OnClickListener listener) {
-            contactConfig.titleSearchClick = listener;
+            if (contactConfig == null){
+                contactConfig = new ContactUIConfig();
+            }
+            contactConfig.titleBarRight2Click = listener;
             return this;
         }
 
         public Builder setShowMoreIcon(boolean show) {
-            contactConfig.showTitleMoreIcon = show;
+            if (contactConfig == null){
+                contactConfig = new ContactUIConfig();
+            }
+            contactConfig.showTitleBarRightIcon = show;
             return this;
         }
 
-        public Builder setMoreIcon(Drawable searchDrawable) {
-            contactConfig.titleMoreIcon = searchDrawable;
+        public Builder setMoreIcon(int res) {
+            if (contactConfig == null){
+                contactConfig = new ContactUIConfig();
+            }
+            contactConfig.titleBarRightRes = res;
             return this;
         }
 
         public Builder setMoreClickListener(View.OnClickListener listener) {
-            contactConfig.titleMoreClick = listener;
+            if (contactConfig == null){
+                contactConfig = new ContactUIConfig();
+            }
+            contactConfig.titleBarRightClick = listener;
             return this;
         }
 
         public Builder setMoreMenu(List<MenuBean> menuList) {
-            contactConfig.moreMenu = menuList;
-            return this;
-        }
-
-        public Builder showIndexBar(boolean show) {
-            contactConfig.showIndexBar = show;
+            if (contactConfig == null){
+                contactConfig = new ContactUIConfig();
+            }
+            contactConfig.titleBarRightMenu = menuList;
             return this;
         }
 
         public Builder showHeader(boolean show) {
+            if (contactConfig == null){
+                contactConfig = new ContactUIConfig();
+            }
             contactConfig.showHeader = show;
             return this;
         }
 
-        public Builder showItemTextColor(int color) {
-            contactConfig.itemTextColor = color;
+        public Builder setContactListViewAttar(ContactListViewAttrs attrs) {
+            if (contactConfig == null){
+                contactConfig = new ContactUIConfig();
+            }
+            contactConfig.contactAttrs = attrs;
             return this;
         }
 
         public Builder setHeaderData(List<ContactEntranceBean> data) {
+            if (contactConfig == null){
+                contactConfig = new ContactUIConfig();
+            }
             contactConfig.headerData = data;
             return this;
         }
 
         public Builder setContactClickListener(int type, IContactClickListener contactListener) {
+            if (contactConfig == null){
+                contactConfig = new ContactUIConfig();
+            }
             contactConfig.itemClickListeners.put(type, contactListener);
             return this;
         }
 
         public Builder setContactSelection(int type, IContactSelectorListener contactListener) {
+            if (contactConfig == null){
+                contactConfig = new ContactUIConfig();
+            }
             contactConfig.itemSelectorListeners.put(type, contactListener);
             return this;
         }

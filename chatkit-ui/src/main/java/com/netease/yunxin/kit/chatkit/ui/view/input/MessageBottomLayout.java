@@ -224,7 +224,7 @@ public class MessageBottomLayout extends FrameLayout implements IAudioRecordCall
             }
             return true;
         });
-        //todo 个性化配置
+
         mBinding.chatMessageEmojiView.setWithSticker(false);
         // action
         mBinding.chatMessageActionContainer.setLayoutManager(

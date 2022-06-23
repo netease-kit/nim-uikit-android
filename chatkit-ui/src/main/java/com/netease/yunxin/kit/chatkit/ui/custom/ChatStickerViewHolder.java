@@ -6,7 +6,6 @@
 package com.netease.yunxin.kit.chatkit.ui.custom;
 
 import android.view.LayoutInflater;
-import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 

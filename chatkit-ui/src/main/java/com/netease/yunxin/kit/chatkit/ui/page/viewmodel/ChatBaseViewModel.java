@@ -43,7 +43,7 @@ import com.netease.yunxin.kit.common.utils.file.FileUtil;
 import com.netease.yunxin.kit.common.utils.media.ImageUtil;
 import com.netease.yunxin.kit.chatkit.utils.SendMediaHelper;
 import com.netease.yunxin.kit.common.utils.storage.RealPathUtil;
-import com.netease.yunxin.kit.corekit.im.XKitImClient;
+import com.netease.yunxin.kit.corekit.im.IMKitClient;
 import com.netease.yunxin.kit.corekit.im.model.EventObserver;
 import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
 import com.netease.yunxin.kit.corekit.im.repo.ConfigRepo;
@@ -129,7 +129,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
     }
 
     public void deleteMessage(IMMessageInfo messageInfo) {
-        ChatMessageRepo.deleteChattingHistory(messageInfo);
+        ChatMessageRepo.deleteMessage(messageInfo);
     }
 
     public void revokeMessage(ChatMessageBean messageBean) {
@@ -182,7 +182,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
         ChatMessageRepo.setChattingAccount(mSessionId, mSessionType);
     }
 
-    public String getmSessionId() {
+    public String getSessionId() {
         return mSessionId;
     }
 
@@ -195,7 +195,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
         ChatServiceObserverRepo.observeReceiveMessage(mSessionId, receiveMessageObserver, register);
         ChatServiceObserverRepo.observeMsgStatus(msgStatusObserver, register);
         ChatServiceObserverRepo.observeAttachmentProgress(attachmentProgressObserver, register);
-        ChatMessageRepo.registerShouldShowNotificationWhenRevokeFilter(revokeFilter);
+        ChatMessageRepo.registerShowNotificationWhenRevokeFilter(revokeFilter);
         ChatServiceObserverRepo.observeAddMessagePin(msgPinAddObserver, register);
         ChatServiceObserverRepo.observeRemoveMessagePin(msgPinRemoveObserver, register);
     }
@@ -345,7 +345,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
             return;
         }
         ALog.i(TAG, "fetch local anchor time:" + anchor.getTime() + " direction:" + direction);
-        ChatMessageRepo.fetchHistoryMessageLocal(anchor, direction, messagePageSize,
+        ChatMessageRepo.getHistoryMessage(anchor, direction, messagePageSize,
                 new FetchCallback<List<IMMessageInfo>>() {
                     @Override
                     public void onSuccess(@Nullable List<IMMessageInfo> param) {
@@ -390,7 +390,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
 
     private void fetchMessageRemoteOlder(IMMessage anchor, boolean updateCredible) {
         ALog.i(TAG, "fetch remote old anchor time:" + anchor.getTime() + " need update:" + updateCredible);
-        ChatMessageRepo.fetchHistoryMessageRemote(anchor, 0, messagePageSize, QueryDirectionEnum.QUERY_OLD,
+        ChatMessageRepo.fetchHistoryMessage(anchor, 0, messagePageSize, QueryDirectionEnum.QUERY_OLD,
                 new FetchCallback<List<IMMessageInfo>>() {
                     @Override
                     public void onSuccess(@Nullable List<IMMessageInfo> param) {
@@ -419,7 +419,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
 
     private void fetchMessageRemoteNewer(IMMessage anchor) {
         ALog.i(TAG, "fetch remote newer anchor time:" + anchor.getTime());
-        ChatMessageRepo.fetchHistoryMessageRemote(anchor, System.currentTimeMillis(), messagePageSize,
+        ChatMessageRepo.fetchHistoryMessage(anchor, System.currentTimeMillis(), messagePageSize,
                 QueryDirectionEnum.QUERY_NEW, new FetchCallback<List<IMMessageInfo>>() {
                     @Override
                     public void onSuccess(@Nullable List<IMMessageInfo> param) {
@@ -449,7 +449,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
                 "onListFetchSuccess -->> size:" + (param == null ? "null" : param.size()) + " direction:" + direction);
 
         LoadStatus loadStatus =
-                (param == null || param.size() < messagePageSize) ? LoadStatus.Finish : LoadStatus.Success;
+                (param == null || param.size() == 0) ? LoadStatus.Finish : LoadStatus.Success;
         messageFetchResult.setLoadStatus(loadStatus);
         messageFetchResult.setData(convert(param));
         messageFetchResult.setTypeIndex(direction == QueryDirectionEnum.QUERY_OLD ? 0 : -1);
@@ -465,11 +465,11 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
     }
 
     public void queryRoamMsgHasMoreTime(FetchCallback<Long> callback) {
-        ChatMessageRepo.queryRoamMsgHasMoreTime(mSessionId, mSessionType, callback);
+        ChatMessageRepo.queryRoamMsgTimestamps(mSessionId, mSessionType, callback);
     }
 
     public void updateRoamMsgHasMoreTag(IMMessage newTag) {
-        ChatMessageRepo.updateRoamMsgHasMoreTag(newTag);
+        ChatMessageRepo.updateRoamMsgTimestamps(newTag);
     }
 
     private List<ChatMessageBean> convert(List<IMMessageInfo> messageList) {
@@ -544,7 +544,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
                 MsgPinOption pinOption = new MsgPinOption() {
                     @Override
                     public String getAccount() {
-                        return XKitImClient.account();
+                        return IMKitClient.account();
                     }
 
                     @Override

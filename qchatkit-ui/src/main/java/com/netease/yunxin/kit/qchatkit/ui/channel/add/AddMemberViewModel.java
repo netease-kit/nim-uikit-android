@@ -14,7 +14,7 @@ import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
-import com.netease.yunxin.kit.corekit.im.XKitImClient;
+import com.netease.yunxin.kit.corekit.im.IMKitClient;
 import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
 import com.netease.yunxin.kit.qchatkit.repo.QChatRoleRepo;
 import com.netease.yunxin.kit.qchatkit.repo.QChatServerRepo;
@@ -149,7 +149,7 @@ public class AddMemberViewModel extends BaseViewModel {
      * member filter to exclude current user
      */
     public boolean memberFilter(String accId) {
-        return !TextUtils.equals(accId, XKitImClient.account());
+        return !TextUtils.equals(accId, IMKitClient.account());
     }
 
     public boolean hasMore() {

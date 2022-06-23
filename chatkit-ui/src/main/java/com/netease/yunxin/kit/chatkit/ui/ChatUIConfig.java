@@ -5,44 +5,18 @@
 
 package com.netease.yunxin.kit.chatkit.ui;
 
-import com.netease.yunxin.kit.chatkit.ui.builder.P2PChatFragmentBuilder;
-import com.netease.yunxin.kit.chatkit.ui.builder.TeamChatFragmentBuilder;
+import com.netease.yunxin.kit.chatkit.ui.builder.IChatViewCustom;
+import com.netease.yunxin.kit.chatkit.ui.view.interfaces.IMessageItemClickListener;
+import com.netease.yunxin.kit.chatkit.ui.view.message.MessageProperties;
 
 public class ChatUIConfig {
-    private ChatUIConfig() {
-    }
 
-    private static volatile ChatUIConfig chatUIConfig;
+    public IMessageItemClickListener messageItemClickListener;
 
-    public static ChatUIConfig getInstance() {
-        if (chatUIConfig == null) {
-            synchronized (ChatUIConfig.class) {
-                if (chatUIConfig == null) {
-                    chatUIConfig = new ChatUIConfig();
-                }
-            }
-        }
+    public MessageProperties messageProperties;
 
-        return chatUIConfig;
-    }
+    public IChatFactory chatFactory;
 
-    P2PChatFragmentBuilder p2PChatFragmentBuilder;
+    public IChatViewCustom chatViewCustom;
 
-    TeamChatFragmentBuilder teamChatFragmentBuilder;
-
-    public void setP2PChatFragmentBuilder(P2PChatFragmentBuilder p2PChatFragmentBuilder) {
-        this.p2PChatFragmentBuilder = p2PChatFragmentBuilder;
-    }
-
-    public P2PChatFragmentBuilder getP2PChatFragmentBuilder() {
-        return p2PChatFragmentBuilder;
-    }
-
-    public void setTeamChatFragmentBuilder(TeamChatFragmentBuilder teamChatFragmentBuilder) {
-        this.teamChatFragmentBuilder = teamChatFragmentBuilder;
-    }
-
-    public TeamChatFragmentBuilder getTeamChatFragmentBuilder() {
-        return teamChatFragmentBuilder;
-    }
 }
