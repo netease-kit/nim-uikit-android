@@ -39,7 +39,10 @@ public class WelcomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         activityWelcomeBinding = ActivityWelcomeBinding.inflate(getLayoutInflater());
         setContentView(activityWelcomeBinding.getRoot());
+        //如果需要登录startLogin()
         startLogin();
+        //如果在IMKitClient.init()中传入登录信息，即完成自动登录，则直接调用showMainActivityAndFinish()进入首页
+        //showMainActivityAndFinish();
     }
 
     private void showMainActivityAndFinish() {
