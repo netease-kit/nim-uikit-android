@@ -83,6 +83,8 @@ public class WelcomeActivity extends AppCompatActivity {
      */
     private void loginIM(LoginInfo loginInfo) {
 
+        //如果你只是用IM功能，可以使用 IMKitClient.loginIM() 完成登录
+        //登录IM和圈组，需要开通IM和圈组功能
         IMKitClient.loginIMWithQChat(loginInfo,new LoginCallback<QChatLoginResult>() {
             @Override
             public void onError(int errorCode, @NonNull String errorMsg) {

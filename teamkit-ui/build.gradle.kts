@@ -17,7 +17,7 @@ android {
         targetSdk = 30
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
-        buildConfigField("String", "versionName", "\"9.2.0\"")
+        buildConfigField("String", "versionName", "\"9.2.2\"")
     }
 
     buildTypes {
@@ -39,7 +39,7 @@ android {
 
 dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
-    api("com.netease.yunxin.kit.team:teamkit:9.2.0") 
+    api("com.netease.yunxin.kit.team:teamkit:9.2.2")
     api("com.netease.yunxin.kit.common:common-ui:1.1.2") 
     api("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.10") 
     implementation("androidx.appcompat:appcompat:1.4.1") 
