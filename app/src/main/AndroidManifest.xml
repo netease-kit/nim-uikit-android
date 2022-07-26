@@ -53,7 +53,7 @@
         android:theme="@style/Theme.Xkit">
         <meta-data
             android:name="com.netease.nim.appKey"
-            android:value="app key" />
+            android:value="your app key" />
 
         <activity android:name=".welcome.WelcomeActivity" android:exported="true">
             <intent-filter>
@@ -108,10 +108,6 @@
             android:name=".main.mine.setting.ClearCacheActivity"
             android:screenOrientation="unspecified"
             android:exported="false" />
-
-        <meta-data
-            android:name="com.netease.yunxin.app.im.XKitInitOptionsImpl"
-            android:value="com.netease.yunxin.xkit.options"/>
 
         <!-- 小米推送配置 -->
         <service
