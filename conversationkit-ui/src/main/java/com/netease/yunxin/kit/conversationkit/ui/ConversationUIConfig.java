@@ -1,5 +1,7 @@
 package com.netease.yunxin.kit.conversationkit.ui;
 
+import android.view.View;
+
 import com.netease.yunxin.kit.conversationkit.model.ConversationInfo;
 
 import java.util.Comparator;
@@ -29,6 +31,8 @@ public class ConversationUIConfig {
 
     public float avatarCornerRadius = INT_DEFAULT_NULL;
 
+    public View.OnClickListener titleBarRightClick;
+    public View.OnClickListener titleBarRight2Click;
     public ItemClickListener itemClickListener;
     public Comparator<ConversationInfo> conversationComparator;
     public IConversationFactory conversationFactory;

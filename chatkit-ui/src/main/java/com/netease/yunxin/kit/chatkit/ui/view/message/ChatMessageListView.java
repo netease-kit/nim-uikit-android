@@ -31,6 +31,7 @@ import com.netease.yunxin.kit.chatkit.ui.view.message.adapter.ChatMessageAdapter
 import com.netease.yunxin.kit.chatkit.ui.view.popmenu.ChatActionFactory;
 import com.netease.yunxin.kit.chatkit.ui.view.popmenu.ChatPopMenuActionListener;
 import com.netease.yunxin.kit.common.utils.ScreenUtil;
+import com.netease.yunxin.kit.corekit.im.model.UserInfo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -172,6 +173,12 @@ public class ChatMessageListView extends RecyclerView implements IMessageData {
         }
     }
 
+    public void setShowReadStatus(boolean show) {
+        if (messageAdapter != null) {
+            messageAdapter.setShowReadStatus(show);
+        }
+    }
+
     @Override
     public void appendMessageList(List<ChatMessageBean> messageList) {
         if (messageAdapter != null) {
@@ -206,6 +213,12 @@ public class ChatMessageListView extends RecyclerView implements IMessageData {
     public void updateMessage(ChatMessageBean message) {
         if (messageAdapter != null) {
             messageAdapter.updateMessageStatus(message);
+        }
+    }
+
+    public void updateUserInfo(List<UserInfo> userInfoList){
+        if (messageAdapter != null) {
+            messageAdapter.updateUserInfo(userInfoList);
         }
     }
 

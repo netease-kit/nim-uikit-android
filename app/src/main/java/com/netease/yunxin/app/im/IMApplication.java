@@ -50,11 +50,6 @@ public class IMApplication extends MultiDexApplication {
         initALog(this);
         // temp register for mine
         XKitRouter.registerRouter(RouterConstant.PATH_MINE_INFO_PAGE, UserInfoActivity.class);
-        //set custom config for chat UI
-        KitCustomConfig.initChatUICustom();
-
-        //set custom config for contact ui
-        KitCustomConfig.initContactUICustom();
     }
 
     //init log sdk

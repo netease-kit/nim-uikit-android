@@ -6,7 +6,6 @@
 package com.netease.yunxin.kit.chatkit.ui.view.message.viewholder;
 
 import android.view.View;
-import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 

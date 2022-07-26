@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -16,10 +17,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.netease.nimlib.sdk.auth.LoginInfo;
 import com.netease.nimlib.sdk.qchat.result.QChatLoginResult;
-import com.netease.yunxin.app.im.BuildConfig;
 import com.netease.yunxin.app.im.databinding.ActivityWelcomeBinding;
 import com.netease.yunxin.app.im.main.MainActivity;
-import com.netease.yunxin.app.im.utils.DataUtils;
 import com.netease.yunxin.kit.common.ui.utils.ToastX;
 import com.netease.yunxin.kit.corekit.im.IMKitClient;
 import com.netease.yunxin.kit.corekit.im.login.LoginCallback;
@@ -91,6 +90,7 @@ public class WelcomeActivity extends AppCompatActivity {
         IMKitClient.loginIMWithQChat(loginInfo,new LoginCallback<QChatLoginResult>() {
             @Override
             public void onError(int errorCode, @NonNull String errorMsg) {
+                ToastX.showShortToast("login error:"+errorMsg);
                 launchLoginPage();
             }
 

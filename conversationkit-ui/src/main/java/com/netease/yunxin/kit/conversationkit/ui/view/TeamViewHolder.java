@@ -67,8 +67,11 @@ public class TeamViewHolder extends BaseViewHolder<ConversationBean> {
         }
         viewBinding.conversationMessageTv.setText(data.infoData.getContent());
         viewBinding.conversationTime.setText(TimeFormatUtils.formatMillisecond(context, data.infoData.getTime()));
-        viewBinding.rootView.setOnClickListener( v -> itemListener.onClick(data,position));
-        viewBinding.rootView.setOnLongClickListener(v -> itemListener.onLongClick(data,position));
+        viewBinding.conversationTimeFl.setOnClickListener( v -> itemListener.onClick(data,position));
+        viewBinding.conversationTimeFl.setOnLongClickListener(v -> itemListener.onLongClick(data,position));
+        viewBinding.conversationAvatarFl.setOnClickListener(v -> itemListener.onAvatarClick(data,position));
+        viewBinding.conversationAvatarFl.setOnLongClickListener(v -> itemListener.onAvatarLongClick(data,position));
+
     }
 
     private void loadUIConfig(){

@@ -132,4 +132,10 @@
 
     <string name="chat_team_all_mute">当前群主设置为禁言</string>
     <string name="chat_message_session_info">[转发]%s的会话记录</string>
+
+    <string name="permission_deny_tips">您拒绝了权限申请，该功能将无法使用</string>
+    <string name="permission_default">请在设置页面添加相关权限</string>
+    <string name="permission_camera">请在设置页面添加相机权限</string>
+    <string name="permission_audio">请在设置页面添加麦克风权限</string>
+    <string name="permission_storage">请在设置页面添加读写手机存储权限</string>
 </resources>

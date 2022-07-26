@@ -36,8 +36,8 @@ import java.util.List;
  */
 public class ChatTeamFragment extends ChatBaseFragment {
     private static final String TAG = "ChatTeamFragment";
-
     Team teamInfo;
+    String teamId;
     IMMessage anchorMessage;
 
     @Override
@@ -45,36 +45,53 @@ public class ChatTeamFragment extends ChatBaseFragment {
         ALog.i(TAG, "initData");
         sessionType = SessionTypeEnum.Team;
         teamInfo = (Team) bundle.getSerializable(RouterConstant.CHAT_KRY);
+        teamId = (String) bundle.getSerializable(RouterConstant.CHAT_ID_KRY);
+        if (teamInfo == null && TextUtils.isEmpty(teamId)){
+            getActivity().finish();
+            return;
+        }
+        if (TextUtils.isEmpty(teamId)){
+            teamId = teamInfo.getId();
+        }
         anchorMessage = (IMMessage) bundle.getSerializable(RouterConstant.KEY_MESSAGE);
         binding.chatView.getTitleBar()
                 .setOnBackIconClickListener(v -> requireActivity().onBackPressed())
-                .setTitle(teamInfo.getName())
                 .setActionImg(R.drawable.ic_more_point)
                 .setActionListener(v -> {
                     //go to team setting
                     XKitRouter.withKey(PATH_TEAM_SETTING_PAGE)
                             .withContext(requireContext())
-                            .withParam(KEY_TEAM_ID, teamInfo.getId())
+                            .withParam(KEY_TEAM_ID, teamId)
                             .navigate();
                 });
-        binding.chatView.getInputView().updateInputInfo(teamInfo.getName());
-        if (!TextUtils.equals(teamInfo.getCreator(), IMKitClient.account())) {
-            binding.chatView.getInputView().setMute(teamInfo.isAllMute());
-        }
-        binding.chatView.getMessageListView().updateTeamInfo(teamInfo);
-        aitManager = new AitManager(getContext(), teamInfo.getId());
+
+        aitManager = new AitManager(getContext(), teamId);
         binding.chatView.setAitManager(aitManager);
+        refreshView();
+    }
+
+    private void refreshView(){
+        if (teamInfo != null) {
+            binding.chatView.getTitleBar().setTitle(teamInfo.getName());
+            binding.chatView.getInputView().updateInputInfo(teamInfo.getName());
+            if (!TextUtils.equals(teamInfo.getCreator(), IMKitClient.account())) {
+                binding.chatView.getInputView().setMute(teamInfo.isAllMute());
+            }
+            binding.chatView.getMessageListView().updateTeamInfo(teamInfo);
+        }
     }
 
     @Override
     protected void initViewModel() {
         ALog.i(TAG, "initViewModel");
         viewModel = new ViewModelProvider(this).get(ChatTeamViewModel.class);
-        viewModel.init(teamInfo.getId(), SessionTypeEnum.Team);
+        viewModel.init(teamId, SessionTypeEnum.Team);
         //fetch history message
         viewModel.initFetch(anchorMessage);
+        // query team info
+        ((ChatTeamViewModel) viewModel).requestTeamInfo(teamId);
         // init team members
-        ((ChatTeamViewModel) viewModel).requestTeamMembers(teamInfo.getId());
+        ((ChatTeamViewModel) viewModel).requestTeamMembers(teamId);
     }
 
     @Override
@@ -110,11 +127,7 @@ public class ChatTeamFragment extends ChatBaseFragment {
                 if (!team.isMyTeam()) {
                     requireActivity().finish();
                 }
-                binding.chatView.getTitleBar().setTitle(team.getName());
-                binding.chatView.getMessageListView().updateTeamInfo(teamInfo);
-                if (!TextUtils.equals(team.getCreator(), IMKitClient.account())) {
-                    binding.chatView.getInputView().setMute(teamInfo.isAllMute());
-                }
+                refreshView();
             }
         });
 

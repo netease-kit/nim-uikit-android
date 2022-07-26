@@ -8,7 +8,6 @@ package com.netease.yunxin.kit.contactkit.ui.interfaces;
 import com.netease.yunxin.kit.contactkit.ui.IContactFactory;
 import com.netease.yunxin.kit.contactkit.ui.view.ContactListViewAttrs;
 import com.netease.yunxin.kit.contactkit.ui.view.adapter.ContactAdapter;
-import com.netease.yunxin.kit.contactkit.ui.view.ContactViewHolderFactory;
 
 
 public interface IContactListView {

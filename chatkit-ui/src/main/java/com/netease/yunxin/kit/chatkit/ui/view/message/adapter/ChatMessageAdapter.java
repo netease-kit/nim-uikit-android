@@ -14,17 +14,22 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.netease.nimlib.sdk.msg.model.AttachmentProgress;
 import com.netease.nimlib.sdk.msg.model.MsgPinOption;
 import com.netease.nimlib.sdk.team.model.Team;
+import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.ui.ChatDefaultFactory;
 import com.netease.yunxin.kit.chatkit.ui.IChatFactory;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.view.interfaces.IMessageItemClickListener;
 import com.netease.yunxin.kit.chatkit.ui.view.interfaces.IMessageReader;
-import com.netease.yunxin.kit.chatkit.ui.view.message.ChatMessageViewHolderFactory;
 import com.netease.yunxin.kit.chatkit.ui.view.message.MessageProperties;
 import com.netease.yunxin.kit.chatkit.ui.view.message.viewholder.ChatBaseMessageViewHolder;
+import com.netease.yunxin.kit.corekit.im.model.UserInfo;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * chat message adapter for message list
@@ -35,6 +40,7 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatBaseMessageView
     public static final String PROGRESS_PAYLOAD = "messageProgress";
     public static final String REVOKE_PAYLOAD = "messageRevoke";
     public static final String SIGNAL_PAYLOAD = "messageSignal";
+    public static final String USERINFO_PAYLOAD = "userInfo";
 
     IChatFactory viewHolderFactory;
 
@@ -47,6 +53,8 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatBaseMessageView
     private IMessageReader messageReader;
 
     private MessageProperties messageProperties;
+
+    private boolean showReadStatus = true;
 
     public ChatMessageAdapter() {
         viewHolderFactory = new ChatDefaultFactory();
@@ -72,7 +80,7 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatBaseMessageView
             ChatMessageBean data = messageList.get(position);
             holder.setReceiptTime(receiptTime);
             holder.setTeamInfo(teamInfo);
-            holder.bindData(data, payloads);
+            holder.bindData(data, position,payloads);
         }
     }
 
@@ -87,6 +95,7 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatBaseMessageView
         holder.setItemClickListener(itemClickListener);
         holder.setMessageReader(messageReader);
         holder.setProperties(messageProperties);
+        holder.setShowReadStatus(showReadStatus);
         holder.bindData(data, lastMessage);
     }
 
@@ -103,6 +112,10 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatBaseMessageView
 
     public void setMessageReader(IMessageReader messageReader) {
         this.messageReader = messageReader;
+    }
+
+    public void setShowReadStatus(boolean show){
+        this.showReadStatus = show;
     }
 
     @Override
@@ -184,6 +197,22 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatBaseMessageView
     public void revokeMessage(ChatMessageBean messageBean) {
         messageBean.setRevoked(true);
         updateMessage(messageBean, REVOKE_PAYLOAD);
+    }
+
+    public void updateUserInfo(List<UserInfo> userInfoList){
+        if (userInfoList == null || userInfoList.size() < 1){
+            return;
+        }
+        Map<String,UserInfo> accountSet = new HashMap<>();
+        for (int index = 0;index < userInfoList.size();index++){
+            accountSet.put(userInfoList.get(index).getAccount(), userInfoList.get(index));
+        }
+        for (int i = 0; i < messageList.size(); i++) {
+            IMMessageInfo messageInfo = messageList.get(i).getMessageData();
+            if (messageInfo != null && messageInfo.getFromUser() != null && accountSet.containsKey(messageInfo.getFromUser().getAccount())){
+                notifyItemChanged(i, USERINFO_PAYLOAD);
+            }
+        }
     }
 
     public void pinMsg(String uuid, MsgPinOption pinOption) {

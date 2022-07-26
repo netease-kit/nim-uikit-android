@@ -8,13 +8,11 @@ package com.netease.yunxin.kit.contactkit.ui;
 import android.util.SparseArray;
 import android.view.View;
 
-import com.netease.yunxin.kit.contactkit.ui.interfaces.ContactActions;
 import com.netease.yunxin.kit.contactkit.ui.interfaces.IContactClickListener;
 import com.netease.yunxin.kit.contactkit.ui.interfaces.IContactSelectorListener;
 import com.netease.yunxin.kit.contactkit.ui.model.ContactEntranceBean;
 import com.netease.yunxin.kit.contactkit.ui.model.MenuBean;
 import com.netease.yunxin.kit.contactkit.ui.view.ContactListViewAttrs;
-import com.netease.yunxin.kit.contactkit.ui.view.ContactViewHolderFactory;
 
 import java.util.List;
 

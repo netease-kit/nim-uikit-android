@@ -19,6 +19,7 @@ import com.netease.yunxin.kit.corekit.im.model.FriendVerifyType;
 import com.netease.yunxin.kit.corekit.im.model.UserInfo;
 import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
 import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
+import com.netease.yunxin.kit.corekit.im.provider.UserInfoObserver;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,9 +28,31 @@ public class UserInfoViewModel extends BaseViewModel {
 
     private final MutableLiveData<FetchResult<ContactUserInfoBean>> friendLiveData = new MutableLiveData<>();
     private final FetchResult<ContactUserInfoBean> fetchResult = new FetchResult<>(LoadStatus.Finish);
+    private final MutableLiveData<FetchResult<List<UserInfo>>> userInfoLiveData = new MutableLiveData<>();
+    private final FetchResult<List<UserInfo>> userInfoFetchResult = new FetchResult<>(LoadStatus.Finish);
+
+    public UserInfoViewModel(){
+        registerObserver();
+    }
+
+    private final UserInfoObserver userInfoObserver = userList -> {
+        userInfoFetchResult.setLoadStatus(LoadStatus.Finish);
+        userInfoFetchResult.setData(userList);
+        userInfoFetchResult.setType(FetchResult.FetchType.Update);
+        userInfoFetchResult.setTypeIndex(-1);
+        userInfoLiveData.setValue(userInfoFetchResult);
+    };
+
+    public void registerObserver(){
+        ContactRepo.registerUserInfoObserver(userInfoObserver);
+    }
 
     public MutableLiveData<FetchResult<ContactUserInfoBean>> getFetchResult() {
         return friendLiveData;
+    }
+
+    public MutableLiveData<FetchResult<List<UserInfo>>> getUserInfoLiveData() {
+        return userInfoLiveData;
     }
 
     public void fetchData(String account){
@@ -143,4 +166,9 @@ public class UserInfoViewModel extends BaseViewModel {
         ContactRepo.updateAlias(account,alias);
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        ContactRepo.unregisterUserInfoObserver(userInfoObserver);
+    }
 }

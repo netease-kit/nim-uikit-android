@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Pair;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
 
@@ -45,7 +46,9 @@ import com.netease.yunxin.kit.chatkit.utils.SendMediaHelper;
 import com.netease.yunxin.kit.common.utils.storage.RealPathUtil;
 import com.netease.yunxin.kit.corekit.im.IMKitClient;
 import com.netease.yunxin.kit.corekit.im.model.EventObserver;
+import com.netease.yunxin.kit.corekit.im.model.UserInfo;
 import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
+import com.netease.yunxin.kit.corekit.im.provider.UserInfoObserver;
 import com.netease.yunxin.kit.corekit.im.repo.ConfigRepo;
 
 import java.io.File;
@@ -61,6 +64,8 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
     public static final String TAG = "ChatViewModel";
     private final MutableLiveData<FetchResult<List<ChatMessageBean>>> messageLiveData = new MutableLiveData<>();
     private final FetchResult<List<ChatMessageBean>> messageFetchResult = new FetchResult<>(LoadStatus.Finish);
+    private final MutableLiveData<FetchResult<List<UserInfo>>> userInfoLiveData = new MutableLiveData<>();
+    private final FetchResult<List<UserInfo>> userInfoFetchResult = new FetchResult<>(LoadStatus.Finish);
     private final MutableLiveData<FetchResult<ChatMessageBean>> sendMessageLiveData = new MutableLiveData<>();
     private final FetchResult<ChatMessageBean> sendMessageFetchResult = new FetchResult<>(LoadStatus.Finish);
     private final MutableLiveData<FetchResult<AttachmentProgress>> attachmentProgressMutableLiveData = new MutableLiveData<>();
@@ -114,6 +119,14 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
         return true;
     };
 
+    private final UserInfoObserver userInfoObserver = userList -> {
+        userInfoFetchResult.setLoadStatus(LoadStatus.Finish);
+        userInfoFetchResult.setData(userList);
+        userInfoFetchResult.setType(FetchResult.FetchType.Update);
+        userInfoFetchResult.setTypeIndex(-1);
+        userInfoLiveData.setValue(userInfoFetchResult);
+    };
+
     /**
      * chat message revoke live data
      */
@@ -126,6 +139,10 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
      */
     public MutableLiveData<FetchResult<List<ChatMessageBean>>> getQueryMessageLiveData() {
         return messageLiveData;
+    }
+
+    public MutableLiveData<FetchResult<List<UserInfo>>> getUserInfoLiveData() {
+        return userInfoLiveData;
     }
 
     public void deleteMessage(IMMessageInfo messageInfo) {
@@ -186,6 +203,10 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
         return mSessionId;
     }
 
+    public boolean isShowReadStatus(){
+        return ConfigRepo.getShowReadStatus();
+    }
+
     public void clearChattingAccount() {
         ChatMessageRepo.clearChattingAccount();
     }
@@ -196,6 +217,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
         ChatServiceObserverRepo.observeMsgStatus(msgStatusObserver, register);
         ChatServiceObserverRepo.observeAttachmentProgress(attachmentProgressObserver, register);
         ChatMessageRepo.registerShowNotificationWhenRevokeFilter(revokeFilter);
+        ChatMessageRepo.registerUserInfoObserver(userInfoObserver);
         ChatServiceObserverRepo.observeAddMessagePin(msgPinAddObserver, register);
         ChatServiceObserverRepo.observeRemoveMessagePin(msgPinRemoveObserver, register);
     }

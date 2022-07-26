@@ -14,7 +14,6 @@ import static com.netease.yunxin.kit.corekit.im.repo.ConfigRepo.AUDIO_PLAY_EARPI
 import android.graphics.drawable.AnimationDrawable;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
-import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 

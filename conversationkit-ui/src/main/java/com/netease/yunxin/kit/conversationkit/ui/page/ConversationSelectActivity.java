@@ -63,7 +63,7 @@ public class ConversationSelectActivity extends BaseActivity implements ILoadLis
         });
         viewBinding.conversationSelectorView.setItemClickListener(new ViewHolderClickListener() {
             @Override
-            public void onClick(BaseBean data, int isCheck) {
+            public boolean onClick(BaseBean data, int isCheck) {
                 if (data instanceof ConversationBean) {
                     if (isCheck == 1) {
                         contactIdSet.add(((ConversationBean) data).infoData.getContactId());
@@ -73,7 +73,7 @@ public class ConversationSelectActivity extends BaseActivity implements ILoadLis
                     XLog.d(TAG, "ItemClickListener","onClick:"+isCheck);
                     updateTitleBar();
                 }
-
+                return true;
             }
 
             @Override

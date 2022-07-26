@@ -62,12 +62,7 @@ public class NimSDKOptionConfig {
         StatusBarNotificationConfig config = loadStatusBarNotificationConfig();
         // load 用户的 StatusBarNotificationConfig 设置项
         // SDK statusBarNotificationConfig 生效
-        config.notificationFilter = new StatusBarNotificationFilter() {
-            @Override
-            public FilterPolicy apply(IMMessage imMessage) {
-                return FilterPolicy.PERMIT;
-            }
-        };
+        config.notificationFilter = imMessage -> StatusBarNotificationFilter.FilterPolicy.DEFAULT;
         options.statusBarNotificationConfig = config;
     }
 

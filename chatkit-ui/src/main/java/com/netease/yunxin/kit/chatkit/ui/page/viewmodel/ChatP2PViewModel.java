@@ -22,6 +22,8 @@ import com.netease.yunxin.kit.chatkit.repo.ChatServiceObserverRepo;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.corekit.im.model.EventObserver;
+import com.netease.yunxin.kit.corekit.im.model.UserInfo;
+import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -42,6 +44,11 @@ public class ChatP2PViewModel extends ChatBaseViewModel {
             new MutableLiveData<>();
 
     private final MutableLiveData<Boolean> typeStateLiveData = new MutableLiveData<>();
+
+    //用户信息数据
+    private final MutableLiveData<FetchResult<UserInfo>> p2pUserInfoLiveData = new MutableLiveData<>();
+
+    private final FetchResult<UserInfo> p2pUserInfoFetchResult = new FetchResult<>(LoadStatus.Finish);
 
     private final EventObserver<List<IMMessageReceiptInfo>> messageReceiptObserver =
             new EventObserver<List<IMMessageReceiptInfo>>() {
@@ -93,6 +100,31 @@ public class ChatP2PViewModel extends ChatBaseViewModel {
      */
     public MutableLiveData<Boolean> getTypeStateLiveData() {
         return typeStateLiveData;
+    }
+
+    public MutableLiveData<FetchResult<UserInfo>> getP2pUserInfoLiveData(){
+        return p2pUserInfoLiveData;
+    }
+
+    public void getP2pUserInfo(String accId){
+        ChatMessageRepo.fetchUserInfo(accId, new FetchCallback<UserInfo>() {
+            @Override
+            public void onSuccess(@Nullable UserInfo param) {
+                p2pUserInfoFetchResult.setData(param);
+                p2pUserInfoFetchResult.setLoadStatus(LoadStatus.Success);
+                p2pUserInfoLiveData.setValue(p2pUserInfoFetchResult);
+            }
+
+            @Override
+            public void onFailed(int code) {
+
+            }
+
+            @Override
+            public void onException(@Nullable Throwable exception) {
+
+            }
+        });
     }
 
     @Override

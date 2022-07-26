@@ -5,14 +5,18 @@
 
 package com.netease.yunxin.kit.chatkit.ui.page;
 
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.text.TextUtils;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentManager;
 
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.builder.P2PChatFragmentBuilder;
 import com.netease.yunxin.kit.chatkit.ui.page.fragment.ChatP2PFragment;
+import com.netease.yunxin.kit.common.ui.utils.ToastX;
 import com.netease.yunxin.kit.corekit.im.model.UserInfo;
 import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
 
@@ -22,21 +26,24 @@ import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
 public class ChatP2PActivity extends ChatBaseActivity {
 
     private static final String LOG_TOG = "ChatP2PActivity";
+    private ChatP2PFragment chatFragment;
 
     @Override
     public void initChat() {
         UserInfo userInfo = (UserInfo) getIntent().getSerializableExtra(RouterConstant.CHAT_KRY);
-        if (userInfo == null) {
-            ALog.e(LOG_TOG, "user info is null");
+        String accId = getIntent().getStringExtra(RouterConstant.CHAT_ID_KRY);
+        if (userInfo == null&& TextUtils.isEmpty(accId)) {
+            ALog.e(LOG_TOG, "user info is null && accid is null:"+accId);
+            finish();
             return;
         }
-        ALog.i(LOG_TOG, "userInfo account is = " + userInfo.getAccount());
         //set fragment
         P2PChatFragmentBuilder fragmentBuilder = new P2PChatFragmentBuilder();
 
-        ChatP2PFragment chatFragment = fragmentBuilder.build();
+        chatFragment = fragmentBuilder.build();
         Bundle bundle = new Bundle();
         bundle.putSerializable(RouterConstant.CHAT_KRY, userInfo);
+        bundle.putSerializable(RouterConstant.CHAT_ID_KRY, accId);
         chatFragment.setArguments(bundle);
 
         FragmentManager fragmentManager = getSupportFragmentManager();
@@ -45,4 +52,5 @@ public class ChatP2PActivity extends ChatBaseActivity {
                 .add(R.id.container, chatFragment)
                 .commitAllowingStateLoss();
     }
+
 }

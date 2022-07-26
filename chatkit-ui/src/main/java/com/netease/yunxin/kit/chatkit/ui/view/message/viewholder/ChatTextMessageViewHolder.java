@@ -7,7 +7,6 @@ package com.netease.yunxin.kit.chatkit.ui.view.message.viewholder;
 
 import android.text.style.ImageSpan;
 import android.view.LayoutInflater;
-import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 
