@@ -57,7 +57,7 @@ dependencies {
 //    implementation(project(":searchkit-ui"))
     implementation("com.netease.yunxin.kit.contact:contactkit-ui:9.2.6-rc01")
     implementation("com.netease.yunxin.kit.qchat:qchatkit-ui:9.2.6-rc01")
-    implementation("com.netease.yunxin.kit.conversation:conversationkit-ui:9.2.6-rc01")
+    implementation("com.netease.yunxin.kit.conversation:conversationkit-ui:9.2.6-rc02")
     implementation("com.netease.yunxin.kit.team:teamkit-ui:9.2.6-rc01")
     implementation("com.netease.yunxin.kit.chat:chatkit-ui:9.2.6-rc01")
     implementation("com.netease.yunxin.kit.search:searchkit-ui:9.2.6-rc01")
