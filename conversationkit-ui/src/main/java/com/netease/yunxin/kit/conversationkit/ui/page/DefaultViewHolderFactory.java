@@ -31,12 +31,12 @@ public class DefaultViewHolderFactory implements IConversationFactory {
     public ConversationBean CreateBean(ConversationInfo info) {
         ConversationBean bean = new ConversationBean(info);
         if (info.getSessionType() == SessionTypeEnum.P2P) {
-            return new ConversationBean(info, RouterConstant.PATH_CHAT_P2P_PAGE, ConversationConstant.ViewType.CHAT_VIEW, RouterConstant.CHAT_KRY,
-                    info.getUserInfo());
+            return new ConversationBean(info, RouterConstant.PATH_CHAT_P2P_PAGE, ConversationConstant.ViewType.CHAT_VIEW, RouterConstant.CHAT_ID_KRY,
+                    info.getContactId());
         } else if (info.getSessionType() == SessionTypeEnum.Team
                 || info.getSessionType() == SessionTypeEnum.SUPER_TEAM) {
-            return new ConversationBean(info, RouterConstant.PATH_CHAT_TEAM_PAGE, ConversationConstant.ViewType.TEAM_VIEW, RouterConstant.CHAT_KRY,
-                    info.getTeamInfo());
+            return new ConversationBean(info, RouterConstant.PATH_CHAT_TEAM_PAGE, ConversationConstant.ViewType.TEAM_VIEW, RouterConstant.CHAT_ID_KRY,
+                    info.getContactId());
         }
         return bean;
     }

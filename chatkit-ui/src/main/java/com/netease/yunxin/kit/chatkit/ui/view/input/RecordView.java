@@ -5,6 +5,7 @@
 
 package com.netease.yunxin.kit.chatkit.ui.view.input;
 
+import android.Manifest;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -26,6 +27,7 @@ import com.netease.nimlib.sdk.media.record.AudioRecorder;
 import com.netease.nimlib.sdk.media.record.IAudioRecordCallback;
 import com.netease.nimlib.sdk.media.record.RecordType;
 import com.netease.yunxin.kit.alog.ALog;
+import com.netease.yunxin.kit.chatkit.ui.IPermissionListener;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatMessageRecordViewBinding;
 import com.netease.yunxin.kit.common.utils.PxUtils;
@@ -38,6 +40,7 @@ public class RecordView extends FrameLayout {
     private ChatMessageRecordViewBinding mBinding;
     private AudioRecorder mAudioRecorder;
     private IAudioRecordCallback recordCallback;
+    private IPermissionRequest permissionRequest;
 
     private boolean started = false;
 
@@ -59,6 +62,9 @@ public class RecordView extends FrameLayout {
         mBinding = ChatMessageRecordViewBinding.inflate(LayoutInflater.from(getContext()), this, true);
         mBinding.recordButton.setOnTouchListener((v, event) -> {
             if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                if (permissionRequest != null && !permissionRequest.requestPermission(Manifest.permission.RECORD_AUDIO)){
+                    return false;
+                }
                 mBinding.recordButtonIcon.setBackgroundResource(R.drawable.ic_record_pressed);
                 initAudioRecord();
                 startAudioRecord();
@@ -72,6 +78,10 @@ public class RecordView extends FrameLayout {
             }
             return true;
         });
+    }
+
+    public void setPermissionRequest(IPermissionRequest request){
+        this.permissionRequest = request;
     }
 
     public void setRecordCallback(IAudioRecordCallback callback) {

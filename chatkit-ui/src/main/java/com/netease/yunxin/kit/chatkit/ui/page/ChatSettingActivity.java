@@ -15,6 +15,7 @@ import android.text.TextUtils;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.netease.nimlib.sdk.msg.model.StickTopSessionInfo;
 import com.netease.nimlib.sdk.team.model.CreateTeamResult;
@@ -24,8 +25,10 @@ import com.netease.yunxin.kit.chatkit.repo.ChatMessageRepo;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatCallback;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatSettingActivityBinding;
+import com.netease.yunxin.kit.chatkit.ui.page.viewmodel.ChatSettingViewModel;
 import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
 import com.netease.yunxin.kit.common.ui.utils.AvatarColor;
+import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.corekit.im.model.UserInfo;
 import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
@@ -40,7 +43,10 @@ public class ChatSettingActivity extends BaseActivity {
 
     ChatSettingActivityBinding binding;
 
+    ChatSettingViewModel viewModel;
+
     UserInfo userInfo;
+    String accId;
 
     private ActivityResultLauncher<Intent> launcher;
 
@@ -48,6 +54,7 @@ public class ChatSettingActivity extends BaseActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ChatSettingActivityBinding.inflate(getLayoutInflater());
+        viewModel = new ViewModelProvider(this).get(ChatSettingViewModel.class);
         setContentView(binding.getRoot());
         binding.title.setOnBackIconClickListener(v -> onBackPressed())
                 .setTitle(R.string.chat_setting);
@@ -57,14 +64,17 @@ public class ChatSettingActivity extends BaseActivity {
 
     private void initView() {
         userInfo = (UserInfo) getIntent().getSerializableExtra(RouterConstant.CHAT_KRY);
-        String name = TextUtils.isEmpty(userInfo.getComment()) ? userInfo.getName() : userInfo.getComment();
-        if (name == null) {
-            name = userInfo.getAccount();
+        accId = (String) getIntent().getSerializableExtra(RouterConstant.CHAT_ID_KRY);
+        if (userInfo == null && TextUtils.isEmpty(accId)){
+            finish();
+            return;
         }
-        ALog.i(TAG, "initView name -->> " + name);
-        binding.avatar.setData(userInfo.getAvatar(), name, AvatarColor.avatarColor(userInfo.getAccount()));
-        binding.tvName.setText(name);
+        if (TextUtils.isEmpty(accId)){
+            accId = userInfo.getAccount();
+        }
+        refreshView();
         binding.ivAdd.setOnClickListener(v -> selectUsersCreateGroup());
+        String finalAccId = accId;
         launcher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
             if (result.getResultCode() != RESULT_OK) {
                 return;
@@ -74,7 +84,7 @@ public class ChatSettingActivity extends BaseActivity {
             if (data != null) {
                 ArrayList<String> friends = data.getStringArrayListExtra(REQUEST_CONTACT_SELECTOR_KEY);
                 if (friends != null && !friends.isEmpty()) {
-                    friends.add(userInfo.getAccount());
+                    friends.add(finalAccId);
                     XKitRouter.withKey(RouterConstant.PATH_CREATE_NORMAL_TEAM_ACTION)
                             .withParam(REQUEST_CONTACT_SELECTOR_KEY, friends)
                             .withParam(KEY_REQUEST_SELECTOR_NAME, data.getStringArrayListExtra(KEY_REQUEST_SELECTOR_NAME))
@@ -92,31 +102,53 @@ public class ChatSettingActivity extends BaseActivity {
         });
     }
 
+    private void refreshView(){
+        if (userInfo == null){
+            binding.avatar.setData(null, accId, AvatarColor.avatarColor(accId));
+            binding.tvName.setText(accId);
+        }else {
+            String name = TextUtils.isEmpty(userInfo.getComment()) ? userInfo.getName() : userInfo.getComment();
+            if (name == null) {
+                name = userInfo.getAccount();
+            }
+            ALog.i(TAG, "initView name -->> " + name);
+            binding.avatar.setData(userInfo.getAvatar(), name, AvatarColor.avatarColor(userInfo.getAccount()));
+            binding.tvName.setText(name);
+        }
+    }
+
     private void initData() {
-        if (userInfo == null) return;
-        binding.scSessionTop.setChecked(ChatMessageRepo.isStickTop(userInfo.getAccount()));
+        if (accId == null) return;
+        viewModel.getUserInfoLiveData().observe(this,result -> {
+            if (result.getLoadStatus() == LoadStatus.Success){
+                userInfo = result.getData();
+                refreshView();
+            }
+        });
+        viewModel.getUserInfo(accId);
+        binding.scSessionTop.setChecked(ChatMessageRepo.isStickTop(accId));
         binding.rlySessionTop.setOnClickListener(v -> {
             if (!binding.scSessionTop.isChecked()) {
-                ChatMessageRepo.addStickTop(userInfo.getAccount(), new ChatCallback<StickTopSessionInfo>() {
+                ChatMessageRepo.addStickTop(accId, new ChatCallback<StickTopSessionInfo>() {
                     @Override
                     public void onSuccess(@Nullable StickTopSessionInfo param) {
                         binding.scSessionTop.setChecked(true);
-                        ChatMessageRepo.notifyP2PStickTop(userInfo.getAccount());
+                        ChatMessageRepo.notifyP2PStickTop(accId);
                     }
                 });
             } else {
-                ChatMessageRepo.removeStickTop(userInfo.getAccount(), new ChatCallback<Void>() {
+                ChatMessageRepo.removeStickTop(accId, new ChatCallback<Void>() {
                     @Override
                     public void onSuccess(@Nullable Void param) {
                         binding.scSessionTop.setChecked(false);
-                        ChatMessageRepo.notifyP2PStickTop(userInfo.getAccount());
+                        ChatMessageRepo.notifyP2PStickTop(accId);
                     }
                 });
             }
         });
 
-        binding.scMessageNotice.setChecked(ChatMessageRepo.isNeedNotify(userInfo.getAccount()));
-        binding.rlyMessageNotice.setOnClickListener(v -> ChatMessageRepo.setNotify(userInfo.getAccount(),
+        binding.scMessageNotice.setChecked(ChatMessageRepo.isNeedNotify(accId));
+        binding.rlyMessageNotice.setOnClickListener(v -> ChatMessageRepo.setNotify(accId,
                 !binding.scMessageNotice.isChecked(), new ChatCallback<Void>() {
                     @Override
                     public void onSuccess(@Nullable Void param) {
@@ -128,7 +160,7 @@ public class ChatSettingActivity extends BaseActivity {
 
     private void selectUsersCreateGroup() {
         ArrayList<String> filterList = new ArrayList<>();
-        filterList.add(userInfo.getAccount());
+        filterList.add(accId);
         XKitRouter.withKey(RouterConstant.PATH_CONTACT_SELECTOR_PAGE)
                 .withParam(RouterConstant.KEY_CONTACT_SELECTOR_MAX_COUNT, 199)
                 .withParam(RouterConstant.KEY_REQUEST_SELECTOR_NAME_ENABLE, true)

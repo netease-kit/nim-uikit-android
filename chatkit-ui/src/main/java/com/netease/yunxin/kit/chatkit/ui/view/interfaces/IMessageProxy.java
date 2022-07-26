@@ -29,4 +29,6 @@ public interface IMessageProxy {
     boolean sendCustomMessage(MsgAttachment attachment, String content);
 
     void onTypeStateChange(boolean isTyping);
+
+    boolean hasPermission(String permission);
 }

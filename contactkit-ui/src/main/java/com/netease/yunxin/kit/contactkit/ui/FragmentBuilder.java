@@ -7,8 +7,6 @@ package com.netease.yunxin.kit.contactkit.ui;
 
 import androidx.fragment.app.Fragment;
 
-import com.netease.yunxin.kit.contactkit.ui.contact.ContactFragment;
-
 public abstract class FragmentBuilder {
 
     public abstract Fragment build();

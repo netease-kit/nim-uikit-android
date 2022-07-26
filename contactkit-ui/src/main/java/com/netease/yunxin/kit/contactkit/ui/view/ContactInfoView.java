@@ -46,12 +46,6 @@ public class ContactInfoView extends FrameLayout {
         LayoutInflater layoutInflater = LayoutInflater.from(getContext());
         binding = UserInfoLayoutBinding.inflate(layoutInflater, this, true);
 
-        binding.scNotify.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (userCallback != null) {
-                userCallback.openMessageNotify(isChecked);
-            }
-        });
-
         binding.scBlackList.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (userCallback != null) {
                 userCallback.addBlackList(isChecked);
@@ -99,7 +93,6 @@ public class ContactInfoView extends FrameLayout {
         }
 
         binding.scBlackList.setChecked(userInfo.isBlack);
-        binding.scNotify.setChecked(userInfo.messageNotify);
 
         setIsFriend(userInfo.isFriend);
 

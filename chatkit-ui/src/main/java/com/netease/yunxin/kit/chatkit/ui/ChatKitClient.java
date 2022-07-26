@@ -11,5 +11,4 @@ public class ChatKitClient {
     public static ChatUIConfig getChatUIConfig(){
         return chatConfig;
     }
-
 }

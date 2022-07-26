@@ -105,6 +105,25 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
         ChatMessageRepo.markTeamMessageRead(message);
     }
 
+    public void requestTeamInfo(String teamId){
+        ChatMessageRepo.fetchTeamInfo(teamId, new FetchCallback<Team>() {
+            @Override
+            public void onSuccess(@Nullable Team param) {
+                teamLiveData.setValue(param);
+            }
+
+            @Override
+            public void onFailed(int code) {
+
+            }
+
+            @Override
+            public void onException(@Nullable Throwable exception) {
+
+            }
+        });
+    }
+
     public void requestTeamMembers(String teamId) {
         ALog.i(LOG_TAG, "requestTeamMembers");
         ChatMessageRepo.queryTeamMemberList(teamId, new FetchCallback<List<UserInfoWithTeam>>() {

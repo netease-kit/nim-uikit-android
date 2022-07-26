@@ -47,10 +47,11 @@ public class GlobalSearchActivity extends BaseActivity {
         searchAdapter.setViewHolderFactory(new SearchViewHolderFactory());
         searchAdapter.setViewHolderClickListener(new ViewHolderClickListener() {
             @Override
-            public void onClick(BaseBean data, int position) {
+            public boolean onClick(BaseBean data, int position) {
                 if(!TextUtils.isEmpty(data.router)){
                     XKitRouter.withKey(data.router).withParam(data.paramKey,data.param).withContext(GlobalSearchActivity.this).navigate();
                 }
+                return true;
             }
 
             @Override

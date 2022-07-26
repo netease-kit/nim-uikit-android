@@ -12,7 +12,6 @@ import android.text.TextWatcher;
 import android.view.View;
 
 import androidx.annotation.Nullable;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
@@ -20,19 +19,15 @@ import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.team.model.Team;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatSearchMessageActivityBinding;
-import com.netease.yunxin.kit.chatkit.ui.model.ChatSearchBean;
 import com.netease.yunxin.kit.chatkit.ui.page.adapter.SearchMessageAdapter;
 import com.netease.yunxin.kit.chatkit.ui.page.viewmodel.SearchMessageViewModel;
 import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
 import com.netease.yunxin.kit.common.ui.viewholder.BaseBean;
 import com.netease.yunxin.kit.common.ui.viewholder.ViewHolderClickListener;
-import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.common.utils.KeyboardUtils;
 import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
-
-import java.util.List;
 
 /**
  * History message search page for Team chat
@@ -61,11 +56,12 @@ public class ChatSearchActivity extends BaseActivity {
         searchAdapter = new SearchMessageAdapter();
         searchAdapter.setViewHolderClickListener(new ViewHolderClickListener() {
             @Override
-            public void onClick(BaseBean data, int position) {
+            public boolean onClick(BaseBean data, int position) {
                 ALog.i(TAG, "item onClick position:" + position);
                 KeyboardUtils.hideKeyboard(ChatSearchActivity.this);
                 XKitRouter.withKey(data.router).withParam(data.paramKey, data.param).withParam(RouterConstant.CHAT_KRY,team)
                         .withContext(ChatSearchActivity.this).navigate();
+                return true;
             }
 
             @Override

@@ -26,6 +26,7 @@ import com.netease.yunxin.kit.contactkit.ui.databinding.UserInfoActivityLayoutBi
 import com.netease.yunxin.kit.contactkit.ui.model.ContactUserInfoBean;
 import com.netease.yunxin.kit.contactkit.ui.view.ContactInfoView;
 import com.netease.yunxin.kit.corekit.im.model.FriendVerifyType;
+import com.netease.yunxin.kit.corekit.im.model.UserInfo;
 import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
 import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
@@ -34,6 +35,7 @@ public class UserInfoActivity extends BaseActivity {
     private UserInfoActivityLayoutBinding binding;
     private UserInfoViewModel viewModel;
     private ContactUserInfoBean userInfoData;
+    private String accId;
 
     private ActivityResultLauncher<Intent> commentLauncher;
 
@@ -126,8 +128,8 @@ public class UserInfoActivity extends BaseActivity {
 
     private void initData() {
         viewModel = new ViewModelProvider(this).get(UserInfoViewModel.class);
-        String account = getIntent().getStringExtra(RouterConstant.KEY_ACCOUNT_ID_KEY);
-        if (TextUtils.isEmpty(account)) {
+        accId = getIntent().getStringExtra(RouterConstant.KEY_ACCOUNT_ID_KEY);
+        if (TextUtils.isEmpty(accId)) {
             finish();
         }
         viewModel.getFetchResult().observe(this, mapFetchResult -> {
@@ -136,7 +138,17 @@ public class UserInfoActivity extends BaseActivity {
                 binding.contactUser.setData(userInfoData);
             }
         });
-        viewModel.fetchData(account);
+        viewModel.getUserInfoLiveData().observe(this,userInfoResult ->{
+            if(userInfoResult.getLoadStatus() == LoadStatus.Finish && userInfoResult.getData() != null){
+                for (UserInfo userInfo: userInfoResult.getData()){
+                    if (TextUtils.equals(userInfo.getAccount(),accId)){
+                        userInfoData.data = userInfo;
+                        binding.contactUser.setData(userInfoData);
+                    }
+                }
+            }
+        });
+        viewModel.fetchData(accId);
     }
 
     private void addNewFriend() {

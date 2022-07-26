@@ -7,13 +7,16 @@ package com.netease.yunxin.kit.chatkit.ui.page.fragment;
 
 import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.REQUEST_CONTACT_SELECTOR_KEY;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.TextUtils;
@@ -25,6 +28,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
 
 import com.netease.nimlib.sdk.msg.attachment.MsgAttachment;
 import com.netease.nimlib.sdk.msg.attachment.VideoAttachment;
@@ -62,6 +66,7 @@ import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.common.utils.NetworkUtils;
 import com.netease.yunxin.kit.chatkit.utils.SendMediaHelper;
+import com.netease.yunxin.kit.common.utils.PermissionUtils;
 import com.netease.yunxin.kit.common.utils.storage.StorageType;
 import com.netease.yunxin.kit.common.utils.storage.StorageUtil;
 import com.netease.yunxin.kit.corekit.im.IMKitClient;
@@ -72,6 +77,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * BaseFragment for Chat
@@ -80,6 +86,13 @@ import java.util.List;
 public abstract class ChatBaseFragment extends BaseFragment {
 
     private static final String LOG_TAG = "ChatBaseFragment";
+
+    private final int REQUEST_PERMISSION = 0;
+    private final int REQUEST_CAMERA_PERMISSION = 1;
+    private final int REQUEST_VIDEO_PERMISSION = 2;
+    private final int REQUEST_READ_EXTERNAL_STORAGE_PERMISSION = 3;
+
+    private int currentRequest = 0;
 
     ChatBaseViewModel viewModel;
     AitManager aitManager;
@@ -99,11 +112,15 @@ public abstract class ChatBaseFragment extends BaseFragment {
 
     private ActivityResultLauncher<Intent> forwardTeamLauncher;
 
+    private ActivityResultLauncher<String[]> permissionLauncher;
+
     ChatPopMenu popMenu;
 
     private IChatViewCustom chatViewCustom;
 
     private ChatUIConfig chatConfig;
+
+    private IMessageItemClickListener delegateListener;
 
     @Nullable
     @Override
@@ -116,6 +133,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
         initView();
         initViewModel();
         initDataObserver();
+        loadConfig();
         NetworkUtils.registerStateListener(networkStateListener);
         initCustom();
         return binding.getRoot();
@@ -128,7 +146,39 @@ public abstract class ChatBaseFragment extends BaseFragment {
         binding.chatView.setLoadHandler(loadHandler);
         binding.chatView.setMessageReader(message -> viewModel.sendReceipt(message.getMessage()));
         binding.chatView.setItemClickListener(itemClickListener);
-        loadConfig();
+        permissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), result -> {
+            if (result != null) {
+                for (Map.Entry entry : result.entrySet()) {
+                    String permission = entry.getKey().toString();
+                    boolean grant = (Boolean) entry.getValue();
+                    if (grant) {
+                        if (TextUtils.equals(
+                                permission, Manifest.permission.CAMERA)) {
+                            if (currentRequest == REQUEST_CAMERA_PERMISSION) {
+                                startTakePicture();
+                            } else if (currentRequest == REQUEST_VIDEO_PERMISSION) {
+                                startCaptureVideo();
+                            }
+                        } else if (TextUtils.equals(permission, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                            startPickMedia();
+                        }
+                    } else {
+                        if (shouldShowRequestPermissionRationale(permission)) {
+                            if (chatConfig == null || chatConfig.permissionListener == null ||
+                                    !chatConfig.permissionListener.requestPermissionDenied(ChatBaseFragment.this.getActivity(), permission)) {
+                                ToastX.showShortToast(getResources().getString(R.string.permission_deny_tips));
+                            }
+                        } else {
+                            if (chatConfig == null || chatConfig.permissionListener == null ||
+                                    !chatConfig.permissionListener.permissionDeniedForever(ChatBaseFragment.this.getActivity(), permission)) {
+                                ToastX.showShortToast(getPermissionText(permission));
+                            }
+                        }
+
+                    }
+                }
+            }
+        });
     }
 
     private void loadConfig() {
@@ -149,9 +199,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
                 binding.chatView.setLayoutCustom(config.chatViewCustom);
             }
 
-            if (config.messageItemClickListener != null) {
-                binding.chatView.setItemClickListener(config.messageItemClickListener);
-            }
+            delegateListener = config.messageItemClickListener;
         }
     }
 
@@ -160,6 +208,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
         if (chatViewCustom != null) {
             binding.chatView.setLayoutCustom(chatViewCustom);
         }
+        binding.chatView.setShowReadStatus(viewModel.isShowReadStatus());
     }
 
     private final IMessageProxy messageProxy = new IMessageProxy() {
@@ -182,41 +231,28 @@ public abstract class ChatBaseFragment extends BaseFragment {
 
         @Override
         public void pickMedia() {
-            pickMediaLauncher.launch("image/*;video/*");
+            if (PermissionUtils.hasPermissions(ChatBaseFragment.this.getContext(),Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                startPickMedia();
+            } else {
+                requestCameraPermission(Manifest.permission.READ_EXTERNAL_STORAGE, REQUEST_READ_EXTERNAL_STORAGE_PERMISSION);
+            }
         }
 
         @Override
         public void takePicture() {
-            File tempImageFile = null;
-            try {
-                tempImageFile = SendMediaHelper.createImageFile();
-                captureTempImagePath = tempImageFile.getAbsolutePath();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            if (tempImageFile != null) {
-                Uri pictureUri = SendMediaHelper.getUriForFile(tempImageFile);
-                takePictureLauncher.launch(pictureUri);
+            if (PermissionUtils.hasPermissions(ChatBaseFragment.this.getContext(),Manifest.permission.CAMERA)) {
+                startTakePicture();
+            } else {
+                requestCameraPermission(Manifest.permission.CAMERA, REQUEST_CAMERA_PERMISSION);
             }
         }
 
         @Override
         public void captureVideo() {
-            if (!StorageUtil.hasEnoughSpaceForWrite(StorageType.TYPE_VIDEO)) {
-                return;
-            }
-            File tempVideoFile = null;
-            try {
-                tempVideoFile = SendMediaHelper.createVideoFile();
-                captureTempVideoPath = tempVideoFile.getAbsolutePath();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            if (tempVideoFile != null) {
-                Uri videoUri = SendMediaHelper.getUriForFile(tempVideoFile);
-                Intent intent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE)
-                        .putExtra(MediaStore.EXTRA_OUTPUT, videoUri);
-                captureVideoLauncher.launch(intent);
+            if (PermissionUtils.hasPermissions(ChatBaseFragment.this.getContext(),Manifest.permission.CAMERA)) {
+                startCaptureVideo();
+            } else {
+                requestCameraPermission(Manifest.permission.CAMERA, REQUEST_VIDEO_PERMISSION);
             }
         }
 
@@ -246,77 +282,175 @@ public abstract class ChatBaseFragment extends BaseFragment {
                 ((ChatP2PViewModel) viewModel).sendInputNotification(isTyping);
             }
         }
+
+        @Override
+        public boolean hasPermission(String permission) {
+            if (TextUtils.isEmpty(permission)) {
+                return false;
+            }
+            if (PermissionUtils.hasPermissions(ChatBaseFragment.this.getContext(), permission)) {
+                return true;
+            } else {
+                requestCameraPermission(permission, REQUEST_PERMISSION);
+                return false;
+            }
+        }
     };
+
+    private void requestCameraPermission(String permission, int request) {
+        currentRequest = request;
+        permissionLauncher.launch(new String[]{permission});
+    }
+
+    public String getPermissionText(String permission) {
+        String text = this.getContext().getString(R.string.permission_default);
+        if (TextUtils.equals(permission, Manifest.permission.CAMERA)) {
+            text = this.getContext().getString(R.string.permission_camera);
+        } else if (TextUtils.equals(permission, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+            text = this.getContext().getString(R.string.permission_storage);
+        } else if (TextUtils.equals(permission, Manifest.permission.RECORD_AUDIO)) {
+            text = this.getContext().getString(R.string.permission_audio);
+        }
+        return text;
+    }
+
+    private void startTakePicture() {
+        File tempImageFile = null;
+        try {
+            tempImageFile = SendMediaHelper.createImageFile();
+            captureTempImagePath = tempImageFile.getAbsolutePath();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (tempImageFile != null) {
+            Uri pictureUri = SendMediaHelper.getUriForFile(tempImageFile);
+            takePictureLauncher.launch(pictureUri);
+        }
+    }
+
+    private void startPickMedia() {
+        pickMediaLauncher.launch("image/*;video/*");
+    }
+
+    private void startCaptureVideo() {
+        if (!StorageUtil.hasEnoughSpaceForWrite(StorageType.TYPE_VIDEO)) {
+            return;
+        }
+        File tempVideoFile = null;
+        try {
+            tempVideoFile = SendMediaHelper.createVideoFile();
+            captureTempVideoPath = tempVideoFile.getAbsolutePath();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (tempVideoFile != null) {
+            Uri videoUri = SendMediaHelper.getUriForFile(tempVideoFile);
+            Intent intent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE)
+                    .putExtra(MediaStore.EXTRA_OUTPUT, videoUri);
+            captureVideoLauncher.launch(intent);
+        }
+    }
 
     private final IMessageItemClickListener itemClickListener = new IMessageItemClickListener() {
         @Override
-        public boolean onMessageLongClick(View view, ChatMessageBean messageBean) {
-            if (messageBean.isRevoked()) {
-                return false;
+        public boolean onMessageLongClick(View view, int position, ChatMessageBean messageBean) {
+            if (delegateListener == null || !delegateListener.onMessageLongClick(view, position, messageBean)) {
+                if (messageBean.isRevoked()) {
+                    return false;
+                }
+                //show pop menu
+                if (popMenu == null) {
+                    popMenu = new ChatPopMenu();
+                }
+                if (popMenu.isShowing()) {
+                    return true;
+                }
+                int[] location = new int[2];
+                binding.chatView.getMessageListView().getLocationOnScreen(location);
+                popMenu.show(view, messageBean, location[1]);
             }
-            //show pop menu
-            if (popMenu == null) {
-                popMenu = new ChatPopMenu();
-            }
-            if (popMenu.isShowing()) {
-                return true;
-            }
-            int[] location = new int[2];
-            binding.chatView.getMessageListView().getLocationOnScreen(location);
-            popMenu.show(view, messageBean, location[1]);
             return true;
         }
 
         @Override
-        public void onMessageClick(View view, int position, ChatMessageBean messageBean) {
-            if (messageBean.getViewType() == MsgTypeEnum.image.getValue()) {
-                watchImage(messageBean,
-                        binding.chatView.getMessageListView().filterMessagesByType(messageBean.getViewType()));
-            } else if (messageBean.getViewType() == MsgTypeEnum.video.getValue()) {
-                watchVideo(messageBean.getMessageData().getMessage());
+        public boolean onMessageClick(View view, int position, ChatMessageBean messageBean) {
+            if (delegateListener == null || !delegateListener.onMessageClick(view, position, messageBean)) {
+
+                if (messageBean.getViewType() == MsgTypeEnum.image.getValue()) {
+                    watchImage(messageBean,
+                            binding.chatView.getMessageListView().filterMessagesByType(messageBean.getViewType()));
+                } else if (messageBean.getViewType() == MsgTypeEnum.video.getValue()) {
+                    watchVideo(messageBean.getMessageData().getMessage());
+                }
             }
+            return true;
         }
 
         @Override
-        public void onUserIconClick(View view, ChatMessageBean messageBean) {
-            XKitRouter.withKey(RouterConstant.PATH_USER_INFO_PAGE)
-                    .withContext(view.getContext())
-                    .withParam(RouterConstant.KEY_ACCOUNT_ID_KEY,
-                            messageBean.getMessageData().getMessage().getFromAccount())
-                    .navigate();
+        public boolean onUserIconClick(View view, int position, ChatMessageBean messageBean) {
+            if (delegateListener == null || !delegateListener.onUserIconClick(view, position, messageBean)) {
+                XKitRouter.withKey(RouterConstant.PATH_USER_INFO_PAGE)
+                        .withContext(view.getContext())
+                        .withParam(RouterConstant.KEY_ACCOUNT_ID_KEY,
+                                messageBean.getMessageData().getMessage().getFromAccount())
+                        .navigate();
+            }
+            return true;
         }
 
         @Override
-        public void onSelfIconClick(View view) {
-            XKitRouter.withKey(RouterConstant.PATH_MINE_INFO_PAGE)
-                    .withContext(view.getContext())
-                    .navigate();
+        public boolean onSelfIconClick(View view, int position, ChatMessageBean messageBean) {
+            if (delegateListener == null || !delegateListener.onSelfIconClick(view, position, messageBean)) {
+                XKitRouter.withKey(RouterConstant.PATH_MINE_INFO_PAGE)
+                        .withContext(view.getContext())
+                        .navigate();
+            }
+            return true;
         }
 
         @Override
-        public void onUserIconLongClick(View view, ChatMessageBean messageBean) {
-            //todo
+        public boolean onUserIconLongClick(View view, int position, ChatMessageBean messageBean) {
+            if (delegateListener == null || !delegateListener.onUserIconLongClick(view, position, messageBean)) {
+                //todo
+            }
+            return true;
         }
 
         @Override
-        public void onReEditRevokeMessage(View view, ChatMessageBean messageBean) {
+        public boolean onReEditRevokeMessage(View view, int position, ChatMessageBean messageBean) {
             //only support text message
-            if (messageBean.getMessageData().getMessage().getMsgType() == MsgTypeEnum.text) {
-                binding.chatView.getInputView()
-                        .setReEditMessage(messageBean.getMessageData().getMessage().getContent());
+            if (delegateListener == null || !delegateListener.onReEditRevokeMessage(view, position, messageBean)) {
+                if (messageBean.getMessageData().getMessage().getMsgType() == MsgTypeEnum.text) {
+                    binding.chatView.getInputView()
+                            .setReEditMessage(messageBean.getMessageData().getMessage().getContent());
+                }
             }
+            return true;
         }
 
         @Override
-        public void onReplyMessageClick(View view, String messageUuid) {
+        public boolean onReplyMessageClick(View view, int position, String replyUUid) {
             //scroll to the message position
-            binding.chatView.getMessageListView().scrollToMessage(messageUuid);
+            if (delegateListener == null || !delegateListener.onReplyMessageClick(view, position, replyUUid)) {
+                binding.chatView.getMessageListView().scrollToMessage(replyUUid);
+            }
+            return true;
         }
 
         @Override
-        public void onSendFailBtnClick(View view, ChatMessageBean messageBean) {
-            IMessageItemClickListener.super.onSendFailBtnClick(view, messageBean);
-            viewModel.sendMessage(messageBean.getMessageData().getMessage(), true, true);
+        public boolean onSendFailBtnClick(View view, int position, ChatMessageBean messageBean) {
+            if (delegateListener == null || !delegateListener.onSendFailBtnClick(view, position, messageBean)) {
+                viewModel.sendMessage(messageBean.getMessageData().getMessage(), true, true);
+            }
+            return true;
+        }
+
+        @Override
+        public boolean onTextSelected(View view, int position, ChatMessageBean messageInfo) {
+            if (delegateListener == null || !delegateListener.onTextSelected(view, position, messageInfo)) {
+                //todo
+            }
+            return false;
         }
     };
 
@@ -523,6 +657,12 @@ public abstract class ChatBaseFragment extends BaseFragment {
         viewModel.getRevokeMessageLiveData().observe(getViewLifecycleOwner(), messageResult -> {
             if (messageResult.getLoadStatus() == LoadStatus.Success) {
                 binding.chatView.getMessageListView().revokeMessage(messageResult.getData());
+            }
+        });
+
+        viewModel.getUserInfoLiveData().observe(getViewLifecycleOwner(), userResult -> {
+            if (userResult.getLoadStatus() == LoadStatus.Finish && userResult.getType() == FetchResult.FetchType.Update) {
+                binding.chatView.getMessageListView().updateUserInfo(userResult.getData());
             }
         });
 

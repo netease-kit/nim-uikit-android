@@ -42,6 +42,10 @@ public class MessageProperties {
 
     private boolean showStickerMessage = false;
 
+    private boolean showP2pMessageStatus = true;
+
+    private boolean showTeamMessageStatus = true;
+
     public void setReceiveMessageBg(Drawable receiveMessageBg) {
         this.receiveMessageBg = receiveMessageBg;
     }
@@ -128,5 +132,21 @@ public class MessageProperties {
 
     public void setShowStickerMessage(boolean show){
         this.showStickerMessage = show;
+    }
+
+    public void setShowP2pMessageStatus(boolean show){
+        this.showP2pMessageStatus = show;
+    }
+
+    public boolean getShowP2pMessageStatus(){
+       return this.showP2pMessageStatus;
+    }
+
+    public void setShowTeamMessageStatus(boolean show){
+        this.showTeamMessageStatus = show;
+    }
+
+    public boolean getShowTeamMessageStatus(){
+        return this.showTeamMessageStatus;
     }
 }

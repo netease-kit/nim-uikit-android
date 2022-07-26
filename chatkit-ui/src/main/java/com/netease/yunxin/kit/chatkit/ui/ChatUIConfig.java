@@ -11,12 +11,18 @@ import com.netease.yunxin.kit.chatkit.ui.view.message.MessageProperties;
 
 public class ChatUIConfig {
 
+    //消息点击事件
     public IMessageItemClickListener messageItemClickListener;
 
+    //消息UI配置
     public MessageProperties messageProperties;
+
+    public IPermissionListener permissionListener;
 
     public IChatFactory chatFactory;
 
     public IChatViewCustom chatViewCustom;
+
+
 
 }

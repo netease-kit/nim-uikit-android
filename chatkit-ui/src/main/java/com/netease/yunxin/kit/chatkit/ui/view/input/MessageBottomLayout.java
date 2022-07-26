@@ -5,6 +5,7 @@
 
 package com.netease.yunxin.kit.chatkit.ui.view.input;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
@@ -28,6 +29,7 @@ import com.netease.nimlib.sdk.media.record.IAudioRecordCallback;
 import com.netease.nimlib.sdk.media.record.RecordType;
 import com.netease.nimlib.sdk.msg.attachment.MsgAttachment;
 import com.netease.yunxin.kit.alog.ALog;
+import com.netease.yunxin.kit.chatkit.ui.IPermissionListener;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageUtil;
@@ -108,6 +110,12 @@ public class MessageBottomLayout extends FrameLayout implements IAudioRecordCall
         actionAdapter.disableAll(mMute);
         mBinding.chatMessageActionContainer.setAdapter(actionAdapter);
         mBinding.chatMessageRecordView.setRecordCallback(this);
+        mBinding.chatMessageRecordView.setPermissionRequest(permission -> {
+            if (mProxy.hasPermission(Manifest.permission.RECORD_AUDIO)){
+                return true;
+            }
+            return false;
+        });
         emojiSelectedListener = new IEmojiSelectedListener() {
             @Override
             public void onEmojiSelected(String key) {

@@ -27,6 +27,7 @@ import com.netease.yunxin.kit.chatkit.ui.view.interfaces.IMessageReader;
 import com.netease.yunxin.kit.chatkit.ui.view.message.ChatMessageListView;
 import com.netease.yunxin.kit.chatkit.ui.view.message.MessageProperties;
 import com.netease.yunxin.kit.common.ui.widgets.BackTitleBar;
+import com.netease.yunxin.kit.corekit.im.model.UserInfo;
 
 import java.util.List;
 
@@ -93,6 +94,10 @@ public class ChatView extends LinearLayout {
         binding.messageView.setMessageProperties(properties);
     }
 
+    public void setShowReadStatus(boolean show){
+        binding.messageView.setShowReadStatus(show);
+    }
+
     public void clearMessageList() {
         binding.messageView.clearMessageList();
     }
@@ -103,6 +108,10 @@ public class ChatView extends LinearLayout {
 
     public void appendMessageList(List<ChatMessageBean> messageList) {
         binding.messageView.appendMessageList(messageList);
+    }
+
+    public void updateUserInfo(List<UserInfo> userInfoList){
+        binding.messageView.updateUserInfo(userInfoList);
     }
 
     public void setTypeState(boolean isTyping) {

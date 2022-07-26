@@ -8,7 +8,6 @@ package com.netease.yunxin.kit.chatkit.ui.view.message.viewholder;
 import android.graphics.Color;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
-import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;

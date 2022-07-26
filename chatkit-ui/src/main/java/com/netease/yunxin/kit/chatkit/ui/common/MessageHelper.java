@@ -20,9 +20,6 @@ import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.corekit.im.IMKitClient;
 import com.netease.yunxin.kit.corekit.im.model.FriendInfo;
 import com.netease.yunxin.kit.corekit.im.model.UserInfo;
-import com.netease.yunxin.kit.corekit.im.provider.FriendProvider;
-import com.netease.yunxin.kit.corekit.im.provider.TeamProvider;
-import com.netease.yunxin.kit.corekit.im.provider.UserInfoProvider;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,9 +58,9 @@ public class MessageHelper {
 
 
     public static String getTeamNick(String tid, String account) {
-        Team team = TeamProvider.INSTANCE.queryTeamBlock(tid);
+        Team team = ChatMessageRepo.queryTeam(tid);
         if (team != null && team.getType() == TeamTypeEnum.Advanced) {
-            TeamMember member = TeamProvider.INSTANCE.getTeamMember(tid, account);
+            TeamMember member = ChatMessageRepo.getTeamMember(tid, account);
             if (member != null && !TextUtils.isEmpty(member.getTeamNick())) {
                 return member.getTeamNick();
             }
@@ -72,7 +69,7 @@ public class MessageHelper {
     }
 
     public static String getTeamUserAvatar(String accId) {
-        UserInfo user = UserInfoProvider.INSTANCE.getUserInfo(accId);
+        UserInfo user = ChatMessageRepo.getUserInfo(accId);
         return user == null ? null : user.getAvatar();
     }
 
@@ -80,12 +77,26 @@ public class MessageHelper {
         if (withYou && accId.equals(IMKitClient.account())) {
             return IMKitClient.getApplicationContext().getString(R.string.chat_you);
         }
-        FriendInfo friend = FriendProvider.INSTANCE.getFriendInfo(accId);
+        FriendInfo friend = ChatMessageRepo.getFriendInfo(accId);
         if (friend != null && !TextUtils.isEmpty(friend.getAlias())) {
             return friend.getAlias();
         }
-        UserInfo user = UserInfoProvider.INSTANCE.getUserInfo(accId);
+        UserInfo user = ChatMessageRepo.getUserInfo(accId);
         return user == null ? null : (TextUtils.isEmpty(user.getName()) ? accId : user.getName());
+    }
+
+    public static String getUserNickByAccId(String accId,UserInfo userInfo, boolean withYou) {
+        if (withYou && accId.equals(IMKitClient.account())) {
+            return IMKitClient.getApplicationContext().getString(R.string.chat_you);
+        }
+        FriendInfo friend = ChatMessageRepo.getFriendInfo(accId);
+        if (friend != null && !TextUtils.isEmpty(friend.getAlias())) {
+            return friend.getAlias();
+        }
+        if (userInfo == null) {
+            userInfo = ChatMessageRepo.getUserInfo(accId);
+        }
+        return userInfo == null ? null : (TextUtils.isEmpty(userInfo.getName()) ? accId : userInfo.getName());
     }
 
     public static String getChatMessageUserName(IMMessage message) {
@@ -106,7 +117,7 @@ public class MessageHelper {
             }
         }
         //third is user nick
-        UserInfo user = UserInfoProvider.INSTANCE.getUserInfo(message.getFromAccount());
+        UserInfo user = ChatMessageRepo.getUserInfo(message.getFromAccount());
         if (user != null) {
             name = user.getName();
         }

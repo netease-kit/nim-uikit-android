@@ -59,11 +59,15 @@ public abstract class ChatBaseMessageViewHolder extends RecyclerView.ViewHolder 
 
     public int type;
 
+    public int position;
+
     public long receiptTime;
 
     public Team teamInfo;
 
     public ChatMessageBean currentMessage;
+
+    public boolean showReadStatus;
 
     MessageProperties properties = new MessageProperties();
     
@@ -96,7 +100,11 @@ public abstract class ChatBaseMessageViewHolder extends RecyclerView.ViewHolder 
         }
     }
 
-    public void bindData(ChatMessageBean data, @NonNull List<?> payload) {
+    public void setShowReadStatus(boolean show){
+        this.showReadStatus = show;
+    }
+
+    public void bindData(ChatMessageBean data,int position, @NonNull List<?> payload) {
         if (!payload.isEmpty()) {
             for (int i = 0; i < payload.size(); ++i) {
                 String payloadItem = payload.get(i).toString();
@@ -110,9 +118,12 @@ public abstract class ChatBaseMessageViewHolder extends RecyclerView.ViewHolder 
                     onMessageSignal(data);
                 } else if (TextUtils.equals(payloadItem, ChatMessageAdapter.PROGRESS_PAYLOAD)) {
                     onProgressUpdate(data);
+                }else if (TextUtils.equals(payloadItem, ChatMessageAdapter.PROGRESS_PAYLOAD)){
+                    setUserInfo(data);
                 }
             }
         }
+        this.position = position;
     }
 
     protected void onMessageStatus(ChatMessageBean data) {
@@ -167,7 +178,7 @@ public abstract class ChatBaseMessageViewHolder extends RecyclerView.ViewHolder 
             //reedit
             revokedViewBinding.tvAction.setOnClickListener(v -> {
                 if (itemClickListener != null) {
-                    itemClickListener.onReEditRevokeMessage(v, data);
+                    itemClickListener.onReEditRevokeMessage(v,position, data);
                 }
             });
         } else {
@@ -193,6 +204,14 @@ public abstract class ChatBaseMessageViewHolder extends RecyclerView.ViewHolder 
         } else {
             baseViewBinding.tvReply.setVisibility(View.GONE);
         }
+        setUserInfo(message);
+        setTime(message, lastMessage);
+        onMessageSignal(message);
+        onMessageRevoked(message);
+        setStatusCallback();
+    }
+
+    private void setUserInfo(ChatMessageBean message){
         ConstraintLayout.LayoutParams layoutParams = (ConstraintLayout.LayoutParams) baseViewBinding.messageBody.getLayoutParams();
         if (isReceivedMessage(message)) {
             //get nick name
@@ -246,10 +265,6 @@ public abstract class ChatBaseMessageViewHolder extends RecyclerView.ViewHolder 
             baseViewBinding.messageStatus.setVisibility(View.VISIBLE);
             setStatus(message);
         }
-        setTime(message, lastMessage);
-        onMessageSignal(message);
-        onMessageRevoked(message);
-        setStatusCallback();
     }
 
     private void setReplyInfo(ChatMessageBean messageBean) {
@@ -266,7 +281,7 @@ public abstract class ChatBaseMessageViewHolder extends RecyclerView.ViewHolder 
         String content = "| " + MessageHelper.getReplyMessageInfo(replyUuid);
         MessageUtil.identifyFaceExpression(baseViewBinding.tvReply.getContext(), baseViewBinding.tvReply,content, ImageSpan.ALIGN_BOTTOM);
         if (itemClickListener != null) {
-            baseViewBinding.tvReply.setOnClickListener(v -> itemClickListener.onReplyMessageClick(v, replyUuid));
+            baseViewBinding.tvReply.setOnClickListener(v -> itemClickListener.onReplyMessageClick(v,position, replyUuid));
         }
     }
 
@@ -312,7 +327,8 @@ public abstract class ChatBaseMessageViewHolder extends RecyclerView.ViewHolder 
         } else if (data.getMessageData().getMessage().getSessionType() == SessionTypeEnum.P2P) {
             baseViewBinding.messageSending.setVisibility(View.GONE);
             baseViewBinding.readProcess.setVisibility(View.GONE);
-            if (!data.getMessageData().getMessage().needMsgAck()) {
+            if (!data.getMessageData().getMessage().needMsgAck() || !properties.getShowP2pMessageStatus()
+            || !showReadStatus) {
                 baseViewBinding.ivStatus.setVisibility(View.GONE);
             } else {
                 baseViewBinding.ivStatus.setVisibility(View.VISIBLE);
@@ -329,6 +345,10 @@ public abstract class ChatBaseMessageViewHolder extends RecyclerView.ViewHolder 
             baseViewBinding.ivStatus.setVisibility(View.GONE);
             if ((teamInfo != null && teamInfo.getMemberCount() >= MAX_RECEIPT_NUM) ||
                     !data.getMessageData().getMessage().needMsgAck()) {
+                baseViewBinding.readProcess.setVisibility(View.GONE);
+                return;
+            }
+            if (!properties.getShowTeamMessageStatus()|| !showReadStatus){
                 baseViewBinding.readProcess.setVisibility(View.GONE);
                 return;
             }
@@ -370,17 +390,17 @@ public abstract class ChatBaseMessageViewHolder extends RecyclerView.ViewHolder 
         if (itemClickListener != null) {
             baseViewBinding.ivStatus.setOnClickListener(v -> {
                 if (currentMessage.getMessageData().getMessage().getStatus() == MsgStatusEnum.fail) {
-                    itemClickListener.onSendFailBtnClick(v, currentMessage);
+                    itemClickListener.onSendFailBtnClick(v,position, currentMessage);
                 }
             });
 
-            baseViewBinding.fromAvatar.setOnClickListener(v -> itemClickListener.onUserIconClick(v, currentMessage));
+            baseViewBinding.fromAvatar.setOnClickListener(v -> itemClickListener.onUserIconClick(v,position, currentMessage));
 
-            baseViewBinding.avatarMine.setOnClickListener(v -> itemClickListener.onSelfIconClick(v));
+            baseViewBinding.avatarMine.setOnClickListener(v -> itemClickListener.onSelfIconClick(v,position,currentMessage));
 
-            baseViewBinding.messageContainer.setOnLongClickListener(v -> itemClickListener.onMessageLongClick(v, currentMessage));
+            baseViewBinding.messageContainer.setOnLongClickListener(v -> itemClickListener.onMessageLongClick(v,position, currentMessage));
 
-            baseViewBinding.messageContainer.setOnClickListener(v -> itemClickListener.onMessageClick(v, -1, currentMessage));
+            baseViewBinding.messageContainer.setOnClickListener(v -> itemClickListener.onMessageClick(v, position, currentMessage));
 
         }
     }

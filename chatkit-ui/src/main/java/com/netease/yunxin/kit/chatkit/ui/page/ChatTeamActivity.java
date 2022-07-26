@@ -6,14 +6,16 @@
 package com.netease.yunxin.kit.chatkit.ui.page;
 
 import android.content.Intent;
+import android.opengl.ETC1Util;
 import android.os.Bundle;
+import android.text.TextUtils;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentManager;
 
 import com.netease.nimlib.sdk.msg.model.IMMessage;
 import com.netease.nimlib.sdk.team.model.Team;
 import com.netease.yunxin.kit.alog.ALog;
-import com.netease.yunxin.kit.chatkit.ui.ChatKitClient;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.builder.TeamChatFragmentBuilder;
 import com.netease.yunxin.kit.chatkit.ui.page.fragment.ChatTeamFragment;
@@ -31,8 +33,10 @@ public class ChatTeamActivity extends ChatBaseActivity {
     @Override
     public void initChat() {
         Team teamInfo = (Team) getIntent().getSerializableExtra(RouterConstant.CHAT_KRY);
-        if (teamInfo == null) {
-            ALog.e(LOG_TOG, "team info is null");
+        String teamId = getIntent().getStringExtra(RouterConstant.CHAT_ID_KRY);
+        if (teamInfo == null && TextUtils.isEmpty(teamId)) {
+            ALog.e(LOG_TOG, "team info is null && team id is null"+teamId);
+            finish();
             return;
         }
         //set fragment
@@ -40,6 +44,7 @@ public class ChatTeamActivity extends ChatBaseActivity {
         chatFragment = fragmentBuilder.build();
         Bundle bundle = new Bundle();
         bundle.putSerializable(RouterConstant.CHAT_KRY, teamInfo);
+        bundle.putSerializable(RouterConstant.CHAT_ID_KRY, teamId);
         IMMessage message = (IMMessage) getIntent().getSerializableExtra(RouterConstant.KEY_MESSAGE);
         if (message != null) {
             bundle.putSerializable(RouterConstant.KEY_MESSAGE, message);

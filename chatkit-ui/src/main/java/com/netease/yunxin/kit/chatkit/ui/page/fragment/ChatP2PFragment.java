@@ -8,6 +8,7 @@ package com.netease.yunxin.kit.chatkit.ui.page.fragment;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.TextUtils;
 
 import androidx.lifecycle.ViewModelProvider;
 
@@ -17,6 +18,7 @@ import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.chatkit.ui.page.ChatSettingActivity;
 import com.netease.yunxin.kit.chatkit.ui.page.viewmodel.ChatP2PViewModel;
+import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.corekit.im.model.UserInfo;
 import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
 
@@ -30,6 +32,8 @@ public class ChatP2PFragment extends ChatBaseFragment {
 
     UserInfo userInfo;
 
+    String accId;
+
     private final Handler handler = new Handler();
 
     private final Runnable stopTypingRunnable = () -> binding.chatView.setTypeState(false);
@@ -39,17 +43,29 @@ public class ChatP2PFragment extends ChatBaseFragment {
         ALog.i(TAG, "initData");
         sessionType = SessionTypeEnum.P2P;
         userInfo = (UserInfo) bundle.getSerializable(RouterConstant.CHAT_KRY);
-        String name = MessageHelper.getUserNickByAccId(userInfo.getAccount(), false);
+        accId = (String) bundle.getSerializable(RouterConstant.CHAT_ID_KRY);
+        if (userInfo == null && TextUtils.isEmpty(accId)){
+            getActivity().finish();
+            return;
+        }
+        if (TextUtils.isEmpty(accId)){
+            accId = userInfo.getAccount();
+        }
         binding.chatView.getTitleBar()
                 .setOnBackIconClickListener(v -> requireActivity().onBackPressed())
-                .setTitle(name)
                 .setActionImg(R.drawable.ic_more_point)
                 .setActionListener(v -> {
                     Intent intent = new Intent();
                     intent.setClass(getActivity(), ChatSettingActivity.class);
-                    intent.putExtra(RouterConstant.CHAT_KRY, userInfo);
+                    intent.putExtra(RouterConstant.CHAT_ID_KRY, accId);
                     startActivity(intent);
                 });
+        refreshView();
+    }
+
+    private void refreshView(){
+        String name = MessageHelper.getUserNickByAccId(accId, userInfo,false);
+        binding.chatView.getTitleBar().setTitle(name);
         binding.chatView.getInputView().updateInputInfo(name);
     }
 
@@ -57,9 +73,10 @@ public class ChatP2PFragment extends ChatBaseFragment {
     protected void initViewModel() {
         ALog.i(TAG, "initViewModel");
         viewModel = new ViewModelProvider(this).get(ChatP2PViewModel.class);
-        viewModel.init(userInfo.getAccount(), SessionTypeEnum.P2P);
+        viewModel.init(accId, SessionTypeEnum.P2P);
         //fetch history message
         viewModel.initFetch(null);
+        ((ChatP2PViewModel) viewModel).getP2pUserInfo(accId);
     }
 
     @Override
@@ -74,6 +91,12 @@ public class ChatP2PFragment extends ChatBaseFragment {
             binding.chatView.setTypeState(isTyping);
             if (isTyping) {
                 handler.postDelayed(stopTypingRunnable, TYPE_DELAY_TIME);
+            }
+        });
+        ((ChatP2PViewModel) viewModel).getP2pUserInfoLiveData().observe(getViewLifecycleOwner(),result ->{
+            if (result.getLoadStatus() == LoadStatus.Success){
+                userInfo = result.getData();
+                refreshView();
             }
         });
     }
