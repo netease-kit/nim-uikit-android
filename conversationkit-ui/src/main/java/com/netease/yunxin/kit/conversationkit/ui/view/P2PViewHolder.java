@@ -6,13 +6,14 @@
 package com.netease.yunxin.kit.conversationkit.ui.view;
 
 import android.view.View;
-import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 
 import com.netease.yunxin.kit.common.ui.utils.AvatarColor;
 import com.netease.yunxin.kit.common.ui.utils.TimeFormatUtils;
 import com.netease.yunxin.kit.common.ui.viewholder.BaseViewHolder;
+import com.netease.yunxin.kit.conversationkit.ui.ConversationUIConfig;
+import com.netease.yunxin.kit.conversationkit.ui.ConversationKitClient;
 import com.netease.yunxin.kit.conversationkit.ui.R;
 import com.netease.yunxin.kit.conversationkit.ui.databinding.P2pViewHolderLayoutBinding;
 import com.netease.yunxin.kit.conversationkit.ui.model.ConversationBean;
@@ -21,17 +22,14 @@ public class P2PViewHolder extends BaseViewHolder<ConversationBean> {
 
     private P2pViewHolderLayoutBinding viewBinding;
 
-    public P2PViewHolder(@NonNull ViewGroup itemView) {
-        super(itemView);
-    }
-
     public P2PViewHolder(@NonNull P2pViewHolderLayoutBinding binding) {
-        this(binding.getRoot());
+        super(binding.getRoot());
         viewBinding = binding;
     }
 
     @Override
     public void onBindData(ConversationBean data, int position) {
+        loadUIConfig();
         viewBinding.avatarView.setData(data.infoData.getAvatar(),data.infoData.getName(), AvatarColor.avatarColor(data.infoData.getContactId()));
         viewBinding.conversationNameTv.setText(data.infoData.getName());
         if (data.infoData.isStickTop()){
@@ -62,6 +60,36 @@ public class P2PViewHolder extends BaseViewHolder<ConversationBean> {
         viewBinding.conversationTime.setText(TimeFormatUtils.formatMillisecond(viewBinding.getRoot().getContext(), data.infoData.getTime()));
         viewBinding.rootView.setOnClickListener( v -> itemListener.onClick(data,position));
         viewBinding.rootView.setOnLongClickListener(v -> itemListener.onLongClick(data,position));
+    }
+
+    private void loadUIConfig(){
+        if(ConversationKitClient.getConversationUIConfig() != null){
+            ConversationUIConfig config = ConversationKitClient.getConversationUIConfig();
+            if (config.itemTitleColor != ConversationUIConfig.INT_DEFAULT_NULL){
+                viewBinding.conversationNameTv.setTextColor(config.itemTitleColor);
+            }
+            if (config.itemTitleSize != ConversationUIConfig.INT_DEFAULT_NULL){
+                viewBinding.conversationNameTv.setTextSize(config.itemTitleSize);
+            }
+
+            if (config.itemContentColor != ConversationUIConfig.INT_DEFAULT_NULL){
+                viewBinding.conversationMessageTv.setTextColor(config.itemContentColor);
+            }
+            if (config.itemContentSize != ConversationUIConfig.INT_DEFAULT_NULL){
+                viewBinding.conversationMessageTv.setTextSize(config.itemContentSize);
+            }
+
+            if (config.itemDateColor != ConversationUIConfig.INT_DEFAULT_NULL){
+                viewBinding.conversationTime.setTextColor(config.itemDateColor);
+            }
+            if (config.itemDateSize != ConversationUIConfig.INT_DEFAULT_NULL){
+                viewBinding.conversationTime.setTextSize(config.itemDateSize);
+            }
+
+            if (config.avatarCornerRadius != ConversationUIConfig.INT_DEFAULT_NULL){
+                viewBinding.avatarView.setCornerRadius(config.avatarCornerRadius);
+            }
+        }
     }
 
 }

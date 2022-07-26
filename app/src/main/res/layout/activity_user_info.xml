@@ -74,6 +74,7 @@
                 android:src="@drawable/ic_frame_mine_right_arrow"
                 android:layout_gravity="end|center_vertical"/>
         </FrameLayout>
+
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
@@ -112,6 +113,47 @@
                 android:layout_height="16dp"
                 android:layout_marginEnd="36dp"
                 android:src="@drawable/ic_frame_mine_right_arrow"
+                android:layout_gravity="end|center_vertical"/>
+        </FrameLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="20dp"
+            android:background="@color/color_f5f8fc"/>
+
+        <FrameLayout android:id="@+id/flAccount"
+            android:layout_width="match_parent"
+            android:layout_height="46dp">
+
+            <TextView
+                android:id="@+id/tvAccountTip"
+                android:layout_width="wrap_content"
+                android:layout_height="46dp"
+                android:layout_marginStart="@dimen/dimen_16_dp"
+                android:gravity="center"
+                android:text="@string/user_info_account"
+                android:textColor="@color/color_333333"
+                android:textSize="16dp" />
+
+            <TextView
+                android:id="@+id/tvAccount"
+                android:layout_width="wrap_content"
+                android:layout_height="46dp"
+                android:layout_marginEnd="64dp"
+                android:gravity="end|center_vertical"
+                android:singleLine="true"
+                android:textColor="@color/color_a6adb6"
+                android:textSize="12dp"
+                android:layout_marginStart="@dimen/dimen_50_dp"
+                android:layout_gravity="end|center_vertical"/>
+
+            <ImageView  android:id="@+id/ivAccountCopy"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_marginEnd="36dp"
+                android:src="@mipmap/ic_copy"
                 android:layout_gravity="end|center_vertical"/>
         </FrameLayout>
 
@@ -308,7 +350,7 @@
             android:singleLine="true"
             android:textColor="@color/color_a6adb6"
             android:textSize="12sp"
-            android:layout_marginStart="@dimen/dimen_70_dp"
+            android:layout_marginStart="@dimen/dimen_80_dp"
             android:layout_gravity="end|center_vertical"/>
 
         <ImageView

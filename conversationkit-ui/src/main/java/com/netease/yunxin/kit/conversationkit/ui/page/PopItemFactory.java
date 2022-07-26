@@ -12,12 +12,12 @@ import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.KEY_REQUEST
 import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.KEY_REQUEST_SELECTOR_NAME_ENABLE;
 import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.KEY_SESSION_ID;
 import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.KEY_TEAM_CREATED_TIP;
-import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.PATH_ADD_FRIEND_ACTIVITY;
-import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.PATH_CHAT_GROUP;
-import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.PATH_CHAT_SEND_TEAM_TIP;
-import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.PATH_CREATE_ADVANCED_TEAM;
-import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.PATH_CREATE_NORMAL_TEAM;
-import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.PATH_SELECTOR_ACTIVITY;
+import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.PATH_ADD_FRIEND_PAGE;
+import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.PATH_CHAT_TEAM_PAGE;
+import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.PATH_CHAT_SEND_TEAM_TIP_ACTION;
+import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.PATH_CREATE_ADVANCED_TEAM_ACTION;
+import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.PATH_CREATE_NORMAL_TEAM_ACTION;
+import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.PATH_CONTACT_SELECTOR_PAGE;
 import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.REQUEST_CONTACT_SELECTOR_KEY;
 
 import android.content.Context;
@@ -31,15 +31,23 @@ import android.widget.TextView;
 
 import androidx.core.content.ContextCompat;
 
+import com.netease.nimlib.sdk.NIMClient;
+import com.netease.nimlib.sdk.RequestCallback;
+import com.netease.nimlib.sdk.team.TeamService;
+import com.netease.nimlib.sdk.team.constant.TeamBeInviteModeEnum;
+import com.netease.nimlib.sdk.team.constant.TeamFieldEnum;
+import com.netease.nimlib.sdk.team.constant.TeamTypeEnum;
 import com.netease.nimlib.sdk.team.model.CreateTeamResult;
 import com.netease.nimlib.sdk.team.model.Team;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.common.ui.widgets.ContentListPopView;
 import com.netease.yunxin.kit.common.utils.ScreenUtil;
 import com.netease.yunxin.kit.conversationkit.ui.R;
+import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.im.utils.TransHelper;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -56,7 +64,7 @@ public final class PopItemFactory {
         return new ContentListPopView.Item.Builder()
                 .configView(getView(context, R.string.add_friend, R.drawable.icon_add_friend))
                 .configParams(params)
-                .configClickListener(v -> XKitRouter.withKey(PATH_ADD_FRIEND_ACTIVITY)
+                .configClickListener(v -> XKitRouter.withKey(PATH_ADD_FRIEND_PAGE)
                         .withContext(context)
                         .navigate())
                 .build();
@@ -69,7 +77,7 @@ public final class PopItemFactory {
         return new ContentListPopView.Item.Builder()
                 .configView(getView(context, R.string.create_advanced_team, R.drawable.icon_advanced_team))
                 .configParams(params)
-                .configClickListener(getClickListener(context, requestCode, PATH_CREATE_ADVANCED_TEAM))
+                .configClickListener(getClickListener(context, requestCode, PATH_CREATE_ADVANCED_TEAM_ACTION))
                 .build();
     }
 
@@ -80,13 +88,13 @@ public final class PopItemFactory {
         return new ContentListPopView.Item.Builder()
                 .configView(getView(context, R.string.create_group_team, R.drawable.icon_group_team))
                 .configParams(params)
-                .configClickListener(getClickListener(context, requestCode, PATH_CREATE_NORMAL_TEAM))
+                .configClickListener(getClickListener(context, requestCode, PATH_CREATE_NORMAL_TEAM_ACTION))
                 .build();
     }
 
     private static View.OnClickListener getClickListener(Context context, int requestCode, String createMethod) {
         return v -> TransHelper.launchTask(context, requestCode, (activity, integer) -> {
-            XKitRouter.withKey(PATH_SELECTOR_ACTIVITY)
+            XKitRouter.withKey(PATH_CONTACT_SELECTOR_PAGE)
                     .withParam(KEY_CONTACT_SELECTOR_MAX_COUNT, 199)
                     .withParam(KEY_REQUEST_SELECTOR_NAME_ENABLE, true)
                     .withContext(activity)
@@ -111,15 +119,15 @@ public final class PopItemFactory {
                     .navigate(res -> {
                         if (res.getSuccess() && res.getValue() instanceof CreateTeamResult) {
                             Team teamInfo = ((CreateTeamResult) res.getValue()).getTeam();
-                            if (TextUtils.equals(createMethod, PATH_CREATE_ADVANCED_TEAM)) {
+                            if (TextUtils.equals(createMethod, PATH_CREATE_ADVANCED_TEAM_ACTION)) {
                                 Map<String, Object> map = new HashMap<>(1);
                                 map.put(KEY_TEAM_CREATED_TIP, context.getString(R.string.create_advanced_team_success));
-                                XKitRouter.withKey(PATH_CHAT_SEND_TEAM_TIP)
+                                XKitRouter.withKey(PATH_CHAT_SEND_TEAM_TIP_ACTION)
                                         .withParam(KEY_SESSION_ID, teamInfo.getId())
                                         .withParam(KEY_REMOTE_EXTENSION, map)
                                         .navigate();
                             }
-                            XKitRouter.withKey(PATH_CHAT_GROUP)
+                            XKitRouter.withKey(PATH_CHAT_TEAM_PAGE)
                                     .withContext(context)
                                     .withParam(CHAT_KRY, teamInfo)
                                     .navigate();

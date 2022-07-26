@@ -9,6 +9,7 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 
+import com.netease.yunxin.kit.common.ui.CommonUIClient;
 import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 import com.netease.yunxin.kit.searchkit.SearchKitService;
@@ -30,7 +31,8 @@ public class SearchUIService extends SearchKitService {
     @NonNull
     @Override
     public SearchKitService create(@NonNull Context context) {
-        XKitRouter.registerRouter(RouterConstant.PATH_GLOBAL_SEARCH, GlobalSearchActivity.class);
+        XKitRouter.registerRouter(RouterConstant.PATH_GLOBAL_SEARCH_PAGE, GlobalSearchActivity.class);
+        CommonUIClient.init(context);
         return this;
     }
 }

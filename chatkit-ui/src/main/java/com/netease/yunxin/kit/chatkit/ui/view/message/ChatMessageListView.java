@@ -10,7 +10,6 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
-import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -22,13 +21,13 @@ import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.msg.model.AttachmentProgress;
 import com.netease.nimlib.sdk.msg.model.MsgPinOption;
 import com.netease.nimlib.sdk.team.model.Team;
+import com.netease.yunxin.kit.chatkit.ui.IChatFactory;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.view.interfaces.IMessageData;
 import com.netease.yunxin.kit.chatkit.ui.view.interfaces.IMessageItemClickListener;
 import com.netease.yunxin.kit.chatkit.ui.view.interfaces.IMessageLoadHandler;
 import com.netease.yunxin.kit.chatkit.ui.view.interfaces.IMessageReader;
 import com.netease.yunxin.kit.chatkit.ui.view.message.adapter.ChatMessageAdapter;
-import com.netease.yunxin.kit.chatkit.ui.view.message.viewholder.ChatBaseMessageViewHolder;
 import com.netease.yunxin.kit.chatkit.ui.view.popmenu.ChatActionFactory;
 import com.netease.yunxin.kit.chatkit.ui.view.popmenu.ChatPopMenuActionListener;
 import com.netease.yunxin.kit.common.utils.ScreenUtil;
@@ -56,8 +55,6 @@ public class ChatMessageListView extends RecyclerView implements IMessageData {
     private boolean hasMoreForwardMessages;
 
     private boolean hasMoreNewerMessages;
-
-    private ChatMessageViewHolderFactory viewHolderFactory;
 
     public ChatMessageListView(@NonNull Context context) {
         super(context);
@@ -109,19 +106,8 @@ public class ChatMessageListView extends RecyclerView implements IMessageData {
         layoutManager.setStackFromEnd(true);
         setLayoutManager(layoutManager);
         setItemAnimator(null);
-        messageAdapter = new ChatMessageAdapter(getViewHolderFactory());
+        messageAdapter = new ChatMessageAdapter();
         setAdapter(messageAdapter);
-    }
-
-    private ChatMessageViewHolderFactory getViewHolderFactory() {
-        if (viewHolderFactory != null) return viewHolderFactory;
-        return new ChatMessageViewHolderFactory() {
-            @Nullable
-            @Override
-            public ChatBaseMessageViewHolder getViewHolderCustom(@NonNull ViewGroup parent, int viewType) {
-                return null;
-            }
-        };
     }
 
     /**
@@ -129,11 +115,10 @@ public class ChatMessageListView extends RecyclerView implements IMessageData {
      *
      * @param viewHolderFactory your factory
      */
-    public void setViewHolderFactory(ChatMessageViewHolderFactory viewHolderFactory) {
+    public void setViewHolderFactory(IChatFactory viewHolderFactory) {
         if (viewHolderFactory == null) {
             return;
         }
-        this.viewHolderFactory = viewHolderFactory;
         if (messageAdapter != null) {
             messageAdapter.setViewHolderFactory(viewHolderFactory);
         }
@@ -329,9 +314,7 @@ public class ChatMessageListView extends RecyclerView implements IMessageData {
                 LinearLayoutManager layoutManager = (LinearLayoutManager) getLayoutManager();
                 int firstPosition = layoutManager.findFirstCompletelyVisibleItemPosition();
                 int lastPosition = layoutManager.findLastCompletelyVisibleItemPosition();
-                if (firstPosition == 0 &&
-                        ((lastPosition - firstPosition + 1) < messageAdapter.getItemCount())
-                        && hasMoreForwardMessages) {
+                if (firstPosition == 0 && hasMoreForwardMessages) {
                     loadHandler.loadMoreForward(messageAdapter.getFirstMessage());
                 } else if (isLastItemVisibleCompleted() && hasMoreNewerMessages) {
                     loadHandler.loadMoreBackground(messageAdapter.getlastMessage());

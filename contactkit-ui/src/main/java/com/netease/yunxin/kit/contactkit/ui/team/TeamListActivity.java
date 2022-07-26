@@ -17,7 +17,7 @@ import com.netease.yunxin.kit.contactkit.ui.R;
 import com.netease.yunxin.kit.contactkit.ui.activity.BaseListActivity;
 import com.netease.yunxin.kit.contactkit.ui.model.IViewTypeConstant;
 import com.netease.yunxin.kit.contactkit.ui.view.viewholder.BaseContactViewHolder;
-import com.netease.yunxin.kit.contactkit.ui.view.viewholder.ContactViewHolderFactory;
+import com.netease.yunxin.kit.contactkit.ui.view.ContactViewHolderFactory;
 import com.netease.yunxin.kit.contactkit.ui.view.viewholder.TeamListViewHolder;
 import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;

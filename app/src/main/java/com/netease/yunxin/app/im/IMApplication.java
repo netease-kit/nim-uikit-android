@@ -21,8 +21,7 @@ import com.netease.yunxin.app.im.push.PushMessageHandler;
 import com.netease.yunxin.app.im.utils.DataUtils;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.alog.BasicInfo;
-import com.netease.yunxin.kit.common.ui.CommonUIClient;
-import com.netease.yunxin.kit.corekit.im.XKitImClient;
+import com.netease.yunxin.kit.corekit.im.IMKitClient;
 import com.netease.yunxin.kit.corekit.im.repo.ConfigRepo;
 import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.im.utils.XKitImUtils;
@@ -50,7 +49,7 @@ public class IMApplication extends MultiDexApplication {
         initUIKit();
         initALog(this);
         // temp register for mine
-        XKitRouter.registerRouter(RouterConstant.PATH_MINE_USER_INFO, UserInfoActivity.class);
+        XKitRouter.registerRouter(RouterConstant.PATH_MINE_INFO_PAGE, UserInfoActivity.class);
         //set custom config for chat UI
         KitCustomConfig.initChatUICustom();
 
@@ -58,6 +57,7 @@ public class IMApplication extends MultiDexApplication {
         KitCustomConfig.initContactUICustom();
     }
 
+    //init log sdk
     private void initALog(Context context) {
         ALog.logFirst(new BasicInfo.Builder()
                 .packageName(context)
@@ -69,22 +69,25 @@ public class IMApplication extends MultiDexApplication {
     }
 
     private void initUIKit() {
-        XKitImClient.setContext(this);
+        //DataUtils.readAppKey(this) 从AndroidManifest配置中读取Appkey
         SDKOptions options = NimSDKOptionConfig.getSDKOptions(this, DataUtils.readAppKey(this));
-        XKitImClient.config(null,options);
+        IMKitClient.init(this,null,options);
+
+        //推送相关配置
         if (XKitImUtils.isMainProcess(this)) {
+            //huawei push
             ActivityMgr.INST.init(this);
+            //oppo push
             HeytapPushManager.init(this, true);
             try {
+                //vivo push
                 PushClient.getInstance(this).initialize();
             }catch (VivoPushException e){
 
             }
-            XKitImClient.toggleNotification(ConfigRepo.getMixNotification());
-            XKitImClient.registerMixPushMessageHandler(new PushMessageHandler());
+            IMKitClient.toggleNotification(ConfigRepo.getMixNotification());
+            IMKitClient.registerMixPushMessageHandler(new PushMessageHandler());
         }
-        //config ui
-        CommonUIClient.init(this);
     }
 
     private final List<Activity> activities = new ArrayList<>();

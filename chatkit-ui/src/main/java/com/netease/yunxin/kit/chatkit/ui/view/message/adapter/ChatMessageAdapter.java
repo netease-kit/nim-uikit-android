@@ -14,6 +14,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.netease.nimlib.sdk.msg.model.AttachmentProgress;
 import com.netease.nimlib.sdk.msg.model.MsgPinOption;
 import com.netease.nimlib.sdk.team.model.Team;
+import com.netease.yunxin.kit.chatkit.ui.ChatDefaultFactory;
+import com.netease.yunxin.kit.chatkit.ui.IChatFactory;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.view.interfaces.IMessageItemClickListener;
 import com.netease.yunxin.kit.chatkit.ui.view.interfaces.IMessageReader;
@@ -34,7 +36,7 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatBaseMessageView
     public static final String REVOKE_PAYLOAD = "messageRevoke";
     public static final String SIGNAL_PAYLOAD = "messageSignal";
 
-    ChatMessageViewHolderFactory viewHolderFactory;
+    IChatFactory viewHolderFactory;
 
     private IMessageItemClickListener itemClickListener;
 
@@ -46,8 +48,8 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatBaseMessageView
 
     private MessageProperties messageProperties;
 
-    public ChatMessageAdapter(ChatMessageViewHolderFactory viewHolderFactory) {
-        this.viewHolderFactory = viewHolderFactory;
+    public ChatMessageAdapter() {
+        viewHolderFactory = new ChatDefaultFactory();
     }
 
     private final List<ChatMessageBean> messageList = new ArrayList<>();
@@ -59,7 +61,7 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatBaseMessageView
     @NonNull
     @Override
     public ChatBaseMessageViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return viewHolderFactory.getViewHolder(parent, viewType);
+        return viewHolderFactory.createViewHolder(parent, viewType);
     }
 
     @Override
@@ -93,8 +95,10 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatBaseMessageView
         return messageList.size();
     }
 
-    public void setViewHolderFactory(ChatMessageViewHolderFactory viewHolderFactory) {
-        this.viewHolderFactory = viewHolderFactory;
+    public void setViewHolderFactory(IChatFactory factory) {
+        if (factory != null){
+            this.viewHolderFactory = factory;
+        }
     }
 
     public void setMessageReader(IMessageReader messageReader) {
@@ -128,9 +132,29 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatBaseMessageView
 
 
     public void appendMessages(List<ChatMessageBean> message) {
+        removeSameMessage(message);
         int pos = messageList.size();
         messageList.addAll(message);
         notifyItemRangeInserted(pos, message.size());
+    }
+
+    private void removeSameMessage(List<ChatMessageBean> message){
+        if (message == null || message.size() < 1){
+            return;
+        }
+        for (ChatMessageBean bean : message) {
+            int index = -1;
+            for (int j = 0; j < messageList.size(); j++) {
+                if (bean.isSameMessage(messageList.get(j))) {
+                    index = j;
+                    break;
+                }
+            }
+            if (index > -1) {
+                messageList.remove(index);
+                notifyItemRemoved(index);
+            }
+        }
     }
 
     public void appendMessage(ChatMessageBean message) {
@@ -213,6 +237,7 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatBaseMessageView
     }
 
     public void forwardMessages(List<ChatMessageBean> message) {
+        removeSameMessage(message);
         messageList.addAll(0, message);
         notifyItemRangeInserted(0, message.size());
     }
@@ -249,7 +274,7 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatBaseMessageView
     }
 
     public int searchMessagePosition(String messageId) {
-        for (int i = 0; i <  messageList.size() ; i++) {
+        for (int i = 0; i < messageList.size(); i++) {
             if (TextUtils.equals(messageId, messageList.get(i).getMessageData().getMessage().getUuid())) {
                 return i;
             }

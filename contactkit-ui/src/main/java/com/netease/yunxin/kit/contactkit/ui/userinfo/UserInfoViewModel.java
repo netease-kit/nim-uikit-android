@@ -27,7 +27,6 @@ public class UserInfoViewModel extends BaseViewModel {
 
     private final MutableLiveData<FetchResult<ContactUserInfoBean>> friendLiveData = new MutableLiveData<>();
     private final FetchResult<ContactUserInfoBean> fetchResult = new FetchResult<>(LoadStatus.Finish);
-    private final ContactRepo contactRepo = new ContactRepo();
 
     public MutableLiveData<FetchResult<ContactUserInfoBean>> getFetchResult() {
         return friendLiveData;
@@ -39,8 +38,8 @@ public class UserInfoViewModel extends BaseViewModel {
         }
         List<String> accountList = new ArrayList<>();
         accountList.add(account);
-        FriendInfo friendInfo = contactRepo.getFriendInfo(account);
-        contactRepo.fetchUserInfo(accountList, new FetchCallback<List<UserInfo>>() {
+        FriendInfo friendInfo = ContactRepo.getFriend(account);
+        ContactRepo.getUserInfo(accountList, new FetchCallback<List<UserInfo>>() {
             @Override
             public void onSuccess(@Nullable List<UserInfo> param) {
                 if (param != null && param.size() > 0) {
@@ -72,15 +71,15 @@ public class UserInfoViewModel extends BaseViewModel {
     }
 
     public boolean isBlack(String account){
-        return contactRepo.isBlack(account);
+        return ContactRepo.isBlackList(account);
     }
 
     public boolean isFriend(String account){
-        return contactRepo.isFriend(account);
+        return ContactRepo.isFriend(account);
     }
 
     public void addBlack(String account){
-        contactRepo.addBlacklist(account, new FetchCallback<Void>() {
+        ContactRepo.addBlacklist(account, new FetchCallback<Void>() {
             @Override
             public void onSuccess(@Nullable Void param) {
                 fetchData(account);
@@ -99,7 +98,7 @@ public class UserInfoViewModel extends BaseViewModel {
     }
 
     public void removeBlack(String account){
-        contactRepo.removeFromBlacklist(account, new FetchCallback<Void>() {
+        ContactRepo.removeBlacklist(account, new FetchCallback<Void>() {
             @Override
             public void onSuccess(@Nullable Void param) {
                 fetchData(account);
@@ -118,7 +117,7 @@ public class UserInfoViewModel extends BaseViewModel {
     }
 
     public void deleteFriend(String account){
-        contactRepo.deleteFriend(account, new FetchCallback<Void>() {
+        ContactRepo.deleteFriend(account, new FetchCallback<Void>() {
             @Override
             public void onSuccess(@Nullable Void param) {
                 fetchData(account);
@@ -137,11 +136,11 @@ public class UserInfoViewModel extends BaseViewModel {
     }
 
     public void addFriend(String account,FriendVerifyType type,FetchCallback<Void> callback){
-        contactRepo.addFriend(account, type,callback);
+        ContactRepo.addFriend(account, type,callback);
     }
 
     public void updateAlias(String account,String alias){
-        contactRepo.updateAlias(account,alias);
+        ContactRepo.updateAlias(account,alias);
     }
 
 }

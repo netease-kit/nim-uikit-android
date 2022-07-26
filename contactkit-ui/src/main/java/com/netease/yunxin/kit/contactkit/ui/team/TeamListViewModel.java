@@ -26,7 +26,6 @@ public class TeamListViewModel extends BaseViewModel {
     private final MutableLiveData<FetchResult<List<ContactTeamBean>>> resultLiveData = new MutableLiveData<>();
     private final FetchResult<List<ContactTeamBean>> fetchResult = new FetchResult<>(LoadStatus.Finish);
     private final List<ContactTeamBean> teamBeanList = new ArrayList<>();
-    private final ContactRepo contactRepo = new ContactRepo();
     private final Observer<List<Team>> teamUpdateObserver;
     private final Observer<Team> teamRemoveObserver;
 
@@ -37,14 +36,14 @@ public class TeamListViewModel extends BaseViewModel {
     public TeamListViewModel() {
         teamUpdateObserver = (teamList) -> updateTeamData(teamList);
         teamRemoveObserver = (team) -> removeTeamData(team);
-        contactRepo.registerTeamUpdateObserver(teamUpdateObserver, true);
-        contactRepo.registerTeamRemoveObserver(teamRemoveObserver, true);
+        ContactRepo.registerTeamUpdateObserver(teamUpdateObserver);
+        ContactRepo.registerTeamRemoveObserver(teamRemoveObserver);
     }
 
     public void fetchTeamList() {
         fetchResult.setStatus(LoadStatus.Loading);
         resultLiveData.postValue(fetchResult);
-        contactRepo.fetchMyTeamList(new FetchCallback<List<Team>>() {
+        ContactRepo.getTeamList(new FetchCallback<List<Team>>() {
             @Override
             public void onSuccess(List<Team> param) {
                 teamBeanList.clear();
@@ -126,8 +125,8 @@ public class TeamListViewModel extends BaseViewModel {
     @Override
     protected void onCleared() {
         super.onCleared();
-        contactRepo.registerTeamUpdateObserver(teamUpdateObserver, false);
-        contactRepo.registerTeamRemoveObserver(teamRemoveObserver, false);
+        ContactRepo.unregisterTeamUpdateObserver(teamUpdateObserver);
+        ContactRepo.unregisterTeamRemoveObserver(teamRemoveObserver);
 
     }
 }

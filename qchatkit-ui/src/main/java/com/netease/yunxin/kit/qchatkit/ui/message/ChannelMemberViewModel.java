@@ -212,7 +212,7 @@ public class ChannelMemberViewModel extends BaseViewModel {
             offset = lastRoleInfo.getCreateTime();
         }
         ALog.d(TAG, "loadMore");
-        fetchMemberData(channelId, serverId, offset);
+        fetchMemberData(serverId,channelId, offset);
     }
 
     private final EventObserver<List<QChatSystemNotificationInfo>> notificationObserver = new EventObserver<List<QChatSystemNotificationInfo>>() {

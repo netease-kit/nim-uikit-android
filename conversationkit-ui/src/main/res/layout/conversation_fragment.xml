@@ -13,7 +13,7 @@
     <com.netease.yunxin.kit.common.ui.widgets.TitleBarView
         android:id="@+id/conversation_title_bar"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/dimen_60_dp"
+        android:layout_height="@dimen/dimen_52_dp"
         app:head_img_visible="visible"
         app:head_title="@string/conversation_title"
         app:head_title_color="@color/color_black"
@@ -24,7 +24,7 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/dimen_1_dp"
         android:background="@color/color_e9eff5"
-        android:alpha="0.4"
+        android:alpha="0.6"
         app:layout_constraintTop_toBottomOf="@+id/conversation_title_bar"
         tools:ignore="MissingConstraints" />
 

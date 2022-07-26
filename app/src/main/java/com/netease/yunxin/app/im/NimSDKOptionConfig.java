@@ -13,7 +13,9 @@ import android.text.TextUtils;
 import com.netease.nimlib.sdk.NotificationFoldStyle;
 import com.netease.nimlib.sdk.SDKOptions;
 import com.netease.nimlib.sdk.StatusBarNotificationConfig;
+import com.netease.nimlib.sdk.StatusBarNotificationFilter;
 import com.netease.nimlib.sdk.mixpush.MixPushConfig;
+import com.netease.nimlib.sdk.msg.model.IMMessage;
 import com.netease.yunxin.app.im.main.MainActivity;
 import com.netease.yunxin.app.im.push.PushUserInfoProvider;
 import com.netease.yunxin.kit.common.utils.media.ImageUtil;
@@ -34,7 +36,7 @@ public class NimSDKOptionConfig {
     static SDKOptions getSDKOptions(Context context, String appKey) {
         SDKOptions options = new SDKOptions();
         options.appKey = appKey;
-        options.statusBarNotificationConfig = initStatusBarNotificationConfig();
+        initStatusBarNotificationConfig(options);
         options.sdkStorageRootPath = getAppCacheDir(context);
         options.preloadAttach = true;
         options.thumbnailSize = ImageUtil.getImageThumbMaxEdge();
@@ -55,22 +57,18 @@ public class NimSDKOptionConfig {
         return options;
     }
 
-    public static StatusBarNotificationConfig initStatusBarNotificationConfig() {
+    public static void initStatusBarNotificationConfig(SDKOptions options) {
         // load notification
         StatusBarNotificationConfig config = loadStatusBarNotificationConfig();
-        // load user StatusBarNotificationConfig
-        StatusBarNotificationConfig userConfig = ConfigRepo.getStatusBarNotificationConfig();
-        if (userConfig == null) {
-            userConfig = config;
-        } else {
-            userConfig.notificationEntrance = config.notificationEntrance;
-            userConfig.notificationFoldStyle = config.notificationFoldStyle;
-            userConfig.notificationColor = config.notificationColor;
-        }
-        // 持久化生效
-        ConfigRepo.localSaveStatusBarNotificationConfig(userConfig);
+        // load 用户的 StatusBarNotificationConfig 设置项
         // SDK statusBarNotificationConfig 生效
-        return userConfig;
+        config.notificationFilter = new StatusBarNotificationFilter() {
+            @Override
+            public FilterPolicy apply(IMMessage imMessage) {
+                return FilterPolicy.PERMIT;
+            }
+        };
+        options.statusBarNotificationConfig = config;
     }
 
     // config StatusBarNotificationConfig
@@ -110,30 +108,30 @@ public class NimSDKOptionConfig {
     private static MixPushConfig buildMixPushConfig() {
         MixPushConfig config = new MixPushConfig();
         // xiaomi
-        config.xmAppId = "xiao mi push app id"; //apply in xiaomi
-        config.xmAppKey = "xiao mi push app key";//apply in xiaomi
-        config.xmCertificateName = "Certificate Name";//config in yunxin platform
+//        config.xmAppId = "xiao mi push app id"; //apply in xiaomi
+//        config.xmAppKey = "xiao mi push app key";//apply in xiaomi
+//        config.xmCertificateName = "Certificate Name";//config in yunxin platform
 
         // huawei
-        config.hwAppId = "huawei app id";//apply in huawei
-        config.hwCertificateName = "Certificate Name";//config in yunxin platform
+//        config.hwAppId = "huawei app id";//apply in huawei
+//        config.hwCertificateName = "Certificate Name";//config in yunxin platform
 
         // meizu
-        config.mzAppId = "meizu push app id";//apply in meizu
-        config.mzAppKey = "meizu push app key";//apply in meizu
-        config.mzCertificateName = "Certificate Name";//config in yunxin platform
+//        config.mzAppId = "meizu push app id";//apply in meizu
+//        config.mzAppKey = "meizu push app key";//apply in meizu
+//        config.mzCertificateName = "Certificate Name";//config in yunxin platform
 
         // fcm
 //        config.fcmCertificateName = "DEMO_FCM_PUSH";
 
         // vivo
-        config.vivoCertificateName = "Certificate Name";//config in yunxin platform
+//        config.vivoCertificateName = "Certificate Name";//config in yunxin platform
 
         // oppo
-        config.oppoAppId = "oppo push app id";//apply in oppo
-        config.oppoAppKey = "oppo push app key";//apply in oppo
-        config.oppoAppSercet = "oppo push app secret"; //apply in oppo
-        config.oppoCertificateName = "Certificate Name";//config in yunxin platform
+//        config.oppoAppId = "oppo push app id";//apply in oppo
+//        config.oppoAppKey = "oppo push app key";//apply in oppo
+//        config.oppoAppSercet = "oppo push app secret"; //apply in oppo
+//        config.oppoCertificateName = "Certificate Name";//config in yunxin platform
         return config;
     }
 }

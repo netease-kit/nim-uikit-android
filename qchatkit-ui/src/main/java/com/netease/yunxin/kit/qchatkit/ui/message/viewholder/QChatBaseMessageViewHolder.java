@@ -12,19 +12,20 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.netease.nimlib.sdk.msg.constant.MsgStatusEnum;
 import com.netease.nimlib.sdk.uinfo.model.NimUserInfo;
-import com.netease.yunxin.kit.common.ui.message.MessageCommonBaseViewHolder;
 import com.netease.yunxin.kit.common.ui.utils.AvatarColor;
 import com.netease.yunxin.kit.common.ui.utils.TimeFormatUtils;
-import com.netease.yunxin.kit.corekit.im.XKitImClient;
+import com.netease.yunxin.kit.corekit.im.IMKitClient;
 import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 import com.netease.yunxin.kit.qchatkit.repo.QChatUserRepo;
 import com.netease.yunxin.kit.qchatkit.repo.model.QChatMessageInfo;
 import com.netease.yunxin.kit.qchatkit.ui.R;
 import com.netease.yunxin.kit.qchatkit.ui.common.QChatCallback;
+import com.netease.yunxin.kit.qchatkit.ui.databinding.QchatBaseMessageViewHolderBinding;
 import com.netease.yunxin.kit.qchatkit.ui.message.interfaces.IMessageOptionCallBack;
 import com.netease.yunxin.kit.qchatkit.ui.message.view.QChatMessageAdapter;
 
@@ -33,7 +34,7 @@ import java.util.List;
 /**
  * base  message view holder for qchat
  */
-public abstract class QChatBaseMessageViewHolder extends MessageCommonBaseViewHolder<QChatMessageInfo> {
+public abstract class QChatBaseMessageViewHolder extends RecyclerView.ViewHolder {
 
     private static final int SHOW_TIME_INTERVAL = 5 * 60 * 1000;
 
@@ -41,8 +42,11 @@ public abstract class QChatBaseMessageViewHolder extends MessageCommonBaseViewHo
 
     IMessageOptionCallBack optionCallBack;
 
-    public QChatBaseMessageViewHolder(@NonNull ViewGroup parent) {
-        super(parent);
+    public QchatBaseMessageViewHolderBinding baseViewBinding;
+
+    public QChatBaseMessageViewHolder(@NonNull QchatBaseMessageViewHolderBinding viewBiding) {
+        super(viewBiding.baseRoot);
+        baseViewBinding = viewBiding;
         addContainer();
     }
 
@@ -50,76 +54,88 @@ public abstract class QChatBaseMessageViewHolder extends MessageCommonBaseViewHo
         optionCallBack = callBack;
     }
 
-    @Override
     public void bindData(QChatMessageInfo data, @NonNull List<?> payload) {
         if (!payload.isEmpty() && TextUtils.equals(payload.get(0).toString(), QChatMessageAdapter.STATUS_PAYLOAD)) {
             setStatus(data);
         }
     }
 
-    @Override
     public void bindData(QChatMessageInfo data, QChatMessageInfo lastMessage) {
         String name = TextUtils.isEmpty(data.getFromNick()) ? data.getFromAccount() : data.getFromNick();
-        String myAccId = XKitImClient.account();
-        ConstraintLayout.LayoutParams layoutParams = (ConstraintLayout.LayoutParams) getMessageBody().getLayoutParams();
+        String myAccId = IMKitClient.account();
+        ConstraintLayout.LayoutParams layoutParams = (ConstraintLayout.LayoutParams) baseViewBinding.messageBody.getLayoutParams();
         isMine = TextUtils.equals(myAccId, data.getFromAccount());
         if (!isMine) {
-            getFromAvatar().setVisibility(View.VISIBLE);
+            baseViewBinding.fromAvatar.setVisibility(View.VISIBLE);
             QChatUserRepo.fetchUserAvatar(data.getFromAccount(), new QChatCallback<String>(itemView.getContext()) {
                 @Override
                 public void onSuccess(@Nullable String param) {
-                    getFromAvatar().setData(param, name, AvatarColor.avatarColor(data.getFromAccount()));
+                    baseViewBinding.fromAvatar.setData(param, name, AvatarColor.avatarColor(data.getFromAccount()));
                 }
             });
-            getMyAvatar().setVisibility(View.GONE);
-            getContainer().setBackgroundResource(R.drawable.chat_message_other_bg);
-            getMessageStatus().setVisibility(View.GONE);
+            baseViewBinding.avatarMine.setVisibility(View.GONE);
+            baseViewBinding.messageContainer.setBackgroundResource(R.drawable.chat_message_other_bg);
+            baseViewBinding.messageStatus.setVisibility(View.GONE);
             layoutParams.horizontalBias = 0f;
-            getFromAvatar().setOnClickListener(v ->{
-                XKitRouter.withKey(RouterConstant.PATH_USER_INFO_ACTIVITY)
+            baseViewBinding.fromAvatar.setOnClickListener(v ->{
+                XKitRouter.withKey(RouterConstant.PATH_USER_INFO_PAGE)
                         .withContext(v.getContext())
                         .withParam(RouterConstant.KEY_ACCOUNT_ID_KEY, data.getFromAccount())
                         .navigate();
             });
         } else {
-            getMyAvatar().setVisibility(View.VISIBLE);
-            NimUserInfo userInfo = XKitImClient.getUserInfo();
+            baseViewBinding.avatarMine.setVisibility(View.VISIBLE);
+            NimUserInfo userInfo = IMKitClient.getUserInfo();
             if (userInfo != null) {
                 String nickname = TextUtils.isEmpty(userInfo.getName()) ? userInfo.getAccount() : userInfo.getName();
-                getMyAvatar().setData(userInfo.getAvatar(), nickname, AvatarColor.avatarColor(userInfo.getAccount()));
+                baseViewBinding.avatarMine.setData(userInfo.getAvatar(), nickname, AvatarColor.avatarColor(userInfo.getAccount()));
             }
-            getFromAvatar().setVisibility(View.GONE);
+            baseViewBinding.fromAvatar.setVisibility(View.GONE);
             layoutParams.horizontalBias = 1f;
-            getContainer().setBackgroundResource(R.drawable.chat_message_self_bg);
-            getMessageStatus().setVisibility(View.VISIBLE);
+            baseViewBinding.messageContainer.setBackgroundResource(R.drawable.chat_message_self_bg);
+            baseViewBinding.messageStatus.setVisibility(View.VISIBLE);
             setStatus(data);
         }
         long createTime = data.getTime() == 0 ? System.currentTimeMillis() : data.getTime();
         if (lastMessage != null
                 && createTime - lastMessage.getTime() < SHOW_TIME_INTERVAL) {
-            getTvTime().setVisibility(View.INVISIBLE);
+            baseViewBinding.tvTime.setVisibility(View.INVISIBLE);
         } else {
-            getTvTime().setVisibility(View.VISIBLE);
-            getTvTime().setText(TimeFormatUtils.formatMillisecond(itemView.getContext(), createTime));
+            baseViewBinding.tvTime.setVisibility(View.VISIBLE);
+            baseViewBinding.tvTime.setText(TimeFormatUtils.formatMillisecond(itemView.getContext(), createTime));
         }
 
     }
 
     protected void setStatus(QChatMessageInfo data) {
         if (data.getSendMsgStatus() == MsgStatusEnum.sending) {
-            getMessageSending().setVisibility(View.VISIBLE);
-            getIvStatus().setVisibility(View.GONE);
+            baseViewBinding.messageSending.setVisibility(View.VISIBLE);
+            baseViewBinding.ivStatus.setVisibility(View.GONE);
         } else if ((data.getSendMsgStatus() == MsgStatusEnum.fail)) {
-            getIvStatus().setVisibility(View.VISIBLE);
-            getMessageSending().setVisibility(View.GONE);
-            getIvStatus().setOnClickListener(v -> {
+            baseViewBinding.ivStatus.setVisibility(View.VISIBLE);
+            baseViewBinding.messageSending.setVisibility(View.GONE);
+            baseViewBinding.ivStatus.setOnClickListener(v -> {
                 if (optionCallBack != null) {
                     optionCallBack.reSend(data);
                 }
             });
         } else {
-            getMessageSending().setVisibility(View.GONE);
-            getIvStatus().setVisibility(View.GONE);
+            baseViewBinding.messageSending.setVisibility(View.GONE);
+            baseViewBinding.ivStatus.setVisibility(View.GONE);
         }
     }
+
+    public ViewGroup getParent(){
+        return baseViewBinding.baseRoot;
+    }
+
+    public ViewGroup getContainer(){
+        return baseViewBinding.messageContainer;
+    }
+
+    public void addContainer(){}
+
+    public void onDetachedFromWindow() {}
+
+    public void onAttachedToWindow() {}
 }

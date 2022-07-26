@@ -18,7 +18,7 @@ public class ContactTeamBean extends BaseContactBean {
     public ContactTeamBean(Team data) {
         this.data = data;
         viewType = IViewTypeConstant.CONTACT_TEAM_LIST;
-        this.router = RouterConstant.PATH_CHAT_GROUP;
+        this.router = RouterConstant.PATH_CHAT_TEAM_PAGE;
     }
 
 

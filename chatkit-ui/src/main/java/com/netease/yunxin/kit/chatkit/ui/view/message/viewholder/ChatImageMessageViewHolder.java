@@ -13,6 +13,7 @@ import androidx.annotation.NonNull;
 import com.netease.nimlib.sdk.msg.attachment.ImageAttachment;
 import com.netease.nimlib.sdk.msg.constant.AttachStatusEnum;
 import com.netease.nimlib.sdk.msg.constant.MsgStatusEnum;
+import com.netease.yunxin.kit.chatkit.ui.databinding.ChatBaseMessageViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.common.utils.ScreenUtil;
 import com.netease.yunxin.kit.common.utils.media.BitmapDecoder;
@@ -22,7 +23,7 @@ import java.io.File;
 public class ChatImageMessageViewHolder extends ChatThumbBaseViewHolder {
     private final static String TAG = "ChatImageMessageViewHolder";
 
-    public ChatImageMessageViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public ChatImageMessageViewHolder(@NonNull ChatBaseMessageViewHolderBinding parent, int viewType) {
         super(parent, viewType);
     }
 

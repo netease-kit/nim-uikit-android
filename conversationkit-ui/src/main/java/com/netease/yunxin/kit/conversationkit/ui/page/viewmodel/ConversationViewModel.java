@@ -18,9 +18,11 @@ import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.conversationkit.model.ConversationInfo;
 import com.netease.yunxin.kit.conversationkit.repo.ConversationRepo;
+import com.netease.yunxin.kit.conversationkit.ui.IConversationFactory;
 import com.netease.yunxin.kit.conversationkit.ui.common.ConversationUtils;
 import com.netease.yunxin.kit.conversationkit.ui.model.ConversationBean;
 import com.netease.yunxin.kit.conversationkit.ui.common.XLog;
+import com.netease.yunxin.kit.conversationkit.ui.page.DefaultViewHolderFactory;
 import com.netease.yunxin.kit.corekit.im.model.EventObserver;
 import com.netease.yunxin.kit.corekit.im.model.FriendInfo;
 import com.netease.yunxin.kit.corekit.im.model.UserInfo;
@@ -50,19 +52,20 @@ public class ConversationViewModel extends BaseViewModel {
     private final MutableLiveData<FetchResult<MuteListChangedNotify>> muteInfoLiveData = new MutableLiveData<>();
 
     private Comparator<ConversationInfo> comparator;
+    private IConversationFactory conversationFactory = new DefaultViewHolderFactory();
     private final static int PAGE_LIMIT = 50;
     private boolean hasMore = true;
 
     public ConversationViewModel() {
         //register observer
-        ConversationRepo.INSTANCE.registerConversationChangedObserver(changeObserver, true);
-        ConversationRepo.INSTANCE.registerConversationDeleteObserver(deleteObserver, true);
-        ConversationRepo.INSTANCE.registerUserInfoObserver(userInfoObserver, true);
-        ConversationRepo.INSTANCE.registerFriendInfoObserver(friendObserver, true);
-        ConversationRepo.INSTANCE.registerTeamUpdateObserver(teamUpdateObserver, true);
-        ConversationRepo.INSTANCE.registerFriendMuteObserver(muteObserver, true);
-        ConversationRepo.INSTANCE.registerConversationAddStickObserver(addStickObserver, true);
-        ConversationRepo.INSTANCE.registerConversationRemoveStickObserver(removeStickObserver, true);
+        ConversationRepo.INSTANCE.registerSessionChangedObserver(changeObserver);
+        ConversationRepo.INSTANCE.registerSessionDeleteObserver(deleteObserver);
+        ConversationRepo.INSTANCE.registerUserInfoObserver(userInfoObserver);
+        ConversationRepo.INSTANCE.registerFriendObserver(friendObserver);
+        ConversationRepo.INSTANCE.registerTeamUpdateObserver(teamUpdateObserver );
+        ConversationRepo.INSTANCE.registerFriendMuteObserver(muteObserver );
+        ConversationRepo.INSTANCE.registerAddStickTopObserver(addStickObserver);
+        ConversationRepo.INSTANCE.registerRemoveStickTopObserver(removeStickObserver );
     }
 
     /**
@@ -70,6 +73,13 @@ public class ConversationViewModel extends BaseViewModel {
      */
     public void setComparator(Comparator<ConversationInfo> comparator) {
         this.comparator = comparator;
+    }
+
+    /**
+     * comparator to sort conversation list
+     */
+    public void setConversationFactory(IConversationFactory factory) {
+        this.conversationFactory = factory;
     }
 
     /**
@@ -143,7 +153,7 @@ public class ConversationViewModel extends BaseViewModel {
     }
 
     private void queryConversation(ConversationInfo data) {
-        ConversationRepo.INSTANCE.queryConversationListWithComparator(data, PAGE_LIMIT, comparator, new FetchCallback<List<ConversationInfo>>() {
+        ConversationRepo.INSTANCE.getSessionList(data, PAGE_LIMIT, comparator, new FetchCallback<List<ConversationInfo>>() {
             @Override
             public void onSuccess(@Nullable List<ConversationInfo> param) {
                 FetchResult<List<ConversationBean>> result = new FetchResult<>(LoadStatus.Success);
@@ -152,7 +162,7 @@ public class ConversationViewModel extends BaseViewModel {
                 }
                 List<ConversationBean> resultData = new ArrayList<>();
                 for (int index = 0; param != null && index < param.size(); index++) {
-                    resultData.add(new ConversationBean(param.get(index)));
+                    resultData.add(conversationFactory.CreateBean(param.get(index)));
                     XLog.d(TAG, "queryConversation:onSuccess", param.get(index).getContactId());
                 }
                 hasMore = param != null && param.size() == PAGE_LIMIT;
@@ -172,7 +182,7 @@ public class ConversationViewModel extends BaseViewModel {
     }
 
     public void deleteConversation(ConversationBean data) {
-        ConversationRepo.INSTANCE.deleteConversation(data.infoData.getContactId(), data.infoData.getSessionType(), DeleteTypeEnum.LOCAL_AND_REMOTE, true, new FetchCallback<Void>() {
+        ConversationRepo.INSTANCE.deleteSession(data.infoData.getContactId(), data.infoData.getSessionType(), DeleteTypeEnum.LOCAL_AND_REMOTE, true, new FetchCallback<Void>() {
             @Override
             public void onSuccess(@Nullable Void param) {
                 XLog.d(TAG, "deleteConversation:onSuccess", data.infoData.getContactId());
@@ -254,7 +264,7 @@ public class ConversationViewModel extends BaseViewModel {
     };
 
     private final Observer<StickTopSessionInfo> removeStickObserver = param -> {
-        XLog.d(TAG, "deleteObserver:onSuccess", param.getSessionId());
+        XLog.d(TAG, "removeStickObserver:onSuccess", param.getSessionId());
         FetchResult<String> result = new FetchResult<>(LoadStatus.Finish);
         result.setFetchType(FetchResult.FetchType.Remove);
         result.setData(param.getSessionId());
@@ -270,13 +280,13 @@ public class ConversationViewModel extends BaseViewModel {
                 for (int index = 0; index < param.size(); index++) {
                     ConversationInfo conversationInfo = param.get(index);
                     if (ConversationUtils.isMineLeave(conversationInfo)) {
-                        deleteConversation(new ConversationBean(param.get(index)));
+                        deleteConversation(conversationFactory.CreateBean(param.get(index)));
                         XLog.d(TAG, "changeObserver:onSuccess:DismissTeam", param.get(index).getContactId());
                         continue;
                     } else {
-                        resultData.add(new ConversationBean(param.get(index)));
+                        resultData.add(conversationFactory.CreateBean(param.get(index)));
                     }
-                    resultData.add(new ConversationBean(param.get(index)));
+                    resultData.add(conversationFactory.CreateBean(param.get(index)));
                     XLog.d(TAG, "changeObserver:onSuccess:update", param.get(index).getContactId());
                 }
                 result.setData(resultData);
@@ -294,7 +304,7 @@ public class ConversationViewModel extends BaseViewModel {
             result.setFetchType(FetchResult.FetchType.Remove);
             List<ConversationBean> beanList = new ArrayList<>();
             if (param != null) {
-                beanList.add(new ConversationBean(param));
+                beanList.add(conversationFactory.CreateBean(param));
             }
             result.setData(beanList);
             changeLiveData.setValue(result);
@@ -313,7 +323,7 @@ public class ConversationViewModel extends BaseViewModel {
         XLog.d(TAG, "friendObserver", "userList:" + accountList.size());
         if (friendChangeType == FriendChangeType.Update) {
             FetchResult<List<FriendInfo>> result = new FetchResult<>(LoadStatus.Success);
-            result.setData(ConversationRepo.INSTANCE.getFriendInfoList(accountList));
+            result.setData(ConversationRepo.INSTANCE.getFriendList(accountList));
             friendInfoLiveData.setValue(result);
         }
     };
@@ -343,14 +353,14 @@ public class ConversationViewModel extends BaseViewModel {
     @Override
     protected void onCleared() {
         super.onCleared();
-        ConversationRepo.INSTANCE.registerConversationDeleteObserver(deleteObserver, false);
-        ConversationRepo.INSTANCE.registerConversationChangedObserver(changeObserver, false);
-        ConversationRepo.INSTANCE.registerUserInfoObserver(userInfoObserver, false);
-        ConversationRepo.INSTANCE.registerFriendInfoObserver(friendObserver, false);
-        ConversationRepo.INSTANCE.registerTeamUpdateObserver(teamUpdateObserver, false);
-        ConversationRepo.INSTANCE.registerFriendMuteObserver(muteObserver, false);
-        ConversationRepo.INSTANCE.registerConversationAddStickObserver(addStickObserver, false);
-        ConversationRepo.INSTANCE.registerConversationRemoveStickObserver(removeStickObserver, false);
+        ConversationRepo.INSTANCE.unregisterSessionDeleteObserver(deleteObserver);
+        ConversationRepo.INSTANCE.unregisterSessionChangedObserver(changeObserver);
+        ConversationRepo.INSTANCE.unregisterUserInfoObserver(userInfoObserver);
+        ConversationRepo.INSTANCE.unregisterFriendObserver(friendObserver);
+        ConversationRepo.INSTANCE.unregisterTeamUpdateObserver(teamUpdateObserver);
+        ConversationRepo.INSTANCE.unregisterFriendMuteObserver(muteObserver);
+        ConversationRepo.INSTANCE.unregisterAddStickTopObserver(addStickObserver);
+        ConversationRepo.INSTANCE.unregisterRemoveStickTopObserver(removeStickObserver);
     }
 }
 

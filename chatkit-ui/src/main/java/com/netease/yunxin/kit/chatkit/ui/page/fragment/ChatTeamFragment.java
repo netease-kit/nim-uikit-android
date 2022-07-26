@@ -6,7 +6,7 @@
 package com.netease.yunxin.kit.chatkit.ui.page.fragment;
 
 import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.KEY_TEAM_ID;
-import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.PATH_TEAM_SETTING;
+import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.PATH_TEAM_SETTING_PAGE;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -24,7 +24,7 @@ import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.page.viewmodel.ChatTeamViewModel;
 import com.netease.yunxin.kit.chatkit.ui.view.ait.AitManager;
-import com.netease.yunxin.kit.corekit.im.XKitImClient;
+import com.netease.yunxin.kit.corekit.im.IMKitClient;
 import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 
@@ -52,13 +52,13 @@ public class ChatTeamFragment extends ChatBaseFragment {
                 .setActionImg(R.drawable.ic_more_point)
                 .setActionListener(v -> {
                     //go to team setting
-                    XKitRouter.withKey(PATH_TEAM_SETTING)
+                    XKitRouter.withKey(PATH_TEAM_SETTING_PAGE)
                             .withContext(requireContext())
                             .withParam(KEY_TEAM_ID, teamInfo.getId())
                             .navigate();
                 });
         binding.chatView.getInputView().updateInputInfo(teamInfo.getName());
-        if (!TextUtils.equals(teamInfo.getCreator(), XKitImClient.account())) {
+        if (!TextUtils.equals(teamInfo.getCreator(), IMKitClient.account())) {
             binding.chatView.getInputView().setMute(teamInfo.isAllMute());
         }
         binding.chatView.getMessageListView().updateTeamInfo(teamInfo);
@@ -112,7 +112,7 @@ public class ChatTeamFragment extends ChatBaseFragment {
                 }
                 binding.chatView.getTitleBar().setTitle(team.getName());
                 binding.chatView.getMessageListView().updateTeamInfo(teamInfo);
-                if (!TextUtils.equals(team.getCreator(), XKitImClient.account())) {
+                if (!TextUtils.equals(team.getCreator(), IMKitClient.account())) {
                     binding.chatView.getInputView().setMute(teamInfo.isAllMute());
                 }
             }

@@ -14,7 +14,7 @@ import com.netease.nimlib.sdk.msg.model.StickTopSessionInfo;
 import com.netease.nimlib.sdk.team.constant.TeamInviteModeEnum;
 import com.netease.nimlib.sdk.team.constant.TeamUpdateModeEnum;
 import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
-import com.netease.yunxin.kit.corekit.im.XKitImClient;
+import com.netease.yunxin.kit.corekit.im.IMKitClient;
 import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
 import com.netease.yunxin.kit.corekit.model.ErrorMsg;
 import com.netease.yunxin.kit.corekit.model.ResultInfo;
@@ -43,7 +43,7 @@ public class TeamSettingViewModel extends BaseViewModel {
     private final MutableLiveData<ResultInfo<Boolean>> muteTeamAllMemberData = new MutableLiveData<>();
 
     public void requestTeamData(String teamId) {
-        TeamRepo.queryTeamWithMember(teamId, Objects.requireNonNull(XKitImClient.account()), new FetchCallback<TeamWithCurrentMember>() {
+        TeamRepo.queryTeamWithMember(teamId, Objects.requireNonNull(IMKitClient.account()), new FetchCallback<TeamWithCurrentMember>() {
             @Override
             public void onSuccess(@Nullable TeamWithCurrentMember param) {
                 teamWithMemberData.postValue(new ResultInfo<>(param));
@@ -62,7 +62,7 @@ public class TeamSettingViewModel extends BaseViewModel {
     }
 
     public void requestTeamMembers(String teamId) {
-        TeamRepo.queryMemberWithBasicInfoList(teamId, new FetchCallback<List<UserInfoWithTeam>>() {
+        TeamRepo.getMemberList(teamId, new FetchCallback<List<UserInfoWithTeam>>() {
             @Override
             public void onSuccess(@Nullable List<UserInfoWithTeam> param) {
                 userInfoData.postValue(new ResultInfo<>(param));
@@ -81,7 +81,7 @@ public class TeamSettingViewModel extends BaseViewModel {
     }
 
     public void updateName(String teamId, String name) {
-        TeamRepo.updateName(teamId, name, new FetchCallback<Void>() {
+        TeamRepo.updateTeamName(teamId, name, new FetchCallback<Void>() {
             @Override
             public void onSuccess(@Nullable Void param) {
                 nameData.postValue(new ResultInfo<>(name));
@@ -100,7 +100,7 @@ public class TeamSettingViewModel extends BaseViewModel {
     }
 
     public void updateIntroduce(String teamId, String introduce) {
-        TeamRepo.updateIntroduce(teamId, introduce, new FetchCallback<Void>() {
+        TeamRepo.updateTeamIntroduce(teamId, introduce, new FetchCallback<Void>() {
             @Override
             public void onSuccess(@Nullable Void param) {
                 introduceData.postValue(new ResultInfo<>(introduce));
@@ -119,7 +119,7 @@ public class TeamSettingViewModel extends BaseViewModel {
     }
 
     public void updateNickname(String teamId, String nickname) {
-        TeamRepo.updateMemberNick(teamId, Objects.requireNonNull(XKitImClient.account()), nickname, new FetchCallback<Void>() {
+        TeamRepo.updateMemberNick(teamId, Objects.requireNonNull(IMKitClient.account()), nickname, new FetchCallback<Void>() {
             @Override
             public void onSuccess(@Nullable Void param) {
                 nicknameData.postValue(new ResultInfo<>(nickname));
@@ -138,7 +138,7 @@ public class TeamSettingViewModel extends BaseViewModel {
     }
 
     public void updateIcon(String teamId, String iconUrl) {
-        TeamRepo.updateIcon(teamId, iconUrl, new FetchCallback<Void>() {
+        TeamRepo.updateTeamIcon(teamId, iconUrl, new FetchCallback<Void>() {
             @Override
             public void onSuccess(@Nullable Void param) {
                 iconData.postValue(new ResultInfo<>(iconUrl));
@@ -195,7 +195,7 @@ public class TeamSettingViewModel extends BaseViewModel {
     }
 
     public void muteTeam(String teamId, boolean mute) {
-        TeamRepo.muteTeam(teamId, mute, new FetchCallback<Void>() {
+        TeamRepo.updateTeamNotify(teamId, mute, new FetchCallback<Void>() {
             @Override
             public void onSuccess(@Nullable Void param) {
                 muteTeamData.postValue(new ResultInfo<>(mute));
@@ -217,7 +217,7 @@ public class TeamSettingViewModel extends BaseViewModel {
         if (TextUtils.isEmpty(sessionId)) {
             return false;
         }
-        return TeamRepo.isStick(sessionId);
+        return TeamRepo.isStickTop(sessionId);
     }
 
     public void configStick(String sessionId, boolean stick) {
@@ -226,11 +226,11 @@ public class TeamSettingViewModel extends BaseViewModel {
             return;
         }
         if (stick) {
-            TeamRepo.addStick(sessionId, new FetchCallback<StickTopSessionInfo>() {
+            TeamRepo.addStickTop(sessionId, new FetchCallback<StickTopSessionInfo>() {
                 @Override
                 public void onSuccess(@Nullable StickTopSessionInfo param) {
                     stickData.postValue(new ResultInfo<>(true));
-                    TeamRepo.notifyStickNotify(sessionId);
+                    TeamRepo.notifyStickTop(sessionId);
                 }
 
                 @Override
@@ -244,11 +244,11 @@ public class TeamSettingViewModel extends BaseViewModel {
                 }
             });
         } else {
-            TeamRepo.removeStick(sessionId, new FetchCallback<Void>() {
+            TeamRepo.removeStickTop(sessionId, new FetchCallback<Void>() {
                 @Override
                 public void onSuccess(@Nullable Void param) {
                     stickData.postValue(new ResultInfo<>(false));
-                    TeamRepo.notifyStickNotify(sessionId);
+                    TeamRepo.notifyStickTop(sessionId);
                 }
 
                 @Override
@@ -265,7 +265,7 @@ public class TeamSettingViewModel extends BaseViewModel {
     }
 
     public void addMembers(String teamId, List<String> members) {
-        TeamRepo.addMembers(teamId, members, new FetchCallback<List<String>>() {
+        TeamRepo.inviteUser(teamId, members, new FetchCallback<List<String>>() {
             @Override
             public void onSuccess(@Nullable List<String> param) {
                 addMembersData.postValue(new ResultInfo<>(param));
@@ -284,7 +284,7 @@ public class TeamSettingViewModel extends BaseViewModel {
     }
 
     public void muteTeamAllMember(String teamId, boolean mute) {
-        TeamRepo.muteTeamAllMember(teamId, mute, new FetchCallback<Void>() {
+        TeamRepo.muteAllMembers(teamId, mute, new FetchCallback<Void>() {
             @Override
             public void onSuccess(@Nullable Void param) {
                 muteTeamAllMemberData.postValue(new ResultInfo<>(mute));
@@ -322,7 +322,7 @@ public class TeamSettingViewModel extends BaseViewModel {
     }
 
     public void updateInvitePrivilege(String teamId, int type) {
-        TeamRepo.updateInvitePrivilege(teamId, TeamInviteModeEnum.typeOfValue(type), new FetchCallback<Void>() {
+        TeamRepo.updateInviteMode(teamId, TeamInviteModeEnum.typeOfValue(type), new FetchCallback<Void>() {
             @Override
             public void onSuccess(@Nullable Void param) {
                 updateInvitePrivilegeData.postValue(new ResultInfo<>(type));
@@ -341,7 +341,7 @@ public class TeamSettingViewModel extends BaseViewModel {
     }
 
     public void updateInfoPrivilege(String teamId, int type) {
-        TeamRepo.updateInfoPrivilege(teamId, TeamUpdateModeEnum.typeOfValue(type), new FetchCallback<Void>() {
+        TeamRepo.updateTeamInfoPrivilege(teamId, TeamUpdateModeEnum.typeOfValue(type), new FetchCallback<Void>() {
             @Override
             public void onSuccess(@Nullable Void param) {
                 updateInfoPrivilegeData.postValue(new ResultInfo<>(type));

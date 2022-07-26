@@ -16,11 +16,12 @@ import com.netease.nimlib.sdk.team.constant.TeamMessageNotifyTypeEnum;
 import com.netease.nimlib.sdk.team.model.Team;
 import com.netease.yunxin.kit.common.ui.viewholder.BaseViewHolder;
 import com.netease.yunxin.kit.conversationkit.model.ConversationInfo;
+import com.netease.yunxin.kit.conversationkit.ui.IConversationFactory;
 import com.netease.yunxin.kit.conversationkit.ui.common.XLog;
-import com.netease.yunxin.kit.common.ui.viewholder.IViewHolderFactory;
 import com.netease.yunxin.kit.common.ui.viewholder.ViewHolderClickListener;
 import com.netease.yunxin.kit.conversationkit.ui.model.ConversationBean;
 import com.netease.yunxin.kit.conversationkit.ui.common.DataUtils;
+import com.netease.yunxin.kit.conversationkit.ui.page.DefaultViewHolderFactory;
 import com.netease.yunxin.kit.corekit.im.model.FriendInfo;
 import com.netease.yunxin.kit.corekit.im.model.UserInfo;
 
@@ -35,7 +36,7 @@ import java.util.Map;
 public class ConversationAdapter extends RecyclerView.Adapter<BaseViewHolder> {
 
     private final String TAG = "ConversationAdapter";
-    private IViewHolderFactory viewHolderFactory;
+    private IConversationFactory viewHolderFactory = new DefaultViewHolderFactory();
     private final List<ConversationBean> conversationList = new ArrayList<>();
     private Comparator<ConversationInfo> dataComparator;
     private ViewHolderClickListener clickListener;
@@ -88,7 +89,7 @@ public class ConversationAdapter extends RecyclerView.Adapter<BaseViewHolder> {
         if (removeIndex > -1) {
             conversationList.remove(removeIndex);
             int insertIndex = searchComparatorIndex(data);
-            XLog.d(TAG, "update", "insertIndex:" + insertIndex + "unread:"+data.infoData.getUnreadCount());
+            XLog.d(TAG, "update", "insertIndex:" + insertIndex + "unread:" + data.infoData.getUnreadCount());
             conversationList.add(insertIndex, data);
             notifyItemMoved(removeIndex, insertIndex);
             notifyItemChanged(insertIndex);
@@ -100,11 +101,11 @@ public class ConversationAdapter extends RecyclerView.Adapter<BaseViewHolder> {
     }
 
     public void updateUserInfo(List<UserInfo> data) {
-        Map<String,UserInfo> accountMap = DataUtils.getUserInfoMap(data);
-        if (accountMap != null){
+        Map<String, UserInfo> accountMap = DataUtils.getUserInfoMap(data);
+        if (accountMap != null) {
             for (int i = 0; i < conversationList.size(); i++) {
                 UserInfo info = conversationList.get(i).infoData.getUserInfo();
-                if ( info != null && accountMap.containsKey(info.getAccount())){
+                if (info != null && accountMap.containsKey(info.getAccount())) {
                     conversationList.get(i).infoData.setUserInfo(accountMap.get(info.getAccount()));
                     notifyItemChanged(i);
                 }
@@ -113,11 +114,11 @@ public class ConversationAdapter extends RecyclerView.Adapter<BaseViewHolder> {
     }
 
     public void updateFriendInfo(List<FriendInfo> data) {
-        Map<String,FriendInfo> accountMap = DataUtils.getFriendInfoMap(data);
-        if (accountMap != null){
+        Map<String, FriendInfo> accountMap = DataUtils.getFriendInfoMap(data);
+        if (accountMap != null) {
             for (int i = 0; i < conversationList.size(); i++) {
                 UserInfo info = conversationList.get(i).infoData.getUserInfo();
-                if ( info != null && accountMap.containsKey(info.getAccount())){
+                if (info != null && accountMap.containsKey(info.getAccount())) {
                     conversationList.get(i).infoData.setFriendInfo(accountMap.get(info.getAccount()));
                     notifyItemChanged(i);
                 }
@@ -126,15 +127,15 @@ public class ConversationAdapter extends RecyclerView.Adapter<BaseViewHolder> {
     }
 
     public void updateTeamInfo(List<Team> data) {
-        Map<String,Team> accountMap = DataUtils.getTeamInfoMap(data);
-        if (accountMap != null){
+        Map<String, Team> accountMap = DataUtils.getTeamInfoMap(data);
+        if (accountMap != null) {
             for (int i = 0; i < conversationList.size(); i++) {
                 ConversationInfo info = conversationList.get(i).infoData;
-                if ( info != null && info.getTeamInfo() != null &&
-                        accountMap.containsKey(info.getTeamInfo().getId())){
+                if (info != null && info.getTeamInfo() != null &&
+                        accountMap.containsKey(info.getTeamInfo().getId())) {
                     Team team = accountMap.get(info.getTeamInfo().getId());
                     info.setTeamInfo(team);
-                    if(team != null && team.getMessageNotifyType() != null) {
+                    if (team != null && team.getMessageNotifyType() != null) {
                         info.setMute(team.getMessageNotifyType() == TeamMessageNotifyTypeEnum.Mute);
                     }
                     notifyItemChanged(i);
@@ -144,10 +145,10 @@ public class ConversationAdapter extends RecyclerView.Adapter<BaseViewHolder> {
     }
 
     public void updateMuteInfo(MuteListChangedNotify data) {
-        if (data != null){
+        if (data != null) {
             for (int i = 0; i < conversationList.size(); i++) {
                 String contactId = conversationList.get(i).infoData.getContactId();
-                if (TextUtils.equals(contactId,data.getAccount())){
+                if (TextUtils.equals(contactId, data.getAccount())) {
                     conversationList.get(i).infoData.setMute(data.isMute());
                     notifyItemChanged(i);
                 }
@@ -158,7 +159,7 @@ public class ConversationAdapter extends RecyclerView.Adapter<BaseViewHolder> {
     private int searchComparatorIndex(ConversationBean data) {
         int index = conversationList.size();
         // add stick must be insert 0
-        if (data.infoData.isStickTop()){
+        if (data.infoData.isStickTop()) {
             return 0;
         }
         for (int i = 0; i < conversationList.size(); i++) {
@@ -189,15 +190,15 @@ public class ConversationAdapter extends RecyclerView.Adapter<BaseViewHolder> {
         }
     }
 
-    public void removeAll(){
+    public void removeAll() {
         conversationList.clear();
         notifyDataSetChanged();
     }
 
-    public void removeData(String id){
+    public void removeData(String id) {
         int index = -1;
         for (int j = 0; j < conversationList.size(); j++) {
-            if (TextUtils.equals(conversationList.get(j).infoData.getContactId(),id)) {
+            if (TextUtils.equals(conversationList.get(j).infoData.getContactId(), id)) {
                 index = j;
                 break;
             }
@@ -214,10 +215,10 @@ public class ConversationAdapter extends RecyclerView.Adapter<BaseViewHolder> {
         }
     }
 
-    public void addStickTop(String id){
+    public void addStickTop(String id) {
         int index = -1;
         for (int j = 0; j < conversationList.size(); j++) {
-            if (TextUtils.equals(conversationList.get(j).infoData.getContactId(),id)) {
+            if (TextUtils.equals(conversationList.get(j).infoData.getContactId(), id)) {
                 index = j;
                 break;
             }
@@ -225,16 +226,16 @@ public class ConversationAdapter extends RecyclerView.Adapter<BaseViewHolder> {
         if (index > -1) {
             conversationList.get(index).infoData.setStickTop(true);
             ConversationBean data = conversationList.remove(index);
-            conversationList.add(0,data);
+            conversationList.add(0, data);
             notifyItemMoved(index, 0);
             notifyItemChanged(0);
         }
     }
 
-    public void removeStickTop(String id){
+    public void removeStickTop(String id) {
         int index = -1;
         for (int j = 0; j < conversationList.size(); j++) {
-            if (TextUtils.equals(conversationList.get(j).infoData.getContactId(),id)) {
+            if (TextUtils.equals(conversationList.get(j).infoData.getContactId(), id)) {
                 index = j;
                 break;
             }
@@ -243,13 +244,13 @@ public class ConversationAdapter extends RecyclerView.Adapter<BaseViewHolder> {
             ConversationBean data = conversationList.remove(index);
             data.infoData.setStickTop(false);
             int insertIndex = searchComparatorIndex(data);
-            conversationList.add(insertIndex,data);
+            conversationList.add(insertIndex, data);
             notifyItemMoved(index, insertIndex);
             notifyItemChanged(insertIndex);
         }
     }
 
-    public void setViewHolderFactory(IViewHolderFactory factory) {
+    public void setViewHolderFactory(IConversationFactory factory) {
         this.viewHolderFactory = factory;
     }
 
@@ -279,7 +280,7 @@ public class ConversationAdapter extends RecyclerView.Adapter<BaseViewHolder> {
 
     @Override
     public int getItemViewType(int position) {
-        return conversationList.get(position).viewType;
+        return viewHolderFactory.getItemViewType(conversationList.get(position));
     }
 
     @Override
@@ -287,8 +288,8 @@ public class ConversationAdapter extends RecyclerView.Adapter<BaseViewHolder> {
         return conversationList.size();
     }
 
-    public ConversationBean getData(int index){
-        if (index >= 0 && index < conversationList.size()){
+    public ConversationBean getData(int index) {
+        if (index >= 0 && index < conversationList.size()) {
             return conversationList.get(index);
         }
         return null;

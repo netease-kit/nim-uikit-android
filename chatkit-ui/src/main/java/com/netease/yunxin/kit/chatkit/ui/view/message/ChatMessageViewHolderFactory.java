@@ -6,22 +6,20 @@
 package com.netease.yunxin.kit.chatkit.ui.view.message;
 
 
-import static com.netease.yunxin.kit.chatkit.ui.ChatMessageType.CUSTOM_MESSAGE_VIEW_TYPE_STICKER;
 import static com.netease.yunxin.kit.chatkit.ui.ChatMessageType.NORMAL_MESSAGE_VIEW_TYPE_AUDIO;
 import static com.netease.yunxin.kit.chatkit.ui.ChatMessageType.NORMAL_MESSAGE_VIEW_TYPE_IMAGE;
 import static com.netease.yunxin.kit.chatkit.ui.ChatMessageType.NORMAL_MESSAGE_VIEW_TYPE_VIDEO;
 import static com.netease.yunxin.kit.chatkit.ui.ChatMessageType.NOTICE_MESSAGE_VIEW_TYPE;
 import static com.netease.yunxin.kit.chatkit.ui.ChatMessageType.TIP_MESSAGE_VIEW_TYPE;
 
+import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
-import com.netease.yunxin.kit.chatkit.ui.custom.ChatStickerViewHolder;
-import com.netease.yunxin.kit.chatkit.ui.custom.CustomAttachment;
-import com.netease.yunxin.kit.chatkit.ui.custom.CustomAttachmentType;
+import com.netease.yunxin.kit.chatkit.ui.IChatFactory;
+import com.netease.yunxin.kit.chatkit.ui.databinding.ChatBaseMessageViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.view.message.viewholder.ChatAudioMessageViewHolder;
 import com.netease.yunxin.kit.chatkit.ui.view.message.viewholder.ChatBaseMessageViewHolder;
@@ -34,11 +32,12 @@ import com.netease.yunxin.kit.chatkit.ui.view.message.viewholder.ChatVideoMessag
 /**
  * product view holder by type
  */
-public abstract class ChatMessageViewHolderFactory {
+public abstract class ChatMessageViewHolderFactory implements IChatFactory {
 
-    public ChatBaseMessageViewHolder getViewHolder(@NonNull ViewGroup parent, int viewType) {
+    @Override
+    public ChatBaseMessageViewHolder createViewHolder(@NonNull ViewGroup parent, int viewType) {
 
-        ChatBaseMessageViewHolder viewHolder = getViewHolderCustom(parent, viewType);
+        ChatBaseMessageViewHolder viewHolder = createViewHolderCustom(parent, viewType);
         if (viewHolder == null) {
             viewHolder = getViewHolderDefault(parent, viewType);
         }
@@ -46,40 +45,38 @@ public abstract class ChatMessageViewHolderFactory {
     }
 
     public abstract @Nullable
-    ChatBaseMessageViewHolder getViewHolderCustom(@NonNull ViewGroup parent, int viewType);
+    ChatBaseMessageViewHolder createViewHolderCustom(@NonNull ViewGroup parent, int viewType);
 
     private ChatBaseMessageViewHolder getViewHolderDefault(@NonNull ViewGroup parent, int viewType) {
 
         ChatBaseMessageViewHolder viewHolder;
+        ChatBaseMessageViewHolderBinding viewHolderBinding = ChatBaseMessageViewHolderBinding.inflate(LayoutInflater.from(parent.getContext()),parent,false);
         if (viewType == NORMAL_MESSAGE_VIEW_TYPE_AUDIO) {
-            viewHolder = new ChatAudioMessageViewHolder(parent, viewType);
+            viewHolder = new ChatAudioMessageViewHolder(viewHolderBinding, viewType);
         } else if (viewType == NORMAL_MESSAGE_VIEW_TYPE_IMAGE) {
-            viewHolder = new ChatImageMessageViewHolder(parent, viewType);
+            viewHolder = new ChatImageMessageViewHolder(viewHolderBinding, viewType);
         } else if (viewType == NORMAL_MESSAGE_VIEW_TYPE_VIDEO) {
-            viewHolder = new ChatVideoMessageViewHolder(parent, viewType);
+            viewHolder = new ChatVideoMessageViewHolder(viewHolderBinding, viewType);
         } else if (viewType == NOTICE_MESSAGE_VIEW_TYPE) {
-            viewHolder = new ChatNotificationMessageViewHolder(parent, viewType);
+            viewHolder = new ChatNotificationMessageViewHolder(viewHolderBinding, viewType);
         } else if (viewType == TIP_MESSAGE_VIEW_TYPE) {
-            viewHolder = new ChatTipsMessageViewHolder(parent, viewType);
-        } else if (viewType == CUSTOM_MESSAGE_VIEW_TYPE_STICKER) {
-            viewHolder = new ChatStickerViewHolder(parent, viewType);
+            viewHolder = new ChatTipsMessageViewHolder(viewHolderBinding, viewType);
         } else {
             //default as text message
-            viewHolder = new ChatTextMessageViewHolder(parent, viewType);
+            viewHolder = new ChatTextMessageViewHolder(viewHolderBinding, viewType);
         }
 
         return viewHolder;
     }
 
+    public abstract int getCustomViewType(ChatMessageBean messageBean);
+
+    @Override
     public int getItemViewType(ChatMessageBean messageBean){
         if (messageBean != null) {
-            if (messageBean.getMessageData().getMessage().getMsgType() == MsgTypeEnum.custom){
-                CustomAttachment attachment = (CustomAttachment) messageBean.getMessageData().getMessage().getAttachment();
-                if (attachment != null){
-                    return CustomAttachmentType.CustomStart + attachment.getType();
-                }else {
-                    return messageBean.getViewType();
-                }
+            int customViewType = getCustomViewType(messageBean);
+            if (customViewType > 0){
+                return customViewType;
             }else {
                 return messageBean.getViewType();
             }

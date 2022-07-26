@@ -9,7 +9,7 @@ import android.content.Context;
 import android.text.TextUtils;
 
 import com.netease.nimlib.sdk.uinfo.model.NimUserInfo;
-import com.netease.yunxin.kit.corekit.im.XKitImClient;
+import com.netease.yunxin.kit.corekit.im.IMKitClient;
 import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 import com.netease.yunxin.kit.teamkit.model.UserInfoWithTeam;
@@ -27,12 +27,12 @@ public class TeamSettingMemberAdapter extends TeamCommonAdapter<UserInfoWithTeam
         if (userInfo != null) {
             binding.cavUserIcon.setData(userInfo.getAvatar(), data.getName(), ColorUtils.avatarColor(data.getUserInfo().getAccount()));
             binding.cavUserIcon.setOnClickListener(v -> {
-                if (TextUtils.equals(userInfo.getAccount(), XKitImClient.account())) {
-                    XKitRouter.withKey(RouterConstant.PATH_MINE_USER_INFO)
+                if (TextUtils.equals(userInfo.getAccount(), IMKitClient.account())) {
+                    XKitRouter.withKey(RouterConstant.PATH_MINE_INFO_PAGE)
                             .withContext(v.getContext())
                             .navigate();
                 } else {
-                    XKitRouter.withKey(RouterConstant.PATH_USER_INFO_ACTIVITY)
+                    XKitRouter.withKey(RouterConstant.PATH_USER_INFO_PAGE)
                             .withContext(v.getContext())
                             .withParam(RouterConstant.KEY_ACCOUNT_ID_KEY, userInfo.getAccount())
                             .navigate();

@@ -152,7 +152,7 @@ public class QChatServerMemberListActivity extends BaseActivity {
     private void initView() {
         binding.ivBack.setOnClickListener(v -> finish());
 
-        binding.ivInviteMember.setOnClickListener(v -> XKitRouter.withKey(RouterConstant.PATH_SELECTOR_ACTIVITY)
+        binding.ivInviteMember.setOnClickListener(v -> XKitRouter.withKey(RouterConstant.PATH_CONTACT_SELECTOR_PAGE)
                 .withContext(this)
                 .navigate(launcher));
 

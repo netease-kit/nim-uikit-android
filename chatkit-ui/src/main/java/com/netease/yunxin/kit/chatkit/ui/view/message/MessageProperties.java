@@ -14,17 +14,33 @@ import androidx.annotation.ColorInt;
  */
 public class MessageProperties {
 
+    public static final int INT_NULL = -1;
+
     private Drawable receiveMessageBg;
 
     private Drawable selfMessageBg;
 
-    private @ColorInt
-    int userNickColor;
+    @ColorInt
+    private int userNickColor = INT_NULL;
 
-    private @ColorInt
-    int messageTextColor;
+    private int userNickTextSize = INT_NULL;
 
-    private int messageTextSize;
+    @ColorInt
+    private int messageTextColor = INT_NULL;
+
+    private int messageTextSize = INT_NULL;
+
+    private float avatarCornerRadius = INT_NULL;
+
+    private int timeTextSize = INT_NULL;
+
+    @ColorInt
+    private int timeTextColor = INT_NULL;
+
+    @ColorInt
+    private int signalBgColor = INT_NULL;
+
+    private boolean showStickerMessage = false;
 
     public void setReceiveMessageBg(Drawable receiveMessageBg) {
         this.receiveMessageBg = receiveMessageBg;
@@ -46,9 +62,17 @@ public class MessageProperties {
         this.userNickColor = userNickColor;
     }
 
-    public @ColorInt
-    int getUserNickColor() {
+    @ColorInt
+    public int getUserNickColor() {
         return userNickColor;
+    }
+
+    public void setUserNickTextSize(int textSize) {
+        this.userNickTextSize = textSize;
+    }
+
+    public int getUserNickTextSize() {
+        return userNickTextSize;
     }
 
     public void setMessageTextSize(int messageTextSize) {
@@ -59,12 +83,50 @@ public class MessageProperties {
         return messageTextSize;
     }
 
-    public @ColorInt
-    int getMessageTextColor() {
+    @ColorInt
+    public int getMessageTextColor() {
         return messageTextColor;
     }
 
     public void setMessageTextColor(@ColorInt int messageTextColor) {
         this.messageTextColor = messageTextColor;
+    }
+
+    public void setAvatarCornerRadius(float radius) {
+        this.avatarCornerRadius = radius;
+    }
+
+    public float getAvatarCornerRadius() {
+        return avatarCornerRadius;
+    }
+
+    public void setTimeTextSize(int textSize) {
+        this.timeTextSize = textSize;
+    }
+
+    public int getTimeTextSize() {
+        return this.timeTextSize;
+    }
+
+    public void setTimeTextColor(@ColorInt int textColor) {
+        this.timeTextColor = textColor;
+    }
+
+    @ColorInt
+    public int getTimeTextColor() {
+        return this.timeTextColor;
+    }
+
+    public void setSignalBgColor(@ColorInt int textColor) {
+        this.signalBgColor = textColor;
+    }
+
+    @ColorInt
+    public int getSignalBgColor() {
+        return this.signalBgColor;
+    }
+
+    public void setShowStickerMessage(boolean show){
+        this.showStickerMessage = show;
     }
 }

@@ -64,7 +64,7 @@ public class ChatP2PViewModel extends ChatBaseViewModel {
             };
 
     private final Observer<CustomNotification> customNotificationObserver = notification -> {
-        if (!getmSessionId().equals(notification.getSessionId()) || notification.getSessionType() != SessionTypeEnum.P2P) {
+        if (!getSessionId().equals(notification.getSessionId()) || notification.getSessionType() != SessionTypeEnum.P2P) {
             return;
         }
         String content = notification.getContent();
@@ -104,12 +104,12 @@ public class ChatP2PViewModel extends ChatBaseViewModel {
 
     @Override
     public void sendReceipt(IMMessage message) {
-        ChatMessageRepo.sendP2PMessageReceipt(mSessionId, message);
+        ChatMessageRepo.markP2PMessageRead(mSessionId, message);
     }
 
     public void sendInputNotification(boolean isTyping) {
         CustomNotification command = new CustomNotification();
-        command.setSessionId(getmSessionId());
+        command.setSessionId(getSessionId());
         command.setSessionType(SessionTypeEnum.P2P);
         CustomNotificationConfig config = new CustomNotificationConfig();
         config.enablePush = false;

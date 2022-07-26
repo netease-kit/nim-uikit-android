@@ -22,7 +22,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.netease.yunxin.kit.common.ui.activities.CommonActivity;
 import com.netease.yunxin.kit.common.ui.dialog.ChoiceListener;
 import com.netease.yunxin.kit.common.ui.dialog.CommonChoiceDialog;
-import com.netease.yunxin.kit.corekit.im.XKitImClient;
+import com.netease.yunxin.kit.corekit.im.IMKitClient;
 import com.netease.yunxin.kit.qchatkit.repo.QChatRoleRepo;
 import com.netease.yunxin.kit.qchatkit.repo.model.QChatServerInfo;
 import com.netease.yunxin.kit.qchatkit.repo.model.QChatServerRoleInfo;
@@ -158,7 +158,7 @@ public class QChatRoleSortActivity extends CommonActivity {
                     if (roleInfo != null && roleInfo.getType() == ROLE_EVERYONE_TYPE) {
                         roleInfoList.remove(0);
                     }
-                    isServerOwner = TextUtils.equals(serverInfo.getOwner(), XKitImClient.account());
+                    isServerOwner = TextUtils.equals(serverInfo.getOwner(), IMKitClient.account());
                     long myPriority = Long.MAX_VALUE;
                     if (isMemberList != null) {
                         for (QChatServerRoleInfo role : roleInfoList) {

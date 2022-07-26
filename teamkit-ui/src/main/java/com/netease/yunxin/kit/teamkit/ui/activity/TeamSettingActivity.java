@@ -25,7 +25,6 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.team.constant.TeamBeInviteModeEnum;
 import com.netease.nimlib.sdk.team.constant.TeamInviteModeEnum;
 import com.netease.nimlib.sdk.team.constant.TeamMemberType;
@@ -224,7 +223,7 @@ public class TeamSettingActivity extends BaseActivity {
                 || team.getType() == TeamTypeEnum.Normal;
         binding.tvName.setOnClickListener(v -> TeamInfoActivity.launch(TeamSettingActivity.this, hasPrivilegeToUpdateInfo, teamInfo.getType(), teamId, teamName, teamIntroduce, teamIcon, launcher));
 
-        binding.tvHistory.setOnClickListener(v -> XKitRouter.withKey(RouterConstant.PATH_CHAT_SEARCH).withParam(RouterConstant.CHAT_KRY,team).withContext(TeamSettingActivity.this).navigate());
+        binding.tvHistory.setOnClickListener(v -> XKitRouter.withKey(RouterConstant.PATH_CHAT_SEARCH_PAGE).withParam(RouterConstant.CHAT_KRY,team).withContext(TeamSettingActivity.this).navigate());
         binding.swMessageTip.setChecked(team.getMessageNotifyType() == TeamMessageNotifyTypeEnum.All);
         binding.swMessageTip.setOnClickListener(v -> model.muteTeam(teamId, !binding.swMessageTip.isChecked()));
         binding.swSessionPin.setChecked(model.isStick(teamId));
@@ -238,7 +237,7 @@ public class TeamSettingActivity extends BaseActivity {
         ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) binding.rvMemberList.getLayoutParams();
         if (hasPrivilegeToInvite) {
             binding.ivAdd.setVisibility(View.VISIBLE);
-            binding.ivAdd.setOnClickListener(v -> XKitRouter.withKey(RouterConstant.PATH_SELECTOR_ACTIVITY)
+            binding.ivAdd.setOnClickListener(v -> XKitRouter.withKey(RouterConstant.PATH_CONTACT_SELECTOR_PAGE)
                     .withParam(RouterConstant.SELECTOR_CONTACT_FILTER_KEY, getAccIdListFromInfoList(teamMemberInfoList))
                     // max count of the team is 200， 199 exclude self.
                     .withParam(RouterConstant.KEY_CONTACT_SELECTOR_MAX_COUNT, teamMemberInfoList == null ? 199 : 200 - teamMemberInfoList.size())

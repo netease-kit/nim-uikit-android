@@ -5,6 +5,8 @@
 
 package com.netease.yunxin.app.im.main.mine;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -26,9 +28,10 @@ import com.netease.yunxin.app.im.R;
 import com.netease.yunxin.app.im.databinding.ActivityUserInfoBinding;
 import com.netease.yunxin.app.im.utils.Constant;
 import com.netease.yunxin.kit.common.ui.utils.AvatarColor;
+import com.netease.yunxin.kit.common.ui.utils.ToastX;
 import com.netease.yunxin.kit.common.ui.widgets.datepicker.CustomDatePicker;
 import com.netease.yunxin.kit.common.ui.widgets.datepicker.DateFormatUtils;
-import com.netease.yunxin.kit.corekit.im.XKitImClient;
+import com.netease.yunxin.kit.corekit.im.IMKitClient;
 import com.netease.yunxin.kit.corekit.im.model.UserField;
 import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
 import com.netease.yunxin.kit.corekit.im.provider.UserInfoProvider;
@@ -54,7 +57,7 @@ public class UserInfoActivity extends AppCompatActivity {
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
         window.setStatusBarColor(ContextCompat.getColor(this, R.color.color_e9eff5));
 
-        userInfo = XKitImClient.getUserInfo();
+        userInfo = IMKitClient.getUserInfo();
 
         launcher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
 
@@ -65,7 +68,7 @@ public class UserInfoActivity extends AppCompatActivity {
                 }
 
             } else if (result.getResultCode() == RESULT_OK) {
-                refreshUserInfo(XKitImClient.getUserInfo());
+                refreshUserInfo(IMKitClient.getUserInfo());
             }
             if (resultCode == RESULT_OK) {
                 return;
@@ -77,7 +80,7 @@ public class UserInfoActivity extends AppCompatActivity {
     }
 
     private void initView() {
-        refreshUserInfo(XKitImClient.getUserInfo());
+        refreshUserInfo(IMKitClient.getUserInfo());
         binding.cavAvatar.setOnClickListener(v -> new PhotoChoiceDialog(UserInfoActivity.this).show(new FetchCallback<String>() {
             @Override
             public void onSuccess(@Nullable String urlParam) {
@@ -87,7 +90,7 @@ public class UserInfoActivity extends AppCompatActivity {
                     @Override
                     public void onSuccess(@Nullable Void param) {
                         resultCode = RESULT_OK;
-                        XKitImClient.getUserInfo();
+                        IMKitClient.getUserInfo();
                         binding.cavAvatar.setData(urlParam, userInfo.getName() == null ? "" : userInfo.getName(), 0);
                     }
 
@@ -116,9 +119,11 @@ public class UserInfoActivity extends AppCompatActivity {
         binding.flPhone.setOnClickListener(v -> EditUserInfoActivity.launch(getApplicationContext(), Constant.EDIT_PHONE, launcher));
         binding.flSign.setOnClickListener(v -> EditUserInfoActivity.launch(getApplicationContext(), Constant.EDIT_SIGN, launcher));
         binding.ivBack.setOnClickListener(v -> finish());
-        binding.flBirthday.setOnClickListener(v -> {
-            showTimerPicker(userInfo.getBirthday());
-        });
+        binding.flBirthday.setOnClickListener(v -> showTimerPicker(userInfo.getBirthday()));
+
+        binding.ivAccountCopy.setOnClickListener(v -> copyAccount());
+        binding.tvAccount.setOnClickListener( v -> copyAccount());
+
         binding.flSexual.setOnClickListener(v ->{
             ArrayList<String> content = new ArrayList<>();
             content.add(getResources().getString(R.string.sexual_unknown));
@@ -135,12 +140,23 @@ public class UserInfoActivity extends AppCompatActivity {
 
     }
 
+    private void copyAccount(){
+        ClipboardManager cmb = (ClipboardManager) IMKitClient.getApplicationContext()
+                .getSystemService(Context.CLIPBOARD_SERVICE);
+        ClipData clipData = null;
+        if (userInfo != null) {
+            clipData = ClipData.newPlainText(null, userInfo.getAccount());
+        }
+        cmb.setPrimaryClip(clipData);
+        ToastX.showShortToast(R.string.action_copy_success);
+    }
+
     private void refreshUserInfo(NimUserInfo userInfo) {
         if (userInfo == null) {
             return;
         }
         this.userInfo = userInfo;
-        binding.cavAvatar.setData(userInfo.getAvatar(), userInfo.getName() == null ? "" : userInfo.getName(), AvatarColor.avatarColor(XKitImClient.account()));
+        binding.cavAvatar.setData(userInfo.getAvatar(), userInfo.getName() == null ? "" : userInfo.getName(), AvatarColor.avatarColor(IMKitClient.account()));
         binding.tvName.setText(userInfo.getName());
         int sexualValue = R.string.sexual_unknown;
         if (userInfo.getGenderEnum() == GenderEnum.MALE){
@@ -148,6 +164,7 @@ public class UserInfoActivity extends AppCompatActivity {
         }else if (userInfo.getGenderEnum() == GenderEnum.FEMALE){
             sexualValue = R.string.sexual_female;
         }
+        binding.tvAccount.setText(userInfo.getAccount());
         binding.tvSexual.setText(sexualValue);
         binding.tvBirthday.setText(userInfo.getBirthday());
         binding.tvPhone.setText(userInfo.getMobile());
@@ -188,7 +205,7 @@ public class UserInfoActivity extends AppCompatActivity {
             public void onSuccess(@Nullable Void param) {
                 resultCode = RESULT_OK;
 //                binding.tvBirthday.setText(birthday);
-                refreshUserInfo(XKitImClient.getUserInfo());
+                refreshUserInfo(IMKitClient.getUserInfo());
             }
 
             @Override

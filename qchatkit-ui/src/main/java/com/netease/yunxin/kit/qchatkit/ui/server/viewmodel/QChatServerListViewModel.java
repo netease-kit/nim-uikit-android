@@ -15,7 +15,7 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
 
 import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
-import com.netease.yunxin.kit.corekit.im.XKitImClient;
+import com.netease.yunxin.kit.corekit.im.IMKitClient;
 import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
 import com.netease.yunxin.kit.corekit.model.ErrorMsg;
 import com.netease.yunxin.kit.corekit.model.ResultInfo;
@@ -75,7 +75,7 @@ public final class QChatServerListViewModel extends BaseViewModel {
             if (eventList == null || eventList.isEmpty()) {
                 return;
             }
-            String currentAccount = XKitImClient.account();
+            String currentAccount = IMKitClient.account();
             for (QChatSystemNotificationInfo item : eventList) {
                 if (item == null || item.getServerId() == null) {
                     continue;

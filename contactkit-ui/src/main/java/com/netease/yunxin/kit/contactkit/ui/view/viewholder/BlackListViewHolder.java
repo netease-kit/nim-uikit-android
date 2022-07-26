@@ -38,7 +38,6 @@ public class BlackListViewHolder extends BaseContactViewHolder {
     public void onBind(BaseContactBean bean, int position, ContactListViewAttrs attrs) {
         UserInfo friendData = ((ContactBlackListBean) bean).data;
         binding.tvName.setText(friendData.getName());
-        binding.tvName.setTextColor(attrs.getNameTextColor());
 
         binding.avatarView.setData(friendData.getAvatar(),friendData.getName(), ColorUtils.avatarColor(friendData.getAccount()));
 
@@ -47,6 +46,24 @@ public class BlackListViewHolder extends BaseContactViewHolder {
                 relieveListener.onUserRelieve((ContactBlackListBean) bean);
             }
         });
+        loadConfig(attrs);
+    }
+
+    private void loadConfig(ContactListViewAttrs attrs){
+        if (attrs == null){
+            return;
+        }
+        if (attrs.getNameTextColor() != ContactListViewAttrs.INT_NULL){
+            binding.tvName.setTextColor(attrs.getNameTextColor());
+        }
+        if (attrs.getNameTextSize() != ContactListViewAttrs.INT_NULL){
+            binding.tvName.setTextSize(attrs.getNameTextSize());
+        }
+
+        if (attrs.getAvatarCornerRadius() != ContactListViewAttrs.INT_NULL){
+            binding.avatarView.setCornerRadius(attrs.getAvatarCornerRadius());
+        }
+
     }
 
     public void setRelieveListener(RelieveListener relieveListener) {

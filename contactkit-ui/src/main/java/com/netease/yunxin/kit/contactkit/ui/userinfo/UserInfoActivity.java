@@ -68,7 +68,7 @@ public class UserInfoActivity extends BaseActivity {
         binding.contactUser.setUserCallback(new ContactInfoView.IUserCallback() {
             @Override
             public void goChat() {
-                XKitRouter.withKey(RouterConstant.PATH_CHAT_P2P).withParam(RouterConstant.CHAT_KRY, userInfoData.data).withContext(UserInfoActivity.this).navigate();
+                XKitRouter.withKey(RouterConstant.PATH_CHAT_P2P_PAGE).withParam(RouterConstant.CHAT_KRY, userInfoData.data).withContext(UserInfoActivity.this).navigate();
             }
 
             @Override

@@ -34,7 +34,6 @@ public class VerifyViewModel extends BaseViewModel {
     private final FetchResult<List<ContactVerifyInfoBean>> fetchResult = new FetchResult<>(LoadStatus.Finish);
     private final List<ContactVerifyInfoBean> verifyBeanList = new ArrayList<>();
     private final SystemMessageInfoObserver infoObserver;
-    private final ContactRepo contactRepo = new ContactRepo();
 
     public MutableLiveData<FetchResult<List<ContactVerifyInfoBean>>> getFetchResult() {
         return resultLiveData;
@@ -45,7 +44,7 @@ public class VerifyViewModel extends BaseViewModel {
             if (info.getId() > 0) {
                 List<SystemMessageInfo> msgInfo = new ArrayList<>();
                 msgInfo.add(info);
-                contactRepo.fillSystemMessageInfo(msgInfo, new FetchCallback<List<SystemMessageInfo>>() {
+                ContactRepo.fillNotification(msgInfo, new FetchCallback<List<SystemMessageInfo>>() {
                     @Override
                     public void onSuccess(@Nullable List<SystemMessageInfo> param) {
                         List<ContactVerifyInfoBean> add = new ArrayList<>();
@@ -78,7 +77,7 @@ public class VerifyViewModel extends BaseViewModel {
 
             }
         };
-        contactRepo.registerSystemMessageInfoObserver(infoObserver);
+        ContactRepo.registerNotificationObserver(infoObserver);
     }
 
     public void fetchVerifyList(boolean nextPage) {
@@ -89,7 +88,7 @@ public class VerifyViewModel extends BaseViewModel {
         } else {
             index = 0;
         }
-        contactRepo.fetchAndFillSystemMessageInfoList(index, pageSize, new FetchCallback<List<SystemMessageInfo>>() {
+        ContactRepo.getNotificationList(index, pageSize, new FetchCallback<List<SystemMessageInfo>>() {
             @Override
             public void onSuccess(@Nullable List<SystemMessageInfo> param) {
                 if (param != null && param.size() > 0) {
@@ -122,7 +121,7 @@ public class VerifyViewModel extends BaseViewModel {
     }
 
     public void clearNotify() {
-        contactRepo.clearNotify();
+        ContactRepo.clearNotification();
         fetchResult.setFetchType(FetchResult.FetchType.Remove);
         fetchResult.setData(new ArrayList<>(verifyBeanList));
         verifyBeanList.clear();
@@ -136,11 +135,11 @@ public class VerifyViewModel extends BaseViewModel {
         String account = info.getFromAccount();
         if (status == SystemMessageInfoStatus.Init && !TextUtils.isEmpty(account)) {
             if (type == SystemMessageInfoType.AddFriend) {
-                contactRepo.ackAddFriend(account, true, callback);
+                ContactRepo.acceptAddFriend(account, true, callback);
             } else if (type == SystemMessageInfoType.ApplyJoinTeam) {
-                contactRepo.passApplyJoinTeam(info.getTargetId(), account, callback);
+                ContactRepo.agreeTeamApply(info.getTargetId(), account, callback);
             } else if (type == SystemMessageInfoType.TeamInvite) {
-                contactRepo.acceptTeamInvite(info.getTargetId(), account, callback);
+                ContactRepo.acceptTeamInvite(info.getTargetId(), account, callback);
             }
         }
 
@@ -153,23 +152,23 @@ public class VerifyViewModel extends BaseViewModel {
         String account = info.getFromAccount();
         if (status == SystemMessageInfoStatus.Init && !TextUtils.isEmpty(account)) {
             if (type == SystemMessageInfoType.AddFriend) {
-                contactRepo.ackAddFriend(info.getFromAccount(), false, callback);
+                ContactRepo.acceptAddFriend(info.getFromAccount(), false, callback);
 
             } else if (type == SystemMessageInfoType.ApplyJoinTeam && !TextUtils.isEmpty(info.getTargetId())) {
-                contactRepo.rejectApplyJoinTeam(info.getTargetId(), account, "", callback);
+                ContactRepo.rejectTeamApply(info.getTargetId(), account, "", callback);
 
             } else if (type == SystemMessageInfoType.TeamInvite && !TextUtils.isEmpty(info.getTargetId())) {
-                contactRepo.declineTeamInvite(info.getTargetId(), account, "", callback);
+                ContactRepo.rejectTeamInvite(info.getTargetId(), account, "", callback);
             }
         }
     }
 
     public void setVerifyStatus(Long id, SystemMessageInfoStatus status) {
-        contactRepo.setVerifyStatus(id, status);
+        ContactRepo.setNotificationStatus(id, status);
     }
 
     public void resetUnreadCount() {
-        contactRepo.resetVerifyUnreadCount();
+        ContactRepo.clearNotificationUnreadCount();
     }
 
     private void resetMessageStatus(List<SystemMessageInfo> infoList) {
@@ -187,6 +186,6 @@ public class VerifyViewModel extends BaseViewModel {
     @Override
     protected void onCleared() {
         super.onCleared();
-        contactRepo.registerSystemMessageInfoObserver(infoObserver);
+        ContactRepo.registerNotificationObserver(infoObserver);
     }
 }

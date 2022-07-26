@@ -102,12 +102,12 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
     @Override
     public void sendReceipt(IMMessage message) {
         ALog.i(LOG_TAG, "sendReceipt");
-        ChatMessageRepo.sendTeamMessageReceipt(message);
+        ChatMessageRepo.markTeamMessageRead(message);
     }
 
     public void requestTeamMembers(String teamId) {
         ALog.i(LOG_TAG, "requestTeamMembers");
-        ChatMessageRepo.queryMemberFilterSelfWithBasicInfoList(teamId, new FetchCallback<List<UserInfoWithTeam>>() {
+        ChatMessageRepo.queryTeamMemberList(teamId, new FetchCallback<List<UserInfoWithTeam>>() {
             @Override
             public void onSuccess(@Nullable List<UserInfoWithTeam> param) {
                 userInfoData.postValue(new ResultInfo<>(param));

@@ -33,7 +33,7 @@ import com.netease.yunxin.kit.common.ui.activities.viewholder.BaseMoreViewHolder
 import com.netease.yunxin.kit.common.ui.dialog.ChoiceListener;
 import com.netease.yunxin.kit.common.ui.dialog.CommonChoiceDialog;
 import com.netease.yunxin.kit.common.ui.utils.AvatarColor;
-import com.netease.yunxin.kit.corekit.im.XKitImClient;
+import com.netease.yunxin.kit.corekit.im.IMKitClient;
 import com.netease.yunxin.kit.qchatkit.repo.QChatRoleRepo;
 import com.netease.yunxin.kit.qchatkit.repo.QChatServerRepo;
 import com.netease.yunxin.kit.qchatkit.repo.model.QChatServerMemberWithRoleInfo;
@@ -121,7 +121,7 @@ public class QChatServerMemberInfoActivity extends CommonActivity {
         if (!TextUtils.equals(nick, member.getNick())) {
             changed = true;
         }
-        if (TextUtils.equals(XKitImClient.account(), member.getAccId())) {
+        if (TextUtils.equals(IMKitClient.account(), member.getAccId())) {
             QChatServerRepo.updateMyMember(member.getServerId(), nick, new QChatCallback<Void>(getApplicationContext()) {
                 @Override
                 public void onSuccess(@Nullable Void param) {
@@ -185,7 +185,7 @@ public class QChatServerMemberInfoActivity extends CommonActivity {
         initRolesList();
         getJoinedRoles();
         if (member.getType() == MEMBER_TYPE_OWNER
-                || TextUtils.equals(XKitImClient.account(), member.getAccId())) {
+                || TextUtils.equals(IMKitClient.account(), member.getAccId())) {
             binding.tvKick.setEnabled(false);
             binding.tvKick.setAlpha(0.5f);
         }

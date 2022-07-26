@@ -13,6 +13,7 @@ import android.widget.LinearLayout;
 import androidx.annotation.Nullable;
 
 import com.netease.nimlib.sdk.msg.model.AttachmentProgress;
+import com.netease.yunxin.kit.chatkit.ui.IChatFactory;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.builder.IChatViewCustom;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatViewLayoutBinding;
@@ -24,7 +25,7 @@ import com.netease.yunxin.kit.chatkit.ui.view.interfaces.IMessageLoadHandler;
 import com.netease.yunxin.kit.chatkit.ui.view.interfaces.IMessageProxy;
 import com.netease.yunxin.kit.chatkit.ui.view.interfaces.IMessageReader;
 import com.netease.yunxin.kit.chatkit.ui.view.message.ChatMessageListView;
-import com.netease.yunxin.kit.chatkit.ui.view.message.ChatMessageViewHolderFactory;
+import com.netease.yunxin.kit.chatkit.ui.view.message.MessageProperties;
 import com.netease.yunxin.kit.common.ui.widgets.BackTitleBar;
 
 import java.util.List;
@@ -88,6 +89,10 @@ public class ChatView extends LinearLayout {
         binding.messageView.setItemClickListener(itemClickListener);
     }
 
+    public void setMessageProperties(MessageProperties properties){
+        binding.messageView.setMessageProperties(properties);
+    }
+
     public void clearMessageList() {
         binding.messageView.clearMessageList();
     }
@@ -149,7 +154,7 @@ public class ChatView extends LinearLayout {
         binding.inputView.setAitTextWatcher(manager);
     }
 
-    public void setMessageViewHolderFactory(ChatMessageViewHolderFactory viewHolderFactory) {
+    public void setMessageViewHolderFactory(IChatFactory viewHolderFactory) {
         binding.messageView.setViewHolderFactory(viewHolderFactory);
     }
 

@@ -45,7 +45,6 @@ public class VerifyInfoViewHolder extends BaseContactViewHolder {
         String targetName = info.getTargetTeam() != null ? info.getTargetTeam().getName():info.getTargetId();
         String avatar  = info.getTargetTeam() != null ?info.getTargetTeam().getIcon():info.getFromUserInfo().getAvatar();
         binding.tvName.setText(name);
-        binding.tvName.setTextColor(attrs.getNameTextColor());
 
         binding.avatarView.setData(avatar, name);
 
@@ -113,6 +112,26 @@ public class VerifyInfoViewHolder extends BaseContactViewHolder {
             case Undefined:
                 break;
         }
+
+        loadConfig(attrs);
+    }
+
+
+    private void loadConfig(ContactListViewAttrs attrs){
+        if (attrs == null){
+            return;
+        }
+        if (attrs.getNameTextColor() != ContactListViewAttrs.INT_NULL){
+            binding.tvName.setTextColor(attrs.getNameTextColor());
+        }
+        if (attrs.getNameTextSize() != ContactListViewAttrs.INT_NULL){
+            binding.tvName.setTextSize(attrs.getNameTextSize());
+        }
+
+        if (attrs.getAvatarCornerRadius() != ContactListViewAttrs.INT_NULL){
+            binding.avatarView.setCornerRadius(attrs.getAvatarCornerRadius());
+        }
+
     }
 
     private void showResult(String content,boolean agreeIcon){

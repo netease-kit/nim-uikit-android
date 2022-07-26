@@ -52,14 +52,4 @@ public class ContactEntranceBean extends BaseContactBean {
     public String getTarget() {
         return null;
     }
-
-    public interface EntranceRouter {
-        String BLACK_LIST = "blackList";
-
-        String TEAM_LIST = "teamList";
-
-        String VERIFY_LIST = "verifyList";
-
-        String MY_COMPUTER = "myComputer";
-    }
 }

@@ -7,36 +7,42 @@ package com.netease.yunxin.app.im.welcome;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.ViewModelProvider;
 
 import com.netease.nimlib.sdk.auth.LoginInfo;
 import com.netease.nimlib.sdk.qchat.result.QChatLoginResult;
+import com.netease.yunxin.app.im.BuildConfig;
 import com.netease.yunxin.app.im.databinding.ActivityWelcomeBinding;
 import com.netease.yunxin.app.im.main.MainActivity;
 import com.netease.yunxin.app.im.utils.DataUtils;
-import com.netease.yunxin.kit.corekit.im.XKitImClient;
+import com.netease.yunxin.kit.common.ui.utils.ToastX;
+import com.netease.yunxin.kit.corekit.im.IMKitClient;
 import com.netease.yunxin.kit.corekit.im.login.LoginCallback;
+
 
 /**
  * Welcome Page is launch page
  */
 public class WelcomeActivity extends AppCompatActivity {
 
+    private static final int LOGIN_PARENT_SCOPE = 2;
+    private static final int LOGIN_SCOPE = 7;
     private ActivityWelcomeBinding activityWelcomeBinding;
-    private WelcomeViewModel viewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         activityWelcomeBinding = ActivityWelcomeBinding.inflate(getLayoutInflater());
-        viewModel = new ViewModelProvider(this).get(WelcomeViewModel.class);
         setContentView(activityWelcomeBinding.getRoot());
+        //如果需要登录startLogin()
         startLogin();
+        //如果在IMKitClient.init()中传入登录信息，即完成自动登录，则直接调用showMainActivityAndFinish()进入首页
+        //showMainActivityAndFinish();
     }
 
     private void showMainActivityAndFinish() {
@@ -52,13 +58,12 @@ public class WelcomeActivity extends AppCompatActivity {
      * start login page, you can use to launch your own login
      */
     private void startLogin() {
-        //start you login account and token , or with loginIm
-        LoginInfo loginInfo = LoginInfo.LoginInfoBuilder.loginInfoDefault("account","token").withAppKey(DataUtils.readAppKey(this)).build();
+        //start you login account and token
+        String account = "";
+        String token = "";
+        LoginInfo loginInfo = LoginInfo.LoginInfoBuilder.loginInfoDefault(account,token).build();
 
-        // modify me, manager your own login state
-        boolean hasLogin = false;
-
-        if (hasLogin) {
+        if (!TextUtils.isEmpty(account) && !TextUtils.isEmpty(token)) {
             loginIM(loginInfo);
         } else {
             activityWelcomeBinding.appDesc.setVisibility(View.GONE);
@@ -72,6 +77,7 @@ public class WelcomeActivity extends AppCompatActivity {
      */
     private void launchLoginPage() {
         // jump to your own LoginPage here
+        ToastX.showShortToast("请在WelcomeActivity类startLogin方法添加账号信息即可进入");
     }
 
     /**
@@ -80,7 +86,9 @@ public class WelcomeActivity extends AppCompatActivity {
      */
     private void loginIM(LoginInfo loginInfo) {
 
-        XKitImClient.loginIMWithQChat(loginInfo,new LoginCallback<QChatLoginResult>() {
+        //如果你只是用IM功能，可以使用 IMKitClient.loginIM() 完成登录
+        //登录IM和圈组，需要开通IM和圈组功能
+        IMKitClient.loginIMWithQChat(loginInfo,new LoginCallback<QChatLoginResult>() {
             @Override
             public void onError(int errorCode, @NonNull String errorMsg) {
                 launchLoginPage();
@@ -88,7 +96,6 @@ public class WelcomeActivity extends AppCompatActivity {
 
             @Override
             public void onSuccess(@Nullable QChatLoginResult data) {
-                viewModel.updateNotificationConfig();
                 showMainActivityAndFinish();
             }
         });

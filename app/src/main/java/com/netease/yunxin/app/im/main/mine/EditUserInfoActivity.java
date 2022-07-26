@@ -28,7 +28,7 @@ import com.netease.nimlib.sdk.uinfo.model.NimUserInfo;
 import com.netease.yunxin.app.im.R;
 import com.netease.yunxin.app.im.databinding.ActivityEditNicknameBinding;
 import com.netease.yunxin.app.im.utils.Constant;
-import com.netease.yunxin.kit.corekit.im.XKitImClient;
+import com.netease.yunxin.kit.corekit.im.IMKitClient;
 import com.netease.yunxin.kit.corekit.im.model.UserField;
 import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
 import com.netease.yunxin.kit.corekit.im.provider.UserInfoProvider;
@@ -55,7 +55,7 @@ public class EditUserInfoActivity extends AppCompatActivity {
         if (getIntent().getStringExtra(Constant.EDIT_TYPE) != null) {
             editType = getIntent().getStringExtra(Constant.EDIT_TYPE);
         }
-        userInfo = XKitImClient.getUserInfo();
+        userInfo = IMKitClient.getUserInfo();
         if (userInfo == null) {
             finish();
             return;
@@ -70,7 +70,7 @@ public class EditUserInfoActivity extends AppCompatActivity {
             UserInfoProvider.updateUserInfo(map, new FetchCallback<Void>() {
                 @Override
                 public void onSuccess(@Nullable Void param) {
-                    XKitImClient.getUserInfo();
+                    IMKitClient.getUserInfo();
                     setResult(RESULT_OK);
                     finish();
                 }

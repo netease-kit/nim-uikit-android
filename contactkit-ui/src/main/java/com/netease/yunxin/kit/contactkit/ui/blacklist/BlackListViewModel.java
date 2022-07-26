@@ -28,7 +28,6 @@ public class BlackListViewModel extends BaseViewModel {
     private final MutableLiveData<FetchResult<List<ContactBlackListBean>>> resultLiveData = new MutableLiveData<>();
     private final FetchResult<List<ContactBlackListBean>> fetchResult = new FetchResult<>(LoadStatus.Finish);
     private final List<ContactBlackListBean> blackList = new ArrayList<>();
-    private final ContactRepo contactRepo = new ContactRepo();
     private final FriendObserver friendObserver;
 
     public MutableLiveData<FetchResult<List<ContactBlackListBean>>> getFetchResult() {
@@ -44,13 +43,13 @@ public class BlackListViewModel extends BaseViewModel {
                 addBlackData(accountList);
             }
         };
-        contactRepo.registerFriendObserver(friendObserver,true);
+        ContactRepo.registerFriendObserver(friendObserver);
     }
 
     public void fetchBlackList() {
         fetchResult.setStatus(LoadStatus.Loading);
         resultLiveData.postValue(fetchResult);
-        contactRepo.fetchBlackList(new FetchCallback<List<UserInfo>>() {
+        ContactRepo.getBlackList(new FetchCallback<List<UserInfo>>() {
             @Override
             public void onSuccess(@Nullable List<UserInfo> param) {
                 blackList.clear();
@@ -84,12 +83,12 @@ public class BlackListViewModel extends BaseViewModel {
 
     public void addBlackOp(String account,FetchCallback<Void> callback) {
        if (!TextUtils.isEmpty(account)){
-           contactRepo.addBlacklist(account,callback);
+           ContactRepo.addBlacklist(account,callback);
        }
     }
 
     public void removeBlackOp(String account, FetchCallback<Void> callback) {
-        contactRepo.removeFromBlacklist(account, callback);
+        ContactRepo.removeBlacklist(account, callback);
     }
 
     private void removeBlackData(List<String> accountList) {
@@ -125,7 +124,7 @@ public class BlackListViewModel extends BaseViewModel {
             return;
         }
         List<ContactBlackListBean> add = new ArrayList<>();
-        contactRepo.fetchUserInfo(accountList, new FetchCallback<List<UserInfo>>() {
+        ContactRepo.getUserInfo(accountList, new FetchCallback<List<UserInfo>>() {
             @Override
             public void onSuccess(@Nullable List<UserInfo> param) {
                 if (param != null && param.size() > 0) {
@@ -154,6 +153,6 @@ public class BlackListViewModel extends BaseViewModel {
     @Override
     protected void onCleared() {
         super.onCleared();
-        contactRepo.registerFriendObserver(friendObserver,false);
+        ContactRepo.unregisterFriendObserver(friendObserver);
     }
 }

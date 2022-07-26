@@ -10,7 +10,6 @@ import android.os.Bundle;
 import androidx.fragment.app.FragmentManager;
 
 import com.netease.yunxin.kit.alog.ALog;
-import com.netease.yunxin.kit.chatkit.ui.ChatUIConfig;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.builder.P2PChatFragmentBuilder;
 import com.netease.yunxin.kit.chatkit.ui.page.fragment.ChatP2PFragment;
@@ -33,8 +32,7 @@ public class ChatP2PActivity extends ChatBaseActivity {
         }
         ALog.i(LOG_TOG, "userInfo account is = " + userInfo.getAccount());
         //set fragment
-        P2PChatFragmentBuilder fragmentBuilder = ChatUIConfig.getInstance().getP2PChatFragmentBuilder() == null
-                ? new P2PChatFragmentBuilder() : ChatUIConfig.getInstance().getP2PChatFragmentBuilder();
+        P2PChatFragmentBuilder fragmentBuilder = new P2PChatFragmentBuilder();
 
         ChatP2PFragment chatFragment = fragmentBuilder.build();
         Bundle bundle = new Bundle();
@@ -42,11 +40,6 @@ public class ChatP2PActivity extends ChatBaseActivity {
         chatFragment.setArguments(bundle);
 
         FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.addFragmentOnAttachListener((fragmentManager1, fragment) -> {
-            if (fragment instanceof ChatP2PFragment) {
-                fragmentBuilder.attachFragment((ChatP2PFragment) fragment);
-            }
-        });
         fragmentManager
                 .beginTransaction()
                 .add(R.id.container, chatFragment)

@@ -7,6 +7,7 @@ package com.netease.yunxin.kit.chatkit.ui.custom;
 
 import com.netease.nimlib.sdk.msg.attachment.MsgAttachment;
 import com.netease.nimlib.sdk.msg.attachment.MsgAttachmentParser;
+import com.netease.yunxin.kit.chatkit.ui.ChatMessageType;
 
 import org.json.JSONObject;
 
@@ -23,7 +24,7 @@ public class CustomAttachParser implements MsgAttachmentParser {
             JSONObject object = new JSONObject(json);
             int type = object.getInt(KEY_TYPE);
             JSONObject data = object.getJSONObject(KEY_DATA);
-            if (type == CustomAttachmentType.Sticker) {
+            if (type == ChatMessageType.CUSTOM_STICKER) {
                 attachment = new StickerAttachment();
             } else {
                 attachment = null;

@@ -11,11 +11,15 @@ import android.content.Context;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 
+import com.netease.yunxin.kit.common.ui.CommonUIClient;
 import com.netease.yunxin.kit.contactkit.ContactService;
 import com.netease.yunxin.kit.contactkit.ui.addfriend.AddFriendActivity;
+import com.netease.yunxin.kit.contactkit.ui.blacklist.BlackListActivity;
+import com.netease.yunxin.kit.contactkit.ui.contact.ContactActivity;
 import com.netease.yunxin.kit.contactkit.ui.selector.ContactSelectorActivity;
 import com.netease.yunxin.kit.contactkit.ui.team.TeamListActivity;
 import com.netease.yunxin.kit.contactkit.ui.userinfo.UserInfoActivity;
+import com.netease.yunxin.kit.contactkit.ui.verify.VerifyListActivity;
 import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 
@@ -37,10 +41,14 @@ public class ContactUIService extends ContactService {
     @NonNull
     @Override
     public ContactService create(@NonNull Context context) {
-        XKitRouter.registerRouter(RouterConstant.PATH_SELECTOR_ACTIVITY, ContactSelectorActivity.class);
-        XKitRouter.registerRouter(RouterConstant.PATH_ADD_FRIEND_ACTIVITY, AddFriendActivity.class);
-        XKitRouter.registerRouter(RouterConstant.PATH_USER_INFO_ACTIVITY, UserInfoActivity.class);
-        XKitRouter.registerRouter(RouterConstant.PATH_TEAM_LIST, TeamListActivity.class);
+        XKitRouter.registerRouter(RouterConstant.PATH_CONTACT_SELECTOR_PAGE, ContactSelectorActivity.class);
+        XKitRouter.registerRouter(RouterConstant.PATH_ADD_FRIEND_PAGE, AddFriendActivity.class);
+        XKitRouter.registerRouter(RouterConstant.PATH_USER_INFO_PAGE, UserInfoActivity.class);
+        XKitRouter.registerRouter(RouterConstant.PATH_MY_TEAM_PAGE, TeamListActivity.class);
+        XKitRouter.registerRouter(RouterConstant.PATH_MY_BLACK_PAGE, BlackListActivity.class);
+        XKitRouter.registerRouter(RouterConstant.PATH_MY_NOTIFICATION_PAGE, VerifyListActivity.class);
+        XKitRouter.registerRouter(RouterConstant.PATH_CONTACT_PAGE, ContactActivity.class);
+        CommonUIClient.init(context);
         return this;
     }
 }

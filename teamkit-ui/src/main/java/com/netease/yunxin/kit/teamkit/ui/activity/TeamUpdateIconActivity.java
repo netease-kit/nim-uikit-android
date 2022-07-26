@@ -53,7 +53,7 @@ public class TeamUpdateIconActivity extends BaseActivity {
 
         Glide.with(getApplicationContext()).load(lastUrl).circleCrop().into(binding.ivIcon);
         changeStatusBarColor(R.color.color_eff1f4);
-        binding.ivCamera.setOnClickListener(v -> XKitRouter.withKey(RouterConstant.PATH_QCHAT_PICKING_PHOTO).navigate(result -> {
+        binding.ivCamera.setOnClickListener(v -> XKitRouter.withKey(RouterConstant.PATH_QCHAT_PICKING_PHOTO_ACTION).navigate(result -> {
             if (result.getSuccess() && result.getValue() instanceof String) {
                 updateFocusBg(null, String.valueOf(result.getValue()));
             }

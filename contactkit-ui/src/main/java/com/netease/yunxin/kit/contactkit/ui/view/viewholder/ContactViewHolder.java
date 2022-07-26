@@ -37,9 +37,7 @@ public class ContactViewHolder extends BaseContactViewHolder {
     public void onBind(BaseContactBean bean, int position, ContactListViewAttrs attrs) {
         FriendInfo friendInfo = ((ContactFriendBean) bean).data;
         String nickName = friendInfo.getName();
-
         binding.tvName.setText(nickName);
-        binding.tvName.setTextColor(attrs.getNameTextColor());
 
         binding.avatarView.setData(friendInfo.getAvatar(), nickName, ColorUtils.avatarColor(friendInfo.getAccount()));
 
@@ -62,5 +60,23 @@ public class ContactViewHolder extends BaseContactViewHolder {
                 }
             });
         }
+        loadConfig(attrs);
+    }
+
+    private void loadConfig(ContactListViewAttrs attrs){
+        if (attrs == null){
+            return;
+        }
+        if (attrs.getNameTextColor() != ContactListViewAttrs.INT_NULL){
+            binding.tvName.setTextColor(attrs.getNameTextColor());
+        }
+        if (attrs.getNameTextSize() != ContactListViewAttrs.INT_NULL){
+            binding.tvName.setTextSize(attrs.getNameTextSize());
+        }
+
+        if (attrs.getAvatarCornerRadius() != ContactListViewAttrs.INT_NULL){
+            binding.avatarView.setCornerRadius(attrs.getAvatarCornerRadius());
+        }
+
     }
 }

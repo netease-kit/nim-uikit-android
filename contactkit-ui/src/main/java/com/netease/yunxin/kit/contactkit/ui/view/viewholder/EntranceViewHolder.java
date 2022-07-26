@@ -58,7 +58,6 @@ public class EntranceViewHolder extends BaseContactViewHolder {
                 .into(binding.ivIcon);
 
         binding.tvTitle.setText(entranceBean.title);
-        binding.tvTitle.setTextColor(attrs.getNameTextColor());
 
         binding.rootView.setOnClickListener(v -> {
             if (actions != null && actions.getContactListener(bean.viewType) != null) {
@@ -66,6 +65,25 @@ public class EntranceViewHolder extends BaseContactViewHolder {
             }
         });
 
+        loadConfig(attrs);
+
+    }
+
+
+    private void loadConfig(ContactListViewAttrs attrs){
+        if (attrs == null){
+            return;
+        }
+        if (attrs.getNameTextColor() != ContactListViewAttrs.INT_NULL){
+            binding.tvTitle.setTextColor(attrs.getNameTextColor());
+        }
+        if (attrs.getNameTextSize() != ContactListViewAttrs.INT_NULL){
+            binding.tvTitle.setTextSize(attrs.getNameTextSize());
+        }
+
+        if (attrs.getAvatarCornerRadius() != ContactListViewAttrs.INT_NULL){
+            binding.flIvIcon.setRadius(attrs.getAvatarCornerRadius());
+        }
 
     }
 }

@@ -17,7 +17,7 @@ import com.netease.nimlib.sdk.team.model.TeamMember;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.repo.ChatMessageRepo;
 import com.netease.yunxin.kit.chatkit.ui.R;
-import com.netease.yunxin.kit.corekit.im.XKitImClient;
+import com.netease.yunxin.kit.corekit.im.IMKitClient;
 import com.netease.yunxin.kit.corekit.im.model.FriendInfo;
 import com.netease.yunxin.kit.corekit.im.model.UserInfo;
 import com.netease.yunxin.kit.corekit.im.provider.FriendProvider;
@@ -38,8 +38,8 @@ public class MessageHelper {
      * @param account user accId
      */
     public static String getTeamMemberDisplayNameYou(String tid, String account) {
-        if (account.equals(XKitImClient.account())) {
-            return XKitImClient.getApplicationContext().getString(R.string.chat_you);
+        if (account.equals(IMKitClient.account())) {
+            return IMKitClient.getApplicationContext().getString(R.string.chat_you);
         }
 
         return getTeamDisplayNameWithoutMe(tid, account);
@@ -77,8 +77,8 @@ public class MessageHelper {
     }
 
     public static String getUserNickByAccId(String accId, boolean withYou) {
-        if (withYou && accId.equals(XKitImClient.account())) {
-            return XKitImClient.getApplicationContext().getString(R.string.chat_you);
+        if (withYou && accId.equals(IMKitClient.account())) {
+            return IMKitClient.getApplicationContext().getString(R.string.chat_you);
         }
         FriendInfo friend = FriendProvider.INSTANCE.getFriendInfo(accId);
         if (friend != null && !TextUtils.isEmpty(friend.getAlias())) {
@@ -123,7 +123,7 @@ public class MessageHelper {
         }
         List<String> uuidList = new ArrayList<>(1);
         uuidList.add(uuid);
-        List<IMMessageInfo> msgList = ChatMessageRepo.queryMessageListByUuidBlock(uuidList);
+        List<IMMessageInfo> msgList = ChatMessageRepo.queryMessageListByUuid(uuidList);
         if (msgList == null || msgList.isEmpty()) {
             return "...";
         }
@@ -145,23 +145,23 @@ public class MessageHelper {
             case tip:
                 return msg.getContent();
             case image:
-                return XKitImClient.getApplicationContext().getString(R.string.chat_reply_message_brief_image);
+                return IMKitClient.getApplicationContext().getString(R.string.chat_reply_message_brief_image);
             case video:
-                return XKitImClient.getApplicationContext().getString(R.string.chat_reply_message_brief_video);
+                return IMKitClient.getApplicationContext().getString(R.string.chat_reply_message_brief_video);
             case audio:
-                return XKitImClient.getApplicationContext().getString(R.string.chat_reply_message_brief_audio);
+                return IMKitClient.getApplicationContext().getString(R.string.chat_reply_message_brief_audio);
             case location:
-                return XKitImClient.getApplicationContext().getString(R.string.chat_reply_message_brief_location);
+                return IMKitClient.getApplicationContext().getString(R.string.chat_reply_message_brief_location);
             case file:
-                return XKitImClient.getApplicationContext().getString(R.string.chat_reply_message_brief_file);
+                return IMKitClient.getApplicationContext().getString(R.string.chat_reply_message_brief_file);
             case notification:
                 return TeamNotificationHelper.getTeamNotificationText(msg.getSessionId(),
                         msg.getFromAccount(),
                         (NotificationAttachment) msg.getAttachment());
             case robot:
-                return XKitImClient.getApplicationContext().getString(R.string.chat_reply_message_brief_robot);
+                return IMKitClient.getApplicationContext().getString(R.string.chat_reply_message_brief_robot);
             default:
-                return XKitImClient.getApplicationContext().getString(R.string.chat_reply_message_brief_custom);
+                return IMKitClient.getApplicationContext().getString(R.string.chat_reply_message_brief_custom);
         }
     }
 }

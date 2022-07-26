@@ -11,6 +11,7 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.netease.yunxin.kit.common.ui.CommonUIClient;
 import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
 import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.im.utils.TransHelper;
@@ -32,7 +33,7 @@ public class QChatUIService extends QChatService {
     @NonNull
     @Override
     public QChatService create(@NonNull Context context) {
-        XKitRouter.registerRouter(RouterConstant.PATH_QCHAT_PICKING_PHOTO, new XKitRouter.RouterValue("", (value, params, observer) -> {
+        XKitRouter.registerRouter(RouterConstant.PATH_QCHAT_PICKING_PHOTO_ACTION, new XKitRouter.RouterValue("", (value, params, observer) -> {
             int requestCode = 95201;
             TransHelper.launchTask(context, requestCode, (activity, integer) -> {
                 PhotoChoiceDialog dialog = new PhotoChoiceDialog(activity);
@@ -66,6 +67,7 @@ public class QChatUIService extends QChatService {
             }, intentResultInfo -> null);
             return false;
         }));
+        CommonUIClient.init(context);
         return this;
     }
 }

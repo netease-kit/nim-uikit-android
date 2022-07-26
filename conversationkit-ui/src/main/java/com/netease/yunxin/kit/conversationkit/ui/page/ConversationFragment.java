@@ -29,6 +29,8 @@ import com.netease.yunxin.kit.common.ui.widgets.ContentListPopView;
 import com.netease.yunxin.kit.common.utils.ScreenUtil;
 import com.netease.yunxin.kit.common.utils.NetworkUtils;
 import com.netease.yunxin.kit.conversationkit.model.ConversationInfo;
+import com.netease.yunxin.kit.conversationkit.ui.ConversationUIConfig;
+import com.netease.yunxin.kit.conversationkit.ui.ConversationKitClient;
 import com.netease.yunxin.kit.conversationkit.ui.common.ConversationConstant;
 import com.netease.yunxin.kit.conversationkit.ui.page.interfaces.IConversationCallback;
 import com.netease.yunxin.kit.conversationkit.ui.page.interfaces.ILoadListener;
@@ -87,16 +89,119 @@ public class ConversationFragment extends BaseFragment implements ILoadListener 
             }
             doCallback();
         });
+        initObserver();
+        initView();
+        loadUIConfig();
+        NetworkUtils.registerStateListener(networkStateListener);
+        registerObserver();
+        viewModel.fetchConversation();
 
+    }
+
+    private void initView() {
+        //设置会话排序Comparator，默认按照置顶和时间优先级进行排序
+        viewBinding.conversationView.setComparator(conversationComparator);
+        viewBinding.conversationView.setItemClickListener(new ViewHolderClickListener() {
+            @Override
+            public void onClick(BaseBean data, int position) {
+                if (ConversationKitClient.getConversationUIConfig() != null &&
+                        ConversationKitClient.getConversationUIConfig().itemClickListener != null
+                        && data instanceof ConversationBean) {
+                    ConversationKitClient.getConversationUIConfig().itemClickListener.onClick(ConversationFragment.this.getContext(), (ConversationBean) data, position);
+                } else {
+                    XKitRouter.withKey(data.router).withParam(data.paramKey, data.param).withContext(ConversationFragment.this.getContext()).navigate();
+                }
+            }
+
+            @Override
+            public boolean onLongClick(BaseBean data, int position) {
+                if (ConversationKitClient.getConversationUIConfig() != null &&
+                        ConversationKitClient.getConversationUIConfig().itemClickListener != null
+                        && data instanceof ConversationBean) {
+                    return ConversationKitClient.getConversationUIConfig().itemClickListener.onLongClick(ConversationFragment.this.getContext(), (ConversationBean) data, position);
+                } else {
+                    showStickDialog(data);
+                    return true;
+                }
+            }
+        });
+        viewBinding.conversationTitleBar.setRightImageClick(v -> {
+            Context context = getContext();
+            ContentListPopView contentListPopView = new ContentListPopView.Builder(context)
+                    .addItem(PopItemFactory.getAddFriendItem(context))
+                    .addItem(PopItemFactory.getCreateGroupTeamItem(context))
+                    .addItem(PopItemFactory.getCreateAdvancedTeamItem(context))
+                    .build();
+            contentListPopView.showAsDropDown(v, ScreenUtil.dip2px(-105), 0);
+
+        });
+
+        viewBinding.conversationTitleBar.setRight2ImageClick(v -> {
+            XKitRouter.withKey(RouterConstant.PATH_GLOBAL_SEARCH_PAGE).withContext(getContext()).navigate();
+        });
+    }
+
+    private void loadUIConfig() {
+        if (ConversationKitClient.getConversationUIConfig() != null
+        && ConversationKitClient.getConversationUIConfig().conversationComparator != null) {
+            viewModel.setComparator(ConversationKitClient.getConversationUIConfig().conversationComparator);
+            viewBinding.conversationView.setComparator(ConversationKitClient.getConversationUIConfig().conversationComparator);
+        }
+
+        if (ConversationKitClient.getConversationUIConfig() != null
+                && ConversationKitClient.getConversationUIConfig().conversationFactory != null) {
+            viewModel.setConversationFactory(ConversationKitClient.getConversationUIConfig().conversationFactory);
+            viewBinding.conversationView.setViewHolderFactory(ConversationKitClient.getConversationUIConfig().conversationFactory);
+        }
+
+        if (ConversationKitClient.getConversationUIConfig() != null) {
+            ConversationUIConfig config = ConversationKitClient.getConversationUIConfig();
+            if (!config.showTitleBar) {
+                viewBinding.conversationTitleBar.setVisibility(View.GONE);
+            } else {
+                viewBinding.conversationTitleBar.setVisibility(View.VISIBLE);
+                viewBinding.conversationTitleBar.setHeadImageVisible(config.showTitleBarLeftIcon ? View.VISIBLE : View.GONE);
+                viewBinding.conversationTitleBar.showRight2ImageView(config.showTitleBarRight2Icon);
+                viewBinding.conversationTitleBar.showRightImageView(config.showTitleBarRightIcon);
+
+                if (config.titleBarTitle != null){
+                    viewBinding.conversationTitleBar.setTitle(config.titleBarTitle);
+                }
+
+                if (config.titleBarTitleColor != ConversationUIConfig.INT_DEFAULT_NULL){
+                    viewBinding.conversationTitleBar.setTitleColor(config.titleBarTitleColor);
+                }
+
+                if (config.titleBarLeftRes != ConversationUIConfig.INT_DEFAULT_NULL){
+                    viewBinding.conversationTitleBar.setLeftImageRes(config.titleBarLeftRes);
+                }
+
+                if (config.titleBarLeftRes != ConversationUIConfig.INT_DEFAULT_NULL){
+                    viewBinding.conversationTitleBar.setLeftImageRes(config.titleBarLeftRes);
+                }
+
+                if (config.titleBarRightRes != ConversationUIConfig.INT_DEFAULT_NULL){
+                    viewBinding.conversationTitleBar.setRightImageRes(config.titleBarRightRes);
+                }
+
+
+                if (config.titleBarRight2Res != ConversationUIConfig.INT_DEFAULT_NULL){
+                    viewBinding.conversationTitleBar.setRight2ImageRes(config.titleBarRight2Res);
+                }
+            }
+        }
+    }
+
+    private void initObserver() {
         changeObserver = result -> {
             if (result.getLoadStatus() == LoadStatus.Success) {
                 XLog.d(TAG, "ChangeLiveData", "Success");
                 viewBinding.conversationView.update(result.getData());
             } else if (result.getLoadStatus() == LoadStatus.Finish && result.getType() == FetchResult.FetchType.Remove) {
                 XLog.d(TAG, "DeleteLiveData", "Success");
-                if (result.getData() == null || result.getData().size() < 1){
+                if (result.getData() == null || result.getData().size() < 1) {
                     viewBinding.conversationView.removeAll();
-                }else {
+                } else {
                     viewBinding.conversationView.remove(result.getData());
                 }
             }
@@ -150,39 +255,6 @@ public class ConversationFragment extends BaseFragment implements ILoadListener 
                 }
             }
         };
-        viewBinding.conversationView.setViewHolderFactory(new ConversationViewHolderFactory());
-        viewBinding.conversationView.setComparator(conversationComparator);
-        viewBinding.conversationView.setItemClickListener(new ViewHolderClickListener() {
-            @Override
-            public void onClick(BaseBean data, int position) {
-                XKitRouter.withKey(data.router).withParam(data.paramKey, data.param).withContext(ConversationFragment.this.getContext()).navigate();
-            }
-
-            @Override
-            public boolean onLongClick(BaseBean data, int position) {
-                showStickDialog(data);
-                return true;
-            }
-        });
-        NetworkUtils.registerStateListener(networkStateListener);
-        registerObserver();
-
-        viewBinding.conversationTitleBar.setMoreImageClick(v -> {
-            Context context = getContext();
-            ContentListPopView contentListPopView = new ContentListPopView.Builder(context)
-                    .addItem(PopItemFactory.getAddFriendItem(context))
-                    .addItem(PopItemFactory.getCreateGroupTeamItem(context))
-                    .addItem(PopItemFactory.getCreateAdvancedTeamItem(context))
-                    .build();
-            contentListPopView.showAsDropDown(v, ScreenUtil.dip2px(-105), 0);
-
-        });
-
-        viewBinding.conversationTitleBar.setMiddleImageClick(v -> {
-            XKitRouter.withKey(RouterConstant.PATH_GLOBAL_SEARCH).withContext(getContext()).navigate();
-        });
-        viewModel.fetchConversation();
-
     }
 
     private void registerObserver() {
@@ -195,7 +267,7 @@ public class ConversationFragment extends BaseFragment implements ILoadListener 
         viewModel.getAddRemoveStickLiveData().observeForever(addRemoveStickObserver);
     }
 
-    private void unregisterObserver(){
+    private void unregisterObserver() {
         viewModel.getChangeLiveData().removeObserver(changeObserver);
         viewModel.getStickLiveData().removeObserver(stickObserver);
         viewModel.getUserInfoLiveData().removeObserver(userInfoObserver);

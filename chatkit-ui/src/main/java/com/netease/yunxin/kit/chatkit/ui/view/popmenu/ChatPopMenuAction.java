@@ -8,7 +8,7 @@ package com.netease.yunxin.kit.chatkit.ui.view.popmenu;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.StringRes;
 
-import com.netease.yunxin.kit.corekit.im.XKitImClient;
+import com.netease.yunxin.kit.corekit.im.IMKitClient;
 
 public class ChatPopMenuAction {
     private String actionName;
@@ -21,7 +21,7 @@ public class ChatPopMenuAction {
     }
 
     public ChatPopMenuAction(@StringRes int nameRes, @DrawableRes int actionIcon, OnClickListener actionClickListener) {
-        this(XKitImClient.getApplicationContext().getString(nameRes), actionIcon, actionClickListener);
+        this(IMKitClient.getApplicationContext().getString(nameRes), actionIcon, actionClickListener);
     }
 
     public ChatPopMenuAction(String actionName, @DrawableRes int actionIcon, OnClickListener actionClickListener) {

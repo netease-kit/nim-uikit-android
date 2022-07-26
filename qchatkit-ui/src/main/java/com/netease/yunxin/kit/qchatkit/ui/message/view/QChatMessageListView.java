@@ -14,7 +14,7 @@ import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.netease.yunxin.kit.corekit.im.XKitImClient;
+import com.netease.yunxin.kit.corekit.im.IMKitClient;
 import com.netease.yunxin.kit.qchatkit.repo.model.QChatMessageInfo;
 import com.netease.yunxin.kit.qchatkit.ui.message.interfaces.IMessageList;
 import com.netease.yunxin.kit.qchatkit.ui.message.interfaces.IMessageLoadHandler;
@@ -140,7 +140,7 @@ public class QChatMessageListView extends RecyclerView implements IMessageList {
         int size = messages.size();
         for (int i = size - 1; i >= 0; i--) {
             QChatMessageInfo messageInfo = messages.get(i);
-            String myAccId = XKitImClient.account();
+            String myAccId = IMKitClient.account();
             if (!TextUtils.equals(myAccId, messageInfo.getFromAccount())) {
                 return messageInfo;
             }
@@ -154,7 +154,7 @@ public class QChatMessageListView extends RecyclerView implements IMessageList {
             messageAdapter.appendMessages(message);
         }
         scrollToEnd();
-        String myAccId = XKitImClient.account();
+        String myAccId = IMKitClient.account();
         if (optionCallBack != null &&
                 !TextUtils.equals(myAccId, message.getFromAccount())) {
             optionCallBack.onRead(message);
