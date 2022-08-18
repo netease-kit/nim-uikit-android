@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2022 NetEase, Inc.  All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be found in the LICENSE file.
+  -->
+
+<resources>
+    <string name="chat_pressed_to_speak">Hold to Talk</string> 
+    <string name="chat_record_failed">Failed！try it again</string> 
+    <string name="chat_message_send_hint">Send to %s</string> 
+    <string name="chat_message_send_error">Failed to send message</string> 
+    <string name="chat_message_fetch_error">Failed to get message</string> 
+    <string name="chat_message_revoke_error">Recall Failed</string> 
+    <string name="chat_message_revoke_over_time">Too late to recall</string>
+    <string name="chat_message_revoked">Message Recalled</string> 
+    <string name="chat_message_re_edit">Edit</string> 
+    <string name="chat_message_voice_in"> Release to send</string>
+    <string name="chat_message_signal">Pin</string> 
+    <string name="chat_message_open_message_notice">Notification</string> 
+    <string name="chat_message_set_top">Sticky on Top</string> 
+    <string name="chat_message_add_to_black_list">Block</string> 
+    <string name="chat_message_delete">Block</string>
+    <string name="chat_setting">Settings</string> 
+    <string name="chat_read_status">Read Status</string> 
+    <string name="chat_read_with_num">Read（%d）</string> 
+    <string name="chat_unread_with_num">Unread（%d）</string> 
+    <string name="chat_all_user_have_read">All Read</string> 
+    <string name="chat_all_user_have_unread">Unread by all members</string>
+    <string name="chat_message_ait_contact_title">Select Notification</string> 
+
+    <string name="chat_no_permission"> No Permission</string>
+    <string name="chat_server_request_fail">Failed</string> 
+    <string name="chat_server_request_success">Successfully</string> 
+
+    <string name="chat_message_take_photo">Photo</string> 
+    <string name="chat_message_take_video">Video</string>
+    <string name="chat_message_pick_image">Album</string> 
+    <string name="chat_message_copy_image">Failed to get pictures</string> 
+    <string name="chat_message_image_save">Saved </string> 
+    <string name="chat_message_video_save">Saved </string> 
+    <string name="chat_message_image_save_fail">Failed to save</string> 
+    <string name="chat_message_video_save_fail">Failed to save</string> 
+    <string name="chat_message_video_download_fail">Failed to download</string>
+    <string name="chat_message_video_send_fail">Failed to send</string>
+    <string name="chat_message_video_fail_try_again">Can\'t play video, try it again</string>
+    <string name="chat_message_video_time">%02d:%02d</string>
+    <string name="chat_message_send">Send</string> 
+    <string name="chat_message_video_error">Can\'t play video</string>
+    <string name="chat_message_custom_sticker">emoji</string> 
+
+    <string name="chat_message_more_shoot">Camera</string> 
+    <string name="chat_message_camera_unavailable">camera unavailable</string> 
+
+
+    <string name="chat_message_action_copy">Copy</string>
+    <string name="chat_message_action_reply">Reply</string> 
+    <string name="chat_message_action_transmit">Forward</string> 
+    <string name="chat_message_action_pin">Pin</string> 
+    <string name="chat_message_action_pin_cancel">Unpin</string> 
+    <string name="chat_message_action_multi_select">Multi-select</string>
+    <string name="chat_message_action_delete">Delete</string>
+    <string name="chat_message_action_recall">Recall</string> 
+    <string name="chat_message_action_collection">Favorite</string>
+
+    <string name="chat_message_action_revoke_this_message">Are you sure you want to recall message</string>
+    <string name="chat_message_action_delete_this_message">Really want to delete this message?</string>
+
+    <string name="chat_message_reply_someone">Reply %s</string> 
+
+    <string name="chat_message_action_copy_success">Copy Successfully</string>
+
+    <string name="chat_enter_team">%sEnter Group</string> 
+    <string name="chat_exit_team">%sLeave Group</string> 
+
+    <string name="chat_team_need_authentication">Needs Identify</string>
+    <string name="chat_team_allow_anyone_join">Enter without limit</string>
+    <string name="chat_team_not_allow_anyone_join">Not allowed to apply to join</string>
+    <string name="chat_team_admin_invite">Admin invitation</string> 
+
+    <string name="chat_invite">invite</string> 
+    <string name="chat_join_team"> Enter Group</string> 
+    <string name="chat_join_discuss_team"> Enter Temporary Group</string> 
+    <string name="chat_removed_team"> Removed from the group</string> 
+    <string name="chat_removed_discuss_team"> Removed from the temporary group</string>
+    <string name="chat_left_team"> Left Group</string>
+    <string name="chat_left_discuss_team"> Left Temporary Group</string>
+    <string name="chat_dismiss_team"> Dissolved Group</string> 
+    <string name="chat_name_update">Named as </string>
+    <string name="chat_team_extension_update">Group Extension update as </string>
+    <string name="chat_team_introduce_update">Group introduction update as</string>
+    <string name="chat_team_notice_update">Modified group announcement</string>
+    <string name="chat_team_accept_ones_invent">accepted the group invitation from %s</string>
+    <string name="chat_team_verify_update">permissions updated to</string> 
+    <string name="chat_team_manager_pass_ones_application">Agree the group apply from%s</string>
+    <string name="chat_team_remove_to_another">Transfer the group to</string>
+    <string name="chat_team_operate_by_manager">Admin by</string>
+    <string name="chat_team_mute">Mute</string>
+    <string name="chat_team_un_mute">Unmute</string>
+    <string name="chat_team_removed_manager">%s Dismissed as a admin</string> 
+    <string name="chat_team_appoint_manager">%s be as a admin</string> 
+    <string name="chat_team_extension_server_update">Group introduction update as</string>
+    <string name="chat_you">You</string>
+    <string name="chat_team_avatar_update">Group avatar has been updated</string>
+    <string name="chat_team_invitation_permission_update">Group inviting permission has been updated to</string>
+    <string name="chat_team_modify_resource_permission_update">Group setting permission has been updated to</string>
+    <string name="chat_team_invited_id_verify_permission_update">Group inviting authentication permissions havs been updated to</string> 
+    <string name="chat_team_modify_extension_permission_update">Group setting permission has been updated to</string>
+    <string name="chat_team_cancel_all_mute">Unmute all</string> 
+    <string name="chat_team_full_mute">Mute everyone</string>
+    <string name="chat_team_update">Group%s update as %s</string>
+    <string name="chat_team_unknown_notification">Unknown message</string>
+    <string name="chat_team_ait_all">everyone</string>
+
+    <string name="chat_reply_message_brief_image">[Photo]</string>
+    <string name="chat_reply_message_brief_audio">[Voice]</string>
+    <string name="chat_reply_message_brief_video">[Video]</string>
+    <string name="chat_reply_message_brief_location">[Location]</string>
+    <string name="chat_reply_message_brief_file">[File]</string>
+    <string name="chat_reply_message_brief_custom">[Custom Message]</string>
+    <string name="chat_reply_message_brief_robot">[Robot Message]</string>
+    <string name="chat_reply_message_call">[Audio&amp;Video Call]</string>
+
+    <string name="chat_message_signal_tip">Pined by %s，visible to both of you</string>
+    <string name="chat_message_signal_tip_for_team">Pined by %s，visible to everyone</string>
+
+    <string name="chat_message_forward_to_team">Forward to Group</string>
+    <string name="chat_message_forward_to_person">Forward to friend</string> 
+    <string name="chat_message_forward_to">Send to</string>
+    <string name="chat_message_is_typing">Typing...</string> 
+
+
+    <!-- search -->
+    <string name="message_search_title">History</string> 
+    <string name="message_search_hint">Search History</string>
+    <string name="message_search_empty">No History</string>
+
+    <string name="chat_team_all_mute">Mute</string>
+    <string name="chat_message_session_info">[Forward] %s history</string>
+
+    <string name="permission_deny_tips">Can\'t use this function when you closed</string>
+    <string name="permission_default">Please give your permission</string>
+    <string name="permission_camera">Please give your phone camera permission</string>
+    <string name="permission_audio">Please give your phone micro permission</string>
+    <string name="permission_storage">Please give your phone storage permission</string>
+
+    <!-- error -->
+    <string name="chat_message_reply_error">error</string>
+</resources>

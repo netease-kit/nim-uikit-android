@@ -1,16 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2022 NetEase, Inc.  All rights reserved.
-  ~ Use of this source code is governed by a MIT license that can be found in the LICENSE file.
+  ~ Copyright (c) 2022 NetEase, Inc. All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be
+  ~ found in the LICENSE file.
   -->
 
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-
+    <color name="color_333333">#ff333333</color>
     <!-- nim -->
     <color name="color_blue_3a9efb">#3a9efb</color>
-
+    <color name="color_blue">#337EFF</color>
     <color name="tab_checked_color">#337EFF</color>
     <color name="tab_unchecked_color">#999999</color>
     <color name="color_a6adb6">#ffa6adb6</color>

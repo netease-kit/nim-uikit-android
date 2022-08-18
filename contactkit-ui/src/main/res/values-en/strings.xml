@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2022 NetEase, Inc.  All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be found in the LICENSE file.
+  -->
+
+<resources>
+    <!-- contact list -->
+    <string name="contact_title">Contacts</string>  
+    <string name="contact_list_verify_msg">Verifications</string> 
+    <string name="contact_list_black_list">Blacklist</string>
+    <string name="contact_list_my_group">My Groups</string> 
+    <string name="contact_list_my_computer">My Computer</string> 
+
+    <!-- add friend page-->
+    <string name="add_friend_title">Add Contact</string> 
+    <string name="add_friend_search_hint">Enter Account</string> 
+    <string name="add_friend_search_empty_tips">No exist</string> 
+
+    <!-- verify page -->
+    <string name="contact_verify_agree">Approve</string> 
+    <string name="contact_verify_reject">Reject</string> 
+    <string name="contact_verify_agreed">Approved</string> 
+    <string name="contact_verify_rejected"> Rejected</string>
+    <string name="contact_verify_expired"> Expired</string>
+    <string name="friend_apply">Friend Apply</string> 
+    <string name="invited_to_join_group">invite you to groups&#160;%s</string> 
+    <string name="apply_to_join_group">pply to join group%s</string> 
+    <string name="accept_your_friend_apply">Approved your apply</string>
+    <string name="direct_add_your_friend_apply">add your contact</string>
+    <string name="reject_your_friend_apply">reject your apply</string>
+    <string name="verify_msg">Verifications</string>  
+    <string name="verify_max_count_text">99+</string>
+
+    <!-- my team page -->
+    <string name="my_team">My Groups</string> 
+
+    <!-- black page -->
+    <string name="black_list">Blacklist</string> 
+    <string name="black_list_tips">You won\'t receive any messages</string>
+    <string name="contact_black_list_relieve">Release</string> 
+    <string name="add_black_error">%s Failed to block</string>
+
+    <!-- userinfo page -->
+    <string name="clear_all">Clear</string> 
+    <string name="birthday">Birthday</string> 
+    <string name="phone">Mobile</string> 
+    <string name="email">Mail</string> 
+    <string name="personal_signature">What’s up</string>
+    <string name="comment_name">Nick Name</string> 
+    <string name="notify_message">Message Notification</string> 
+    <string name="add_black_list">Block</string>
+    <string name="chat">Chat</string> 
+    <string name="delete_friend">Delete Contact</string> 
+    <string name="add_friend">Add Contact</string> 
+    <string name="contact_user_info_account">Account:%s</string> 
+    <string name="contact_user_info_nickname">Nick Name:%s</string>
+    <string name="delete_contact_account">Dlete “%s”</string> 
+    <string name="save">Save</string> 
+    <string name="add_friend_operate_success">Sent Contact apply</string> 
+    <string name="add_friend_operate_fail">Failed to apply contact %s</string> 
+
+    <!--添加好友页面 -->
+    <string name="add_friend_search_error">Failed to search</string> 
+
+
+    <!-- error toast -->
+    <string name="agree_add_friend_fail">Failed</string> 
+    <string name="disagree_add_friend_fail">Failed</string> 
+    <string name="agree_apply_join_team_fail">Failed</string> 
+    <string name="disagree_apply_join_team_fail">Failed</string>
+    <string name="agree_invite_team_fail">Failed</string> 
+    <string name="disagree_invite_team_fail">Failed</string>
+
+    <string name="remove_black_fail">Failed to remove blacklist</string> 
+
+    <!--    selector-->
+    <string name="select">Select</string>
+    <string name="selector_sure">Yes(%d)</string> 
+    <string name="contact_selector_max_count">select up to %s friends</string> 
+
+    <!--    common-->
+    <string name="cancel"> Cancel </string>
+
+</resources>

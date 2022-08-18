@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2022 NetEase, Inc.  All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be found in the LICENSE file.
+  -->
+
+<resources>
+    <string name="team_setting_title">Settings</string> 
+    <string name="team_info_title">Group Info</string> 
+    <string name="team_group_info_title">Temp Group Info</string>
+    <string name="team_name_title">Group Name</string> 
+    <string name="team_group_name_title">Temp Group Name</string>
+    <string name="team_member_title">Group Member</string> 
+    <string name="team_group_member_title">Temp Group Member</string>
+    <string name="team_icon_title">Group Avator</string> 
+    <string name="team_group_icon_title">Temp Group Avator</string>
+    <string name="team_introduce_title">Group Introduce</string> 
+    <string name="team_my_nickname_title">My Alias in Group</string>
+    <string name="team_mark">Pin</string> 
+    <string name="team_history">History</string> 
+    <string name="team_message_tip">Notification</string> 
+    <string name="team_session_pin">Sticky on Top</string> 
+    <string name="team_mute">Group Mute</string> 
+    <string name="team_invite_other_permission">Invitation Permission</string> 
+    <string name="team_update_info_permission">Group info setting Permission</string> 
+    <string name="team_need_agreed_when_be_invited_permission">Invitees agree to join</string>
+    <string name="team_advanced_dismiss">Dissolve Group</string> 
+    <string name="team_advanced_quit">Leave Group</string> 
+    <string name="team_group_quit">Leave Temp Group</string>
+    <string name="team_default_icon">Select Default Icon</string> 
+    <string name="team_all_member">Everyone</string> 
+    <string name="team_owner">Group Owner</string> 
+    <string name="team_update_icon">Modify Avator</string> 
+    <string name="team_cancel">Cancel</string> 
+    <string name="team_confirm">Yes</string> 
+    <string name="team_quit_advanced_team_query">Whether to leave group？</string> 
+    <string name="team_quit_group_team_query">Whether to leave temp group？</string>
+    <string name="team_dismiss_advanced_team_query">Whether to dissolve group？</string> 
+    <string name="team_save">Save</string> 
+    <string name="team_search_friend">Search Contacts</string> 
+</resources>

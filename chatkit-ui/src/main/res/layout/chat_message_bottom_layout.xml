@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2022 NetEase, Inc.  All rights reserved.
-  ~ Use of this source code is governed by a MIT license that can be found in the LICENSE file.
+  ~ Copyright (c) 2022 NetEase, Inc. All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be
+  ~ found in the LICENSE file.
   -->
 
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -66,7 +67,9 @@
             android:background="@null"
             android:imeOptions="actionSend"
             android:paddingStart="@dimen/dimen_12_dp"
+            android:paddingEnd="@dimen/dimen_12_dp"
             android:singleLine="true"
+            android:ellipsize="end"
             android:textColorHint="@color/color_b3b7bc"
             android:textCursorDrawable="@null"
             android:textSize="@dimen/text_size_16" />

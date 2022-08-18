@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2022 NetEase, Inc.  All rights reserved.
-  ~ Use of this source code is governed by a MIT license that can be found in the LICENSE file.
+  ~ Copyright (c) 2022 NetEase, Inc. All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be
+  ~ found in the LICENSE file.
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
@@ -18,7 +19,7 @@
                 android:name="com.netease.yunxin.kit.searchkit.ui.SearchUIService"
                 android:value="xkit.startup" />
         </provider>
-        <activity android:name=".page.GlobalSearchActivity" android:exported="false"/>
+        <activity android:name=".page.GlobalSearchActivity" android:screenOrientation="portrait" android:exported="false"/>
     </application>
 
 </manifest>

@@ -1,7 +1,6 @@
-/*
- * Copyright (c) 2022 NetEase, Inc.  All rights reserved.
- * Use of this source code is governed by a MIT license that can be found in the LICENSE file.
- */
+// Copyright (c) 2022 NetEase, Inc. All rights reserved.
+// Use of this source code is governed by a MIT license that can be
+// found in the LICENSE file.
 
 package com.netease.yunxin.kit.chatkit.ui.page.fragment;
 
@@ -13,23 +12,18 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
-
 import com.netease.nimlib.sdk.msg.attachment.MsgAttachment;
 import com.netease.nimlib.sdk.msg.attachment.VideoAttachment;
 import com.netease.nimlib.sdk.msg.constant.AttachStatusEnum;
@@ -38,8 +32,8 @@ import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
 import com.netease.nimlib.sdk.msg.model.QueryDirectionEnum;
 import com.netease.yunxin.kit.alog.ALog;
-import com.netease.yunxin.kit.chatkit.ui.ChatUIConfig;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitClient;
+import com.netease.yunxin.kit.chatkit.ui.ChatUIConfig;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.builder.IChatViewCustom;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
@@ -58,6 +52,7 @@ import com.netease.yunxin.kit.chatkit.ui.view.interfaces.IMessageLoadHandler;
 import com.netease.yunxin.kit.chatkit.ui.view.interfaces.IMessageProxy;
 import com.netease.yunxin.kit.chatkit.ui.view.popmenu.ChatPopMenu;
 import com.netease.yunxin.kit.chatkit.ui.view.popmenu.ChatPopMenuActionListener;
+import com.netease.yunxin.kit.chatkit.utils.SendMediaHelper;
 import com.netease.yunxin.kit.common.ui.dialog.ChoiceListener;
 import com.netease.yunxin.kit.common.ui.dialog.CommonChoiceDialog;
 import com.netease.yunxin.kit.common.ui.fragments.BaseFragment;
@@ -65,766 +60,852 @@ import com.netease.yunxin.kit.common.ui.utils.ToastX;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.common.utils.NetworkUtils;
-import com.netease.yunxin.kit.chatkit.utils.SendMediaHelper;
 import com.netease.yunxin.kit.common.utils.PermissionUtils;
 import com.netease.yunxin.kit.common.utils.storage.StorageType;
 import com.netease.yunxin.kit.common.utils.storage.StorageUtil;
 import com.netease.yunxin.kit.corekit.im.IMKitClient;
 import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-/**
- * BaseFragment for Chat
- * include P2P and Team chat page
- */
+/** BaseFragment for Chat include P2P and Team chat page */
 public abstract class ChatBaseFragment extends BaseFragment {
 
-    private static final String LOG_TAG = "ChatBaseFragment";
+  private static final String LOG_TAG = "ChatBaseFragment";
 
-    private final int REQUEST_PERMISSION = 0;
-    private final int REQUEST_CAMERA_PERMISSION = 1;
-    private final int REQUEST_VIDEO_PERMISSION = 2;
-    private final int REQUEST_READ_EXTERNAL_STORAGE_PERMISSION = 3;
+  private final int REQUEST_PERMISSION = 0;
+  private final int REQUEST_CAMERA_PERMISSION = 1;
+  private final int REQUEST_VIDEO_PERMISSION = 2;
+  private final int REQUEST_READ_EXTERNAL_STORAGE_PERMISSION = 3;
 
-    private int currentRequest = 0;
+  private int currentRequest = 0;
 
-    ChatBaseViewModel viewModel;
-    AitManager aitManager;
+  ChatBaseViewModel viewModel;
+  AitManager aitManager;
 
-    SessionTypeEnum sessionType = SessionTypeEnum.P2P;
+  SessionTypeEnum sessionType = SessionTypeEnum.P2P;
 
-    ChatMessageBean forwardMessage;
+  ChatMessageBean forwardMessage;
 
-    ChatLayoutFragmentBinding binding;
-    private ActivityResultLauncher<String> pickMediaLauncher;
-    private String captureTempImagePath = "";
-    private ActivityResultLauncher<Uri> takePictureLauncher;
-    private String captureTempVideoPath = "";
-    private ActivityResultLauncher<Intent> captureVideoLauncher;
+  ChatLayoutFragmentBinding binding;
+  private ActivityResultLauncher<String> pickMediaLauncher;
+  private String captureTempImagePath = "";
+  private ActivityResultLauncher<Uri> takePictureLauncher;
+  private String captureTempVideoPath = "";
+  private ActivityResultLauncher<Intent> captureVideoLauncher;
 
-    private ActivityResultLauncher<Intent> forwardP2PLauncher;
+  private ActivityResultLauncher<Intent> forwardP2PLauncher;
 
-    private ActivityResultLauncher<Intent> forwardTeamLauncher;
+  private ActivityResultLauncher<Intent> forwardTeamLauncher;
 
-    private ActivityResultLauncher<String[]> permissionLauncher;
+  private ActivityResultLauncher<String[]> permissionLauncher;
 
-    ChatPopMenu popMenu;
+  ChatPopMenu popMenu;
 
-    private IChatViewCustom chatViewCustom;
+  private IChatViewCustom chatViewCustom;
 
-    private ChatUIConfig chatConfig;
+  private ChatUIConfig chatConfig;
 
-    private IMessageItemClickListener delegateListener;
+  private IMessageItemClickListener delegateListener;
 
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
-        binding = ChatLayoutFragmentBinding.inflate(inflater, container, false);
-        if (getArguments() != null) {
-            initData(getArguments());
-        }
-        initView();
-        initViewModel();
-        initDataObserver();
-        loadConfig();
-        NetworkUtils.registerStateListener(networkStateListener);
-        initCustom();
-        return binding.getRoot();
+  @Nullable
+  @Override
+  public View onCreateView(
+      @NonNull LayoutInflater inflater,
+      @Nullable ViewGroup container,
+      @Nullable Bundle savedInstanceState) {
+    binding = ChatLayoutFragmentBinding.inflate(inflater, container, false);
+    if (getArguments() != null) {
+      initData(getArguments());
     }
+    initView();
+    initViewModel();
+    initDataObserver();
+    loadConfig();
+    NetworkUtils.registerStateListener(networkStateListener);
+    initCustom();
+    return binding.getRoot();
+  }
 
-    protected void initView() {
-        ALog.i(LOG_TAG, "initView");
-        binding.chatView.getMessageListView().setPopActionListener(actionListener);
-        binding.chatView.setMessageProxy(messageProxy);
-        binding.chatView.setLoadHandler(loadHandler);
-        binding.chatView.setMessageReader(message -> viewModel.sendReceipt(message.getMessage()));
-        binding.chatView.setItemClickListener(itemClickListener);
-        permissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), result -> {
-            if (result != null) {
+  protected void initView() {
+    ALog.i(LOG_TAG, "initView");
+    binding.chatView.getMessageListView().setPopActionListener(actionListener);
+    binding.chatView.setMessageProxy(messageProxy);
+    binding.chatView.setLoadHandler(loadHandler);
+    binding.chatView.setMessageReader(message -> viewModel.sendReceipt(message.getMessage()));
+    binding.chatView.setItemClickListener(itemClickListener);
+    permissionLauncher =
+        registerForActivityResult(
+            new ActivityResultContracts.RequestMultiplePermissions(),
+            result -> {
+              if (result != null) {
                 for (Map.Entry entry : result.entrySet()) {
-                    String permission = entry.getKey().toString();
-                    boolean grant = (Boolean) entry.getValue();
-                    if (grant) {
-                        if (TextUtils.equals(
-                                permission, Manifest.permission.CAMERA)) {
-                            if (currentRequest == REQUEST_CAMERA_PERMISSION) {
-                                startTakePicture();
-                            } else if (currentRequest == REQUEST_VIDEO_PERMISSION) {
-                                startCaptureVideo();
-                            }
-                        } else if (TextUtils.equals(permission, Manifest.permission.READ_EXTERNAL_STORAGE)) {
-                            startPickMedia();
-                        }
-                    } else {
-                        if (shouldShowRequestPermissionRationale(permission)) {
-                            if (chatConfig == null || chatConfig.permissionListener == null ||
-                                    !chatConfig.permissionListener.requestPermissionDenied(ChatBaseFragment.this.getActivity(), permission)) {
-                                ToastX.showShortToast(getResources().getString(R.string.permission_deny_tips));
-                            }
-                        } else {
-                            if (chatConfig == null || chatConfig.permissionListener == null ||
-                                    !chatConfig.permissionListener.permissionDeniedForever(ChatBaseFragment.this.getActivity(), permission)) {
-                                ToastX.showShortToast(getPermissionText(permission));
-                            }
-                        }
-
+                  String permission = entry.getKey().toString();
+                  boolean grant = (Boolean) entry.getValue();
+                  if (grant) {
+                    if (TextUtils.equals(permission, Manifest.permission.CAMERA)) {
+                      if (currentRequest == REQUEST_CAMERA_PERMISSION) {
+                        startTakePicture();
+                      } else if (currentRequest == REQUEST_VIDEO_PERMISSION) {
+                        startCaptureVideo();
+                      }
+                    } else if (TextUtils.equals(
+                        permission, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                      startPickMedia();
                     }
+                  } else {
+                    if (shouldShowRequestPermissionRationale(permission)) {
+                      if (chatConfig == null
+                          || chatConfig.permissionListener == null
+                          || !chatConfig.permissionListener.requestPermissionDenied(
+                              ChatBaseFragment.this.getActivity(), permission)) {
+                        ToastX.showShortToast(
+                            getResources().getString(R.string.permission_deny_tips));
+                      }
+                    } else {
+                      if (chatConfig == null
+                          || chatConfig.permissionListener == null
+                          || !chatConfig.permissionListener.permissionDeniedForever(
+                              ChatBaseFragment.this.getActivity(), permission)) {
+                        ToastX.showShortToast(getPermissionText(permission));
+                      }
+                    }
+                  }
                 }
-            }
-        });
+              }
+            });
+  }
+
+  private void loadConfig() {
+    ChatUIConfig config = this.chatConfig;
+    if (config == null) {
+      config = ChatKitClient.getChatUIConfig();
     }
+    if (config != null) {
+      if (config.messageProperties != null) {
+        binding.chatView.setMessageProperties(config.messageProperties);
+      }
 
-    private void loadConfig() {
-        ChatUIConfig config = this.chatConfig;
-        if (config == null) {
-            config = ChatKitClient.getChatUIConfig();
-        }
-        if (config != null) {
-            if (config.messageProperties != null) {
-                binding.chatView.setMessageProperties(config.messageProperties);
-            }
+      if (config.chatFactory != null) {
+        binding.chatView.setMessageViewHolderFactory(config.chatFactory);
+      }
 
-            if (config.chatFactory != null) {
-                binding.chatView.setMessageViewHolderFactory(config.chatFactory);
-            }
+      if (config.chatViewCustom != null) {
+        binding.chatView.setLayoutCustom(config.chatViewCustom);
+      }
 
-            if (config.chatViewCustom != null) {
-                binding.chatView.setLayoutCustom(config.chatViewCustom);
-            }
-
-            delegateListener = config.messageItemClickListener;
-        }
+      delegateListener = config.messageItemClickListener;
     }
+  }
 
-    protected void initCustom() {
-        ALog.i(LOG_TAG, "initCustom");
-        if (chatViewCustom != null) {
-            binding.chatView.setLayoutCustom(chatViewCustom);
-        }
-        binding.chatView.setShowReadStatus(viewModel.isShowReadStatus());
+  protected void initCustom() {
+    ALog.i(LOG_TAG, "initCustom");
+    if (chatViewCustom != null) {
+      binding.chatView.setLayoutCustom(chatViewCustom);
     }
+    binding.chatView.setShowReadStatus(viewModel.isShowReadStatus());
+  }
 
-    private final IMessageProxy messageProxy = new IMessageProxy() {
+  private final IMessageProxy messageProxy =
+      new IMessageProxy() {
         @Override
         public boolean sendTextMessage(String msg, ChatMessageBean replyMsg) {
-            List<String> pushList = null;
-            if (aitManager != null && sessionType == SessionTypeEnum.Team) {
-                pushList = aitManager.getAitTeamMember();
-            }
-            if (replyMsg == null) {
-                viewModel.sendTextMessage(msg, pushList);
-            } else {
-                viewModel.replyTextMessage(msg, replyMsg.getMessageData().getMessage(), pushList);
-            }
-            if (aitManager != null) {
-                aitManager.reset();
-            }
-            return true;
+          List<String> pushList = null;
+          if (aitManager != null && sessionType == SessionTypeEnum.Team) {
+            pushList = aitManager.getAitTeamMember();
+          }
+          if (replyMsg == null) {
+            viewModel.sendTextMessage(msg, pushList);
+          } else {
+            viewModel.replyTextMessage(msg, replyMsg.getMessageData().getMessage(), pushList);
+          }
+          if (aitManager != null) {
+            aitManager.reset();
+          }
+          return true;
         }
 
         @Override
         public void pickMedia() {
-            if (PermissionUtils.hasPermissions(ChatBaseFragment.this.getContext(),Manifest.permission.READ_EXTERNAL_STORAGE)) {
-                startPickMedia();
-            } else {
-                requestCameraPermission(Manifest.permission.READ_EXTERNAL_STORAGE, REQUEST_READ_EXTERNAL_STORAGE_PERMISSION);
-            }
+          if (PermissionUtils.hasPermissions(
+              ChatBaseFragment.this.getContext(), Manifest.permission.READ_EXTERNAL_STORAGE)) {
+            startPickMedia();
+          } else {
+            requestCameraPermission(
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                REQUEST_READ_EXTERNAL_STORAGE_PERMISSION);
+          }
         }
 
         @Override
         public void takePicture() {
-            if (PermissionUtils.hasPermissions(ChatBaseFragment.this.getContext(),Manifest.permission.CAMERA)) {
-                startTakePicture();
-            } else {
-                requestCameraPermission(Manifest.permission.CAMERA, REQUEST_CAMERA_PERMISSION);
-            }
+          if (PermissionUtils.hasPermissions(
+              ChatBaseFragment.this.getContext(), Manifest.permission.CAMERA)) {
+            startTakePicture();
+          } else {
+            requestCameraPermission(Manifest.permission.CAMERA, REQUEST_CAMERA_PERMISSION);
+          }
         }
 
         @Override
         public void captureVideo() {
-            if (PermissionUtils.hasPermissions(ChatBaseFragment.this.getContext(),Manifest.permission.CAMERA)) {
-                startCaptureVideo();
-            } else {
-                requestCameraPermission(Manifest.permission.CAMERA, REQUEST_VIDEO_PERMISSION);
-            }
+          if (PermissionUtils.hasPermissions(
+              ChatBaseFragment.this.getContext(), Manifest.permission.CAMERA)) {
+            startCaptureVideo();
+          } else {
+            requestCameraPermission(Manifest.permission.CAMERA, REQUEST_VIDEO_PERMISSION);
+          }
         }
 
         @Override
         public boolean sendFile(ChatMessageBean replyMsg) {
-            //todo send file
-            return false;
+          //todo send file
+          return false;
         }
 
         @Override
         public boolean sendAudio(File audioFile, long audioLength, ChatMessageBean replyMsg) {
-            //audio not support reply
-            viewModel.sendAudioMessage(audioFile, audioLength);
-            return true;
+          //audio not support reply
+          viewModel.sendAudioMessage(audioFile, audioLength);
+          return true;
         }
 
         @Override
         public boolean sendCustomMessage(MsgAttachment attachment, String content) {
-            viewModel.sendCustomMessage(attachment, content);
-            return true;
+          viewModel.sendCustomMessage(attachment, content);
+          return true;
         }
 
         @Override
         public void onTypeStateChange(boolean isTyping) {
-            if (sessionType == SessionTypeEnum.P2P &&
-                    viewModel instanceof ChatP2PViewModel) {
-                ((ChatP2PViewModel) viewModel).sendInputNotification(isTyping);
-            }
+          if (sessionType == SessionTypeEnum.P2P && viewModel instanceof ChatP2PViewModel) {
+            ((ChatP2PViewModel) viewModel).sendInputNotification(isTyping);
+          }
         }
 
         @Override
         public boolean hasPermission(String permission) {
-            if (TextUtils.isEmpty(permission)) {
-                return false;
-            }
-            if (PermissionUtils.hasPermissions(ChatBaseFragment.this.getContext(), permission)) {
-                return true;
-            } else {
-                requestCameraPermission(permission, REQUEST_PERMISSION);
-                return false;
-            }
+          if (TextUtils.isEmpty(permission)) {
+            return false;
+          }
+          if (PermissionUtils.hasPermissions(ChatBaseFragment.this.getContext(), permission)) {
+            return true;
+          } else {
+            requestCameraPermission(permission, REQUEST_PERMISSION);
+            return false;
+          }
         }
-    };
+      };
 
-    private void requestCameraPermission(String permission, int request) {
-        currentRequest = request;
-        permissionLauncher.launch(new String[]{permission});
+  private void requestCameraPermission(String permission, int request) {
+    currentRequest = request;
+    permissionLauncher.launch(new String[] {permission});
+  }
+
+  public String getPermissionText(String permission) {
+    String text = this.getContext().getString(R.string.permission_default);
+    if (TextUtils.equals(permission, Manifest.permission.CAMERA)) {
+      text = this.getContext().getString(R.string.permission_camera);
+    } else if (TextUtils.equals(permission, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+      text = this.getContext().getString(R.string.permission_storage);
+    } else if (TextUtils.equals(permission, Manifest.permission.RECORD_AUDIO)) {
+      text = this.getContext().getString(R.string.permission_audio);
     }
+    return text;
+  }
 
-    public String getPermissionText(String permission) {
-        String text = this.getContext().getString(R.string.permission_default);
-        if (TextUtils.equals(permission, Manifest.permission.CAMERA)) {
-            text = this.getContext().getString(R.string.permission_camera);
-        } else if (TextUtils.equals(permission, Manifest.permission.READ_EXTERNAL_STORAGE)) {
-            text = this.getContext().getString(R.string.permission_storage);
-        } else if (TextUtils.equals(permission, Manifest.permission.RECORD_AUDIO)) {
-            text = this.getContext().getString(R.string.permission_audio);
-        }
-        return text;
+  private void startTakePicture() {
+    File tempImageFile = null;
+    try {
+      tempImageFile = SendMediaHelper.createImageFile();
+      captureTempImagePath = tempImageFile.getAbsolutePath();
+    } catch (IOException e) {
+      e.printStackTrace();
     }
-
-    private void startTakePicture() {
-        File tempImageFile = null;
-        try {
-            tempImageFile = SendMediaHelper.createImageFile();
-            captureTempImagePath = tempImageFile.getAbsolutePath();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        if (tempImageFile != null) {
-            Uri pictureUri = SendMediaHelper.getUriForFile(tempImageFile);
-            takePictureLauncher.launch(pictureUri);
-        }
+    if (tempImageFile != null) {
+      Uri pictureUri = SendMediaHelper.getUriForFile(tempImageFile);
+      takePictureLauncher.launch(pictureUri);
     }
+  }
 
-    private void startPickMedia() {
-        pickMediaLauncher.launch("image/*;video/*");
+  private void startPickMedia() {
+    pickMediaLauncher.launch("image/*;video/*");
+  }
+
+  private void startCaptureVideo() {
+    if (!StorageUtil.hasEnoughSpaceForWrite(StorageType.TYPE_VIDEO)) {
+      return;
     }
-
-    private void startCaptureVideo() {
-        if (!StorageUtil.hasEnoughSpaceForWrite(StorageType.TYPE_VIDEO)) {
-            return;
-        }
-        File tempVideoFile = null;
-        try {
-            tempVideoFile = SendMediaHelper.createVideoFile();
-            captureTempVideoPath = tempVideoFile.getAbsolutePath();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        if (tempVideoFile != null) {
-            Uri videoUri = SendMediaHelper.getUriForFile(tempVideoFile);
-            Intent intent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE)
-                    .putExtra(MediaStore.EXTRA_OUTPUT, videoUri);
-            captureVideoLauncher.launch(intent);
-        }
+    File tempVideoFile = null;
+    try {
+      tempVideoFile = SendMediaHelper.createVideoFile();
+      captureTempVideoPath = tempVideoFile.getAbsolutePath();
+    } catch (IOException e) {
+      e.printStackTrace();
     }
+    if (tempVideoFile != null) {
+      Uri videoUri = SendMediaHelper.getUriForFile(tempVideoFile);
+      Intent intent =
+          new Intent(MediaStore.ACTION_VIDEO_CAPTURE).putExtra(MediaStore.EXTRA_OUTPUT, videoUri);
+      captureVideoLauncher.launch(intent);
+    }
+  }
 
-    private final IMessageItemClickListener itemClickListener = new IMessageItemClickListener() {
+  private final IMessageItemClickListener itemClickListener =
+      new IMessageItemClickListener() {
         @Override
         public boolean onMessageLongClick(View view, int position, ChatMessageBean messageBean) {
-            if (delegateListener == null || !delegateListener.onMessageLongClick(view, position, messageBean)) {
-                if (messageBean.isRevoked()) {
-                    return false;
-                }
-                //show pop menu
-                if (popMenu == null) {
-                    popMenu = new ChatPopMenu();
-                }
-                if (popMenu.isShowing()) {
-                    return true;
-                }
-                int[] location = new int[2];
-                binding.chatView.getMessageListView().getLocationOnScreen(location);
-                popMenu.show(view, messageBean, location[1]);
+          if (delegateListener == null
+              || !delegateListener.onMessageLongClick(view, position, messageBean)) {
+            if (messageBean.isRevoked()) {
+              return false;
             }
-            return true;
+            //show pop menu
+            if (popMenu == null) {
+              popMenu = new ChatPopMenu();
+            }
+            if (popMenu.isShowing()) {
+              return true;
+            }
+            int[] location = new int[2];
+            binding.chatView.getMessageListView().getLocationOnScreen(location);
+            popMenu.show(view, messageBean, location[1]);
+          }
+          return true;
         }
 
         @Override
         public boolean onMessageClick(View view, int position, ChatMessageBean messageBean) {
-            if (delegateListener == null || !delegateListener.onMessageClick(view, position, messageBean)) {
+          if (delegateListener == null
+              || !delegateListener.onMessageClick(view, position, messageBean)) {
 
-                if (messageBean.getViewType() == MsgTypeEnum.image.getValue()) {
-                    watchImage(messageBean,
-                            binding.chatView.getMessageListView().filterMessagesByType(messageBean.getViewType()));
-                } else if (messageBean.getViewType() == MsgTypeEnum.video.getValue()) {
-                    watchVideo(messageBean.getMessageData().getMessage());
-                }
+            if (messageBean.getViewType() == MsgTypeEnum.image.getValue()) {
+              watchImage(
+                  messageBean,
+                  binding
+                      .chatView
+                      .getMessageListView()
+                      .filterMessagesByType(messageBean.getViewType()));
+            } else if (messageBean.getViewType() == MsgTypeEnum.video.getValue()) {
+              watchVideo(messageBean.getMessageData().getMessage());
             }
-            return true;
+          }
+          return true;
         }
 
         @Override
         public boolean onUserIconClick(View view, int position, ChatMessageBean messageBean) {
-            if (delegateListener == null || !delegateListener.onUserIconClick(view, position, messageBean)) {
-                XKitRouter.withKey(RouterConstant.PATH_USER_INFO_PAGE)
-                        .withContext(view.getContext())
-                        .withParam(RouterConstant.KEY_ACCOUNT_ID_KEY,
-                                messageBean.getMessageData().getMessage().getFromAccount())
-                        .navigate();
-            }
-            return true;
+          if (delegateListener == null
+              || !delegateListener.onUserIconClick(view, position, messageBean)) {
+            XKitRouter.withKey(RouterConstant.PATH_USER_INFO_PAGE)
+                .withContext(view.getContext())
+                .withParam(
+                    RouterConstant.KEY_ACCOUNT_ID_KEY,
+                    messageBean.getMessageData().getMessage().getFromAccount())
+                .navigate();
+          }
+          return true;
         }
 
         @Override
         public boolean onSelfIconClick(View view, int position, ChatMessageBean messageBean) {
-            if (delegateListener == null || !delegateListener.onSelfIconClick(view, position, messageBean)) {
-                XKitRouter.withKey(RouterConstant.PATH_MINE_INFO_PAGE)
-                        .withContext(view.getContext())
-                        .navigate();
-            }
-            return true;
+          if (delegateListener == null
+              || !delegateListener.onSelfIconClick(view, position, messageBean)) {
+            XKitRouter.withKey(RouterConstant.PATH_MINE_INFO_PAGE)
+                .withContext(view.getContext())
+                .navigate();
+          }
+          return true;
         }
 
         @Override
         public boolean onUserIconLongClick(View view, int position, ChatMessageBean messageBean) {
-            if (delegateListener == null || !delegateListener.onUserIconLongClick(view, position, messageBean)) {
-                //todo
-            }
-            return true;
+          if (delegateListener == null
+              || !delegateListener.onUserIconLongClick(view, position, messageBean)) {
+            //todo
+          }
+          return true;
         }
 
         @Override
         public boolean onReEditRevokeMessage(View view, int position, ChatMessageBean messageBean) {
-            //only support text message
-            if (delegateListener == null || !delegateListener.onReEditRevokeMessage(view, position, messageBean)) {
-                if (messageBean.getMessageData().getMessage().getMsgType() == MsgTypeEnum.text) {
-                    binding.chatView.getInputView()
-                            .setReEditMessage(messageBean.getMessageData().getMessage().getContent());
-                }
+          //only support text message
+          if (delegateListener == null
+              || !delegateListener.onReEditRevokeMessage(view, position, messageBean)) {
+            if (messageBean.getMessageData().getMessage().getMsgType() == MsgTypeEnum.text) {
+              binding
+                  .chatView
+                  .getInputView()
+                  .setReEditMessage(messageBean.getMessageData().getMessage().getContent());
             }
-            return true;
+          }
+          return true;
         }
 
         @Override
         public boolean onReplyMessageClick(View view, int position, String replyUUid) {
-            //scroll to the message position
-            if (delegateListener == null || !delegateListener.onReplyMessageClick(view, position, replyUUid)) {
-                binding.chatView.getMessageListView().scrollToMessage(replyUUid);
-            }
-            return true;
+          //scroll to the message position
+          if (delegateListener == null
+              || !delegateListener.onReplyMessageClick(view, position, replyUUid)) {
+            binding.chatView.getMessageListView().scrollToMessage(replyUUid);
+          }
+          return true;
         }
 
         @Override
         public boolean onSendFailBtnClick(View view, int position, ChatMessageBean messageBean) {
-            if (delegateListener == null || !delegateListener.onSendFailBtnClick(view, position, messageBean)) {
-                viewModel.sendMessage(messageBean.getMessageData().getMessage(), true, true);
-            }
-            return true;
+          if (delegateListener == null
+              || !delegateListener.onSendFailBtnClick(view, position, messageBean)) {
+            viewModel.sendMessage(messageBean.getMessageData().getMessage(), true, true);
+          }
+          return true;
         }
 
         @Override
         public boolean onTextSelected(View view, int position, ChatMessageBean messageInfo) {
-            if (delegateListener == null || !delegateListener.onTextSelected(view, position, messageInfo)) {
-                //todo
-            }
-            return false;
+          if (delegateListener == null
+              || !delegateListener.onTextSelected(view, position, messageInfo)) {
+            //todo
+          }
+          return false;
         }
-    };
+      };
 
-    private final IMessageLoadHandler loadHandler = new IMessageLoadHandler() {
+  private final IMessageLoadHandler loadHandler =
+      new IMessageLoadHandler() {
         @Override
         public void loadMoreForward(ChatMessageBean messageBean) {
-            viewModel.fetchMoreMessage(messageBean.getMessageData().getMessage(), QueryDirectionEnum.QUERY_OLD);
+          viewModel.fetchMoreMessage(
+              messageBean.getMessageData().getMessage(), QueryDirectionEnum.QUERY_OLD);
         }
 
         @Override
         public void loadMoreBackground(ChatMessageBean messageBean) {
-            viewModel.fetchMoreMessage(messageBean.getMessageData().getMessage(), QueryDirectionEnum.QUERY_NEW);
+          viewModel.fetchMoreMessage(
+              messageBean.getMessageData().getMessage(), QueryDirectionEnum.QUERY_NEW);
         }
 
         @Override
         public void onVisibleItemChange(List<ChatMessageBean> messages) {
-            if (sessionType == SessionTypeEnum.Team &&
-                    viewModel instanceof ChatTeamViewModel) {
-                ((ChatTeamViewModel) viewModel).refreshTeamMessageReceipt(messages);
-            }
+          if (sessionType == SessionTypeEnum.Team && viewModel instanceof ChatTeamViewModel) {
+            ((ChatTeamViewModel) viewModel).refreshTeamMessageReceipt(messages);
+          }
         }
-    };
+      };
 
-    private final ChatPopMenuActionListener actionListener = new ChatPopMenuActionListener() {
+  private final ChatPopMenuActionListener actionListener =
+      new ChatPopMenuActionListener() {
         @Override
         public void onCopy(ChatMessageBean messageBean) {
-            ClipboardManager cmb = (ClipboardManager) IMKitClient.getApplicationContext()
-                    .getSystemService(Context.CLIPBOARD_SERVICE);
-            ClipData clipData = null;
-            if (messageBean.getMessageData().getMessage().getMsgType() == MsgTypeEnum.text) {
-                clipData = ClipData.newPlainText(null, messageBean.getMessageData().getMessage().getContent());
-            }
-            cmb.setPrimaryClip(clipData);
-            ToastX.showShortToast(R.string.chat_message_action_copy_success);
+          ClipboardManager cmb =
+              (ClipboardManager)
+                  IMKitClient.getApplicationContext().getSystemService(Context.CLIPBOARD_SERVICE);
+          ClipData clipData = null;
+          if (messageBean.getMessageData().getMessage().getMsgType() == MsgTypeEnum.text) {
+            clipData =
+                ClipData.newPlainText(null, messageBean.getMessageData().getMessage().getContent());
+          }
+          cmb.setPrimaryClip(clipData);
+          ToastX.showShortToast(R.string.chat_message_action_copy_success);
         }
 
         @Override
         public void onReply(ChatMessageBean messageBean) {
-            if (aitManager != null && sessionType == SessionTypeEnum.Team) {
-                String account = messageBean.getMessageData().getMessage().getFromAccount();
-                if (!TextUtils.equals(account, IMKitClient.account())) {
-                    String name = MessageHelper.getTeamNick(aitManager.getTid(), account);
-                    if (TextUtils.isEmpty(name)) {
-                        if (messageBean.getMessageData().getFromUser() != null) {
-                            name = messageBean.getMessageData().getFromUser().getName();
-                        } else {
-                            name = account;
-                        }
-                    }
-                    aitManager.insertReplyAit(account, name);
+          if (aitManager != null && sessionType == SessionTypeEnum.Team) {
+            String account = messageBean.getMessageData().getMessage().getFromAccount();
+            if (!TextUtils.equals(account, IMKitClient.account())) {
+              String name =
+                  MessageHelper.getTeamAitName(
+                      aitManager.getTid(), messageBean.getMessageData().getFromUser());
+              if (TextUtils.isEmpty(name)) {
+                if (messageBean.getMessageData().getFromUser() != null) {
+                  name = messageBean.getMessageData().getFromUser().getName();
+                } else {
+                  name = account;
                 }
+              }
+              aitManager.insertReplyAit(account, name);
             }
-            binding.chatView.getInputView().setReplyMessage(messageBean);
+          }
+          binding.chatView.getInputView().setReplyMessage(messageBean);
         }
 
         @Override
         public void onForward(ChatMessageBean messageBean) {
-            forwardMessage = messageBean;
-            ChatMessageForwardSelectDialog dialog = new ChatMessageForwardSelectDialog();
-            dialog.setSelectedCallback(new ChatMessageForwardSelectDialog.ForwardTypeSelectedCallback() {
+          forwardMessage = messageBean;
+          ChatMessageForwardSelectDialog dialog = new ChatMessageForwardSelectDialog();
+          dialog.setSelectedCallback(
+              new ChatMessageForwardSelectDialog.ForwardTypeSelectedCallback() {
                 @Override
                 public void onTeamSelected() {
-                    startTeamList();
+                  startTeamList();
                 }
 
                 @Override
                 public void onP2PSelected() {
-                    startP2PSelector();
+                  startP2PSelector();
                 }
-            });
-            dialog.show(getParentFragmentManager(), ChatMessageForwardSelectDialog.TAG);
+              });
+          dialog.show(getParentFragmentManager(), ChatMessageForwardSelectDialog.TAG);
         }
 
         @Override
         public void onSignal(ChatMessageBean messageBean, boolean cancel) {
-            if (cancel) {
-                viewModel.removeMsgPin(messageBean.getMessageData());
-            } else {
-                viewModel.addMessagePin(messageBean.getMessageData(), "");
-            }
+          if (cancel) {
+            viewModel.removeMsgPin(messageBean.getMessageData());
+          } else {
+            viewModel.addMessagePin(messageBean.getMessageData(), "");
+          }
         }
 
         @Override
         public void onMultiSelected(ChatMessageBean messageBean) {
-            //todo
+          //todo
         }
 
         @Override
         public void onCollection(ChatMessageBean messageBean) {
-            viewModel.addMsgCollection(messageBean.getMessageData());
+          viewModel.addMsgCollection(messageBean.getMessageData());
         }
 
         @Override
         public void onDelete(ChatMessageBean message) {
-            showDeleteConfirmDialog(message);
+          showDeleteConfirmDialog(message);
         }
 
         @Override
         public void onRecall(ChatMessageBean messageBean) {
-            showRevokeConfirmDialog(messageBean);
+          showRevokeConfirmDialog(messageBean);
         }
-    };
+      };
 
-    private void showDeleteConfirmDialog(ChatMessageBean message) {
-        CommonChoiceDialog dialog = new CommonChoiceDialog();
-        dialog.setTitleStr(getString(R.string.chat_message_action_delete))
-                .setContentStr(getString(R.string.chat_message_action_delete_this_message))
-                .setPositiveStr(getString(R.string.chat_message_delete))
-                .setNegativeStr(getString(R.string.cancel))
-                .setConfirmListener(new ChoiceListener() {
-                    @Override
-                    public void onPositive() {
-                        viewModel.deleteMessage(message.getMessageData());
-                        binding.chatView.getMessageListView().deleteMessage(message);
-                    }
+  private void showDeleteConfirmDialog(ChatMessageBean message) {
+    CommonChoiceDialog dialog = new CommonChoiceDialog();
+    dialog
+        .setTitleStr(getString(R.string.chat_message_action_delete))
+        .setContentStr(getString(R.string.chat_message_action_delete_this_message))
+        .setPositiveStr(getString(R.string.chat_message_delete))
+        .setNegativeStr(getString(R.string.cancel))
+        .setConfirmListener(
+            new ChoiceListener() {
+              @Override
+              public void onPositive() {
+                viewModel.deleteMessage(message.getMessageData());
+                binding.chatView.getMessageListView().deleteMessage(message);
+              }
 
-                    @Override
-                    public void onNegative() {
+              @Override
+              public void onNegative() {}
+            })
+        .show(getParentFragmentManager());
+  }
 
-                    }
-                }).show(getParentFragmentManager());
+  private void showRevokeConfirmDialog(ChatMessageBean messageBean) {
+    CommonChoiceDialog dialog = new CommonChoiceDialog();
+    dialog
+        .setTitleStr(getString(R.string.chat_message_action_recall))
+        .setContentStr(getString(R.string.chat_message_action_revoke_this_message))
+        .setPositiveStr(getString(R.string.chat_message_action_recall))
+        .setNegativeStr(getString(R.string.cancel))
+        .setConfirmListener(
+            new ChoiceListener() {
+              @Override
+              public void onPositive() {
+                viewModel.revokeMessage(messageBean);
+              }
+
+              @Override
+              public void onNegative() {}
+            })
+        .show(getParentFragmentManager());
+  }
+
+  private void watchImage(ChatMessageBean messageBean, ArrayList<ChatMessageBean> imageMessages) {
+    int index = 0;
+    ArrayList<IMMessage> messages = new ArrayList<>();
+    for (int i = 0; i < imageMessages.size(); ++i) {
+      if (messageBean.equals(imageMessages.get(i))) {
+        index = i;
+      }
+      messages.add(imageMessages.get(i).getMessageData().getMessage());
     }
+    WatchImageActivity.launch(getContext(), messages, index);
+  }
 
-    private void showRevokeConfirmDialog(ChatMessageBean messageBean) {
-        CommonChoiceDialog dialog = new CommonChoiceDialog();
-        dialog.setTitleStr(getString(R.string.chat_message_action_recall))
-                .setContentStr(getString(R.string.chat_message_action_revoke_this_message))
-                .setPositiveStr(getString(R.string.chat_message_action_recall))
-                .setNegativeStr(getString(R.string.cancel))
-                .setConfirmListener(new ChoiceListener() {
-                    @Override
-                    public void onPositive() {
-                        viewModel.revokeMessage(messageBean);
-                    }
-
-                    @Override
-                    public void onNegative() {
-
-                    }
-                }).show(getParentFragmentManager());
+  private void watchVideo(IMMessage message) {
+    if (message.getAttachStatus() == AttachStatusEnum.transferred
+        && !TextUtils.isEmpty(((VideoAttachment) message.getAttachment()).getPath())) {
+      WatchVideoActivity.launch(getContext(), message);
+    } else if (message.getAttachStatus() != AttachStatusEnum.transferring) {
+      viewModel.downloadMessageAttachment(message);
     }
+  }
 
-    private void watchImage(ChatMessageBean messageBean, ArrayList<ChatMessageBean> imageMessages) {
-        int index = 0;
-        ArrayList<IMMessage> messages = new ArrayList<>();
-        for (int i = 0; i < imageMessages.size(); ++i) {
-            if (messageBean.equals(imageMessages.get(i))) {
-                index = i;
-            }
-            messages.add(imageMessages.get(i).getMessageData().getMessage());
-        }
-        WatchImageActivity.launch(getContext(), messages, index);
-    }
+  protected abstract void initViewModel();
 
-    private void watchVideo(IMMessage message) {
-        if (message.getAttachStatus() == AttachStatusEnum.transferred &&
-                !TextUtils.isEmpty(((VideoAttachment) message.getAttachment()).getPath())) {
-            WatchVideoActivity.launch(getContext(), message);
-        } else if (message.getAttachStatus() != AttachStatusEnum.transferring) {
-            viewModel.downloadMessageAttachment(message);
-        }
-    }
-
-    protected abstract void initViewModel();
-
-    protected void initDataObserver() {
-        ALog.i(LOG_TAG, "initDataObserver");
-        viewModel.getQueryMessageLiveData().observe(getViewLifecycleOwner(), listFetchResult -> {
-            boolean hasMore = listFetchResult.getLoadStatus() != LoadStatus.Finish;
-            if (listFetchResult.getTypeIndex() == 0) {
+  protected void initDataObserver() {
+    ALog.i(LOG_TAG, "initDataObserver");
+    viewModel
+        .getQueryMessageLiveData()
+        .observe(
+            getViewLifecycleOwner(),
+            listFetchResult -> {
+              boolean hasMore = listFetchResult.getLoadStatus() != LoadStatus.Finish;
+              if (listFetchResult.getTypeIndex() == 0) {
                 ALog.d(LOG_TAG, "message observe older forward has more:" + hasMore);
                 binding.chatView.getMessageListView().setHasMoreForwardMessages(hasMore);
                 binding.chatView.addMessageListForward(listFetchResult.getData());
-            } else {
+              } else {
                 ALog.d(LOG_TAG, "message observe newer load has more:" + hasMore);
                 binding.chatView.getMessageListView().setHasMoreNewerMessages(hasMore);
                 binding.chatView.appendMessageList(listFetchResult.getData());
-            }
-        });
+              }
+            });
 
-        viewModel.getSendMessageLiveData().observe(getViewLifecycleOwner(), chatMessageBeanFetchResult -> {
-            if (chatMessageBeanFetchResult.getType() == FetchResult.FetchType.Add) {
+    viewModel
+        .getSendMessageLiveData()
+        .observe(
+            getViewLifecycleOwner(),
+            chatMessageBeanFetchResult -> {
+              if (chatMessageBeanFetchResult.getType() == FetchResult.FetchType.Add) {
                 ALog.i(LOG_TAG, "send message add");
                 if (binding.chatView.getMessageListView().hasMoreNewerMessages()) {
-                    binding.chatView.clearMessageList();
-                    binding.chatView.appendMessage(chatMessageBeanFetchResult.getData());
-                    if (chatMessageBeanFetchResult.getData() != null) {
-                        binding.chatView.getMessageListView().setHasMoreNewerMessages(false);
-                        viewModel.fetchMoreMessage(chatMessageBeanFetchResult.getData().getMessageData().getMessage(),
-                                QueryDirectionEnum.QUERY_OLD);
-                    }
+                  binding.chatView.clearMessageList();
+                  binding.chatView.appendMessage(chatMessageBeanFetchResult.getData());
+                  if (chatMessageBeanFetchResult.getData() != null) {
+                    binding.chatView.getMessageListView().setHasMoreNewerMessages(false);
+                    viewModel.fetchMoreMessage(
+                        chatMessageBeanFetchResult.getData().getMessageData().getMessage(),
+                        QueryDirectionEnum.QUERY_OLD);
+                  }
                 } else {
-                    binding.chatView.appendMessage(chatMessageBeanFetchResult.getData());
+                  binding.chatView.appendMessage(chatMessageBeanFetchResult.getData());
                 }
-            } else {
+              } else {
                 binding.chatView.updateMessage(chatMessageBeanFetchResult.getData());
-            }
-        });
+              }
+            });
 
-        viewModel.getAttachmentProgressMutableLiveData()
-                .observe(getViewLifecycleOwner(), attachmentProgressFetchResult -> binding.chatView
-                        .updateProgress(attachmentProgressFetchResult.getData()));
+    viewModel
+        .getAttachmentProgressMutableLiveData()
+        .observe(
+            getViewLifecycleOwner(),
+            attachmentProgressFetchResult ->
+                binding.chatView.updateProgress(attachmentProgressFetchResult.getData()));
 
-        viewModel.getRevokeMessageLiveData().observe(getViewLifecycleOwner(), messageResult -> {
-            if (messageResult.getLoadStatus() == LoadStatus.Success) {
+    viewModel
+        .getRevokeMessageLiveData()
+        .observe(
+            getViewLifecycleOwner(),
+            messageResult -> {
+              if (messageResult.getLoadStatus() == LoadStatus.Success) {
                 binding.chatView.getMessageListView().revokeMessage(messageResult.getData());
-            }
-        });
+              } else if (messageResult.getLoadStatus() == LoadStatus.Error) {
+                FetchResult.ErrorMsg errorMsg = messageResult.getError();
+                if (errorMsg != null) {
+                  ToastX.showShortToast(errorMsg.getRes());
+                }
+              }
+            });
 
-        viewModel.getUserInfoLiveData().observe(getViewLifecycleOwner(), userResult -> {
-            if (userResult.getLoadStatus() == LoadStatus.Finish && userResult.getType() == FetchResult.FetchType.Update) {
+    viewModel
+        .getUserInfoLiveData()
+        .observe(
+            getViewLifecycleOwner(),
+            userResult -> {
+              if (userResult.getLoadStatus() == LoadStatus.Finish
+                  && userResult.getType() == FetchResult.FetchType.Update) {
                 binding.chatView.getMessageListView().updateUserInfo(userResult.getData());
-            }
-        });
+              }
+            });
 
-        viewModel.getAddPinMessageLiveData().observe(getViewLifecycleOwner(),
-                responseOption -> binding.chatView.getMessageListView()
-                        .addPinMessage(responseOption.first, responseOption.second));
+    viewModel
+        .getAddPinMessageLiveData()
+        .observe(
+            getViewLifecycleOwner(),
+            responseOption ->
+                binding
+                    .chatView
+                    .getMessageListView()
+                    .addPinMessage(responseOption.first, responseOption.second));
 
-        viewModel.getRemovePinMessageLiveData().observe(getViewLifecycleOwner(),
-                uuid -> binding.chatView.getMessageListView().removePinMessage(uuid));
+    viewModel
+        .getRemovePinMessageLiveData()
+        .observe(
+            getViewLifecycleOwner(),
+            uuid -> binding.chatView.getMessageListView().removePinMessage(uuid));
 
-        pickMediaLauncher = registerForActivityResult(new ActivityResultContracts.GetMultipleContents(), result -> {
-            for (int i = 0; i < result.size(); ++i) {
+    pickMediaLauncher =
+        registerForActivityResult(
+            new ActivityResultContracts.GetMultipleContents(),
+            result -> {
+              for (int i = 0; i < result.size(); ++i) {
                 Uri uri = result.get(i);
                 ALog.i(LOG_TAG, "pick media result uri(" + i + ") -->> " + uri);
                 viewModel.sendImageOrVideoMessage(uri);
-            }
-        });
-        takePictureLauncher = registerForActivityResult(new ActivityResultContracts.TakePicture(), result -> {
-            if (result && !TextUtils.isEmpty(captureTempImagePath)) {
+              }
+            });
+    takePictureLauncher =
+        registerForActivityResult(
+            new ActivityResultContracts.TakePicture(),
+            result -> {
+              if (result && !TextUtils.isEmpty(captureTempImagePath)) {
                 File f = new File(captureTempImagePath);
                 Uri contentUri = Uri.fromFile(f);
                 ALog.i(LOG_TAG, "take picture contentUri -->> " + contentUri);
                 viewModel.sendImageOrVideoMessage(contentUri);
                 captureTempImagePath = "";
-            }
-        });
-        captureVideoLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
-                result -> {
-                    if (result.getResultCode() == Activity.RESULT_OK && !TextUtils.isEmpty(captureTempVideoPath)) {
-                        File f = new File(captureTempVideoPath);
-                        Uri contentUri = Uri.fromFile(f);
-                        ALog.i(LOG_TAG, "capture video contentUri -->> " + contentUri);
-                        viewModel.sendImageOrVideoMessage(contentUri);
-                        captureTempVideoPath = "";
-                    }
-                });
+              }
+            });
+    captureVideoLauncher =
+        registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+              if (result.getResultCode() == Activity.RESULT_OK
+                  && !TextUtils.isEmpty(captureTempVideoPath)) {
+                File f = new File(captureTempVideoPath);
+                Uri contentUri = Uri.fromFile(f);
+                ALog.i(LOG_TAG, "capture video contentUri -->> " + contentUri);
+                viewModel.sendImageOrVideoMessage(contentUri);
+                captureTempVideoPath = "";
+              }
+            });
 
-        forwardP2PLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
-            if (result.getResultCode() != Activity.RESULT_OK || forwardMessage == null) {
+    forwardP2PLauncher =
+        registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+              if (result.getResultCode() != Activity.RESULT_OK || forwardMessage == null) {
                 return;
-            }
-            ALog.i(LOG_TAG, "forward P2P result");
-            Intent data = result.getData();
-            if (data != null) {
-                ArrayList<String> friends = data.getStringArrayListExtra(REQUEST_CONTACT_SELECTOR_KEY);
+              }
+              ALog.i(LOG_TAG, "forward P2P result");
+              Intent data = result.getData();
+              if (data != null) {
+                ArrayList<String> friends =
+                    data.getStringArrayListExtra(REQUEST_CONTACT_SELECTOR_KEY);
                 if (friends != null && !friends.isEmpty()) {
-                    showForwardConfirmDialog(SessionTypeEnum.P2P, friends);
+                  showForwardConfirmDialog(SessionTypeEnum.P2P, friends);
                 }
-            }
-        });
+              }
+            });
 
-        forwardTeamLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
-                result -> {
-                    if (result.getResultCode() != Activity.RESULT_OK || forwardMessage == null) {
-                        return;
-                    }
-                    ALog.i(LOG_TAG, "forward Team result");
-                    Intent data = result.getData();
-                    if (data != null) {
-                        String tid = data.getStringExtra(RouterConstant.KEY_TEAM_ID);
-                        if (!TextUtils.isEmpty(tid)) {
-                            ArrayList<String> sessionIds = new ArrayList<>();
-                            sessionIds.add(tid);
-                            showForwardConfirmDialog(SessionTypeEnum.Team, sessionIds);
-                        }
-                    }
-                });
-    }
-
-    private void showForwardConfirmDialog(SessionTypeEnum type, ArrayList<String> sessionIds) {
-        ChatMessageForwardConfirmDialog confirmDialog = new ChatMessageForwardConfirmDialog();
-        Bundle bundle = new Bundle();
-        bundle.putInt(ChatMessageForwardConfirmDialog.FORWARD_TYPE, type.getValue());
-        bundle.putStringArrayList(ChatMessageForwardConfirmDialog.FORWARD_SESSION_LIST, sessionIds);
-        String sendName = forwardMessage.getMessageData().getFromUser() == null ?
-                forwardMessage.getMessageData().getMessage().getFromAccount()
-                : forwardMessage.getMessageData().getFromUser().getName();
-        bundle.putString(ChatMessageForwardConfirmDialog.FORWARD_MESSAGE_SEND, sendName);
-        confirmDialog.setArguments(bundle);
-        confirmDialog.setCallback(() -> {
-            if (forwardMessage != null) {
-                for (String accId : sessionIds) {
-                    viewModel.sendForwardMessage(forwardMessage.getMessageData().getMessage(),
-                            accId, type);
+    forwardTeamLauncher =
+        registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+              if (result.getResultCode() != Activity.RESULT_OK || forwardMessage == null) {
+                return;
+              }
+              ALog.i(LOG_TAG, "forward Team result");
+              Intent data = result.getData();
+              if (data != null) {
+                String tid = data.getStringExtra(RouterConstant.KEY_TEAM_ID);
+                if (!TextUtils.isEmpty(tid)) {
+                  ArrayList<String> sessionIds = new ArrayList<>();
+                  sessionIds.add(tid);
+                  showForwardConfirmDialog(SessionTypeEnum.Team, sessionIds);
                 }
+              }
+            });
+  }
+
+  private void showForwardConfirmDialog(SessionTypeEnum type, ArrayList<String> sessionIds) {
+    ChatMessageForwardConfirmDialog confirmDialog = new ChatMessageForwardConfirmDialog();
+    Bundle bundle = new Bundle();
+    bundle.putInt(ChatMessageForwardConfirmDialog.FORWARD_TYPE, type.getValue());
+    bundle.putStringArrayList(ChatMessageForwardConfirmDialog.FORWARD_SESSION_LIST, sessionIds);
+    String sendName =
+        forwardMessage.getMessageData().getFromUser() == null
+            ? forwardMessage.getMessageData().getMessage().getFromAccount()
+            : forwardMessage.getMessageData().getFromUser().getName();
+    bundle.putString(ChatMessageForwardConfirmDialog.FORWARD_MESSAGE_SEND, sendName);
+    confirmDialog.setArguments(bundle);
+    confirmDialog.setCallback(
+        () -> {
+          if (forwardMessage != null) {
+            for (String accId : sessionIds) {
+              viewModel.sendForwardMessage(
+                  forwardMessage.getMessageData().getMessage(), accId, type);
             }
+          }
         });
-        confirmDialog.show(getParentFragmentManager(), ChatMessageForwardConfirmDialog.TAG);
+    confirmDialog.show(getParentFragmentManager(), ChatMessageForwardConfirmDialog.TAG);
+  }
+
+  private void startTeamList() {
+    XKitRouter.withKey(RouterConstant.PATH_MY_TEAM_PAGE)
+        .withParam(RouterConstant.KEY_TEAM_LIST_SELECT, true)
+        .withContext(requireContext())
+        .navigate(forwardTeamLauncher);
+  }
+
+  private void startP2PSelector() {
+    ArrayList<String> filterList = new ArrayList<>();
+    if (sessionType == SessionTypeEnum.P2P) {
+      filterList.add(viewModel.getSessionId());
     }
+    XKitRouter.withKey(RouterConstant.PATH_CONTACT_SELECTOR_PAGE)
+        .withParam(RouterConstant.KEY_CONTACT_SELECTOR_MAX_COUNT, 6)
+        .withContext(requireContext())
+        .withParam(RouterConstant.SELECTOR_CONTACT_FILTER_KEY, filterList)
+        .navigate(forwardP2PLauncher);
+  }
 
-    private void startTeamList() {
-        XKitRouter.withKey(RouterConstant.PATH_MY_TEAM_PAGE)
-                .withParam(RouterConstant.KEY_TEAM_LIST_SELECT, true)
-                .withContext(requireContext())
-                .navigate(forwardTeamLauncher);
-    }
+  protected abstract void initData(Bundle bundle);
 
-    private void startP2PSelector() {
-        ArrayList<String> filterList = new ArrayList<>();
-        if (sessionType == SessionTypeEnum.P2P) {
-            filterList.add(viewModel.getSessionId());
-        }
-        XKitRouter.withKey(RouterConstant.PATH_CONTACT_SELECTOR_PAGE)
-                .withParam(RouterConstant.KEY_CONTACT_SELECTOR_MAX_COUNT, 6)
-                .withContext(requireContext())
-                .withParam(RouterConstant.SELECTOR_CONTACT_FILTER_KEY, filterList)
-                .navigate(forwardP2PLauncher);
-    }
+  @Override
+  public void onResume() {
+    super.onResume();
+    ALog.i(LOG_TAG, "onResume");
+    viewModel.setChattingAccount();
+  }
 
-    protected abstract void initData(Bundle bundle);
+  @Override
+  public void onPause() {
+    super.onPause();
+    ALog.i(LOG_TAG, "onPause");
+    viewModel.clearChattingAccount();
+  }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        ALog.i(LOG_TAG, "onResume");
-        viewModel.setChattingAccount();
-    }
+  public void onNewIntent(Intent intent) {
+    ALog.i(LOG_TAG, "onNewIntent");
+  }
 
-    @Override
-    public void onPause() {
-        super.onPause();
-        ALog.i(LOG_TAG, "onPause");
-        viewModel.clearChattingAccount();
-    }
-
-    public void onNewIntent(Intent intent) {
-        ALog.i(LOG_TAG, "onNewIntent");
-
-    }
-
-    private final NetworkUtils.NetworkStateListener networkStateListener = new NetworkUtils.NetworkStateListener() {
+  private final NetworkUtils.NetworkStateListener networkStateListener =
+      new NetworkUtils.NetworkStateListener() {
         @Override
         public void onAvailable(NetworkInfo network) {
-            binding.chatView.setNetWorkState(true);
+          binding.chatView.setNetWorkState(true);
         }
 
         @Override
         public void onLost(NetworkInfo network) {
-            binding.chatView.setNetWorkState(false);
+          binding.chatView.setNetWorkState(false);
         }
-    };
+      };
 
-    @Override
-    public void onDestroyView() {
-        ALog.i(LOG_TAG, "onDestroyView");
-        NetworkUtils.unregisterStateListener(networkStateListener);
-        if (popMenu != null) {
-            popMenu.hide();
-        }
-        super.onDestroyView();
+  @Override
+  public void onDestroyView() {
+    ALog.i(LOG_TAG, "onDestroyView");
+    NetworkUtils.unregisterStateListener(networkStateListener);
+    if (popMenu != null) {
+      popMenu.hide();
     }
+    super.onDestroyView();
+  }
 
-    /**
-     * for custom layout for ChatView
-     */
-    public void setChatViewCustom(IChatViewCustom chatViewCustom) {
-        this.chatViewCustom = chatViewCustom;
-    }
+  /** for custom layout for ChatView */
+  public void setChatViewCustom(IChatViewCustom chatViewCustom) {
+    this.chatViewCustom = chatViewCustom;
+  }
 
-    public void setChatConfig(ChatUIConfig config) {
-        if (config != null) {
-            this.chatConfig = config;
-        }
+  public void setChatConfig(ChatUIConfig config) {
+    if (config != null) {
+      this.chatConfig = config;
     }
+  }
 }

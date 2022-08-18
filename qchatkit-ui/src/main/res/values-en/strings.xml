@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (c) 2022 NetEase, Inc.  All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be found in the LICENSE file.
+  -->
+
+<resources>
+
+    <!-- common -->
+    <string name="qchat_close">Close</string> 
+    <string name="qchat_save">Save</string> 
+    <string name="qchat_cancel">Cancel</string> 
+    <string name="qchat_create">Create</string> 
+    <string name="qchat_sure">Yes</string> 
+    <string name="qchat_ensure">Yes</string>
+    <string name="qchat_delete">Delete</string>
+    <string name="qchat_edit">Edit</string>
+    <string name="qchat_complete">Done</string> 
+
+    <!--    server setting-->
+    <string name="qchat_delete_server">Delete Server</string> 
+    <string name="qchat_leave_server">Leave Server</string> 
+    <string name="qchat_roles">Role</string> 
+    <string name="qchat_member">Member</string> 
+    <string name="qchat_permission">Permission</string> 
+    <string name="qchat_server_topic">Server Theme</string> 
+    <string name="qchat_server_name">Server Name</string> 
+    <string name="qchat_server_setting">Server Setting</string> 
+    <string name="qchat_nickname">Nick Name</string> 
+    <string name="qchat_edit_nickname">Edit Nick Name</string> 
+    <string name="qchat_click_edit_and_edit_nickname">click to edit</string> 
+    <string name="qchat_kick_someone">Remove %s</string> 
+    <string name="qchat_forbid_someone">Block %s</string> 
+    <string name="qchat_server_id">ID:%d</string>
+    <string name="qchat_content_null">null</string> 
+
+    <!--    chat role-->
+    <string name="qchat_identifies_name">Role Name</string> 
+    <string name="qchat_member_manager">Member Management</string> 
+    <string name="qchat_modify_member">Edit Member</string> 
+    <string name="qchat_add_member">Add Member</string> 
+    <string name="qchat_common_permission">General Permission</string> 
+    <string name="qchat_manager_server">Manage Server</string> 
+    <string name="qchat_manage_role">Manager Role</string> 
+    <string name="qchat_manage_channel_property"> Manage every channel </string>
+    <string name="qchat_modify_self_server_member">Edit own info</string> 
+    <string name="qchat_modify_other_server_member">Edit other\'s info</string>
+    <string name="qchat_invite_others_enter_server">Invitation Permission</string> 
+    <string name="qchat_more_with_all">More(%d)</string> 
+    <string name="qchat_pack_up_with_all">Hide(%d)</string> 
+    <string name="qchat_plz_input_role_name">Enter role\'s name</string>
+
+    <!-- server role -->
+    <string name="qchat_role_delete">Delete Role</string> 
+    <string name="qchat_role_delete_one_role">If delete role of “%s”？</string> 
+    <string name="qchat_role_sort">role Sort</string> 
+    <string name="qchat_delete_member">Delete Member</string> 
+    <string name="qchat_sort">Sort</string> 
+    <string name="qchat_select">Select</string> 
+    <string name="qchat_sure_with_num">Yes %d</string>
+    <string name="qchat_role_sort_ruler">You can only manage groups of identities lower than your highest rank</string> 
+    <string name="qchat_everyone_role_ruler">Default permissions for all server members</string> 
+    <string name="qchat_delete_some_member">If remove member of “%s”?</string> 
+
+    <!-- permission -->
+    <string name="qchat_message_permission">Message Setting</string> 
+    <string name="qchat_send_message">Send Message</string> 
+    <string name="qchat_send_quick_comment">Quick Reply</string> 
+    <string name="qchat_thread_replay">Thread Reply</string> 
+    <string name="qchat_at_permission"> Permission of \t@</string>
+    <string name="qchat_manage_message">Manage Message</string> 
+    <string name="qchat_check_history_message">View History</string> 
+    <string name="qchat_delete_other_msg">Delete other\'s message in every channel</string>
+    <string name="qchat_revoke_other_msg">Recall other\'s message in every channel</string>
+    <string name="qchat_at_anyone_permission">\@anyone</string> 
+    <string name="qchat_at_all_permission">\@everyone</string> 
+    <string name="qchat_at_role_permission">\ @role</string>
+
+    <string name="qchat_member_permission">Member Permission</string> 
+    <string name="qchat_kick_other">Remove others</string> 
+    <string name="qchat_kick_member">Remove Member</string> 
+    <string name="qchat_forbid_other">Block Others</string> 
+    <string name="qchat_change_other_nickname">Change other\'s nick name</string>
+    <string name="qchat_create_new_role_group">Create New Role</string> 
+
+    <!--server create -->
+    <string name="qchat_fragment_no_server_tip">No server，let\'s join it</string>
+    <string name="qchat_create_title">Server</string>
+    <string name="qchat_crate_close">Close</string> 
+    <string name="qchat_crate_by_self">Create </string> 
+    <string name="qchat_crate_by_other">Join </string>
+    <string name="qchat_crate_upload_portrait">Upload Avator</string>
+    <string name="qchat_crate_tip">Create</string> 
+    <string name="qchat_join_error_title">Can\'t join？</string>
+    <string name="qchat_join_error_desc">you have been banned, can\'t join</string>
+    <string name="qchat_join_error_ok">ok</string> 
+    <string name="qchat_search_no_tip">can\'t find server ID</string>
+    <string name="qchat_search_tip">search server ID</string> 
+    <string name="qchat_take_photo">Camera</string> 
+    <string name="qchat_get_from_album">Album</string> 
+    <string name="qchat_input_server_name">Enter server\'s name</string>
+    <string name="qchat_msg_channel"> Message Channel</string>
+    <string name="qchat_no_Channel_with_server">No channel in this server</string> 
+    <string name="qchat_server_state_joined">joined</string> 
+    <string name="qchat_server_state_join">Join</string> 
+    <string name="qchat_server_state_applied">Applied</string> 
+    <string name="qchat_server_had_appled_tip">Apply sent</string> 
+    <string name="qchat_server_member_invite_tip">Invitation info sentsent</string> 
+    <string name="qchat_server_photo_crop">Tailor</string> 
+    <string name="qchat_server_channel_name_fix">Channel%s</string> 
+    <string name="qchat_server_request_fail">Failed</string> 
+    <string name="qchat_server_request_exception">Server wrong</string> 
+    <string name="qchat_network_error">No internet</string> 
+    <string name="qchat_user_cancel">User cancels</string> 
+    <string name="qchat_network_error_tip">No internet。</string> 
+
+    <!-- channel-->
+    <string name="qchat_channel_setting_title"> Channel Settings</string>
+    <string name="qchat_channel_create_title">Create new channel</string> 
+
+    <string name="qchat_channel_channel_name">Channel Name</string> 
+    <string name="qchat_channel_channel_name_hint">set name</string> 
+    <string name="qchat_channel_topic">Channel Theme</string> 
+    <string name="qchat_channel_topic_hint"> Set Theme</string>
+    <string name="qchat_channel_permission_title">Permission</string>
+    <string name="qchat_channel_permission_setting">Permission Settings</string> 
+    <string name="qchat_channel_names_list">List</string> 
+    <string name="qchat_channel_white_name_list"> Whitelist</string>
+    <string name="qchat_channel_black_name_list">Blacklist</string> 
+    <string name="qchat_channel_delete"> Delet Channel</string>
+    <string name="qchat_channel_type">Channel Type</string> 
+    <string name="qchat_channel_type_public">Public</string> 
+    <string name="qchat_channel_type_private">Private</string> 
+    <string name="qchat_channel_delete_dialog_title">If delete this channel？</string> 
+    <string name="qchat_channel_delete_error">Failed to delete channel</string> 
+    <string name="qchat_channel_update_error">Failed to edit channel</string> 
+    <string name="qchat_channel_update_empty_error">need a channel name</string> 
+    <string name="qchat_channel_message_copy_success">copy successfully</string> 
+
+    <string name="qchat_channel_name_empty_error">need a channel name</string> 
+    <string name="qchat_channel_create_error">Failed to create channel</string> 
+    <string name="qchat_channel_fetch_error">Failed to get channel</string> 
+    <string name="qchat_channel_fetch_role_error">Failed to get channel role</string> 
+
+    <!-- add role -->
+    <string name="qchat_channel_add_role_title">Add Role</string> 
+    <string name="qchat_fetch_role_error">Failed to get role</string> 
+    <string name="qchat_add_role_error">Failed to add role</string> 
+
+    <!-- add memeber -->
+    <string name="qchat_channel_add_member_title">Add member</string> 
+    <string name="qchat_channel_fetch_member_error">Failed to get channel member</string> 
+    <string name="qchat_channel_add_member_error">Failed to add member</string>
+    <string name="qchat_member_selector_max_count">select up to 10 friends</string> 
+
+    <!-- role permission-->
+    <string name="qchat_role_list_title">Role</string> 
+    <string name="qchat_member_list_title"> Member</string>
+    <string name="qchat_more_title">View More</string> 
+    <string name="qchat_channel_role_delete_title">Remove role</string> 
+    <string name="qchat_channel_role_delete_content">If remove role of%s？</string> 
+    <string name="qchat_channel_member_delete_title">Remove member</string> 
+    <string name="qchat_channel_member_delete_content">If remover%s？</string> 
+    <string name="qchat_no_permission">No Permission</string> 
+    <string name="qchat_no_permission_content">No Permission to send message</string> 
+
+    <string name="qchat_channel_role_delete_error">Failed to delete role</string> 
+    <string name="qchat_channel_member_delete_error">Failed to delete member</string> 
+    <string name="qchat_role_permission_title">%sPermission Setting</string> 
+    <string name="qchat_role_permission_general_title">General Setting</string> 
+    <string name="qchat_role_permission_role_member_title">Member Permission</string> 
+    <string name="qchat_role_permission_channel_attr">Manage channel info</string> 
+    <string name="qchat_role_permission_manager_member">Manage channel member</string> 
+    <string name="qchat_role_permission_channel_check">View channel</string> 
+    <string name="qchat_role_permission_channel_permission">Manage channel</string> 
+    <string name="qchat_role_permission_message_permission">Message Permission</string> 
+    <string name="qchat_role_permission_delete_other_message">Delete other\'s message in channel</string>
+    <string name="qchat_role_permission_rollback_other_message">Recall other\'s message in channel</string>
+    <string name="qchat_role_permission_at_others">\@anyone</string> 
+    <string name="qchat_role_permission_at_all">\@everyone</string> 
+    <string name="qchat_channel_permission_send_message">Send message</string> 
+    <string name="qchat_channel_permission_send_comment">Quick Reply</string> 
+    <string name="qchat_channel_permission_thread_reply">Thread Message</string> 
+    <string name="qchat_channel_permission_at">\@Permission</string>
+    <string name="qchat_channel_permission_manager_message">Manage Message</string> 
+    <string name="qchat_channel_permission_history_message">View historical messages</string> 
+
+
+    <string name="qchat_channel_permission_update_error">Failed to update permission</string> 
+
+
+    <!-- member permission-->
+    <string name="qchat_channel_member_permission_title">Member Permission Setting</string> 
+
+   <!--name list -->
+    <string name="qchat_channel_white_name_list_title">Whitelist</string> 
+    <string name="qchat_channel_black_name_list_title">Blacklist</string> 
+    <string name="qchat_channel_name_list_delete_title">Remove member</string>
+    <string name="qchat_channel_name_list_delete_content">Make sure if remove %s</string>
+
+    <!-- message -->
+    <string name="qchat_channel_message_title_pre">#</string>
+    <string name="qchat_channel_message_fetch_error">Receive Failed</string>
+    <string name="qchat_channel_message_send_error">Send Failed</string> 
+    <string name="qchat_channel_message_send_hint">Send to &#160;&#160;%s</string> 
+    <!-- error-->
+    <string name="qchat_server_empty_error">No Content</string> 
+    <string name="qchat_channel_empty_error">No channel info</string> 
+
+    <!-- empty -->
+    <string name="qchat_empty_text">No Content in %s</string> 
+    <string name="qchat_develop_text">Unavailable</string>
+
+</resources>
