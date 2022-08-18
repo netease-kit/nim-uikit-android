@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2022 NetEase, Inc.  All rights reserved.
-  ~ Use of this source code is governed by a MIT license that can be found in the LICENSE file.
+  ~ Copyright (c) 2022 NetEase, Inc. All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be
+  ~ found in the LICENSE file.
   -->
 
 <resources>
@@ -41,6 +42,8 @@
     <dimen name="dimen_60_dp">60dp</dimen>
     <dimen name="dimen_115_dp">115dp</dimen>
     <dimen name="dimen_118_dp">118dp</dimen>
+    <dimen name="verify_name_max_len">120dp</dimen>
+    <dimen name="verify_action_max_len">200dp</dimen>
 
     <dimen name="text_size_8">8sp</dimen>
     <dimen name="text_size_12">12sp</dimen>

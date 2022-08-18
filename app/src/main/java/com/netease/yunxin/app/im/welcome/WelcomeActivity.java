@@ -1,7 +1,6 @@
-/*
- * Copyright (c) 2022 NetEase, Inc.  All rights reserved.
- * Use of this source code is governed by a MIT license that can be found in the LICENSE file.
- */
+// Copyright (c) 2022 NetEase, Inc. All rights reserved.
+// Use of this source code is governed by a MIT license that can be
+// found in the LICENSE file.
 
 package com.netease.yunxin.app.im.welcome;
 
@@ -9,7 +8,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -23,35 +21,26 @@ import com.netease.yunxin.kit.common.ui.utils.ToastX;
 import com.netease.yunxin.kit.corekit.im.IMKitClient;
 import com.netease.yunxin.kit.corekit.im.login.LoginCallback;
 
-
-/**
- * Welcome Page is launch page
- */
+/** Welcome Page is launch page */
 public class WelcomeActivity extends AppCompatActivity {
 
-    private static final int LOGIN_PARENT_SCOPE = 2;
-    private static final int LOGIN_SCOPE = 7;
-    private ActivityWelcomeBinding activityWelcomeBinding;
+  private ActivityWelcomeBinding activityWelcomeBinding;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        activityWelcomeBinding = ActivityWelcomeBinding.inflate(getLayoutInflater());
-        setContentView(activityWelcomeBinding.getRoot());
-        //如果需要登录startLogin()
-        startLogin();
-        //如果在IMKitClient.init()中传入登录信息，即完成自动登录，则直接调用showMainActivityAndFinish()进入首页
-        //showMainActivityAndFinish();
-    }
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    activityWelcomeBinding = ActivityWelcomeBinding.inflate(getLayoutInflater());
+    setContentView(activityWelcomeBinding.getRoot());
+    startLogin();
+  }
 
-    private void showMainActivityAndFinish() {
-        finish();
-        Intent intent = new Intent();
-        intent.setClass(this, MainActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        this.startActivity(intent);
-
-    }
+  private void showMainActivityAndFinish() {
+    finish();
+    Intent intent = new Intent();
+    intent.setClass(this, MainActivity.class);
+    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+    this.startActivity(intent);
+  }
 
     /**
      * start login page, you can use to launch your own login

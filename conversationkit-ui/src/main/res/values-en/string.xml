@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2022 NetEase, Inc.  All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be found in the LICENSE file.
+  -->
+
+<resources>
+    <string name="conversation_title">CommsEase IM</string>
+    <string name="add_friend">Add Contacts</string> 
+    <string name="create_group_team">Create Temp Group</string>
+    <string name="create_advanced_team"> Create Group</string>
+    <string name="create_advanced_team_success">Create group successfully</string> 
+
+    <string name="stick_title">Sticky on Top</string> 
+    <string name="cancel_stick_title">Unpin</string>
+    <string name="delete_title">Delete this chat</string>
+    <string name="recent_title">Last chat</string> 
+    <string name="cancel_title">Cancel </string> 
+    <string name="sure_title">Yes</string> 
+    <string name="sure_count_title">Yes(%d)</string> 
+
+    <string name="conversation_network_error_tip">No Internet</string>
+
+    <!-- message type-->
+    <string name="msg_type_image">[Photo]</string>
+    <string name="msg_type_audio">[Voice]</string>
+    <string name="msg_type_video">[Video]</string>
+    <string name="msg_type_file">[File]</string>
+    <string name="msg_type_notification">[Notification Message]</string>
+    <string name="msg_type_tip">[Tip Message]</string>
+    <string name="msg_type_custom">[Custom Message]</string>
+</resources>

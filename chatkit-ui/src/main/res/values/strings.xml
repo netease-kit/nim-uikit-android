@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2022 NetEase, Inc.  All rights reserved.
-  ~ Use of this source code is governed by a MIT license that can be found in the LICENSE file.
+  ~ Copyright (c) 2022 NetEase, Inc. All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be
+  ~ found in the LICENSE file.
   -->
 
 <resources>
@@ -41,6 +42,7 @@
     <string name="chat_message_image_save_fail">图片保存失败</string>
     <string name="chat_message_video_save_fail">视频保存失败</string>
     <string name="chat_message_video_download_fail">视频下载失败</string>
+    <string name="chat_message_video_send_fail">视频发送失败</string>
     <string name="chat_message_video_fail_try_again">暂时无法播放视频，请重试</string>
     <string name="chat_message_video_time">%02d:%02d</string>
     <string name="chat_message_send">发送</string>
@@ -116,6 +118,7 @@
     <string name="chat_reply_message_brief_file">[文件]</string>
     <string name="chat_reply_message_brief_custom">[自定义消息]</string>
     <string name="chat_reply_message_brief_robot">[机器人消息]</string>
+    <string name="chat_reply_message_call">[音视频通话]</string>
 
     <string name="chat_message_signal_tip">%s标记了这条信息，对话内容双方均可见</string>
     <string name="chat_message_signal_tip_for_team">%s标记了这条信息，所有群成员均可见</string>
@@ -138,4 +141,8 @@
     <string name="permission_camera">请在设置页面添加相机权限</string>
     <string name="permission_audio">请在设置页面添加麦克风权限</string>
     <string name="permission_storage">请在设置页面添加读写手机存储权限</string>
+
+    <!-- error -->
+    <string name="chat_message_reply_error">获取回复消息错误</string>
+
 </resources>

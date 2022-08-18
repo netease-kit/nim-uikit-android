@@ -1,11 +1,13 @@
 <!--
-  ~ Copyright (c) 2022 NetEase, Inc.  All rights reserved.
-  ~ Use of this source code is governed by a MIT license that can be found in the LICENSE file.
+  ~ Copyright (c) 2022 NetEase, Inc. All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be
+  ~ found in the LICENSE file.
   -->
 
 <resources>
     <string name="app_name">云信IM</string>
     <string name="yunxin_name">网易云信</string>
+    <string name="yunxin_desc">真正稳定的IM 云服务</string>
 
     <string name="welcome_button">注册/登录</string>
     <string name="tab_session_tab_text">消息</string>
@@ -40,10 +42,12 @@
     <string name="setting_filter_notify">过滤通知</string>
     <string name="setting_friend_delete_mode">删除好友是否同步删除备注</string>
     <string name="setting_message_read_mode">消息已读未读功能</string>
+    <string name="setting_complete">完成</string>
 
     <!-- notify setting-->
     <string name="setting_notify_info">新消息通知</string>
     <string name="setting_notify_mode">消息提醒方式</string>
+    <string name="setting_notify_other">消息提醒方式</string>
     <string name="setting_notify_mode_ring">响铃模式</string>
     <string name="setting_notify_mode_shake">震动模式</string>
     <string name="setting_notify_push">推送设置</string>
@@ -65,4 +69,7 @@
     <string name="not_usable">功能暂未开放</string>
     <string name="setting_fail">设置失败</string>
     <string name="setting_success">设置成功</string>
+    <string name="login_fail">登录失败:%d</string>
+    <string name="request_fail">操作失败</string>
+    <string name="user_fail">用户信息获取失败</string>
 </resources>

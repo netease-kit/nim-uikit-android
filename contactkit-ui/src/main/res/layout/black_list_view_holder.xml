@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2022 NetEase, Inc.  All rights reserved.
-  ~ Use of this source code is governed by a MIT license that can be found in the LICENSE file.
+  ~ Copyright (c) 2022 NetEase, Inc. All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be
+  ~ found in the LICENSE file.
   -->
 
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -23,11 +24,16 @@
 
     <TextView
         android:id="@+id/tv_name"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/dimen_12_dp"
         android:textSize="@dimen/text_size_14"
         android:textColor="@color/color_14131b"
+        android:maxLines="1"
+        android:ellipsize="end"
+        app:layout_constrainedWidth="true"
+        android:layout_marginEnd="@dimen/dimen_100_dp"
+        app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toRightOf="@+id/avatar_view" />

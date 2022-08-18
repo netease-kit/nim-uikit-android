@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?><!--
-  ~ Copyright (c) 2022 NetEase, Inc.  All rights reserved.
-  ~ Use of this source code is governed by a MIT license that can be found in the LICENSE file.
+  ~ Copyright (c) 2022 NetEase, Inc. All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be
+  ~ found in the LICENSE file.
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
@@ -44,6 +45,7 @@
 
         <activity
             android:name=".server.QChatServerSettingActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
 
         <activity
@@ -108,40 +110,51 @@
 
         <activity
             android:name=".channel.setting.ChannelSettingActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".channel.QChatChannelTypeSelectActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".channel.QChatChannelCreateActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".channel.permission.QChatChannelPermissionActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
 
         <activity
             android:name=".channel.permission.QChatRolePermissionActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".channel.add.QChatChannelAddRoleActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".channel.add.QChatChannelAddMemberActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".channel.permission.QChatMemberPermissionActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".channel.blackwhite.QChatBlackWhiteActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
 
         <activity
             android:name=".message.QChatChannelMessageActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
 
         <activity
             android:name=".common.WatchImageActivity"
             android:windowSoftInputMode="adjustPan"
+            android:screenOrientation="portrait"
             android:exported="false" />
 
     </application>
