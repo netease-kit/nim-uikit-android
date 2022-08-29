@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+import com.netease.yunxin.kit.common.ui.utils.AvatarColor;
 import com.netease.yunxin.kit.contactkit.ui.databinding.FriendSelectedViewHolderBinding;
 import com.netease.yunxin.kit.contactkit.ui.model.ContactFriendBean;
 import com.netease.yunxin.kit.corekit.im.model.FriendInfo;
@@ -41,7 +42,9 @@ public class SelectedListAdapter
     }
     FriendInfo friendData = bean.data;
     holder.binding.avatarView.setData(
-        friendData.getAvatar(), friendData.getName(), friendData.hashCode());
+        friendData.getAvatar(),
+        friendData.getName(),
+        AvatarColor.avatarColor(friendData.getAccount()));
     holder.itemView.setOnClickListener(
         v -> {
           removeFriend(bean);

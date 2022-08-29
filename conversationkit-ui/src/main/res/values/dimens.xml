@@ -4,4 +4,16 @@
     <dimen name="pop_item_height">32dp</dimen>
     <dimen name="pop_text_margin_left">15dp</dimen>
     <dimen name="pop_text_margin_right_top">8dp</dimen>
+    <dimen name="alert_dialog_width">188dp</dimen>
+    <dimen name="dimen_62_dp">62dp</dimen>
+    <dimen name="dimen_60_dp">60dp</dimen>
+    <dimen name="dimen_38_dp">38dp</dimen>
+    <dimen name="dimen_52_dp">52dp</dimen>
+    <dimen name="dimen_42_dp">42dp</dimen>
+    <dimen name="dimen_5_dp">5dp</dimen>
+    <dimen name="dimen_74_dp">74dp</dimen>
+    <dimen name="dimen_100_dp">100dp</dimen>
+    <dimen name="dimen_18_dp">18dp</dimen>
+
+    <dimen name="text_size_12">12sp</dimen>
 </resources>

@@ -27,7 +27,7 @@
             android:layout_width="@dimen/dimen_12_dp"
             android:layout_height="@dimen/dimen_12_dp"
             android:layout_gravity="bottom|right"
-            android:src="@drawable/icon_online_status" />
+            android:src="@drawable/ic_online_status" />
 
     </FrameLayout>
 

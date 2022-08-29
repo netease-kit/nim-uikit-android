@@ -91,7 +91,7 @@ public class ConversationFragment extends BaseFragment implements ILoadListener 
     initObserver();
     initView();
     loadUIConfig();
-    NetworkUtils.registerStateListener(networkStateListener);
+    NetworkUtils.registerNetworkStatusChangedListener(networkStateListener);
     registerObserver();
     viewModel.fetchConversation();
   }
@@ -385,7 +385,7 @@ public class ConversationFragment extends BaseFragment implements ILoadListener 
       ListAlertDialog alertDialog = new ListAlertDialog();
       alertDialog.setContent(generateDialogContent(dataBean.infoData.isStickTop()));
       alertDialog.setTitleVisibility(View.GONE);
-      alertDialog.setDialogWidth(getResources().getDimension(R.dimen.dimen_188_dp));
+      alertDialog.setDialogWidth(getResources().getDimension(R.dimen.alert_dialog_width));
       alertDialog.setItemClickListener(
           action -> {
             if (TextUtils.equals(action, ConversationConstant.Action.ACTION_DELETE)) {
@@ -444,7 +444,7 @@ public class ConversationFragment extends BaseFragment implements ILoadListener 
   @Override
   public void onDestroyView() {
     super.onDestroyView();
-    NetworkUtils.unregisterStateListener(networkStateListener);
+    NetworkUtils.unregisterNetworkStatusChangedListener(networkStateListener);
     unregisterObserver();
   }
 

@@ -71,8 +71,8 @@ public class ChatActionFactory {
       actions.add(getTransmitAction(message));
     }
     actions.add(getPinAction(message));
-    actions.add(getMultiSelectAction(message));
-    actions.add(getCollectionAction(message));
+    //    actions.add(getMultiSelectAction(message));
+    //    actions.add(getCollectionAction(message));
     actions.add(getDeleteAction(message));
     if (message.getMessageData().getMessage().getDirect() == MsgDirectionEnum.Out) {
       actions.add(getRecallAction(message));

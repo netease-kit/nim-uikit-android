@@ -15,7 +15,7 @@ import com.netease.nimlib.sdk.StatusBarNotificationFilter;
 import com.netease.nimlib.sdk.mixpush.MixPushConfig;
 import com.netease.yunxin.app.im.main.MainActivity;
 import com.netease.yunxin.app.im.push.PushUserInfoProvider;
-import com.netease.yunxin.kit.common.utils.media.ImageUtil;
+import com.netease.yunxin.kit.common.utils.ScreenUtils;
 import java.io.IOException;
 
 /** Nim SDK config info */
@@ -32,7 +32,7 @@ public class NimSDKOptionConfig {
     initStatusBarNotificationConfig(options);
     options.sdkStorageRootPath = getAppCacheDir(context);
     options.preloadAttach = true;
-    options.thumbnailSize = ImageUtil.getImageThumbMaxEdge();
+    options.thumbnailSize = (int) (222.0 / 375.0 * ScreenUtils.getDisplayWidth());
     options.userInfoProvider = new PushUserInfoProvider(context);
     options.sessionReadAck = true;
     options.animatedImageThumbnailEnabled = true;

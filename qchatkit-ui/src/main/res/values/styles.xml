@@ -12,4 +12,7 @@
         <item name="android:windowIsTranslucent">false</item>
         <item name="android:windowAnimationStyle">@style/BottomDialogAnimation</item>
     </style>
+    <style name="SelectorRadioBtn" parent="Widget.AppCompat.CompoundButton.RadioButton">
+        <item name="android:button">@drawable/radio_button_selector</item>
+    </style>
 </resources>

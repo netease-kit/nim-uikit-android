@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2022 NetEase, Inc. All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be
+  ~ found in the LICENSE file.
+  -->
+
+<resources>
+    <dimen name="photo_crop_width">280dip</dimen>
+    <dimen name="photo_crop_stroke_width">1dip</dimen>
+    <dimen name="photo_preview_size">200dip</dimen>
+    <dimen name="retry_button_size">48dip</dimen>
+    <dimen name="photo_page_margin">32dip</dimen>
+    <dimen name="chat_name_max_length">160dp</dimen>
+    <dimen name="dimen_188_dp">188dp</dimen>
+    <dimen name="dimen_150_dp">150dp</dimen>
+    <dimen name="dimen_120_dp">120dp</dimen>
+    <dimen name="dimen_103_dp">103dp</dimen>
+    <dimen name="dimen_100_dp">100dp</dimen>
+    <dimen name="dimen_80_dp">80dp</dimen>
+    <dimen name="dimen_75_dp">75dp</dimen>
+    <dimen name="dimen_74_dp">74dp</dimen>
+    <dimen name="dimen_60_dp">60dp</dimen>
+    <dimen name="dimen_56_dp">56dp</dimen>
+    <dimen name="dimen_55_dp">55dp</dimen>
+    <dimen name="dimen_52_dp">52dp</dimen>
+    <dimen name="dimen_50_dp">50dp</dimen>
+    <dimen name="dimen_48_dp">48dp</dimen>
+    <dimen name="dimen_46_dp">46dp</dimen>
+    <dimen name="dimen_42_dp">42dp</dimen>
+    <dimen name="dimen_40_dp">40dp</dimen>
+    <dimen name="dimen_28_dp">28dp</dimen>
+    <dimen name="dimen_24_dp">24dp</dimen>
+    <dimen name="dimen_18_dp">18dp</dimen>
+    <dimen name="dimen_15_dp">15dp</dimen>
+    <dimen name="dimen_13_dp">13dp</dimen>
+    <dimen name="dimen_11_dp">11dp</dimen>
+    <dimen name="dimen_9_dp">9dp</dimen>
+    <dimen name="dimen_8_dp">8dp</dimen>
+    <dimen name="dimen_7_dp">7dp</dimen>
+    <dimen name="dimen_6_dp">6dp</dimen>
+    <dimen name="dimen_5_dp">5dp</dimen>
+    <dimen name="dimen_2_dp">2dp</dimen>
+
+    <dimen name="text_size_11">11sp</dimen>
+    <dimen name="text_size_12">12sp</dimen>
+    <dimen name="text_size_10">10sp</dimen>
+</resources>

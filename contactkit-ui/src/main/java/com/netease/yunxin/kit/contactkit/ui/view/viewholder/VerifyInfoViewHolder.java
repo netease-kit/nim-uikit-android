@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
+import com.netease.yunxin.kit.common.ui.utils.AvatarColor;
 import com.netease.yunxin.kit.contactkit.ui.R;
 import com.netease.yunxin.kit.contactkit.ui.databinding.VerifyListViewHolderBinding;
 import com.netease.yunxin.kit.contactkit.ui.model.BaseContactBean;
@@ -46,7 +47,7 @@ public class VerifyInfoViewHolder extends BaseContactViewHolder {
             : info.getFromUserInfo().getAvatar();
     binding.tvName.setText(name);
 
-    binding.avatarView.setData(avatar, name);
+    binding.avatarView.setData(avatar, name, AvatarColor.avatarColor(info.getFromAccount()));
 
     switch (info.getInfoStatus()) {
       case Init:

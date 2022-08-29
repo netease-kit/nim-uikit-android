@@ -5,7 +5,7 @@
 package com.netease.yunxin.kit.chatkit.ui.custom;
 
 import com.netease.yunxin.kit.chatkit.ui.ChatMessageType;
-import com.netease.yunxin.kit.common.utils.file.FileUtil;
+import com.netease.yunxin.kit.common.utils.FileUtils;
 import org.json.JSONObject;
 
 public class StickerAttachment extends CustomAttachment {
@@ -23,7 +23,7 @@ public class StickerAttachment extends CustomAttachment {
   public StickerAttachment(String catalog, String emotion) {
     this();
     this.catalog = catalog;
-    this.chartLet = FileUtil.getFileNameNoEx(emotion);
+    this.chartLet = FileUtils.getFileNameNoExtension(emotion);
   }
 
   @Override

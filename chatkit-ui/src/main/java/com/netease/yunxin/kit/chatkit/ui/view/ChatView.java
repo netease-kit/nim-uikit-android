@@ -128,7 +128,7 @@ public class ChatView extends LinearLayout {
     } else {
       binding.tvNotification.setVisibility(VISIBLE);
       binding.tvNotification.setTextSize(14);
-      binding.tvNotification.setText(R.string.network_error_tip);
+      binding.tvNotification.setText(R.string.chat_network_error_tip);
       binding.tvNotification.setTextColor(
           getContext().getResources().getColor(R.color.color_fc596a));
       binding.tvNotification.setBackgroundResource(R.color.color_fee3e6);

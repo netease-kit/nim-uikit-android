@@ -34,8 +34,6 @@ public class MainActivity extends BaseActivity {
     activityMainBinding = ActivityMainBinding.inflate(getLayoutInflater());
     setContentView(activityMainBinding.getRoot());
     initView();
-    // init network state listen
-    NetworkUtils.init(getApplicationContext());
   }
 
   private void initView() {

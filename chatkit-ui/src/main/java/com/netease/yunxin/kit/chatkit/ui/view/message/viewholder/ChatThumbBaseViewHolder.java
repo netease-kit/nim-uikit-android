@@ -21,7 +21,7 @@ import com.netease.yunxin.kit.chatkit.ui.databinding.ChatBaseMessageViewHolderBi
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatMessageThumbnailViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.common.ui.widgets.ShapeDrawable;
-import com.netease.yunxin.kit.common.utils.media.ImageUtil;
+import com.netease.yunxin.kit.common.utils.ScreenUtils;
 
 /** view holder to show image/video thumb */
 public abstract class ChatThumbBaseViewHolder extends ChatBaseMessageViewHolder {
@@ -68,8 +68,7 @@ public abstract class ChatThumbBaseViewHolder extends ChatBaseMessageViewHolder 
       ALog.d(TAG, "load from path");
       loadThumbnailImage(thumbFromSourceFile(path));
     } else {
-      loadThumbnailInternal(
-          null, ImageUtil.getImageThumbMinEdge(), ImageUtil.getImageThumbMinEdge());
+      loadThumbnailInternal(null, getImageThumbMinEdge(), getImageThumbMinEdge());
     }
   }
 
@@ -77,12 +76,12 @@ public abstract class ChatThumbBaseViewHolder extends ChatBaseMessageViewHolder 
     int[] bounds = getBounds(path);
     int w = bounds[0];
     int h = bounds[1];
-    int thumbMinEdge = ImageUtil.getImageThumbMinEdge();
+    int thumbMinEdge = getImageThumbMinEdge();
     if (w < thumbMinEdge) {
       w = thumbMinEdge;
       h = w * bounds[1] / bounds[0];
     }
-    int thumbMaxEdge = ImageUtil.getImageThumbMaxEdge();
+    int thumbMaxEdge = getImageThumbMaxEdge();
     if (w > thumbMaxEdge) {
       w = thumbMaxEdge;
       h = w * bounds[1] / bounds[0];
@@ -129,6 +128,14 @@ public abstract class ChatThumbBaseViewHolder extends ChatBaseMessageViewHolder 
           .override(w, h)
           .into(binding.thumbnail);
     }
+  }
+
+  private int getImageThumbMinEdge() {
+    return (int) (111.0 / 375.0 * ScreenUtils.getDisplayWidth());
+  }
+
+  private int getImageThumbMaxEdge() {
+    return (int) (222.0 / 375.0 * ScreenUtils.getDisplayWidth());
   }
 
   protected abstract String thumbFromSourceFile(String path);

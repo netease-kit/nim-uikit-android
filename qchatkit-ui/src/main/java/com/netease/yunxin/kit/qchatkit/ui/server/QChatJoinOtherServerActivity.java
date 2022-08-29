@@ -17,7 +17,6 @@ import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
-import com.netease.yunxin.kit.common.utils.NetworkUtils;
 import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
 import com.netease.yunxin.kit.qchatkit.repo.QChatServerRepo;
 import com.netease.yunxin.kit.qchatkit.repo.model.QChatSearchResultInfo;
@@ -25,6 +24,7 @@ import com.netease.yunxin.kit.qchatkit.ui.R;
 import com.netease.yunxin.kit.qchatkit.ui.databinding.QChatJoinOtherServerActivityBinding;
 import com.netease.yunxin.kit.qchatkit.ui.message.QChatChannelMessageActivity;
 import com.netease.yunxin.kit.qchatkit.ui.server.adapter.QChatSearchResultAdapter;
+import com.netease.yunxin.kit.qchatkit.ui.utils.QChatUtils;
 import java.util.Collections;
 import java.util.List;
 
@@ -72,7 +72,7 @@ public class QChatJoinOtherServerActivity extends BaseActivity {
             if (getServerIdFromEdit() == null) {
               Toast.makeText(QChatJoinOtherServerActivity.this, "error", Toast.LENGTH_SHORT).show();
             } else {
-              NetworkUtils.isConnectedToastAndRun(
+              QChatUtils.isConnectedToastAndRun(
                   this,
                   () ->
                       QChatServerRepo.searchServerById(

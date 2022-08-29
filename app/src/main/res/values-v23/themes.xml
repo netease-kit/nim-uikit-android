@@ -11,9 +11,9 @@
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/color_blue</item>
         <item name="colorPrimaryVariant">@color/color_blue</item>
-        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorOnPrimary">@color/color_white</item>
         <!-- Status bar color. -->
-        <item name="colorPrimaryDark">@color/white</item>
+        <item name="colorPrimaryDark">@color/color_white</item>
         <item name="android:windowLightStatusBar">true</item>
         <!-- Customize your theme here. -->
     </style>

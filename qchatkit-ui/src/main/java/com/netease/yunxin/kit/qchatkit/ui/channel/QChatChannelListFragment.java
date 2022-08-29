@@ -112,7 +112,7 @@ public class QChatChannelListFragment extends BaseFragment {
           loadMore(serverInfo.getServerId(), timeTag, false);
         });
 
-    NetworkUtils.registerStateListener(networkStateListener);
+    NetworkUtils.registerNetworkStatusChangedListener(networkStateListener);
   }
 
   public void updateData(QChatServerInfo serverInfo, Map<Long, QChatUnreadInfoItem> unReadInfo) {
@@ -178,7 +178,7 @@ public class QChatChannelListFragment extends BaseFragment {
   @Override
   public void onDestroyView() {
     super.onDestroyView();
-    NetworkUtils.unregisterStateListener(networkStateListener);
+    NetworkUtils.unregisterNetworkStatusChangedListener(networkStateListener);
   }
 
   /** update unread info */

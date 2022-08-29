@@ -9,10 +9,10 @@ import androidx.annotation.NonNull;
 import com.netease.nimlib.sdk.msg.attachment.ImageAttachment;
 import com.netease.nimlib.sdk.msg.constant.AttachStatusEnum;
 import com.netease.nimlib.sdk.msg.constant.MsgStatusEnum;
+import com.netease.yunxin.kit.chatkit.media.BitmapDecoder;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatBaseMessageViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
-import com.netease.yunxin.kit.common.utils.ScreenUtil;
-import com.netease.yunxin.kit.common.utils.media.BitmapDecoder;
+import com.netease.yunxin.kit.common.utils.SizeUtils;
 import java.io.File;
 
 public class ChatImageMessageViewHolder extends ChatThumbBaseViewHolder {
@@ -64,7 +64,7 @@ public class ChatImageMessageViewHolder extends ChatThumbBaseViewHolder {
 
   @Override
   protected float[] getCorners() {
-    int corner = ScreenUtil.dip2px(12);
+    int corner = SizeUtils.dp2px(12);
     boolean msgIn = isReceivedMessage(currentMessage);
     float radiusTopLeft = msgIn ? 0 : corner;
     float radiusTopRight = msgIn ? corner : 0;

@@ -6,7 +6,7 @@
 
 <resources>
 
-    <style name="SelectorRadioBtn" parent="Widget.AppCompat.CompoundButton.RadioButton">
-        <item name="android:button">@drawable/radio_button_selector</item>
+    <style name="AppSelectorRadioBtn" parent="Widget.AppCompat.CompoundButton.RadioButton">
+        <item name="android:button">@drawable/app_radio_blue_selector</item>
     </style>
 </resources>

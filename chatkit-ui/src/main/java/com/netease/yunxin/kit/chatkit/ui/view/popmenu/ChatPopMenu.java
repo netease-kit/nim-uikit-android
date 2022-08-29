@@ -22,7 +22,7 @@ import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatPopMenuLayoutBinding;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
-import com.netease.yunxin.kit.common.utils.ScreenUtil;
+import com.netease.yunxin.kit.common.utils.SizeUtils;
 import com.netease.yunxin.kit.corekit.im.IMKitClient;
 import java.util.ArrayList;
 import java.util.List;
@@ -77,11 +77,11 @@ public class ChatPopMenu {
     int rowCount = (int) Math.ceil(chatPopMenuActionList.size() * 1.0f / COLUMN_NUM);
     if (popupWindow != null) {
 
-      int itemWidth = ScreenUtil.dip2px(ITEM_SIZE_WIDTH);
-      int itemHeight = ScreenUtil.dip2px(ITEM_SIZE_HEIGHT);
+      int itemWidth = SizeUtils.dp2px(ITEM_SIZE_WIDTH);
+      int itemHeight = SizeUtils.dp2px(ITEM_SIZE_HEIGHT);
 
-      int paddingLeftRight = ScreenUtil.dip2px(CONTAINER_PADDING);
-      int paddingTopBottom = ScreenUtil.dip2px(CONTAINER_PADDING);
+      int paddingLeftRight = SizeUtils.dp2px(CONTAINER_PADDING);
+      int paddingTopBottom = SizeUtils.dp2px(CONTAINER_PADDING);
 
       int columnNum = Math.min(chatPopMenuActionList.size(), COLUMN_NUM);
 

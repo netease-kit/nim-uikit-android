@@ -22,7 +22,7 @@ import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatSimplePlayerViewBinding;
 import com.netease.yunxin.kit.common.ui.utils.ToastX;
-import com.netease.yunxin.kit.common.utils.ScreenUtil;
+import com.netease.yunxin.kit.common.utils.ScreenUtils;
 import com.netease.yunxin.kit.common.utils.TimeUtils;
 
 /** video player for video watching */
@@ -265,8 +265,8 @@ public class SimpleVideoPlayer extends ConstraintLayout {
       return;
     }
 
-    int screenWidth = ScreenUtil.getDisplayWidth();
-    int screenHeight = ScreenUtil.getDisplayHeight();
+    int screenWidth = ScreenUtils.getDisplayWidth();
+    int screenHeight = ScreenUtils.getDisplayHeight();
 
     int videoRatio = width / height;
     int screenRatio = screenWidth / screenHeight;

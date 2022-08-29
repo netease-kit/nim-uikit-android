@@ -32,6 +32,8 @@ import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
 import com.netease.nimlib.sdk.msg.model.QueryDirectionEnum;
 import com.netease.yunxin.kit.alog.ALog;
+import com.netease.yunxin.kit.chatkit.storage.StorageType;
+import com.netease.yunxin.kit.chatkit.storage.StorageUtil;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitClient;
 import com.netease.yunxin.kit.chatkit.ui.ChatUIConfig;
 import com.netease.yunxin.kit.chatkit.ui.R;
@@ -61,8 +63,6 @@ import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.common.utils.NetworkUtils;
 import com.netease.yunxin.kit.common.utils.PermissionUtils;
-import com.netease.yunxin.kit.common.utils.storage.StorageType;
-import com.netease.yunxin.kit.common.utils.storage.StorageUtil;
 import com.netease.yunxin.kit.corekit.im.IMKitClient;
 import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
@@ -126,9 +126,13 @@ public abstract class ChatBaseFragment extends BaseFragment {
     initViewModel();
     initDataObserver();
     loadConfig();
-    NetworkUtils.registerStateListener(networkStateListener);
+    NetworkUtils.registerNetworkStatusChangedListener(networkStateListener);
     initCustom();
     return binding.getRoot();
+  }
+
+  public void setIMessageItemClickListener(IMessageItemClickListener clickListener) {
+    delegateListener = clickListener;
   }
 
   protected void initView() {
@@ -609,7 +613,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
     dialog
         .setTitleStr(getString(R.string.chat_message_action_recall))
         .setContentStr(getString(R.string.chat_message_action_revoke_this_message))
-        .setPositiveStr(getString(R.string.chat_message_action_recall))
+        .setPositiveStr(getString(R.string.chat_message_positive_recall))
         .setNegativeStr(getString(R.string.cancel))
         .setConfirmListener(
             new ChoiceListener() {
@@ -891,7 +895,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
   @Override
   public void onDestroyView() {
     ALog.i(LOG_TAG, "onDestroyView");
-    NetworkUtils.unregisterStateListener(networkStateListener);
+    NetworkUtils.unregisterNetworkStatusChangedListener(networkStateListener);
     if (popMenu != null) {
       popMenu.hide();
     }

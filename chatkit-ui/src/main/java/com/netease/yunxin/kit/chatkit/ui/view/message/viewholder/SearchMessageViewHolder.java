@@ -6,6 +6,7 @@ package com.netease.yunxin.kit.chatkit.ui.view.message.viewholder;
 
 import android.view.View;
 import androidx.annotation.NonNull;
+import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatSearchItemLayoutBinding;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatSearchBean;
 import com.netease.yunxin.kit.common.ui.utils.AvatarColor;
@@ -35,11 +36,7 @@ public class SearchMessageViewHolder extends BaseViewHolder<ChatSearchBean> {
 
       viewBinding.tvMessage.setText(
           data.getSpannableString(
-              viewBinding
-                  .getRoot()
-                  .getContext()
-                  .getResources()
-                  .getColor(com.netease.yunxin.kit.common.ui.R.color.color_337eff)));
+              viewBinding.getRoot().getContext().getResources().getColor(R.color.color_337eff)));
 
       viewBinding.tvTime.setText(
           TimeFormatUtils.formatMillisecond(viewBinding.getRoot().getContext(), data.getTime()));

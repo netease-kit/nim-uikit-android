@@ -7,6 +7,8 @@ package com.netease.yunxin.app.im.main.mine.setting;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
+
+import com.netease.yunxin.app.im.R;
 import com.netease.yunxin.app.im.databinding.ActivityMineSettingNotifyBinding;
 import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
@@ -18,7 +20,7 @@ public class SettingNotifyActivity extends BaseActivity {
 
   @Override
   protected void onCreate(@Nullable Bundle savedInstanceState) {
-    changeStatusBarColor(com.netease.yunxin.kit.common.ui.R.color.color_e9eff5);
+    changeStatusBarColor(R.color.color_e9eff5);
     super.onCreate(savedInstanceState);
     viewBinding = ActivityMineSettingNotifyBinding.inflate(getLayoutInflater());
     viewModel = new ViewModelProvider(this).get(SettingNotifyViewModel.class);

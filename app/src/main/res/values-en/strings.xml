@@ -10,6 +10,8 @@
     <string name="yunxin_desc">Stable instant messaging service</string>
 
     <string name="welcome_button">register/login</string>
+    <string name="email_login">Email Login</string>
+    <string name="server_config">Select Node</string>
     <string name="tab_session_tab_text">Chats</string>
     <string name="tab_contact_tab_text">Contacts</string>
     <string name="tab_qchat_tab_text">QChat</string>
@@ -27,6 +29,13 @@
     <string name="user_info_email">E-mail</string>
     <string name="user_info_sign">What\'s Up</string>
     <string name="action_copy_success">Coped</string>
+
+    <string name="server_config_china_text">China</string>
+    <string name="server_config_oversea_text">Singapore</string>
+    <string name="server_config_dialog_title">Select Node</string>
+    <string name="server_config_dialog_content">The app will exit after switching nodes and take effect after restarting</string>
+    <string name="server_config_dialog_positive">OK</string>
+    <string name="server_config_dialog_cancel">Cancel</string>
 
     <string name="mine_collect">Favorites</string>
     <string name="mine_about">About CommSEase</string>

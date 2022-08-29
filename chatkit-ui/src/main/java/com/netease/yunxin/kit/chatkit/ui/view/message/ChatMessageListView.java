@@ -27,7 +27,7 @@ import com.netease.yunxin.kit.chatkit.ui.view.interfaces.IMessageReader;
 import com.netease.yunxin.kit.chatkit.ui.view.message.adapter.ChatMessageAdapter;
 import com.netease.yunxin.kit.chatkit.ui.view.popmenu.ChatActionFactory;
 import com.netease.yunxin.kit.chatkit.ui.view.popmenu.ChatPopMenuActionListener;
-import com.netease.yunxin.kit.common.utils.ScreenUtil;
+import com.netease.yunxin.kit.common.utils.BarUtils;
 import com.netease.yunxin.kit.corekit.im.model.UserInfo;
 import java.util.ArrayList;
 import java.util.List;
@@ -312,7 +312,7 @@ public class ChatMessageListView extends RecyclerView implements IMessageData {
   @Override
   protected void onSizeChanged(int w, int h, int oldw, int oldh) {
     if (Math.abs(oldh - h)
-        > ScreenUtil.getStatusBarHeight(getContext()) + ScreenUtil.getNavBarHeight(getContext())) {
+        > BarUtils.getStatusBarHeight(getContext()) + BarUtils.getNavBarHeight(getContext())) {
       if (hasMoreNewerMessages) {
         scrollBy(0, oldh - h);
       } else {

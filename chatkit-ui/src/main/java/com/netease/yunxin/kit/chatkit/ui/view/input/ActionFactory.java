@@ -21,7 +21,7 @@ public class ActionFactory {
     // image
     actions.add(new ActionItem(ActionConstants.ACTION_TYPE_ALBUM, R.drawable.ic_send_image));
     // file
-    actions.add(new ActionItem(ActionConstants.ACTION_TYPE_FILE, R.drawable.ic_send_file));
+    //    actions.add(new ActionItem(ActionConstants.ACTION_TYPE_FILE, R.drawable.ic_send_file));
     // more+
     actions.add(new ActionItem(ActionConstants.ACTION_TYPE_MORE, R.drawable.ic_more_selector));
     return actions;

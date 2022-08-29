@@ -10,6 +10,8 @@
     <string name="yunxin_desc">真正稳定的IM 云服务</string>
 
     <string name="welcome_button">注册/登录</string>
+    <string name="email_login">邮箱登录</string>
+    <string name="server_config">节点选择</string>
     <string name="tab_session_tab_text">消息</string>
     <string name="tab_contact_tab_text">通讯录</string>
     <string name="tab_qchat_tab_text">圈组</string>
@@ -27,6 +29,12 @@
     <string name="user_info_email">邮箱</string>
     <string name="user_info_sign">个性签名</string>
     <string name="action_copy_success">复制成功！</string>
+    <string name="server_config_china_text">国内节点配置</string>
+    <string name="server_config_oversea_text">海外节点配置</string>
+    <string name="server_config_dialog_title">更改配置节点</string>
+    <string name="server_config_dialog_content">切换节点后应用将退出并在重新开启后生效</string>
+    <string name="server_config_dialog_positive">重启</string>
+    <string name="server_config_dialog_cancel">取消</string>
 
 
     <string name="mine_collect">收藏</string>
