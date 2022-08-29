@@ -22,7 +22,7 @@ import com.netease.yunxin.kit.chatkit.ui.databinding.ChatBaseMessageViewHolderBi
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatMessageAudioViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.view.message.audio.ChatMessageAudioControl;
-import com.netease.yunxin.kit.common.utils.PxUtils;
+import com.netease.yunxin.kit.common.utils.SizeUtils;
 import com.netease.yunxin.kit.corekit.im.audioplayer.Playable;
 import com.netease.yunxin.kit.corekit.im.repo.ConfigRepo;
 
@@ -152,12 +152,12 @@ public class ChatAudioMessageViewHolder extends ChatBaseMessageViewHolder {
     LinearLayout.LayoutParams layoutParams =
         (LinearLayout.LayoutParams) getContainer().getLayoutParams();
     if (len <= 2) {
-      layoutParams.width = PxUtils.dpToPx(parent.getContext(), MIN_LENGTH_FOR_AUDIO);
+      layoutParams.width = SizeUtils.dp2px(MIN_LENGTH_FOR_AUDIO);
     } else {
       layoutParams.width =
           Math.min(
-              PxUtils.dpToPx(parent.getContext(), MAX_LENGTH_FOR_AUDIO),
-              PxUtils.dpToPx(parent.getContext(), MIN_LENGTH_FOR_AUDIO + (len - 2) * 8));
+              SizeUtils.dp2px(MAX_LENGTH_FOR_AUDIO),
+              SizeUtils.dp2px(MIN_LENGTH_FOR_AUDIO + (len - 2) * 8));
     }
     getContainer().setLayoutParams(layoutParams);
     RelativeLayout.LayoutParams aniLp =

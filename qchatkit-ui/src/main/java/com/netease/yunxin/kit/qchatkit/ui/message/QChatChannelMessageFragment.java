@@ -21,7 +21,6 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.content.FileProvider;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 import com.netease.nimlib.sdk.msg.attachment.ImageAttachment;
@@ -33,6 +32,7 @@ import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.common.utils.NetworkUtils;
 import com.netease.yunxin.kit.corekit.im.IMKitClient;
 import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
+import com.netease.yunxin.kit.corekit.im.provider.IMKitFileProvider;
 import com.netease.yunxin.kit.qchatkit.repo.model.QChatChannelInfo;
 import com.netease.yunxin.kit.qchatkit.repo.model.QChatMessageInfo;
 import com.netease.yunxin.kit.qchatkit.ui.R;
@@ -317,13 +317,13 @@ public class QChatChannelMessageFragment extends BaseFragment {
 
     viewModel.fetchMessageList();
 
-    NetworkUtils.registerStateListener(networkStateListener);
+    NetworkUtils.registerNetworkStatusChangedListener(networkStateListener);
   }
 
   @Override
   public void onDestroyView() {
     super.onDestroyView();
-    NetworkUtils.unregisterStateListener(networkStateListener);
+    NetworkUtils.unregisterNetworkStatusChangedListener(networkStateListener);
   }
 
   private void photoPicker() {
@@ -342,8 +342,8 @@ public class QChatChannelMessageFragment extends BaseFragment {
               Uri uri;
               if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 uri =
-                    FileProvider.getUriForFile(
-                        getActivity(), getActivity().getPackageName() + ".FileProvider", file);
+                    IMKitFileProvider.getUriForFile(
+                        getActivity(), getActivity().getPackageName() + ".IMKitFileProvider", file);
                 intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
               } else {
                 uri = Uri.fromFile(file);

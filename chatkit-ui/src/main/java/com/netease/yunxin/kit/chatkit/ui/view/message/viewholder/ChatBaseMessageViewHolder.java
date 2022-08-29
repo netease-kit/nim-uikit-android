@@ -35,7 +35,7 @@ import com.netease.yunxin.kit.chatkit.ui.view.message.MessageProperties;
 import com.netease.yunxin.kit.chatkit.ui.view.message.adapter.ChatMessageAdapter;
 import com.netease.yunxin.kit.common.ui.utils.AvatarColor;
 import com.netease.yunxin.kit.common.ui.utils.TimeFormatUtils;
-import com.netease.yunxin.kit.common.utils.ScreenUtil;
+import com.netease.yunxin.kit.common.utils.SizeUtils;
 import com.netease.yunxin.kit.corekit.im.IMKitClient;
 import com.netease.yunxin.kit.corekit.im.model.UserInfo;
 import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
@@ -115,7 +115,7 @@ public abstract class ChatBaseMessageViewHolder extends RecyclerView.ViewHolder 
           onMessageSignal(data);
         } else if (TextUtils.equals(payloadItem, ChatMessageAdapter.PROGRESS_PAYLOAD)) {
           onProgressUpdate(data);
-        } else if (TextUtils.equals(payloadItem, ChatMessageAdapter.PROGRESS_PAYLOAD)) {
+        } else if (TextUtils.equals(payloadItem, ChatMessageAdapter.USERINFO_PAYLOAD)) {
           setUserInfo(data);
         }
       }
@@ -213,7 +213,7 @@ public abstract class ChatBaseMessageViewHolder extends RecyclerView.ViewHolder 
 
   public void bindData(ChatMessageBean message, ChatMessageBean lastMessage) {
     currentMessage = message;
-    int padding = ScreenUtil.dip2px(8);
+    int padding = SizeUtils.dp2px(8);
     baseViewBinding.baseRoot.setPadding(padding, padding, padding, padding);
     baseViewBinding.messageContainer.removeAllViews();
     addContainer();
@@ -238,6 +238,10 @@ public abstract class ChatBaseMessageViewHolder extends RecyclerView.ViewHolder 
   }
 
   private void setUserInfo(ChatMessageBean message) {
+    if (type == ChatMessageType.NOTICE_MESSAGE_VIEW_TYPE
+        || type == ChatMessageType.TIP_MESSAGE_VIEW_TYPE) {
+      return;
+    }
     ConstraintLayout.LayoutParams layoutParams =
         (ConstraintLayout.LayoutParams) baseViewBinding.messageBody.getLayoutParams();
     if (isReceivedMessage(message)) {
@@ -280,7 +284,9 @@ public abstract class ChatBaseMessageViewHolder extends RecyclerView.ViewHolder 
       }
       baseViewBinding.fromAvatar.setVisibility(View.GONE);
       layoutParams.horizontalBias = 1f;
-      if (properties.getSelfMessageBg() != null) {
+      if (properties.selfMessageRes != MessageProperties.INT_NULL) {
+        baseViewBinding.llyMessage.setBackgroundResource(properties.selfMessageRes);
+      } else if (properties.getSelfMessageBg() != null) {
         baseViewBinding.llyMessage.setBackground(properties.getSelfMessageBg());
       } else {
         baseViewBinding.llyMessage.setBackgroundResource(R.drawable.chat_message_self_bg);
@@ -320,7 +326,9 @@ public abstract class ChatBaseMessageViewHolder extends RecyclerView.ViewHolder 
         name,
         AvatarColor.avatarColor(message.getMessageData().getMessage().getFromAccount()));
     baseViewBinding.avatarMine.setVisibility(View.GONE);
-    if (properties.getReceiveMessageBg() != null) {
+    if (properties.receiveMessageRes != MessageProperties.INT_NULL) {
+      baseViewBinding.llyMessage.setBackgroundResource(properties.receiveMessageRes);
+    } else if (properties.getReceiveMessageBg() != null) {
       baseViewBinding.llyMessage.setBackground(properties.getReceiveMessageBg());
     } else {
       baseViewBinding.llyMessage.setBackgroundResource(R.drawable.chat_message_other_bg);
@@ -408,7 +416,7 @@ public abstract class ChatBaseMessageViewHolder extends RecyclerView.ViewHolder 
       baseViewBinding.readProcess.setVisibility(View.GONE);
     } else if ((data.getMessageData().getMessage().getStatus() == MsgStatusEnum.fail)) {
       baseViewBinding.ivStatus.setVisibility(View.VISIBLE);
-      baseViewBinding.ivStatus.setImageResource(R.drawable.ic_icon_error);
+      baseViewBinding.ivStatus.setImageResource(R.drawable.ic_error);
       baseViewBinding.messageSending.setVisibility(View.GONE);
     } else if (data.getMessageData().getMessage().getSessionType() == SessionTypeEnum.P2P) {
       baseViewBinding.messageSending.setVisibility(View.GONE);

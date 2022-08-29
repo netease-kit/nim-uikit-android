@@ -33,7 +33,7 @@ import com.netease.nimlib.sdk.team.model.TeamMember;
 import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
 import com.netease.yunxin.kit.common.ui.dialog.ChoiceListener;
 import com.netease.yunxin.kit.common.ui.dialog.CommonChoiceDialog;
-import com.netease.yunxin.kit.common.utils.ScreenUtil;
+import com.netease.yunxin.kit.common.utils.SizeUtils;
 import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 import com.netease.yunxin.kit.teamkit.model.UserInfoWithTeam;
@@ -319,9 +319,9 @@ public class TeamSettingActivity extends BaseActivity {
                       teamMemberInfoList == null ? 199 : 200 - teamMemberInfoList.size())
                   .withContext(TeamSettingActivity.this)
                   .navigate(launcher));
-      params.setMarginStart(ScreenUtil.dip2px(6));
+      params.setMarginStart(SizeUtils.dp2px(6));
     } else {
-      params.setMarginStart(ScreenUtil.dip2px(10));
+      params.setMarginStart(SizeUtils.dp2px(10));
       binding.ivAdd.setVisibility(View.GONE);
     }
     binding.rvMemberList.setLayoutParams(params);
@@ -336,7 +336,7 @@ public class TeamSettingActivity extends BaseActivity {
     }
     adapter.addDataList(list, true);
     if (itemDecoration == null) {
-      int padding = ScreenUtil.dip2px(6);
+      int padding = SizeUtils.dp2px(6);
       itemDecoration =
           new RecyclerView.ItemDecoration() {
             @Override

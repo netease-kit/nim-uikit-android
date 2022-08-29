@@ -1,0 +1,27 @@
+<!--
+  ~ Copyright (c) 2022 NetEase, Inc. All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be
+  ~ found in the LICENSE file.
+  -->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="11dp"
+    android:height="12dp"
+    android:viewportWidth="11"
+    android:viewportHeight="12">
+    <group>
+        <clip-path android:pathData="M0,0.5h11v11h-11z" />
+        <path
+            android:pathData="M9.0994,10.9513V10.9517C9.0994,10.9672 9.0954,10.9824 9.0878,10.996C9.0801,11.0095 9.0691,11.0208 9.0558,11.0288C9.0425,11.0368 9.0274,11.0412 9.0119,11.0416C8.9963,11.0421 8.981,11.0384 8.9673,11.0312L8.9672,11.0311L5.6431,9.2668C5.643,9.2668 5.643,9.2668 5.643,9.2668C5.4976,9.1896 5.3355,9.1492 5.171,9.1492C5.0064,9.1492 4.8443,9.1896 4.6989,9.2668C4.6989,9.2668 4.6989,9.2668 4.6989,9.2668L1.3763,11.0306L1.3758,11.0309C1.3621,11.0382 1.3468,11.0418 1.3312,11.0414C1.3157,11.041 1.3005,11.0366 1.2872,11.0286C1.2739,11.0206 1.2629,11.0093 1.2553,10.9957C1.2476,10.9822 1.2436,10.967 1.2436,10.9514V10.9513V1.5966C1.2436,1.5127 1.2601,1.4297 1.2922,1.3523C1.3243,1.2749 1.3713,1.2045 1.4305,1.1453C1.4898,1.086 1.5602,1.039 1.6376,1.0069C1.715,0.9748 1.798,0.9583 1.8818,0.9583H8.4612C8.545,0.9583 8.628,0.9748 8.7054,1.0069C8.7828,1.039 8.8532,1.086 8.9125,1.1453C8.9717,1.2045 9.0187,1.2749 9.0508,1.3523C9.0829,1.4297 9.0994,1.5127 9.0994,1.5966V10.9513Z"
+            android:strokeWidth="0.916667"
+            android:fillColor="#00000000"
+            android:strokeColor="#3EAF96" />
+        <path
+            android:pathData="M3.1432,5.6071L5.042,7.1463L7.4646,3.25"
+            android:strokeLineJoin="round"
+            android:strokeWidth="0.916667"
+            android:fillColor="#00000000"
+            android:strokeColor="#3EAF96"
+            android:strokeLineCap="round" />
+    </group>
+</vector>

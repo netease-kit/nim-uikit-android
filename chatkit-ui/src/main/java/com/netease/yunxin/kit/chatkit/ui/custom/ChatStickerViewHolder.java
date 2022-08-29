@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
+import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatBaseMessageViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatMessageStickerViewBinding;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
@@ -47,7 +48,7 @@ public class ChatStickerViewHolder extends ChatBaseMessageViewHolder {
                 .getStickerUri(attachment.getCatalog(), attachment.getChartLet()))
         .apply(
             new RequestOptions()
-                .error(com.netease.yunxin.kit.common.ui.R.drawable.ic_default_img_failed)
+                .error(R.drawable.ic_img_failed)
                 .diskCacheStrategy(DiskCacheStrategy.NONE))
         .into(binding.thumbnail);
   }

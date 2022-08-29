@@ -22,7 +22,7 @@ public class ClearCacheActivity extends BaseActivity {
   @Override
   protected void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    changeStatusBarColor(com.netease.yunxin.kit.common.ui.R.color.color_e9eff5);
+    changeStatusBarColor(R.color.color_e9eff5);
     viewBinding = ActivityClearCacheBinding.inflate(getLayoutInflater());
     viewModel = new ViewModelProvider(this).get(ClearCacheViewModel.class);
     setContentView(viewBinding.getRoot());

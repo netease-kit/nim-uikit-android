@@ -1,0 +1,15 @@
+<!--
+  ~ Copyright (c) 2022 NetEase, Inc. All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be
+  ~ found in the LICENSE file.
+  -->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="12dp"
+    android:height="8dp"
+    android:viewportWidth="12"
+    android:viewportHeight="8">
+  <path
+      android:pathData="M10.488,1.1032C10.7283,0.8629 11.1179,0.8629 11.3582,1.1032C11.5986,1.3435 11.5986,1.7332 11.3582,1.9735L10.488,1.1032ZM6,6.4614L6.4352,6.8966C6.1948,7.1369 5.8052,7.1369 5.5649,6.8966L6,6.4614ZM0.9495,2.2812C0.7092,2.0409 0.7092,1.6512 0.9495,1.4109C1.1898,1.1706 1.5795,1.1706 1.8198,1.4109L0.9495,2.2812ZM11.3582,1.9735L6.4352,6.8966L5.5649,6.0263L10.488,1.1032L11.3582,1.9735ZM5.5649,6.8966L0.9495,2.2812L1.8198,1.4109L6.4352,6.0263L5.5649,6.8966Z"
+      android:fillColor="#999999"/>
+</vector>

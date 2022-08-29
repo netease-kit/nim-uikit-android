@@ -26,7 +26,7 @@ import com.netease.nimlib.sdk.media.record.RecordType;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatMessageRecordViewBinding;
-import com.netease.yunxin.kit.common.utils.PxUtils;
+import com.netease.yunxin.kit.common.utils.SizeUtils;
 
 /** record panel in input view */
 public class RecordView extends FrameLayout {
@@ -120,7 +120,7 @@ public class RecordView extends FrameLayout {
     int[] location = new int[2];
     view.getLocationOnScreen(location);
 
-    int radius = PxUtils.dpToPx(getContext(), 103) / 2;
+    int radius = SizeUtils.dp2px(103) / 2;
     return !isInCircle(
         event.getRawX(), event.getRawY(), location[0] + radius, location[1] + radius, radius);
   }

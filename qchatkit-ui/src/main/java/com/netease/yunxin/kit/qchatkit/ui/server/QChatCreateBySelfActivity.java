@@ -15,7 +15,6 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import com.bumptech.glide.Glide;
 import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
-import com.netease.yunxin.kit.common.utils.NetworkUtils;
 import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
 import com.netease.yunxin.kit.qchatkit.repo.QChatServerRepo;
 import com.netease.yunxin.kit.qchatkit.repo.model.QChatChannelInfo;
@@ -24,6 +23,7 @@ import com.netease.yunxin.kit.qchatkit.ui.R;
 import com.netease.yunxin.kit.qchatkit.ui.common.photo.PhotoChoiceDialog;
 import com.netease.yunxin.kit.qchatkit.ui.databinding.QChatCreateBySelfActivityBinding;
 import com.netease.yunxin.kit.qchatkit.ui.message.QChatChannelMessageActivity;
+import com.netease.yunxin.kit.qchatkit.ui.utils.QChatUtils;
 
 public class QChatCreateBySelfActivity extends BaseActivity {
 
@@ -107,7 +107,7 @@ public class QChatCreateBySelfActivity extends BaseActivity {
     binding.tvCreate.setAlpha(0.5f);
     binding.tvCreate.setOnClickListener(
         v ->
-            NetworkUtils.isConnectedToastAndRun(
+            QChatUtils.isConnectedToastAndRun(
                 this,
                 () -> {
                   binding.tvCreate.setEnabled(false);

@@ -27,8 +27,7 @@ import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
-import com.netease.yunxin.kit.common.utils.NetworkUtils;
-import com.netease.yunxin.kit.common.utils.PxUtils;
+import com.netease.yunxin.kit.common.utils.SizeUtils;
 import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
 import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
@@ -41,6 +40,7 @@ import com.netease.yunxin.kit.qchatkit.ui.databinding.QChatServerMbemberInfoWith
 import com.netease.yunxin.kit.qchatkit.ui.databinding.QChatServerMemberListActivityBinding;
 import com.netease.yunxin.kit.qchatkit.ui.model.QChatConstant;
 import com.netease.yunxin.kit.qchatkit.ui.server.adapter.QChatServerMemberAdapter;
+import com.netease.yunxin.kit.qchatkit.ui.utils.QChatUtils;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -85,7 +85,7 @@ public class QChatServerMemberListActivity extends BaseActivity {
                 ArrayList<String> friends =
                     data.getStringArrayListExtra(REQUEST_CONTACT_SELECTOR_KEY);
                 if (friends != null && !friends.isEmpty()) {
-                  NetworkUtils.isConnectedToastAndRun(
+                  QChatUtils.isConnectedToastAndRun(
                       this,
                       () ->
                           QChatServerRepo.inviteServerMembers(
@@ -213,7 +213,7 @@ public class QChatServerMemberListActivity extends BaseActivity {
           loadMore(timeTag, false);
         });
 
-    NetworkUtils.isConnectedToastAndRun(this, () -> loadMore(0, true));
+    QChatUtils.isConnectedToastAndRun(this, () -> loadMore(0, true));
 
     prepareAnim();
   }
@@ -263,7 +263,7 @@ public class QChatServerMemberListActivity extends BaseActivity {
         ObjectAnimator.ofFloat(
                 binding.cvInviteMemberTip,
                 "translationY",
-                -PxUtils.dpToPx(this, DEFAULT_DP_TIP_TRANSLATION_Y),
+                -SizeUtils.dp2px(DEFAULT_DP_TIP_TRANSLATION_Y),
                 0f)
             .setDuration(500);
     ObjectAnimator dismissTransYAnimator =
@@ -271,7 +271,7 @@ public class QChatServerMemberListActivity extends BaseActivity {
                 binding.cvInviteMemberTip,
                 "translationY",
                 0f,
-                -PxUtils.dpToPx(this, DEFAULT_DP_TIP_TRANSLATION_Y))
+                -SizeUtils.dp2px(DEFAULT_DP_TIP_TRANSLATION_Y))
             .setDuration(500);
     animatorSet.play(showTransYAnimator);
     // the duration of showing tip is 1s.

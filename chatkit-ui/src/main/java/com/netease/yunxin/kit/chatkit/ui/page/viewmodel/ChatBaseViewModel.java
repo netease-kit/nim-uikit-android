@@ -25,6 +25,7 @@ import com.netease.nimlib.sdk.msg.model.MsgPinSyncResponseOption;
 import com.netease.nimlib.sdk.msg.model.QueryDirectionEnum;
 import com.netease.nimlib.sdk.msg.model.ShowNotificationWhenRevokeFilter;
 import com.netease.yunxin.kit.alog.ALog;
+import com.netease.yunxin.kit.chatkit.media.ImageUtil;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.repo.ChatMessageRepo;
 import com.netease.yunxin.kit.chatkit.repo.ChatServiceObserverRepo;
@@ -37,9 +38,8 @@ import com.netease.yunxin.kit.chatkit.utils.SendMediaHelper;
 import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
-import com.netease.yunxin.kit.common.utils.file.FileUtil;
-import com.netease.yunxin.kit.common.utils.media.ImageUtil;
-import com.netease.yunxin.kit.common.utils.storage.RealPathUtil;
+import com.netease.yunxin.kit.common.utils.FileUtils;
+import com.netease.yunxin.kit.common.utils.UriUtils;
 import com.netease.yunxin.kit.corekit.im.IMKitClient;
 import com.netease.yunxin.kit.corekit.im.model.EventObserver;
 import com.netease.yunxin.kit.corekit.im.model.UserInfo;
@@ -284,10 +284,10 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
   }
 
   public void sendImageOrVideoMessage(Uri uri) {
-    String mimeType = FileUtil.getExtensionName(uri.getPath());
+    String mimeType = FileUtils.getFileExtension(uri.getPath());
     if (TextUtils.isEmpty(mimeType)) {
-      String realPath = RealPathUtil.getRealPath(uri);
-      mimeType = FileUtil.getExtensionName(realPath);
+      String realPath = UriUtils.uri2FileRealPath(uri);
+      mimeType = FileUtils.getFileExtension(realPath);
     }
     if (ImageUtil.isValidPictureFile(mimeType)) {
       SendMediaHelper.handleImage(uri, false, this::sendImageMessage);

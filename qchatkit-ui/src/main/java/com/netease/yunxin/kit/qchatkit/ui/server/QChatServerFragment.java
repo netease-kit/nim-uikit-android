@@ -22,7 +22,6 @@ import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.common.ui.fragments.BaseFragment;
-import com.netease.yunxin.kit.common.utils.NetworkUtils;
 import com.netease.yunxin.kit.corekit.model.ErrorMsg;
 import com.netease.yunxin.kit.corekit.model.ResultInfo;
 import com.netease.yunxin.kit.qchatkit.observer.ObserverUnreadInfoResultHelper;
@@ -35,6 +34,7 @@ import com.netease.yunxin.kit.qchatkit.ui.databinding.QChatFragmentBinding;
 import com.netease.yunxin.kit.qchatkit.ui.server.adapter.QChatFragmentServerAdapter;
 import com.netease.yunxin.kit.qchatkit.ui.server.model.QChatFragmentServerInfo;
 import com.netease.yunxin.kit.qchatkit.ui.server.viewmodel.QChatServerListViewModel;
+import com.netease.yunxin.kit.qchatkit.ui.utils.QChatUtils;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -169,7 +169,7 @@ public class QChatServerFragment extends BaseFragment {
     viewModel.getUnreadInfoResult().observeForever(observerUnreadInfo);
 
     // to load data firstly, showing network error when network was broken.
-    NetworkUtils.isConnectedToastAndRun(getContext(), this::refreshServerList);
+    QChatUtils.isConnectedToastAndRun(getContext(), this::refreshServerList);
   }
 
   private void actionForSuccess(List<QChatServerInfo> data, boolean clear) {

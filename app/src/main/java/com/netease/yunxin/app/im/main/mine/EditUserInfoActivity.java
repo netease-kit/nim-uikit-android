@@ -12,7 +12,6 @@ import android.text.InputFilter;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
@@ -100,15 +99,15 @@ public class EditUserInfoActivity extends AppCompatActivity {
 
           @Override
           public void afterTextChanged(Editable s) {
-            if (TextUtils.isEmpty(String.valueOf(s))) {
-              binding.ivClear.setVisibility(View.GONE);
-              binding.tvDone.setEnabled(false);
-              binding.tvDone.setAlpha(0.5f);
-            } else {
-              binding.ivClear.setVisibility(View.VISIBLE);
-              binding.tvDone.setEnabled(true);
-              binding.tvDone.setAlpha(1f);
-            }
+//            if (TextUtils.isEmpty(String.valueOf(s))) {
+//              binding.ivClear.setVisibility(View.GONE);
+//              binding.tvDone.setEnabled(false);
+//              binding.tvDone.setAlpha(0.5f);
+//            } else {
+//              binding.ivClear.setVisibility(View.VISIBLE);
+//              binding.tvDone.setEnabled(true);
+//              binding.tvDone.setAlpha(1f);
+//            }
           }
         });
 

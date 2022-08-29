@@ -97,7 +97,7 @@
         tools:ignore="MissingConstraints" >
         <ImageView
             android:layout_width="@dimen/dimen_188_dp"
-            android:layout_height="@dimen/dimen_120_dp"
+            android:layout_height="@dimen/verify_name_max_len"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="@dimen/dimen_70_dp"
             android:layout_marginBottom="@dimen/dimen_16_dp"

@@ -17,10 +17,10 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import com.netease.yunxin.kit.alog.ALog;
+import com.netease.yunxin.kit.chatkit.media.BitmapDecoder;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatEmojiLayoutBinding;
-import com.netease.yunxin.kit.common.utils.ScreenUtil;
-import com.netease.yunxin.kit.common.utils.media.BitmapDecoder;
+import com.netease.yunxin.kit.common.utils.SizeUtils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -138,10 +138,10 @@ public class EmojiPickerView extends LinearLayout implements IEmojiCategoryChang
     emojiBtn.setId(index);
     emojiBtn.setOnClickListener(listener);
     emojiBtn.setScaleType(ImageView.ScaleType.FIT_CENTER);
-    emojiBtn.setPaddingValue(ScreenUtil.dip2px(7));
+    emojiBtn.setPaddingValue(SizeUtils.dp2px(7));
 
-    final int emojiBtnWidth = ScreenUtil.dip2px(50);
-    final int emojiBtnHeight = ScreenUtil.dip2px(42);
+    final int emojiBtnWidth = SizeUtils.dp2px(50);
+    final int emojiBtnHeight = SizeUtils.dp2px(42);
 
     viewBinding.emojiTabView.addView(emojiBtn);
 

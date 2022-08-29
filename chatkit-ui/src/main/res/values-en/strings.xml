@@ -5,6 +5,7 @@
   -->
 
 <resources>
+    <string name="cancel">Cancel</string>
     <string name="chat_pressed_to_speak">Hold to Talk</string> 
     <string name="chat_record_failed">Failed！try it again</string> 
     <string name="chat_message_send_hint">Send to %s</string> 
@@ -19,7 +20,7 @@
     <string name="chat_message_open_message_notice">Notification</string> 
     <string name="chat_message_set_top">Sticky on Top</string> 
     <string name="chat_message_add_to_black_list">Block</string> 
-    <string name="chat_message_delete">Block</string>
+    <string name="chat_message_delete">Yes</string>
     <string name="chat_setting">Settings</string> 
     <string name="chat_read_status">Read Status</string> 
     <string name="chat_read_with_num">Read（%d）</string> 
@@ -60,6 +61,7 @@
     <string name="chat_message_action_multi_select">Multi-select</string>
     <string name="chat_message_action_delete">Delete</string>
     <string name="chat_message_action_recall">Recall</string> 
+    <string name="chat_message_positive_recall">Yes</string>
     <string name="chat_message_action_collection">Favorite</string>
 
     <string name="chat_message_action_revoke_this_message">Are you sure you want to recall message</string>
@@ -145,4 +147,6 @@
 
     <!-- error -->
     <string name="chat_message_reply_error">error</string>
+    <string name="chat_network_error_tip">No Internet</string>
+
 </resources>

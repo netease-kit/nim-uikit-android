@@ -69,7 +69,7 @@ public class StickerAdapter extends BaseAdapter {
         .load(StickerManager.getInstance().getStickerUri(sticker.getCategory(), sticker.getName()))
         .apply(
             new RequestOptions()
-                .error(R.drawable.ic_default_img_failed)
+                .error(R.drawable.ic_img_failed)
                 .diskCacheStrategy(DiskCacheStrategy.NONE)
                 .dontAnimate())
         .into(viewHolder.imageView);

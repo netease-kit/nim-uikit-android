@@ -9,7 +9,7 @@ import android.view.LayoutInflater;
 import androidx.annotation.NonNull;
 import com.bumptech.glide.Glide;
 import com.netease.nimlib.sdk.msg.attachment.ImageAttachment;
-import com.netease.yunxin.kit.common.utils.ScreenUtil;
+import com.netease.yunxin.kit.common.utils.ScreenUtils;
 import com.netease.yunxin.kit.qchatkit.repo.model.QChatMessageInfo;
 import com.netease.yunxin.kit.qchatkit.ui.common.WatchImageActivity;
 import com.netease.yunxin.kit.qchatkit.ui.databinding.QChatImageMessageViewHolderBinding;
@@ -58,6 +58,6 @@ public class QChatImageMessageViewHolder extends QChatBaseMessageViewHolder {
   }
 
   private int getImageMaxEdge() {
-    return (int) (165.0 / 320.0 * ScreenUtil.getDisplayWidth());
+    return (int) (165.0 / 320.0 * ScreenUtils.getDisplayWidth());
   }
 }

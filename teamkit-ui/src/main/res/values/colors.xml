@@ -6,9 +6,19 @@
   -->
 
 <resources>
+    <color name="color_white">#FFFFFF</color>
     <color name="color_e6605c">#ffe6605c</color>
     <color name="color_e0ecff">#ffe0ecff</color>
     <color name="color_b9d3ff">#ffb9d3ff</color>
     <color name="color_dedede">#ffdedede</color>
     <color name="color_a6adb6">#a6adb6</color>
+    <color name="color_eff1f4">#eff1f4</color>
+    <color name="color_fff4f4f4">#fff4f4f4</color>
+    <color name="color_ededef">#ededef</color>
+    <color name="color_dbdde4">#dbdde4</color>
+    <color name="color_337eff">#337eff</color>
+    <color name="color_b3b7bc">#b3b7bc</color>
+    <color name="color_999999">#999999</color>
+    <color name="color_f2f4f5">#f2f4f5</color>
+
 </resources>

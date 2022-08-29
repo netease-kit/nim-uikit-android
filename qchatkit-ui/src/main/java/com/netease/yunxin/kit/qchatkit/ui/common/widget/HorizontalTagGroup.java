@@ -14,7 +14,7 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.annotation.Nullable;
-import com.netease.yunxin.kit.common.utils.PxUtils;
+import com.netease.yunxin.kit.common.utils.SizeUtils;
 import com.netease.yunxin.kit.qchatkit.repo.model.QChatServerRoleInfo;
 import java.util.ArrayList;
 import java.util.List;
@@ -74,8 +74,8 @@ public class HorizontalTagGroup extends LinearLayout {
 
     measureChildren(widthMeasureSpec, heightMeasureSpec);
 
-    int horizontalMargin = PxUtils.dpToPx(getContext(), HORIZONTAL_ITEM_MARGIN);
-    int verticalMargin = PxUtils.dpToPx(getContext(), VERTICAL_ITEM_MARGIN);
+    int horizontalMargin = SizeUtils.dp2px(HORIZONTAL_ITEM_MARGIN);
+    int verticalMargin = SizeUtils.dp2px(VERTICAL_ITEM_MARGIN);
 
     int width;
     int height = 0;
@@ -126,8 +126,8 @@ public class HorizontalTagGroup extends LinearLayout {
     final int parentRight = r - l - getPaddingRight();
     final int parentTop = getPaddingTop();
 
-    int horizontalMargin = PxUtils.dpToPx(getContext(), HORIZONTAL_ITEM_MARGIN);
-    int verticalMargin = PxUtils.dpToPx(getContext(), VERTICAL_ITEM_MARGIN);
+    int horizontalMargin = SizeUtils.dp2px(HORIZONTAL_ITEM_MARGIN);
+    int verticalMargin = SizeUtils.dp2px(VERTICAL_ITEM_MARGIN);
 
     int childLeft = parentLeft;
     int childTop = parentTop;
@@ -164,8 +164,8 @@ public class HorizontalTagGroup extends LinearLayout {
     TextView textView = new TextView(getContext());
     textView.setTextColor(COLOR_ITEM_TAG_TEXT);
     textView.setTextSize(TEXT_FONT_SIZE_ITEM_TAG);
-    int horizontalPadding = PxUtils.dpToPx(getContext(), HORIZONTAL_ITEM_TAG_PADDING);
-    int verticalPadding = PxUtils.dpToPx(getContext(), VERTICAL_ITEM_TAG_PADDING);
+    int horizontalPadding = SizeUtils.dp2px(HORIZONTAL_ITEM_TAG_PADDING);
+    int verticalPadding = SizeUtils.dp2px(VERTICAL_ITEM_TAG_PADDING);
     textView.setPadding(horizontalPadding, verticalPadding, horizontalPadding, verticalPadding);
     textView.setMaxLines(1);
     textView.setEllipsize(TextUtils.TruncateAt.END);
@@ -175,7 +175,7 @@ public class HorizontalTagGroup extends LinearLayout {
   private Drawable prepareTagBg() {
     GradientDrawable drawable = new GradientDrawable();
     drawable.setColor(COLOR_ITEM_TAG_BG);
-    drawable.setCornerRadius(PxUtils.dpToPx(getContext(), RADIUS_DP_ITEM_TAG));
+    drawable.setCornerRadius(SizeUtils.dp2px(RADIUS_DP_ITEM_TAG));
     return drawable;
   }
 }

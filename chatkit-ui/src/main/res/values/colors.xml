@@ -11,4 +11,30 @@
     <color name="photo_status_bar_black">#d9000000</color>
     <color name="photo_crop_dim_color">#cc000000</color>
     <color name="photo_crop_highlight_color">#fff</color>
+    <color name="title_transfer">#00000000</color>
+    <color name="color_white">#FFFFFF</color>
+    <color name="color_333333">#333333</color>
+    <color name="color_fc596a">#fffc596a</color>
+    <color name="color_fee3e6">#fffee3e6</color>
+    <color name="color_e3e4e4">#E3E4E4</color>
+    <color name="color_fffbea">#FFFBEA</color>
+    <color name="color_eef1f4">#EFF1F4</color>
+    <color name="color_999999">#999999</color>
+    <color name="color_e2e5e8">#E2E5E8</color>
+    <color name="color_337eff">#337EFF</color>
+    <color name="color_4d518ef8">#4d518ef8</color>
+    <color name="color_99000000">#99000000</color>
+    <color name="color_84ed85">#84ed85</color>
+    <color name="color_cccccc">#cccccc</color>
+    <color name="color_d8eae4">#d8eae4</color>
+    <color name="color_4d000000">#4d000000</color>
+    <color name="color_d9d9d9">#4d000000</color>
+    <color name="color_b3b7bc">#b3b7bc</color>
+    <color name="color_929299">#929299</color>
+    <color name="color_eff1f4">#eff1f4</color>
+    <color name="color_f2f4f5">#f2f4f5</color>
+    <color name="color_e8eaed">#e8eaed</color>
+    <color name="color_d6e5f6">#d6e5f6</color>
+    <color name="color_3eaf96">#3eaf96</color>
+
 </resources>

@@ -12,10 +12,9 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
-import androidx.core.content.FileProvider;
 import com.netease.yunxin.kit.alog.ALog;
-import com.netease.yunxin.kit.common.utils.NetworkUtils;
 import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
+import com.netease.yunxin.kit.corekit.im.provider.IMKitFileProvider;
 import com.netease.yunxin.kit.corekit.im.utils.TransHelper;
 import com.netease.yunxin.kit.corekit.model.ErrorMsg;
 import com.netease.yunxin.kit.corekit.model.ResultInfo;
@@ -23,6 +22,7 @@ import com.netease.yunxin.kit.qchatkit.repo.QChatServerRepo;
 import com.netease.yunxin.kit.qchatkit.ui.R;
 import com.netease.yunxin.kit.qchatkit.ui.common.photo.crop.CropImage;
 import com.netease.yunxin.kit.qchatkit.ui.common.photo.crop.CropImageView;
+import com.netease.yunxin.kit.qchatkit.ui.utils.QChatUtils;
 import java.io.File;
 import java.io.IOException;
 
@@ -51,8 +51,7 @@ public final class PhotoPicker {
                 new FetchCallback<File>() {
                   @Override
                   public void onSuccess(@Nullable File param) {
-                    NetworkUtils.isConnectedToastAndRun(
-                        context,
+                    QChatUtils.isConnectedToastAndRun(
                         () -> uploadPhoto(param, callback),
                         () -> {
                           callback.onException(new IllegalStateException("Network error."));
@@ -117,8 +116,7 @@ public final class PhotoPicker {
               new FetchCallback<File>() {
                 @Override
                 public void onSuccess(@Nullable File param) {
-                  NetworkUtils.isConnectedToastAndRun(
-                      context,
+                  QChatUtils.isConnectedToastAndRun(
                       () -> uploadPhoto(param, callback),
                       () -> {
                         callback.onException(new IllegalStateException("Network error."));
@@ -157,8 +155,8 @@ public final class PhotoPicker {
           Uri uri;
           if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             uri =
-                FileProvider.getUriForFile(
-                    context, activity.getPackageName() + ".FileProvider", file);
+                IMKitFileProvider.getUriForFile(
+                    context, activity.getPackageName() + ".IMKitFileProvider", file);
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
           } else {
             uri = Uri.fromFile(file);
@@ -177,7 +175,8 @@ public final class PhotoPicker {
   public void cropPhoto(Context context, File inputFile, FetchCallback<File> callback) {
     cropPhoto(
         context,
-        FileProvider.getUriForFile(context, context.getPackageName() + ".FileProvider", inputFile),
+        IMKitFileProvider.getUriForFile(
+            context, context.getPackageName() + ".IMKitFileProvider", inputFile),
         callback);
   }
 

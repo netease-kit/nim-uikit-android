@@ -5,6 +5,8 @@
   -->
 
 <resources>
+    <color name="color_black">#000000</color>
+    <color name="color_white">#FFFFFF</color>
     <color name="color_f6f8fa">#fff6f8fa</color>
     <color name="color_e9eff5">#ffe9eff5</color>
     <color name="color_b3b7bc">#ffb3b7bc</color>
@@ -21,4 +23,13 @@
     <color name="color_fee3e6">#fffee3e6</color>
     <color name="color_fc596a">#fffc596a</color>
     <color name="color_transparent">#00000000</color>
+    <color name="color_eef1f4">#EEF1F4</color>
+    <color name="color_d6e5f6">#d6e5f6</color>
+    <color name="color_e8eaed">#e8eaed</color>
+    <color name="color_42c294">#42c294</color>
+    <color name="color_dbdde4">#dbdde4</color>
+    <color name="color_999999">#999999</color>
+    <color name="color_929299">#929299</color>
+    <color name="color_3eaf96">#3eaf96</color>
+
 </resources>

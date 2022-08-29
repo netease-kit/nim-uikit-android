@@ -18,9 +18,8 @@ import com.netease.nimlib.sdk.msg.model.IMMessage;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.ui.databinding.WatchImageViewHolderBinding;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
-import com.netease.yunxin.kit.common.utils.ScreenUtil;
-import com.netease.yunxin.kit.common.utils.media.BitmapDecoder;
-import com.netease.yunxin.kit.common.utils.media.ImageUtil;
+import com.netease.yunxin.kit.common.utils.ImageUtils;
+import com.netease.yunxin.kit.common.utils.ScreenUtils;
 import java.util.List;
 
 public class WatchImageAdapter
@@ -103,14 +102,14 @@ public class WatchImageAdapter
     }
     ALog.i(TAG, "updateImage path:" + path);
 
-    Bitmap bitmap = null;
-    if (!TextUtils.isEmpty(path)) {
-      bitmap = BitmapDecoder.decodeSampledForDisplay(path);
-      bitmap = ImageUtil.rotateBitmapInNeeded(path, bitmap);
+    Bitmap bitmap = ImageUtils.getBitmap(path);
+    int degree = ImageUtils.getRotateDegree(path);
+    if (degree != 0) {
+      bitmap = ImageUtils.rotate(bitmap, degree, 0, 0);
     }
     if (bitmap != null) {
       float initScale =
-          bitmap.getWidth() > 0 ? ScreenUtil.getDisplayWidth() * 1f / bitmap.getWidth() : 1f;
+          bitmap.getWidth() > 0 ? ScreenUtils.getDisplayWidth() * 1f / bitmap.getWidth() : 1f;
       holder.binding.watchPhotoView.setMaxInitialScale(initScale);
       holder.binding.watchPhotoView.bindPhoto(bitmap);
     }

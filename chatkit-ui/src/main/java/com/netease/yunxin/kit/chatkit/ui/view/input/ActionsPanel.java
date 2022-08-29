@@ -13,7 +13,7 @@ import com.netease.yunxin.kit.chatkit.ui.view.interfaces.IMessageProxy;
 import com.netease.yunxin.kit.common.ui.action.ActionItem;
 import com.netease.yunxin.kit.common.ui.dialog.BottomChoiceDialog;
 import com.netease.yunxin.kit.common.ui.utils.ToastX;
-import com.netease.yunxin.kit.common.utils.AppInfo;
+import com.netease.yunxin.kit.common.utils.XKitUtils;
 import java.util.ArrayList;
 
 /** more action panel in input view */
@@ -39,7 +39,7 @@ public class ActionsPanel implements ActionsPanelAdapter.OnActionItemClick {
           new BottomChoiceDialog.OnChoiceListener() {
             @Override
             public void onChoice(@NonNull String type) {
-              if (!AppInfo.applicationContext
+              if (!XKitUtils.getApplicationContext()
                   .getPackageManager()
                   .hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)) {
                 ToastX.showShortToast(R.string.chat_message_camera_unavailable);

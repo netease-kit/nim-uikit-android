@@ -6,7 +6,6 @@ package com.netease.yunxin.kit.conversationkit.ui;
 
 import android.content.Context;
 import androidx.annotation.NonNull;
-import com.netease.yunxin.kit.common.ui.CommonUIClient;
 import com.netease.yunxin.kit.conversationkit.ConversationService;
 import com.netease.yunxin.kit.conversationkit.ui.page.ConversationActivity;
 import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
@@ -30,7 +29,6 @@ public class ConversationUIService extends ConversationService {
   @Override
   public ConversationService create(@NonNull Context context) {
     XKitRouter.registerRouter(RouterConstant.PATH_CONVERSATION_PAGE, ConversationActivity.class);
-    CommonUIClient.init(context);
     return this;
   }
 }

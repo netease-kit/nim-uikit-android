@@ -15,7 +15,7 @@ import com.netease.yunxin.kit.chatkit.model.UserInfoWithTeam;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatMessageAitSelectorDialogBinding;
 import com.netease.yunxin.kit.chatkit.ui.page.adapter.AitContactAdapter;
-import com.netease.yunxin.kit.common.utils.ScreenUtil;
+import com.netease.yunxin.kit.common.utils.ScreenUtils;
 import java.util.List;
 
 /** Team member @ Dialog */
@@ -35,7 +35,7 @@ public class AitContactSelectorDialog extends BottomSheetDialog {
     setContentView(
         binding.getRoot(),
         new FrameLayout.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT, ScreenUtil.getDisplayHeight() * 2 / 3));
+            ViewGroup.LayoutParams.MATCH_PARENT, ScreenUtils.getDisplayHeight() * 2 / 3));
 
     setCanceledOnTouchOutside(true);
     initViews();

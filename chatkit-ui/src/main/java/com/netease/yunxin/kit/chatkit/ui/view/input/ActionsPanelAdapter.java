@@ -14,7 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatMeesageMoreItemViewBinding;
 import com.netease.yunxin.kit.common.ui.action.ActionItem;
-import com.netease.yunxin.kit.common.utils.ScreenUtil;
+import com.netease.yunxin.kit.common.utils.ScreenUtils;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -70,7 +70,7 @@ public class ActionsPanelAdapter extends RecyclerView.Adapter<ActionsPanelAdapte
         ChatMeesageMoreItemViewBinding.inflate(LayoutInflater.from(mContext));
     GridLayout.LayoutParams param = new GridLayout.LayoutParams();
     param.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-    param.width = ScreenUtil.getDisplayWidth() / COLUMN_COUNT;
+    param.width = ScreenUtils.getDisplayWidth() / COLUMN_COUNT;
     param.setGravity(Gravity.CENTER);
     param.columnSpec = GridLayout.spec(i % COLUMN_COUNT);
     param.rowSpec = GridLayout.spec(i / COLUMN_COUNT);

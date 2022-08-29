@@ -16,6 +16,10 @@ public class MessageProperties {
 
   private Drawable selfMessageBg;
 
+  public int selfMessageRes = INT_NULL;
+
+  public int receiveMessageRes = INT_NULL;
+
   @ColorInt private int userNickColor = INT_NULL;
 
   private int userNickTextSize = INT_NULL;
@@ -38,6 +42,7 @@ public class MessageProperties {
 
   private boolean showTeamMessageStatus = true;
 
+  @Deprecated
   public void setReceiveMessageBg(Drawable receiveMessageBg) {
     this.receiveMessageBg = receiveMessageBg;
   }
@@ -46,6 +51,7 @@ public class MessageProperties {
     return receiveMessageBg;
   }
 
+  @Deprecated
   public void setSelfMessageBg(Drawable selfMessageBg) {
     this.selfMessageBg = selfMessageBg;
   }

@@ -7,7 +7,6 @@ package com.netease.yunxin.kit.contactkit.ui;
 import android.content.Context;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
-import com.netease.yunxin.kit.common.ui.CommonUIClient;
 import com.netease.yunxin.kit.contactkit.ContactService;
 import com.netease.yunxin.kit.contactkit.ui.addfriend.AddFriendActivity;
 import com.netease.yunxin.kit.contactkit.ui.blacklist.BlackListActivity;
@@ -45,7 +44,6 @@ public class ContactUIService extends ContactService {
     XKitRouter.registerRouter(RouterConstant.PATH_MY_BLACK_PAGE, BlackListActivity.class);
     XKitRouter.registerRouter(RouterConstant.PATH_MY_NOTIFICATION_PAGE, VerifyListActivity.class);
     XKitRouter.registerRouter(RouterConstant.PATH_CONTACT_PAGE, ContactActivity.class);
-    CommonUIClient.init(context);
     return this;
   }
 }

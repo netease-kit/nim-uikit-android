@@ -11,13 +11,13 @@ import com.netease.nimlib.sdk.msg.attachment.VideoAttachment;
 import com.netease.nimlib.sdk.msg.constant.AttachStatusEnum;
 import com.netease.nimlib.sdk.msg.constant.MsgStatusEnum;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
+import com.netease.yunxin.kit.chatkit.media.BitmapDecoder;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatBaseMessageViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.common.ui.utils.ToastX;
-import com.netease.yunxin.kit.common.utils.ScreenUtil;
+import com.netease.yunxin.kit.common.utils.SizeUtils;
 import com.netease.yunxin.kit.common.utils.TimeUtils;
-import com.netease.yunxin.kit.common.utils.media.BitmapDecoder;
 import com.netease.yunxin.kit.corekit.im.IMKitClient;
 import java.io.File;
 import java.util.Locale;
@@ -116,7 +116,7 @@ public class ChatVideoMessageViewHolder extends ChatThumbBaseViewHolder {
 
   @Override
   protected float[] getCorners() {
-    float corner = ScreenUtil.dip2px(12);
+    float corner = SizeUtils.dp2px(12);
     return new float[] {corner, corner, corner, corner};
   }
 }

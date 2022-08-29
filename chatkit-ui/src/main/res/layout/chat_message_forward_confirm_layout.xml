@@ -28,6 +28,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/dimen_16_dp"
+        android:layout_marginEnd="@dimen/dimen_16_dp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_title" />
 
@@ -44,13 +45,15 @@
 
     <TextView
         android:id="@+id/tv_message"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toBottomOf="@id/rv_avatar"
         app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
         android:background="@color/color_f2f4f5"
         android:paddingHorizontal="@dimen/dimen_12_dp"
         android:paddingVertical="@dimen/dimen_7_dp"
+        android:layout_marginEnd="@dimen/dimen_16_dp"
         android:layout_marginStart="@dimen/dimen_16_dp" />
 
     <View

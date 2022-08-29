@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 import com.netease.yunxin.app.im.IMApplication;
+import com.netease.yunxin.app.im.R;
 import com.netease.yunxin.app.im.databinding.ActivityMineSettingBinding;
 import com.netease.yunxin.app.im.welcome.WelcomeActivity;
 import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
@@ -24,7 +25,7 @@ public class SettingActivity extends BaseActivity {
 
   @Override
   protected void onCreate(@Nullable Bundle savedInstanceState) {
-    changeStatusBarColor(com.netease.yunxin.kit.common.ui.R.color.color_e9eff5);
+    changeStatusBarColor(R.color.color_e9eff5);
     super.onCreate(savedInstanceState);
     viewBinding = ActivityMineSettingBinding.inflate(getLayoutInflater());
     viewModel = new ViewModelProvider(this).get(SettingViewModel.class);

@@ -5,7 +5,7 @@
 package com.netease.yunxin.kit.chatkit.ui.view.emoji;
 
 import android.content.res.AssetManager;
-import com.netease.yunxin.kit.common.utils.file.FileUtil;
+import com.netease.yunxin.kit.common.utils.FileUtils;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -67,7 +67,7 @@ public class StickerManager {
       String[] files = assetManager.list("sticker");
       StickerCategory category;
       for (String name : files) {
-        if (!FileUtil.hasExtension(name)) {
+        if (!FileUtils.hasFileExtension(name)) {
           category = new StickerCategory(name, name, true, getStickerOrder(name));
           stickerCategories.add(category);
           stickerCategoryMap.put(name, category);

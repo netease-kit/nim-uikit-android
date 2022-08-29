@@ -67,6 +67,7 @@
             android:id="@+id/rly_signal"
             android:layout_width="match_parent"
             android:layout_height="@dimen/dimen_50_dp"
+            android:visibility="gone"
             android:padding="@dimen/dimen_16_dp">
 
             <TextView

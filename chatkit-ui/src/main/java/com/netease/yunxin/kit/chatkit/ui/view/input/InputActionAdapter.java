@@ -12,7 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatMessageActionItemBinding;
 import com.netease.yunxin.kit.common.ui.action.ActionItem;
-import com.netease.yunxin.kit.common.utils.ScreenUtil;
+import com.netease.yunxin.kit.common.utils.ScreenUtils;
 import java.util.List;
 
 public class InputActionAdapter extends RecyclerView.Adapter<InputActionAdapter.ItemHolder> {
@@ -20,6 +20,7 @@ public class InputActionAdapter extends RecyclerView.Adapter<InputActionAdapter.
   private final List<ActionItem> mItems;
   private final OnItemClick onItemClick;
   private boolean disableAll = false;
+  private final int MAX_ITEM = 4;
 
   public InputActionAdapter(List<ActionItem> itemList, OnItemClick listener) {
     mItems = itemList;
@@ -48,7 +49,7 @@ public class InputActionAdapter extends RecyclerView.Adapter<InputActionAdapter.
     ChatMessageActionItemBinding binding =
         ChatMessageActionItemBinding.inflate(
             LayoutInflater.from(parent.getContext()), parent, false);
-    int width = ScreenUtil.getDisplayWidth() / 5;
+    int width = ScreenUtils.getDisplayWidth() / MAX_ITEM;
     LinearLayout.LayoutParams params =
         new LinearLayout.LayoutParams(width, ViewGroup.LayoutParams.MATCH_PARENT);
     binding.chatMessageActionItem.setLayoutParams(params);
