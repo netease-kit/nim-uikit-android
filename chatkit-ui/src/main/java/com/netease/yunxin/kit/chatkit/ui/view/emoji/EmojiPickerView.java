@@ -17,9 +17,9 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import com.netease.yunxin.kit.alog.ALog;
-import com.netease.yunxin.kit.chatkit.media.BitmapDecoder;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatEmojiLayoutBinding;
+import com.netease.yunxin.kit.common.utils.ImageUtils;
 import com.netease.yunxin.kit.common.utils.SizeUtils;
 import java.io.IOException;
 import java.io.InputStream;
@@ -157,13 +157,13 @@ public class EmojiPickerView extends LinearLayout implements IEmojiCategoryChang
     try {
       InputStream is = category.getCoverNormalInputStream(context);
       if (is != null) {
-        Bitmap bmp = BitmapDecoder.decode(is);
+        Bitmap bmp = ImageUtils.getBitmap(is);
         btn.setNormalImage(bmp);
         is.close();
       }
       is = category.getCoverPressedInputStream(context);
       if (is != null) {
-        Bitmap bmp = BitmapDecoder.decode(is);
+        Bitmap bmp = ImageUtils.getBitmap(is);
         btn.setCheckedImage(bmp);
         is.close();
       }

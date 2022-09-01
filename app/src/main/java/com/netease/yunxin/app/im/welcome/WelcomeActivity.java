@@ -88,6 +88,20 @@ public class WelcomeActivity extends AppCompatActivity {
                 showMainActivityAndFinish();
             }
         });
+
+        //如果只需要IM，则此处只需要登录IM即可。需要去除工程中qchatkit-ui相关依赖
+//        IMKitClient.loginIM(loginInfo, new LoginCallback<LoginInfo>() {
+//            @Override
+//            public void onError(int errorCode, @NonNull String errorMsg) {
+//                ToastX.showShortToast("login error:" + errorMsg);
+//                launchLoginPage();
+//            }
+//
+//            @Override
+//            public void onSuccess(@Nullable LoginInfo loginInfo) {
+//                showMainActivityAndFinish();
+//            }
+//        });
     }
 
 }

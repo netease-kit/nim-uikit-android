@@ -16,10 +16,10 @@ import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatBaseMessageViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.common.ui.utils.ToastX;
+import com.netease.yunxin.kit.common.utils.ImageUtils;
 import com.netease.yunxin.kit.common.utils.SizeUtils;
 import com.netease.yunxin.kit.common.utils.TimeUtils;
 import com.netease.yunxin.kit.corekit.im.IMKitClient;
-import java.io.File;
 import java.util.Locale;
 
 public class ChatVideoMessageViewHolder extends ChatThumbBaseViewHolder {
@@ -105,7 +105,7 @@ public class ChatVideoMessageViewHolder extends ChatThumbBaseViewHolder {
   protected int[] getBounds(String path) {
     int[] bounds = null;
     if (path != null) {
-      bounds = BitmapDecoder.decodeBound(new File(path));
+      bounds = ImageUtils.getSize(path);
     }
     if (bounds == null) {
       VideoAttachment attachment = (VideoAttachment) getMsgInternal().getAttachment();
