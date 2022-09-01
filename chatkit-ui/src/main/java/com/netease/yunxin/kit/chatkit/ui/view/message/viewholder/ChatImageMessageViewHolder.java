@@ -9,11 +9,10 @@ import androidx.annotation.NonNull;
 import com.netease.nimlib.sdk.msg.attachment.ImageAttachment;
 import com.netease.nimlib.sdk.msg.constant.AttachStatusEnum;
 import com.netease.nimlib.sdk.msg.constant.MsgStatusEnum;
-import com.netease.yunxin.kit.chatkit.media.BitmapDecoder;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatBaseMessageViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
+import com.netease.yunxin.kit.common.utils.ImageUtils;
 import com.netease.yunxin.kit.common.utils.SizeUtils;
-import java.io.File;
 
 public class ChatImageMessageViewHolder extends ChatThumbBaseViewHolder {
   private static final String TAG = "ChatImageMessageViewHolder";
@@ -53,7 +52,7 @@ public class ChatImageMessageViewHolder extends ChatThumbBaseViewHolder {
   protected int[] getBounds(String path) {
     int[] bounds = null;
     if (path != null) {
-      bounds = BitmapDecoder.decodeBound(new File(path));
+      bounds = ImageUtils.getSize(path);
     }
     if (bounds == null) {
       ImageAttachment attachment = (ImageAttachment) getMsgInternal().getAttachment();
