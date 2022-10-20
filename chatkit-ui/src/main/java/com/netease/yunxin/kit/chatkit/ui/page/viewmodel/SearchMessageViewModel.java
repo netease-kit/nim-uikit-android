@@ -4,12 +4,14 @@
 
 package com.netease.yunxin.kit.chatkit.ui.page.viewmodel;
 
+import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
+
 import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
 import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.model.IMMessageRecord;
-import com.netease.yunxin.kit.chatkit.repo.ChatMessageRepo;
+import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatSearchBean;
 import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
@@ -31,14 +33,16 @@ public class SearchMessageViewModel extends BaseViewModel {
   }
 
   public void searchMessage(String keyword, SessionTypeEnum type, String sessionId) {
-    ALog.i(TAG, "searchMessage");
-    ChatMessageRepo.searchMessage(
+    ALog.d(LIB_TAG, TAG, "searchMessage:" + keyword);
+    ChatRepo.searchMessage(
         keyword,
         type,
         sessionId,
         new FetchCallback<List<IMMessageRecord>>() {
           @Override
           public void onSuccess(@Nullable List<IMMessageRecord> param) {
+            ALog.d(
+                LIB_TAG, TAG, "searchMessage,onSuccess:" + (param == null ? "null" : param.size()));
             FetchResult<List<ChatSearchBean>> result = new FetchResult<>(LoadStatus.Success);
             if (param != null) {
               List<ChatSearchBean> searchBeanList = new ArrayList<>();
@@ -51,10 +55,14 @@ public class SearchMessageViewModel extends BaseViewModel {
           }
 
           @Override
-          public void onFailed(int code) {}
+          public void onFailed(int code) {
+            ALog.d(LIB_TAG, TAG, "searchMessage,onFailed:" + code);
+          }
 
           @Override
-          public void onException(@Nullable Throwable exception) {}
+          public void onException(@Nullable Throwable exception) {
+            ALog.d(LIB_TAG, TAG, "searchMessage,onException");
+          }
         });
   }
 }

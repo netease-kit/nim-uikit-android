@@ -4,6 +4,8 @@
 
 package com.netease.yunxin.kit.contactkit.ui.view;
 
+import static com.netease.yunxin.kit.contactkit.ui.ContactConstant.LIB_TAG;
+
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -11,6 +13,7 @@ import android.widget.FrameLayout;
 import androidx.annotation.ColorInt;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.contactkit.ui.IContactFactory;
 import com.netease.yunxin.kit.contactkit.ui.R;
 import com.netease.yunxin.kit.contactkit.ui.databinding.ContactListViewBinding;
@@ -21,7 +24,6 @@ import com.netease.yunxin.kit.contactkit.ui.interfaces.IContactListView;
 import com.netease.yunxin.kit.contactkit.ui.interfaces.IContactViewAttrs;
 import com.netease.yunxin.kit.contactkit.ui.model.BaseContactBean;
 import com.netease.yunxin.kit.contactkit.ui.model.ContactFriendBean;
-import com.netease.yunxin.kit.contactkit.ui.utils.XLog;
 import com.netease.yunxin.kit.contactkit.ui.view.adapter.ContactAdapter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -204,7 +206,7 @@ public class ContactListView extends FrameLayout
   public void updateFriendData(List<ContactFriendBean> friends) {
     if (contactAdapter != null) {
       boolean result = contactAdapter.getFriendList().removeAll(friends);
-      XLog.d(TAG, "updateFriendData", "contactAdapter:" + result);
+      ALog.d(LIB_TAG, TAG, "updateFriendData, contactAdapter:" + result);
       contactAdapter.getFriendList().addAll(friends);
       binding
           .indexBar
@@ -247,6 +249,13 @@ public class ContactListView extends FrameLayout
   public void addContactData(List<? extends BaseContactBean> contactData) {
     if (contactAdapter != null) {
       contactAdapter.addListData(contactData);
+      decoration.setData(contactAdapter.getDataList());
+    }
+  }
+
+  public void addForwardContactData(List<? extends BaseContactBean> contactData) {
+    if (contactAdapter != null) {
+      contactAdapter.addForwardListData(contactData);
       decoration.setData(contactAdapter.getDataList());
     }
   }

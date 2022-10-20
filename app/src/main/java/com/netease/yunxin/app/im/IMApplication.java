@@ -5,24 +5,25 @@
 package com.netease.yunxin.app.im;
 
 import android.app.Activity;
-import android.content.Context;
 import android.os.Bundle;
+import android.text.TextUtils;
 import androidx.multidex.MultiDexApplication;
 import com.heytap.msp.push.HeytapPushManager;
 import com.huawei.hms.support.common.ActivityMgr;
-import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.SDKOptions;
 import com.netease.yunxin.app.im.crash.AppCrashHandler;
+import com.netease.yunxin.app.im.main.MainActivity;
 import com.netease.yunxin.app.im.main.mine.UserInfoActivity;
 import com.netease.yunxin.app.im.push.PushMessageHandler;
+import com.netease.yunxin.app.im.utils.Constant;
 import com.netease.yunxin.app.im.utils.DataUtils;
+import com.netease.yunxin.app.im.welcome.WelcomeActivity;
 import com.netease.yunxin.kit.alog.ALog;
-import com.netease.yunxin.kit.alog.BasicInfo;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitClient;
 import com.netease.yunxin.kit.corekit.im.IMKitClient;
-import com.netease.yunxin.kit.corekit.im.repo.ConfigRepo;
+import com.netease.yunxin.kit.corekit.im.repo.SettingRepo;
+import com.netease.yunxin.kit.corekit.im.utils.IMKitUtils;
 import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
-import com.netease.yunxin.kit.corekit.im.utils.XKitImUtils;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 import com.vivo.push.PushClient;
 import com.vivo.push.util.VivoPushException;
@@ -32,39 +33,29 @@ import java.util.List;
 public class IMApplication extends MultiDexApplication {
 
   private static final String TAG = "IMApplication";
+  private static boolean coldStart = false;
 
   @Override
   public void onCreate() {
     super.onCreate();
-    ALog.d(TAG, "onCreate");
+    ALog.d(Constant.PROJECT_TAG, TAG, "onCreate");
     //app init
     registerActivityLifeCycle();
     AppCrashHandler.getInstance().initCrashHandler(this);
     Thread.setDefaultUncaughtExceptionHandler(AppCrashHandler.getInstance());
 
     initUIKit();
-    initALog(this);
     // temp register for mine
     XKitRouter.registerRouter(RouterConstant.PATH_MINE_INFO_PAGE, UserInfoActivity.class);
-  }
-
-  //init log sdk
-  private void initALog(Context context) {
-    ALog.logFirst(
-        new BasicInfo.Builder()
-            .packageName(context)
-            .imVersion(NIMClient.getSDKVersion())
-            .deviceId(context)
-            .platform("Android")
-            .name("XKit", true)
-            .build());
   }
 
   private void initUIKit() {
     SDKOptions options = NimSDKOptionConfig.getSDKOptions(this, DataUtils.readAppKey(this));
     IMKitClient.init(this, null, options);
+    ALog.d(Constant.PROJECT_TAG, TAG, "initUIKit");
 
-    if (XKitImUtils.isMainProcess(this)) {
+    if (IMKitUtils.isMainProcess(this)) {
+      ALog.d(Constant.PROJECT_TAG, TAG, "initUIKit:isMainProcess");
       ChatKitClient.init(this);
       //huawei push
       ActivityMgr.INST.init(this);
@@ -74,21 +65,30 @@ public class IMApplication extends MultiDexApplication {
         //vivo push
         PushClient.getInstance(this).initialize();
       } catch (VivoPushException e) {
-
+        e.printStackTrace();
       }
-      IMKitClient.toggleNotification(ConfigRepo.getMixNotification());
+      IMKitClient.toggleNotification(SettingRepo.isPushNotify());
       IMKitClient.registerMixPushMessageHandler(new PushMessageHandler());
     }
   }
 
   private final List<Activity> activities = new ArrayList<>();
 
+  //用于系统杀死应用之后，系统恢复应用，可能存在没有登录的异常
+  //此处如果在没有登录的情况下，其他页面打开的时候进行finish();除了MainActivity
+  //MainActivity启动进行登录检测，如果没有登录进行登录操作
   private void registerActivityLifeCycle() {
     registerActivityLifecycleCallbacks(
         new ActivityLifecycleCallbacks() {
           @Override
           public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
-            activities.add(activity);
+            if (TextUtils.isEmpty(IMKitClient.account())
+                && !(activity instanceof MainActivity || activity instanceof WelcomeActivity)
+                && !coldStart) {
+              activity.finish();
+            } else {
+              activities.add(activity);
+            }
           }
 
           @Override
@@ -122,5 +122,9 @@ public class IMApplication extends MultiDexApplication {
         activities.get(i).finish();
       }
     }
+  }
+
+  public static void setColdStart(boolean value) {
+    coldStart = value;
   }
 }

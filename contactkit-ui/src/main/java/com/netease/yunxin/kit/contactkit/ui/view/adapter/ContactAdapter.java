@@ -199,6 +199,14 @@ public class ContactAdapter extends RecyclerView.Adapter<BaseContactViewHolder> 
     }
   }
 
+  public void addForwardListData(List<? extends BaseContactBean> listData) {
+    if (listData == null || listData.isEmpty()) {
+      return;
+    }
+    dataList.addAll(0, listData);
+    notifyItemRangeInserted(0, listData.size());
+  }
+
   @Override
   public int getItemCount() {
     return dataList.size();

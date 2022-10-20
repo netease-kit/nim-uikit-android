@@ -8,8 +8,8 @@
     <!-- Base application theme. -->
     <style name="Theme.Xkit" parent="Theme.MaterialComponents.Light.NoActionBar">
         <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/color_blue</item>
-        <item name="colorPrimaryVariant">@color/color_blue</item>
+        <item name="colorPrimary">@color/color_blue_3a9efb</item>
+        <item name="colorPrimaryVariant">@color/color_blue_3a9efb</item>
         <item name="colorOnPrimary">@color/color_white</item>
         <!-- Status bar color. -->
         <item name="colorPrimaryDark">@color/color_white</item>

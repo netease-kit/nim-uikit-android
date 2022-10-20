@@ -161,22 +161,21 @@ public class VerifyListActivity extends BaseListActivity {
     if (currentData != null) {
       for (int index = addList.size() - 1; index >= 0; index--) {
         ContactVerifyInfoBean addBean = addList.get(index);
-        if (addBean.data.getInfoType() == SystemMessageInfoType.AddFriend) {
-          currentData = binding.contactListView.getAdapter().getDataList();
-          for (int i = 0; i < currentData.size(); i++) {
-            if (currentData.get(i) instanceof ContactVerifyInfoBean) {
-              ContactVerifyInfoBean currentBean = (ContactVerifyInfoBean) currentData.get(i);
-              if (currentBean.data.getInfoType() == SystemMessageInfoType.AddFriend
-                  && TextUtils.equals(
-                      currentBean.data.getFromAccount(), addBean.data.getFromAccount())) {
-                binding.contactListView.removeContactData(currentData.get(i));
-                break;
-              }
+        currentData = binding.contactListView.getAdapter().getDataList();
+        for (int i = 0; i < currentData.size(); i++) {
+          if (currentData.get(i) instanceof ContactVerifyInfoBean) {
+            ContactVerifyInfoBean currentBean = (ContactVerifyInfoBean) currentData.get(i);
+            if (TextUtils.equals(currentBean.data.getTargetId(), addBean.data.getTargetId())
+                && currentBean.data.getInfoType() == addBean.data.getInfoType()
+                && TextUtils.equals(
+                    currentBean.data.getFromAccount(), addBean.data.getFromAccount())) {
+              binding.contactListView.removeContactData(currentData.get(i));
+              break;
             }
           }
         }
       }
     }
-    binding.contactListView.addContactData(addList);
+    binding.contactListView.addForwardContactData(addList);
   }
 }

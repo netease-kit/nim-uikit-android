@@ -6,6 +6,7 @@ package com.netease.yunxin.kit.chatkit.ui.view.message.viewholder;
 
 import android.text.TextUtils;
 import android.text.style.ImageSpan;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,7 +21,7 @@ import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.msg.model.MsgThreadOption;
 import com.netease.nimlib.sdk.team.model.Team;
 import com.netease.yunxin.kit.alog.ALog;
-import com.netease.yunxin.kit.chatkit.repo.ChatMessageRepo;
+import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
 import com.netease.yunxin.kit.chatkit.ui.ChatMessageType;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
@@ -194,7 +195,7 @@ public abstract class ChatBaseMessageViewHolder extends RecyclerView.ViewHolder 
     baseViewBinding.messageContainer.removeAllViews();
     ChatMessageRevokedViewBinding revokedViewBinding =
         ChatMessageRevokedViewBinding.inflate(
-            LayoutInflater.from(parent.getContext()), getContainer(), true);
+            LayoutInflater.from(parent.getContext()), baseViewBinding.messageRevoke, true);
 
     if (!isReceivedMessage(data)
         && data.getMessageData().getMessage().getMsgType() == MsgTypeEnum.text) {
@@ -223,6 +224,7 @@ public abstract class ChatBaseMessageViewHolder extends RecyclerView.ViewHolder 
       baseViewBinding.avatarMine.setVisibility(View.GONE);
       baseViewBinding.messageStatus.setVisibility(View.GONE);
       baseViewBinding.tvTime.setVisibility(View.GONE);
+      baseViewBinding.messageBody.setGravity(Gravity.CENTER);
       return;
     }
     if (message.getMessageData().getMessage().getThreadOption() != null) {
@@ -245,9 +247,10 @@ public abstract class ChatBaseMessageViewHolder extends RecyclerView.ViewHolder 
     ConstraintLayout.LayoutParams layoutParams =
         (ConstraintLayout.LayoutParams) baseViewBinding.messageBody.getLayoutParams();
     if (isReceivedMessage(message)) {
+      baseViewBinding.messageBody.setGravity(Gravity.START);
       //防止UserInfo数据不存在
       if (message.getMessageData().getFromUser() == null) {
-        ChatMessageRepo.fetchUserInfo(
+        ChatRepo.fetchUserInfo(
             message.getMessageData().getMessage().getFromAccount(),
             new FetchCallback<UserInfo>() {
               @Override
@@ -271,6 +274,7 @@ public abstract class ChatBaseMessageViewHolder extends RecyclerView.ViewHolder 
       }
 
     } else {
+      baseViewBinding.messageBody.setGravity(Gravity.END);
       baseViewBinding.avatarMine.setVisibility(View.VISIBLE);
       if (properties.getAvatarCornerRadius() >= 0) {
         baseViewBinding.avatarMine.setCornerRadius(properties.getAvatarCornerRadius());
@@ -414,16 +418,15 @@ public abstract class ChatBaseMessageViewHolder extends RecyclerView.ViewHolder 
       baseViewBinding.messageSending.setVisibility(View.VISIBLE);
       baseViewBinding.ivStatus.setVisibility(View.GONE);
       baseViewBinding.readProcess.setVisibility(View.GONE);
-    } else if ((data.getMessageData().getMessage().getStatus() == MsgStatusEnum.fail)) {
+    } else if ((data.getMessageData().getMessage().getStatus() == MsgStatusEnum.fail)
+        || data.getMessageData().getMessage().isInBlackList()) {
       baseViewBinding.ivStatus.setVisibility(View.VISIBLE);
       baseViewBinding.ivStatus.setImageResource(R.drawable.ic_error);
       baseViewBinding.messageSending.setVisibility(View.GONE);
     } else if (data.getMessageData().getMessage().getSessionType() == SessionTypeEnum.P2P) {
       baseViewBinding.messageSending.setVisibility(View.GONE);
       baseViewBinding.readProcess.setVisibility(View.GONE);
-      if (!data.getMessageData().getMessage().needMsgAck()
-          || !properties.getShowP2pMessageStatus()
-          || !showReadStatus) {
+      if (!properties.getShowP2pMessageStatus() || !showReadStatus) {
         baseViewBinding.ivStatus.setVisibility(View.GONE);
       } else {
         baseViewBinding.ivStatus.setVisibility(View.VISIBLE);

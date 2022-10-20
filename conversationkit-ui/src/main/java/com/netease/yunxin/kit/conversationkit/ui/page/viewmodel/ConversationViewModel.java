@@ -11,6 +11,7 @@ import com.netease.nimlib.sdk.friend.model.MuteListChangedNotify;
 import com.netease.nimlib.sdk.msg.constant.DeleteTypeEnum;
 import com.netease.nimlib.sdk.msg.model.StickTopSessionInfo;
 import com.netease.nimlib.sdk.team.model.Team;
+import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.common.ui.utils.ToastX;
 import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
@@ -19,7 +20,6 @@ import com.netease.yunxin.kit.conversationkit.model.ConversationInfo;
 import com.netease.yunxin.kit.conversationkit.repo.ConversationRepo;
 import com.netease.yunxin.kit.conversationkit.ui.IConversationFactory;
 import com.netease.yunxin.kit.conversationkit.ui.common.ConversationUtils;
-import com.netease.yunxin.kit.conversationkit.ui.common.XLog;
 import com.netease.yunxin.kit.conversationkit.ui.model.ConversationBean;
 import com.netease.yunxin.kit.conversationkit.ui.page.DefaultViewHolderFactory;
 import com.netease.yunxin.kit.corekit.im.model.EventObserver;
@@ -37,6 +37,7 @@ import java.util.List;
 public class ConversationViewModel extends BaseViewModel {
 
   private final String TAG = "ConversationViewModel";
+  private final String LIB_TAG = "ConversationKit-UI";
   private final MutableLiveData<FetchResult<List<ConversationBean>>> queryLiveData =
       new MutableLiveData<>();
   private final MutableLiveData<FetchResult<List<ConversationBean>>> changeLiveData =
@@ -130,11 +131,13 @@ public class ConversationViewModel extends BaseViewModel {
 
   public void loadMore(ConversationBean data) {
     if (data != null && data.infoData != null) {
+      ALog.d(LIB_TAG, TAG, "loadMore:" + data.infoData.getContactId());
       queryConversation(data.infoData);
     }
   }
 
   private void queryConversation(ConversationInfo data) {
+    ALog.d(LIB_TAG, TAG, "queryConversation:" + (data == null));
     ConversationRepo.getSessionList(
         data,
         PAGE_LIMIT,
@@ -146,12 +149,14 @@ public class ConversationViewModel extends BaseViewModel {
             if (data != null) {
               result.setLoadStatus(LoadStatus.Finish);
             }
-            XLog.d(
-                TAG, "queryConversation:onSuccess", "size=" + (param != null ? param.size() : 0));
+            ALog.d(
+                LIB_TAG,
+                TAG,
+                "queryConversation:onSuccess,size=" + (param != null ? param.size() : 0));
             List<ConversationBean> resultData = new ArrayList<>();
             for (int index = 0; param != null && index < param.size(); index++) {
               resultData.add(conversationFactory.CreateBean(param.get(index)));
-              XLog.d(TAG, "queryConversation:onSuccess", param.get(index).getContactId());
+              ALog.d(LIB_TAG, TAG, "queryConversation,onSuccess" + param.get(index).getContactId());
             }
             hasMore = param != null && param.size() == PAGE_LIMIT;
             result.setData(resultData);
@@ -160,11 +165,14 @@ public class ConversationViewModel extends BaseViewModel {
 
           @Override
           public void onFailed(int code) {
+            ALog.d(LIB_TAG, TAG, "queryConversation,onFailed" + code);
             ToastX.showShortToast(String.valueOf(code));
           }
 
           @Override
-          public void onException(@Nullable Throwable exception) {}
+          public void onException(@Nullable Throwable exception) {
+            ALog.d(LIB_TAG, TAG, "queryConversation,onException");
+          }
         });
   }
 
@@ -177,7 +185,7 @@ public class ConversationViewModel extends BaseViewModel {
         new FetchCallback<Void>() {
           @Override
           public void onSuccess(@Nullable Void param) {
-            XLog.d(TAG, "deleteConversation:onSuccess", data.infoData.getContactId());
+            ALog.d(LIB_TAG, TAG, "deleteConversation,onSuccess:" + data.infoData.getContactId());
             FetchResult<List<ConversationBean>> result = new FetchResult<>(LoadStatus.Finish);
             result.setFetchType(FetchResult.FetchType.Remove);
             List<ConversationBean> beanList = new ArrayList<>();
@@ -188,11 +196,14 @@ public class ConversationViewModel extends BaseViewModel {
 
           @Override
           public void onFailed(int code) {
+            ALog.d(LIB_TAG, TAG, "deleteConversation,onFailed:" + code);
             ToastX.showShortToast(String.valueOf(code));
           }
 
           @Override
-          public void onException(@Nullable Throwable exception) {}
+          public void onException(@Nullable Throwable exception) {
+            ALog.d(LIB_TAG, TAG, "deleteConversation,onException");
+          }
         });
   }
 
@@ -209,18 +220,21 @@ public class ConversationViewModel extends BaseViewModel {
               FetchResult<ConversationBean> result = new FetchResult<>(LoadStatus.Success);
               data.infoData.setStickTop(true);
               result.setData(data);
-              XLog.d(TAG, "addStickTop:onSuccess", param.getSessionId());
+              ALog.d(LIB_TAG, TAG, "addStickTop,onSuccess:" + param.getSessionId());
               stickLiveData.setValue(result);
             }
           }
 
           @Override
           public void onFailed(int code) {
+            ALog.d(LIB_TAG, TAG, "addStickTop,onFailed:" + code);
             ToastX.showShortToast(String.valueOf(code));
           }
 
           @Override
-          public void onException(@Nullable Throwable exception) {}
+          public void onException(@Nullable Throwable exception) {
+            ALog.d(LIB_TAG, TAG, "addStickTop,onException");
+          }
         });
   }
 
@@ -235,7 +249,7 @@ public class ConversationViewModel extends BaseViewModel {
             FetchResult<ConversationBean> result = new FetchResult<>(LoadStatus.Success);
             data.infoData.setStickTop(false);
             result.setData(data);
-            XLog.d(TAG, "removeStick:onSuccess", data.infoData.getContactId());
+            ALog.d(LIB_TAG, TAG, "removeStick,onSuccess:" + data.infoData.getContactId());
             stickLiveData.setValue(result);
           }
 
@@ -251,7 +265,7 @@ public class ConversationViewModel extends BaseViewModel {
 
   private final Observer<StickTopSessionInfo> addStickObserver =
       param -> {
-        XLog.d(TAG, "addStickObserver:onSuccess", param.getSessionId());
+        ALog.d(LIB_TAG, TAG, "addStickObserver，onSuccess:" + param.getSessionId());
         FetchResult<String> result = new FetchResult<>(LoadStatus.Finish);
         result.setFetchType(FetchResult.FetchType.Add);
         result.setData(param.getSessionId());
@@ -260,7 +274,7 @@ public class ConversationViewModel extends BaseViewModel {
 
   private final Observer<StickTopSessionInfo> removeStickObserver =
       param -> {
-        XLog.d(TAG, "removeStickObserver:onSuccess", param.getSessionId());
+        ALog.d(LIB_TAG, TAG, "removeStickObserver,onSuccess:" + param.getSessionId());
         FetchResult<String> result = new FetchResult<>(LoadStatus.Finish);
         result.setFetchType(FetchResult.FetchType.Remove);
         result.setData(param.getSessionId());
@@ -278,13 +292,16 @@ public class ConversationViewModel extends BaseViewModel {
               ConversationInfo conversationInfo = param.get(index);
               if (ConversationUtils.isMineLeave(conversationInfo)) {
                 deleteConversation(conversationFactory.CreateBean(param.get(index)));
-                XLog.d(
-                    TAG, "changeObserver:onSuccess:DismissTeam", param.get(index).getContactId());
+                ALog.d(
+                    TAG, "changeObserver,DismissTeam,onSuccess:", param.get(index).getContactId());
                 continue;
               } else {
                 resultData.add(conversationFactory.CreateBean(param.get(index)));
               }
-              XLog.d(TAG, "changeObserver:onSuccess:update", param.get(index).getContactId());
+              ALog.d(
+                  LIB_TAG,
+                  TAG,
+                  "changeObserver,update,onSuccess:" + param.get(index).getContactId());
             }
             result.setData(resultData);
             changeLiveData.setValue(result);
@@ -296,7 +313,7 @@ public class ConversationViewModel extends BaseViewModel {
       new EventObserver<ConversationInfo>() {
         @Override
         public void onEvent(@Nullable ConversationInfo param) {
-          XLog.d(TAG, "deleteObserver:onSuccess", String.valueOf(param == null));
+          ALog.d(LIB_TAG, TAG, "deleteObserver,onSuccess:" + (param == null));
           FetchResult<List<ConversationBean>> result = new FetchResult<>(LoadStatus.Finish);
           result.setFetchType(FetchResult.FetchType.Remove);
           List<ConversationBean> beanList = new ArrayList<>();
@@ -310,7 +327,7 @@ public class ConversationViewModel extends BaseViewModel {
 
   private final UserInfoObserver userInfoObserver =
       userList -> {
-        XLog.d(TAG, "userInfoObserver", "userList:" + userList.size());
+        ALog.d(LIB_TAG, TAG, "userInfoObserver,userList:" + userList.size());
         FetchResult<List<UserInfo>> result = new FetchResult<>(LoadStatus.Success);
         result.setData(userList);
         userInfoLiveData.setValue(result);
@@ -318,7 +335,7 @@ public class ConversationViewModel extends BaseViewModel {
 
   private final FriendObserver friendObserver =
       (friendChangeType, accountList) -> {
-        XLog.d(TAG, "friendObserver", "userList:" + accountList.size());
+        ALog.d(LIB_TAG, TAG, "friendObserver,userList:" + accountList.size());
         if (friendChangeType == FriendChangeType.Update) {
           FetchResult<List<FriendInfo>> result = new FetchResult<>(LoadStatus.Success);
           result.setData(ConversationRepo.getFriendList(accountList));
@@ -329,7 +346,7 @@ public class ConversationViewModel extends BaseViewModel {
   private final Observer<List<Team>> teamUpdateObserver =
       teamList -> {
         if (teamList != null) {
-          XLog.d(TAG, "teamUpdateObserver", "teamInfoList:" + teamList.size());
+          ALog.d(LIB_TAG, TAG, "teamUpdateObserver,teamInfoList:" + teamList.size());
           FetchResult<List<Team>> result = new FetchResult<>(LoadStatus.Success);
           result.setData(teamList);
           teamInfoLiveData.setValue(result);
@@ -339,7 +356,7 @@ public class ConversationViewModel extends BaseViewModel {
   private final Observer<MuteListChangedNotify> muteObserver =
       muteNotify -> {
         if (muteNotify != null) {
-          XLog.d(TAG, "muteObserver", "muteNotify:" + muteNotify.getAccount());
+          ALog.d(LIB_TAG, TAG, "muteObserver,muteNotify:" + muteNotify.getAccount());
           FetchResult<MuteListChangedNotify> result = new FetchResult<>(LoadStatus.Success);
           result.setData(muteNotify);
           muteInfoLiveData.setValue(result);

@@ -4,9 +4,12 @@
 
 package com.netease.yunxin.kit.contactkit.ui.userinfo;
 
+import static com.netease.yunxin.kit.contactkit.ui.ContactConstant.LIB_TAG;
+
 import android.text.TextUtils;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
+import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
@@ -21,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserInfoViewModel extends BaseViewModel {
+  private final String TAG = "UserInfoViewModel";
 
   private final MutableLiveData<FetchResult<ContactUserInfoBean>> friendLiveData =
       new MutableLiveData<>();
@@ -56,6 +60,7 @@ public class UserInfoViewModel extends BaseViewModel {
   }
 
   public void fetchData(String account) {
+    ALog.d(LIB_TAG, TAG, "fetchData:" + account);
     if (TextUtils.isEmpty(account)) {
       return;
     }
@@ -67,6 +72,7 @@ public class UserInfoViewModel extends BaseViewModel {
         new FetchCallback<List<UserInfo>>() {
           @Override
           public void onSuccess(@Nullable List<UserInfo> param) {
+            ALog.d(LIB_TAG, TAG, "fetchData,onSuccess:" + (param == null ? "null" : param.size()));
             if (param != null && param.size() > 0) {
               ContactUserInfoBean userInfo = new ContactUserInfoBean(param.get(0));
               userInfo.friendInfo = friendInfo;
@@ -82,12 +88,14 @@ public class UserInfoViewModel extends BaseViewModel {
 
           @Override
           public void onFailed(int code) {
+            ALog.d(LIB_TAG, TAG, "fetchData,onFailed:" + code);
             fetchResult.setError(code, "");
             friendLiveData.postValue(fetchResult);
           }
 
           @Override
           public void onException(@Nullable Throwable exception) {
+            ALog.d(LIB_TAG, TAG, "fetchData,onException");
             fetchResult.setError(-1, "");
             friendLiveData.postValue(fetchResult);
           }
@@ -95,81 +103,97 @@ public class UserInfoViewModel extends BaseViewModel {
   }
 
   public boolean isBlack(String account) {
+    ALog.d(LIB_TAG, TAG, "isBlack:" + account);
     return ContactRepo.isBlackList(account);
   }
 
   public boolean isFriend(String account) {
+    ALog.d(LIB_TAG, TAG, "isFriend:" + account);
     return ContactRepo.isFriend(account);
   }
 
   public void addBlack(String account) {
-    ContactRepo.addBlacklist(
+    ALog.d(LIB_TAG, TAG, "addBlack:" + account);
+    ContactRepo.addBlackList(
         account,
         new FetchCallback<Void>() {
           @Override
           public void onSuccess(@Nullable Void param) {
+            ALog.d(LIB_TAG, TAG, "addBlack,onSuccess");
             fetchData(account);
           }
 
           @Override
           public void onFailed(int code) {
+            ALog.d(LIB_TAG, TAG, "addBlack,onFailed:" + code);
             fetchResult.setError(code, "");
           }
 
           @Override
           public void onException(@Nullable Throwable exception) {
+            ALog.d(LIB_TAG, TAG, "addBlack,onException");
             fetchResult.setError(-1, "");
           }
         });
   }
 
   public void removeBlack(String account) {
-    ContactRepo.removeBlacklist(
+    ALog.d(LIB_TAG, TAG, "removeBlack:" + account);
+    ContactRepo.removeBlackList(
         account,
         new FetchCallback<Void>() {
           @Override
           public void onSuccess(@Nullable Void param) {
+            ALog.d(LIB_TAG, TAG, "removeBlack,onSuccess");
             fetchData(account);
           }
 
           @Override
           public void onFailed(int code) {
+            ALog.d(LIB_TAG, TAG, "removeBlack,onFailed:" + code);
             fetchResult.setError(code, "");
           }
 
           @Override
           public void onException(@Nullable Throwable exception) {
+            ALog.d(LIB_TAG, TAG, "removeBlack,onException");
             fetchResult.setError(-1, "");
           }
         });
   }
 
   public void deleteFriend(String account) {
+    ALog.d(LIB_TAG, TAG, "deleteFriend:" + account);
     ContactRepo.deleteFriend(
         account,
         new FetchCallback<Void>() {
           @Override
           public void onSuccess(@Nullable Void param) {
+            ALog.d(LIB_TAG, TAG, "deleteFriend,onSuccess");
             fetchData(account);
           }
 
           @Override
           public void onFailed(int code) {
+            ALog.d(LIB_TAG, TAG, "deleteFriend,onFailed:" + code);
             fetchResult.setError(code, "");
           }
 
           @Override
           public void onException(@Nullable Throwable exception) {
+            ALog.d(LIB_TAG, TAG, "deleteFriend,onException");
             fetchResult.setError(-1, "");
           }
         });
   }
 
   public void addFriend(String account, FriendVerifyType type, FetchCallback<Void> callback) {
+    ALog.d(LIB_TAG, TAG, "addFriend:" + account);
     ContactRepo.addFriend(account, type, callback);
   }
 
   public void updateAlias(String account, String alias) {
+    ALog.d(LIB_TAG, TAG, "updateAlias:" + account);
     ContactRepo.updateAlias(account, alias);
   }
 

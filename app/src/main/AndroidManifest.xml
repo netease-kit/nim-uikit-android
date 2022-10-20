@@ -54,7 +54,10 @@
         android:theme="@style/Theme.Xkit">
         <meta-data
             android:name="com.netease.nim.appKey"
-            android:value="APPKEY" />
+            android:value="appkey" />
+        <meta-data
+            android:name="com.netease.nim.oversea.appKey"
+            android:value="oversea-appkey" />
 
         <activity android:name=".welcome.WelcomeActivity"
             android:screenOrientation="portrait"
@@ -109,6 +112,11 @@
 
         <activity
             android:name=".main.mine.setting.ClearCacheActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+
+        <activity
+            android:name=".welcome.ServerActivity"
             android:screenOrientation="portrait"
             android:exported="false" />
 

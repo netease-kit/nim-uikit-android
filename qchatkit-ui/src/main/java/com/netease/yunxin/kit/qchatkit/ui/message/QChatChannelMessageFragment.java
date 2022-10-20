@@ -29,10 +29,10 @@ import com.netease.yunxin.kit.common.ui.dialog.CommonAlertDialog;
 import com.netease.yunxin.kit.common.ui.fragments.BaseFragment;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
+import com.netease.yunxin.kit.common.utils.CommonFileProvider;
 import com.netease.yunxin.kit.common.utils.NetworkUtils;
 import com.netease.yunxin.kit.corekit.im.IMKitClient;
 import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
-import com.netease.yunxin.kit.corekit.im.provider.IMKitFileProvider;
 import com.netease.yunxin.kit.qchatkit.repo.model.QChatChannelInfo;
 import com.netease.yunxin.kit.qchatkit.repo.model.QChatMessageInfo;
 import com.netease.yunxin.kit.qchatkit.ui.R;
@@ -342,7 +342,7 @@ public class QChatChannelMessageFragment extends BaseFragment {
               Uri uri;
               if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 uri =
-                    IMKitFileProvider.getUriForFile(
+                    CommonFileProvider.getUriForFile(
                         getActivity(), getActivity().getPackageName() + ".IMKitFileProvider", file);
                 intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
               } else {

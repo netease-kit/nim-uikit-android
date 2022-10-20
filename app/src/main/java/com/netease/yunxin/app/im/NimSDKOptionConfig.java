@@ -10,11 +10,14 @@ import android.os.Environment;
 import android.text.TextUtils;
 import com.netease.nimlib.sdk.NotificationFoldStyle;
 import com.netease.nimlib.sdk.SDKOptions;
+import com.netease.nimlib.sdk.ServerAddresses;
 import com.netease.nimlib.sdk.StatusBarNotificationConfig;
 import com.netease.nimlib.sdk.StatusBarNotificationFilter;
 import com.netease.nimlib.sdk.mixpush.MixPushConfig;
 import com.netease.yunxin.app.im.main.MainActivity;
 import com.netease.yunxin.app.im.push.PushUserInfoProvider;
+import com.netease.yunxin.app.im.utils.Constant;
+import com.netease.yunxin.app.im.utils.DataUtils;
 import com.netease.yunxin.kit.common.utils.ScreenUtils;
 import java.io.IOException;
 
@@ -45,9 +48,25 @@ public class NimSDKOptionConfig {
     // 会话置顶是否漫游
     options.notifyStickTopSession = true;
     options.mixPushConfig = buildMixPushConfig();
+    options.serverConfig = configServer(context);
     // 打开消息撤回未读数-1的开关
     options.shouldConsiderRevokedMessageUnreadCount = true;
     return options;
+  }
+
+  public static ServerAddresses configServer(Context context) {
+
+    if (DataUtils.getServerConfigType(context) == Constant.OVERSEA_CONFIG) {
+      ServerAddresses serverAddresses = new ServerAddresses();
+      serverAddresses.lbs = "https://lbs.netease.im/lbs/conf.jsp";
+      serverAddresses.nosUploadLbs = "http://wannos.127.net/lbs";
+      serverAddresses.nosUploadDefaultLink = "https://nosup-hz1.127.net";
+      serverAddresses.nosDownloadUrlFormat = "{bucket}-nosdn.netease.im/{object}";
+      serverAddresses.nosUpload = "nosup-hz1.127.net";
+      serverAddresses.nosSupportHttps = true;
+      return serverAddresses;
+    }
+    return null;
   }
 
   public static void initStatusBarNotificationConfig(SDKOptions options) {

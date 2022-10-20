@@ -13,7 +13,7 @@ import com.netease.nimlib.sdk.team.model.Team;
 import com.netease.nimlib.sdk.team.model.TeamMember;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.model.IMMessageRecord;
-import com.netease.yunxin.kit.chatkit.repo.ChatMessageRepo;
+import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.custom.CustomAttachment;
 import com.netease.yunxin.kit.corekit.im.IMKitClient;
@@ -36,7 +36,7 @@ public class MessageHelper {
       return IMKitClient.getApplicationContext().getString(R.string.chat_you);
     }
 
-    FriendInfo friend = ChatMessageRepo.getFriendInfo(account);
+    FriendInfo friend = ChatRepo.getFriendInfo(account);
     if (friend != null && !TextUtils.isEmpty(friend.getAlias())) {
       return friend.getAlias();
     }
@@ -46,7 +46,7 @@ public class MessageHelper {
       return memberNick;
     }
 
-    UserInfo user = ChatMessageRepo.getUserInfo(account);
+    UserInfo user = ChatRepo.getUserInfo(account);
     return user == null ? account : (TextUtils.isEmpty(user.getName()) ? account : user.getName());
   }
 
@@ -59,7 +59,7 @@ public class MessageHelper {
       return;
     }
 
-    FriendInfo friend = ChatMessageRepo.getFriendInfo(account);
+    FriendInfo friend = ChatRepo.getFriendInfo(account);
     if (friend != null && !TextUtils.isEmpty(friend.getAlias())) {
       nick = friend.getAlias();
       callback.onSuccess(nick);
@@ -75,7 +75,7 @@ public class MessageHelper {
     }
 
     if (nick == null) {
-      ChatMessageRepo.fetchUserInfo(
+      ChatRepo.fetchUserInfo(
           account,
           new FetchCallback<UserInfo>() {
             @Override
@@ -103,9 +103,9 @@ public class MessageHelper {
   }
 
   public static String getTeamNick(String tid, String account) {
-    Team team = ChatMessageRepo.queryTeam(tid);
+    Team team = ChatRepo.getTeamInfo(tid);
     if (team != null && team.getType() == TeamTypeEnum.Advanced) {
-      TeamMember member = ChatMessageRepo.getTeamMember(tid, account);
+      TeamMember member = ChatRepo.getTeamMember(tid, account);
       if (member != null && !TextUtils.isEmpty(member.getTeamNick())) {
         return member.getTeamNick();
       }
@@ -123,7 +123,7 @@ public class MessageHelper {
     if (TextUtils.equals(IMKitClient.account(), user.getAccount())) {
       return IMKitClient.getApplicationContext().getString(R.string.chat_you);
     }
-    FriendInfo friend = ChatMessageRepo.getFriendInfo(user.getAccount());
+    FriendInfo friend = ChatRepo.getFriendInfo(user.getAccount());
     if (friend != null && !TextUtils.isEmpty(friend.getAlias())) {
       return friend.getAlias();
     }
@@ -153,12 +153,12 @@ public class MessageHelper {
     if (withYou && accId.equals(IMKitClient.account())) {
       return IMKitClient.getApplicationContext().getString(R.string.chat_you);
     }
-    FriendInfo friend = ChatMessageRepo.getFriendInfo(accId);
+    FriendInfo friend = ChatRepo.getFriendInfo(accId);
     if (friend != null && !TextUtils.isEmpty(friend.getAlias())) {
       return friend.getAlias();
     }
     if (userInfo == null) {
-      userInfo = ChatMessageRepo.getUserInfo(accId);
+      userInfo = ChatRepo.getUserInfo(accId);
     }
     return userInfo == null
         ? null
@@ -168,7 +168,7 @@ public class MessageHelper {
   public static String getChatMessageUserName(IMMessageInfo message) {
     String name = null;
     //first is friend alias
-    FriendInfo friendInfo = ChatMessageRepo.getFriendInfo(message.getMessage().getFromAccount());
+    FriendInfo friendInfo = ChatRepo.getFriendInfo(message.getMessage().getFromAccount());
     if (friendInfo != null && !TextUtils.isEmpty(friendInfo.getAlias())) {
       name = friendInfo.getAlias();
     }
@@ -199,7 +199,7 @@ public class MessageHelper {
     String name = null;
     //first is friend alias
     FriendInfo friendInfo =
-        ChatMessageRepo.getFriendInfo(message.getIndexRecord().getMessage().getFromAccount());
+        ChatRepo.getFriendInfo(message.getIndexRecord().getMessage().getFromAccount());
     if (friendInfo != null && !TextUtils.isEmpty(friendInfo.getAlias())) {
       name = friendInfo.getAlias();
     }
@@ -243,7 +243,7 @@ public class MessageHelper {
     }
     List<String> uuidList = new ArrayList<>(1);
     uuidList.add(uuid);
-    ChatMessageRepo.queryMessageListByUuid(
+    ChatRepo.queryMessageListByUuid(
         uuidList,
         new FetchCallback<List<IMMessageInfo>>() {
           @Override

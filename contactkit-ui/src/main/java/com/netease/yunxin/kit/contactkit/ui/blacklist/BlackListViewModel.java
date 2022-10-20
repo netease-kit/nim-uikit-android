@@ -4,9 +4,12 @@
 
 package com.netease.yunxin.kit.contactkit.ui.blacklist;
 
+import static com.netease.yunxin.kit.contactkit.ui.ContactConstant.LIB_TAG;
+
 import android.text.TextUtils;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
+import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
@@ -20,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BlackListViewModel extends BaseViewModel {
+  private static final String TAG = "BlackListViewModel";
 
   private final MutableLiveData<FetchResult<List<ContactBlackListBean>>> resultLiveData =
       new MutableLiveData<>();
@@ -46,12 +50,17 @@ public class BlackListViewModel extends BaseViewModel {
   }
 
   public void fetchBlackList() {
+    ALog.d(LIB_TAG, TAG, "fetchBlackList");
     fetchResult.setStatus(LoadStatus.Loading);
     resultLiveData.postValue(fetchResult);
     ContactRepo.getBlackList(
         new FetchCallback<List<UserInfo>>() {
           @Override
           public void onSuccess(@Nullable List<UserInfo> param) {
+            ALog.d(
+                LIB_TAG,
+                TAG,
+                "fetchBlackList,onSuccess:" + (param == null ? "null" : param.size()));
             blackList.clear();
             if (param != null && param.size() > 0) {
               fetchResult.setStatus(LoadStatus.Success);
@@ -70,12 +79,14 @@ public class BlackListViewModel extends BaseViewModel {
 
           @Override
           public void onFailed(int code) {
+            ALog.d(LIB_TAG, TAG, "fetchBlackList,onFailed:" + code);
             fetchResult.setError(code, "");
             resultLiveData.postValue(fetchResult);
           }
 
           @Override
           public void onException(@Nullable Throwable exception) {
+            ALog.d(LIB_TAG, TAG, "fetchBlackList,onException");
             fetchResult.setError(-1, "");
             resultLiveData.postValue(fetchResult);
           }
@@ -83,17 +94,19 @@ public class BlackListViewModel extends BaseViewModel {
   }
 
   public void addBlackOp(String account, FetchCallback<Void> callback) {
+    ALog.d(LIB_TAG, TAG, "addBlackOp:" + account);
     if (!TextUtils.isEmpty(account)) {
-      ContactRepo.addBlacklist(account, callback);
+      ContactRepo.addBlackList(account, callback);
     }
   }
 
   public void removeBlackOp(String account, FetchCallback<Void> callback) {
-    ContactRepo.removeBlacklist(account, callback);
+    ALog.d(LIB_TAG, TAG, "removeBlackOp:" + account);
+    ContactRepo.removeBlackList(account, callback);
   }
 
   private void removeBlackData(List<String> accountList) {
-
+    ALog.d(LIB_TAG, TAG, "removeBlackData:" + (accountList == null ? "null" : accountList.size()));
     if (accountList == null || accountList.size() < 1) {
       return;
     }
@@ -121,6 +134,7 @@ public class BlackListViewModel extends BaseViewModel {
   }
 
   private void addBlackData(List<String> accountList) {
+    ALog.d(LIB_TAG, TAG, "addBlackData:" + (accountList == null ? "null" : accountList.size()));
     if (accountList == null || accountList.size() < 1) {
       return;
     }
@@ -130,6 +144,8 @@ public class BlackListViewModel extends BaseViewModel {
         new FetchCallback<List<UserInfo>>() {
           @Override
           public void onSuccess(@Nullable List<UserInfo> param) {
+            ALog.d(
+                LIB_TAG, TAG, "addBlackData,onSuccess:" + (param == null ? "null" : param.size()));
             if (param != null && param.size() > 0) {
               for (UserInfo contactInfo : param) {
                 ContactBlackListBean blackBean = new ContactBlackListBean(contactInfo);
@@ -144,10 +160,14 @@ public class BlackListViewModel extends BaseViewModel {
           }
 
           @Override
-          public void onFailed(int code) {}
+          public void onFailed(int code) {
+            ALog.d(LIB_TAG, TAG, "addBlackData,onFailed:" + code);
+          }
 
           @Override
-          public void onException(@Nullable Throwable exception) {}
+          public void onException(@Nullable Throwable exception) {
+            ALog.d(LIB_TAG, TAG, "addBlackData,exception");
+          }
         });
   }
 

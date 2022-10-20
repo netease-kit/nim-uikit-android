@@ -4,12 +4,14 @@
 
 package com.netease.yunxin.kit.chatkit.ui.page.viewmodel;
 
+import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
+
 import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.model.IMTeamMsgAckInfo;
-import com.netease.yunxin.kit.chatkit.repo.ChatMessageRepo;
+import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatCallback;
 import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
 
@@ -20,8 +22,8 @@ public class ChatReadStateViewModel extends BaseViewModel {
   private final MutableLiveData<IMTeamMsgAckInfo> teamAckInfo = new MutableLiveData<>();
 
   public void fetchTeamAckInfo(IMMessage message) {
-    ALog.i(TAG, "fetchTeamAckInfo");
-    ChatMessageRepo.fetchTeamMessageReceiptDetail(
+    ALog.d(LIB_TAG, TAG, "fetchTeamAckInfo:" + (message == null ? "null" : message.getUuid()));
+    ChatRepo.fetchTeamMessageReceiptDetail(
         message,
         new ChatCallback<IMTeamMsgAckInfo>() {
           @Override

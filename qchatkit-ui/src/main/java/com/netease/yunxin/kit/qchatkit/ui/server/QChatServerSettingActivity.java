@@ -12,22 +12,28 @@ import android.content.Intent;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.common.ui.activities.CommonActivity;
 import com.netease.yunxin.kit.common.ui.dialog.ChoiceListener;
 import com.netease.yunxin.kit.common.ui.dialog.CommonChoiceDialog;
+import com.netease.yunxin.kit.common.ui.photo.PhotoChoiceDialog;
 import com.netease.yunxin.kit.common.ui.utils.AvatarColor;
+import com.netease.yunxin.kit.common.ui.utils.CommonCallback;
+import com.netease.yunxin.kit.common.ui.utils.ToastX;
+import com.netease.yunxin.kit.common.utils.NetworkUtils;
 import com.netease.yunxin.kit.corekit.im.IMKitClient;
 import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
+import com.netease.yunxin.kit.corekit.im.repo.CommonRepo;
 import com.netease.yunxin.kit.qchatkit.repo.QChatServerRepo;
 import com.netease.yunxin.kit.qchatkit.repo.model.QChatServerInfo;
 import com.netease.yunxin.kit.qchatkit.ui.R;
 import com.netease.yunxin.kit.qchatkit.ui.common.QChatCallback;
-import com.netease.yunxin.kit.qchatkit.ui.common.photo.PhotoChoiceDialog;
 import com.netease.yunxin.kit.qchatkit.ui.databinding.QChatServerSettingActivityLayoutBinding;
 import com.netease.yunxin.kit.qchatkit.ui.model.QChatConstant;
+import java.io.File;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -89,23 +95,70 @@ public class QChatServerSettingActivity extends CommonActivity {
 
   private void gotoPicture(View v) {
     manager.hideSoftInputFromWindow(v.getWindowToken(), 0);
-    new PhotoChoiceDialog(QChatServerSettingActivity.this)
+    new PhotoChoiceDialog(this)
         .show(
-            new FetchCallback<String>() {
+            new CommonCallback<File>() {
               @Override
-              public void onSuccess(@Nullable String param) {
-                avatarUrl = param;
-                binding.avatar.setData(
-                    param, serverInfo.getName(), AvatarColor.avatarColor(serverInfo.getServerId()));
+              public void onSuccess(@Nullable File param) {
+                if (NetworkUtils.isConnected()) {
+                  CommonRepo.uploadImage(
+                      param,
+                      new FetchCallback<String>() {
+                        @Override
+                        public void onSuccess(@Nullable String param) {
+                          avatarUrl = param;
+                          binding.avatar.setData(
+                              param,
+                              serverInfo.getName(),
+                              AvatarColor.avatarColor(serverInfo.getServerId()));
+                        }
+
+                        @Override
+                        public void onFailed(int code) {
+                          if (code != 0) {
+                            Toast.makeText(
+                                    getApplicationContext(),
+                                    getString(R.string.qchat_server_request_fail) + " " + code,
+                                    Toast.LENGTH_SHORT)
+                                .show();
+                          }
+                          ALog.e(TAG, "upload icon failed code = " + code);
+                        }
+
+                        @Override
+                        public void onException(@Nullable Throwable exception) {
+                          Toast.makeText(
+                                  getApplicationContext(),
+                                  getString(R.string.qchat_server_request_fail),
+                                  Toast.LENGTH_SHORT)
+                              .show();
+                          ALog.e(TAG, "upload icon", exception);
+                        }
+                      });
+                } else {
+                  ToastX.showShortToast(R.string.qchat_network_error_tip);
+                }
               }
 
               @Override
               public void onFailed(int code) {
+                if (code != 0) {
+                  Toast.makeText(
+                          getApplicationContext(),
+                          getString(R.string.qchat_server_request_fail) + " " + code,
+                          Toast.LENGTH_SHORT)
+                      .show();
+                }
                 ALog.e(TAG, "upload icon failed code = " + code);
               }
 
               @Override
               public void onException(@Nullable Throwable exception) {
+                Toast.makeText(
+                        getApplicationContext(),
+                        getString(R.string.qchat_server_request_fail),
+                        Toast.LENGTH_SHORT)
+                    .show();
                 ALog.e(TAG, "upload icon", exception);
               }
             });

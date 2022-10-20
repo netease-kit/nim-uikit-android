@@ -145,6 +145,10 @@
                     android:textColor="@color/color_e6605c"
                     android:text="@string/qchat_kick_someone"
                     android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="@dimen/dimen_12_dp"
+                    android:paddingEnd="@dimen/dimen_12_dp"
                     android:paddingVertical="@dimen/dimen_12_dp" />
 
                 <!--            一期没有封禁功能-->

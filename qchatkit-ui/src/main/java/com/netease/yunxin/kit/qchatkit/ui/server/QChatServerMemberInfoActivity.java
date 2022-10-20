@@ -167,7 +167,7 @@ public class QChatServerMemberInfoActivity extends CommonActivity {
   private void showKickDialog() {
     CommonChoiceDialog dialog = new CommonChoiceDialog();
     dialog
-        .setTitleStr(String.format(getResources().getString(R.string.qchat_kick_someone), nickname))
+        .setTitleStr(getResources().getString(R.string.qchat_kick_someone_title))
         .setContentStr(
             String.format(getResources().getString(R.string.qchat_delete_some_member), nickname))
         .setNegativeStr(getResources().getString(R.string.qchat_cancel))

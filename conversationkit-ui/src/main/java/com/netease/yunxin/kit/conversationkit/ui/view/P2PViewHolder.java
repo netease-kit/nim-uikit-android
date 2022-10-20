@@ -4,6 +4,7 @@
 
 package com.netease.yunxin.kit.conversationkit.ui.view;
 
+import android.graphics.drawable.Drawable;
 import android.view.View;
 import androidx.annotation.NonNull;
 import com.netease.yunxin.kit.common.ui.utils.AvatarColor;
@@ -19,6 +20,8 @@ import com.netease.yunxin.kit.conversationkit.ui.model.ConversationBean;
 public class P2PViewHolder extends BaseViewHolder<ConversationBean> {
 
   private P2pViewHolderLayoutBinding viewBinding;
+  private Drawable stickTopDrawable;
+  private Drawable itemDrawable;
 
   public P2PViewHolder(@NonNull P2pViewHolderLayoutBinding binding) {
     super(binding.getRoot());
@@ -34,11 +37,9 @@ public class P2PViewHolder extends BaseViewHolder<ConversationBean> {
         AvatarColor.avatarColor(data.infoData.getContactId()));
     viewBinding.conversationNameTv.setText(data.infoData.getName());
     if (data.infoData.isStickTop()) {
-      viewBinding.rootView.setBackground(
-          viewBinding.getRoot().getContext().getDrawable(R.drawable.view_select_selector));
+      viewBinding.rootView.setBackground(stickTopDrawable);
     } else {
-      viewBinding.rootView.setBackground(
-          viewBinding.getRoot().getContext().getDrawable(R.drawable.view_normal_selector));
+      viewBinding.rootView.setBackground(itemDrawable);
     }
     if (data.infoData.getMute()) {
       viewBinding.conversationMuteIv.setVisibility(View.VISIBLE);
@@ -100,6 +101,17 @@ public class P2PViewHolder extends BaseViewHolder<ConversationBean> {
       if (config.avatarCornerRadius != ConversationUIConfig.INT_DEFAULT_NULL) {
         viewBinding.avatarView.setCornerRadius(config.avatarCornerRadius);
       }
+      if (config.itemBackground != null) {
+        itemDrawable = config.itemBackground;
+      }
+      if (config.itemStickTopBackground != null) {
+        stickTopDrawable = config.itemStickTopBackground;
+      }
+    } else {
+      itemDrawable =
+          viewBinding.getRoot().getContext().getDrawable(R.drawable.view_normal_selector);
+      stickTopDrawable =
+          viewBinding.getRoot().getContext().getDrawable(R.drawable.view_select_selector);
     }
   }
 }

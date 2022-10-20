@@ -4,6 +4,8 @@
 
 package com.netease.yunxin.kit.chatkit.ui.page.viewmodel;
 
+import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
+
 import android.text.TextUtils;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
@@ -12,8 +14,8 @@ import com.netease.nimlib.sdk.msg.constant.AttachStatusEnum;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
-import com.netease.yunxin.kit.chatkit.repo.ChatMessageRepo;
-import com.netease.yunxin.kit.chatkit.repo.ChatServiceObserverRepo;
+import com.netease.yunxin.kit.chatkit.repo.ChatObserverRepo;
+import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
 import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
@@ -57,7 +59,11 @@ public class WatchImageVideoViewModel extends BaseViewModel {
   }
 
   private void registerObservers(boolean register) {
-    ChatServiceObserverRepo.observeMsgStatus(msgStatusObserver, register);
+    if (register) {
+      ChatObserverRepo.registerMsgStatusObserve(msgStatusObserver);
+    } else {
+      ChatObserverRepo.unregisterMsgStatusObserve(msgStatusObserver);
+    }
   }
 
   private boolean isFileHasDownloaded(final IMMessage message) {
@@ -66,9 +72,9 @@ public class WatchImageVideoViewModel extends BaseViewModel {
   }
 
   public void requestFile(IMMessage message) {
-    ALog.i(TAG, "request file");
+    ALog.d(LIB_TAG, TAG, "requestFile:" + (message == null ? "null" : message.getUuid()));
     if (isFileHasDownloaded(message)) {
-      ALog.i(TAG, "request file has downloaded.");
+      ALog.d(LIB_TAG, TAG, "request file has downloaded.");
       //onDownloadSuccess(message);
       return;
     }
@@ -78,9 +84,7 @@ public class WatchImageVideoViewModel extends BaseViewModel {
   }
 
   private void onDownloadStart(IMMessage message) {
-    ALog.i(
-        TAG,
-        "on download start -->> " + (((FileAttachment) message.getAttachment()).getPathForSave()));
+    ALog.d(LIB_TAG, TAG, "onDownloadStart :" + (message == null ? "null" : message.getUuid()));
     if (((FileAttachment) message.getAttachment()).getPath() == null) {
       statusMessageResult.setLoadStatus(LoadStatus.Loading);
     } else {
@@ -103,7 +107,10 @@ public class WatchImageVideoViewModel extends BaseViewModel {
   }
 
   private void onDownloadFail(IMMessage message) {
-    ALog.i(TAG, "on download fail -->> " + (((FileAttachment) message.getAttachment()).getPath()));
+    ALog.d(
+        LIB_TAG,
+        TAG,
+        "on download fail -->> " + (((FileAttachment) message.getAttachment()).getPath()));
     statusMessageResult.setLoadStatus(LoadStatus.Error);
     statusMessageResult.setData(message);
     statusMessageResult.setType(FetchResult.FetchType.Update);
@@ -112,7 +119,7 @@ public class WatchImageVideoViewModel extends BaseViewModel {
   }
 
   public void downloadAttachment(IMMessage message) {
-    ChatMessageRepo.downloadAttachment(
+    ChatRepo.downloadAttachment(
         message,
         false,
         new FetchCallback<Void>() {

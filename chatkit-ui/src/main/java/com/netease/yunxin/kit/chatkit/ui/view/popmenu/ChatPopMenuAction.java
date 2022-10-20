@@ -4,44 +4,63 @@
 
 package com.netease.yunxin.kit.chatkit.ui.view.popmenu;
 
+import android.view.View;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.StringRes;
+import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.corekit.im.IMKitClient;
 
 public class ChatPopMenuAction {
-  private String actionName;
+
+  private String title;
   private @DrawableRes int actionIcon;
   private OnClickListener actionClickListener;
+  private String action;
 
-  public ChatPopMenuAction(String actionName, @DrawableRes int actionIcon) {
-    this(actionName, actionIcon, null);
+  public ChatPopMenuAction(String action, String title, @DrawableRes int actionIcon) {
+    this(action, title, actionIcon, null);
   }
 
   public ChatPopMenuAction(
-      @StringRes int nameRes, @DrawableRes int actionIcon, OnClickListener actionClickListener) {
-    this(IMKitClient.getApplicationContext().getString(nameRes), actionIcon, actionClickListener);
+      String action,
+      @StringRes int nameRes,
+      @DrawableRes int actionIcon,
+      OnClickListener actionClickListener) {
+    this(
+        action,
+        IMKitClient.getApplicationContext().getString(nameRes),
+        actionIcon,
+        actionClickListener);
   }
 
   public ChatPopMenuAction(
-      String actionName, @DrawableRes int actionIcon, OnClickListener actionClickListener) {
-    this.actionName = actionName;
+      String action,
+      String title,
+      @DrawableRes int actionIcon,
+      OnClickListener actionClickListener) {
+    this.action = action;
+    this.title = title;
     this.actionIcon = actionIcon;
     this.actionClickListener = actionClickListener;
   }
 
-  public void setActionName(String actionName) {
-    this.actionName = actionName;
+  public void setTitle(String title) {
+    this.title = title;
   }
 
-  public String getActionName() {
-    return actionName;
+  public String getTitle() {
+    return title;
   }
 
-  public void setActionIcon(@DrawableRes int actionIcon) {
+  public String getAction() {
+    return action;
+  }
+
+  public void setIcon(@DrawableRes int actionIcon) {
     this.actionIcon = actionIcon;
   }
 
-  public @DrawableRes int getActionIcon() {
+  public @DrawableRes int getIcon() {
     return actionIcon;
   }
 
@@ -55,6 +74,6 @@ public class ChatPopMenuAction {
 
   @FunctionalInterface
   public interface OnClickListener {
-    void onClick();
+    void onClick(View view, ChatMessageBean messageInfo);
   }
 }

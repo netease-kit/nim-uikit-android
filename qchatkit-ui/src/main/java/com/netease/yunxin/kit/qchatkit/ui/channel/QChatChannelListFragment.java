@@ -161,7 +161,13 @@ public class QChatChannelListFragment extends BaseFragment {
         });
   }
 
-  public void emptyServerInfo() {
+  public void showChannelView() {
+    binding.groupChannelInfo.setVisibility(View.VISIBLE);
+    binding.groupNoChannelTip.setVisibility(View.VISIBLE);
+    binding.ryChannelList.setVisibility(View.VISIBLE);
+  }
+
+  public void hideChannelView() {
     binding.groupChannelInfo.setVisibility(View.GONE);
     binding.groupNoChannelTip.setVisibility(View.GONE);
     binding.ryChannelList.setVisibility(View.GONE);

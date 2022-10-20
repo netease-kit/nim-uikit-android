@@ -6,6 +6,7 @@ package com.netease.yunxin.kit.chatkit.ui.view.emoji;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.content.res.XmlResourceParser;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapFactory.Options;
@@ -13,8 +14,8 @@ import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.util.DisplayMetrics;
-import android.util.Xml;
 import androidx.collection.LruCache;
+import com.netease.yunxin.kit.chatkit.ui.R;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -22,9 +23,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
-import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
-import org.xml.sax.helpers.DefaultHandler;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
 
 public class EmojiManager {
 
@@ -48,7 +48,7 @@ public class EmojiManager {
 
     sContext = context;
 
-    load(context, EMOJI_DIR + "emoji.xml");
+    load(context);
 
     pattern = makePattern();
 
@@ -112,7 +112,7 @@ public class EmojiManager {
   }
 
   private static String patternOfDefault() {
-    return "\\[[^\\[]{1,10}\\]";
+    return "\\[[^\\[]{1,20}\\]";
   }
 
   private static Bitmap loadAssetBitmap(Context context, String assetPath) {
@@ -143,46 +143,46 @@ public class EmojiManager {
     return null;
   }
 
-  private static void load(Context context, String xmlPath) {
-    new EntryLoader().load(context, xmlPath);
+  private static void load(Context context) {
+    new EntryLoader().load(context);
   }
 
-  private static class EntryLoader extends DefaultHandler {
+  private static class EntryLoader {
     private String catalog = "";
 
-    void load(Context context, String assetPath) {
-      InputStream is = null;
+    void load(Context context) {
       try {
-        is = context.getAssets().open(assetPath);
-        Xml.parse(is, Xml.Encoding.UTF_8, this);
-      } catch (IOException | SAXException e) {
+        XmlResourceParser xmlParser = context.getResources().getXml(R.xml.emoji);
+        //
+        try {
+          int event = xmlParser.getEventType(); //先获取当前解析器光标在哪
+          while (event != XmlPullParser.END_DOCUMENT) { //如果还没到文档的结束标志，那么就继续往下处理
+            switch (event) {
+              case XmlPullParser.START_TAG:
+                //一般都是获取标签的属性值，所以在这里数据你需要的数据
+                if (xmlParser.getName().equals("Catalog")) {
+                  catalog = xmlParser.getAttributeValue(0);
+                } else if (xmlParser.getName().equals("Emoticon")) {
+                  String fileName = xmlParser.getAttributeValue(0);
+                  String tag = xmlParser.getAttributeValue(2);
+                  Entry entry = new Entry(tag, EMOJI_DIR + catalog + "/" + fileName);
+                  text2entry.put(entry.text, entry);
+                  if (catalog.equals("default")) {
+                    defaultEntries.add(entry);
+                  }
+                }
+                break;
+              default:
+                break;
+            }
+            event = xmlParser.next(); //将当前解析器光标往下一步移
+          }
+        } catch (XmlPullParserException | IOException e) {
+          e.printStackTrace();
+        }
+      } catch (Exception e) {
         e.printStackTrace();
       } finally {
-        if (is != null) {
-          try {
-            is.close();
-          } catch (IOException e) {
-            e.printStackTrace();
-          }
-        }
-      }
-    }
-
-    @Override
-    public void startElement(String uri, String localName, String qName, Attributes attributes)
-        throws SAXException {
-
-      if (localName.equals("Catalog")) {
-        catalog = attributes.getValue(uri, "Title");
-      } else if (localName.equals("Emoticon")) {
-        String tag = attributes.getValue(uri, "Tag");
-        String fileName = attributes.getValue(uri, "File");
-        Entry entry = new Entry(tag, EMOJI_DIR + catalog + "/" + fileName);
-
-        text2entry.put(entry.text, entry);
-        if (catalog.equals("default")) {
-          defaultEntries.add(entry);
-        }
       }
     }
   }

@@ -4,6 +4,8 @@
 
 package com.netease.yunxin.kit.chatkit.ui.page;
 
+import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
+
 import android.content.Context;
 import android.content.Intent;
 import android.text.TextUtils;
@@ -46,7 +48,8 @@ public class WatchImageActivity extends WatchBaseActivity {
     if (intent != null) {
       messages = (List<IMMessage>) intent.getSerializableExtra(EXT_MESSAGE_LIST_KEY);
       firstDisplayImageIndex = intent.getIntExtra(EXT_FIRST_DISPLAY_INDEX_KEY, messages.size() - 1);
-      ALog.i(
+      ALog.d(
+          LIB_TAG,
           TAG,
           "initData message size: " + messages.size() + " firstIndex:" + firstDisplayImageIndex);
     }
@@ -55,14 +58,15 @@ public class WatchImageActivity extends WatchBaseActivity {
   @Override
   public void initDataObserver() {
     super.initDataObserver();
-    ALog.i(TAG, "initDataObserver");
+    ALog.d(LIB_TAG, TAG, "initDataObserver");
     viewModel
         .getStatusMessageLiveData()
         .observe(
             this,
             messageStatusChangeResult -> {
               int pos = messages.indexOf(messageStatusChangeResult.getData());
-              ALog.i(
+              ALog.d(
+                  LIB_TAG,
                   TAG,
                   "message livedata observe -->> pos:"
                       + pos
@@ -108,7 +112,7 @@ public class WatchImageActivity extends WatchBaseActivity {
   @Override
   public void saveMedia() {
     int position = viewPager2.getCurrentItem();
-    ALog.i(TAG, "save image -->> currentItem:" + position);
+    ALog.d(LIB_TAG, TAG, "save image -->> currentItem:" + position);
     if (position >= 0 && position < messages.size()) {
       IMMessage currentMsg = messages.get(position);
       ImageAttachment attachment = (ImageAttachment) currentMsg.getAttachment();

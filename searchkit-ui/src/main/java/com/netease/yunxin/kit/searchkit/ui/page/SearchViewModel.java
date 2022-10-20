@@ -7,6 +7,7 @@ package com.netease.yunxin.kit.searchkit.ui.page;
 import android.text.TextUtils;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
+import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.common.ui.viewholder.BaseBean;
 import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
@@ -16,7 +17,6 @@ import com.netease.yunxin.kit.searchkit.SearchRepo;
 import com.netease.yunxin.kit.searchkit.model.FriendSearchInfo;
 import com.netease.yunxin.kit.searchkit.model.TeamSearchInfo;
 import com.netease.yunxin.kit.searchkit.ui.R;
-import com.netease.yunxin.kit.searchkit.ui.commone.XLog;
 import com.netease.yunxin.kit.searchkit.ui.model.FriendBean;
 import com.netease.yunxin.kit.searchkit.ui.model.TeamBean;
 import com.netease.yunxin.kit.searchkit.ui.model.TitleBean;
@@ -27,6 +27,7 @@ import java.util.List;
 public class SearchViewModel extends BaseViewModel {
 
   private static final String TAG = "SearchViewModel";
+  private static final String LIB_TAG = "SearchKit-UI";
   private final MutableLiveData<FetchResult<List<BaseBean>>> queryLiveData =
       new MutableLiveData<>();
 
@@ -48,13 +49,13 @@ public class SearchViewModel extends BaseViewModel {
               if (param != null && param.size() > 0) {
                 List<BaseBean> friendResult = new ArrayList<>();
                 friendResult.add(new TitleBean(R.string.global_search_friend_title));
-                XLog.d(TAG, "searchFriend:onSuccess,friend");
+                ALog.d(LIB_TAG, TAG, "searchFriend,onSuccess,friend");
                 for (int index = 0; index < param.size(); index++) {
                   friendResult.add(new FriendBean(param.get(index)));
-                  XLog.d(
+                  ALog.d(
+                      LIB_TAG,
                       TAG,
-                      "searchFriend:onSuccess",
-                      "friend:" + param.get(index).getFriendInfo().getName());
+                      "searchFriend,onSuccess:" + param.get(index).getFriendInfo().getName());
                 }
                 resultList.addAll(0, friendResult);
               }
@@ -65,12 +66,12 @@ public class SearchViewModel extends BaseViewModel {
 
             @Override
             public void onFailed(int code) {
-              XLog.d(TAG, "searchFriend:onFailed");
+              ALog.d(LIB_TAG, TAG, "searchFriend,onFailed:" + code);
             }
 
             @Override
             public void onException(@Nullable Throwable exception) {
-              XLog.d(TAG, "searchFriend:onException");
+              ALog.d(LIB_TAG, TAG, "searchFriend,onException");
             }
           });
 
@@ -82,12 +83,10 @@ public class SearchViewModel extends BaseViewModel {
               if (param != null && param.size() > 0) {
                 List<BaseBean> groupResult = new ArrayList<>();
                 groupResult.add(new TitleBean(R.string.global_search_group_title));
-                XLog.d(TAG, "searchTeam:onSuccess,team");
                 for (int index = 0; index < param.size(); index++) {
                   groupResult.add(new TeamBean(param.get(index)));
-                  XLog.d(
-                      TAG, "searchTeam:onSuccess", "team:" + param.get(index).getTeam().getName());
                 }
+                ALog.d(LIB_TAG, TAG, "searchTeamm,onSuccess,team:" + param.size());
                 resultList.addAll(groupResult);
               }
               FetchResult<List<BaseBean>> fetchResult = new FetchResult<>(LoadStatus.Success);
@@ -97,12 +96,12 @@ public class SearchViewModel extends BaseViewModel {
 
             @Override
             public void onFailed(int code) {
-              XLog.d(TAG, "searchFriend:onFailed");
+              ALog.d(LIB_TAG, TAG, "searchFriend,onFailed:" + code);
             }
 
             @Override
             public void onException(@Nullable Throwable exception) {
-              XLog.d(TAG, "searchFriend:onException");
+              ALog.d(LIB_TAG, TAG, "searchFriend:onException");
             }
           });
 
@@ -114,13 +113,11 @@ public class SearchViewModel extends BaseViewModel {
               if (param != null && param.size() > 0) {
                 List<BaseBean> friendResult = new ArrayList<>();
                 friendResult.add(new TitleBean(R.string.global_search_team_title));
-                XLog.d(TAG, "searchTeam:onSuccess,super team");
                 for (int index = 0; index < param.size(); index++) {
                   friendResult.add(new TeamBean(param.get(index)));
-                  XLog.d(
-                      TAG, "searchTeam:onSuccess", "team:" + param.get(index).getTeam().getName());
                 }
                 resultList.addAll(friendResult);
+                ALog.d(LIB_TAG, TAG, "searchTeam,onSuccess:" + friendResult.size());
               }
               FetchResult<List<BaseBean>> fetchResult = new FetchResult<>(LoadStatus.Success);
               fetchResult.setData(resultList);
@@ -129,12 +126,12 @@ public class SearchViewModel extends BaseViewModel {
 
             @Override
             public void onFailed(int code) {
-              XLog.d(TAG, "searchFriend:onFailed");
+              ALog.d(LIB_TAG, TAG, "searchFriend,onFailed:" + code);
             }
 
             @Override
             public void onException(@Nullable Throwable exception) {
-              XLog.d(TAG, "searchFriend:onException");
+              ALog.d(LIB_TAG, TAG, "searchFriend,onException");
             }
           });
 

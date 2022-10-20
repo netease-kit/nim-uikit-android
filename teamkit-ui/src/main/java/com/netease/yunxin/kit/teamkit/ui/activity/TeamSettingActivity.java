@@ -240,7 +240,7 @@ public class TeamSettingActivity extends BaseActivity {
                         : TeamBeInviteModeEnum.NoAuth;
                 return;
               }
-              binding.swInviteAgree.toggle();
+              //              binding.swInviteAgree.toggle();
             });
   }
 
@@ -382,7 +382,7 @@ public class TeamSettingActivity extends BaseActivity {
     binding.bg3.setVisibility(View.GONE);
     binding.inviteGroup.setVisibility(View.GONE);
     binding.updateGroup.setVisibility(View.GONE);
-    binding.inviteAgreeGroup.setVisibility(View.GONE);
+    //    binding.inviteAgreeGroup.setVisibility(View.GONE);
     binding.bg4.setVisibility(View.GONE);
   }
 
@@ -425,12 +425,12 @@ public class TeamSettingActivity extends BaseActivity {
     binding.swTeamMute.setChecked(teamInfo.isAllMute());
     binding.swTeamMute.setOnClickListener(
         v -> model.muteTeamAllMember(teamId, binding.swTeamMute.isChecked()));
-    binding.inviteAgreeGroup.setVisibility(View.VISIBLE);
+    //    binding.inviteAgreeGroup.setVisibility(View.VISIBLE);
     binding.bg4.setVisibility(View.VISIBLE);
-    binding.swInviteAgree.setChecked(
-        teamInfo.getTeamBeInviteMode() == TeamBeInviteModeEnum.NeedAuth);
-    binding.swInviteAgree.setOnClickListener(
-        v -> model.updateBeInviteMode(teamId, binding.swInviteAgree.isChecked()));
+    //    binding.swInviteAgree.setChecked(
+    //        teamInfo.getTeamBeInviteMode() == TeamBeInviteModeEnum.NeedAuth);
+    //    binding.swInviteAgree.setOnClickListener(
+    //        v -> model.updateBeInviteMode(teamId, binding.swInviteAgree.isChecked()));
     binding.tvQuit.setText(R.string.team_advanced_dismiss);
     binding.tvQuit.setOnClickListener(
         v -> {
@@ -458,7 +458,7 @@ public class TeamSettingActivity extends BaseActivity {
     binding.teamMuteGroup.setVisibility(View.GONE);
     binding.updateGroup.setVisibility(View.GONE);
     binding.inviteGroup.setVisibility(View.GONE);
-    binding.inviteAgreeGroup.setVisibility(View.GONE);
+    //    binding.inviteAgreeGroup.setVisibility(View.GONE);
     binding.bg4.setVisibility(View.GONE);
     binding.tvQuit.setText(R.string.team_advanced_quit);
     binding.tvQuit.setOnClickListener(

@@ -7,7 +7,7 @@ package com.netease.yunxin.kit.searchkit.ui.model;
 import com.netease.yunxin.kit.common.ui.viewholder.BaseBean;
 import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
 import com.netease.yunxin.kit.searchkit.model.FriendSearchInfo;
-import com.netease.yunxin.kit.searchkit.ui.commone.SearchConstant;
+import com.netease.yunxin.kit.searchkit.ui.common.SearchConstant;
 import java.util.Objects;
 
 public class FriendBean extends BaseBean {

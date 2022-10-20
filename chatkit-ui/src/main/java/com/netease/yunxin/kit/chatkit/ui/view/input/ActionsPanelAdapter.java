@@ -23,12 +23,14 @@ public class ActionsPanelAdapter extends RecyclerView.Adapter<ActionsPanelAdapte
   private static final int COLUMN_COUNT = 4;
   private static final int PAGE_SIZE = ROW_COUNT * COLUMN_COUNT;
   private Context mContext;
-  private ArrayList<ActionItem> items;
+  private ArrayList<ActionItem> items = new ArrayList<>();
   private OnActionItemClick onActionItemClick;
 
-  public ActionsPanelAdapter(Context context, ArrayList<ActionItem> items) {
+  public ActionsPanelAdapter(Context context, List<ActionItem> items) {
     this.mContext = context;
-    this.items = items;
+    if (items != null && items.size() > 0) {
+      this.items.addAll(items);
+    }
   }
 
   public void setOnActionItemClick(OnActionItemClick onActionItemClick) {
@@ -76,14 +78,16 @@ public class ActionsPanelAdapter extends RecyclerView.Adapter<ActionsPanelAdapte
     param.rowSpec = GridLayout.spec(i / COLUMN_COUNT);
     binding.getRoot().setLayoutParams(param);
     binding.actionIcon.setBackgroundResource(item.getIconResId());
-    binding.actionText.setText(item.getTitleResId());
+    if (item.getTitleResId() != 0) {
+      binding.actionText.setText(item.getTitleResId());
+    }
     binding
         .getRoot()
         .setOnClickListener(
             view -> {
               item.onClick(view);
               if (onActionItemClick != null) {
-                onActionItemClick.onClick(item);
+                onActionItemClick.onClick(view, item);
               }
             });
     return binding.getRoot();
@@ -102,6 +106,6 @@ public class ActionsPanelAdapter extends RecyclerView.Adapter<ActionsPanelAdapte
   }
 
   interface OnActionItemClick {
-    void onClick(ActionItem item);
+    void onClick(View view, ActionItem item);
   }
 }

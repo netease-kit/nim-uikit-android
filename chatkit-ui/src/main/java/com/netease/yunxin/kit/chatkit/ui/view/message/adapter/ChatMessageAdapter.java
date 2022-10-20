@@ -49,7 +49,7 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatBaseMessageView
   private boolean showReadStatus = true;
 
   public ChatMessageAdapter() {
-    viewHolderFactory = new ChatDefaultFactory();
+    viewHolderFactory = ChatDefaultFactory.getInstance();
   }
 
   private final List<ChatMessageBean> messageList = new ArrayList<>();
@@ -256,7 +256,15 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatBaseMessageView
   }
 
   private int getMessageIndex(ChatMessageBean message) {
-    return messageList.indexOf(message);
+    if (message == null) {
+      return -1;
+    }
+    for (int index = 0; index < messageList.size(); index++) {
+      if (message.isSameMessage(messageList.get(index))) {
+        return index;
+      }
+    }
+    return -1;
   }
 
   public void forwardMessages(List<ChatMessageBean> message) {

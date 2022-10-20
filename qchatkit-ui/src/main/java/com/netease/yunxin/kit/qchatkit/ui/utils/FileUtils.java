@@ -10,7 +10,7 @@ import android.net.Uri;
 import android.os.Environment;
 import android.text.TextUtils;
 import com.netease.yunxin.kit.alog.ALog;
-import com.netease.yunxin.kit.qchatkit.ui.common.photo.Constants;
+import com.netease.yunxin.kit.qchatkit.ui.common.Constants;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;

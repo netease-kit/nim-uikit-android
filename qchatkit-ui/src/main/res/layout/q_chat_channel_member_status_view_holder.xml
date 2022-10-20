@@ -41,6 +41,8 @@
         android:gravity="center_vertical"
         android:paddingStart="@dimen/dimen_12_dp"
         android:paddingEnd="@dimen/dimen_12_dp"
+        android:maxLines="1"
+        android:ellipsize="end"
         android:textColor="@color/color_333333"
         android:textSize="@dimen/text_size_16" />
 

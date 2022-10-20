@@ -5,6 +5,7 @@
 package com.netease.yunxin.kit.chatkit.ui.view.message;
 
 import android.graphics.drawable.Drawable;
+import android.view.View;
 import androidx.annotation.ColorInt;
 
 /** message item config */
@@ -12,35 +13,45 @@ public class MessageProperties {
 
   public static final int INT_NULL = -1;
 
-  private Drawable receiveMessageBg;
+  public Drawable receiveMessageBg;
 
-  private Drawable selfMessageBg;
+  public Drawable selfMessageBg;
 
   public int selfMessageRes = INT_NULL;
 
   public int receiveMessageRes = INT_NULL;
 
-  @ColorInt private int userNickColor = INT_NULL;
+  @ColorInt public int userNickColor = INT_NULL;
 
-  private int userNickTextSize = INT_NULL;
+  public int userNickTextSize = INT_NULL;
 
-  @ColorInt private int messageTextColor = INT_NULL;
+  @ColorInt public int messageTextColor = INT_NULL;
 
-  private int messageTextSize = INT_NULL;
+  public int messageTextSize = INT_NULL;
 
-  private float avatarCornerRadius = INT_NULL;
+  public float avatarCornerRadius = INT_NULL;
 
-  private int timeTextSize = INT_NULL;
+  public int timeTextSize = INT_NULL;
 
-  @ColorInt private int timeTextColor = INT_NULL;
+  @ColorInt public int timeTextColor = INT_NULL;
 
-  @ColorInt private int signalBgColor = INT_NULL;
+  @ColorInt public int signalBgColor = INT_NULL;
 
-  private boolean showStickerMessage = false;
+  public boolean showStickerMessage = false;
 
-  private boolean showP2pMessageStatus = true;
+  public boolean showP2pMessageStatus = true;
 
-  private boolean showTeamMessageStatus = true;
+  public boolean showTeamMessageStatus = true;
+
+  public boolean showTitleBar = true;
+
+  public boolean showTitleBarRightIcon = true;
+
+  public int titleBarRightRes = INT_NULL;
+
+  public View.OnClickListener titleBarRightClick;
+
+  public Drawable chatViewBackground;
 
   @Deprecated
   public void setReceiveMessageBg(Drawable receiveMessageBg) {

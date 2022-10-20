@@ -6,6 +6,7 @@ package com.netease.yunxin.kit.conversationkit.ui.view;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.view.View;
 import androidx.annotation.NonNull;
 import com.netease.nimlib.sdk.team.model.Team;
@@ -22,6 +23,8 @@ import com.netease.yunxin.kit.conversationkit.ui.model.ConversationBean;
 public class TeamViewHolder extends BaseViewHolder<ConversationBean> {
 
   private TeamViewHolderLayoutBinding viewBinding;
+  private Drawable stickTopDrawable;
+  private Drawable itemDrawable;
 
   public TeamViewHolder(@NonNull TeamViewHolderLayoutBinding binding) {
     super(binding.getRoot());
@@ -40,10 +43,9 @@ public class TeamViewHolder extends BaseViewHolder<ConversationBean> {
       viewBinding.conversationNameTv.setText(teamInfo.getName());
     }
     if (data.infoData.isStickTop()) {
-      viewBinding.rootView.setBackground(
-          context.getResources().getDrawable(R.drawable.view_select_selector));
+      viewBinding.rootView.setBackground(stickTopDrawable);
     } else {
-      viewBinding.rootView.setBackground(context.getDrawable(R.drawable.view_normal_selector));
+      viewBinding.rootView.setBackground(itemDrawable);
     }
 
     if (data.infoData.getMute()) {
@@ -105,6 +107,17 @@ public class TeamViewHolder extends BaseViewHolder<ConversationBean> {
       if (config.avatarCornerRadius != ConversationUIConfig.INT_DEFAULT_NULL) {
         viewBinding.avatarView.setCornerRadius(config.avatarCornerRadius);
       }
+      if (config.itemBackground != null) {
+        itemDrawable = config.itemBackground;
+      }
+      if (config.itemStickTopBackground != null) {
+        stickTopDrawable = config.itemStickTopBackground;
+      }
+    } else {
+      itemDrawable =
+          viewBinding.getRoot().getContext().getDrawable(R.drawable.view_normal_selector);
+      stickTopDrawable =
+          viewBinding.getRoot().getContext().getDrawable(R.drawable.view_select_selector);
     }
   }
 }

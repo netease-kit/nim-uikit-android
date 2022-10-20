@@ -16,7 +16,7 @@ import com.netease.yunxin.app.im.databinding.ActivityMineSettingBinding;
 import com.netease.yunxin.app.im.welcome.WelcomeActivity;
 import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
 import com.netease.yunxin.kit.corekit.im.IMKitClient;
-import com.netease.yunxin.kit.corekit.im.repo.ConfigRepo;
+import com.netease.yunxin.kit.corekit.im.login.LoginCallback;
 
 public class SettingActivity extends BaseActivity {
 
@@ -51,13 +51,11 @@ public class SettingActivity extends BaseActivity {
         });
 
     //audio play mode AUDIO_PLAY_EARPIECE or AUDIO_PLAY_OUTSIDE
-    viewBinding.playModeSc.setChecked(
-        viewModel.getAudioPlayMode() == ConfigRepo.AUDIO_PLAY_EARPIECE);
+    viewBinding.playModeSc.setChecked(viewModel.getAudioPlayMode());
     viewBinding.playModeSc.setOnClickListener(
         v -> {
           boolean checked = viewBinding.playModeSc.isChecked();
-          viewModel.setAudioPlayMode(
-              checked ? ConfigRepo.AUDIO_PLAY_EARPIECE : ConfigRepo.AUDIO_PLAY_OUTSIDE);
+          viewModel.setAudioPlayMode(checked);
         });
 
     viewBinding.notifyFl.setOnClickListener(
@@ -66,25 +64,31 @@ public class SettingActivity extends BaseActivity {
     viewBinding.clearFl.setOnClickListener(
         v -> startActivity(new Intent(SettingActivity.this, ClearCacheActivity.class)));
 
-        viewBinding.tvLogout.setOnClickListener(v -> {
+    viewBinding.tvLogout.setOnClickListener(
+        v ->{
             // logout your own account here
             //...
+                    IMKitClient.logoutIMWithQChat(
+                        new com.netease.yunxin.kit.corekit.im.login.LoginCallback<Void>() {
+                          @Override
+                          public void onError(int errorCode, @NonNull String errorMsg) {
+                            Toast.makeText(
+                                    SettingActivity.this,
+                                    "error code is " + errorCode + ", message is " + errorMsg,
+                                    Toast.LENGTH_SHORT)
+                                .show();
+                          }
 
-            IMKitClient.logoutIMWithQChat(new com.netease.yunxin.kit.corekit.im.login.LoginCallback<Void>() {
-                @Override
-                public void onError(int errorCode, @NonNull String errorMsg) {
-                    Toast.makeText(SettingActivity.this, "error code is " + errorCode + ", message is " + errorMsg, Toast.LENGTH_SHORT).show();
-                }
-
-                @Override
-                public void onSuccess(@Nullable Void data) {
-                    if (getApplicationContext() instanceof IMApplication){
-                        ((IMApplication) getApplicationContext()).clearActivity(SettingActivity.this);
-                    }
-                    startActivity(new Intent(SettingActivity.this, WelcomeActivity.class));
-                    finish();
-                }
-            });
+                          @Override
+                          public void onSuccess(@Nullable Void data) {
+                            if (getApplicationContext() instanceof IMApplication) {
+                              ((IMApplication) getApplicationContext())
+                                  .clearActivity(SettingActivity.this);
+                            }
+                            startActivity(new Intent(SettingActivity.this, WelcomeActivity.class));
+                            finish();
+                          }
+                        });
         });
 
     viewBinding.settingTitleBar.setOnBackIconClickListener(v -> onBackPressed());

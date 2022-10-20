@@ -4,18 +4,20 @@
 
 package com.netease.yunxin.kit.conversationkit.ui.page;
 
+import static com.netease.yunxin.kit.conversationkit.ui.common.ConversationConstant.LIB_TAG;
+
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
+import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
 import com.netease.yunxin.kit.common.ui.viewholder.BaseBean;
 import com.netease.yunxin.kit.common.ui.viewholder.ViewHolderClickListener;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.conversationkit.ui.R;
-import com.netease.yunxin.kit.conversationkit.ui.common.XLog;
 import com.netease.yunxin.kit.conversationkit.ui.databinding.ConversationSelectActivityBinding;
 import com.netease.yunxin.kit.conversationkit.ui.model.ConversationBean;
 import com.netease.yunxin.kit.conversationkit.ui.page.interfaces.ILoadListener;
@@ -34,7 +36,7 @@ public class ConversationSelectActivity extends BaseActivity implements ILoadLis
   @Override
   protected void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    XLog.d(TAG, "onCreate");
+    ALog.d(LIB_TAG, TAG, "onCreate");
     viewBinding = ConversationSelectActivityBinding.inflate(LayoutInflater.from(this), null, false);
     setContentView(viewBinding.getRoot());
 
@@ -49,7 +51,7 @@ public class ConversationSelectActivity extends BaseActivity implements ILoadLis
                 RouterConstant.KEY_CONVERSATION_SELECTOR_KEY,
                 new ArrayList<String>().addAll(contactIdSet));
           }
-          XLog.d(TAG, "ActionListener");
+          ALog.d(LIB_TAG, TAG, "ActionListener");
 
           setResult(RESULT_OK, intent);
           finish();
@@ -68,7 +70,7 @@ public class ConversationSelectActivity extends BaseActivity implements ILoadLis
               } else {
                 contactIdSet.remove(((ConversationBean) data).infoData.getContactId());
               }
-              XLog.d(TAG, "ItemClickListener", "onClick:" + isCheck);
+              ALog.d(LIB_TAG, TAG, "ItemClickListener,onClick:" + isCheck);
               updateTitleBar();
             }
             return true;
@@ -76,7 +78,7 @@ public class ConversationSelectActivity extends BaseActivity implements ILoadLis
 
           @Override
           public boolean onLongClick(BaseBean data, int position) {
-            XLog.d(TAG, "ItemClickListener", "onLongClick");
+            ALog.d(LIB_TAG, TAG, "ItemClickListener,onLongClick");
             return false;
           }
         });
@@ -89,7 +91,7 @@ public class ConversationSelectActivity extends BaseActivity implements ILoadLis
             this,
             result -> {
               if (result.getLoadStatus() == LoadStatus.Success) {
-                XLog.d(TAG, "QueryLiveData", "Success");
+                ALog.d(LIB_TAG, TAG, "QueryLiveData,Success");
                 viewBinding.conversationSelectorView.setData(result.getData());
               }
             });

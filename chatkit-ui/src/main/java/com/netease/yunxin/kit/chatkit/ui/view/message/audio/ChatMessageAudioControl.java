@@ -14,7 +14,7 @@ import com.netease.nimlib.sdk.msg.constant.MsgDirectionEnum;
 import com.netease.nimlib.sdk.msg.constant.MsgStatusEnum;
 import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
-import com.netease.yunxin.kit.chatkit.repo.ChatMessageRepo;
+import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
 import com.netease.yunxin.kit.chatkit.storage.StorageUtil;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatCallback;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
@@ -123,9 +123,12 @@ public class ChatMessageAudioControl extends BaseAudioControl<IMMessageInfo> {
       final int audioStreamType) {
     // if not exit need download
     AudioAttachment audioAttachment = (AudioAttachment) message.getMessage().getAttachment();
+    if (audioAttachment == null) {
+      return;
+    }
     File file = new File(audioAttachment.getPathForSave());
     if (!file.exists()) {
-      ChatMessageRepo.downloadAttachment(
+      ChatRepo.downloadAttachment(
           message.getMessage(),
           false,
           new ChatCallback<Void>() {

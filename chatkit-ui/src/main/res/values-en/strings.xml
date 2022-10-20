@@ -104,8 +104,14 @@
     <string name="chat_you">You</string>
     <string name="chat_team_avatar_update">Group avatar has been updated</string>
     <string name="chat_team_invitation_permission_update">Group inviting permission has been updated to</string>
+    <string name="chat_team_invitation_permission_all">everyone</string>
+    <string name="chat_team_invitation_permission_manager">admin only</string>
     <string name="chat_team_modify_resource_permission_update">Group setting permission has been updated to</string>
-    <string name="chat_team_invited_id_verify_permission_update">Group inviting authentication permissions havs been updated to</string> 
+    <string name="chat_team_modify_permission_all">everyone</string>
+    <string name="chat_team_modify_permission_manager">admin only</string>
+    <string name="chat_team_invited_id_verify_permission_update">Group inviting authentication permissions has been updated to</string>
+    <string name="chat_team_invited_permission_need">need Author</string>
+    <string name="chat_team_invited_permission_no">not need</string>
     <string name="chat_team_modify_extension_permission_update">Group setting permission has been updated to</string>
     <string name="chat_team_cancel_all_mute">Unmute all</string> 
     <string name="chat_team_full_mute">Mute everyone</string>
@@ -149,4 +155,6 @@
     <string name="chat_message_reply_error">error</string>
     <string name="chat_network_error_tip">No Internet</string>
 
+    <!-- tips -->
+    <string name="chat_message_not_support_tips">[Unknown Message]</string>
 </resources>

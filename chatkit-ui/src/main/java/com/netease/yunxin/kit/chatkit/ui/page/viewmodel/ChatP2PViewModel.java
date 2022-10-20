@@ -4,6 +4,8 @@
 
 package com.netease.yunxin.kit.chatkit.ui.page.viewmodel;
 
+import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
+
 import android.text.TextUtils;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
@@ -14,8 +16,8 @@ import com.netease.nimlib.sdk.msg.model.CustomNotificationConfig;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.model.IMMessageReceiptInfo;
-import com.netease.yunxin.kit.chatkit.repo.ChatMessageRepo;
-import com.netease.yunxin.kit.chatkit.repo.ChatServiceObserverRepo;
+import com.netease.yunxin.kit.chatkit.repo.ChatObserverRepo;
+import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.corekit.im.model.EventObserver;
@@ -28,7 +30,7 @@ import org.json.JSONObject;
 /** P2P chat info view model message receipt, type state for P2P chat page */
 public class ChatP2PViewModel extends ChatBaseViewModel {
 
-  private static final String LOG_TAG = "ChatP2PViewModel";
+  private static final String TAG = "ChatP2PViewModel";
 
   private static final String TYPE_STATE = "typing";
 
@@ -47,7 +49,7 @@ public class ChatP2PViewModel extends ChatBaseViewModel {
       new EventObserver<List<IMMessageReceiptInfo>>() {
         @Override
         public void onEvent(@Nullable List<IMMessageReceiptInfo> event) {
-          ALog.i(LOG_TAG, "message receipt");
+          ALog.d(LIB_TAG, TAG, "message receipt:" + (event == null ? "null" : event.size()));
           FetchResult<List<IMMessageReceiptInfo>> receiptResult =
               new FetchResult<>(LoadStatus.Finish);
           receiptResult.setData(event);
@@ -65,6 +67,11 @@ public class ChatP2PViewModel extends ChatBaseViewModel {
 
   private final Observer<CustomNotification> customNotificationObserver =
       notification -> {
+        ALog.d(
+            LIB_TAG,
+            TAG,
+            "mcustomNotificationObserver:"
+                + (notification == null ? "null" : notification.getTime()));
         if (!getSessionId().equals(notification.getSessionId())
             || notification.getSessionType() != SessionTypeEnum.P2P) {
           return;
@@ -79,7 +86,7 @@ public class ChatP2PViewModel extends ChatBaseViewModel {
             typeStateLiveData.postValue(false);
           }
         } catch (JSONException e) {
-          ALog.e(LOG_TAG, e.getMessage());
+          ALog.e(TAG, e.getMessage());
         }
       };
 
@@ -98,7 +105,8 @@ public class ChatP2PViewModel extends ChatBaseViewModel {
   }
 
   public void getP2pUserInfo(String accId) {
-    ChatMessageRepo.fetchUserInfo(
+    ALog.d(LIB_TAG, TAG, "getP2pUserInfo:" + accId);
+    ChatRepo.fetchUserInfo(
         accId,
         new FetchCallback<UserInfo>() {
           @Override
@@ -117,18 +125,20 @@ public class ChatP2PViewModel extends ChatBaseViewModel {
   }
 
   @Override
-  public void registerObservers(boolean register) {
-    super.registerObservers(register);
-    ChatServiceObserverRepo.observeMessageReceipt(messageReceiptObserver, register);
-    ChatServiceObserverRepo.observeCustomNotification(customNotificationObserver, register);
+  public void registerObservers() {
+    super.registerObservers();
+    ChatObserverRepo.registerMessageReceiptObserve(messageReceiptObserver);
+    ChatObserverRepo.registerCustomNotificationObserve(customNotificationObserver);
   }
 
   @Override
   public void sendReceipt(IMMessage message) {
-    ChatMessageRepo.markP2PMessageRead(mSessionId, message);
+    ALog.d(LIB_TAG, TAG, "sendReceipt:" + (message == null ? "null" : message.getUuid()));
+    ChatRepo.markP2PMessageRead(mSessionId, message);
   }
 
   public void sendInputNotification(boolean isTyping) {
+    ALog.d(LIB_TAG, TAG, "sendInputNotification:" + isTyping);
     CustomNotification command = new CustomNotification();
     command.setSessionId(getSessionId());
     command.setSessionType(SessionTypeEnum.P2P);
@@ -142,9 +152,9 @@ public class ChatP2PViewModel extends ChatBaseViewModel {
       json.put(TYPE_STATE, isTyping ? 1 : 0);
       command.setContent(json.toString());
     } catch (JSONException e) {
-      ALog.e(LOG_TAG, e.getMessage());
+      ALog.e(TAG, e.getMessage());
     }
 
-    ChatMessageRepo.sendCustomNotification(command);
+    ChatRepo.sendCustomNotification(command);
   }
 }

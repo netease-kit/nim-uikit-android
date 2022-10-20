@@ -6,58 +6,13 @@
   -->
 
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:layout_height="match_parent">
 
-    <LinearLayout android:id="@+id/contact_header_layout"
+    <com.netease.yunxin.kit.contactkit.ui.view.ContactLayout
+        android:id="@+id/contact_layout"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/dimen_55_dp"
-        android:orientation="vertical"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:ignore="MissingConstraints">
-
-        <com.netease.yunxin.kit.common.ui.widgets.TitleBarView
-            android:id="@+id/contact_title_layout"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/dimen_52_dp"
-            app:head_title="@string/contact_title"
-            app:head_title_color="@color/title_color"/>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/dimen_1_dp"
-            android:background="@color/color_e9eff5"
-            android:alpha="0.6"
-            tools:ignore="MissingConstraints" />
-
-    </LinearLayout>
-
-    <FrameLayout android:id="@+id/contact_body_layout"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        app:layout_constraintVertical_weight="1"
-        app:layout_constraintTop_toBottomOf="@+id/contact_header_layout"
-        app:layout_constraintBottom_toTopOf="@+id/contact_bottom_layout">
-        <com.netease.yunxin.kit.contactkit.ui.view.ContactListView
-            android:id="@+id/contact_listview"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:head_img_visible="gone"
-            app:head_title="@string/contact_title"
-            app:head_title_color="@color/title_color"/>
-
-    </FrameLayout>
-
-    <LinearLayout android:id="@+id/contact_bottom_layout"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:orientation="horizontal"
-        tools:ignore="MissingConstraints"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent">
-
-    </LinearLayout>
+        android:layout_height="match_parent"
+        android:orientation="vertical"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

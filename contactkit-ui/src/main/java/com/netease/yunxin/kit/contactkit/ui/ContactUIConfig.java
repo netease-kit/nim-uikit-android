@@ -38,4 +38,6 @@ public class ContactUIConfig {
   public SparseArray<IContactSelectorListener> itemSelectorListeners = new SparseArray<>();
 
   public IContactFactory viewHolderFactory;
+
+  public IContactViewLayout customLayout;
 }

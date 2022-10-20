@@ -36,8 +36,10 @@ public class ConversationUtils {
       switch (typeEnum) {
         case notification:
           return context.getString(R.string.msg_type_notification);
-        case file:
-          return context.getString(R.string.msg_type_file);
+          //        case file:
+          //          return context.getString(R.string.msg_type_file);
+        case text:
+          return conversationInfo.getContent();
         case audio:
           return context.getString(R.string.msg_type_audio);
         case video:
@@ -53,7 +55,7 @@ public class ConversationUtils {
           }
           return result;
         default:
-          return conversationInfo.getContent();
+          return context.getString(R.string.msg_type_no_tips);
       }
     }
     return "";

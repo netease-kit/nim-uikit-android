@@ -28,7 +28,8 @@
     <string name="qchat_nickname">Nick Name</string> 
     <string name="qchat_edit_nickname">Edit Nick Name</string> 
     <string name="qchat_click_edit_and_edit_nickname">click to edit</string> 
-    <string name="qchat_kick_someone">Remove %s</string> 
+    <string name="qchat_kick_someone">Remove %s</string>
+    <string name="qchat_kick_someone_title">Remove Member</string>
     <string name="qchat_forbid_someone">Block %s</string> 
     <string name="qchat_server_id">ID:%d</string>
     <string name="qchat_content_null">null</string> 

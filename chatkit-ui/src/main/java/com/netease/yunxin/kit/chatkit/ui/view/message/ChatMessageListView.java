@@ -26,7 +26,8 @@ import com.netease.yunxin.kit.chatkit.ui.view.interfaces.IMessageLoadHandler;
 import com.netease.yunxin.kit.chatkit.ui.view.interfaces.IMessageReader;
 import com.netease.yunxin.kit.chatkit.ui.view.message.adapter.ChatMessageAdapter;
 import com.netease.yunxin.kit.chatkit.ui.view.popmenu.ChatActionFactory;
-import com.netease.yunxin.kit.chatkit.ui.view.popmenu.ChatPopMenuActionListener;
+import com.netease.yunxin.kit.chatkit.ui.view.popmenu.IChatPopMenu;
+import com.netease.yunxin.kit.chatkit.ui.view.popmenu.IChatPopMenuClickListener;
 import com.netease.yunxin.kit.common.utils.BarUtils;
 import com.netease.yunxin.kit.corekit.im.model.UserInfo;
 import java.util.ArrayList;
@@ -139,8 +140,12 @@ public class ChatMessageListView extends RecyclerView implements IMessageData {
     }
   }
 
-  public void setPopActionListener(ChatPopMenuActionListener listener) {
+  public void setPopActionListener(IChatPopMenuClickListener listener) {
     ChatActionFactory.getInstance().setActionListener(listener);
+  }
+
+  public void setChatPopMenu(IChatPopMenu popAction) {
+    ChatActionFactory.getInstance().setChatPopMenu(popAction);
   }
 
   public void setMessageReader(IMessageReader messageReader) {

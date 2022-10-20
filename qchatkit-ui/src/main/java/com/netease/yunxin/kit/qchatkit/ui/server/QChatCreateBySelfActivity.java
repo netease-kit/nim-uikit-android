@@ -15,15 +15,20 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import com.bumptech.glide.Glide;
 import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
+import com.netease.yunxin.kit.common.ui.photo.PhotoChoiceDialog;
+import com.netease.yunxin.kit.common.ui.utils.CommonCallback;
+import com.netease.yunxin.kit.common.ui.utils.ToastX;
+import com.netease.yunxin.kit.common.utils.NetworkUtils;
 import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
+import com.netease.yunxin.kit.corekit.im.repo.CommonRepo;
 import com.netease.yunxin.kit.qchatkit.repo.QChatServerRepo;
 import com.netease.yunxin.kit.qchatkit.repo.model.QChatChannelInfo;
 import com.netease.yunxin.kit.qchatkit.repo.model.QChatServerWithSingleChannel;
 import com.netease.yunxin.kit.qchatkit.ui.R;
-import com.netease.yunxin.kit.qchatkit.ui.common.photo.PhotoChoiceDialog;
 import com.netease.yunxin.kit.qchatkit.ui.databinding.QChatCreateBySelfActivityBinding;
 import com.netease.yunxin.kit.qchatkit.ui.message.QChatChannelMessageActivity;
 import com.netease.yunxin.kit.qchatkit.ui.utils.QChatUtils;
+import java.io.File;
 
 public class QChatCreateBySelfActivity extends BaseActivity {
 
@@ -47,16 +52,49 @@ public class QChatCreateBySelfActivity extends BaseActivity {
     binding.ivPortrait.setOnClickListener(
         v -> {
           manager.hideSoftInputFromWindow(v.getWindowToken(), 0);
-          new PhotoChoiceDialog(QChatCreateBySelfActivity.this)
+          new PhotoChoiceDialog(this)
               .show(
-                  new FetchCallback<String>() {
+                  new CommonCallback<File>() {
                     @Override
-                    public void onSuccess(@Nullable String param) {
-                      iconUrl = param;
-                      Glide.with(getApplicationContext())
-                          .load(param)
-                          .circleCrop()
-                          .into(binding.ivPortrait);
+                    public void onSuccess(@Nullable File param) {
+                      if (NetworkUtils.isConnected()) {
+                        CommonRepo.uploadImage(
+                            param,
+                            new FetchCallback<String>() {
+                              @Override
+                              public void onSuccess(@Nullable String param) {
+                                iconUrl = param;
+                                Glide.with(getApplicationContext())
+                                    .load(param)
+                                    .circleCrop()
+                                    .into(binding.ivPortrait);
+                              }
+
+                              @Override
+                              public void onFailed(int code) {
+                                if (code != 0) {
+                                  Toast.makeText(
+                                          getApplicationContext(),
+                                          getString(R.string.qchat_server_request_fail)
+                                              + " "
+                                              + code,
+                                          Toast.LENGTH_SHORT)
+                                      .show();
+                                }
+                              }
+
+                              @Override
+                              public void onException(@Nullable Throwable exception) {
+                                Toast.makeText(
+                                        getApplicationContext(),
+                                        getString(R.string.qchat_server_request_fail),
+                                        Toast.LENGTH_SHORT)
+                                    .show();
+                              }
+                            });
+                      } else {
+                        ToastX.showShortToast(R.string.qchat_network_error_tip);
+                      }
                     }
 
                     @Override

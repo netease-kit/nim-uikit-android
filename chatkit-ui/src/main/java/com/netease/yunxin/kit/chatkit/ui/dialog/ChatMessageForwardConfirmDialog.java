@@ -12,7 +12,7 @@ import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.team.model.Team;
-import com.netease.yunxin.kit.chatkit.repo.ChatMessageRepo;
+import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatMessageForwardConfirmLayoutBinding;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatUserSelectedItemLayoutBinding;
@@ -123,7 +123,7 @@ public class ChatMessageForwardConfirmDialog extends BaseDialog {
     @Override
     public void bind(String item) {
       if (forwardType == SessionTypeEnum.P2P.getValue()) {
-        ChatMessageRepo.fetchUserInfo(
+        ChatRepo.fetchUserInfo(
             item,
             new FetchCallback<UserInfo>() {
               @Override

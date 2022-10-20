@@ -21,6 +21,8 @@ import com.netease.yunxin.app.im.R;
 import com.netease.yunxin.app.im.about.AboutActivity;
 import com.netease.yunxin.app.im.databinding.FragmentMineBinding;
 import com.netease.yunxin.app.im.main.mine.setting.SettingActivity;
+import com.netease.yunxin.app.im.utils.Constant;
+import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.common.ui.fragments.BaseFragment;
 import com.netease.yunxin.kit.common.ui.utils.AvatarColor;
 import com.netease.yunxin.kit.common.ui.utils.ToastX;
@@ -41,6 +43,7 @@ public class MineFragment extends BaseFragment {
       @NonNull LayoutInflater inflater,
       @Nullable ViewGroup container,
       @Nullable Bundle savedInstanceState) {
+    ALog.d(Constant.PROJECT_TAG, "MineFragment:onCreateView");
     binding = FragmentMineBinding.inflate(inflater);
     return binding.getRoot();
   }
@@ -48,6 +51,7 @@ public class MineFragment extends BaseFragment {
   @Override
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
+    ALog.d(Constant.PROJECT_TAG, "MineFragment:onViewCreated");
 
     launcher =
         registerForActivityResult(
@@ -129,6 +133,8 @@ public class MineFragment extends BaseFragment {
   @Override
   public void onResume() {
     super.onResume();
+    ALog.d(Constant.PROJECT_TAG, "MineFragment:onResume");
+
     String account = IMKitClient.account();
     if (TextUtils.isEmpty(account)) {
       return;

@@ -25,9 +25,10 @@
     <!-- message type-->
     <string name="msg_type_image">[图片]</string>
     <string name="msg_type_audio">[语音消息]</string>
-    <string name="msg_type_video">[视频]</string>
-    <string name="msg_type_file">[文件]</string>
+    <string name="msg_type_video">[视频消息]</string>
+    <string name="msg_type_file">[文件消息]</string>
     <string name="msg_type_notification">[通知消息]</string>
     <string name="msg_type_tip">[提醒消息]</string>
     <string name="msg_type_custom">[自定义消息]</string>
+    <string name="msg_type_no_tips">[未知消息体]</string>
 </resources>

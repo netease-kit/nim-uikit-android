@@ -8,6 +8,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.netease.yunxin.kit.chatkit.ui">
 
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <application>
         <provider
             android:name="com.netease.yunxin.kit.corekit.startup.InitializationProvider"

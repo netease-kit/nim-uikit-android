@@ -4,11 +4,14 @@
 
 package com.netease.yunxin.kit.contactkit.ui.team;
 
+import static com.netease.yunxin.kit.contactkit.ui.ContactConstant.LIB_TAG;
+
 import android.text.TextUtils;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
 import com.netease.nimlib.sdk.Observer;
 import com.netease.nimlib.sdk.team.model.Team;
+import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
@@ -19,6 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TeamListViewModel extends BaseViewModel {
+  private final String TAG = "TeamListViewModel";
+
   private final MutableLiveData<FetchResult<List<ContactTeamBean>>> resultLiveData =
       new MutableLiveData<>();
   private final FetchResult<List<ContactTeamBean>> fetchResult =
@@ -39,12 +44,15 @@ public class TeamListViewModel extends BaseViewModel {
   }
 
   public void fetchTeamList() {
+    ALog.d(LIB_TAG, TAG, "fetchTeamList");
     fetchResult.setStatus(LoadStatus.Loading);
     resultLiveData.postValue(fetchResult);
     ContactRepo.getTeamList(
         new FetchCallback<List<Team>>() {
           @Override
           public void onSuccess(List<Team> param) {
+            ALog.d(
+                LIB_TAG, TAG, "fetchTeamList,onSuccess:" + (param == null ? "null" : param.size()));
             teamBeanList.clear();
             if (param != null && param.size() > 0) {
               fetchResult.setStatus(LoadStatus.Success);
@@ -62,12 +70,14 @@ public class TeamListViewModel extends BaseViewModel {
 
           @Override
           public void onFailed(int code) {
+            ALog.d(LIB_TAG, TAG, "fetchTeamList,onFailed:" + code);
             fetchResult.setError(code, "");
             resultLiveData.postValue(fetchResult);
           }
 
           @Override
           public void onException(@Nullable Throwable exception) {
+            ALog.d(LIB_TAG, TAG, "fetchTeamList,onException");
             fetchResult.setError(-1, "");
             resultLiveData.postValue(fetchResult);
           }
@@ -76,6 +86,7 @@ public class TeamListViewModel extends BaseViewModel {
 
   private void removeTeamData(Team teamInfo) {
     if (teamInfo != null) {
+      ALog.d(LIB_TAG, TAG, "removeTeamData:" + teamInfo.getId());
       List<ContactTeamBean> remove = new ArrayList<>();
       for (ContactTeamBean bean : teamBeanList) {
         if (TextUtils.equals(teamInfo.getId(), bean.data.getId())) {
@@ -96,6 +107,7 @@ public class TeamListViewModel extends BaseViewModel {
 
   private void updateTeamData(List<Team> teamInfoList) {
     if (teamInfoList != null && !teamInfoList.isEmpty()) {
+      ALog.d(LIB_TAG, TAG, "updateTeamData:" + teamInfoList.size());
       List<ContactTeamBean> add = new ArrayList<>();
       for (Team teamInfo : teamInfoList) {
         boolean has = false;

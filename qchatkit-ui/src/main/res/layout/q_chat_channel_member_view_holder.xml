@@ -34,6 +34,8 @@
             android:paddingEnd="@dimen/dimen_12_dp"
             android:textColor="@color/color_333333"
             android:textSize="@dimen/text_size_16"
+            android:maxLines="1"
+            android:ellipsize="end"
             app:drawableEndCompat="@drawable/ic_arrow_right" />
     </LinearLayout>
     <View

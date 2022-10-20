@@ -4,6 +4,8 @@
 
 package com.netease.yunxin.kit.chatkit.ui.page;
 
+import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -21,14 +23,14 @@ public class ChatTeamActivity extends ChatBaseActivity {
 
   ChatTeamFragment chatFragment;
 
-  private static final String LOG_TOG = "ChatGroupActivity";
+  private static final String TAG = "ChatGroupActivity";
 
   @Override
   public void initChat() {
     Team teamInfo = (Team) getIntent().getSerializableExtra(RouterConstant.CHAT_KRY);
     String teamId = getIntent().getStringExtra(RouterConstant.CHAT_ID_KRY);
     if (teamInfo == null && TextUtils.isEmpty(teamId)) {
-      ALog.e(LOG_TOG, "team info is null && team id is null" + teamId);
+      ALog.e(LIB_TAG, TAG, "team info is null && team id is null" + teamId);
       finish();
       return;
     }
@@ -50,7 +52,7 @@ public class ChatTeamActivity extends ChatBaseActivity {
   @Override
   protected void onNewIntent(Intent intent) {
     super.onNewIntent(intent);
-    ALog.e(LOG_TOG, "onNewIntent");
+    ALog.e(LIB_TAG, TAG, "onNewIntent");
     chatFragment.onNewIntent(intent);
   }
 }

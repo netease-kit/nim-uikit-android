@@ -59,6 +59,9 @@ public abstract class ChatThumbBaseViewHolder extends ChatBaseMessageViewHolder 
 
   private void load() {
     FileAttachment attachment = (FileAttachment) getMsgInternal().getAttachment();
+    if (attachment == null) {
+      return;
+    }
     String path = attachment.getPath();
     String thumbPath = attachment.getThumbPath();
     if (!TextUtils.isEmpty(thumbPath)) {
@@ -79,7 +82,7 @@ public abstract class ChatThumbBaseViewHolder extends ChatBaseMessageViewHolder 
     int thumbMinEdge = getImageThumbMinEdge();
     if (w < thumbMinEdge) {
       w = thumbMinEdge;
-      h = w * bounds[1] / bounds[0];
+      h = bounds[0] != 0 ? w * bounds[1] / bounds[0] : 0;
     }
     int thumbMaxEdge = getImageThumbMaxEdge();
     if (w > thumbMaxEdge) {
