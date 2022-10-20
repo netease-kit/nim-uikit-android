@@ -22,11 +22,12 @@
     <string name="conversation_network_error_tip">No Internet</string>
 
     <!-- message type-->
-    <string name="msg_type_image">[Photo]</string>
-    <string name="msg_type_audio">[Voice]</string>
-    <string name="msg_type_video">[Video]</string>
-    <string name="msg_type_file">[File]</string>
+    <string name="msg_type_image">[Photo Message]</string>
+    <string name="msg_type_audio">[Voice Message]</string>
+    <string name="msg_type_video">[Video Message]</string>
+    <string name="msg_type_file">[File Message]</string>
     <string name="msg_type_notification">[Notification Message]</string>
     <string name="msg_type_tip">[Tip Message]</string>
     <string name="msg_type_custom">[Custom Message]</string>
+    <string name="msg_type_no_tips">[Unknown Message]</string>
 </resources>

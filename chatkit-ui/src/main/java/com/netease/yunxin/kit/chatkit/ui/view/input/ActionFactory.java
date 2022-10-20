@@ -4,13 +4,15 @@
 
 package com.netease.yunxin.kit.chatkit.ui.view.input;
 
+import com.netease.yunxin.kit.chatkit.ui.ChatKitClient;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.common.ui.action.ActionItem;
 import java.util.ArrayList;
+import java.util.List;
 
 public class ActionFactory {
 
-  public static ArrayList<ActionItem> assembleDefaultInputActions() {
+  public static List<ActionItem> assembleDefaultInputActions() {
     ArrayList<ActionItem> actions = new ArrayList<>();
     // voice
     actions.add(
@@ -21,19 +23,28 @@ public class ActionFactory {
     // image
     actions.add(new ActionItem(ActionConstants.ACTION_TYPE_ALBUM, R.drawable.ic_send_image));
     // file
-    //    actions.add(new ActionItem(ActionConstants.ACTION_TYPE_FILE, R.drawable.ic_send_file));
+    //        actions.add(new ActionItem(ActionConstants.ACTION_TYPE_FILE, R.drawable.ic_send_file));
     // more+
     actions.add(new ActionItem(ActionConstants.ACTION_TYPE_MORE, R.drawable.ic_more_selector));
+
+    if (ChatKitClient.getChatUIConfig() != null
+        && ChatKitClient.getChatUIConfig().chatInputMenu != null) {
+      return ChatKitClient.getChatUIConfig().chatInputMenu.customizeInputBar(actions);
+    }
     return actions;
   }
 
-  public static ArrayList<ActionItem> assembleInputMoreActions() {
+  public static List<ActionItem> assembleInputMoreActions() {
     ArrayList<ActionItem> actions = new ArrayList<>();
     actions.add(
         new ActionItem(
-            ActionConstants.ACTION_MORE_SHOOT,
+            ActionConstants.ACTION_TYPE_CAMERA,
             R.drawable.ic_shoot,
             R.string.chat_message_more_shoot));
+    if (ChatKitClient.getChatUIConfig() != null
+        && ChatKitClient.getChatUIConfig().chatInputMenu != null) {
+      return ChatKitClient.getChatUIConfig().chatInputMenu.customizeInputMore(actions);
+    }
     return actions;
   }
 

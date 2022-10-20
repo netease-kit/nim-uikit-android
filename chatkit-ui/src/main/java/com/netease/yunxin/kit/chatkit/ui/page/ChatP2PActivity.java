@@ -4,6 +4,8 @@
 
 package com.netease.yunxin.kit.chatkit.ui.page;
 
+import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
+
 import android.os.Bundle;
 import android.text.TextUtils;
 import androidx.fragment.app.FragmentManager;
@@ -17,15 +19,16 @@ import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
 /** P2P chat page */
 public class ChatP2PActivity extends ChatBaseActivity {
 
-  private static final String LOG_TOG = "ChatP2PActivity";
+  private static final String TAG = "ChatP2PActivity";
   private ChatP2PFragment chatFragment;
 
   @Override
   public void initChat() {
     UserInfo userInfo = (UserInfo) getIntent().getSerializableExtra(RouterConstant.CHAT_KRY);
     String accId = getIntent().getStringExtra(RouterConstant.CHAT_ID_KRY);
+    ALog.e(LIB_TAG, TAG, "initChat:" + accId);
     if (userInfo == null && TextUtils.isEmpty(accId)) {
-      ALog.e(LOG_TOG, "user info is null && accid is null:" + accId);
+      ALog.e(LIB_TAG, TAG, "user info is null && accid is null:");
       finish();
       return;
     }

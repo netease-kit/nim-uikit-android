@@ -104,8 +104,14 @@
     <string name="chat_you">你</string>
     <string name="chat_team_avatar_update">群头像已更新</string>
     <string name="chat_team_invitation_permission_update">群邀请他人权限被更新为</string>
+    <string name="chat_team_invitation_permission_all">所有人都可以邀请</string>
+    <string name="chat_team_invitation_permission_manager">只有管理员可以邀请</string>
     <string name="chat_team_modify_resource_permission_update">群资料修改权限被更新为</string>
+    <string name="chat_team_modify_permission_all">所有人都可以修改</string>
+    <string name="chat_team_modify_permission_manager">只有管理员可以修改</string>
     <string name="chat_team_invited_id_verify_permission_update">群被邀请人身份验证权限被更新为</string>
+    <string name="chat_team_invited_permission_need">需要被邀请方同意</string>
+    <string name="chat_team_invited_permission_no">不需要被邀请方同意</string>
     <string name="chat_team_modify_extension_permission_update">群扩展字段修改权限被更新为</string>
     <string name="chat_team_cancel_all_mute">取消群全员禁言</string>
     <string name="chat_team_full_mute">群全员禁言</string>
@@ -147,5 +153,8 @@
     <!-- error -->
     <string name="chat_message_reply_error">获取回复消息错误</string>
     <string name="chat_network_error_tip">当前网络不可用，请检查你当网络设置。</string>
+
+    <!-- tips -->
+    <string name="chat_message_not_support_tips">[未知消息体]</string>
 
 </resources>

@@ -5,31 +5,31 @@
 package com.netease.yunxin.app.im.main.mine.setting;
 
 import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
-import com.netease.yunxin.kit.corekit.im.repo.ConfigRepo;
+import com.netease.yunxin.kit.corekit.im.repo.SettingRepo;
 
 public class SettingViewModel extends BaseViewModel {
 
   public boolean getDeleteAlias() {
-    return ConfigRepo.getDeleteAlias();
+    return SettingRepo.getDeleteWithAlias();
   }
 
   public void setDeleteAlias(boolean delete) {
-    ConfigRepo.updateDeleteAlias(delete);
+    SettingRepo.setDeleteWithAlias(delete);
   }
 
   public boolean getShowReadStatus() {
-    return ConfigRepo.getShowReadStatus();
+    return SettingRepo.getShowReadStatus();
   }
 
   public void setShowReadStatus(boolean delete) {
-    ConfigRepo.updateShowReadStatus(delete);
+    SettingRepo.setShowReadStatus(delete);
   }
 
-  public int getAudioPlayMode() {
-    return ConfigRepo.getAudioPlayModel();
+  public boolean getAudioPlayMode() {
+    return SettingRepo.getHandsetMode();
   }
 
-  public void setAudioPlayMode(int mode) {
-    ConfigRepo.updateAudioPlayMode(mode);
+  public void setAudioPlayMode(boolean mode) {
+    SettingRepo.setHandsetMode(mode);
   }
 }

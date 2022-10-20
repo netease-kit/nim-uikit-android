@@ -99,15 +99,15 @@ public class EditUserInfoActivity extends AppCompatActivity {
 
           @Override
           public void afterTextChanged(Editable s) {
-//            if (TextUtils.isEmpty(String.valueOf(s))) {
-//              binding.ivClear.setVisibility(View.GONE);
-//              binding.tvDone.setEnabled(false);
-//              binding.tvDone.setAlpha(0.5f);
-//            } else {
-//              binding.ivClear.setVisibility(View.VISIBLE);
-//              binding.tvDone.setEnabled(true);
-//              binding.tvDone.setAlpha(1f);
-//            }
+            //            if (TextUtils.isEmpty(String.valueOf(s))) {
+            //              binding.ivClear.setVisibility(View.GONE);
+            //              binding.tvDone.setEnabled(false);
+            //              binding.tvDone.setAlpha(0.5f);
+            //            } else {
+            //              binding.ivClear.setVisibility(View.VISIBLE);
+            //              binding.tvDone.setEnabled(true);
+            //              binding.tvDone.setAlpha(1f);
+            //            }
           }
         });
 

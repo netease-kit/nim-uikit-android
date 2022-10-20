@@ -4,6 +4,8 @@
 
 package com.netease.yunxin.kit.conversationkit.ui.view;
 
+import static com.netease.yunxin.kit.conversationkit.ui.common.ConversationConstant.LIB_TAG;
+
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.ViewGroup;
@@ -14,10 +16,11 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.netease.nimlib.sdk.friend.model.MuteListChangedNotify;
 import com.netease.nimlib.sdk.team.model.Team;
+import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.common.ui.viewholder.ViewHolderClickListener;
 import com.netease.yunxin.kit.conversationkit.model.ConversationInfo;
 import com.netease.yunxin.kit.conversationkit.ui.IConversationFactory;
-import com.netease.yunxin.kit.conversationkit.ui.common.XLog;
+import com.netease.yunxin.kit.conversationkit.ui.R;
 import com.netease.yunxin.kit.conversationkit.ui.model.ConversationBean;
 import com.netease.yunxin.kit.conversationkit.ui.page.interfaces.ILoadListener;
 import com.netease.yunxin.kit.corekit.im.model.FriendInfo;
@@ -51,6 +54,7 @@ public class ConversationView extends FrameLayout {
 
   private void init(AttributeSet attrs) {
     recyclerView = new RecyclerView(getContext());
+    recyclerView.setId(R.id.conversation_rv);
     this.addView(
         recyclerView,
         new FrameLayout.LayoutParams(
@@ -112,17 +116,17 @@ public class ConversationView extends FrameLayout {
 
   public void update(List<ConversationBean> data) {
     if (adapter != null) {
-      XLog.d(TAG, "update ConversationBean list", "start");
+      ALog.d(LIB_TAG, TAG, "update ConversationBean list, start");
       adapter.update(data);
-      XLog.d(TAG, "update ConversationBean list", "end");
+      ALog.d(LIB_TAG, TAG, "update ConversationBean list, end");
     }
   }
 
   public void update(ConversationBean data) {
     if (adapter != null) {
-      XLog.d(TAG, "update ConversationBean", "start");
+      ALog.d(LIB_TAG, TAG, "update ConversationBean, start");
       adapter.update(data);
-      XLog.d(TAG, "update ConversationBean", "end");
+      ALog.d(LIB_TAG, TAG, "update ConversationBean, end");
     }
   }
 

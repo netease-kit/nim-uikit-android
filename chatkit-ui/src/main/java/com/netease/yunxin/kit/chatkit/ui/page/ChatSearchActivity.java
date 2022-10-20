@@ -4,6 +4,8 @@
 
 package com.netease.yunxin.kit.chatkit.ui.page;
 
+import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
+
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -55,7 +57,7 @@ public class ChatSearchActivity extends BaseActivity {
         new ViewHolderClickListener() {
           @Override
           public boolean onClick(BaseBean data, int position) {
-            ALog.i(TAG, "item onClick position:" + position);
+            ALog.d(LIB_TAG, TAG, "item onClick position:" + position);
             KeyboardUtils.hideKeyboard(ChatSearchActivity.this);
             XKitRouter.withKey(data.router)
                 .withParam(data.paramKey, data.param)

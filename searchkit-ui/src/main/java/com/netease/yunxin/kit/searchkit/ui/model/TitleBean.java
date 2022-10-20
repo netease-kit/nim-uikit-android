@@ -5,7 +5,7 @@
 package com.netease.yunxin.kit.searchkit.ui.model;
 
 import com.netease.yunxin.kit.common.ui.viewholder.BaseBean;
-import com.netease.yunxin.kit.searchkit.ui.commone.SearchConstant;
+import com.netease.yunxin.kit.searchkit.ui.common.SearchConstant;
 
 public class TitleBean extends BaseBean {
 

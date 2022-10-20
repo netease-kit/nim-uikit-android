@@ -6,13 +6,21 @@ package com.netease.yunxin.kit.chatkit.ui.custom;
 
 import com.netease.nimlib.sdk.msg.attachment.MsgAttachment;
 import com.netease.nimlib.sdk.msg.attachment.MsgAttachmentParser;
-import com.netease.yunxin.kit.chatkit.ui.ChatMessageType;
+import java.util.HashMap;
+import java.util.Map;
 import org.json.JSONObject;
 
 public class CustomAttachParser implements MsgAttachmentParser {
 
   private static final String KEY_TYPE = "type";
   private static final String KEY_DATA = "data";
+  private Map<Integer, Class<? extends CustomAttachment>> attachmentMap = new HashMap<>();
+
+  public static CustomAttachParser getInstance() {
+    return CustomAttachParserHolder.instance;
+  }
+
+  private CustomAttachParser() {}
 
   @Override
   public MsgAttachment parse(String json) {
@@ -21,19 +29,15 @@ public class CustomAttachParser implements MsgAttachmentParser {
       JSONObject object = new JSONObject(json);
       int type = object.getInt(KEY_TYPE);
       JSONObject data = object.getJSONObject(KEY_DATA);
-      if (type == ChatMessageType.CUSTOM_STICKER) {
-        attachment = new StickerAttachment();
-      } else {
-        attachment = null;
-      }
-
-      if (attachment != null) {
-        attachment.fromJson(data);
+      if (attachmentMap.containsKey(type)) {
+        attachment = attachmentMap.get(type).newInstance();
+        if (attachment != null) {
+          attachment.fromJson(data);
+        }
       }
     } catch (Exception e) {
 
     }
-
     return attachment;
   }
 
@@ -50,5 +54,17 @@ public class CustomAttachParser implements MsgAttachmentParser {
     }
 
     return object.toString();
+  }
+
+  public <T extends CustomAttachment> void addCustomAttach(int type, Class<T> attachment) {
+    attachmentMap.put(type, attachment);
+  }
+
+  public void removeCustomAttach(int type) {
+    attachmentMap.remove(type);
+  }
+
+  private static class CustomAttachParserHolder {
+    private static CustomAttachParser instance = new CustomAttachParser();
   }
 }

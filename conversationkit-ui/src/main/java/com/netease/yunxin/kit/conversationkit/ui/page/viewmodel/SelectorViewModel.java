@@ -4,15 +4,17 @@
 
 package com.netease.yunxin.kit.conversationkit.ui.page.viewmodel;
 
+import static com.netease.yunxin.kit.conversationkit.ui.common.ConversationConstant.LIB_TAG;
+
 import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
+import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.conversationkit.model.ConversationInfo;
 import com.netease.yunxin.kit.conversationkit.repo.ConversationRepo;
 import com.netease.yunxin.kit.conversationkit.ui.IConversationFactory;
-import com.netease.yunxin.kit.conversationkit.ui.common.XLog;
 import com.netease.yunxin.kit.conversationkit.ui.model.ConversationBean;
 import com.netease.yunxin.kit.conversationkit.ui.page.DefaultViewHolderFactory;
 import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
@@ -61,7 +63,8 @@ public class SelectorViewModel extends BaseViewModel {
             List<ConversationBean> resultData = new ArrayList<>();
             for (int index = 0; param != null && index < param.size(); index++) {
               resultData.add(conversationFactory.CreateBean(param.get(index)));
-              XLog.d(TAG, "queryConversation:onSuccess", param.get(index).getContactId());
+              ALog.d(
+                  LIB_TAG, TAG, "queryConversation,onSuccess:" + param.get(index).getContactId());
             }
             hasMore = param != null && param.size() == PAGE_LIMIT;
             result.setData(resultData);

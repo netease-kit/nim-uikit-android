@@ -5,6 +5,7 @@
 package com.netease.yunxin.kit.searchkit.ui.page;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -25,12 +26,14 @@ public class GlobalSearchActivity extends BaseActivity {
   private GlobalSearchActivityBinding viewBinding;
   private SearchViewModel viewModel;
   private SearchAdapter searchAdapter;
+  private Handler searchHandler;
 
   @Override
   protected void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     viewBinding = GlobalSearchActivityBinding.inflate(getLayoutInflater());
     setContentView(viewBinding.getRoot());
+    searchHandler = new Handler();
     initView();
     initData();
   }
@@ -77,7 +80,8 @@ public class GlobalSearchActivity extends BaseActivity {
 
           @Override
           public void afterTextChanged(Editable s) {
-            viewModel.query(String.valueOf(s));
+            searchHandler.removeCallbacksAndMessages(null);
+            searchHandler.postDelayed(() -> viewModel.query(String.valueOf(s)), 500);
             if (TextUtils.isEmpty(String.valueOf(s))) {
               viewBinding.ivClear.setVisibility(View.GONE);
             } else {
@@ -114,6 +118,14 @@ public class GlobalSearchActivity extends BaseActivity {
     } else {
       viewBinding.emptyLl.setVisibility(View.GONE);
       viewBinding.rvSearch.setVisibility(View.VISIBLE);
+    }
+  }
+
+  @Override
+  protected void onDestroy() {
+    super.onDestroy();
+    if (searchHandler != null) {
+      searchHandler.removeCallbacksAndMessages(null);
     }
   }
 }

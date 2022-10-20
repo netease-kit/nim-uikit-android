@@ -80,4 +80,5 @@
     <string name="login_fail">Login Failed:%d</string>
     <string name="request_fail">Failed</string>
     <string name="user_fail">Failed</string>
+    <string name="network_error">No internet</string>
 </resources>

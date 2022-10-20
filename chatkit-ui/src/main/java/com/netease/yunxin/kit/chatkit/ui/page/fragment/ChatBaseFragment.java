@@ -4,6 +4,7 @@
 
 package com.netease.yunxin.kit.chatkit.ui.page.fragment;
 
+import static com.netease.yunxin.kit.chatkit.ui.view.message.MessageProperties.INT_NULL;
 import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.REQUEST_CONTACT_SELECTOR_KEY;
 
 import android.Manifest;
@@ -27,6 +28,7 @@ import androidx.annotation.Nullable;
 import com.netease.nimlib.sdk.msg.attachment.MsgAttachment;
 import com.netease.nimlib.sdk.msg.attachment.VideoAttachment;
 import com.netease.nimlib.sdk.msg.constant.AttachStatusEnum;
+import com.netease.nimlib.sdk.msg.constant.MsgStatusEnum;
 import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
 import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
@@ -53,7 +55,7 @@ import com.netease.yunxin.kit.chatkit.ui.view.interfaces.IMessageItemClickListen
 import com.netease.yunxin.kit.chatkit.ui.view.interfaces.IMessageLoadHandler;
 import com.netease.yunxin.kit.chatkit.ui.view.interfaces.IMessageProxy;
 import com.netease.yunxin.kit.chatkit.ui.view.popmenu.ChatPopMenu;
-import com.netease.yunxin.kit.chatkit.ui.view.popmenu.ChatPopMenuActionListener;
+import com.netease.yunxin.kit.chatkit.ui.view.popmenu.IChatPopMenuClickListener;
 import com.netease.yunxin.kit.chatkit.utils.SendMediaHelper;
 import com.netease.yunxin.kit.common.ui.dialog.ChoiceListener;
 import com.netease.yunxin.kit.common.ui.dialog.CommonChoiceDialog;
@@ -136,7 +138,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
   }
 
   protected void initView() {
-    ALog.i(LOG_TAG, "initView");
+    ALog.d(LOG_TAG, "initView");
     binding.chatView.getMessageListView().setPopActionListener(actionListener);
     binding.chatView.setMessageProxy(messageProxy);
     binding.chatView.setLoadHandler(loadHandler);
@@ -188,10 +190,33 @@ public abstract class ChatBaseFragment extends BaseFragment {
     ChatUIConfig config = this.chatConfig;
     if (config == null) {
       config = ChatKitClient.getChatUIConfig();
+      this.chatConfig = config;
     }
     if (config != null) {
       if (config.messageProperties != null) {
         binding.chatView.setMessageProperties(config.messageProperties);
+        int titleBarVisible = config.messageProperties.showTitleBar ? View.VISIBLE : View.GONE;
+        binding.chatView.getTitleBar().setVisibility(titleBarVisible);
+        int settingVisible =
+            config.messageProperties.showTitleBarRightIcon ? View.VISIBLE : View.GONE;
+        binding.chatView.getTitleBar().setRightImageViewVisible(settingVisible);
+        if (config.messageProperties.titleBarRightRes != INT_NULL) {
+          binding
+              .chatView
+              .getTitleBar()
+              .getRightImageView()
+              .setImageResource(config.messageProperties.titleBarRightRes);
+        }
+        if (config.messageProperties.titleBarRightClick != null) {
+          binding
+              .chatView
+              .getTitleBar()
+              .setActionListener(config.messageProperties.titleBarRightClick);
+        }
+
+        if (config.messageProperties.chatViewBackground != null) {
+          binding.chatView.setMessageBackground(config.messageProperties.chatViewBackground);
+        }
       }
 
       if (config.chatFactory != null) {
@@ -202,12 +227,16 @@ public abstract class ChatBaseFragment extends BaseFragment {
         binding.chatView.setLayoutCustom(config.chatViewCustom);
       }
 
+      if (config.chatPopMenu != null) {
+        binding.chatView.getMessageListView().setChatPopMenu(config.chatPopMenu);
+      }
+
       delegateListener = config.messageItemClickListener;
     }
   }
 
   protected void initCustom() {
-    ALog.i(LOG_TAG, "initCustom");
+    ALog.d(LOG_TAG, "initCustom");
     if (chatViewCustom != null) {
       binding.chatView.setLayoutCustom(chatViewCustom);
     }
@@ -301,6 +330,13 @@ public abstract class ChatBaseFragment extends BaseFragment {
           } else {
             requestCameraPermission(permission, REQUEST_PERMISSION);
             return false;
+          }
+        }
+
+        @Override
+        public void onCustomAction(View view, String action) {
+          if (chatConfig != null && chatConfig.chatInputMenu != null) {
+            chatConfig.chatInputMenu.onCustomInputClick(getContext(), view, action);
           }
         }
       };
@@ -464,6 +500,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
         public boolean onSendFailBtnClick(View view, int position, ChatMessageBean messageBean) {
           if (delegateListener == null
               || !delegateListener.onSendFailBtnClick(view, position, messageBean)) {
+            messageBean.getMessageData().getMessage().setStatus(MsgStatusEnum.sending);
             viewModel.sendMessage(messageBean.getMessageData().getMessage(), true, true);
           }
           return true;
@@ -501,10 +538,15 @@ public abstract class ChatBaseFragment extends BaseFragment {
         }
       };
 
-  private final ChatPopMenuActionListener actionListener =
-      new ChatPopMenuActionListener() {
+  private final IChatPopMenuClickListener actionListener =
+      new IChatPopMenuClickListener() {
         @Override
-        public void onCopy(ChatMessageBean messageBean) {
+        public boolean onCopy(ChatMessageBean messageBean) {
+          if (chatConfig != null
+              && chatConfig.popMenuClickListener != null
+              && chatConfig.popMenuClickListener.onCopy(messageBean)) {
+            return true;
+          }
           ClipboardManager cmb =
               (ClipboardManager)
                   IMKitClient.getApplicationContext().getSystemService(Context.CLIPBOARD_SERVICE);
@@ -515,10 +557,16 @@ public abstract class ChatBaseFragment extends BaseFragment {
           }
           cmb.setPrimaryClip(clipData);
           ToastX.showShortToast(R.string.chat_message_action_copy_success);
+          return true;
         }
 
         @Override
-        public void onReply(ChatMessageBean messageBean) {
+        public boolean onReply(ChatMessageBean messageBean) {
+          if (chatConfig != null
+              && chatConfig.popMenuClickListener != null
+              && chatConfig.popMenuClickListener.onReply(messageBean)) {
+            return true;
+          }
           if (aitManager != null && sessionType == SessionTypeEnum.Team) {
             String account = messageBean.getMessageData().getMessage().getFromAccount();
             if (!TextUtils.equals(account, IMKitClient.account())) {
@@ -536,10 +584,16 @@ public abstract class ChatBaseFragment extends BaseFragment {
             }
           }
           binding.chatView.getInputView().setReplyMessage(messageBean);
+          return true;
         }
 
         @Override
-        public void onForward(ChatMessageBean messageBean) {
+        public boolean onForward(ChatMessageBean messageBean) {
+          if (chatConfig != null
+              && chatConfig.popMenuClickListener != null
+              && chatConfig.popMenuClickListener.onForward(messageBean)) {
+            return true;
+          }
           forwardMessage = messageBean;
           ChatMessageForwardSelectDialog dialog = new ChatMessageForwardSelectDialog();
           dialog.setSelectedCallback(
@@ -555,35 +609,76 @@ public abstract class ChatBaseFragment extends BaseFragment {
                 }
               });
           dialog.show(getParentFragmentManager(), ChatMessageForwardSelectDialog.TAG);
+          return true;
         }
 
         @Override
-        public void onSignal(ChatMessageBean messageBean, boolean cancel) {
+        public boolean onSignal(ChatMessageBean messageBean, boolean cancel) {
+          if (chatConfig != null
+              && chatConfig.popMenuClickListener != null
+              && chatConfig.popMenuClickListener.onSignal(messageBean, cancel)) {
+            return true;
+          }
           if (cancel) {
             viewModel.removeMsgPin(messageBean.getMessageData());
           } else {
             viewModel.addMessagePin(messageBean.getMessageData(), "");
           }
+          return true;
         }
 
         @Override
-        public void onMultiSelected(ChatMessageBean messageBean) {
+        public boolean onMultiSelected(ChatMessageBean messageBean) {
           //todo
+          if (chatConfig != null
+              && chatConfig.popMenuClickListener != null
+              && chatConfig.popMenuClickListener.onMultiSelected(messageBean)) {
+            return true;
+          }
+          return true;
         }
 
         @Override
-        public void onCollection(ChatMessageBean messageBean) {
+        public boolean onCollection(ChatMessageBean messageBean) {
+          if (chatConfig != null
+              && chatConfig.popMenuClickListener != null
+              && chatConfig.popMenuClickListener.onCollection(messageBean)) {
+            return true;
+          }
           viewModel.addMsgCollection(messageBean.getMessageData());
+          return true;
         }
 
         @Override
-        public void onDelete(ChatMessageBean message) {
+        public boolean onDelete(ChatMessageBean message) {
+          if (chatConfig != null
+              && chatConfig.popMenuClickListener != null
+              && chatConfig.popMenuClickListener.onDelete(message)) {
+            return true;
+          }
           showDeleteConfirmDialog(message);
+          return true;
         }
 
         @Override
-        public void onRecall(ChatMessageBean messageBean) {
+        public boolean onRecall(ChatMessageBean messageBean) {
+          if (chatConfig != null
+              && chatConfig.popMenuClickListener != null
+              && chatConfig.popMenuClickListener.onRecall(messageBean)) {
+            return true;
+          }
           showRevokeConfirmDialog(messageBean);
+          return true;
+        }
+
+        @Override
+        public boolean onCustom(View view, ChatMessageBean messageInfo, String action) {
+          if (chatConfig != null
+              && chatConfig.popMenuClickListener != null
+              && chatConfig.popMenuClickListener.onCustom(view, messageInfo, action)) {
+            return true;
+          }
+          return false;
         }
       };
 
@@ -652,7 +747,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
   protected abstract void initViewModel();
 
   protected void initDataObserver() {
-    ALog.i(LOG_TAG, "initDataObserver");
+    ALog.d(LOG_TAG, "initDataObserver");
     viewModel
         .getQueryMessageLiveData()
         .observe(
@@ -676,7 +771,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
             getViewLifecycleOwner(),
             chatMessageBeanFetchResult -> {
               if (chatMessageBeanFetchResult.getType() == FetchResult.FetchType.Add) {
-                ALog.i(LOG_TAG, "send message add");
+                ALog.d(LOG_TAG, "send message add");
                 if (binding.chatView.getMessageListView().hasMoreNewerMessages()) {
                   binding.chatView.clearMessageList();
                   binding.chatView.appendMessage(chatMessageBeanFetchResult.getData());
@@ -749,7 +844,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
             result -> {
               for (int i = 0; i < result.size(); ++i) {
                 Uri uri = result.get(i);
-                ALog.i(LOG_TAG, "pick media result uri(" + i + ") -->> " + uri);
+                ALog.d(LOG_TAG, "pick media result uri(" + i + ") -->> " + uri);
                 viewModel.sendImageOrVideoMessage(uri);
               }
             });
@@ -760,7 +855,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
               if (result && !TextUtils.isEmpty(captureTempImagePath)) {
                 File f = new File(captureTempImagePath);
                 Uri contentUri = Uri.fromFile(f);
-                ALog.i(LOG_TAG, "take picture contentUri -->> " + contentUri);
+                ALog.d(LOG_TAG, "take picture contentUri -->> " + contentUri);
                 viewModel.sendImageOrVideoMessage(contentUri);
                 captureTempImagePath = "";
               }
@@ -773,7 +868,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
                   && !TextUtils.isEmpty(captureTempVideoPath)) {
                 File f = new File(captureTempVideoPath);
                 Uri contentUri = Uri.fromFile(f);
-                ALog.i(LOG_TAG, "capture video contentUri -->> " + contentUri);
+                ALog.d(LOG_TAG, "capture video contentUri -->> " + contentUri);
                 viewModel.sendImageOrVideoMessage(contentUri);
                 captureTempVideoPath = "";
               }
@@ -786,7 +881,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
               if (result.getResultCode() != Activity.RESULT_OK || forwardMessage == null) {
                 return;
               }
-              ALog.i(LOG_TAG, "forward P2P result");
+              ALog.d(LOG_TAG, "forward P2P result");
               Intent data = result.getData();
               if (data != null) {
                 ArrayList<String> friends =
@@ -804,7 +899,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
               if (result.getResultCode() != Activity.RESULT_OK || forwardMessage == null) {
                 return;
               }
-              ALog.i(LOG_TAG, "forward Team result");
+              ALog.d(LOG_TAG, "forward Team result");
               Intent data = result.getData();
               if (data != null) {
                 String tid = data.getStringExtra(RouterConstant.KEY_TEAM_ID);
@@ -864,19 +959,19 @@ public abstract class ChatBaseFragment extends BaseFragment {
   @Override
   public void onResume() {
     super.onResume();
-    ALog.i(LOG_TAG, "onResume");
+    ALog.d(LOG_TAG, "onResume");
     viewModel.setChattingAccount();
   }
 
   @Override
   public void onPause() {
     super.onPause();
-    ALog.i(LOG_TAG, "onPause");
+    ALog.d(LOG_TAG, "onPause");
     viewModel.clearChattingAccount();
   }
 
   public void onNewIntent(Intent intent) {
-    ALog.i(LOG_TAG, "onNewIntent");
+    ALog.d(LOG_TAG, "onNewIntent");
   }
 
   private final NetworkUtils.NetworkStateListener networkStateListener =
@@ -894,7 +989,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
 
   @Override
   public void onDestroyView() {
-    ALog.i(LOG_TAG, "onDestroyView");
+    ALog.d(LOG_TAG, "onDestroyView");
     NetworkUtils.unregisterNetworkStatusChangedListener(networkStateListener);
     if (popMenu != null) {
       popMenu.hide();

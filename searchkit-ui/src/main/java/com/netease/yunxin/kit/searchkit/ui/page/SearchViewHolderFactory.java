@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import com.netease.yunxin.kit.common.ui.viewholder.BaseViewHolder;
 import com.netease.yunxin.kit.common.ui.viewholder.IViewHolderFactory;
-import com.netease.yunxin.kit.searchkit.ui.commone.SearchConstant;
+import com.netease.yunxin.kit.searchkit.ui.common.SearchConstant;
 import com.netease.yunxin.kit.searchkit.ui.databinding.SearchTitleItemLayoutBinding;
 import com.netease.yunxin.kit.searchkit.ui.databinding.SearchUserItemLayoutBinding;
 import com.netease.yunxin.kit.searchkit.ui.view.FriendViewHolder;

@@ -23,16 +23,19 @@ import com.netease.nimlib.sdk.uinfo.constant.GenderEnum;
 import com.netease.yunxin.app.im.R;
 import com.netease.yunxin.app.im.databinding.ActivityUserInfoBinding;
 import com.netease.yunxin.app.im.utils.Constant;
+import com.netease.yunxin.kit.common.ui.photo.PhotoChoiceDialog;
 import com.netease.yunxin.kit.common.ui.utils.AvatarColor;
+import com.netease.yunxin.kit.common.ui.utils.CommonCallback;
 import com.netease.yunxin.kit.common.ui.utils.ToastX;
 import com.netease.yunxin.kit.common.ui.widgets.datepicker.CustomDatePicker;
 import com.netease.yunxin.kit.common.ui.widgets.datepicker.DateFormatUtils;
+import com.netease.yunxin.kit.common.utils.NetworkUtils;
 import com.netease.yunxin.kit.corekit.im.IMKitClient;
 import com.netease.yunxin.kit.corekit.im.model.UserField;
 import com.netease.yunxin.kit.corekit.im.model.UserInfo;
 import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
 import com.netease.yunxin.kit.corekit.im.repo.CommonRepo;
-import com.netease.yunxin.kit.qchatkit.ui.common.photo.PhotoChoiceDialog;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -79,50 +82,7 @@ public class UserInfoActivity extends AppCompatActivity {
   }
 
   private void initView() {
-    binding.cavAvatar.setOnClickListener(
-        v ->
-            new PhotoChoiceDialog(UserInfoActivity.this)
-                .show(
-                    new FetchCallback<String>() {
-                      @Override
-                      public void onSuccess(@Nullable String urlParam) {
-                        Map<UserField, Object> map = new HashMap<>(1);
-                        map.put(UserField.Avatar, urlParam);
-                        CommonRepo.updateUserInfo(
-                            map,
-                            new FetchCallback<Void>() {
-                              @Override
-                              public void onSuccess(@Nullable Void param) {
-                                resultCode = RESULT_OK;
-                                loadData(IMKitClient.account());
-                              }
-
-                              @Override
-                              public void onFailed(int code) {
-                                Toast.makeText(
-                                        getApplicationContext(),
-                                        getString(R.string.request_fail),
-                                        Toast.LENGTH_SHORT)
-                                    .show();
-                              }
-
-                              @Override
-                              public void onException(@Nullable Throwable exception) {
-                                Toast.makeText(
-                                        getApplicationContext(),
-                                        getString(R.string.request_fail),
-                                        Toast.LENGTH_SHORT)
-                                    .show();
-                              }
-                            });
-                      }
-
-                      @Override
-                      public void onFailed(int code) {}
-
-                      @Override
-                      public void onException(@Nullable Throwable exception) {}
-                    }));
+    binding.cavAvatar.setOnClickListener(v -> choicePhoto());
     binding.flName.setOnClickListener(
         v -> EditUserInfoActivity.launch(getApplicationContext(), Constant.EDIT_NAME, launcher));
     binding.flEmail.setOnClickListener(
@@ -191,6 +151,96 @@ public class UserInfoActivity extends AppCompatActivity {
     }
     cmb.setPrimaryClip(clipData);
     ToastX.showShortToast(R.string.action_copy_success);
+  }
+
+  private void choicePhoto() {
+    new PhotoChoiceDialog(UserInfoActivity.this)
+        .show(
+            new CommonCallback<File>() {
+              @Override
+              public void onSuccess(@Nullable File param) {
+                if (NetworkUtils.isConnected()) {
+                  CommonRepo.uploadImage(
+                      param,
+                      new FetchCallback<String>() {
+                        @Override
+                        public void onSuccess(@Nullable String urlParam) {
+                          Map<UserField, Object> map = new HashMap<>(1);
+                          map.put(UserField.Avatar, urlParam);
+                          CommonRepo.updateUserInfo(
+                              map,
+                              new FetchCallback<Void>() {
+                                @Override
+                                public void onSuccess(@Nullable Void param) {
+                                  resultCode = RESULT_OK;
+                                  loadData(IMKitClient.account());
+                                }
+
+                                @Override
+                                public void onFailed(int code) {
+                                  Toast.makeText(
+                                          getApplicationContext(),
+                                          getString(R.string.request_fail),
+                                          Toast.LENGTH_SHORT)
+                                      .show();
+                                }
+
+                                @Override
+                                public void onException(@Nullable Throwable exception) {
+                                  Toast.makeText(
+                                          getApplicationContext(),
+                                          getString(R.string.request_fail),
+                                          Toast.LENGTH_SHORT)
+                                      .show();
+                                }
+                              });
+                        }
+
+                        @Override
+                        public void onFailed(int code) {
+                          Toast.makeText(
+                                  getApplicationContext(),
+                                  getString(R.string.request_fail),
+                                  Toast.LENGTH_SHORT)
+                              .show();
+                        }
+
+                        @Override
+                        public void onException(@Nullable Throwable exception) {
+                          Toast.makeText(
+                                  getApplicationContext(),
+                                  getString(R.string.request_fail),
+                                  Toast.LENGTH_SHORT)
+                              .show();
+                        }
+                      });
+                } else {
+                  Toast.makeText(
+                          getApplicationContext(),
+                          getString(R.string.network_error),
+                          Toast.LENGTH_SHORT)
+                      .show();
+                }
+              }
+
+              @Override
+              public void onFailed(int code) {
+                Toast.makeText(
+                        getApplicationContext(),
+                        getString(R.string.request_fail),
+                        Toast.LENGTH_SHORT)
+                    .show();
+              }
+
+              @Override
+              public void onException(@Nullable Throwable exception) {
+                Toast.makeText(
+                        getApplicationContext(),
+                        getString(R.string.request_fail),
+                        Toast.LENGTH_SHORT)
+                    .show();
+              }
+            });
   }
 
   private void refreshUserInfo(UserInfo userInfo) {

@@ -4,7 +4,6 @@
 
 package com.netease.yunxin.kit.contactkit.ui.addfriend;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -20,9 +19,9 @@ import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.contactkit.ui.R;
 import com.netease.yunxin.kit.contactkit.ui.databinding.AddFriendActivityBinding;
-import com.netease.yunxin.kit.contactkit.ui.userinfo.UserInfoActivity;
 import com.netease.yunxin.kit.corekit.im.model.UserInfo;
 import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
+import com.netease.yunxin.kit.corekit.route.XKitRouter;
 
 public class AddFriendActivity extends BaseActivity {
 
@@ -97,9 +96,9 @@ public class AddFriendActivity extends BaseActivity {
   }
 
   private void startProfileActivity(UserInfo userInfo) {
-    Intent intent = new Intent();
-    intent.putExtra(RouterConstant.KEY_ACCOUNT_ID_KEY, userInfo.getAccount());
-    intent.setClass(this, UserInfoActivity.class);
-    startActivity(intent);
+    XKitRouter.withKey(RouterConstant.PATH_USER_INFO_PAGE)
+        .withContext(this)
+        .withParam(RouterConstant.KEY_ACCOUNT_ID_KEY, userInfo.getAccount())
+        .navigate();
   }
 }

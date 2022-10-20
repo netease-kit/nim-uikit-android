@@ -49,10 +49,11 @@ public class WelcomeActivity extends AppCompatActivity {
         //start you login account and token
         String account = "";
         String token = "";
+        boolean userQChat = false;
         LoginInfo loginInfo = LoginInfo.LoginInfoBuilder.loginInfoDefault(account,token).build();
 
         if (!TextUtils.isEmpty(account) && !TextUtils.isEmpty(token)) {
-            loginIM(loginInfo);
+            loginIM(loginInfo,userQChat);
         } else {
             activityWelcomeBinding.appDesc.setVisibility(View.GONE);
             activityWelcomeBinding.loginButton.setVisibility(View.VISIBLE);
@@ -72,36 +73,38 @@ public class WelcomeActivity extends AppCompatActivity {
      * when your own page login success, you should login IM SDK
      *
      */
-    private void loginIM(LoginInfo loginInfo) {
+    private void loginIM(LoginInfo loginInfo,boolean useQChat) {
+        if (useQChat) {
+            //如果你只是用IM功能，可以使用 IMKitClient.loginIM() 完成登录
+            //登录IM和圈组，需要开通IM和圈组功能
+            IMKitClient.loginIMWithQChat(loginInfo, new LoginCallback<QChatLoginResult>() {
+                @Override
+                public void onError(int errorCode, @NonNull String errorMsg) {
+                    ToastX.showShortToast("login errorCode:"+errorCode + errorMsg);
+                    launchLoginPage();
+                }
 
-        //如果你只是用IM功能，可以使用 IMKitClient.loginIM() 完成登录
-        //登录IM和圈组，需要开通IM和圈组功能
-        IMKitClient.loginIMWithQChat(loginInfo,new LoginCallback<QChatLoginResult>() {
+                @Override
+                public void onSuccess(@Nullable QChatLoginResult data) {
+                    showMainActivityAndFinish();
+                }
+            });
+        }else {
+
+            //如果只需要IM，则此处只需要登录IM即可。需要去除工程中qchatkit-ui相关依赖
+        IMKitClient.loginIM(loginInfo, new LoginCallback<LoginInfo>() {
             @Override
             public void onError(int errorCode, @NonNull String errorMsg) {
-                ToastX.showShortToast("login error:"+errorMsg);
+                ToastX.showShortToast("login errorCode:"+errorCode + errorMsg);
                 launchLoginPage();
             }
 
             @Override
-            public void onSuccess(@Nullable QChatLoginResult data) {
+            public void onSuccess(@Nullable LoginInfo loginInfo) {
                 showMainActivityAndFinish();
             }
         });
-
-        //如果只需要IM，则此处只需要登录IM即可。需要去除工程中qchatkit-ui相关依赖
-//        IMKitClient.loginIM(loginInfo, new LoginCallback<LoginInfo>() {
-//            @Override
-//            public void onError(int errorCode, @NonNull String errorMsg) {
-//                ToastX.showShortToast("login error:" + errorMsg);
-//                launchLoginPage();
-//            }
-//
-//            @Override
-//            public void onSuccess(@Nullable LoginInfo loginInfo) {
-//                showMainActivityAndFinish();
-//            }
-//        });
+        }
     }
 
 }

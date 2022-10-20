@@ -4,6 +4,7 @@
 
 package com.netease.yunxin.kit.conversationkit.ui;
 
+import android.graphics.drawable.Drawable;
 import android.view.View;
 import com.netease.yunxin.kit.conversationkit.model.ConversationInfo;
 import java.util.Comparator;
@@ -38,4 +39,8 @@ public class ConversationUIConfig {
   public Comparator<ConversationInfo> conversationComparator;
   public IConversationFactory conversationFactory;
   public float avatarCornerRadius = INT_DEFAULT_NULL;
+  public Drawable itemStickTopBackground;
+  public Drawable itemBackground;
+
+  public IConversationViewLayout customLayout;
 }

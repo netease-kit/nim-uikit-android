@@ -68,7 +68,7 @@ public class QChatServerFragment extends BaseFragment {
               adapter.removeServerById(integerLongPair.second);
               if (adapter.getItemCount() == 0) {
                 viewBinding.groupNoServerTip.setVisibility(View.VISIBLE);
-                fragment.emptyServerInfo();
+                fragment.hideChannelView();
               }
               break;
             case TYPE_SERVER_CREATE:
@@ -180,10 +180,11 @@ public class QChatServerFragment extends BaseFragment {
       for (QChatServerInfo serverInfo : data) {
         serverInfoList.add(new QChatFragmentServerInfo(serverInfo));
       }
+      fragment.showChannelView();
       adapter.addDataList(serverInfoList, clear);
     } else if (adapter.getItemCount() == 0 || clear) {
       viewBinding.groupNoServerTip.setVisibility(View.VISIBLE);
-      fragment.emptyServerInfo();
+      fragment.hideChannelView();
       adapter.addDataList(Collections.emptyList(), true);
     }
   }

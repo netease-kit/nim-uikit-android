@@ -54,7 +54,7 @@ public class ChatImageMessageViewHolder extends ChatThumbBaseViewHolder {
     if (path != null) {
       bounds = ImageUtils.getSize(path);
     }
-    if (bounds == null) {
+    if (bounds == null || bounds[0] == 0) {
       ImageAttachment attachment = (ImageAttachment) getMsgInternal().getAttachment();
       bounds = new int[] {attachment.getWidth(), attachment.getHeight()};
     }

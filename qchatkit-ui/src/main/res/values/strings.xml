@@ -30,6 +30,7 @@
     <string name="qchat_edit_nickname">编辑昵称</string>
     <string name="qchat_click_edit_and_edit_nickname">点击编辑修改昵称</string>
     <string name="qchat_kick_someone">踢除%s</string>
+    <string name="qchat_kick_someone_title">踢除成员</string>
     <string name="qchat_forbid_someone">屏蔽%s</string>
     <string name="qchat_server_id">ID:%d</string>
     <string name="qchat_content_null">无</string>

@@ -36,7 +36,6 @@
         android:layout_width="@dimen/chat_name_max_length"
         android:layout_height="wrap_content"
         android:maxLines="1"
-        app:layout_constrainedWidth="true"
         android:ellipsize="end"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintStart_toStartOf="@id/marginStart"
@@ -45,11 +44,10 @@
 
     <LinearLayout
         android:id="@+id/messageBody"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="@id/marginStart"
         app:layout_constraintEnd_toEndOf="@id/marginEnd"
-        app:layout_constrainedWidth="true"
         app:layout_constraintTop_toBottomOf="@id/tvTime"
         android:orientation="horizontal">
 
@@ -108,8 +106,10 @@
                 android:layout_height="wrap_content">
 
             </com.netease.yunxin.kit.common.ui.widgets.LongClickableFrameLayout>
+            <FrameLayout android:id="@+id/messageRevoke"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
         </LinearLayout>
-
 
     </LinearLayout>
 
@@ -122,7 +122,6 @@
         app:layout_constraintTop_toBottomOf="@id/messageBody"
         app:layout_constraintLeft_toLeftOf="@id/marginStart"
         app:layout_constraintRight_toRightOf="@+id/marginEnd"
-        app:layout_constrainedWidth="true"
         android:textColor="@color/color_3eaf96"
         android:textSize="@dimen/text_size_11"
         app:drawableStartCompat="@drawable/ic_message_signal"

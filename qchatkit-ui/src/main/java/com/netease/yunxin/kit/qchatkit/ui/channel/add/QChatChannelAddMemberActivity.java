@@ -30,7 +30,7 @@ import com.netease.yunxin.kit.qchatkit.ui.model.QChatViewType;
 /** add member to channel permission page show the server member list */
 public class QChatChannelAddMemberActivity extends CommonListActivity {
 
-  private static final String TAG = "AddRoleViewModel";
+  private static final String TAG = "QChatChannelAddMemberActivity";
 
   private AddMemberViewModel viewModel;
   private long serverId;

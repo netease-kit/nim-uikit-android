@@ -4,6 +4,7 @@
 
 package com.netease.yunxin.kit.chatkit.ui.page;
 
+import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
 import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.KEY_REQUEST_SELECTOR_NAME;
 import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.REQUEST_CONTACT_SELECTOR_KEY;
 
@@ -18,7 +19,7 @@ import com.netease.nimlib.sdk.msg.model.StickTopSessionInfo;
 import com.netease.nimlib.sdk.team.model.CreateTeamResult;
 import com.netease.nimlib.sdk.team.model.Team;
 import com.netease.yunxin.kit.alog.ALog;
-import com.netease.yunxin.kit.chatkit.repo.ChatMessageRepo;
+import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatCallback;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatSettingActivityBinding;
@@ -76,7 +77,7 @@ public class ChatSettingActivity extends BaseActivity {
               if (result.getResultCode() != RESULT_OK) {
                 return;
               }
-              ALog.i(TAG, "contact selector result");
+              ALog.d(LIB_TAG, TAG, "contact selector result");
               Intent data = result.getData();
               if (data != null) {
                 ArrayList<String> friends =
@@ -114,7 +115,7 @@ public class ChatSettingActivity extends BaseActivity {
       if (name == null) {
         name = userInfo.getAccount();
       }
-      ALog.i(TAG, "initView name -->> " + name);
+      ALog.d(LIB_TAG, TAG, "initView name -->> " + name);
       binding.avatar.setData(
           userInfo.getAvatar(), name, AvatarColor.avatarColor(userInfo.getAccount()));
       binding.tvName.setText(name);
@@ -134,36 +135,36 @@ public class ChatSettingActivity extends BaseActivity {
               }
             });
     viewModel.getUserInfo(accId);
-    binding.scSessionTop.setChecked(ChatMessageRepo.isStickTop(accId));
+    binding.scSessionTop.setChecked(ChatRepo.isStickTop(accId));
     binding.rlySessionTop.setOnClickListener(
         v -> {
           if (!binding.scSessionTop.isChecked()) {
-            ChatMessageRepo.addStickTop(
+            ChatRepo.addStickTop(
                 accId,
                 new ChatCallback<StickTopSessionInfo>() {
                   @Override
                   public void onSuccess(@Nullable StickTopSessionInfo param) {
                     binding.scSessionTop.setChecked(true);
-                    ChatMessageRepo.notifyP2PStickTop(accId);
+                    ChatRepo.notifyP2PStickTop(accId);
                   }
                 });
           } else {
-            ChatMessageRepo.removeStickTop(
+            ChatRepo.removeStickTop(
                 accId,
                 new ChatCallback<Void>() {
                   @Override
                   public void onSuccess(@Nullable Void param) {
                     binding.scSessionTop.setChecked(false);
-                    ChatMessageRepo.notifyP2PStickTop(accId);
+                    ChatRepo.notifyP2PStickTop(accId);
                   }
                 });
           }
         });
 
-    binding.scMessageNotice.setChecked(ChatMessageRepo.isNeedNotify(accId));
+    binding.scMessageNotice.setChecked(ChatRepo.isNeedNotify(accId));
     binding.rlyMessageNotice.setOnClickListener(
         v ->
-            ChatMessageRepo.setNotify(
+            ChatRepo.setNotify(
                 accId,
                 !binding.scMessageNotice.isChecked(),
                 new ChatCallback<Void>() {

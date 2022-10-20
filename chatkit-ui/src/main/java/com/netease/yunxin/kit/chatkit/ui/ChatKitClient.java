@@ -5,9 +5,11 @@
 package com.netease.yunxin.kit.chatkit.ui;
 
 import android.content.Context;
-import com.netease.yunxin.kit.chatkit.repo.ChatMessageRepo;
+import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
 import com.netease.yunxin.kit.chatkit.ui.custom.CustomAttachParser;
+import com.netease.yunxin.kit.chatkit.ui.custom.CustomAttachment;
 import com.netease.yunxin.kit.chatkit.ui.view.emoji.EmojiManager;
+import com.netease.yunxin.kit.chatkit.ui.view.message.viewholder.ChatBaseMessageViewHolder;
 
 public class ChatKitClient {
 
@@ -18,11 +20,28 @@ public class ChatKitClient {
   }
 
   public static void init(Context context) {
-    ChatMessageRepo.registerCustomAttachParser(new CustomAttachParser());
+    ChatRepo.registerCustomAttachParser(CustomAttachParser.getInstance());
     EmojiManager.init(context);
   }
 
   public static ChatUIConfig getChatUIConfig() {
     return chatConfig;
+  }
+
+  public static void addCustomAttach(int type, Class<? extends CustomAttachment> attachmentClass) {
+    CustomAttachParser.getInstance().addCustomAttach(type, attachmentClass);
+  }
+
+  public static void removeCustomAttach(int type) {
+    CustomAttachParser.getInstance().removeCustomAttach(type);
+  }
+
+  public static void addCustomViewHolder(
+      int type, Class<? extends ChatBaseMessageViewHolder> attachmentClass) {
+    ChatDefaultFactory.getInstance().addCustomViewHolder(type, attachmentClass);
+  }
+
+  public static void removeCustomViewHolder(int type) {
+    ChatDefaultFactory.getInstance().removeCustomViewHolder(type);
   }
 }

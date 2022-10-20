@@ -7,15 +7,18 @@ package com.netease.yunxin.kit.chatkit.ui.common;
 import android.text.TextUtils;
 import com.netease.nimlib.sdk.msg.attachment.NotificationAttachment;
 import com.netease.nimlib.sdk.team.constant.TeamAllMuteModeEnum;
+import com.netease.nimlib.sdk.team.constant.TeamBeInviteModeEnum;
 import com.netease.nimlib.sdk.team.constant.TeamFieldEnum;
+import com.netease.nimlib.sdk.team.constant.TeamInviteModeEnum;
 import com.netease.nimlib.sdk.team.constant.TeamTypeEnum;
+import com.netease.nimlib.sdk.team.constant.TeamUpdateModeEnum;
 import com.netease.nimlib.sdk.team.constant.VerifyTypeEnum;
 import com.netease.nimlib.sdk.team.model.MemberChangeAttachment;
 import com.netease.nimlib.sdk.team.model.MuteMemberAttachment;
 import com.netease.nimlib.sdk.team.model.Team;
 import com.netease.nimlib.sdk.team.model.UpdateTeamAttachment;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
-import com.netease.yunxin.kit.chatkit.repo.ChatMessageRepo;
+import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.corekit.im.IMKitClient;
 import com.netease.yunxin.kit.corekit.im.model.UserInfo;
@@ -117,7 +120,7 @@ public class TeamNotificationHelper {
     sb.append(selfName);
     sb.append(IMKitClient.getApplicationContext().getString(R.string.chat_invite));
     sb.append(buildMemberListString(tid, a.getTargets(), fromUser));
-    Team team = ChatMessageRepo.queryTeam(tid);
+    Team team = ChatRepo.getTeamInfo(tid);
     if (team == null || team.getType() == TeamTypeEnum.Advanced) {
       sb.append(IMKitClient.getApplicationContext().getString(R.string.chat_join_team));
     } else {
@@ -130,7 +133,7 @@ public class TeamNotificationHelper {
   private static String buildKickMemberNotification(String tid, MemberChangeAttachment a) {
     StringBuilder sb = new StringBuilder();
     sb.append(buildMemberListString(tid, a.getTargets(), null));
-    Team team = ChatMessageRepo.queryTeam(tid);
+    Team team = ChatRepo.getTeamInfo(tid);
     if (team == null || team.getType() == TeamTypeEnum.Advanced) {
       sb.append(IMKitClient.getApplicationContext().getString(R.string.chat_removed_team));
     } else {
@@ -142,7 +145,7 @@ public class TeamNotificationHelper {
 
   private static String buildLeaveTeamNotification(String tid, UserInfo fromUser) {
     String tip;
-    Team team = ChatMessageRepo.queryTeam(tid);
+    Team team = ChatRepo.getTeamInfo(tid);
     if (team == null || team.getType() == TeamTypeEnum.Advanced) {
       tip = IMKitClient.getApplicationContext().getString(R.string.chat_left_team);
     } else {
@@ -204,19 +207,49 @@ public class TeamNotificationHelper {
         sb.append(IMKitClient.getApplicationContext().getString(R.string.chat_team_avatar_update));
       } else if (field.getKey() == TeamFieldEnum.InviteMode) {
         sb.append(
-                IMKitClient.getApplicationContext()
-                    .getString(R.string.chat_team_invitation_permission_update))
-            .append(field.getValue());
+            IMKitClient.getApplicationContext()
+                .getString(R.string.chat_team_invitation_permission_update));
+        TeamInviteModeEnum inviteModeEnum = (TeamInviteModeEnum) field.getValue();
+        if (inviteModeEnum == TeamInviteModeEnum.All) {
+          sb.append(
+              IMKitClient.getApplicationContext()
+                  .getString(R.string.chat_team_invitation_permission_all));
+        } else {
+          sb.append(
+              IMKitClient.getApplicationContext()
+                  .getString(R.string.chat_team_invitation_permission_manager));
+        }
       } else if (field.getKey() == TeamFieldEnum.TeamUpdateMode) {
         sb.append(
-                IMKitClient.getApplicationContext()
-                    .getString(R.string.chat_team_modify_resource_permission_update))
-            .append(field.getValue());
+            IMKitClient.getApplicationContext()
+                .getString(R.string.chat_team_modify_resource_permission_update));
+        TeamUpdateModeEnum updateModeEnum = (TeamUpdateModeEnum) field.getValue();
+        if (updateModeEnum == TeamUpdateModeEnum.All) {
+          sb.append(
+              IMKitClient.getApplicationContext()
+                  .getString(R.string.chat_team_modify_permission_all));
+        } else {
+          sb.append(
+              IMKitClient.getApplicationContext()
+                  .getString(R.string.chat_team_modify_permission_manager));
+        }
       } else if (field.getKey() == TeamFieldEnum.BeInviteMode) {
         sb.append(
-                IMKitClient.getApplicationContext()
-                    .getString(R.string.chat_team_invited_id_verify_permission_update))
-            .append(field.getValue());
+            IMKitClient.getApplicationContext()
+                .getString(R.string.chat_team_invited_id_verify_permission_update));
+        sb.append(
+            IMKitClient.getApplicationContext()
+                .getString(R.string.chat_team_invited_id_verify_permission_update));
+        TeamBeInviteModeEnum inviteModeEnum = (TeamBeInviteModeEnum) field.getValue();
+        if (inviteModeEnum == TeamBeInviteModeEnum.NeedAuth) {
+          sb.append(
+              IMKitClient.getApplicationContext()
+                  .getString(R.string.chat_team_invited_permission_need));
+        } else {
+          sb.append(
+              IMKitClient.getApplicationContext()
+                  .getString(R.string.chat_team_invited_permission_no));
+        }
       } else if (field.getKey() == TeamFieldEnum.TeamExtensionUpdateMode) {
         sb.append(
                 IMKitClient.getApplicationContext()

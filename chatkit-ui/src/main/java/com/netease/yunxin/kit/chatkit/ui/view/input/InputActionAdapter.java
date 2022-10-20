@@ -6,6 +6,7 @@ package com.netease.yunxin.kit.chatkit.ui.view.input;
 
 import android.text.TextUtils;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import androidx.annotation.NonNull;
@@ -13,17 +14,19 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatMessageActionItemBinding;
 import com.netease.yunxin.kit.common.ui.action.ActionItem;
 import com.netease.yunxin.kit.common.utils.ScreenUtils;
+import java.util.ArrayList;
 import java.util.List;
 
 public class InputActionAdapter extends RecyclerView.Adapter<InputActionAdapter.ItemHolder> {
 
-  private final List<ActionItem> mItems;
+  private final List<ActionItem> mItems = new ArrayList<>();
   private final OnItemClick onItemClick;
   private boolean disableAll = false;
-  private final int MAX_ITEM = 4;
 
   public InputActionAdapter(List<ActionItem> itemList, OnItemClick listener) {
-    mItems = itemList;
+    if (itemList != null && itemList.size() > 0) {
+      mItems.addAll(itemList);
+    }
     onItemClick = listener;
   }
 
@@ -35,7 +38,7 @@ public class InputActionAdapter extends RecyclerView.Adapter<InputActionAdapter.
   public void updateItemState(String type, boolean select) {
     for (int i = 0; i < getItemCount(); ++i) {
       ActionItem item = mItems.get(i);
-      if (TextUtils.equals(item.getType(), type)) {
+      if (TextUtils.equals(item.getAction(), type)) {
         item.setSelected(select);
         notifyItemChanged(i);
         break;
@@ -49,7 +52,7 @@ public class InputActionAdapter extends RecyclerView.Adapter<InputActionAdapter.
     ChatMessageActionItemBinding binding =
         ChatMessageActionItemBinding.inflate(
             LayoutInflater.from(parent.getContext()), parent, false);
-    int width = ScreenUtils.getDisplayWidth() / MAX_ITEM;
+    int width = ScreenUtils.getDisplayWidth() / mItems.size();
     LinearLayout.LayoutParams params =
         new LinearLayout.LayoutParams(width, ViewGroup.LayoutParams.MATCH_PARENT);
     binding.chatMessageActionItem.setLayoutParams(params);
@@ -71,7 +74,7 @@ public class InputActionAdapter extends RecyclerView.Adapter<InputActionAdapter.
         v -> {
           if (onItemClick != null) {
             item.onClick(v);
-            onItemClick.onClick(position, item);
+            onItemClick.onClick(v, position, item);
           }
         });
   }
@@ -91,6 +94,6 @@ public class InputActionAdapter extends RecyclerView.Adapter<InputActionAdapter.
   }
 
   public interface OnItemClick {
-    void onClick(int position, ActionItem item);
+    void onClick(View view, int position, ActionItem item);
   }
 }

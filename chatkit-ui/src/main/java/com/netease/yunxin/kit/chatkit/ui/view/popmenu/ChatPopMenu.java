@@ -32,7 +32,7 @@ public class ChatPopMenu {
 
   private static final String LOG_TAG = "ChatPopMenu";
 
-  private static final int COLUMN_NUM = 5;
+  private static final int DEFAULT_COLUMN_NUM = 5;
 
   // y offset for pop window
   private static final int Y_OFFSET = 8;
@@ -44,14 +44,15 @@ public class ChatPopMenu {
   private static final float CONTAINER_PADDING = 16f;
 
   private final PopupWindow popupWindow;
+  private ChatPopMenuLayoutBinding layoutBinding;
   private final MenuAdapter adapter;
   private final List<ChatPopMenuAction> chatPopMenuActionList = new ArrayList<>();
 
   public ChatPopMenu() {
-    ChatPopMenuLayoutBinding layoutBinding =
+    layoutBinding =
         ChatPopMenuLayoutBinding.inflate(LayoutInflater.from(IMKitClient.getApplicationContext()));
     GridLayoutManager gridLayoutManager =
-        new GridLayoutManager(IMKitClient.getApplicationContext(), COLUMN_NUM);
+        new GridLayoutManager(IMKitClient.getApplicationContext(), DEFAULT_COLUMN_NUM);
     layoutBinding.recyclerView.setLayoutManager(gridLayoutManager);
     adapter = new MenuAdapter();
     layoutBinding.recyclerView.setAdapter(adapter);
@@ -68,13 +69,17 @@ public class ChatPopMenu {
 
   public void show(View anchorView, ChatMessageBean message, int minY) {
     ALog.i(LOG_TAG, "show");
+    adapter.setMessageInfo(message);
     initDefaultAction(message);
+    if (chatPopMenuActionList.size() < 1) {
+      return;
+    }
     float anchorWidth = anchorView.getWidth();
     float anchorHeight = anchorView.getHeight();
     int[] location = new int[2];
     anchorView.getLocationOnScreen(location);
 
-    int rowCount = (int) Math.ceil(chatPopMenuActionList.size() * 1.0f / COLUMN_NUM);
+    int rowCount = (int) Math.ceil(chatPopMenuActionList.size() * 1.0f / DEFAULT_COLUMN_NUM);
     if (popupWindow != null) {
 
       int itemWidth = SizeUtils.dp2px(ITEM_SIZE_WIDTH);
@@ -83,8 +88,10 @@ public class ChatPopMenu {
       int paddingLeftRight = SizeUtils.dp2px(CONTAINER_PADDING);
       int paddingTopBottom = SizeUtils.dp2px(CONTAINER_PADDING);
 
-      int columnNum = Math.min(chatPopMenuActionList.size(), COLUMN_NUM);
-
+      int columnNum = Math.min(chatPopMenuActionList.size(), DEFAULT_COLUMN_NUM);
+      GridLayoutManager gridLayoutManager =
+          new GridLayoutManager(IMKitClient.getApplicationContext(), columnNum);
+      layoutBinding.recyclerView.setLayoutManager(gridLayoutManager);
       int popWidth = itemWidth * columnNum + paddingLeftRight * (columnNum * 2);
       int popHeight = itemHeight * rowCount + paddingTopBottom * (rowCount + 1);
 
@@ -126,6 +133,13 @@ public class ChatPopMenu {
   }
 
   class MenuAdapter extends RecyclerView.Adapter<MenuAdapter.MenuItemViewHolder> {
+
+    private ChatMessageBean messageInfo;
+
+    public void setMessageInfo(ChatMessageBean messageBean) {
+      messageInfo = messageBean;
+    }
+
     @NonNull
     @Override
     public MenuAdapter.MenuItemViewHolder onCreateViewHolder(
@@ -139,16 +153,18 @@ public class ChatPopMenu {
     @Override
     public void onBindViewHolder(@NonNull MenuAdapter.MenuItemViewHolder holder, int position) {
       ChatPopMenuAction chatPopMenuAction = getChatPopMenuAction(position);
-      holder.title.setText(chatPopMenuAction.getActionName());
+      holder.title.setText(chatPopMenuAction.getTitle());
       Drawable drawable =
           ResourcesCompat.getDrawable(
               IMKitClient.getApplicationContext().getResources(),
-              chatPopMenuAction.getActionIcon(),
+              chatPopMenuAction.getIcon(),
               null);
       holder.icon.setImageDrawable(drawable);
       holder.itemView.setOnClickListener(
           v -> {
-            chatPopMenuAction.getActionClickListener().onClick();
+            if (chatPopMenuAction.getActionClickListener() != null) {
+              chatPopMenuAction.getActionClickListener().onClick(v, messageInfo);
+            }
             hide();
           });
     }

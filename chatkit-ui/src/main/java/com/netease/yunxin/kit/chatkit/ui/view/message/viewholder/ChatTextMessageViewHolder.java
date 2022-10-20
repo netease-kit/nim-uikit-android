@@ -7,6 +7,8 @@ package com.netease.yunxin.kit.chatkit.ui.view.message.viewholder;
 import android.text.style.ImageSpan;
 import android.view.LayoutInflater;
 import androidx.annotation.NonNull;
+import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
+import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageUtil;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatBaseMessageViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatMessageTextViewHolderBinding;
@@ -38,10 +40,16 @@ public class ChatTextMessageViewHolder extends ChatBaseMessageViewHolder {
     if (properties.getMessageTextColor() != MessageProperties.INT_NULL) {
       textBinding.messageText.setTextColor(properties.getMessageTextColor());
     }
-    MessageUtil.identifyFaceExpression(
-        textBinding.getRoot().getContext(),
-        textBinding.messageText,
-        message.getMessageData().getMessage().getContent(),
-        ImageSpan.ALIGN_BOTTOM);
+    if (message.getMessageData().getMessage().getMsgType() == MsgTypeEnum.text) {
+      MessageUtil.identifyFaceExpression(
+          textBinding.getRoot().getContext(),
+          textBinding.messageText,
+          message.getMessageData().getMessage().getContent(),
+          ImageSpan.ALIGN_BOTTOM);
+    } else {
+      //文件消息暂不支持所以展示提示信息
+      textBinding.messageText.setText(
+          parent.getContext().getResources().getString(R.string.chat_message_not_support_tips));
+    }
   }
 }

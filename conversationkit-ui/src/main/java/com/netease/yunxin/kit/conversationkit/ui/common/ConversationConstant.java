@@ -6,6 +6,8 @@ package com.netease.yunxin.kit.conversationkit.ui.common;
 
 public class ConversationConstant {
 
+  public static final String LIB_TAG = "ConversationKit-UI";
+
   public static class ViewType {
     //p2p chat view
     public static final int CHAT_VIEW = 1;

@@ -76,7 +76,7 @@
         android:id="@+id/groupChannelInfo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:visibility="visible"
+        android:visibility="gone"
         app:constraint_referenced_ids="tvTitle,ivMore,divide,tvTitleTip,ivAddChannel" />
 
 
@@ -98,6 +98,7 @@
         android:layout_height="0dp"
         android:layout_marginTop="18dp"
         android:overScrollMode="never"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@id/ivAddChannel" />
 

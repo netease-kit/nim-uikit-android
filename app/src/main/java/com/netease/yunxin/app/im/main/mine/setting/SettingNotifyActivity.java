@@ -7,7 +7,6 @@ package com.netease.yunxin.app.im.main.mine.setting;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
-
 import com.netease.yunxin.app.im.R;
 import com.netease.yunxin.app.im.databinding.ActivityMineSettingNotifyBinding;
 import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
@@ -63,9 +62,6 @@ public class SettingNotifyActivity extends BaseActivity {
     viewBinding.notifyShakeSc.setChecked(viewModel.getVibrateToggle());
     viewBinding.notifyShakeSc.setOnClickListener(
         v -> viewModel.setVibrateToggle(viewBinding.notifyShakeSc.isChecked()));
-    viewBinding.pushSyncSc.setChecked(viewModel.getMultiPortPushOpen());
-    viewBinding.pushSyncSc.setOnClickListener(
-        v -> viewModel.setMultiPortPushOpen(viewBinding.pushSyncSc.isChecked()));
     viewBinding.notifyShowInfoSc.setChecked(viewModel.getPushShowNoDetail());
     viewBinding.notifyShowInfoSc.setOnClickListener(
         v -> viewModel.setPushShowNoDetail(viewBinding.notifyShowInfoSc.isChecked()));

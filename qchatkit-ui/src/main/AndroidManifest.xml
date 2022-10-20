@@ -104,11 +104,6 @@
             android:screenOrientation="portrait" />
 
         <activity
-            android:name=".common.photo.crop.CropImageActivity"
-            android:launchMode="singleTop"
-            android:screenOrientation="portrait" />
-
-        <activity
             android:name=".channel.setting.ChannelSettingActivity"
             android:screenOrientation="portrait"
             android:exported="false" />

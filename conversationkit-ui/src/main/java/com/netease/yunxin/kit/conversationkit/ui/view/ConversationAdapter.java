@@ -4,6 +4,8 @@
 
 package com.netease.yunxin.kit.conversationkit.ui.view;
 
+import static com.netease.yunxin.kit.conversationkit.ui.common.ConversationConstant.LIB_TAG;
+
 import android.text.TextUtils;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
@@ -11,12 +13,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.netease.nimlib.sdk.friend.model.MuteListChangedNotify;
 import com.netease.nimlib.sdk.team.constant.TeamMessageNotifyTypeEnum;
 import com.netease.nimlib.sdk.team.model.Team;
+import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.common.ui.viewholder.BaseViewHolder;
 import com.netease.yunxin.kit.common.ui.viewholder.ViewHolderClickListener;
 import com.netease.yunxin.kit.conversationkit.model.ConversationInfo;
 import com.netease.yunxin.kit.conversationkit.ui.IConversationFactory;
 import com.netease.yunxin.kit.conversationkit.ui.common.DataUtils;
-import com.netease.yunxin.kit.conversationkit.ui.common.XLog;
 import com.netease.yunxin.kit.conversationkit.ui.model.ConversationBean;
 import com.netease.yunxin.kit.conversationkit.ui.page.DefaultViewHolderFactory;
 import com.netease.yunxin.kit.corekit.im.model.FriendInfo;
@@ -65,7 +67,7 @@ public class ConversationAdapter extends RecyclerView.Adapter<BaseViewHolder> {
   }
 
   public void update(ConversationBean data) {
-    XLog.d(TAG, "update", data.infoData.getContactId());
+    ALog.d(LIB_TAG, TAG, "update" + data.infoData.getContactId());
     int removeIndex = -1;
     for (int j = 0; j < conversationList.size(); j++) {
       if (data.equals(conversationList.get(j))) {
@@ -73,12 +75,14 @@ public class ConversationAdapter extends RecyclerView.Adapter<BaseViewHolder> {
         break;
       }
     }
-    XLog.d(TAG, "update", "removeIndex:" + removeIndex);
+    ALog.d(LIB_TAG, TAG, "update, removeIndex:" + removeIndex);
     if (removeIndex > -1) {
       conversationList.remove(removeIndex);
       int insertIndex = searchComparatorIndex(data);
-      XLog.d(
-          TAG, "update", "insertIndex:" + insertIndex + "unread:" + data.infoData.getUnreadCount());
+      ALog.d(
+          LIB_TAG,
+          TAG,
+          "update, insertIndex:" + insertIndex + "unread:" + data.infoData.getUnreadCount());
       conversationList.add(insertIndex, data);
       notifyItemMoved(removeIndex, insertIndex);
       notifyItemChanged(insertIndex);

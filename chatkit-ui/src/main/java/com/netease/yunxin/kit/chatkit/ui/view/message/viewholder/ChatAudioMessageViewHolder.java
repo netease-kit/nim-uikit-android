@@ -8,7 +8,6 @@ import static android.widget.RelativeLayout.ALIGN_PARENT_LEFT;
 import static android.widget.RelativeLayout.ALIGN_PARENT_RIGHT;
 import static android.widget.RelativeLayout.END_OF;
 import static android.widget.RelativeLayout.START_OF;
-import static com.netease.yunxin.kit.corekit.im.repo.ConfigRepo.AUDIO_PLAY_EARPIECE;
 
 import android.graphics.drawable.AnimationDrawable;
 import android.text.TextUtils;
@@ -24,7 +23,7 @@ import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.view.message.audio.ChatMessageAudioControl;
 import com.netease.yunxin.kit.common.utils.SizeUtils;
 import com.netease.yunxin.kit.corekit.im.audioplayer.Playable;
-import com.netease.yunxin.kit.corekit.im.repo.ConfigRepo;
+import com.netease.yunxin.kit.corekit.im.repo.SettingRepo;
 
 /** view holder for audio message */
 public class ChatAudioMessageViewHolder extends ChatBaseMessageViewHolder {
@@ -138,8 +137,7 @@ public class ChatAudioMessageViewHolder extends ChatBaseMessageViewHolder {
     audioBinding.container.setOnClickListener(
         v -> {
           initPlayAnim();
-          audioControl.setEarPhoneModeEnable(
-              ConfigRepo.INSTANCE.getAudioPlayModel() == AUDIO_PLAY_EARPIECE);
+          audioControl.setEarPhoneModeEnable(SettingRepo.INSTANCE.getHandsetMode());
           audioControl.startPlayAudioDelay(
               CLICK_TO_PLAY_AUDIO_DELAY, message.getMessageData(), onPlayListener);
         });
@@ -148,6 +146,9 @@ public class ChatAudioMessageViewHolder extends ChatBaseMessageViewHolder {
   private void setAudioLayout(ChatMessageBean message) {
     AudioAttachment audioAttachment =
         (AudioAttachment) message.getMessageData().getMessage().getAttachment();
+    if (audioAttachment == null) {
+      return;
+    }
     long len = audioAttachment.getDuration() / 1000;
     LinearLayout.LayoutParams layoutParams =
         (LinearLayout.LayoutParams) getContainer().getLayoutParams();
@@ -182,6 +183,9 @@ public class ChatAudioMessageViewHolder extends ChatBaseMessageViewHolder {
   private void playControl(ChatMessageBean message) {
     AudioAttachment audioAttachment =
         (AudioAttachment) message.getMessageData().getMessage().getAttachment();
+    if (audioAttachment == null) {
+      return;
+    }
     updateTime(audioAttachment.getDuration());
     if (!isMessagePlaying(message)) {
       if (audioControl.getAudioControlListener() != null

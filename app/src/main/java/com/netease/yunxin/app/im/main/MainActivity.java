@@ -5,16 +5,22 @@
 package com.netease.yunxin.app.im.main;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import androidx.fragment.app.Fragment;
+import com.netease.yunxin.app.im.CustomConfig;
 import com.netease.yunxin.app.im.R;
 import com.netease.yunxin.app.im.databinding.ActivityMainBinding;
 import com.netease.yunxin.app.im.main.mine.MineFragment;
+import com.netease.yunxin.app.im.utils.Constant;
+import com.netease.yunxin.app.im.welcome.WelcomeActivity;
+import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
-import com.netease.yunxin.kit.common.utils.NetworkUtils;
 import com.netease.yunxin.kit.contactkit.ui.contact.ContactFragment;
 import com.netease.yunxin.kit.conversationkit.ui.page.ConversationFragment;
+import com.netease.yunxin.kit.corekit.im.IMKitClient;
 import com.netease.yunxin.kit.qchatkit.ui.server.QChatServerFragment;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,29 +31,35 @@ public class MainActivity extends BaseActivity {
   private ActivityMainBinding activityMainBinding;
   private static final int START_INDEX = 0;
   private View mCurrentTab;
-
-  ContactFragment.Builder contactBuilder;
+  private ContactFragment mContactFragment;
+  private ConversationFragment mConversationFragment;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    ALog.d(Constant.PROJECT_TAG, "MainActivity:onCreate");
+    if (TextUtils.isEmpty(IMKitClient.account())) {
+      Intent intent = new Intent(this, WelcomeActivity.class);
+      startActivity(intent);
+      finish();
+      return;
+    }
     activityMainBinding = ActivityMainBinding.inflate(getLayoutInflater());
     setContentView(activityMainBinding.getRoot());
     initView();
   }
 
   private void initView() {
+    ALog.d(Constant.PROJECT_TAG, "MainActivity:initView");
+    //    loadConfig();
     List<Fragment> fragments = new ArrayList<>();
-    ConversationFragment conversationFragment = new ConversationFragment();
-    initConversationFragment(conversationFragment);
-    fragments.add(conversationFragment);
+    mConversationFragment = new ConversationFragment();
+    fragments.add(mConversationFragment);
     QChatServerFragment qChatServerFragment = new QChatServerFragment();
     fragments.add(qChatServerFragment);
     //Contact
-    contactBuilder = new ContactFragment.Builder();
-    ContactFragment contactFragment = contactBuilder.build();
-    initContactFragment(contactFragment);
-    fragments.add(contactFragment);
+    mContactFragment = new ContactFragment();
+    fragments.add(mContactFragment);
 
     fragments.add(new MineFragment());
 
@@ -59,6 +71,13 @@ public class MainActivity extends BaseActivity {
     activityMainBinding.viewPager.setOffscreenPageLimit(4);
     mCurrentTab = activityMainBinding.conversationBtnGroup;
     changeStatusBarColor(R.color.color_white);
+  }
+
+  @Override
+  protected void onResume() {
+    super.onResume();
+    initContactFragment(mContactFragment);
+    initConversationFragment(mConversationFragment);
   }
 
   @SuppressLint("UseCompatLoadingForDrawables")
@@ -142,5 +161,11 @@ public class MainActivity extends BaseActivity {
     activityMainBinding.qchat.setTextColor(getResources().getColor(R.color.tab_unchecked_color));
     activityMainBinding.qchat.setCompoundDrawablesWithIntrinsicBounds(
         null, getResources().getDrawable(R.drawable.ic_qchat_unchecked), null, null);
+  }
+
+  private void loadConfig() {
+    CustomConfig.configContactKit(this);
+    CustomConfig.configConversation(this);
+    CustomConfig.configChatKit(this);
   }
 }

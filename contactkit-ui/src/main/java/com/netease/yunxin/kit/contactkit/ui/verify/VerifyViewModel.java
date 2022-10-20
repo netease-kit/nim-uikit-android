@@ -4,9 +4,12 @@
 
 package com.netease.yunxin.kit.contactkit.ui.verify;
 
+import static com.netease.yunxin.kit.contactkit.ui.ContactConstant.LIB_TAG;
+
 import android.text.TextUtils;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
+import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
@@ -22,6 +25,7 @@ import java.util.List;
 
 public class VerifyViewModel extends BaseViewModel {
 
+  private final String TAG = "VerifyViewModel";
   private final int pageSize = 100;
   //7 day expire time
   private final long expireLimit = 604800000;
@@ -48,6 +52,10 @@ public class VerifyViewModel extends BaseViewModel {
                 new FetchCallback<List<SystemMessageInfo>>() {
                   @Override
                   public void onSuccess(@Nullable List<SystemMessageInfo> param) {
+                    ALog.d(
+                        LIB_TAG,
+                        TAG,
+                        "infoObserver,onSuccess:" + (param == null ? "null" : param.size()));
                     List<ContactVerifyInfoBean> add = new ArrayList<>();
                     if (param != null && !param.isEmpty()) {
                       resetMessageStatus(param);
@@ -65,12 +73,14 @@ public class VerifyViewModel extends BaseViewModel {
 
                   @Override
                   public void onFailed(int code) {
+                    ALog.d(LIB_TAG, TAG, "infoObserver,onFailed:" + code);
                     fetchResult.setError(code, "");
                     resultLiveData.postValue(fetchResult);
                   }
 
                   @Override
                   public void onException(@Nullable Throwable exception) {
+                    ALog.d(LIB_TAG, TAG, "infoObserver,onException");
                     fetchResult.setError(-1, "");
                     resultLiveData.postValue(fetchResult);
                   }
@@ -94,6 +104,10 @@ public class VerifyViewModel extends BaseViewModel {
         new FetchCallback<List<SystemMessageInfo>>() {
           @Override
           public void onSuccess(@Nullable List<SystemMessageInfo> param) {
+            ALog.d(
+                LIB_TAG,
+                TAG,
+                "fetchVerifyList,onSuccess:" + (param == null ? "null" : param.size()));
             if (param != null && param.size() > 0) {
               fetchResult.setStatus(LoadStatus.Success);
               resetMessageStatus(param);
@@ -111,12 +125,14 @@ public class VerifyViewModel extends BaseViewModel {
 
           @Override
           public void onFailed(int code) {
+            ALog.d(LIB_TAG, TAG, "fetchVerifyList,onFailed:" + code);
             fetchResult.setError(code, "");
             resultLiveData.postValue(fetchResult);
           }
 
           @Override
           public void onException(@Nullable Throwable exception) {
+            ALog.d(LIB_TAG, TAG, "fetchVerifyList,onException");
             fetchResult.setError(-1, "");
             resultLiveData.postValue(fetchResult);
           }
@@ -124,6 +140,7 @@ public class VerifyViewModel extends BaseViewModel {
   }
 
   public void clearNotify() {
+    ALog.d(LIB_TAG, TAG, "clearNotify");
     ContactRepo.clearNotification();
     fetchResult.setFetchType(FetchResult.FetchType.Remove);
     fetchResult.setData(new ArrayList<>(verifyBeanList));
@@ -132,6 +149,7 @@ public class VerifyViewModel extends BaseViewModel {
   }
 
   public void agree(ContactVerifyInfoBean bean, FetchCallback<Void> callback) {
+    ALog.d(LIB_TAG, TAG, "agree:" + (bean == null ? "null" : bean.data.getId()));
     SystemMessageInfo info = bean.data;
     SystemMessageInfoType type = info.getInfoType();
     SystemMessageInfoStatus status = info.getInfoStatus();
@@ -148,6 +166,7 @@ public class VerifyViewModel extends BaseViewModel {
   }
 
   public void disagree(ContactVerifyInfoBean bean, FetchCallback<Void> callback) {
+    ALog.d(LIB_TAG, TAG, "disagree:" + (bean == null ? "null" : bean.data.getId()));
     SystemMessageInfo info = bean.data;
     SystemMessageInfoType type = info.getInfoType();
     SystemMessageInfoStatus status = info.getInfoStatus();
@@ -168,14 +187,17 @@ public class VerifyViewModel extends BaseViewModel {
   }
 
   public void setVerifyStatus(Long id, SystemMessageInfoStatus status) {
+    ALog.d(LIB_TAG, TAG, "setVerifyStatus:" + id + (status == null ? "null" : status.name()));
     ContactRepo.setNotificationStatus(id, status);
   }
 
   public void resetUnreadCount() {
+    ALog.d(LIB_TAG, TAG, "resetUnreadCount");
     ContactRepo.clearNotificationUnreadCount();
   }
 
   private void resetMessageStatus(List<SystemMessageInfo> infoList) {
+    ALog.d(LIB_TAG, TAG, "resetMessageStatus:" + (infoList == null ? "null" : infoList.size()));
     if (infoList != null && infoList.size() > 0) {
       long lastTime = System.currentTimeMillis() - expireLimit;
       for (SystemMessageInfo info : infoList) {

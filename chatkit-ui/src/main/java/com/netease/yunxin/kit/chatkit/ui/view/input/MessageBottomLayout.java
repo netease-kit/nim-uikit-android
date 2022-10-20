@@ -44,7 +44,6 @@ public class MessageBottomLayout extends FrameLayout
     implements IAudioRecordCallback, AitTextChangeListener {
   public static final String TAG = "MessageBottomLayout";
   private static final long SHOW_DELAY_TIME = 200;
-  private static final int ACTION_COUNT_MAX = 5;
   private ChatMessageBottomLayoutBinding mBinding;
   private InputActionAdapter actionAdapter;
   private IMessageProxy mProxy;
@@ -80,13 +79,12 @@ public class MessageBottomLayout extends FrameLayout
 
   public void init(List<ActionItem> items, IMessageProxy proxy) {
     mProxy = proxy;
-    items = items.size() > ACTION_COUNT_MAX ? items.subList(0, ACTION_COUNT_MAX) : items;
     actionAdapter =
         new InputActionAdapter(
             items,
-            (position, item) -> {
+            (view, position, item) -> {
               ALog.d(TAG, "action click, inputState:" + mInputState);
-              switch (item.getType()) {
+              switch (item.getAction()) {
                 case ActionConstants.ACTION_TYPE_RECORD:
                   switchRecord();
                   break;
@@ -104,6 +102,7 @@ public class MessageBottomLayout extends FrameLayout
                   switchMore();
                   break;
                 default:
+                  mProxy.onCustomAction(view, item.getAction());
                   break;
               }
             });

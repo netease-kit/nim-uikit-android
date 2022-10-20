@@ -12,7 +12,7 @@ import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
-import com.netease.yunxin.kit.corekit.im.repo.ConfigRepo;
+import com.netease.yunxin.kit.corekit.im.repo.SettingRepo;
 
 public class SettingNotifyViewModel extends BaseViewModel {
 
@@ -30,12 +30,12 @@ public class SettingNotifyViewModel extends BaseViewModel {
   }
 
   public boolean getToggleNotification() {
-    return ConfigRepo.getMixNotification();
+    return SettingRepo.isPushNotify();
   }
 
   public void setToggleNotification(boolean value) {
-    ConfigRepo.updateMessageNotification(value);
-    ConfigRepo.updateMixNotification(
+    SettingRepo.setMessageNotification(value);
+    SettingRepo.setPushNotify(
         value,
         new FetchCallback<Void>() {
           @Override
@@ -65,35 +65,35 @@ public class SettingNotifyViewModel extends BaseViewModel {
   }
 
   public boolean getRingToggle() {
-    return ConfigRepo.getRingToggle();
+    return SettingRepo.getRingMode();
   }
 
   public void setRingToggle(boolean ring) {
-    ConfigRepo.updateRingToggle(ring);
+    SettingRepo.setRingMode(ring);
   }
 
   public boolean getVibrateToggle() {
-    return ConfigRepo.getVibrateToggle();
+    return SettingRepo.getVibrateMode();
   }
 
   public void setVibrateToggle(boolean mode) {
-    ConfigRepo.updateVibrateToggle(mode);
+    SettingRepo.setVibrateMode(mode);
   }
 
   public boolean getMultiPortPushOpen() {
-    return ConfigRepo.isMultiPortPushOpen();
+    return SettingRepo.getMultiPortPushMode();
   }
 
   public void setMultiPortPushOpen(boolean mode) {
-    ConfigRepo.updateMultiPortPushOpen(mode);
+    SettingRepo.setMultiPortPushMode(mode);
   }
 
   public boolean getPushShowNoDetail() {
-    return ConfigRepo.isPushShowNoDetail();
+    return !SettingRepo.getPushShowDetail();
   }
 
   public void setPushShowNoDetail(boolean mode) {
-    ConfigRepo.updatePushShowNoDetail(
+    SettingRepo.setPushShowDetail(
         mode,
         new FetchCallback<Void>() {
           @Override

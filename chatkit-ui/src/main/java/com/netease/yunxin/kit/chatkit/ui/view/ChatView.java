@@ -5,8 +5,10 @@
 package com.netease.yunxin.kit.chatkit.ui.view;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import androidx.annotation.Nullable;
 import com.netease.nimlib.sdk.msg.model.AttachmentProgress;
@@ -66,7 +68,7 @@ public class ChatView extends LinearLayout {
   }
 
   public BackTitleBar getTitleBar() {
-    return binding.title;
+    return binding.chatViewTitle;
   }
 
   public ChatMessageListView getMessageListView() {
@@ -107,6 +109,18 @@ public class ChatView extends LinearLayout {
 
   public void updateUserInfo(List<UserInfo> userInfoList) {
     binding.messageView.updateUserInfo(userInfoList);
+  }
+
+  public void setMessageBackground(Drawable drawable) {
+    binding.chatViewBody.setBackground(drawable);
+  }
+
+  public void setMessageBackgroundRes(int res) {
+    binding.chatViewBody.setBackgroundResource(res);
+  }
+
+  public void setMessageBackgroundColor(int color) {
+    binding.chatViewBody.setBackgroundColor(color);
   }
 
   public void setTypeState(boolean isTyping) {
@@ -153,6 +167,26 @@ public class ChatView extends LinearLayout {
 
   public MessageBottomLayout getInputView() {
     return binding.inputView;
+  }
+
+  public FrameLayout getChatBodyLayout() {
+    return binding.chatViewBody;
+  }
+
+  public FrameLayout getChatBottomLayout() {
+    return binding.chatViewBottom;
+  }
+
+  public ChatViewLayoutBinding getChatViewLayoutBinding() {
+    return binding;
+  }
+
+  public FrameLayout getChatBodyTopLayout() {
+    return binding.chatViewBodyTop;
+  }
+
+  public FrameLayout getChatBodyBottomLayout() {
+    return binding.chatViewBodyBottom;
   }
 
   public void setAitManager(AitManager manager) {
