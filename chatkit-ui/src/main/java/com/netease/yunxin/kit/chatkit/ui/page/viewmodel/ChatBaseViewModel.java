@@ -127,7 +127,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
 
   private final ShowNotificationWhenRevokeFilter revokeFilter =
       notification -> {
-        ALog.d(LIB_TAG, TAG, notification.getMessage().toString());
+        ALog.d(LIB_TAG, TAG,  "revoke msg notification: " + notification.getMessage().getUuid());
         FetchResult<ChatMessageBean> fetchResult = new FetchResult<>(LoadStatus.Success);
         fetchResult.setData(new ChatMessageBean(new IMMessageInfo(notification.getMessage())));
         revokeMessageLiveData.postValue(fetchResult);

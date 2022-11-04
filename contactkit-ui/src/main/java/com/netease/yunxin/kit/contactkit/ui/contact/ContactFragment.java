@@ -262,8 +262,8 @@ public class ContactFragment extends BaseFragment {
 
     if (contactConfig.showTitleBarRightIcon) {
       viewBinding.contactLayout.getTitleBar().showRightImageView(true);
-      if (contactConfig.titleBarRight2Res != ContactUIConfig.INT_DEFAULT_NULL) {
-        viewBinding.contactLayout.getTitleBar().setRightImageRes(contactConfig.titleBarRight2Res);
+      if (contactConfig.titleBarRightRes != ContactUIConfig.INT_DEFAULT_NULL) {
+        viewBinding.contactLayout.getTitleBar().setRightImageRes(contactConfig.titleBarRightRes);
       }
       if (contactConfig.titleBarRightClick != null) {
         viewBinding
