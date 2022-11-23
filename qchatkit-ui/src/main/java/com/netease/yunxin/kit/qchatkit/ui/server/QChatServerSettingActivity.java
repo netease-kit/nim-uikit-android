@@ -202,7 +202,7 @@ public class QChatServerSettingActivity extends CommonActivity {
             isOwner
                 ? getString(R.string.qchat_delete_server)
                 : getString(R.string.qchat_leave_server))
-        .setPositiveStr(getString(R.string.qchat_delete))
+        .setPositiveStr(getString(isOwner ? R.string.qchat_delete : R.string.qchat_leave))
         .setNegativeStr(getString(R.string.qchat_cancel))
         .setConfirmListener(
             new ChoiceListener() {

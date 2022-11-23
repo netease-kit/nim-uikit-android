@@ -39,4 +39,6 @@
     <string name="team_dismiss_advanced_team_query">是否解散群聊？</string>
     <string name="team_save">保存</string>
     <string name="team_search_friend">搜索好友</string>
+    <string name="team_network_error">当前网络不可用，请检查你当网络设置。</string>
+    <string name="team_request_fail">操作失败</string>
 </resources>

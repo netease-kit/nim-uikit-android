@@ -14,16 +14,21 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.Nullable;
 import com.bumptech.glide.Glide;
 import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
-import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
-import com.netease.yunxin.kit.corekit.route.XKitRouter;
+import com.netease.yunxin.kit.common.ui.photo.PhotoChoiceDialog;
+import com.netease.yunxin.kit.common.ui.utils.CommonCallback;
+import com.netease.yunxin.kit.common.utils.NetworkUtils;
+import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
+import com.netease.yunxin.kit.corekit.im.repo.CommonRepo;
 import com.netease.yunxin.kit.teamkit.ui.R;
 import com.netease.yunxin.kit.teamkit.ui.databinding.TeamUpdateIconActivityBinding;
 import com.netease.yunxin.kit.teamkit.ui.viewmodel.TeamSettingViewModel;
 import com.netease.yunxin.kit.teamkit.utils.IconUrlUtils;
+import java.io.File;
 
 /** set team icon activity */
 public class TeamUpdateIconActivity extends BaseActivity {
@@ -48,15 +53,7 @@ public class TeamUpdateIconActivity extends BaseActivity {
 
     Glide.with(getApplicationContext()).load(lastUrl).circleCrop().into(binding.ivIcon);
     changeStatusBarColor(R.color.color_eff1f4);
-    binding.ivCamera.setOnClickListener(
-        v ->
-            XKitRouter.withKey(RouterConstant.PATH_QCHAT_PICKING_PHOTO_ACTION)
-                .navigate(
-                    result -> {
-                      if (result.getSuccess() && result.getValue() instanceof String) {
-                        updateFocusBg(null, String.valueOf(result.getValue()));
-                      }
-                    }));
+    binding.ivCamera.setOnClickListener(v -> choicePhoto());
 
     int index = IconUrlUtils.getDefaultIconUrlIndex(lastUrl);
     switch (index) {
@@ -118,6 +115,68 @@ public class TeamUpdateIconActivity extends BaseActivity {
     iconUrl = url;
     Glide.with(getApplicationContext()).load(iconUrl).circleCrop().into(binding.ivIcon);
     lastFocusView = view;
+  }
+
+  private void choicePhoto() {
+    new PhotoChoiceDialog(this)
+        .show(
+            new CommonCallback<File>() {
+              @Override
+              public void onSuccess(@Nullable File param) {
+                if (NetworkUtils.isConnected()) {
+                  CommonRepo.uploadImage(
+                      param,
+                      new FetchCallback<String>() {
+                        @Override
+                        public void onSuccess(@Nullable String urlParam) {
+                          updateFocusBg(null, urlParam);
+                        }
+
+                        @Override
+                        public void onFailed(int code) {
+                          Toast.makeText(
+                                  getApplicationContext(),
+                                  getString(R.string.team_request_fail),
+                                  Toast.LENGTH_SHORT)
+                              .show();
+                        }
+
+                        @Override
+                        public void onException(@Nullable Throwable exception) {
+                          Toast.makeText(
+                                  getApplicationContext(),
+                                  getString(R.string.team_request_fail),
+                                  Toast.LENGTH_SHORT)
+                              .show();
+                        }
+                      });
+                } else {
+                  Toast.makeText(
+                          getApplicationContext(),
+                          getString(R.string.team_network_error),
+                          Toast.LENGTH_SHORT)
+                      .show();
+                }
+              }
+
+              @Override
+              public void onFailed(int code) {
+                Toast.makeText(
+                        getApplicationContext(),
+                        getString(R.string.team_request_fail),
+                        Toast.LENGTH_SHORT)
+                    .show();
+              }
+
+              @Override
+              public void onException(@Nullable Throwable exception) {
+                Toast.makeText(
+                        getApplicationContext(),
+                        getString(R.string.team_request_fail),
+                        Toast.LENGTH_SHORT)
+                    .show();
+              }
+            });
   }
 
   public static void launch(

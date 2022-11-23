@@ -37,5 +37,8 @@
     <string name="team_quit_group_team_query">Whether to leave temp group？</string>
     <string name="team_dismiss_advanced_team_query">Whether to dissolve group？</string> 
     <string name="team_save">Save</string> 
-    <string name="team_search_friend">Search Contacts</string> 
+    <string name="team_search_friend">Search Contacts</string>
+
+    <string name="team_request_fail">Failed</string>
+    <string name="team_network_error">No internet</string>
 </resources>

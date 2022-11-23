@@ -46,9 +46,10 @@ public class WelcomeActivity extends AppCompatActivity {
      * start login page, you can use to launch your own login
      */
     private void startLogin() {
-        //start you login account and token
+        //填入你的 account and token
         String account = "";
         String token = "";
+        //如果使用圈组，请置为true
         boolean userQChat = false;
         LoginInfo loginInfo = LoginInfo.LoginInfoBuilder.loginInfoDefault(account,token).build();
 

@@ -127,7 +127,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
 
   private final ShowNotificationWhenRevokeFilter revokeFilter =
       notification -> {
-        ALog.d(LIB_TAG, TAG,  "revoke msg notification: " + notification.getMessage().getUuid());
+        ALog.d(LIB_TAG, TAG, "revoke msg notification: " + notification.getMessage().toString());
         FetchResult<ChatMessageBean> fetchResult = new FetchResult<>(LoadStatus.Success);
         fetchResult.setData(new ChatMessageBean(new IMMessageInfo(notification.getMessage())));
         revokeMessageLiveData.postValue(fetchResult);
@@ -163,7 +163,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
 
   public void revokeMessage(ChatMessageBean messageBean) {
     if (messageBean != null && messageBean.getMessageData() != null) {
-      ALog.d(LIB_TAG, TAG, "revokeMessage" + messageBean.getMessageData().getMessage().getUuid());
+      ALog.d(LIB_TAG, TAG, "revokeMessage " + messageBean.getMessageData().getMessage().getUuid());
       ChatRepo.revokeMessage(
           messageBean.getMessageData(),
           new FetchCallback<Void>() {
@@ -172,7 +172,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
               FetchResult<ChatMessageBean> fetchResult = new FetchResult<>(LoadStatus.Success);
               fetchResult.setData(messageBean);
               revokeMessageLiveData.postValue(fetchResult);
-              ALog.d(LIB_TAG, TAG, "revokeMessage,onSuccess");
+              ALog.d(LIB_TAG, TAG, "revokeMessage, onSuccess");
             }
 
             @Override
