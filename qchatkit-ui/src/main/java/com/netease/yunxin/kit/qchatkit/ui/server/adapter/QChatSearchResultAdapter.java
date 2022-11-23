@@ -8,6 +8,7 @@ import android.content.Context;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
+import com.netease.nimlib.sdk.qchat.result.QChatApplyServerJoinResult;
 import com.netease.yunxin.kit.common.ui.utils.AvatarColor;
 import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
 import com.netease.yunxin.kit.qchatkit.repo.QChatServerRepo;
@@ -56,9 +57,9 @@ public class QChatSearchResultAdapter
         v ->
             QChatServerRepo.applyServerJoin(
                 data.serverInfo.getServerId(),
-                new FetchCallback<Void>() {
+                new FetchCallback<QChatApplyServerJoinResult>() {
                   @Override
-                  public void onSuccess(@Nullable Void param) {
+                  public void onSuccess(@Nullable QChatApplyServerJoinResult param) {
                     data.state = QChatSearchResultInfo.STATE_HAD_APPLIED;
                     notifyItemChanged(bingingAdapterPosition);
                     Context context = v.getContext();

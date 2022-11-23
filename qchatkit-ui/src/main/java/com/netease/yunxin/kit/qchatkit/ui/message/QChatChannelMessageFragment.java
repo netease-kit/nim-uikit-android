@@ -342,7 +342,7 @@ public class QChatChannelMessageFragment extends BaseFragment {
               Uri uri;
               if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 uri =
-                    CommonFileProvider.getUriForFile(
+                    CommonFileProvider.Companion.getUriForFile(
                         getActivity(), getActivity().getPackageName() + ".IMKitFileProvider", file);
                 intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
               } else {

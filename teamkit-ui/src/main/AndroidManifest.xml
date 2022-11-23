@@ -7,6 +7,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="com.netease.yunxin.kit.teamkit.ui">
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <application>
         <provider
             android:name="com.netease.yunxin.kit.corekit.startup.InitializationProvider"

@@ -15,7 +15,7 @@ android {
         minSdk = 21
         targetSdk = 30
         versionCode = 1
-        versionName = "9.2.10"
+        versionName = "9.2.11"
         multiDexEnabled = true
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -55,12 +55,12 @@ dependencies {
 //    implementation(project(":teamkit-ui"))
 //    implementation(project(":chatkit-ui"))
 //    implementation(project(":searchkit-ui"))
-    implementation("com.netease.yunxin.kit.contact:contactkit-ui:9.2.10")
-    implementation("com.netease.yunxin.kit.qchat:qchatkit-ui:9.2.10")
-    implementation("com.netease.yunxin.kit.conversation:conversationkit-ui:9.2.10")
-    implementation("com.netease.yunxin.kit.team:teamkit-ui:9.2.10")
-    implementation("com.netease.yunxin.kit.chat:chatkit-ui:9.2.10")
-    implementation("com.netease.yunxin.kit.search:searchkit-ui:9.2.10")
+    implementation("com.netease.yunxin.kit.contact:contactkit-ui:9.2.11-rc02")
+    implementation("com.netease.yunxin.kit.qchat:qchatkit-ui:9.2.11-rc02")
+    implementation("com.netease.yunxin.kit.conversation:conversationkit-ui:9.2.11-rc02")
+    implementation("com.netease.yunxin.kit.team:teamkit-ui:9.2.11-rc02")
+    implementation("com.netease.yunxin.kit.chat:chatkit-ui:9.2.11-rc02")
+    implementation("com.netease.yunxin.kit.search:searchkit-ui:9.2.11-rc02")
     implementation("com.airbnb.android:lottie:5.0.3")
     implementation("com.github.bumptech.glide:glide:4.13.1")
     implementation("com.squareup.retrofit2:retrofit:2.9.0")

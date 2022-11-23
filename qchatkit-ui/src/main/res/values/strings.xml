@@ -13,6 +13,7 @@
     <string name="qchat_create">创建</string>
     <string name="qchat_sure">确定</string>
     <string name="qchat_ensure">确认</string>
+    <string name="qchat_leave">退出</string>
     <string name="qchat_delete">删除</string>
     <string name="qchat_edit">编辑</string>
     <string name="qchat_complete">完成</string>
