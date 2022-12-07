@@ -496,8 +496,14 @@ public abstract class ChatBaseMessageViewHolder extends RecyclerView.ViewHolder 
       baseViewBinding.fromAvatar.setOnClickListener(
           v -> itemClickListener.onUserIconClick(v, position, currentMessage));
 
+      baseViewBinding.fromAvatar.setOnLongClickListener(
+          v -> itemClickListener.onUserIconLongClick(v, position, currentMessage));
+
       baseViewBinding.avatarMine.setOnClickListener(
           v -> itemClickListener.onSelfIconClick(v, position, currentMessage));
+
+      baseViewBinding.avatarMine.setOnLongClickListener(
+          v -> itemClickListener.onSelfIconLongClick(v, position, currentMessage));
 
       baseViewBinding.messageContainer.setOnLongClickListener(
           v -> itemClickListener.onMessageLongClick(v, position, currentMessage));

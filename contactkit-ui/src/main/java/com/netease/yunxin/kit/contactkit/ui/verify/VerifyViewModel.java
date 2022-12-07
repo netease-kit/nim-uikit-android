@@ -211,6 +211,6 @@ public class VerifyViewModel extends BaseViewModel {
   @Override
   protected void onCleared() {
     super.onCleared();
-    ContactRepo.registerNotificationObserver(infoObserver);
+    ContactRepo.unregisterNotificationObserver(infoObserver);
   }
 }

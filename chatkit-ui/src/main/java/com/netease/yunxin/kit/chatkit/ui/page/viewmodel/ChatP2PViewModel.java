@@ -132,6 +132,13 @@ public class ChatP2PViewModel extends ChatBaseViewModel {
   }
 
   @Override
+  public void unregisterObservers() {
+    super.unregisterObservers();
+    ChatObserverRepo.unregisterMessageReceiptObserve(messageReceiptObserver);
+    ChatObserverRepo.unregisterCustomNotificationObserve(customNotificationObserver);
+  }
+
+  @Override
   public void sendReceipt(IMMessage message) {
     ALog.d(LIB_TAG, TAG, "sendReceipt:" + (message == null ? "null" : message.getUuid()));
     ChatRepo.markP2PMessageRead(mSessionId, message);

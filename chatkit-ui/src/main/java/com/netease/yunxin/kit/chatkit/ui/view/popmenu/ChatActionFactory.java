@@ -11,6 +11,7 @@ import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,9 +19,9 @@ public class ChatActionFactory {
 
   private static volatile ChatActionFactory instance;
 
-  private IChatPopMenuClickListener actionListener;
+  private WeakReference<IChatPopMenuClickListener> actionListener;
 
-  private IChatPopMenu customPopMenu;
+  private WeakReference<IChatPopMenu> customPopMenu;
 
   private ChatActionFactory() {}
 
@@ -36,11 +37,11 @@ public class ChatActionFactory {
   }
 
   public void setActionListener(IChatPopMenuClickListener actionListener) {
-    this.actionListener = actionListener;
+    this.actionListener = new WeakReference<>(actionListener);
   }
 
   public void setChatPopMenu(IChatPopMenu popMenu) {
-    this.customPopMenu = popMenu;
+    this.customPopMenu = new WeakReference<>(popMenu);
   }
 
   public List<ChatPopMenuAction> getNormalActions(ChatMessageBean message) {
@@ -48,7 +49,9 @@ public class ChatActionFactory {
     if (message.getMessageData() == null) {
       return actions;
     }
-    if (customPopMenu == null || customPopMenu.showDefaultPopMenu()) {
+    if (customPopMenu == null
+        || customPopMenu.get() == null
+        || customPopMenu.get().showDefaultPopMenu()) {
       if (message.getMessageData().getMessage().getStatus() == MsgStatusEnum.fail
           || message.getMessageData().getMessage().getStatus() == MsgStatusEnum.sending) {
         if (message.getViewType() == MsgTypeEnum.text.getValue()) {
@@ -65,7 +68,9 @@ public class ChatActionFactory {
       if (message.getViewType() != MsgTypeEnum.audio.getValue()) {
         actions.add(getTransmitAction(message));
       }
-      actions.add(getPinAction(message));
+      if (message.getViewType() != MsgTypeEnum.location.getValue()) {
+        actions.add(getPinAction(message));
+      }
       //    actions.add(getMultiSelectAction(message));
       //    actions.add(getCollectionAction(message));
       actions.add(getDeleteAction(message));
@@ -73,8 +78,8 @@ public class ChatActionFactory {
         actions.add(getRecallAction(message));
       }
     }
-    if (customPopMenu != null) {
-      return customPopMenu.customizePopMenu(actions, message);
+    if (customPopMenu != null && customPopMenu.get() != null) {
+      return customPopMenu.get().customizePopMenu(actions, message);
     }
     return actions;
   }
@@ -86,7 +91,7 @@ public class ChatActionFactory {
         R.drawable.ic_message_reply,
         (view, messageInfo) -> {
           if (actionListener != null) {
-            actionListener.onReply(messageInfo);
+            actionListener.get().onReply(messageInfo);
           }
         });
   }
@@ -98,7 +103,7 @@ public class ChatActionFactory {
         R.drawable.ic_message_copy,
         (view, messageInfo) -> {
           if (actionListener != null) {
-            actionListener.onCopy(messageInfo);
+            actionListener.get().onCopy(messageInfo);
           }
         });
   }
@@ -110,7 +115,7 @@ public class ChatActionFactory {
         R.drawable.ic_message_recall,
         (view, messageInfo) -> {
           if (actionListener != null) {
-            actionListener.onRecall(messageInfo);
+            actionListener.get().onRecall(messageInfo);
           }
         });
   }
@@ -124,7 +129,9 @@ public class ChatActionFactory {
         R.drawable.ic_message_sign,
         (view, messageInfo) -> {
           if (actionListener != null) {
-            actionListener.onSignal(messageInfo, !TextUtils.isEmpty(messageInfo.getPinAccid()));
+            actionListener
+                .get()
+                .onSignal(messageInfo, !TextUtils.isEmpty(messageInfo.getPinAccid()));
           }
         });
   }
@@ -136,7 +143,7 @@ public class ChatActionFactory {
         R.drawable.ic_message_multi_select,
         (view, messageInfo) -> {
           if (actionListener != null) {
-            actionListener.onMultiSelected(messageInfo);
+            actionListener.get().onMultiSelected(messageInfo);
           }
         });
   }
@@ -148,7 +155,7 @@ public class ChatActionFactory {
         R.drawable.ic_message_collection,
         (view, messageInfo) -> {
           if (actionListener != null) {
-            actionListener.onCollection(messageInfo);
+            actionListener.get().onCollection(messageInfo);
           }
         });
   }
@@ -160,7 +167,7 @@ public class ChatActionFactory {
         R.drawable.ic_message_delete,
         (view, messageInfo) -> {
           if (actionListener != null) {
-            actionListener.onDelete(message);
+            actionListener.get().onDelete(message);
           }
         });
   }
@@ -172,7 +179,7 @@ public class ChatActionFactory {
         R.drawable.ic_message_transmit,
         (view, messageInfo) -> {
           if (actionListener != null) {
-            actionListener.onForward(messageInfo);
+            actionListener.get().onForward(messageInfo);
           }
         });
   }

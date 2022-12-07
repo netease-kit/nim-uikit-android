@@ -99,6 +99,13 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
   }
 
   @Override
+  public void unregisterObservers() {
+    super.unregisterObservers();
+    ChatObserverRepo.unregisterTeamMessageReceiptObserve(teamMessageReceiptObserver);
+    ChatObserverRepo.unregisterTeamUpdateObserver(teamObserver);
+  }
+
+  @Override
   public void sendReceipt(IMMessage message) {
     ALog.d(LIB_TAG, TAG, "sendReceipt:" + (message == null ? "null" : message.getUuid()));
     ChatRepo.markTeamMessageRead(message);

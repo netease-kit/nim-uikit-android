@@ -19,7 +19,7 @@ public interface IMessageProxy {
 
   void captureVideo();
 
-  boolean sendFile(ChatMessageBean replyMsg);
+  boolean sendFile();
 
   boolean sendAudio(File audioFile, long audioLength, ChatMessageBean replyMsg);
 
