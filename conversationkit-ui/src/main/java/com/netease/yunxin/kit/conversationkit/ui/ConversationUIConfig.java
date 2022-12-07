@@ -41,6 +41,7 @@ public class ConversationUIConfig {
   public float avatarCornerRadius = INT_DEFAULT_NULL;
   public Drawable itemStickTopBackground;
   public Drawable itemBackground;
+  public ConversationCustom conversationCustom;
 
   public IConversationViewLayout customLayout;
 }

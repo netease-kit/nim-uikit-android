@@ -18,6 +18,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.TextUtils;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,13 +26,16 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.Observer;
 import com.netease.nimlib.sdk.msg.attachment.MsgAttachment;
 import com.netease.nimlib.sdk.msg.attachment.VideoAttachment;
 import com.netease.nimlib.sdk.msg.constant.AttachStatusEnum;
 import com.netease.nimlib.sdk.msg.constant.MsgStatusEnum;
 import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
 import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
+import com.netease.nimlib.sdk.msg.model.AttachmentProgress;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
+import com.netease.nimlib.sdk.msg.model.MsgPinOption;
 import com.netease.nimlib.sdk.msg.model.QueryDirectionEnum;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.storage.StorageType;
@@ -66,6 +70,7 @@ import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.common.utils.NetworkUtils;
 import com.netease.yunxin.kit.common.utils.PermissionUtils;
 import com.netease.yunxin.kit.corekit.im.IMKitClient;
+import com.netease.yunxin.kit.corekit.im.model.UserInfo;
 import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 import java.io.File;
@@ -105,6 +110,14 @@ public abstract class ChatBaseFragment extends BaseFragment {
   private ActivityResultLauncher<Intent> forwardTeamLauncher;
 
   private ActivityResultLauncher<String[]> permissionLauncher;
+
+  private Observer<FetchResult<List<ChatMessageBean>>> messageLiveDataObserver;
+  private Observer<FetchResult<ChatMessageBean>> sendLiveDataObserver;
+  private Observer<FetchResult<ChatMessageBean>> revokeLiveDataObserver;
+  private Observer<FetchResult<AttachmentProgress>> attachLiveDataObserver;
+  private Observer<FetchResult<List<UserInfo>>> userInfoLiveDataObserver;
+  private Observer<Pair<String, MsgPinOption>> addPinLiveDataObserver;
+  private Observer<String> removePinLiveDataObserver;
 
   ChatPopMenu popMenu;
 
@@ -295,7 +308,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
         }
 
         @Override
-        public boolean sendFile(ChatMessageBean replyMsg) {
+        public boolean sendFile() {
           //todo send file
           return false;
         }
@@ -466,6 +479,15 @@ public abstract class ChatBaseFragment extends BaseFragment {
         public boolean onUserIconLongClick(View view, int position, ChatMessageBean messageBean) {
           if (delegateListener == null
               || !delegateListener.onUserIconLongClick(view, position, messageBean)) {
+            //todo
+          }
+          return true;
+        }
+
+        @Override
+        public boolean onSelfIconLongClick(View view, int position, ChatMessageBean messageInfo) {
+          if (delegateListener == null
+              || !delegateListener.onSelfIconLongClick(view, position, messageInfo)) {
             //todo
           }
           return true;
@@ -748,95 +770,85 @@ public abstract class ChatBaseFragment extends BaseFragment {
 
   protected void initDataObserver() {
     ALog.d(LOG_TAG, "initDataObserver");
-    viewModel
-        .getQueryMessageLiveData()
-        .observe(
-            getViewLifecycleOwner(),
-            listFetchResult -> {
-              boolean hasMore = listFetchResult.getLoadStatus() != LoadStatus.Finish;
-              if (listFetchResult.getTypeIndex() == 0) {
-                ALog.d(LOG_TAG, "message observe older forward has more:" + hasMore);
-                binding.chatView.getMessageListView().setHasMoreForwardMessages(hasMore);
-                binding.chatView.addMessageListForward(listFetchResult.getData());
-              } else {
-                ALog.d(LOG_TAG, "message observe newer load has more:" + hasMore);
-                binding.chatView.getMessageListView().setHasMoreNewerMessages(hasMore);
-                binding.chatView.appendMessageList(listFetchResult.getData());
+
+    messageLiveDataObserver =
+        listFetchResult -> {
+          boolean hasMore = listFetchResult.getLoadStatus() != LoadStatus.Finish;
+          if (listFetchResult.getTypeIndex() == 0) {
+            ALog.d(LOG_TAG, "message observe older forward has more:" + hasMore);
+            binding.chatView.getMessageListView().setHasMoreForwardMessages(hasMore);
+            binding.chatView.addMessageListForward(listFetchResult.getData());
+          } else {
+            ALog.d(LOG_TAG, "message observe newer load has more:" + hasMore);
+            binding.chatView.getMessageListView().setHasMoreNewerMessages(hasMore);
+            binding.chatView.appendMessageList(listFetchResult.getData());
+          }
+        };
+    viewModel.getQueryMessageLiveData().observeForever(messageLiveDataObserver);
+
+    sendLiveDataObserver =
+        chatMessageBeanFetchResult -> {
+          if (chatMessageBeanFetchResult.getType() == FetchResult.FetchType.Add) {
+            ALog.d(LOG_TAG, "send message add");
+            if (binding.chatView.getMessageListView().hasMoreNewerMessages()) {
+              binding.chatView.clearMessageList();
+              binding.chatView.appendMessage(chatMessageBeanFetchResult.getData());
+              if (chatMessageBeanFetchResult.getData() != null) {
+                binding.chatView.getMessageListView().setHasMoreNewerMessages(false);
+                viewModel.fetchMoreMessage(
+                    chatMessageBeanFetchResult.getData().getMessageData().getMessage(),
+                    QueryDirectionEnum.QUERY_OLD);
               }
-            });
+            } else {
+              binding.chatView.appendMessage(chatMessageBeanFetchResult.getData());
+            }
+          } else {
+            binding.chatView.updateMessage(chatMessageBeanFetchResult.getData());
+          }
+        };
+    viewModel.getSendMessageLiveData().observeForever(sendLiveDataObserver);
 
-    viewModel
-        .getSendMessageLiveData()
-        .observe(
-            getViewLifecycleOwner(),
-            chatMessageBeanFetchResult -> {
-              if (chatMessageBeanFetchResult.getType() == FetchResult.FetchType.Add) {
-                ALog.d(LOG_TAG, "send message add");
-                if (binding.chatView.getMessageListView().hasMoreNewerMessages()) {
-                  binding.chatView.clearMessageList();
-                  binding.chatView.appendMessage(chatMessageBeanFetchResult.getData());
-                  if (chatMessageBeanFetchResult.getData() != null) {
-                    binding.chatView.getMessageListView().setHasMoreNewerMessages(false);
-                    viewModel.fetchMoreMessage(
-                        chatMessageBeanFetchResult.getData().getMessageData().getMessage(),
-                        QueryDirectionEnum.QUERY_OLD);
-                  }
-                } else {
-                  binding.chatView.appendMessage(chatMessageBeanFetchResult.getData());
-                }
-              } else {
-                binding.chatView.updateMessage(chatMessageBeanFetchResult.getData());
-              }
-            });
+    attachLiveDataObserver =
+        attachmentProgressFetchResult -> {
+          binding.chatView.updateProgress(attachmentProgressFetchResult.getData());
+        };
+    viewModel.getAttachmentProgressMutableLiveData().observeForever(attachLiveDataObserver);
 
-    viewModel
-        .getAttachmentProgressMutableLiveData()
-        .observe(
-            getViewLifecycleOwner(),
-            attachmentProgressFetchResult ->
-                binding.chatView.updateProgress(attachmentProgressFetchResult.getData()));
+    revokeLiveDataObserver =
+        messageResult -> {
+          if (messageResult.getLoadStatus() == LoadStatus.Success) {
+            binding.chatView.getMessageListView().revokeMessage(messageResult.getData());
+          } else if (messageResult.getLoadStatus() == LoadStatus.Error) {
+            FetchResult.ErrorMsg errorMsg = messageResult.getError();
+            if (errorMsg != null) {
+              ToastX.showShortToast(errorMsg.getRes());
+            }
+          }
+        };
+    viewModel.getRevokeMessageLiveData().observeForever(revokeLiveDataObserver);
 
-    viewModel
-        .getRevokeMessageLiveData()
-        .observe(
-            getViewLifecycleOwner(),
-            messageResult -> {
-              if (messageResult.getLoadStatus() == LoadStatus.Success) {
-                binding.chatView.getMessageListView().revokeMessage(messageResult.getData());
-              } else if (messageResult.getLoadStatus() == LoadStatus.Error) {
-                FetchResult.ErrorMsg errorMsg = messageResult.getError();
-                if (errorMsg != null) {
-                  ToastX.showShortToast(errorMsg.getRes());
-                }
-              }
-            });
+    userInfoLiveDataObserver =
+        userResult -> {
+          if (userResult.getLoadStatus() == LoadStatus.Finish
+              && userResult.getType() == FetchResult.FetchType.Update) {
+            binding.chatView.getMessageListView().updateUserInfo(userResult.getData());
+          }
+        };
+    viewModel.getUserInfoLiveData().observeForever(userInfoLiveDataObserver);
 
-    viewModel
-        .getUserInfoLiveData()
-        .observe(
-            getViewLifecycleOwner(),
-            userResult -> {
-              if (userResult.getLoadStatus() == LoadStatus.Finish
-                  && userResult.getType() == FetchResult.FetchType.Update) {
-                binding.chatView.getMessageListView().updateUserInfo(userResult.getData());
-              }
-            });
+    addPinLiveDataObserver =
+        responseOption ->
+            binding
+                .chatView
+                .getMessageListView()
+                .addPinMessage(responseOption.first, responseOption.second);
+    viewModel.getAddPinMessageLiveData().observeForever(addPinLiveDataObserver);
 
-    viewModel
-        .getAddPinMessageLiveData()
-        .observe(
-            getViewLifecycleOwner(),
-            responseOption ->
-                binding
-                    .chatView
-                    .getMessageListView()
-                    .addPinMessage(responseOption.first, responseOption.second));
-
-    viewModel
-        .getRemovePinMessageLiveData()
-        .observe(
-            getViewLifecycleOwner(),
-            uuid -> binding.chatView.getMessageListView().removePinMessage(uuid));
+    removePinLiveDataObserver =
+        uuid -> {
+          binding.chatView.getMessageListView().removePinMessage(uuid);
+        };
+    viewModel.getRemovePinMessageLiveData().observeForever(removePinLiveDataObserver);
 
     pickMediaLauncher =
         registerForActivityResult(
@@ -990,11 +1002,18 @@ public abstract class ChatBaseFragment extends BaseFragment {
   @Override
   public void onDestroyView() {
     ALog.d(LOG_TAG, "onDestroyView");
+    super.onDestroyView();
     NetworkUtils.unregisterNetworkStatusChangedListener(networkStateListener);
     if (popMenu != null) {
       popMenu.hide();
     }
-    super.onDestroyView();
+    viewModel.getUserInfoLiveData().removeObserver(userInfoLiveDataObserver);
+    viewModel.getQueryMessageLiveData().removeObserver(messageLiveDataObserver);
+    viewModel.getAddPinMessageLiveData().removeObserver(addPinLiveDataObserver);
+    viewModel.getRemovePinMessageLiveData().removeObserver(removePinLiveDataObserver);
+    viewModel.getSendMessageLiveData().removeObserver(sendLiveDataObserver);
+    viewModel.getRevokeMessageLiveData().removeObserver(revokeLiveDataObserver);
+    viewModel.getAttachmentProgressMutableLiveData().removeObserver(attachLiveDataObserver);
   }
 
   /** for custom layout for ChatView */

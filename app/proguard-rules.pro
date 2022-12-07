@@ -19,10 +19,41 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
--keep public class * extends com.netease.yunxin.kit.corekit.XKitInitOptions
 
--dontwarn com.netease.**
--keep class com.netease.** {*;}
+## IM SDK
+-dontwarn com.netease.nim.**
+-keep class com.netease.nim.** {*;}
+
+-dontwarn com.netease.nimlib.**
+-keep class com.netease.nimlib.** {*;}
+
+-dontwarn com.netease.share.**
+-keep class com.netease.share.** {*;}
+
+-dontwarn com.netease.mobsec.**
+-keep class com.netease.mobsec.** {*;}
+
+#如果你使用全文检索插件，需要加入
+-dontwarn org.apache.lucene.**
+-keep class org.apache.lucene.** {*;}
+
+## IMUIKit
+-dontwarn com.netease.yunxin.kit.**
+-keep class com.netease.yunxin.kit.** {*;}
+-keep public class * extends com.netease.yunxin.kit.corekit.XKitInitOptions
+-keep class * implements com.netease.yunxin.kit.corekit.XKitService {*;}
+
+### glide 4
+-keep public class * implements com.bumptech.glide.module.GlideModule
+-keep public class * extends com.bumptech.glide.module.AppGlideModule
+-keep public enum com.bumptech.glide.load.resource.bitmap.ImageHeaderParser$** {
+    **[] $VALUES;
+    public *;
+}
+
+#okhttp
+-dontwarn okhttp3.**
+-keep class okhttp3.**{*;}
 
 #如果你使用全文检索插件，需要加入
 -dontwarn org.apache.lucene.**
@@ -71,32 +102,19 @@
 -keep class com.vivo.vms.** {*;}
 -keep class com.netease.nimlib.mixpush.vivo.VivoPushReceiver {*;}
 
-### APP 3rd party jars(glide)
--keep public class * implements com.bumptech.glide.module.GlideModule
--keep public enum com.bumptech.glide.load.resource.bitmap.ImageHeaderParser$** {
-  **[] $VALUES;
-  public *;
-}
+#oppo
+-keep public class * extends android.app.Service
+-keep class com.heytap.msp.** { *;}
+
 
 ### org.json xml
 -dontwarn org.json.**
 -keep class org.json.**{*;}
 
-#okhttp
--dontwarn okhttp3.**
--keep class okhttp3.**{*;}
+
 #okio
 -dontwarn okio.**
 -keep class okio.**{*;}
-
-### glide 4
--keep public class * implements com.bumptech.glide.module.GlideModule
--keep public class * extends com.bumptech.glide.module.AppGlideModule
--keep public enum com.bumptech.glide.load.resource.bitmap.ImageHeaderParser$** {
-    **[] $VALUES;
-    public *;
-}
-
 
 -keepclasseswithmembernames class * {
     native <methods>;

@@ -25,7 +25,7 @@ import com.netease.nimlib.sdk.msg.model.MemberPushOption;
 import com.netease.nimlib.sdk.msg.model.MsgPinOption;
 import com.netease.nimlib.sdk.msg.model.MsgPinSyncResponseOption;
 import com.netease.nimlib.sdk.msg.model.QueryDirectionEnum;
-import com.netease.nimlib.sdk.msg.model.ShowNotificationWhenRevokeFilter;
+import com.netease.nimlib.sdk.msg.model.RevokeMsgNotification;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.media.ImageUtil;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
@@ -78,6 +78,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
 
   private long credibleTimestamp = -1;
   private final int messagePageSize = 100;
+  private final String Orientation_Vertical = "90";
 
   private final EventObserver<List<IMMessageInfo>> receiveMessageObserver =
       new EventObserver<List<IMMessageInfo>>() {
@@ -88,7 +89,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
           messageFetchResult.setData(convert(event));
           messageFetchResult.setType(FetchResult.FetchType.Add);
           messageFetchResult.setTypeIndex(-1);
-          messageLiveData.setValue(messageFetchResult);
+          messageLiveData.postValue(messageFetchResult);
         }
       };
 
@@ -105,7 +106,19 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
           sendMessageFetchResult.setData(new ChatMessageBean(event));
           sendMessageFetchResult.setType(FetchResult.FetchType.Update);
           sendMessageFetchResult.setTypeIndex(-1);
-          sendMessageLiveData.setValue(sendMessageFetchResult);
+          sendMessageLiveData.postValue(sendMessageFetchResult);
+        }
+      };
+
+  private final EventObserver<List<IMMessageInfo>> msgSendingObserver =
+      new EventObserver<List<IMMessageInfo>>() {
+        @Override
+        public void onEvent(@Nullable List<IMMessageInfo> event) {
+          ALog.d(
+              LIB_TAG, TAG, "msg sending change -->> " + (event == null ? "null" : event.size()));
+          if (event != null && event.size() > 0) {
+            postMessageSend(event.get(0), false);
+          }
         }
       };
 
@@ -125,13 +138,13 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
         attachmentProgressMutableLiveData.postValue(result);
       };
 
-  private final ShowNotificationWhenRevokeFilter revokeFilter =
-      notification -> {
-        ALog.d(LIB_TAG, TAG, "revoke msg notification: " + notification.getMessage().toString());
+  private Observer<RevokeMsgNotification> revokeMsgObserver =
+      revokeMsgNotification -> {
+        ALog.d(LIB_TAG, TAG, "revokeMsgObserver");
         FetchResult<ChatMessageBean> fetchResult = new FetchResult<>(LoadStatus.Success);
-        fetchResult.setData(new ChatMessageBean(new IMMessageInfo(notification.getMessage())));
+        fetchResult.setData(
+            new ChatMessageBean(new IMMessageInfo(revokeMsgNotification.getMessage())));
         revokeMessageLiveData.postValue(fetchResult);
-        return true;
       };
 
   private final UserInfoObserver userInfoObserver =
@@ -140,7 +153,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
         userInfoFetchResult.setData(userList);
         userInfoFetchResult.setType(FetchResult.FetchType.Update);
         userInfoFetchResult.setTypeIndex(-1);
-        userInfoLiveData.setValue(userInfoFetchResult);
+        userInfoLiveData.postValue(userInfoFetchResult);
       };
 
   /** chat message revoke live data */
@@ -236,7 +249,8 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
     ChatObserverRepo.registerReceiveMessageObserve(mSessionId, receiveMessageObserver);
     ChatObserverRepo.registerMsgStatusObserve(msgStatusObserver);
     ChatObserverRepo.registerAttachmentProgressObserve(attachmentProgressObserver);
-    ChatRepo.registerShowNotificationWhenRevokeFilter(revokeFilter);
+    ChatObserverRepo.registerMessageSendingObserve(mSessionId, msgSendingObserver);
+    ChatObserverRepo.registerRevokeMessageObserve(revokeMsgObserver);
     ChatRepo.registerUserInfoObserver(userInfoObserver);
     ChatObserverRepo.registerAddMessagePinObserve(msgPinAddObserver);
     ChatObserverRepo.registerRemoveMessagePinObserve(msgPinRemoveObserver);
@@ -247,6 +261,8 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
     ChatObserverRepo.unregisterReceiveMessageObserve(mSessionId, receiveMessageObserver);
     ChatObserverRepo.unregisterMsgStatusObserve(msgStatusObserver);
     ChatObserverRepo.unregisterAttachmentProgressObserve(attachmentProgressObserver);
+    ChatObserverRepo.unregisterMessageSendingObserve(mSessionId, msgSendingObserver);
+    ChatObserverRepo.unregisterRevokeMessageObserve(revokeMsgObserver);
     ChatRepo.unregisterUserInfoObserver(userInfoObserver);
     ChatObserverRepo.unregisterAddMessagePinObserve(msgPinAddObserver);
     ChatObserverRepo.unregisterRemoveMessagePinObserve(msgPinRemoveObserver);
@@ -311,7 +327,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
   public void sendVideoMessage(
       File videoFile, long duration, int width, int height, String displayName) {
     if (videoFile != null) {
-      ALog.d(LIB_TAG, TAG, "replyImageMessage:" + videoFile.getPath());
+      ALog.d(LIB_TAG, TAG, "sendVideoMessage:" + videoFile.getPath());
       IMMessage message =
           MessageBuilder.createVideoMessage(
               mSessionId, mSessionType, videoFile, duration, width, height, displayName);
@@ -345,6 +361,17 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
               String duration = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
               String width = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH);
               String height = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT);
+              String orientation =
+                  mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION);
+              if (TextUtils.equals(orientation, Orientation_Vertical)) {
+                String local = width;
+                width = height;
+                height = local;
+              }
+              ALog.e(
+                  LIB_TAG,
+                  TAG,
+                  "width:" + width + "height" + height + "orientation:" + orientation);
               sendVideoMessage(
                   file,
                   Long.parseLong(duration),
@@ -409,9 +436,9 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
       if (SettingRepo.getShowReadStatus()) {
         message.setMsgAck();
       }
-      if (needSendMessage) {
-        onMessageSend(message, resend);
-      }
+      //      if (needSendMessage) {
+      //        onMessageSend(message, resend);
+      //      }
       ChatRepo.sendMessage(message, resend, null);
     }
   }
@@ -652,7 +679,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
     ALog.d(LIB_TAG, TAG, "replyMessage,message" + (message == null ? "null" : message.getUuid()));
     message.setThreadOption(replyMsg);
     message.setMsgAck();
-    onMessageSend(message, resend);
+    //    onMessageSend(message, resend);
     ChatRepo.replyMessage(message, replyMsg, resend, null);
   }
 
@@ -705,11 +732,11 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
             new Pair<>(
                 msgPinSyncResponseOption.getKey().getUuid(),
                 msgPinSyncResponseOption.getPinOption());
-        addPinMessageLiveData.setValue(pinInfo);
+        addPinMessageLiveData.postValue(pinInfo);
       };
 
   private final Observer<MsgPinSyncResponseOption> msgPinRemoveObserver =
-      responseOption -> removePinMessageLiveData.setValue(responseOption.getKey().getUuid());
+      responseOption -> removePinMessageLiveData.postValue(responseOption.getKey().getUuid());
 
   public void addMessagePin(IMMessageInfo messageInfo, String ext) {
     ALog.d(
@@ -749,7 +776,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
                 };
             Pair<String, MsgPinOption> pinInfo =
                 new Pair<>(messageInfo.getMessage().getUuid(), pinOption);
-            addPinMessageLiveData.setValue(pinInfo);
+            addPinMessageLiveData.postValue(pinInfo);
           }
         });
   }

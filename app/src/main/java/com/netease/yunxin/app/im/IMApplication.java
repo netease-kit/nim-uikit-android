@@ -13,7 +13,7 @@ import com.huawei.hms.support.common.ActivityMgr;
 import com.netease.nimlib.sdk.SDKOptions;
 import com.netease.yunxin.app.im.crash.AppCrashHandler;
 import com.netease.yunxin.app.im.main.MainActivity;
-import com.netease.yunxin.app.im.main.mine.UserInfoActivity;
+import com.netease.yunxin.app.im.main.mine.MineInfoActivity;
 import com.netease.yunxin.app.im.push.PushMessageHandler;
 import com.netease.yunxin.app.im.utils.Constant;
 import com.netease.yunxin.app.im.utils.DataUtils;
@@ -46,7 +46,7 @@ public class IMApplication extends MultiDexApplication {
 
     initUIKit();
     // temp register for mine
-    XKitRouter.registerRouter(RouterConstant.PATH_MINE_INFO_PAGE, UserInfoActivity.class);
+    XKitRouter.registerRouter(RouterConstant.PATH_MINE_INFO_PAGE, MineInfoActivity.class);
   }
 
   private void initUIKit() {

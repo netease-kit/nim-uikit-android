@@ -25,6 +25,10 @@ public interface IMessageItemClickListener {
     return false;
   }
 
+  default boolean onSelfIconLongClick(View view, int position, ChatMessageBean messageInfo) {
+    return false;
+  }
+
   default boolean onUserIconLongClick(View view, int position, ChatMessageBean messageInfo) {
     return false;
   }

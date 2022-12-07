@@ -70,7 +70,7 @@ public class MineFragment extends BaseFragment {
 
     binding.userInfoClick.setOnClickListener(
         v -> {
-          UserInfoActivity.launch(
+          MineInfoActivity.launch(
               getContext(),
               new ActivityResultLauncher<Intent>() {
                 @Override

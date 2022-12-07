@@ -81,7 +81,7 @@
         </activity>
 
         <activity
-            android:name=".main.mine.UserInfoActivity"
+            android:name=".main.mine.MineInfoActivity"
             android:screenOrientation="portrait"
             android:exported="false" />
 

@@ -40,7 +40,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class UserInfoActivity extends AppCompatActivity {
+public class MineInfoActivity extends AppCompatActivity {
   private ActivityUserInfoBinding binding;
   private ActivityResultLauncher<Intent> launcher;
   private UserInfo userInfo;
@@ -110,7 +110,7 @@ public class UserInfoActivity extends AppCompatActivity {
             selectIndex = 2;
           }
           TypeSelectActivity.launch(
-              UserInfoActivity.this,
+              MineInfoActivity.this,
               getResources().getString(R.string.user_info_sexual),
               content,
               selectIndex,
@@ -154,7 +154,7 @@ public class UserInfoActivity extends AppCompatActivity {
   }
 
   private void choicePhoto() {
-    new PhotoChoiceDialog(UserInfoActivity.this)
+    new PhotoChoiceDialog(MineInfoActivity.this)
         .show(
             new CommonCallback<File>() {
               @Override
@@ -333,7 +333,7 @@ public class UserInfoActivity extends AppCompatActivity {
   }
 
   public static void launch(Context context, @NonNull ActivityResultLauncher<Intent> launcher) {
-    Intent intent = new Intent(context, UserInfoActivity.class);
+    Intent intent = new Intent(context, MineInfoActivity.class);
     launcher.launch(intent);
   }
 }

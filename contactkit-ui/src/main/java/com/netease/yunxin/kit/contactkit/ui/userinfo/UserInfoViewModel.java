@@ -198,8 +198,8 @@ public class UserInfoViewModel extends BaseViewModel {
   }
 
   @Override
-  public void onDestroy() {
-    super.onDestroy();
+  protected void onCleared() {
+    super.onCleared();
     ContactRepo.unregisterUserInfoObserver(userInfoObserver);
   }
 }

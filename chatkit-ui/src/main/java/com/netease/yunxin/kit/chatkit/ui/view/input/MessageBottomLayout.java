@@ -95,7 +95,7 @@ public class MessageBottomLayout extends FrameLayout
                   onAlbumClick();
                   break;
                 case ActionConstants.ACTION_TYPE_FILE:
-                  mProxy.sendFile(replyMessage);
+                  mProxy.sendFile();
                   clearReplyMsg();
                   break;
                 case ActionConstants.ACTION_TYPE_MORE:

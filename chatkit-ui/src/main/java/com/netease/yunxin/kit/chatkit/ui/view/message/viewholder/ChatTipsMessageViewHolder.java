@@ -37,12 +37,19 @@ public class ChatTipsMessageViewHolder extends ChatBaseMessageViewHolder {
   @Override
   public void bindData(ChatMessageBean message, ChatMessageBean lastMessage) {
     super.bindData(message, lastMessage);
-    Map<String, Object> extension = message.getMessageData().getMessage().getRemoteExtension();
-    if (extension != null && extension.get(KEY_TEAM_CREATED_TIP) != null) {
+    String content = message.getMessageData().getMessage().getContent();
+    if (content == null || content.isEmpty()) {
+      // create team tip
+      Map<String, Object> extension = message.getMessageData().getMessage().getRemoteExtension();
+      if (extension != null && extension.get(KEY_TEAM_CREATED_TIP) != null) {
+        content = extension.get(KEY_TEAM_CREATED_TIP).toString();
+      }
+    }
+    if (content != null && !content.isEmpty()) {
       textBinding.messageText.setTextColor(
           IMKitClient.getApplicationContext().getResources().getColor(R.color.color_999999));
       textBinding.messageText.setTextSize(12);
-      textBinding.messageText.setText(extension.get(KEY_TEAM_CREATED_TIP).toString());
+      textBinding.messageText.setText(content);
     } else {
       baseViewBinding.baseRoot.setVisibility(View.GONE);
     }

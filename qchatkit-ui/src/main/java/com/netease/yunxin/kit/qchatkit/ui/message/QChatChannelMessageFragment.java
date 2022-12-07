@@ -341,9 +341,7 @@ public class QChatChannelMessageFragment extends BaseFragment {
               Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
               Uri uri;
               if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                uri =
-                    CommonFileProvider.Companion.getUriForFile(
-                        getActivity(), getActivity().getPackageName() + ".IMKitFileProvider", file);
+                uri = CommonFileProvider.Companion.getUriForFile(getActivity(), file);
                 intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
               } else {
                 uri = Uri.fromFile(file);
