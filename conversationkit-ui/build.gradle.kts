@@ -40,7 +40,7 @@ android {
 dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
     api("com.netease.yunxin.kit.conversation:conversationkit:9.2.12-rc02")
-    api("com.netease.yunxin.kit.common:common-ui:1.1.10")
+    api("com.netease.yunxin.kit.common:common-ui:1.1.12")
     api("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.21")
     implementation("androidx.appcompat:appcompat:1.4.2") 
     implementation("com.google.android.material:material:1.5.0") 
