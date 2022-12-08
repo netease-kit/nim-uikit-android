@@ -164,8 +164,14 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatBaseMessageView
 
   public void appendMessage(ChatMessageBean message) {
     int pos = messageList.size();
+    int deletePos = getMessageIndex(message);
     messageList.add(message);
-    notifyItemInserted(pos);
+    if (deletePos >= 0) {
+      messageList.remove(deletePos);
+      notifyItemRangeChanged(deletePos, pos - deletePos);
+    } else {
+      notifyItemInserted(pos);
+    }
   }
 
   public void clearMessageList() {
