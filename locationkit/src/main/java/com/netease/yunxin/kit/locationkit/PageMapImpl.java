@@ -281,10 +281,12 @@ public class PageMapImpl
     if (center) {
       options.anchor(0.5f, 0.5f);
     }
-    clearMarker();
+      clearMarker();
     markLatLng = latLng;
     Marker marker = chatMapWrapper.aMap.addMarker(options);
-    addMarkerList.add(marker);
+    if (!center) {
+      addMarkerList.add(marker);
+    }
   }
 
   private void clearMarker() {
@@ -306,8 +308,14 @@ public class PageMapImpl
           // 缓存定位地址列表
           locationPoiCache = convert(poiResult.getPois(), false);
           // 添加定位地址
-          currentLocation.setSelected(true);
-          locationPoiCache.add(0, currentLocation);
+          if (currentLocation != null) {
+            currentLocation.setSelected(true);
+            locationPoiCache.add(0, currentLocation);
+          }else {
+            if (locationPoiCache.size() > 0){
+              locationPoiCache.get(0).setSelected(true);
+            }
+          }
           ALog.i(TAG, "onPoiSearched locationPoiResult:" + locationPoiCache);
           searchCallback.onSuccess(locationPoiCache);
           return;
