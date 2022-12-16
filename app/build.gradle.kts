@@ -62,7 +62,7 @@ dependencies {
     implementation("com.netease.yunxin.kit.team:teamkit-ui:9.3.0-rc01")
     implementation("com.netease.yunxin.kit.chat:chatkit-ui:9.3.0-rc01")
     implementation("com.netease.yunxin.kit.search:searchkit-ui:9.3.0-rc01")
-    implementation("com.netease.yunxin.kit.locationkit:locationkit:1.0.0-rc02")
+    implementation("com.netease.yunxin.kit.locationkit:locationkit:1.0.0-rc03")
     implementation("com.airbnb.android:lottie:5.0.3")
     implementation("com.github.bumptech.glide:glide:4.13.1")
     implementation("com.squareup.retrofit2:retrofit:2.9.0")

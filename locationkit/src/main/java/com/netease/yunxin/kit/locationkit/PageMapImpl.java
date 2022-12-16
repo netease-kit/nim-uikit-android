@@ -8,7 +8,6 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.text.TextUtils;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.amap.api.location.AMapLocation;
@@ -20,6 +19,7 @@ import com.amap.api.maps2d.CameraUpdateFactory;
 import com.amap.api.maps2d.LocationSource;
 import com.amap.api.maps2d.model.BitmapDescriptorFactory;
 import com.amap.api.maps2d.model.LatLng;
+import com.amap.api.maps2d.model.Marker;
 import com.amap.api.maps2d.model.MarkerOptions;
 import com.amap.api.maps2d.model.MyLocationStyle;
 import com.amap.api.services.core.AMapException;
@@ -56,6 +56,7 @@ public class PageMapImpl
   private String searchTag = "";
   private PoiSearch.SearchBound doSearchBound;
   private LatLng markLatLng;
+  private List<Marker> addMarkerList = new ArrayList<>();
   private List<ChatLocationBean> locationPoiCache;
   private ILocationSearchCallback searchCallback;
   private final int SEARCH_BOUND = 5000;
@@ -121,9 +122,11 @@ public class PageMapImpl
   @Override
   public void searchPoi(String keyWord) {
     ALog.i(TAG, "map searchPoi:" + keyWord);
-    doSearch(
-        keyWord,
-        new PoiSearch.SearchBound(new LatLonPoint(markLatLng.latitude, markLatLng.longitude), 500));
+    LatLonPoint bound = null;
+    if (markLatLng != null) {
+      bound = new LatLonPoint(markLatLng.latitude, markLatLng.longitude);
+    }
+    doSearch(keyWord, new PoiSearch.SearchBound(bound, 500));
   }
 
   private void doSearch(String keyWord, PoiSearch.SearchBound searchBound) {
@@ -278,8 +281,16 @@ public class PageMapImpl
     if (center) {
       options.anchor(0.5f, 0.5f);
     }
+    clearMarker();
     markLatLng = latLng;
-    chatMapWrapper.aMap.addMarker(options);
+    Marker marker = chatMapWrapper.aMap.addMarker(options);
+    addMarkerList.add(marker);
+  }
+
+  private void clearMarker() {
+    for (Marker marker : addMarkerList) {
+      marker.remove();
+    }
   }
 
   /** POI信息查询回调方法 */
@@ -372,7 +383,10 @@ public class PageMapImpl
   private boolean isSameBound(PoiSearch.SearchBound search, PoiSearch.SearchBound target) {
     if (search == null && target == null) {
       return true;
-    } else if (search != null && target != null) {
+    } else if (search != null
+        && target != null
+        && search.getCenter() != null
+        && target.getCenter() != null) {
       ALog.i(
           TAG,
           "isSameBound"
