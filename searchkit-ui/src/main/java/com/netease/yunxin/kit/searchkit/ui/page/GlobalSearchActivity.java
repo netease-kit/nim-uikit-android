@@ -9,6 +9,7 @@ import android.os.Handler;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.view.KeyEvent;
 import android.view.View;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
@@ -89,6 +90,9 @@ public class GlobalSearchActivity extends BaseActivity {
             }
           }
         });
+
+    viewBinding.etSearch.setOnEditorActionListener(
+        (v, actionId, event) -> event.getKeyCode() == KeyEvent.KEYCODE_ENTER);
   }
 
   private void initData() {

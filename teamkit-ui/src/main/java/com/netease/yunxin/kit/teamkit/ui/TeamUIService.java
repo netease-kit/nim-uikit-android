@@ -25,7 +25,7 @@ public class TeamUIService extends TeamService {
   @NonNull
   @Override
   public String getServiceName() {
-    return "TeamUIService";
+    return "TeamUIKit";
   }
 
   @NonNull

@@ -4,66 +4,21 @@
 
 package com.netease.yunxin.kit.chatkit.ui.view.input;
 
-import android.content.pm.PackageManager;
-import android.text.TextUtils;
-import android.view.View;
-import androidx.annotation.NonNull;
 import androidx.viewpager2.widget.ViewPager2;
-import com.netease.yunxin.kit.chatkit.ui.R;
-import com.netease.yunxin.kit.chatkit.ui.view.interfaces.IMessageProxy;
+import com.netease.yunxin.kit.chatkit.ui.view.IItemActionListener;
 import com.netease.yunxin.kit.common.ui.action.ActionItem;
-import com.netease.yunxin.kit.common.ui.dialog.BottomChoiceDialog;
-import com.netease.yunxin.kit.common.ui.utils.ToastX;
-import com.netease.yunxin.kit.common.utils.XKitUtils;
 import java.util.List;
 
 /** more action panel in input view */
-public class ActionsPanel implements ActionsPanelAdapter.OnActionItemClick {
+public class ActionsPanel {
   private ViewPager2 viewPager2;
   private ActionsPanelAdapter adapter;
-  private IMessageProxy messageProxy;
 
-  public void init(ViewPager2 viewPager2, List<ActionItem> actionItems, IMessageProxy proxy) {
+  public void init(
+      ViewPager2 viewPager2, List<ActionItem> actionItems, IItemActionListener listener) {
     this.viewPager2 = viewPager2;
     this.adapter = new ActionsPanelAdapter(viewPager2.getContext(), actionItems);
-    this.adapter.setOnActionItemClick(this);
+    this.adapter.setOnActionItemClick(listener);
     this.viewPager2.setAdapter(adapter);
-    this.messageProxy = proxy;
-  }
-
-  @Override
-  public void onClick(View view, ActionItem item) {
-    if (TextUtils.equals(item.getAction(), ActionConstants.ACTION_TYPE_CAMERA)) {
-      BottomChoiceDialog dialog =
-          new BottomChoiceDialog(viewPager2.getContext(), ActionFactory.assembleTakeShootActions());
-      dialog.setOnChoiceListener(
-          new BottomChoiceDialog.OnChoiceListener() {
-            @Override
-            public void onChoice(@NonNull String type) {
-              if (!XKitUtils.getApplicationContext()
-                  .getPackageManager()
-                  .hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)) {
-                ToastX.showShortToast(R.string.chat_message_camera_unavailable);
-                return;
-              }
-              switch (type) {
-                case ActionConstants.ACTION_TYPE_TAKE_PHOTO:
-                  messageProxy.takePicture();
-                  break;
-                case ActionConstants.ACTION_TYPE_TAKE_VIDEO:
-                  messageProxy.captureVideo();
-                  break;
-                default:
-                  break;
-              }
-            }
-
-            @Override
-            public void onCancel() {}
-          });
-      dialog.show();
-    } else {
-      messageProxy.onCustomAction(view, item.getAction());
-    }
   }
 }

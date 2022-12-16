@@ -20,6 +20,7 @@ import android.widget.TextView;
 import com.netease.yunxin.kit.chatkit.ui.view.emoji.EmojiManager;
 import com.netease.yunxin.kit.chatkit.ui.view.emoji.ImageSpanAlignCenter;
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -165,7 +166,7 @@ public class MessageUtil {
   private static ATagSpan getTagSpan(String text) {
     String href = null;
     String tag = null;
-    if (text.toLowerCase().contains("href")) {
+    if (!TextUtils.isEmpty(text) && text.toLowerCase(Locale.getDefault()).contains("href")) {
       int start = text.indexOf("\"");
       int end = text.indexOf("\"", start + 1);
       if (end > start) href = text.substring(start + 1, end);

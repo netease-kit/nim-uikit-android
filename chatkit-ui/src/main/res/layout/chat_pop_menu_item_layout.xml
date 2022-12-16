@@ -5,18 +5,14 @@
   ~ found in the LICENSE file.
   -->
 
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:minWidth="@dimen/dimen_60_dp"
+    android:paddingVertical="@dimen/dimen_8_dp"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:minWidth="@dimen/dimen_60_dp"
-    android:paddingVertical="@dimen/dimen_8_dp">
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="@dimen/dimen_42_dp"
-        android:layout_gravity="center_horizontal"
-        android:gravity="center_horizontal"
-        android:orientation="vertical">
+    android:layout_gravity="center_horizontal"
+    android:gravity="center_horizontal"
+    android:orientation="vertical">
 
         <ImageView
             android:id="@+id/menu_icon"
@@ -34,7 +30,4 @@
             android:maxLines="1"
             android:textSize="@dimen/text_size_14"
             android:textColor="@color/color_333333" />
-
-    </LinearLayout>
-
-</FrameLayout>
+</LinearLayout>

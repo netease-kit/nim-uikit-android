@@ -23,6 +23,7 @@
     <string name="conversation_network_error_tip">当前网络不可用，请检查你当网络设置。</string>
 
     <!-- message type-->
+    <string name="msg_type_location">[地理位置]</string>
     <string name="msg_type_image">[图片]</string>
     <string name="msg_type_audio">[语音消息]</string>
     <string name="msg_type_video">[视频消息]</string>

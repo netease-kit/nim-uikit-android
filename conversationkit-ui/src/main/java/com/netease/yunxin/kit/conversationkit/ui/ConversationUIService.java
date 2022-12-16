@@ -16,7 +16,7 @@ public class ConversationUIService extends ConversationService {
   @NonNull
   @Override
   public String getServiceName() {
-    return "ConversationUIService";
+    return "ConversationUIKit";
   }
 
   @NonNull

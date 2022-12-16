@@ -4,7 +4,9 @@
 
 package com.netease.yunxin.kit.chatkit.ui.view.message;
 
+import static com.netease.yunxin.kit.chatkit.ui.ChatMessageType.LOCATION_MESSAGE_VIEW_TYPE;
 import static com.netease.yunxin.kit.chatkit.ui.ChatMessageType.NORMAL_MESSAGE_VIEW_TYPE_AUDIO;
+import static com.netease.yunxin.kit.chatkit.ui.ChatMessageType.NORMAL_MESSAGE_VIEW_TYPE_FILE;
 import static com.netease.yunxin.kit.chatkit.ui.ChatMessageType.NORMAL_MESSAGE_VIEW_TYPE_IMAGE;
 import static com.netease.yunxin.kit.chatkit.ui.ChatMessageType.NORMAL_MESSAGE_VIEW_TYPE_VIDEO;
 import static com.netease.yunxin.kit.chatkit.ui.ChatMessageType.NOTICE_MESSAGE_VIEW_TYPE;
@@ -19,7 +21,9 @@ import com.netease.yunxin.kit.chatkit.ui.databinding.ChatBaseMessageViewHolderBi
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.view.message.viewholder.ChatAudioMessageViewHolder;
 import com.netease.yunxin.kit.chatkit.ui.view.message.viewholder.ChatBaseMessageViewHolder;
+import com.netease.yunxin.kit.chatkit.ui.view.message.viewholder.ChatFileMessageViewHolder;
 import com.netease.yunxin.kit.chatkit.ui.view.message.viewholder.ChatImageMessageViewHolder;
+import com.netease.yunxin.kit.chatkit.ui.view.message.viewholder.ChatLocationMessageViewHolder;
 import com.netease.yunxin.kit.chatkit.ui.view.message.viewholder.ChatNotificationMessageViewHolder;
 import com.netease.yunxin.kit.chatkit.ui.view.message.viewholder.ChatTextMessageViewHolder;
 import com.netease.yunxin.kit.chatkit.ui.view.message.viewholder.ChatTipsMessageViewHolder;
@@ -57,6 +61,10 @@ public abstract class ChatMessageViewHolderFactory implements IChatFactory {
       viewHolder = new ChatNotificationMessageViewHolder(viewHolderBinding, viewType);
     } else if (viewType == TIP_MESSAGE_VIEW_TYPE) {
       viewHolder = new ChatTipsMessageViewHolder(viewHolderBinding, viewType);
+    } else if (viewType == NORMAL_MESSAGE_VIEW_TYPE_FILE) {
+      viewHolder = new ChatFileMessageViewHolder(viewHolderBinding, viewType);
+    } else if (viewType == LOCATION_MESSAGE_VIEW_TYPE) {
+      viewHolder = new ChatLocationMessageViewHolder(viewHolderBinding, viewType);
     } else {
       //default as text message
       viewHolder = new ChatTextMessageViewHolder(viewHolderBinding, viewType);

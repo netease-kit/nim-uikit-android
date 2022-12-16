@@ -18,6 +18,7 @@ public class ChatUIConfig {
   //消息UI配置
   public MessageProperties messageProperties;
 
+  //权限授权监听
   public IPermissionListener permissionListener;
 
   public IChatFactory chatFactory;
@@ -33,4 +34,7 @@ public class ChatUIConfig {
 
   //消息长按弹窗相关配置
   public IChatPopMenu chatPopMenu;
+
+  //个性化定制内容
+  public ChatCustom chatCustom;
 }

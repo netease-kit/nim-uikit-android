@@ -5,4 +5,6 @@ package com.netease.yunxin.kit.chatkit.ui;
 
 public class ChatKitUIConstant {
   public static final String LIB_TAG = "ChatKit-UI";
+
+  public static final long FILE_LIMIT = 200;
 }

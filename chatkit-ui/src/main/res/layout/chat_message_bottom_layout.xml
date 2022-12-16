@@ -7,6 +7,7 @@
 
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/color_eef1f4">
@@ -72,7 +73,10 @@
             android:ellipsize="end"
             android:textColorHint="@color/color_b3b7bc"
             android:textCursorDrawable="@null"
-            android:textSize="@dimen/text_size_16" />
+            android:textSize="@dimen/text_size_16"
+            android:autofillHints=""
+            android:inputType="text"
+            tools:ignore="LabelFor" />
     </com.netease.yunxin.kit.common.ui.widgets.RoundFrameLayout>
 
     <androidx.recyclerview.widget.RecyclerView

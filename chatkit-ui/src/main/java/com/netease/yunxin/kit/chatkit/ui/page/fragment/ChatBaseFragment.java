@@ -27,6 +27,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.Observer;
+import com.netease.nimlib.sdk.msg.attachment.FileAttachment;
 import com.netease.nimlib.sdk.msg.attachment.MsgAttachment;
 import com.netease.nimlib.sdk.msg.attachment.VideoAttachment;
 import com.netease.nimlib.sdk.msg.constant.AttachStatusEnum;
@@ -38,17 +39,20 @@ import com.netease.nimlib.sdk.msg.model.IMMessage;
 import com.netease.nimlib.sdk.msg.model.MsgPinOption;
 import com.netease.nimlib.sdk.msg.model.QueryDirectionEnum;
 import com.netease.yunxin.kit.alog.ALog;
+import com.netease.yunxin.kit.chatkit.map.ChatLocationBean;
 import com.netease.yunxin.kit.chatkit.storage.StorageType;
 import com.netease.yunxin.kit.chatkit.storage.StorageUtil;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitClient;
 import com.netease.yunxin.kit.chatkit.ui.ChatUIConfig;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.builder.IChatViewCustom;
+import com.netease.yunxin.kit.chatkit.ui.common.ChatUtils;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatLayoutFragmentBinding;
 import com.netease.yunxin.kit.chatkit.ui.dialog.ChatMessageForwardConfirmDialog;
 import com.netease.yunxin.kit.chatkit.ui.dialog.ChatMessageForwardSelectDialog;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
+import com.netease.yunxin.kit.chatkit.ui.page.LocationPageActivity;
 import com.netease.yunxin.kit.chatkit.ui.page.WatchImageActivity;
 import com.netease.yunxin.kit.chatkit.ui.page.WatchVideoActivity;
 import com.netease.yunxin.kit.chatkit.ui.page.viewmodel.ChatBaseViewModel;
@@ -100,6 +104,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
 
   ChatLayoutFragmentBinding binding;
   private ActivityResultLauncher<String> pickMediaLauncher;
+  private ActivityResultLauncher<String[]> pickFileLauncher;
   private String captureTempImagePath = "";
   private ActivityResultLauncher<Uri> takePictureLauncher;
   private String captureTempVideoPath = "";
@@ -110,6 +115,8 @@ public abstract class ChatBaseFragment extends BaseFragment {
   private ActivityResultLauncher<Intent> forwardTeamLauncher;
 
   private ActivityResultLauncher<String[]> permissionLauncher;
+
+  private ActivityResultLauncher<Intent> locationLauncher;
 
   private Observer<FetchResult<List<ChatMessageBean>>> messageLiveDataObserver;
   private Observer<FetchResult<ChatMessageBean>> sendLiveDataObserver;
@@ -309,8 +316,15 @@ public abstract class ChatBaseFragment extends BaseFragment {
 
         @Override
         public boolean sendFile() {
-          //todo send file
-          return false;
+          if (PermissionUtils.hasPermissions(
+              ChatBaseFragment.this.getContext(), Manifest.permission.READ_EXTERNAL_STORAGE)) {
+            startPickFile();
+          } else {
+            requestCameraPermission(
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                REQUEST_READ_EXTERNAL_STORAGE_PERMISSION);
+          }
+          return true;
         }
 
         @Override
@@ -352,6 +366,23 @@ public abstract class ChatBaseFragment extends BaseFragment {
             chatConfig.chatInputMenu.onCustomInputClick(getContext(), view, action);
           }
         }
+
+        @Override
+        public void sendLocationLaunch() {
+          XKitRouter.withKey(RouterConstant.PATH_CHAT_LOCATION_PAGE)
+              .withContext(getContext())
+              .navigate(locationLauncher);
+        }
+
+        @Override
+        public void videoCall() {
+          // todo do video call
+        }
+
+        @Override
+        public void audioCall() {
+          // todo do audio call
+        }
       };
 
   private void requestCameraPermission(String permission, int request) {
@@ -387,6 +418,10 @@ public abstract class ChatBaseFragment extends BaseFragment {
 
   private void startPickMedia() {
     pickMediaLauncher.launch("image/*;video/*");
+  }
+
+  private void startPickFile() {
+    pickFileLauncher.launch(new String[] {"*/*"});
   }
 
   private void startCaptureVideo() {
@@ -445,6 +480,10 @@ public abstract class ChatBaseFragment extends BaseFragment {
                       .filterMessagesByType(messageBean.getViewType()));
             } else if (messageBean.getViewType() == MsgTypeEnum.video.getValue()) {
               watchVideo(messageBean.getMessageData().getMessage());
+            } else if (messageBean.getViewType() == MsgTypeEnum.location.getValue()) {
+              showLocation(messageBean.getMessageData().getMessage());
+            } else if (messageBean.getViewType() == MsgTypeEnum.file.getValue()) {
+              openFile(messageBean.getMessageData().getMessage());
             }
           }
           return true;
@@ -498,7 +537,18 @@ public abstract class ChatBaseFragment extends BaseFragment {
           //only support text message
           if (delegateListener == null
               || !delegateListener.onReEditRevokeMessage(view, position, messageBean)) {
-            if (messageBean.getMessageData().getMessage().getMsgType() == MsgTypeEnum.text) {
+            if (messageBean != null
+                && messageBean.getMessageData().getMessage().getMsgType() == MsgTypeEnum.text) {
+              Map<String, Object> localExtension =
+                  messageBean.getMessageData().getMessage().getLocalExtension();
+              if (localExtension != null
+                  && localExtension.containsKey(RouterConstant.KEY_REVOKE_CONTENT_TAG)) {
+                Object content = localExtension.get(RouterConstant.KEY_REVOKE_CONTENT_TAG);
+                if (content instanceof String) {
+                  binding.chatView.getInputView().setReEditMessage((String) content);
+                  return true;
+                }
+              }
               binding
                   .chatView
                   .getInputView()
@@ -747,6 +797,11 @@ public abstract class ChatBaseFragment extends BaseFragment {
 
   private void watchImage(ChatMessageBean messageBean, ArrayList<ChatMessageBean> imageMessages) {
     int index = 0;
+    if (messageBean.getMessageData().getMessage().getAttachStatus() != AttachStatusEnum.transferred
+        && messageBean.getMessageData().getMessage().getAttachStatus()
+            != AttachStatusEnum.transferring) {
+      viewModel.downloadMessageAttachment(messageBean.getMessageData().getMessage());
+    }
     ArrayList<IMMessage> messages = new ArrayList<>();
     for (int i = 0; i < imageMessages.size(); ++i) {
       if (messageBean.equals(imageMessages.get(i))) {
@@ -764,6 +819,19 @@ public abstract class ChatBaseFragment extends BaseFragment {
     } else if (message.getAttachStatus() != AttachStatusEnum.transferring) {
       viewModel.downloadMessageAttachment(message);
     }
+  }
+
+  private void openFile(IMMessage message) {
+    if (message.getAttachStatus() == AttachStatusEnum.transferred
+        && !TextUtils.isEmpty(((FileAttachment) message.getAttachment()).getPath())) {
+      ChatUtils.openFileWithApp(this.getContext(), message);
+    } else if (message.getAttachStatus() != AttachStatusEnum.transferring) {
+      viewModel.downloadMessageAttachment(message);
+    }
+  }
+
+  private void showLocation(IMMessage message) {
+    LocationPageActivity.launch(getContext(), LocationPageActivity.LAUNCH_DETAIL, message);
   }
 
   protected abstract void initViewModel();
@@ -803,7 +871,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
               binding.chatView.appendMessage(chatMessageBeanFetchResult.getData());
             }
           } else {
-            binding.chatView.updateMessage(chatMessageBeanFetchResult.getData());
+            binding.chatView.updateMessageStatus(chatMessageBeanFetchResult.getData());
           }
         };
     viewModel.getSendMessageLiveData().observeForever(sendLiveDataObserver);
@@ -860,6 +928,14 @@ public abstract class ChatBaseFragment extends BaseFragment {
                 viewModel.sendImageOrVideoMessage(uri);
               }
             });
+    pickFileLauncher =
+        registerForActivityResult(
+            new ActivityResultContracts.OpenDocument(),
+            result -> {
+              ALog.d(LOG_TAG, "pick file result uri:" + result);
+              viewModel.sendFile(result);
+            });
+
     takePictureLauncher =
         registerForActivityResult(
             new ActivityResultContracts.TakePicture(),
@@ -919,6 +995,25 @@ public abstract class ChatBaseFragment extends BaseFragment {
                   ArrayList<String> sessionIds = new ArrayList<>();
                   sessionIds.add(tid);
                   showForwardConfirmDialog(SessionTypeEnum.Team, sessionIds);
+                }
+              }
+            });
+
+    locationLauncher =
+        registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+              if (result.getResultCode() != Activity.RESULT_OK) {
+                return;
+              }
+              ALog.d(LOG_TAG, "send location result");
+              Intent data = result.getData();
+              if (data != null) {
+                ChatLocationBean locationBean =
+                    (ChatLocationBean)
+                        data.getSerializableExtra(LocationPageActivity.SEND_LOCATION_RESULT);
+                if (locationBean != null) {
+                  viewModel.sendLocationMessage(locationBean);
                 }
               }
             });

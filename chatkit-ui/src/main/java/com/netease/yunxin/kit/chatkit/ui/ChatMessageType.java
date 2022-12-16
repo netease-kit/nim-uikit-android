@@ -17,11 +17,16 @@ public interface ChatMessageType {
 
   int NORMAL_MESSAGE_VIEW_TYPE_VIDEO = MsgTypeEnum.video.getValue();
 
+  int NORMAL_MESSAGE_VIEW_TYPE_FILE = MsgTypeEnum.file.getValue();
+
   /** notice message type */
   int NOTICE_MESSAGE_VIEW_TYPE = MsgTypeEnum.notification.getValue();
 
   /** tip message type */
   int TIP_MESSAGE_VIEW_TYPE = MsgTypeEnum.tip.getValue();
+
+  /** location message type */
+  int LOCATION_MESSAGE_VIEW_TYPE = MsgTypeEnum.location.getValue();
 
   /** 自定义消息类型从1000开始 */
   int CUSTOM_START = 1000;

@@ -120,7 +120,7 @@ public class ChatTeamFragment extends ChatBaseFragment {
                 }
               }
               for (ChatMessageBean message : messageList) {
-                binding.chatView.getMessageListView().updateMessage(message);
+                binding.chatView.getMessageListView().updateMessageStatus(message);
               }
             });
 

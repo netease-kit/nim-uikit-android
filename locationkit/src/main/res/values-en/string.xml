@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2022 NetEase, Inc.  All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be found in the LICENSE file.
+  -->
+
+<resources>
+    <string name="location_amap_nav_title">AutoNavi Maps</string>
+    <string name="location_tencent_nav_title">Tencent Maps</string>
+</resources>

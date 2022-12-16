@@ -16,8 +16,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.netease.nimlib.sdk.msg.constant.MsgDirectionEnum;
 import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.msg.model.AttachmentProgress;
+import com.netease.nimlib.sdk.msg.model.IMMessage;
 import com.netease.nimlib.sdk.msg.model.MsgPinOption;
 import com.netease.nimlib.sdk.team.model.Team;
+import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.ui.IChatFactory;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.view.interfaces.IMessageData;
@@ -155,6 +157,10 @@ public class ChatMessageListView extends RecyclerView implements IMessageData {
     }
   }
 
+  public ChatMessageAdapter getMessageAdapter() {
+    return messageAdapter;
+  }
+
   @Override
   public void clearMessageList() {
     messageAdapter.clearMessageList();
@@ -219,9 +225,26 @@ public class ChatMessageListView extends RecyclerView implements IMessageData {
   }
 
   @Override
-  public void updateMessage(ChatMessageBean message) {
+  public void updateMessageStatus(ChatMessageBean message) {
     if (messageAdapter != null) {
       messageAdapter.updateMessageStatus(message);
+    }
+  }
+
+  @Override
+  public void updateMessage(ChatMessageBean message, Object payload) {
+    if (messageAdapter != null) {
+      messageAdapter.updateMessage(message, payload);
+    }
+  }
+
+  @Override
+  public void updateMessage(IMMessage message, Object payload) {
+    if (messageAdapter != null && message != null) {
+      String uuid = message.getUuid();
+      ChatMessageBean messageBean = messageAdapter.searchMessage(uuid);
+      messageBean.setMessageData(new IMMessageInfo(message));
+      messageAdapter.updateMessage(messageBean, payload);
     }
   }
 
@@ -338,7 +361,7 @@ public class ChatMessageListView extends RecyclerView implements IMessageData {
         if (firstPosition == 0 && hasMoreForwardMessages) {
           loadHandler.loadMoreForward(messageAdapter.getFirstMessage());
         } else if (isLastItemVisibleCompleted() && hasMoreNewerMessages) {
-          loadHandler.loadMoreBackground(messageAdapter.getlastMessage());
+          loadHandler.loadMoreBackground(messageAdapter.getLastMessage());
         }
       }
       refreshTeamMessageReceipt();

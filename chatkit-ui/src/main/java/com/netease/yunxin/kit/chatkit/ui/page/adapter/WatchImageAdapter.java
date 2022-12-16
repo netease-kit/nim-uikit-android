@@ -12,7 +12,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+import com.bumptech.glide.Glide;
+import com.netease.nimlib.sdk.msg.attachment.FileAttachment;
 import com.netease.nimlib.sdk.msg.attachment.ImageAttachment;
+import com.netease.nimlib.sdk.msg.attachment.VideoAttachment;
 import com.netease.nimlib.sdk.msg.constant.AttachStatusEnum;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
 import com.netease.yunxin.kit.alog.ALog;
@@ -61,7 +64,7 @@ public class WatchImageAdapter
         holder.binding.watchImageLoading.setVisibility(View.VISIBLE);
       } else {
         holder.binding.watchImageLoading.setVisibility(View.GONE);
-        updateImage(holder, messageList.get(position));
+        updateView(holder, messageList.get(position));
       }
     }
   }
@@ -88,7 +91,44 @@ public class WatchImageAdapter
     } else {
       holder.binding.watchImageLoading.setVisibility(View.VISIBLE);
     }
-    updateImage(holder, message);
+    updateView(holder, message);
+  }
+
+  public void updateView(WatchImageViewHolder holder, IMMessage message) {
+    FileAttachment attachment = (FileAttachment) message.getAttachment();
+    if (attachment instanceof VideoAttachment) {
+      updateVideo(holder, message);
+    } else {
+      updateImage(holder, message);
+    }
+  }
+
+  private void updateVideo(WatchImageViewHolder holder, IMMessage message) {
+    ImageAttachment attachment = (ImageAttachment) message.getAttachment();
+    if (attachment == null) {
+      return;
+    }
+    String path = attachment.getPath();
+    if (TextUtils.isEmpty(path)) {
+      path = attachment.getThumbPath();
+    }
+    if (TextUtils.isEmpty(path)) {
+      return;
+    }
+    ALog.i(TAG, "updateImage path:" + path);
+    holder.binding.watchPhotoView.setVisibility(View.VISIBLE);
+    holder.binding.watchImageView.setVisibility(View.GONE);
+    Bitmap bitmap = ImageUtils.getBitmap(path);
+    int degree = ImageUtils.getRotateDegree(path);
+    if (degree != 0) {
+      bitmap = ImageUtils.rotate(bitmap, degree, 0, 0);
+    }
+    if (bitmap != null) {
+      float initScale =
+          bitmap.getWidth() > 0 ? ScreenUtils.getDisplayWidth() * 1f / bitmap.getWidth() : 1f;
+      holder.binding.watchPhotoView.setMaxInitialScale(initScale);
+      holder.binding.watchPhotoView.bindPhoto(bitmap);
+    }
   }
 
   private void updateImage(WatchImageViewHolder holder, IMMessage message) {
@@ -100,18 +140,15 @@ public class WatchImageAdapter
     if (TextUtils.isEmpty(path)) {
       path = attachment.getThumbPath();
     }
-    ALog.i(TAG, "updateImage path:" + path);
-
-    Bitmap bitmap = ImageUtils.getBitmap(path);
-    int degree = ImageUtils.getRotateDegree(path);
-    if (degree != 0) {
-      bitmap = ImageUtils.rotate(bitmap, degree, 0, 0);
+    if (TextUtils.isEmpty(path)) {
+      path = attachment.getUrl();
     }
-    if (bitmap != null) {
-      float initScale =
-          bitmap.getWidth() > 0 ? ScreenUtils.getDisplayWidth() * 1f / bitmap.getWidth() : 1f;
-      holder.binding.watchPhotoView.setMaxInitialScale(initScale);
-      holder.binding.watchPhotoView.bindPhoto(bitmap);
+    holder.binding.watchPhotoView.setVisibility(View.GONE);
+    holder.binding.watchImageView.setVisibility(View.VISIBLE);
+    if (path != null) {
+      Glide.with(holder.binding.watchImageView.getContext())
+          .load(path)
+          .into(holder.binding.watchImageView);
     }
   }
 

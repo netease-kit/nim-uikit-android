@@ -4,8 +4,10 @@
 
 package com.netease.yunxin.kit.chatkit.ui.custom;
 
+import androidx.annotation.Nullable;
 import com.netease.yunxin.kit.chatkit.ui.ChatMessageType;
 import com.netease.yunxin.kit.common.utils.FileUtils;
+import com.netease.yunxin.kit.corekit.im.custom.CustomAttachment;
 import org.json.JSONObject;
 
 public class StickerAttachment extends CustomAttachment {
@@ -47,6 +49,12 @@ public class StickerAttachment extends CustomAttachment {
     }
 
     return data;
+  }
+
+  @Nullable
+  @Override
+  public String getContent() {
+    return super.getContent();
   }
 
   public String getCatalog() {

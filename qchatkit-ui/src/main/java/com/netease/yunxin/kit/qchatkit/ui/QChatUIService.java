@@ -15,7 +15,7 @@ public class QChatUIService extends QChatService {
   @NonNull
   @Override
   public String getServiceName() {
-    return "QChatUIService";
+    return "QChatUIKit";
   }
 
   @NonNull

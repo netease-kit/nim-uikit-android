@@ -7,8 +7,6 @@
 
 <resources>
     <!-- Photo Viewer Colors -->
-    <color name="solid_black">#ff000000</color>
-    <color name="photo_status_bar_black">#d9000000</color>
     <color name="photo_crop_dim_color">#cc000000</color>
     <color name="photo_crop_highlight_color">#fff</color>
     <color name="title_transfer">#00000000</color>
@@ -24,8 +22,6 @@
     <color name="color_337eff">#337EFF</color>
     <color name="color_4d518ef8">#4d518ef8</color>
     <color name="color_99000000">#99000000</color>
-    <color name="color_84ed85">#84ed85</color>
-    <color name="color_cccccc">#cccccc</color>
     <color name="color_d8eae4">#d8eae4</color>
     <color name="color_4d000000">#4d000000</color>
     <color name="color_d9d9d9">#4d000000</color>

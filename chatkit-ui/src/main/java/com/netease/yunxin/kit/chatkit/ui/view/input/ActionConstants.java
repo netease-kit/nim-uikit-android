@@ -21,8 +21,17 @@ public class ActionConstants {
   // select item take video action
   public static final String ACTION_TYPE_TAKE_VIDEO = "ACTION_TYPE_TAKE_VIDEO";
 
+  // select item video call action
+  public static final String ACTION_TYPE_VIDEO_CALL_ACTION = "ACTION_TYPE_VIDEO_CALL_ACTION";
+  // select item audio call action
+  public static final String ACTION_TYPE_AUDIO_CALL_ACTION = "ACTION_TYPE_AUDIO_CALL_ACTION";
+
   // action take shoot in more action
   public static final String ACTION_TYPE_CAMERA = "ACTION_TYPE_TAKE_CAMERA";
+  // action location in more action
+  public static final String ACTION_TYPE_LOCATION = "ACTION_TYPE_LOCATION";
+  // action video call in more action
+  public static final String ACTION_TYPE_VIDEO_CALL = "ACTION_TYPE_VIDEO_CALL";
 
   //消息长按菜单-回复
   public static final String POP_ACTION_REPLY = "POP_ACTION_REPLY";
@@ -40,4 +49,11 @@ public class ActionConstants {
   public static final String POP_ACTION_DELETE = "POP_ACTION_DELETE";
   //消息长按菜单-转发
   public static final String POP_ACTION_TRANSMIT = "POP_ACTION_TRANSMIT";
+
+  //消息列表payload
+  public static final String PAYLOAD_STATUS = "messageStatus";
+  public static final String PAYLOAD_PROGRESS = "messageProgress";
+  public static final String PAYLOAD_REVOKE = "messageRevoke";
+  public static final String PAYLOAD_SIGNAL = "messageSignal";
+  public static final String PAYLOAD_USERINFO = "userInfo";
 }

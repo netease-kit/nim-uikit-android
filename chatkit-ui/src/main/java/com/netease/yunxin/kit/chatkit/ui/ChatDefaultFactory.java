@@ -9,11 +9,11 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
-import com.netease.yunxin.kit.chatkit.ui.custom.CustomAttachment;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatBaseMessageViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.view.message.ChatMessageViewHolderFactory;
 import com.netease.yunxin.kit.chatkit.ui.view.message.viewholder.ChatBaseMessageViewHolder;
+import com.netease.yunxin.kit.corekit.im.custom.CustomAttachment;
 import java.util.HashMap;
 import java.util.Map;
 
