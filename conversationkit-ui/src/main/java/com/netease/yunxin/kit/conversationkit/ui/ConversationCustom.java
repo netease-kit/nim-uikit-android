@@ -9,7 +9,8 @@ import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
 import com.netease.yunxin.kit.conversationkit.model.ConversationInfo;
 import com.netease.yunxin.kit.corekit.im.model.AttachmentContent;
 
-public abstract class ConversationCustom {
+public class ConversationCustom {
+
   public String customContentText(Context context, ConversationInfo conversationInfo) {
     if (conversationInfo != null && context != null) {
       MsgTypeEnum typeEnum = conversationInfo.getMsgType();
@@ -28,6 +29,8 @@ public abstract class ConversationCustom {
           return context.getString(R.string.msg_type_image);
         case file:
           return context.getString(R.string.msg_type_file);
+        case location:
+          return context.getString(R.string.msg_type_location);
         case custom:
           String result = conversationInfo.getContent();
           if (conversationInfo.getAttachment() instanceof AttachmentContent) {

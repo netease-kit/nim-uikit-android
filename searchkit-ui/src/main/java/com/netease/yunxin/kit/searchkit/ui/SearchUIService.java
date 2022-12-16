@@ -19,7 +19,7 @@ public class SearchUIService extends SearchKitService {
   @NonNull
   @Override
   public String getServiceName() {
-    return "SearchUIService";
+    return "SearchUIKit";
   }
 
   @NonNull

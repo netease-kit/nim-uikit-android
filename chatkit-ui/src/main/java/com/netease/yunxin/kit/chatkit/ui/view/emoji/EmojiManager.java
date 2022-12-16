@@ -14,10 +14,12 @@ import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.util.DisplayMetrics;
+import androidx.annotation.NonNull;
 import androidx.collection.LruCache;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -36,17 +38,17 @@ public class EmojiManager {
   private static Pattern pattern;
 
   // default entries
-  private static final List<Entry> defaultEntries = new ArrayList<Entry>();
+  private static final List<Entry> defaultEntries = new ArrayList<>();
   // text to entry
-  private static final Map<String, Entry> text2entry = new HashMap<String, Entry>();
+  private static final Map<String, Entry> text2entry = new HashMap<>();
   // asset bitmap cache, key: asset path
   private static LruCache<String, Bitmap> drawableCache;
 
-  private static Context sContext;
+  private static WeakReference<Context> sContext;
 
   public static void init(Context context) {
 
-    sContext = context;
+    sContext = new WeakReference<>(context);
 
     load(context);
 
@@ -56,14 +58,14 @@ public class EmojiManager {
         new LruCache<String, Bitmap>(CACHE_MAX_SIZE) {
           @Override
           protected void entryRemoved(
-              boolean evicted, String key, Bitmap oldValue, Bitmap newValue) {
+              boolean evicted, @NonNull String key, @NonNull Bitmap oldValue, Bitmap newValue) {
             if (oldValue != newValue) oldValue.recycle();
           }
         };
   }
 
   public static Context getContext() {
-    return sContext;
+    return sContext.get();
   }
 
   private static class Entry {
@@ -157,23 +159,18 @@ public class EmojiManager {
         try {
           int event = xmlParser.getEventType(); //先获取当前解析器光标在哪
           while (event != XmlPullParser.END_DOCUMENT) { //如果还没到文档的结束标志，那么就继续往下处理
-            switch (event) {
-              case XmlPullParser.START_TAG:
-                //一般都是获取标签的属性值，所以在这里数据你需要的数据
-                if (xmlParser.getName().equals("Catalog")) {
-                  catalog = xmlParser.getAttributeValue(0);
-                } else if (xmlParser.getName().equals("Emoticon")) {
-                  String fileName = xmlParser.getAttributeValue(0);
-                  String tag = xmlParser.getAttributeValue(2);
-                  Entry entry = new Entry(tag, EMOJI_DIR + catalog + "/" + fileName);
-                  text2entry.put(entry.text, entry);
-                  if (catalog.equals("default")) {
-                    defaultEntries.add(entry);
-                  }
+            if (event == XmlPullParser.START_TAG) { //一般都是获取标签的属性值，所以在这里数据你需要的数据
+              if (xmlParser.getName().equals("Catalog")) {
+                catalog = xmlParser.getAttributeValue(0);
+              } else if (xmlParser.getName().equals("Emoticon")) {
+                String fileName = xmlParser.getAttributeValue(0);
+                String tag = xmlParser.getAttributeValue(2);
+                Entry entry = new Entry(tag, EMOJI_DIR + catalog + "/" + fileName);
+                text2entry.put(entry.text, entry);
+                if (catalog.equals("default")) {
+                  defaultEntries.add(entry);
                 }
-                break;
-              default:
-                break;
+              }
             }
             event = xmlParser.next(); //将当前解析器光标往下一步移
           }
@@ -182,7 +179,6 @@ public class EmojiManager {
         }
       } catch (Exception e) {
         e.printStackTrace();
-      } finally {
       }
     }
   }

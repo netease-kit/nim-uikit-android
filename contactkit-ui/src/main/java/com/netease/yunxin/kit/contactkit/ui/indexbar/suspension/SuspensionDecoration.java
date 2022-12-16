@@ -6,7 +6,6 @@ package com.netease.yunxin.kit.contactkit.ui.indexbar.suspension;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.util.TypedValue;
@@ -14,15 +13,16 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import com.netease.yunxin.kit.contactkit.ui.R;
 import java.util.List;
 
 /** custom decoration for Suspension */
 public class SuspensionDecoration extends RecyclerView.ItemDecoration {
 
-  private int colorTitleBg = Color.parseColor("#FFFFFF");
-  private int colorTitleBottomLine = Color.parseColor("#DBE0E8");
-  private int colorTitleFont = Color.parseColor("#B3B7BC");
-  private int indexDecorationBg = Color.parseColor("#EFF1F4");;
+  private int colorTitleBg;
+  private int colorTitleBottomLine;
+  private int colorTitleFont;
+  private int indexDecorationBg;
   private int mTitleFontSize;
   private int bottomLineHeight;
   private List<? extends ISuspension> mData;
@@ -41,6 +41,10 @@ public class SuspensionDecoration extends RecyclerView.ItemDecoration {
     mData = datas;
     mPaint = new Paint();
     mBounds = new Rect();
+    colorTitleBg = context.getResources().getColor(R.color.color_ffffff);
+    colorTitleBottomLine = context.getResources().getColor(R.color.color_deb0e8);
+    colorTitleFont = context.getResources().getColor(R.color.color_b3b7bc);
+    indexDecorationBg = context.getResources().getColor(R.color.color_eff1f4);
     mTitleHeight =
         (int)
             TypedValue.applyDimension(

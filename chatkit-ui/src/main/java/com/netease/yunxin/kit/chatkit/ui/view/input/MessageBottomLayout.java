@@ -8,6 +8,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -15,6 +16,7 @@ import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
+import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.inputmethod.EditorInfo;
 import android.widget.FrameLayout;
@@ -32,16 +34,23 @@ import com.netease.yunxin.kit.chatkit.ui.common.MessageUtil;
 import com.netease.yunxin.kit.chatkit.ui.custom.StickerAttachment;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatMessageBottomLayoutBinding;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
+import com.netease.yunxin.kit.chatkit.ui.view.IItemActionListener;
 import com.netease.yunxin.kit.chatkit.ui.view.ait.AitTextChangeListener;
 import com.netease.yunxin.kit.chatkit.ui.view.emoji.IEmojiSelectedListener;
 import com.netease.yunxin.kit.chatkit.ui.view.interfaces.IMessageProxy;
 import com.netease.yunxin.kit.common.ui.action.ActionItem;
+import com.netease.yunxin.kit.common.ui.dialog.BottomChoiceDialog;
+import com.netease.yunxin.kit.common.ui.utils.Permission;
+import com.netease.yunxin.kit.common.ui.utils.ToastX;
 import com.netease.yunxin.kit.common.utils.KeyboardUtils;
+import com.netease.yunxin.kit.common.utils.PermissionUtils;
+import com.netease.yunxin.kit.common.utils.XKitUtils;
+import com.netease.yunxin.kit.corekit.im.IMKitClient;
 import java.io.File;
 import java.util.List;
 
 public class MessageBottomLayout extends FrameLayout
-    implements IAudioRecordCallback, AitTextChangeListener {
+    implements IAudioRecordCallback, AitTextChangeListener, IItemActionListener {
   public static final String TAG = "MessageBottomLayout";
   private static final long SHOW_DELAY_TIME = 200;
   private ChatMessageBottomLayoutBinding mBinding;
@@ -79,33 +88,7 @@ public class MessageBottomLayout extends FrameLayout
 
   public void init(List<ActionItem> items, IMessageProxy proxy) {
     mProxy = proxy;
-    actionAdapter =
-        new InputActionAdapter(
-            items,
-            (view, position, item) -> {
-              ALog.d(TAG, "action click, inputState:" + mInputState);
-              switch (item.getAction()) {
-                case ActionConstants.ACTION_TYPE_RECORD:
-                  switchRecord();
-                  break;
-                case ActionConstants.ACTION_TYPE_EMOJI:
-                  switchEmoji();
-                  break;
-                case ActionConstants.ACTION_TYPE_ALBUM:
-                  onAlbumClick();
-                  break;
-                case ActionConstants.ACTION_TYPE_FILE:
-                  mProxy.sendFile();
-                  clearReplyMsg();
-                  break;
-                case ActionConstants.ACTION_TYPE_MORE:
-                  switchMore();
-                  break;
-                default:
-                  mProxy.onCustomAction(view, item.getAction());
-                  break;
-              }
-            });
+    actionAdapter = new InputActionAdapter(items, this);
     actionAdapter.disableAll(mMute);
     mBinding.chatMessageActionContainer.setAdapter(actionAdapter);
     mBinding.chatMessageRecordView.setRecordCallback(this);
@@ -147,7 +130,7 @@ public class MessageBottomLayout extends FrameLayout
     mBinding.llyReply.setVisibility(GONE);
     // init more panel
     mActionsPanel.init(
-        mBinding.chatMessageActionsPanel, ActionFactory.assembleInputMoreActions(), mProxy);
+        mBinding.chatMessageActionsPanel, ActionFactory.assembleInputMoreActions(), this);
 
     mBinding.chatMessageInputEt.setOnFocusChangeListener(
         (v, hasFocus) ->
@@ -167,6 +150,41 @@ public class MessageBottomLayout extends FrameLayout
           @Override
           public void afterTextChanged(Editable s) {}
         });
+  }
+
+  public ChatMessageBottomLayoutBinding getViewBinding() {
+    return mBinding;
+  }
+
+  @Override
+  public void onClick(View view, int position, ActionItem item) {
+    ALog.d(TAG, "action click, inputState:" + mInputState);
+    switch (item.getAction()) {
+      case ActionConstants.ACTION_TYPE_RECORD:
+        switchRecord();
+        break;
+      case ActionConstants.ACTION_TYPE_EMOJI:
+        switchEmoji();
+        break;
+      case ActionConstants.ACTION_TYPE_ALBUM:
+        onAlbumClick();
+        break;
+      case ActionConstants.ACTION_TYPE_FILE:
+        onFileClick();
+        break;
+      case ActionConstants.ACTION_TYPE_MORE:
+        switchMore();
+        break;
+      case ActionConstants.ACTION_TYPE_CAMERA:
+        onCameraClick();
+        break;
+      case ActionConstants.ACTION_TYPE_LOCATION:
+        onLocationClick();
+        break;
+      default:
+        mProxy.onCustomAction(view, item.getAction());
+        break;
+    }
   }
 
   public void setAitTextWatcher(TextWatcher aitTextWatcher) {
@@ -248,7 +266,7 @@ public class MessageBottomLayout extends FrameLayout
         new LinearLayoutManager(getContext(), RecyclerView.HORIZONTAL, false));
   }
 
-  private void sendText(ChatMessageBean replyMessage) {
+  public void sendText(ChatMessageBean replyMessage) {
     String msg = mBinding.chatMessageInputEt.getEditableText().toString();
     if (!TextUtils.isEmpty(msg) && mProxy != null) {
       if (mProxy.sendTextMessage(msg, replyMessage)) {
@@ -258,7 +276,7 @@ public class MessageBottomLayout extends FrameLayout
     }
   }
 
-  private void hideCurrentInput() {
+  public void hideCurrentInput() {
     if (mInputState == InputState.input) {
       hideKeyboard();
     } else if (mInputState == InputState.voice) {
@@ -270,7 +288,7 @@ public class MessageBottomLayout extends FrameLayout
     }
   }
 
-  private void switchInput() {
+  public void switchInput() {
     if (mInputState == InputState.input) {
       return;
     }
@@ -279,7 +297,7 @@ public class MessageBottomLayout extends FrameLayout
     mInputState = InputState.input;
   }
 
-  private void switchRecord() {
+  public void switchRecord() {
     if (mInputState == InputState.voice) {
       recordShow(false, 0);
       mInputState = InputState.none;
@@ -290,12 +308,12 @@ public class MessageBottomLayout extends FrameLayout
     mInputState = InputState.voice;
   }
 
-  private void recordShow(boolean show, long delay) {
+  public void recordShow(boolean show, long delay) {
     postDelayed(() -> mBinding.chatMessageRecordView.setVisibility(show ? VISIBLE : GONE), delay);
     actionAdapter.updateItemState(ActionConstants.ACTION_TYPE_RECORD, show);
   }
 
-  private void switchEmoji() {
+  public void switchEmoji() {
     if (mInputState == InputState.emoji) {
       emojiShow(false, 0);
       mInputState = InputState.none;
@@ -306,7 +324,7 @@ public class MessageBottomLayout extends FrameLayout
     mInputState = InputState.emoji;
   }
 
-  private void emojiShow(boolean show, long delay) {
+  public void emojiShow(boolean show, long delay) {
     postDelayed(
         () -> {
           mBinding.chatMessageEmojiView.setVisibility(show ? VISIBLE : GONE);
@@ -318,7 +336,7 @@ public class MessageBottomLayout extends FrameLayout
     actionAdapter.updateItemState(ActionConstants.ACTION_TYPE_EMOJI, show);
   }
 
-  private void switchMore() {
+  public void switchMore() {
     if (mInputState == InputState.more) {
       morePanelShow(false, 0);
       mInputState = InputState.none;
@@ -329,17 +347,87 @@ public class MessageBottomLayout extends FrameLayout
     mInputState = InputState.more;
   }
 
-  private void morePanelShow(boolean show, long delay) {
+  public void morePanelShow(boolean show, long delay) {
     postDelayed(() -> mBinding.chatMessageActionsPanel.setVisibility(show ? VISIBLE : GONE), delay);
     actionAdapter.updateItemState(ActionConstants.ACTION_TYPE_MORE, show);
   }
 
-  private void onAlbumClick() {
+  public void onAlbumClick() {
     if (mInputState == InputState.input) {
       hideKeyboard();
       postDelayed(() -> mProxy.pickMedia(), SHOW_DELAY_TIME);
     } else {
       mProxy.pickMedia();
+    }
+  }
+
+  public void onCameraClick() {
+    BottomChoiceDialog dialog =
+        new BottomChoiceDialog(this.getContext(), ActionFactory.assembleTakeShootActions());
+    dialog.setOnChoiceListener(
+        new BottomChoiceDialog.OnChoiceListener() {
+          @Override
+          public void onChoice(@NonNull String type) {
+            if (!XKitUtils.getApplicationContext()
+                .getPackageManager()
+                .hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)) {
+              ToastX.showShortToast(R.string.chat_message_camera_unavailable);
+              return;
+            }
+            switch (type) {
+              case ActionConstants.ACTION_TYPE_TAKE_PHOTO:
+                mProxy.takePicture();
+                break;
+              case ActionConstants.ACTION_TYPE_TAKE_VIDEO:
+                mProxy.captureVideo();
+                break;
+              default:
+                break;
+            }
+          }
+
+          @Override
+          public void onCancel() {}
+        });
+    dialog.show();
+  }
+
+  public void onLocationClick() {
+    String[] permissions = {
+      Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION
+    };
+    if (PermissionUtils.hasPermissions(IMKitClient.getApplicationContext(), permissions)) {
+      mProxy.sendLocationLaunch();
+    } else {
+      Permission.requirePermissions(IMKitClient.getApplicationContext(), permissions)
+          .request(
+              new Permission.PermissionCallback() {
+                @Override
+                public void onGranted(List<String> permissionsGranted) {
+                  mProxy.sendLocationLaunch();
+                }
+
+                @Override
+                public void onDenial(
+                    List<String> permissionsDenial, List<String> permissionDenialForever) {
+                  ToastX.showShortToast(R.string.permission_default);
+                }
+
+                @Override
+                public void onException(Exception exception) {
+                  ToastX.showShortToast(R.string.permission_default);
+                }
+              });
+    }
+  }
+
+  public void onFileClick() {
+    if (mInputState == InputState.input) {
+      hideKeyboard();
+      postDelayed(() -> mProxy.pickMedia(), SHOW_DELAY_TIME);
+    } else {
+      mProxy.sendFile();
+      clearReplyMsg();
     }
   }
 

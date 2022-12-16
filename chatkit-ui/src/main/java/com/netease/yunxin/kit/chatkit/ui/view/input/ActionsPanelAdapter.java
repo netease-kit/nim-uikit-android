@@ -13,6 +13,7 @@ import android.widget.GridLayout;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatMeesageMoreItemViewBinding;
+import com.netease.yunxin.kit.chatkit.ui.view.IItemActionListener;
 import com.netease.yunxin.kit.common.ui.action.ActionItem;
 import com.netease.yunxin.kit.common.utils.ScreenUtils;
 import java.util.ArrayList;
@@ -24,7 +25,7 @@ public class ActionsPanelAdapter extends RecyclerView.Adapter<ActionsPanelAdapte
   private static final int PAGE_SIZE = ROW_COUNT * COLUMN_COUNT;
   private Context mContext;
   private ArrayList<ActionItem> items = new ArrayList<>();
-  private OnActionItemClick onActionItemClick;
+  private IItemActionListener onActionItemClick;
 
   public ActionsPanelAdapter(Context context, List<ActionItem> items) {
     this.mContext = context;
@@ -33,7 +34,7 @@ public class ActionsPanelAdapter extends RecyclerView.Adapter<ActionsPanelAdapte
     }
   }
 
-  public void setOnActionItemClick(OnActionItemClick onActionItemClick) {
+  public void setOnActionItemClick(IItemActionListener onActionItemClick) {
     this.onActionItemClick = onActionItemClick;
   }
 
@@ -87,7 +88,7 @@ public class ActionsPanelAdapter extends RecyclerView.Adapter<ActionsPanelAdapte
             view -> {
               item.onClick(view);
               if (onActionItemClick != null) {
-                onActionItemClick.onClick(view, item);
+                onActionItemClick.onClick(view, i, item);
               }
             });
     return binding.getRoot();
@@ -103,9 +104,5 @@ public class ActionsPanelAdapter extends RecyclerView.Adapter<ActionsPanelAdapte
     public GridViewHolder(@NonNull View itemView) {
       super(itemView);
     }
-  }
-
-  interface OnActionItemClick {
-    void onClick(View view, ActionItem item);
   }
 }

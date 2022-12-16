@@ -15,7 +15,7 @@ android {
         minSdk = 21
         targetSdk = 30
         versionCode = 1
-        versionName = "9.2.12"
+        versionName = "9.3.0"
         multiDexEnabled = true
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -55,12 +55,14 @@ dependencies {
 //    implementation(project(":teamkit-ui"))
 //    implementation(project(":chatkit-ui"))
 //    implementation(project(":searchkit-ui"))
-    implementation("com.netease.yunxin.kit.contact:contactkit-ui:9.2.12")
-    implementation("com.netease.yunxin.kit.qchat:qchatkit-ui:9.2.12")
-    implementation("com.netease.yunxin.kit.conversation:conversationkit-ui:9.2.12")
-    implementation("com.netease.yunxin.kit.team:teamkit-ui:9.2.12")
-    implementation("com.netease.yunxin.kit.chat:chatkit-ui:9.2.12")
-    implementation("com.netease.yunxin.kit.search:searchkit-ui:9.2.12")
+//    implementation(project(":locationkit"))
+    implementation("com.netease.yunxin.kit.contact:contactkit-ui:9.3.0-rc01")
+    implementation("com.netease.yunxin.kit.qchat:qchatkit-ui:9.3.0-rc01")
+    implementation("com.netease.yunxin.kit.conversation:conversationkit-ui:9.3.0-rc01")
+    implementation("com.netease.yunxin.kit.team:teamkit-ui:9.3.0-rc01")
+    implementation("com.netease.yunxin.kit.chat:chatkit-ui:9.3.0-rc01")
+    implementation("com.netease.yunxin.kit.search:searchkit-ui:9.3.0-rc01")
+    implementation("com.netease.yunxin.kit.locationkit:locationkit:1.0.0-rc02")
     implementation("com.airbnb.android:lottie:5.0.3")
     implementation("com.github.bumptech.glide:glide:4.13.1")
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
@@ -75,7 +77,4 @@ dependencies {
     implementation("commons-codec:commons-codec:1.10")
     implementation("androidx.annotation:annotation:1.3.0")
 
-    testImplementation("junit:junit:4.13.2")
-    androidTestImplementation("androidx.test.ext:junit:1.1.3")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.4.0")
 }

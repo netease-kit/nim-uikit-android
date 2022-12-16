@@ -18,6 +18,7 @@ import com.netease.nimlib.sdk.msg.constant.MsgDirectionEnum;
 import com.netease.nimlib.sdk.msg.constant.MsgStatusEnum;
 import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
 import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
+import com.netease.nimlib.sdk.msg.model.IMMessage;
 import com.netease.nimlib.sdk.msg.model.MsgThreadOption;
 import com.netease.nimlib.sdk.team.model.Team;
 import com.netease.yunxin.kit.alog.ALog;
@@ -30,10 +31,10 @@ import com.netease.yunxin.kit.chatkit.ui.databinding.ChatBaseMessageViewHolderBi
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatMessageRevokedViewBinding;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.page.ChatMessageAckActivity;
+import com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants;
 import com.netease.yunxin.kit.chatkit.ui.view.interfaces.IMessageItemClickListener;
 import com.netease.yunxin.kit.chatkit.ui.view.interfaces.IMessageReader;
 import com.netease.yunxin.kit.chatkit.ui.view.message.MessageProperties;
-import com.netease.yunxin.kit.chatkit.ui.view.message.adapter.ChatMessageAdapter;
 import com.netease.yunxin.kit.common.ui.utils.AvatarColor;
 import com.netease.yunxin.kit.common.ui.utils.TimeFormatUtils;
 import com.netease.yunxin.kit.common.utils.SizeUtils;
@@ -48,6 +49,8 @@ public abstract class ChatBaseMessageViewHolder extends RecyclerView.ViewHolder 
   private static final String LOG_TAG = "ChatBaseMessageViewHolder";
 
   private static final int SHOW_TIME_INTERVAL = 5 * 60 * 1000;
+
+  private static final int REVOKE_TIME_INTERVAL = 2 * 60 * 1000;
 
   private static final int MAX_RECEIPT_NUM = 100;
 
@@ -106,17 +109,17 @@ public abstract class ChatBaseMessageViewHolder extends RecyclerView.ViewHolder 
     if (!payload.isEmpty()) {
       for (int i = 0; i < payload.size(); ++i) {
         String payloadItem = payload.get(i).toString();
-        if (TextUtils.equals(payloadItem, ChatMessageAdapter.STATUS_PAYLOAD)) {
+        if (TextUtils.equals(payloadItem, ActionConstants.PAYLOAD_STATUS)) {
           setStatus(data);
           currentMessage = data;
           onMessageStatus(data);
-        } else if (TextUtils.equals(payloadItem, ChatMessageAdapter.REVOKE_PAYLOAD)) {
+        } else if (TextUtils.equals(payloadItem, ActionConstants.PAYLOAD_REVOKE)) {
           onMessageRevoked(data);
-        } else if (TextUtils.equals(payloadItem, ChatMessageAdapter.SIGNAL_PAYLOAD)) {
+        } else if (TextUtils.equals(payloadItem, ActionConstants.PAYLOAD_SIGNAL)) {
           onMessageSignal(data);
-        } else if (TextUtils.equals(payloadItem, ChatMessageAdapter.PROGRESS_PAYLOAD)) {
+        } else if (TextUtils.equals(payloadItem, ActionConstants.PAYLOAD_PROGRESS)) {
           onProgressUpdate(data);
-        } else if (TextUtils.equals(payloadItem, ChatMessageAdapter.USERINFO_PAYLOAD)) {
+        } else if (TextUtils.equals(payloadItem, ActionConstants.PAYLOAD_USERINFO)) {
           setUserInfo(data);
         }
       }
@@ -198,7 +201,8 @@ public abstract class ChatBaseMessageViewHolder extends RecyclerView.ViewHolder 
             LayoutInflater.from(parent.getContext()), baseViewBinding.messageRevoke, true);
 
     if (!isReceivedMessage(data)
-        && data.getMessageData().getMessage().getMsgType() == MsgTypeEnum.text) {
+        && data.getMessageData().getMessage().getMsgType() == MsgTypeEnum.text
+        && revokeMsgIsEdit(data.getMessageData().getMessage())) {
       revokedViewBinding.tvAction.setVisibility(View.VISIBLE);
       //reedit
       revokedViewBinding.tvAction.setOnClickListener(
@@ -212,11 +216,16 @@ public abstract class ChatBaseMessageViewHolder extends RecyclerView.ViewHolder 
     }
   }
 
+  private boolean revokeMsgIsEdit(IMMessage message) {
+    return System.currentTimeMillis() - message.getTime() < REVOKE_TIME_INTERVAL;
+  }
+
   public void bindData(ChatMessageBean message, ChatMessageBean lastMessage) {
     currentMessage = message;
     int padding = SizeUtils.dp2px(8);
     baseViewBinding.baseRoot.setPadding(padding, padding, padding, padding);
     baseViewBinding.messageContainer.removeAllViews();
+    baseViewBinding.messageRevoke.removeAllViews();
     addContainer();
     if (type == ChatMessageType.NOTICE_MESSAGE_VIEW_TYPE
         || type == ChatMessageType.TIP_MESSAGE_VIEW_TYPE) {
@@ -292,6 +301,9 @@ public abstract class ChatBaseMessageViewHolder extends RecyclerView.ViewHolder 
         baseViewBinding.llyMessage.setBackgroundResource(properties.selfMessageRes);
       } else if (properties.getSelfMessageBg() != null) {
         baseViewBinding.llyMessage.setBackground(properties.getSelfMessageBg());
+      } else if (currentMessage.getMessageData().getMessage().getMsgType()
+          == MsgTypeEnum.location) {
+        baseViewBinding.llyMessage.setBackgroundResource(R.drawable.chat_message_stoke_self_bg);
       } else {
         baseViewBinding.llyMessage.setBackgroundResource(R.drawable.chat_message_self_bg);
       }
@@ -334,6 +346,8 @@ public abstract class ChatBaseMessageViewHolder extends RecyclerView.ViewHolder 
       baseViewBinding.llyMessage.setBackgroundResource(properties.receiveMessageRes);
     } else if (properties.getReceiveMessageBg() != null) {
       baseViewBinding.llyMessage.setBackground(properties.getReceiveMessageBg());
+    } else if (currentMessage.getMessageData().getMessage().getMsgType() == MsgTypeEnum.location) {
+      baseViewBinding.llyMessage.setBackgroundResource(R.drawable.chat_message_stroke_other_bg);
     } else {
       baseViewBinding.llyMessage.setBackgroundResource(R.drawable.chat_message_other_bg);
     }
@@ -415,7 +429,11 @@ public abstract class ChatBaseMessageViewHolder extends RecyclerView.ViewHolder 
 
   protected void setStatus(ChatMessageBean data) {
     if (data.getMessageData().getMessage().getStatus() == MsgStatusEnum.sending) {
-      baseViewBinding.messageSending.setVisibility(View.VISIBLE);
+      if (showSending()) {
+        baseViewBinding.messageSending.setVisibility(View.VISIBLE);
+      } else {
+        baseViewBinding.messageSending.setVisibility(View.GONE);
+      }
       baseViewBinding.ivStatus.setVisibility(View.GONE);
       baseViewBinding.readProcess.setVisibility(View.GONE);
     } else if ((data.getMessageData().getMessage().getStatus() == MsgStatusEnum.fail)
@@ -519,5 +537,9 @@ public abstract class ChatBaseMessageViewHolder extends RecyclerView.ViewHolder 
 
   public ViewGroup getContainer() {
     return baseViewBinding.messageContainer;
+  }
+
+  public boolean showSending() {
+    return true;
   }
 }

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?><!-- Copyright (c) 2022 NetEase, Inc. All rights reserved. -->
+<!-- Use of this source code is governed by a MIT license that can be -->
+<!-- found in the LICENSE file. -->
+
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingLeft="@dimen/dimen_12_dp"
+    android:paddingRight="@dimen/dimen_12_dp">
+
+    <ImageView
+        android:id="@+id/location_icon"
+        android:layout_width="@dimen/dimen_18_dp"
+        android:layout_height="@dimen/dimen_18_dp"
+        android:layout_marginTop="@dimen/dimen_16_dp"
+        android:src="@drawable/ic_location_item"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/location_title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/dimen_4_dp"
+        android:layout_marginRight="@dimen/dimen_4_dp"
+        android:ellipsize="end"
+        android:lines="1"
+        android:textColor="@color/color_333333"
+        android:textSize="@dimen/text_size_16"
+        app:layout_constraintBottom_toBottomOf="@id/location_icon"
+        app:layout_constraintLeft_toRightOf="@id/location_icon"
+        app:layout_constraintRight_toLeftOf="@+id/location_selected"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="@id/location_icon" />
+
+    <TextView
+        android:id="@+id/location_desc"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dimen_6_dp"
+        android:layout_marginRight="@dimen/dimen_4_dp"
+        android:ellipsize="end"
+        android:lines="1"
+        android:textColor="@color/color_b3b7bc"
+        android:textSize="@dimen/text_size_14"
+        app:layout_constraintLeft_toLeftOf="@id/location_title"
+        app:layout_constraintRight_toLeftOf="@+id/location_selected"
+        app:layout_constraintTop_toBottomOf="@id/location_title" />
+
+    <ImageView
+        android:id="@+id/location_selected"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_location_selected"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1px"
+        android:layout_marginTop="@dimen/dimen_16_dp"
+        android:background="@color/color_e9eff5"
+        app:layout_constraintTop_toBottomOf="@id/location_desc" />
+</androidx.constraintlayout.widget.ConstraintLayout>

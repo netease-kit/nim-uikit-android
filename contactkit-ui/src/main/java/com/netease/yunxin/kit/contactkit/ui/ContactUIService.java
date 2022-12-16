@@ -24,7 +24,7 @@ public class ContactUIService extends ContactService {
   @NonNull
   @Override
   public String getServiceName() {
-    return "ContactUIService";
+    return "ContactUIKit";
   }
 
   @NonNull

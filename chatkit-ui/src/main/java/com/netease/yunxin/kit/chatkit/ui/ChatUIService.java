@@ -10,6 +10,8 @@ import com.netease.yunxin.kit.chatkit.ChatService;
 import com.netease.yunxin.kit.chatkit.ui.page.ChatP2PActivity;
 import com.netease.yunxin.kit.chatkit.ui.page.ChatSearchActivity;
 import com.netease.yunxin.kit.chatkit.ui.page.ChatTeamActivity;
+import com.netease.yunxin.kit.chatkit.ui.page.LocationPageActivity;
+import com.netease.yunxin.kit.chatkit.ui.view.emoji.EmojiManager;
 import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 
@@ -19,7 +21,7 @@ public class ChatUIService extends ChatService {
   @NonNull
   @Override
   public String getServiceName() {
-    return "ChatUIService";
+    return "ChatUIKit";
   }
 
   @NonNull
@@ -34,6 +36,12 @@ public class ChatUIService extends ChatService {
     XKitRouter.registerRouter(RouterConstant.PATH_CHAT_P2P_PAGE, ChatP2PActivity.class);
     XKitRouter.registerRouter(RouterConstant.PATH_CHAT_TEAM_PAGE, ChatTeamActivity.class);
     XKitRouter.registerRouter(RouterConstant.PATH_CHAT_SEARCH_PAGE, ChatSearchActivity.class);
+    XKitRouter.registerRouter(RouterConstant.PATH_CHAT_LOCATION_PAGE, LocationPageActivity.class);
+    chatKitInit(context);
     return this;
+  }
+
+  public void chatKitInit(Context context) {
+    EmojiManager.init(context);
   }
 }

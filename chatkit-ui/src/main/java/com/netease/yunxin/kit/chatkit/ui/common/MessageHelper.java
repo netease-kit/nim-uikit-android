@@ -7,15 +7,15 @@ package com.netease.yunxin.kit.chatkit.ui.common;
 import android.text.TextUtils;
 import androidx.annotation.Nullable;
 import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
-import com.netease.nimlib.sdk.msg.model.IMMessage;
 import com.netease.nimlib.sdk.team.constant.TeamTypeEnum;
 import com.netease.nimlib.sdk.team.model.Team;
 import com.netease.nimlib.sdk.team.model.TeamMember;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.model.IMMessageRecord;
 import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
+import com.netease.yunxin.kit.chatkit.ui.ChatCustom;
+import com.netease.yunxin.kit.chatkit.ui.ChatKitClient;
 import com.netease.yunxin.kit.chatkit.ui.R;
-import com.netease.yunxin.kit.chatkit.ui.custom.CustomAttachment;
 import com.netease.yunxin.kit.corekit.im.IMKitClient;
 import com.netease.yunxin.kit.corekit.im.model.FriendInfo;
 import com.netease.yunxin.kit.corekit.im.model.UserInfo;
@@ -25,6 +25,7 @@ import java.util.List;
 
 public class MessageHelper {
 
+  private static ChatCustom chatCustom = new ChatCustom();
   /**
    * get nickName display
    *
@@ -273,38 +274,10 @@ public class MessageHelper {
   }
 
   public static String getReplyMsgBrief(IMMessageInfo messageInfo) {
-    IMMessage msg = messageInfo.getMessage();
-    switch (msg.getMsgType()) {
-      case avchat:
-        return IMKitClient.getApplicationContext().getString(R.string.chat_reply_message_call);
-      case image:
-        return IMKitClient.getApplicationContext()
-            .getString(R.string.chat_reply_message_brief_image);
-      case video:
-        return IMKitClient.getApplicationContext()
-            .getString(R.string.chat_reply_message_brief_video);
-      case audio:
-        return IMKitClient.getApplicationContext()
-            .getString(R.string.chat_reply_message_brief_audio);
-      case location:
-        return IMKitClient.getApplicationContext()
-            .getString(R.string.chat_reply_message_brief_location);
-      case file:
-        return IMKitClient.getApplicationContext()
-            .getString(R.string.chat_reply_message_brief_file);
-      case notification:
-        return TeamNotificationHelper.getTeamNotificationText(messageInfo);
-      case robot:
-        return IMKitClient.getApplicationContext()
-            .getString(R.string.chat_reply_message_brief_robot);
-      case custom:
-        if (msg.getAttachment() instanceof CustomAttachment) {
-          return ((CustomAttachment) msg.getAttachment()).getContent();
-        } else {
-          return msg.getContent();
-        }
-      default:
-        return msg.getContent();
+    if (ChatKitClient.getChatUIConfig() != null
+        && ChatKitClient.getChatUIConfig().chatCustom != null) {
+      return ChatKitClient.getChatUIConfig().chatCustom.getReplyMsgBrief(messageInfo);
     }
+    return chatCustom.getReplyMsgBrief(messageInfo);
   }
 }

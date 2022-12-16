@@ -6,12 +6,12 @@ package com.netease.yunxin.kit.chatkit.ui.view.input;
 
 import android.text.TextUtils;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatMessageActionItemBinding;
+import com.netease.yunxin.kit.chatkit.ui.view.IItemActionListener;
 import com.netease.yunxin.kit.common.ui.action.ActionItem;
 import com.netease.yunxin.kit.common.utils.ScreenUtils;
 import java.util.ArrayList;
@@ -20,10 +20,10 @@ import java.util.List;
 public class InputActionAdapter extends RecyclerView.Adapter<InputActionAdapter.ItemHolder> {
 
   private final List<ActionItem> mItems = new ArrayList<>();
-  private final OnItemClick onItemClick;
+  private final IItemActionListener onItemClick;
   private boolean disableAll = false;
 
-  public InputActionAdapter(List<ActionItem> itemList, OnItemClick listener) {
+  public InputActionAdapter(List<ActionItem> itemList, IItemActionListener listener) {
     if (itemList != null && itemList.size() > 0) {
       mItems.addAll(itemList);
     }
@@ -91,9 +91,5 @@ public class InputActionAdapter extends RecyclerView.Adapter<InputActionAdapter.
       super(binding.getRoot());
       this.binding = binding;
     }
-  }
-
-  public interface OnItemClick {
-    void onClick(View view, int position, ActionItem item);
   }
 }

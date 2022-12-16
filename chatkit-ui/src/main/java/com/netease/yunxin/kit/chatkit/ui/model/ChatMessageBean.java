@@ -4,6 +4,8 @@
 
 package com.netease.yunxin.kit.chatkit.ui.model;
 
+import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.KEY_REVOKE_TAG;
+
 import com.netease.nimlib.sdk.msg.model.MsgPinOption;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import java.util.Objects;
@@ -15,6 +17,13 @@ public class ChatMessageBean {
 
   public ChatMessageBean(IMMessageInfo messageData) {
     this.messageData = messageData;
+    if (messageData.getMessage().getLocalExtension() != null
+        && messageData.getMessage().getLocalExtension().containsKey(KEY_REVOKE_TAG)) {
+      Object revokeLocal = messageData.getMessage().getLocalExtension().get(KEY_REVOKE_TAG);
+      if (revokeLocal instanceof Boolean) {
+        isRevoked = (Boolean) revokeLocal;
+      }
+    }
   }
 
   IMMessageInfo messageData;
@@ -26,6 +35,8 @@ public class ChatMessageBean {
   float loadProgress;
 
   boolean isRevoked;
+
+  public long progress;
 
   public IMMessageInfo getMessageData() {
     return messageData;

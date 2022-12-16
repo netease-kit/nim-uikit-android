@@ -7,6 +7,8 @@ package com.netease.yunxin.kit.chatkit.ui.view.message;
 import android.graphics.drawable.Drawable;
 import android.view.View;
 import androidx.annotation.ColorInt;
+import com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant;
+import java.util.Map;
 
 /** message item config */
 public class MessageProperties {
@@ -52,6 +54,11 @@ public class MessageProperties {
   public View.OnClickListener titleBarRightClick;
 
   public Drawable chatViewBackground;
+
+  //文件图标格式对应图片
+  public Map<String, Drawable> fileDrawable;
+
+  public long sendFileLimit = ChatKitUIConstant.FILE_LIMIT;
 
   @Deprecated
   public void setReceiveMessageBg(Drawable receiveMessageBg) {

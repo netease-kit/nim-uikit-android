@@ -288,6 +288,7 @@ public class ContactFragment extends BaseFragment {
   @Override
   public void onDestroy() {
     super.onDestroy();
+    ALog.d(LIB_TAG, TAG, "onDestroy");
     if (viewModel != null) {
       viewModel.getContactLiveData().removeObserver(contactObserver);
     }

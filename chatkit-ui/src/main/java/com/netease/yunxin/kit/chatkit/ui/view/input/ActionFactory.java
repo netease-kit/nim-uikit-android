@@ -22,8 +22,6 @@ public class ActionFactory {
         new ActionItem(ActionConstants.ACTION_TYPE_EMOJI, R.drawable.ic_send_emoji_selector));
     // image
     actions.add(new ActionItem(ActionConstants.ACTION_TYPE_ALBUM, R.drawable.ic_send_image));
-    // file
-    //        actions.add(new ActionItem(ActionConstants.ACTION_TYPE_FILE, R.drawable.ic_send_file));
     // more+
     actions.add(new ActionItem(ActionConstants.ACTION_TYPE_MORE, R.drawable.ic_more_selector));
 
@@ -41,6 +39,19 @@ public class ActionFactory {
             ActionConstants.ACTION_TYPE_CAMERA,
             R.drawable.ic_shoot,
             R.string.chat_message_more_shoot));
+    actions.add(
+        new ActionItem(
+            ActionConstants.ACTION_TYPE_LOCATION,
+            R.drawable.ic_location,
+            R.string.chat_message_location));
+    actions.add(
+        new ActionItem(
+            ActionConstants.ACTION_TYPE_FILE, R.drawable.ic_send_file, R.string.chat_message_file));
+    //    actions.add(
+    //        new ActionItem(
+    //            ActionConstants.ACTION_TYPE_VIDEO_CALL,
+    //            R.drawable.ic_video_call,
+    //            R.string.chat_message_video_call));
     if (ChatKitClient.getChatUIConfig() != null
         && ChatKitClient.getChatUIConfig().chatInputMenu != null) {
       return ChatKitClient.getChatUIConfig().chatInputMenu.customizeInputMore(actions);
@@ -55,6 +66,23 @@ public class ActionFactory {
             .setTitleColorResId(R.color.color_333333));
     actions.add(
         new ActionItem(ActionConstants.ACTION_TYPE_TAKE_VIDEO, 0, R.string.chat_message_take_video)
+            .setTitleColorResId(R.color.color_333333));
+    return actions;
+  }
+
+  public static ArrayList<ActionItem> assembleVideoCallActions() {
+    ArrayList<ActionItem> actions = new ArrayList<>();
+    actions.add(
+        new ActionItem(
+                ActionConstants.ACTION_TYPE_VIDEO_CALL_ACTION,
+                0,
+                R.string.chat_message_video_call_action)
+            .setTitleColorResId(R.color.color_333333));
+    actions.add(
+        new ActionItem(
+                ActionConstants.ACTION_TYPE_AUDIO_CALL_ACTION,
+                0,
+                R.string.chat_message_audio_call_action)
             .setTitleColorResId(R.color.color_333333));
     return actions;
   }

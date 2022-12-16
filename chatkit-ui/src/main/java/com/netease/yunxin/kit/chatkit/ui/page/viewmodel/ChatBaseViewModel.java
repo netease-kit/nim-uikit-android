@@ -5,9 +5,13 @@
 package com.netease.yunxin.kit.chatkit.ui.page.viewmodel;
 
 import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
+import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.KEY_REVOKE_CONTENT_TAG;
+import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.KEY_REVOKE_TAG;
+import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.KEY_REVOKE_TIME_TAG;
 
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
+import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.Pair;
 import androidx.annotation.Nullable;
@@ -17,9 +21,11 @@ import com.netease.nimlib.sdk.ResponseCode;
 import com.netease.nimlib.sdk.msg.MessageBuilder;
 import com.netease.nimlib.sdk.msg.attachment.FileAttachment;
 import com.netease.nimlib.sdk.msg.attachment.MsgAttachment;
+import com.netease.nimlib.sdk.msg.constant.MsgStatusEnum;
 import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.msg.model.AttachmentProgress;
 import com.netease.nimlib.sdk.msg.model.CollectInfo;
+import com.netease.nimlib.sdk.msg.model.CustomMessageConfig;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
 import com.netease.nimlib.sdk.msg.model.MemberPushOption;
 import com.netease.nimlib.sdk.msg.model.MsgPinOption;
@@ -27,16 +33,19 @@ import com.netease.nimlib.sdk.msg.model.MsgPinSyncResponseOption;
 import com.netease.nimlib.sdk.msg.model.QueryDirectionEnum;
 import com.netease.nimlib.sdk.msg.model.RevokeMsgNotification;
 import com.netease.yunxin.kit.alog.ALog;
+import com.netease.yunxin.kit.chatkit.map.ChatLocationBean;
 import com.netease.yunxin.kit.chatkit.media.ImageUtil;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.repo.ChatObserverRepo;
 import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatCallback;
+import com.netease.yunxin.kit.chatkit.ui.common.ChatUtils;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatConstants;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.model.ait.AitContactsModel;
 import com.netease.yunxin.kit.chatkit.utils.SendMediaHelper;
+import com.netease.yunxin.kit.common.ui.utils.ToastX;
 import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
@@ -51,7 +60,9 @@ import com.netease.yunxin.kit.corekit.im.repo.SettingRepo;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /** chat info view model fetch and send messages for chat page */
 public abstract class ChatBaseViewModel extends BaseViewModel {
@@ -141,9 +152,11 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
   private Observer<RevokeMsgNotification> revokeMsgObserver =
       revokeMsgNotification -> {
         ALog.d(LIB_TAG, TAG, "revokeMsgObserver");
+        ChatMessageBean messageBean =
+            new ChatMessageBean(new IMMessageInfo(revokeMsgNotification.getMessage()));
         FetchResult<ChatMessageBean> fetchResult = new FetchResult<>(LoadStatus.Success);
-        fetchResult.setData(
-            new ChatMessageBean(new IMMessageInfo(revokeMsgNotification.getMessage())));
+        fetchResult.setData(messageBean);
+        saveLocalRevokeMessage(messageBean.getMessageData());
         revokeMessageLiveData.postValue(fetchResult);
       };
 
@@ -185,6 +198,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
               FetchResult<ChatMessageBean> fetchResult = new FetchResult<>(LoadStatus.Success);
               fetchResult.setData(messageBean);
               revokeMessageLiveData.postValue(fetchResult);
+              saveLocalRevokeMessage(messageBean.getMessageData());
               ALog.d(LIB_TAG, TAG, "revokeMessage, onSuccess");
             }
 
@@ -316,12 +330,49 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
     sendMessage(forwardMessage, false, TextUtils.equals(sessionId, mSessionId));
   }
 
+  public void sendLocationMessage(ChatLocationBean locationBean) {
+    ALog.d(LIB_TAG, TAG, "sendLocationMessage:" + locationBean);
+    IMMessage locationMessage =
+        MessageBuilder.createLocationMessage(
+            mSessionId,
+            mSessionType,
+            locationBean.getLat(),
+            locationBean.getLng(),
+            locationBean.getAddress());
+    locationMessage.setContent(locationBean.getTitle());
+    sendMessage(locationMessage, false, true);
+  }
+
   public void replyImageMessage(File imageFile, IMMessage message) {
     if (imageFile != null) {
       ALog.d(LIB_TAG, TAG, "replyImageMessage:" + imageFile.getPath());
       IMMessage imageMsg = MessageBuilder.createImageMessage(mSessionId, mSessionType, imageFile);
       replyMessage(imageMsg, message, false);
     }
+  }
+
+  private void saveLocalRevokeMessage(IMMessageInfo messageInfo) {
+    IMMessage message = messageInfo.getMessage();
+    Map<String, Object> map = new HashMap<>(2);
+    map.put(KEY_REVOKE_TAG, true);
+    map.put(KEY_REVOKE_TIME_TAG, SystemClock.elapsedRealtime());
+    map.put(KEY_REVOKE_CONTENT_TAG, messageInfo.getMessage().getContent());
+    IMMessage revokeMsg =
+        MessageBuilder.createTextMessage(
+            message.getSessionId(),
+            mSessionType,
+            IMKitClient.getApplicationContext()
+                .getResources()
+                .getString(R.string.chat_message_revoke_content));
+    revokeMsg.setStatus(MsgStatusEnum.success);
+    revokeMsg.setDirect(messageInfo.getMessage().getDirect());
+    revokeMsg.setFromAccount(message.getFromAccount());
+    revokeMsg.setLocalExtension(map);
+    CustomMessageConfig config = new CustomMessageConfig();
+    config.enableUnreadCount = false;
+    revokeMsg.setConfig(config);
+    ChatRepo.saveLocalMessageExt(revokeMsg, messageInfo.getMessage().getTime());
+    ALog.d(LIB_TAG, TAG, "saveLocalRevokeMessage:" + messageInfo.getMessage().getTime());
   }
 
   public void sendVideoMessage(
@@ -335,6 +386,18 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
     }
   }
 
+  public void sendFileMessage(File docsFile, String displayName) {
+    if (docsFile != null) {
+      ALog.d(LIB_TAG, TAG, "sendFileMessage:" + docsFile.getPath());
+      if (TextUtils.isEmpty(displayName)) {
+        displayName = docsFile.getName();
+      }
+      IMMessage message =
+          MessageBuilder.createFileMessage(mSessionId, mSessionType, docsFile, displayName);
+      sendMessage(message, false, true);
+    }
+  }
+
   public void downloadMessageAttachment(IMMessage message) {
     if (message.getAttachment() instanceof FileAttachment) {
       ALog.d(LIB_TAG, TAG, "downloadMessageAttachment:" + message.getUuid());
@@ -343,7 +406,10 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
   }
 
   public void sendImageOrVideoMessage(Uri uri) {
-    ALog.d(LIB_TAG, TAG, "sendImageOrVideoMessage:" + uri.getPath());
+    ALog.d(LIB_TAG, TAG, "sendImageOrVideoMessage:" + uri);
+    if (uri == null) {
+      return;
+    }
     String mimeType = FileUtils.getFileExtension(uri.getPath());
     if (TextUtils.isEmpty(mimeType)) {
       String realPath = UriUtils.uri2FileRealPath(uri);
@@ -387,6 +453,31 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
     } else {
       ALog.e(LIB_TAG, TAG, "invalid file type");
     }
+  }
+
+  public void sendFile(Uri uri) {
+    ALog.d(LIB_TAG, TAG, "sendFile:" + (uri != null ? uri.getPath() : "uri is null"));
+    if (uri == null) {
+      return;
+    }
+    String size = ChatUtils.getUrlFileSize(IMKitClient.getApplicationContext(), uri);
+    if (ChatUtils.fileSizeLimit(Long.parseLong(size))) {
+      ToastX.showShortToast(R.string.chat_message_file_size_limit_tips);
+      return;
+    }
+    ALog.d(
+        LIB_TAG, TAG, "sendFile:" + (uri != null ? uri.getPath() : "uri is null") + "size=" + size);
+    SendMediaHelper.handleFile(
+        uri,
+        file -> {
+          try {
+            String displayName = ChatUtils.getUrlFileName(IMKitClient.getApplicationContext(), uri);
+            sendFileMessage(file, displayName);
+          } catch (Exception e) {
+            e.printStackTrace();
+          } finally {
+          }
+        });
   }
 
   private void onMessageSend(IMMessage message, boolean resend) {
@@ -436,9 +527,6 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
       if (SettingRepo.getShowReadStatus()) {
         message.setMsgAck();
       }
-      //      if (needSendMessage) {
-      //        onMessageSend(message, resend);
-      //      }
       ChatRepo.sendMessage(message, resend, null);
     }
   }

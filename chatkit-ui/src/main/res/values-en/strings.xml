@@ -11,7 +11,8 @@
     <string name="chat_message_send_hint">Send to %s</string> 
     <string name="chat_message_send_error">Failed to send message</string> 
     <string name="chat_message_fetch_error">Failed to get message</string> 
-    <string name="chat_message_revoke_error">Recall Failed</string> 
+    <string name="chat_message_revoke_error">Recall Failed</string>
+    <string name="chat_message_revoke_content">您撤回了一条消息</string>
     <string name="chat_message_revoke_over_time">Too late to recall</string>
     <string name="chat_message_revoked">Message Recalled</string> 
     <string name="chat_message_re_edit">Edit</string> 
@@ -50,8 +51,13 @@
     <string name="chat_message_custom_sticker">emoji</string> 
 
     <string name="chat_message_more_shoot">Camera</string> 
-    <string name="chat_message_camera_unavailable">camera unavailable</string> 
-
+    <string name="chat_message_camera_unavailable">camera unavailable</string>
+    <string name="chat_message_location">Location</string>
+    <string name="chat_message_file">File</string>
+    <string name="chat_message_location_distance">%.0fm内&#160;|&#160;%s</string>
+    <string name="chat_message_video_call">Call</string>
+    <string name="chat_message_video_call_action">Video Call</string>
+    <string name="chat_message_audio_call_action">Voice Call</string>
 
     <string name="chat_message_action_copy">Copy</string>
     <string name="chat_message_action_reply">Reply</string> 
@@ -97,7 +103,7 @@
     <string name="chat_team_remove_to_another">Transfer the group to</string>
     <string name="chat_team_operate_by_manager">Admin by</string>
     <string name="chat_team_mute">Mute</string>
-    <string name="chat_team_un_mute">Unmute</string>
+    <string name="chat_team_un_mute">Unmet</string>
     <string name="chat_team_removed_manager">%s Dismissed as a admin</string> 
     <string name="chat_team_appoint_manager">%s be as a admin</string> 
     <string name="chat_team_extension_server_update">Group introduction update as</string>
@@ -157,4 +163,13 @@
 
     <!-- tips -->
     <string name="chat_message_not_support_tips">[Unknown Message]</string>
+    <string name="chat_message_file_size_limit_tips">Oops！File size limit.</string>
+
+    <!-- location -->
+    <string name="chat_location_mine">Location</string>
+    <string name="chat_location_nav">Navigation</string>
+    <string name="chat_location_search_hint">Search Location</string>
+    <string name="chat_location_search_empty">Not found</string>
+    <string name="chat_location_empty">No location information</string>
+
 </resources>

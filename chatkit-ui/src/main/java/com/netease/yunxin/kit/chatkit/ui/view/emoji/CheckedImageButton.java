@@ -10,6 +10,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import androidx.appcompat.widget.AppCompatImageButton;
+import androidx.core.content.res.ResourcesCompat;
 
 public class CheckedImageButton extends AppCompatImageButton {
 
@@ -77,12 +78,13 @@ public class CheckedImageButton extends AppCompatImageButton {
   }
 
   public void setNormalImageId(int normalResId) {
-    normalImage = getResources().getDrawable(normalResId);
+    normalImage = ResourcesCompat.getDrawable(getResources(), normalResId, getContext().getTheme());
     updateImage(normalImage);
   }
 
   public void setCheckedImageId(int pushedResId) {
-    checkedImage = getResources().getDrawable(pushedResId);
+    checkedImage =
+        ResourcesCompat.getDrawable(getResources(), pushedResId, getContext().getTheme());
   }
 
   public void setNormalImage(Bitmap bitmap) {
@@ -98,12 +100,9 @@ public class CheckedImageButton extends AppCompatImageButton {
   private void updateBackground(int resId) {
     setBackgroundResource(resId);
     setPadding(leftPadding, topPadding, rightPadding, bottomPadding);
-    //        int padding = ScreenUtil.dip2px(7);
-    //        setPadding(padding, padding, padding, padding);
   }
 
   private void updateImage(Drawable drawable) {
-    //  setScaleType(ScaleType.FIT_CENTER);
     setImageDrawable(drawable);
   }
 }

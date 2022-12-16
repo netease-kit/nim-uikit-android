@@ -58,7 +58,9 @@
         <meta-data
             android:name="com.netease.nim.oversea.appKey"
             android:value="oversea-appkey" />
-
+        <meta-data
+            android:name="com.amap.api.v2.apikey"
+            android:value="amap-key" />
         <activity android:name=".welcome.WelcomeActivity"
             android:screenOrientation="portrait"
             android:exported="true">

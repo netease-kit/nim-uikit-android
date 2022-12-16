@@ -197,14 +197,20 @@ public class ContactViewModel extends BaseViewModel {
         if (TextUtils.equals(account, bean.data.getAccount())) {
           contactFriendBeanList.remove(bean);
           removeData.add(bean);
+          ALog.d(LIB_TAG, TAG, "removeFriend:removeData add" + bean.data.getAccount());
           break;
         }
       }
     }
+    ALog.d(
+        LIB_TAG,
+        TAG,
+        "removeFriend:removeData" + (removeData == null ? "null" : removeData.size()));
     if (!removeData.isEmpty()) {
-      fetchResult.setFetchType(FetchResult.FetchType.Remove);
-      fetchResult.setData(removeData);
-      contactLiveData.postValue(fetchResult);
+      FetchResult<List<ContactFriendBean>> removeResult =
+          new FetchResult<>(FetchResult.FetchType.Remove);
+      removeResult.setData(removeData);
+      contactLiveData.setValue(removeResult);
     }
   }
 
@@ -229,12 +235,13 @@ public class ContactViewModel extends BaseViewModel {
                   ContactFriendBean bean = new ContactFriendBean(friendInfo);
                   bean.viewType = IViewTypeConstant.CONTACT_FRIEND;
                   contactFriendBeanList.add(bean);
+                  ALog.d(LIB_TAG, TAG, "addFriend,add:" + "id=" + friendInfo.getAccount());
                   addList.add(bean);
                 }
               }
-              fetchResult.setFetchType(type);
-              fetchResult.setData(addList);
-              contactLiveData.setValue(fetchResult);
+              FetchResult<List<ContactFriendBean>> addResult = new FetchResult<>(type);
+              addResult.setData(addList);
+              contactLiveData.setValue(addResult);
             }
 
             @Override
@@ -274,9 +281,10 @@ public class ContactViewModel extends BaseViewModel {
               }
             }
             if (updateBean.size() > 0) {
-              fetchResult.setFetchType(FetchResult.FetchType.Update);
-              fetchResult.setData(updateBean);
-              contactLiveData.postValue(fetchResult);
+              FetchResult<List<ContactFriendBean>> updateResult =
+                  new FetchResult<>(FetchResult.FetchType.Update);
+              updateResult.setData(updateBean);
+              contactLiveData.setValue(updateResult);
             }
           }
 

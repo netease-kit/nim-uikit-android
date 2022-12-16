@@ -17,7 +17,7 @@ android {
         targetSdk = 30
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
-        buildConfigField("String", "versionName", "\"9.2.12\"")
+        buildConfigField("String", "versionName", "\"9.3.0\"")
     }
 
     buildTypes {
@@ -39,16 +39,12 @@ android {
 
 dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
-    api("com.netease.yunxin.kit.contact:contactkit:9.2.12-rc02")
-    api("com.netease.yunxin.kit.common:common-ui:1.1.12")
+    api("com.netease.yunxin.kit.contact:contactkit:9.3.0-rc01")
+    api("com.netease.yunxin.kit.common:common-ui:1.1.13")
     api("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.21")
     implementation("androidx.appcompat:appcompat:1.4.2") 
     implementation("com.google.android.material:material:1.5.0") 
     implementation("androidx.recyclerview:recyclerview:1.2.1") 
-    implementation("com.github.bumptech.glide:glide:4.13.1") 
-
-    testImplementation("junit:junit:4.13.2") 
-    androidTestImplementation("androidx.test.ext:junit:1.1.3") 
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.4.0")
+    implementation("com.github.bumptech.glide:glide:4.13.1")
 }
 

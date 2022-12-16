@@ -4,6 +4,13 @@
 
 package com.netease.yunxin.kit.chatkit.ui.view.message.adapter;
 
+import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
+import static com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants.PAYLOAD_PROGRESS;
+import static com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants.PAYLOAD_REVOKE;
+import static com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants.PAYLOAD_SIGNAL;
+import static com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants.PAYLOAD_STATUS;
+import static com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants.PAYLOAD_USERINFO;
+
 import android.text.TextUtils;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
@@ -11,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.netease.nimlib.sdk.msg.model.AttachmentProgress;
 import com.netease.nimlib.sdk.msg.model.MsgPinOption;
 import com.netease.nimlib.sdk.team.model.Team;
+import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.ui.ChatDefaultFactory;
 import com.netease.yunxin.kit.chatkit.ui.IChatFactory;
@@ -27,12 +35,6 @@ import java.util.Map;
 
 /** chat message adapter for message list */
 public class ChatMessageAdapter extends RecyclerView.Adapter<ChatBaseMessageViewHolder> {
-
-  public static final String STATUS_PAYLOAD = "messageStatus";
-  public static final String PROGRESS_PAYLOAD = "messageProgress";
-  public static final String REVOKE_PAYLOAD = "messageRevoke";
-  public static final String SIGNAL_PAYLOAD = "messageSignal";
-  public static final String USERINFO_PAYLOAD = "userInfo";
 
   IChatFactory viewHolderFactory;
 
@@ -183,18 +185,35 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatBaseMessageView
   public void updateMessageProgress(AttachmentProgress progress) {
     ChatMessageBean messageBean = searchMessage(progress.getUuid());
     if (messageBean != null) {
-      messageBean.setLoadProgress(progress.getTransferred() * 100f / progress.getTotal());
-      updateMessage(messageBean, PROGRESS_PAYLOAD);
+      float pg = progress.getTransferred() * 100f / progress.getTotal();
+      if (progress.getTransferred() == progress.getTotal()) {
+        pg = 100;
+      }
+      messageBean.progress = progress.getTransferred();
+      messageBean.setLoadProgress(pg);
+      if (pg >= 100) {
+        ALog.d(LIB_TAG, "ChatFileViewHolder", "progress=" + pg);
+      }
+      ALog.d(LIB_TAG, "ChatFileViewHolder", "progress=" + pg + "message:" + messageBean.hashCode());
+      updateMessage(messageBean, PAYLOAD_PROGRESS);
     }
   }
 
   public void updateMessageStatus(ChatMessageBean message) {
-    updateMessage(message, STATUS_PAYLOAD);
+    int index = getMessageIndex(message);
+    if (index >= 0 && index < messageList.size()) {
+      ChatMessageBean origin = messageList.get(index);
+      origin
+          .getMessageData()
+          .getMessage()
+          .setStatus(message.getMessageData().getMessage().getStatus());
+      updateMessage(origin, PAYLOAD_STATUS);
+    }
   }
 
   public void revokeMessage(ChatMessageBean messageBean) {
     messageBean.setRevoked(true);
-    updateMessage(messageBean, REVOKE_PAYLOAD);
+    updateMessage(messageBean, PAYLOAD_REVOKE);
   }
 
   public void updateUserInfo(List<UserInfo> userInfoList) {
@@ -210,7 +229,7 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatBaseMessageView
       if (messageInfo != null
           && messageInfo.getFromUser() != null
           && accountSet.containsKey(messageInfo.getFromUser().getAccount())) {
-        notifyItemChanged(i, USERINFO_PAYLOAD);
+        notifyItemChanged(i, PAYLOAD_USERINFO);
       }
     }
   }
@@ -225,7 +244,7 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatBaseMessageView
     }
     if (index != -1) {
       messageList.get(index).setPinAccid(pinOption);
-      updateMessage(messageList.get(index), SIGNAL_PAYLOAD);
+      updateMessage(messageList.get(index), PAYLOAD_SIGNAL);
     }
   }
 
@@ -239,12 +258,13 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatBaseMessageView
     }
     if (index != -1) {
       messageList.get(index).setPinAccid(null);
-      updateMessage(messageList.get(index), SIGNAL_PAYLOAD);
+      updateMessage(messageList.get(index), PAYLOAD_SIGNAL);
     }
   }
 
   public void updateMessage(ChatMessageBean message, Object payload) {
     int pos = getMessageIndex(message);
+    ALog.d(LIB_TAG, "ChatFileViewHolder", "updateMessage=" + payload.toString());
     if (pos >= 0) {
       messageList.set(pos, message);
       notifyItemChanged(pos, payload);
@@ -258,7 +278,7 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatBaseMessageView
       start--;
     }
 
-    notifyItemRangeChanged(start, messageList.size() - start, STATUS_PAYLOAD);
+    notifyItemRangeChanged(start, messageList.size() - start, PAYLOAD_STATUS);
   }
 
   private int getMessageIndex(ChatMessageBean message) {
@@ -286,7 +306,7 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatBaseMessageView
     return messageList.get(0);
   }
 
-  public ChatMessageBean getlastMessage() {
+  public ChatMessageBean getLastMessage() {
     if (messageList.isEmpty()) {
       return null;
     }

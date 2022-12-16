@@ -30,4 +30,10 @@ public interface IMessageProxy {
   boolean hasPermission(String permission);
 
   void onCustomAction(View view, String action);
+
+  void sendLocationLaunch();
+
+  void videoCall();
+
+  void audioCall();
 }

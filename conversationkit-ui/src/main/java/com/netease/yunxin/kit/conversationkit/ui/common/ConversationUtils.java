@@ -13,13 +13,7 @@ import com.netease.yunxin.kit.conversationkit.ui.ConversationKitClient;
 
 public class ConversationUtils {
 
-  private static ConversationCustom custom =
-      new ConversationCustom() {
-        @Override
-        public String customContentText(Context context, ConversationInfo conversationInfo) {
-          return super.customContentText(context, conversationInfo);
-        }
-      };
+  private static ConversationCustom custom = new ConversationCustom();
 
   public static boolean isMineLeave(ConversationInfo conversationInfo) {
     if (conversationInfo.getAttachment() instanceof NotificationAttachment) {

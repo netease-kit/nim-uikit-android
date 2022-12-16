@@ -12,6 +12,7 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import androidx.annotation.Nullable;
 import com.netease.nimlib.sdk.msg.model.AttachmentProgress;
+import com.netease.nimlib.sdk.msg.model.IMMessage;
 import com.netease.yunxin.kit.chatkit.ui.IChatFactory;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.builder.IChatViewCustom;
@@ -153,8 +154,16 @@ public class ChatView extends LinearLayout {
     binding.messageView.appendMessage(message);
   }
 
-  public void updateMessage(ChatMessageBean message) {
-    binding.messageView.updateMessage(message);
+  public void updateMessageStatus(ChatMessageBean message) {
+    binding.messageView.updateMessageStatus(message);
+  }
+
+  public void updateMessage(ChatMessageBean message, Object payload) {
+    binding.messageView.updateMessage(message, payload);
+  }
+
+  public void updateMessage(IMMessage message, Object payload) {
+    binding.messageView.updateMessage(message, payload);
   }
 
   public void updateProgress(AttachmentProgress progress) {

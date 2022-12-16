@@ -42,6 +42,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/message_search_title_bar"
         tools:ignore="SpUsage"
+        android:inputType="text"
         android:autofillHints="" />
 
     <ImageView
@@ -53,7 +54,8 @@
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@id/etSearch"
         app:layout_constraintEnd_toEndOf="@id/etSearch"
-        app:layout_constraintTop_toTopOf="@id/etSearch" />
+        app:layout_constraintTop_toTopOf="@id/etSearch"
+        android:contentDescription="@string/cancel" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvSearch"
@@ -72,7 +74,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/etSearch"
         android:orientation="vertical"
-        tools:ignore="MissingConstraints"
+        tools:ignore="MissingConstraints,UseCompoundDrawables"
         android:visibility="gone">
 
         <ImageView
@@ -80,7 +82,8 @@
             android:layout_width="@dimen/dimen_74_dp"
             android:layout_height="@dimen/dimen_74_dp"
             android:layout_gravity="center_horizontal"
-            android:src="@drawable/ic_list_empty"/>
+            android:src="@drawable/ic_list_empty"
+            android:contentDescription="@string/chat_location_empty" />
 
         <TextView
             android:layout_width="match_parent"
@@ -88,7 +91,7 @@
             android:text="@string/message_search_empty"
             android:textColor="@color/color_666666"
             android:layout_marginTop="@dimen/dimen_6_dp"
-            android:gravity="center"
+            android:gravity="center_horizontal"
             android:textSize="@dimen/text_size_14"/>
     </LinearLayout>
 
