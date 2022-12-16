@@ -67,8 +67,7 @@ public class MapNavigator {
             + ","
             + location[1]
             + "&policy=1";
-    String tencentUri =
-        baseUrl + drivePlan + "&referer=imuikit" ;
+    String tencentUri = baseUrl + drivePlan + "&referer=imuikit";
     try {
       Intent intent = Intent.parseUri(tencentUri, 0);
       context.startActivity(intent);
