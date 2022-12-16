@@ -270,6 +270,8 @@
                 <action android:name="com.heytap.msp.push.RECEIVE_MCS_MESSAGE"/>
             </intent-filter>
         </service> <!--兼容Q版本-->
+        <!-- 高德地图定位 -->
+        <service android:name="com.amap.api.location.APSService" />
     </application>
 
 </manifest>
