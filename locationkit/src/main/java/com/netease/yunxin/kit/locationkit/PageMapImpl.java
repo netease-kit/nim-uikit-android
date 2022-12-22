@@ -123,10 +123,10 @@ public class PageMapImpl
   public void searchPoi(String keyWord) {
     ALog.i(TAG, "map searchPoi:" + keyWord);
     LatLonPoint bound = null;
-    if (markLatLng != null) {
-      bound = new LatLonPoint(markLatLng.latitude, markLatLng.longitude);
+    if (currentLocation != null) {
+      bound = new LatLonPoint(currentLocation.getLat(), currentLocation.getLng());
     }
-    doSearch(keyWord, new PoiSearch.SearchBound(bound, 500));
+    doSearch(keyWord, new PoiSearch.SearchBound(bound, SEARCH_BOUND));
   }
 
   private void doSearch(String keyWord, PoiSearch.SearchBound searchBound) {
@@ -143,8 +143,9 @@ public class PageMapImpl
     ALog.i(
         TAG, "doSearch key:" + keyWord + ", city:" + city + ", is bound:" + (searchBound != null));
     // 第一个参数表示搜索字符串，第二个参数表示poi搜索类型，第三个参数表示poi搜索区域（空字符串代表全国）
-    PoiSearch.Query mPoiSearchQuery = new PoiSearch.Query(keyWord, "", "");
+    PoiSearch.Query mPoiSearchQuery = new PoiSearch.Query(keyWord, "", city);
     mPoiSearchQuery.requireSubPois(true); //true 搜索结果包含POI父子关系; false
+    mPoiSearchQuery.setCityLimit(false);
     mPoiSearchQuery.setPageSize(10);
     mPoiSearchQuery.setPageNum(0);
     searchTag = String.valueOf(SystemClock.elapsedRealtime());
@@ -281,7 +282,7 @@ public class PageMapImpl
     if (center) {
       options.anchor(0.5f, 0.5f);
     }
-      clearMarker();
+    clearMarker();
     markLatLng = latLng;
     Marker marker = chatMapWrapper.aMap.addMarker(options);
     if (!center) {
@@ -311,11 +312,12 @@ public class PageMapImpl
           if (currentLocation != null) {
             currentLocation.setSelected(true);
             locationPoiCache.add(0, currentLocation);
-          }else {
-            if (locationPoiCache.size() > 0){
+          } else {
+            if (locationPoiCache.size() > 0) {
               locationPoiCache.get(0).setSelected(true);
             }
           }
+
           ALog.i(TAG, "onPoiSearched locationPoiResult:" + locationPoiCache);
           searchCallback.onSuccess(locationPoiCache);
           return;
@@ -323,7 +325,20 @@ public class PageMapImpl
         List<PoiItem> poiItems = poiResult.getPois();
         if (searchCallback != null && poiItems != null) {
           ALog.i(TAG, "onPoiSearched result:" + poiItems);
-          searchCallback.onSuccess(convert(poiItems, true));
+          List<ChatLocationBean> searchResult = convert(poiItems, false);
+          //在定位位置搜索，需要把当前位置放在搜索结果第一个
+          if (currentLocation != null
+              && poiResult.getQuery() != null
+              && TextUtils.isEmpty(poiResult.getQuery().getQueryString())
+              && LocationUtils.isSameLatLng(currentLocation, poiResult.getBound())) {
+            searchResult.add(0, currentLocation);
+            currentLocation.setSelected(true);
+          } else {
+            if (searchResult.size() > 0) {
+              searchResult.get(0).setSelected(true);
+            }
+          }
+          searchCallback.onSuccess(searchResult);
         }
       } else {
         ALog.e(TAG, "onPoiSearched no result:" + code);
@@ -405,14 +420,12 @@ public class PageMapImpl
               + search.getCenter().getLongitude()
               + "="
               + search.getCenter().getLongitude());
-      if (TextUtils.equals(
+      return TextUtils.equals(
               String.valueOf(search.getCenter().getLatitude()),
               String.valueOf(target.getCenter().getLatitude()))
           && TextUtils.equals(
               String.valueOf(search.getCenter().getLongitude()),
-              String.valueOf(search.getCenter().getLongitude()))) {
-        return true;
-      }
+              String.valueOf(search.getCenter().getLongitude()));
     }
     return false;
   }
