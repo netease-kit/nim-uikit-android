@@ -39,7 +39,7 @@ android {
 
 dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
-    api("com.netease.yunxin.kit.contact:contactkit:9.3.0-rc01")
+    api("com.netease.yunxin.kit.contact:contactkit:9.3.0")
     api("com.netease.yunxin.kit.common:common-ui:1.1.13")
     api("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.21")
     implementation("androidx.appcompat:appcompat:1.4.2") 
