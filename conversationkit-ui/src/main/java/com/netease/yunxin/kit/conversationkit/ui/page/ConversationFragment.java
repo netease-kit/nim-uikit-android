@@ -206,7 +206,6 @@ public class ConversationFragment extends BaseFragment implements ILoadListener 
               ContentListPopView contentListPopView =
                   new ContentListPopView.Builder(context)
                       .addItem(PopItemFactory.getAddFriendItem(context))
-                      .addItem(PopItemFactory.getCreateGroupTeamItem(context))
                       .addItem(PopItemFactory.getCreateAdvancedTeamItem(context))
                       .build();
               contentListPopView.showAsDropDown(

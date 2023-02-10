@@ -75,21 +75,6 @@ public final class PopItemFactory {
         .build();
   }
 
-  public static ContentListPopView.Item getCreateGroupTeamItem(Context context) {
-    LinearLayout.LayoutParams params = getParams(context);
-    params.setMargins(
-        (int) context.getResources().getDimension(R.dimen.pop_text_margin_left),
-        0,
-        (int) context.getResources().getDimension(R.dimen.pop_text_margin_right_top),
-        0);
-    int requestCode = 2;
-    return new ContentListPopView.Item.Builder()
-        .configView(getView(context, R.string.create_group_team, R.drawable.icon_group_team))
-        .configParams(params)
-        .configClickListener(getClickListener(context, requestCode, PATH_CREATE_NORMAL_TEAM_ACTION))
-        .build();
-  }
-
   private static View.OnClickListener getClickListener(
       Context context, int requestCode, String createMethod) {
     return v ->
@@ -162,6 +147,8 @@ public final class PopItemFactory {
     textView.setTextColor(ContextCompat.getColor(context, R.color.color_333333));
     textView.setCompoundDrawablePadding(
         (int) context.getResources().getDimension(R.dimen.pop_text_margin_right_top));
+    textView.setPadding(
+            0, 0, (int) context.getResources().getDimension(R.dimen.pop_text_margin_right_top), 0);
     return textView;
   }
 
