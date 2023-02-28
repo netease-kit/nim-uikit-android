@@ -51,7 +51,11 @@ public class ChannelCreateViewModel extends BaseViewModel {
 
           @Override
           public void onFailed(int code) {
-            fetchResult.setError(code, R.string.qchat_channel_create_error);
+            if (code == QChatConstant.ERROR_CODE_IM_NO_PERMISSION) {
+              fetchResult.setError(code, R.string.qchat_no_permission);
+            } else {
+              fetchResult.setError(code, R.string.qchat_channel_create_error);
+            }
             resultLiveData.postValue(fetchResult);
             ALog.d(TAG, "createChannel", "onFailed" + code);
           }

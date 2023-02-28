@@ -27,6 +27,7 @@ import com.netease.yunxin.kit.teamkit.ui.utils.ColorUtils;
 public class TeamInfoActivity extends BaseActivity {
   public static final String KEY_TEAM_UPDATE_INFO_PRIVILEGE = "update_info_privilege";
   public static final String KEY_TEAM_TYPE = "team_type";
+  public static final String KEY_TEAM_IS_GROUP = "team_group_tag";
   private TeamInfoActivityBinding binding;
   private ActivityResultLauncher<Intent> launcher;
 
@@ -35,6 +36,7 @@ public class TeamInfoActivity extends BaseActivity {
   private String teamIntroduce;
   private String teamName;
   private TeamTypeEnum teamTypeEnum;
+  private boolean isGroup = false;
 
   private boolean canUpdate = false;
   private boolean hasUpdatePrivilege = false;
@@ -76,10 +78,11 @@ public class TeamInfoActivity extends BaseActivity {
     teamIconUrl = intent.getStringExtra(KEY_TEAM_ICON);
     teamIntroduce = intent.getStringExtra(KEY_TEAM_INTRODUCE);
     teamName = intent.getStringExtra(KEY_TEAM_NAME);
+    isGroup = intent.getBooleanExtra(KEY_TEAM_IS_GROUP, false);
     teamTypeEnum = (TeamTypeEnum) intent.getSerializableExtra(KEY_TEAM_TYPE);
 
     binding.ivIcon.setData(teamIconUrl, teamName, ColorUtils.avatarColor(teamId));
-    if (teamTypeEnum == TeamTypeEnum.Advanced) {
+    if (teamTypeEnum == TeamTypeEnum.Advanced && !isGroup) {
       binding.tvTitle.setText(R.string.team_info_title);
       binding.tvIcon.setText(R.string.team_icon_title);
       binding.tvName.setText(R.string.team_name_title);
@@ -104,6 +107,7 @@ public class TeamInfoActivity extends BaseActivity {
                 teamTypeEnum,
                 teamId,
                 teamName,
+                isGroup,
                 launcher));
     binding.tvIntroduce.setOnClickListener(
         v ->
@@ -132,6 +136,7 @@ public class TeamInfoActivity extends BaseActivity {
       String teamName,
       String teamIntroduce,
       String teamIcon,
+      boolean isGroup,
       ActivityResultLauncher<Intent> launcher) {
     Intent intent = new Intent(context, TeamInfoActivity.class);
     intent.putExtra(KEY_TEAM_UPDATE_INFO_PRIVILEGE, hasUpdatePrivilege);
@@ -140,6 +145,7 @@ public class TeamInfoActivity extends BaseActivity {
     intent.putExtra(KEY_TEAM_ICON, teamIcon);
     intent.putExtra(KEY_TEAM_NAME, teamName);
     intent.putExtra(KEY_TEAM_INTRODUCE, teamIntroduce);
+    intent.putExtra(KEY_TEAM_IS_GROUP, isGroup);
     if (!(context instanceof Activity)) {
       intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
     }

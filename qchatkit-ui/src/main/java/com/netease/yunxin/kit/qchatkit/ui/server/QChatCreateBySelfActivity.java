@@ -148,9 +148,15 @@ public class QChatCreateBySelfActivity extends BaseActivity {
             QChatUtils.isConnectedToastAndRun(
                 this,
                 () -> {
+                  String serverName = binding.etServerName.getText().toString().trim();
+                  if (TextUtils.isEmpty(serverName)) {
+                    Toast.makeText(this, R.string.qchat_server_name_empty_error, Toast.LENGTH_SHORT)
+                        .show();
+                    return;
+                  }
                   binding.tvCreate.setEnabled(false);
                   QChatServerRepo.createServerAndCreateChannel(
-                      binding.etServerName.getText().toString(),
+                      serverName,
                       getString(R.string.qchat_server_channel_name_fix, "1"),
                       getString(R.string.qchat_server_channel_name_fix, "2"),
                       iconUrl,

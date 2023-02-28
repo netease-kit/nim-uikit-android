@@ -6,6 +6,7 @@ package com.netease.yunxin.kit.teamkit.ui.activity;
 
 import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.KEY_TEAM_ID;
 import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.KEY_TEAM_NAME;
+import static com.netease.yunxin.kit.teamkit.ui.activity.TeamInfoActivity.KEY_TEAM_IS_GROUP;
 import static com.netease.yunxin.kit.teamkit.ui.activity.TeamInfoActivity.KEY_TEAM_TYPE;
 import static com.netease.yunxin.kit.teamkit.ui.activity.TeamInfoActivity.KEY_TEAM_UPDATE_INFO_PRIVILEGE;
 
@@ -36,6 +37,7 @@ public class TeamUpdateNameActivity extends BaseActivity {
   private String teamId;
 
   private String teamName;
+  private boolean isGroup;
   private boolean hasPrivilege;
 
   @SuppressLint("SetTextI18n")
@@ -49,9 +51,10 @@ public class TeamUpdateNameActivity extends BaseActivity {
     hasPrivilege = getIntent().getBooleanExtra(KEY_TEAM_UPDATE_INFO_PRIVILEGE, false);
     teamId = getIntent().getStringExtra(KEY_TEAM_ID);
     lastTeamName = getIntent().getStringExtra(KEY_TEAM_NAME);
+    isGroup = getIntent().getBooleanExtra(KEY_TEAM_IS_GROUP, false);
     TeamTypeEnum typeEnum = (TeamTypeEnum) getIntent().getSerializableExtra(KEY_TEAM_TYPE);
 
-    if (typeEnum == TeamTypeEnum.Advanced) {
+    if (typeEnum == TeamTypeEnum.Advanced && !isGroup) {
       binding.tvTitle.setText(R.string.team_name_title);
     } else {
       binding.tvTitle.setText(R.string.team_group_name_title);
@@ -80,7 +83,7 @@ public class TeamUpdateNameActivity extends BaseActivity {
 
           @Override
           public void afterTextChanged(Editable s) {
-            if (TextUtils.isEmpty(String.valueOf(s))) {
+            if (TextUtils.isEmpty(String.valueOf(s).trim())) {
               binding.ivClear.setVisibility(View.GONE);
               binding.tvSave.setAlpha(0.5f);
               binding.tvSave.setEnabled(false);
@@ -126,12 +129,14 @@ public class TeamUpdateNameActivity extends BaseActivity {
       TeamTypeEnum typeEnum,
       String teamId,
       String name,
+      boolean isGroup,
       ActivityResultLauncher<Intent> launcher) {
     Intent intent = new Intent(context, TeamUpdateNameActivity.class);
     intent.putExtra(KEY_TEAM_UPDATE_INFO_PRIVILEGE, hasPrivilege);
     intent.putExtra(KEY_TEAM_TYPE, typeEnum);
     intent.putExtra(KEY_TEAM_NAME, name);
     intent.putExtra(KEY_TEAM_ID, teamId);
+    intent.putExtra(KEY_TEAM_IS_GROUP, isGroup);
     if (!(context instanceof Activity)) {
       intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
     }

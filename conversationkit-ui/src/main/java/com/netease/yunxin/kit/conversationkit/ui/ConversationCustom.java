@@ -5,6 +5,7 @@
 package com.netease.yunxin.kit.conversationkit.ui;
 
 import android.content.Context;
+import com.netease.nimlib.sdk.msg.attachment.NetCallAttachment;
 import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
 import com.netease.yunxin.kit.conversationkit.model.ConversationInfo;
 import com.netease.yunxin.kit.corekit.im.model.AttachmentContent;
@@ -31,6 +32,14 @@ public class ConversationCustom {
           return context.getString(R.string.msg_type_file);
         case location:
           return context.getString(R.string.msg_type_location);
+        case nrtc_netcall:
+          NetCallAttachment attachment = (NetCallAttachment) conversationInfo.getAttachment();
+          int type = attachment.getType();
+          if (type == 1) {
+            return context.getString(R.string.msg_type_rtc_audio);
+          } else {
+            return context.getString(R.string.msg_type_rtc_video);
+          }
         case custom:
           String result = conversationInfo.getContent();
           if (conversationInfo.getAttachment() instanceof AttachmentContent) {

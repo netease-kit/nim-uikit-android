@@ -71,4 +71,8 @@ public class ConversationLayout extends LinearLayout {
   public TextView getErrorTextView() {
     return viewBinding.conversationNetworkErrorTv;
   }
+
+  public void setEmptyViewVisible(int visible) {
+    viewBinding.conversationEmptyView.setVisibility(visible);
+  }
 }

@@ -13,7 +13,8 @@
     <string name="chat_message_send_error">消息发送失败</string>
     <string name="chat_message_fetch_error">消息获取失败，请重试</string>
     <string name="chat_message_revoke_error">撤回失败</string>
-    <string name="chat_message_revoke_content">您撤回了一条消息</string>
+    <string name="chat_message_audio_to_short">录制时间过短</string>
+    <string name="chat_message_revoke_content">此消息已撤回</string>
     <string name="chat_message_revoke_over_time">已超过时间无法撤回</string>
     <string name="chat_message_revoked">此消息已撤回</string>
     <string name="chat_message_re_edit">重新编辑 </string>
@@ -58,7 +59,17 @@
     <string name="chat_message_location_distance">%.0fm内&#160;|&#160;%s</string>
     <string name="chat_message_video_call">音视频通话</string>
     <string name="chat_message_video_call_action">视频通话</string>
-    <string name="chat_message_audio_call_action">音频通话</string>
+    <string name="chat_message_audio_call_action">语音通话</string>
+
+    <string name="chat_message_call_canceled">已取消</string>
+    <string name="chat_message_in_call_canceled">对方已取消</string>
+    <string name="chat_message_in_call_canceled_self">已取消</string>
+    <string name="chat_message_call_refused">对方已拒绝</string>
+    <string name="chat_message_call_refused_self">已拒绝</string>
+    <string name="chat_message_call_timeout">对方未接听</string>
+    <string name="chat_message_call_busy">对方忙碌</string>
+    <string name="chat_message_call_busy_self">忙碌未接听</string>
+    <string name="chat_message_call_completed">通话时长 &#8195; %s</string>
 
     <string name="chat_message_action_copy">复制</string>
     <string name="chat_message_action_reply">回复</string>
@@ -73,6 +84,7 @@
 
     <string name="chat_message_action_revoke_this_message">撤回此消息</string>
     <string name="chat_message_action_delete_this_message">删除此消息</string>
+    <string name="chat_message_removed_tip">该消息已移除</string>
 
     <string name="chat_message_reply_someone">回复 %s</string>
 
@@ -163,7 +175,10 @@
 
     <!-- tips -->
     <string name="chat_message_not_support_tips">[未知消息体]</string>
-    <string name="chat_message_file_size_limit_tips">当前文件大小超出发送限制，请重新选择</string>
+    <string name="chat_message_type_not_support_tips">暂不支持该格式</string>
+    <string name="chat_message_file_size_limit_tips">当前文件大小超出%sM发送限制，请重新选择</string>
+    <string name="chat_message_type_resource_error">资源不支持读取</string>
+    <string name="chat_message_revoke_eidt_error">已超过可编辑时间</string>
 
     <!-- location -->
     <string name="chat_location_mine">定位</string>
@@ -171,5 +186,6 @@
     <string name="chat_location_search_hint">搜索地点</string>
     <string name="chat_location_search_empty">未找到你要搜的地址</string>
     <string name="chat_location_empty">暂无位置信息</string>
+    <string name="chat_location_disable">无定位信息，请开启定位</string>
 
 </resources>

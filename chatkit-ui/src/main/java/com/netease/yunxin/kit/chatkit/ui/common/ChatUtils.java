@@ -68,16 +68,21 @@ public class ChatUtils {
   }
 
   public static boolean fileSizeLimit(long fileS) {
-    long limit = ChatKitUIConstant.FILE_LIMIT;
-    if (ChatKitClient.getChatUIConfig() != null
-        && ChatKitClient.getChatUIConfig().messageProperties != null) {
-      limit = ChatKitClient.getChatUIConfig().messageProperties.sendFileLimit;
-    }
+    long limit = getFileLimitSize();
     if (limit < 0) {
       return false;
     }
     long limitSize = limit * 1048576L;
     return fileS > limitSize;
+  }
+
+  public static Long getFileLimitSize() {
+    long limit = ChatKitUIConstant.FILE_LIMIT;
+    if (ChatKitClient.getChatUIConfig() != null
+        && ChatKitClient.getChatUIConfig().messageProperties != null) {
+      limit = ChatKitClient.getChatUIConfig().messageProperties.sendFileLimit;
+    }
+    return limit;
   }
 
   private static Map<String, Integer> fileRes = getFileTypeMap();

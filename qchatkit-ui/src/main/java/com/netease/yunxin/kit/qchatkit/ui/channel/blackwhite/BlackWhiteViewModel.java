@@ -37,6 +37,10 @@ public class BlackWhiteViewModel extends BaseViewModel {
       new MutableLiveData<>();
   private final FetchResult<QChatChannelMember> addResult = new FetchResult<>(LoadStatus.Finish);
 
+  private final MutableLiveData<FetchResult<QChatChannelMember>> removeLiveData =
+      new MutableLiveData<>();
+  private final FetchResult<QChatChannelMember> removeResult = new FetchResult<>(LoadStatus.Finish);
+
   private QChatServerMemberInfo lastRoleInfo;
   private boolean roleHasMore = false;
 
@@ -46,6 +50,10 @@ public class BlackWhiteViewModel extends BaseViewModel {
 
   public MutableLiveData<FetchResult<QChatChannelMember>> getAddLiveData() {
     return addLiveData;
+  }
+
+  public MutableLiveData<FetchResult<QChatChannelMember>> getRemoveLiveData() {
+    return removeLiveData;
   }
 
   public void fetchMemberList(long serverId, long channelId, QChatChannelModeEnum type) {
@@ -127,15 +135,15 @@ public class BlackWhiteViewModel extends BaseViewModel {
           @Override
           public void onSuccess(@Nullable Void param) {
             ALog.d(TAG, "deleteMember", "onSuccess" + accId);
-            addResult.setFetchType(FetchResult.FetchType.Remove);
-            addResult.setTypeIndex(position);
-            addLiveData.postValue(addResult);
+            removeResult.setFetchType(FetchResult.FetchType.Remove);
+            removeResult.setTypeIndex(position);
+            removeLiveData.setValue(removeResult);
           }
 
           @Override
           public void onFailed(int code) {
-            addResult.setError(code, R.string.qchat_channel_member_delete_error);
-            addLiveData.postValue(addResult);
+            removeResult.setError(code, R.string.qchat_channel_member_delete_error);
+            removeLiveData.setValue(removeResult);
             ALog.d(TAG, "fetchMemberData", "onFailed" + code);
           }
 
@@ -143,10 +151,10 @@ public class BlackWhiteViewModel extends BaseViewModel {
           public void onException(@Nullable Throwable exception) {
             String errorMsg = exception != null ? exception.getMessage() : "";
             ALog.d(TAG, "fetchMemberData", "onException" + errorMsg);
-            addResult.setError(
+            removeResult.setError(
                 QChatConstant.ERROR_CODE_CHANNEL_MEMBER_ADD,
                 R.string.qchat_channel_member_delete_error);
-            addLiveData.postValue(addResult);
+            removeLiveData.setValue(removeResult);
           }
         });
   }
@@ -167,14 +175,18 @@ public class BlackWhiteViewModel extends BaseViewModel {
             ALog.d(TAG, "fetchMemberData", "onException" + errorMsg);
             addResult.setError(
                 QChatConstant.ERROR_CODE_CHANNEL_MEMBER_ADD,
-                R.string.qchat_channel_member_delete_error);
+                R.string.qchat_channel_member_add_error);
             addLiveData.postValue(addResult);
           }
 
           @Override
           public void onFailed(int code) {
             ALog.d(TAG, "addMember", "onFailed" + code);
-            addResult.setError(code, R.string.qchat_channel_member_delete_error);
+            if (code == QChatConstant.ERROR_CODE_IM_NO_PERMISSION) {
+              addResult.setError(code, R.string.qchat_no_permission);
+            } else {
+              addResult.setError(code, R.string.qchat_channel_member_add_error);
+            }
             addLiveData.postValue(addResult);
           }
 

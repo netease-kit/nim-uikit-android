@@ -6,6 +6,7 @@ package com.netease.yunxin.kit.chatkit.ui.view.interfaces;
 
 import android.view.View;
 import com.netease.nimlib.sdk.msg.attachment.MsgAttachment;
+import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import java.io.File;
 
@@ -36,4 +37,8 @@ public interface IMessageProxy {
   void videoCall();
 
   void audioCall();
+
+  String getSessionId();
+
+  SessionTypeEnum getSessionType();
 }

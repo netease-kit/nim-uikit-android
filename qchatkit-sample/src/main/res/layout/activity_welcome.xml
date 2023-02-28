@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2022 NetEase, Inc. All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be
+  ~ found in the LICENSE file.
+  -->
+
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/app_yunxin_icon"
+        android:layout_width="@dimen/dimen_120_dp"
+        android:layout_height="@dimen/dimen_120_dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="@dimen/dimen_124_dp"
+        android:src="@mipmap/ic_yunxin"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/app_yunxin_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="@dimen/dimen_8_dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:text="@string/app_name"
+        android:textSize="@dimen/text_size_24"
+        android:textColor="@color/color_333333"
+        android:textStyle="bold"
+        app:layout_constraintTop_toBottomOf="@+id/app_yunxin_icon" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/app_desc"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="@dimen/dimen_8_dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:text="@string/yunxin_desc"
+        android:textSize="@dimen/text_size_16"
+        android:textColor="@color/color_333333"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/app_yunxin_tv" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/login_button"
+        android:layout_width="@dimen/dimen_315_dp"
+        android:layout_height="@dimen/dimen_50_dp"
+        android:layout_marginTop="@dimen/dimen_127_dp"
+        android:background="@drawable/bg_login_button"
+        android:text="@string/welcome_button"
+        android:textColor="@color/color_white"
+        android:textSize="@dimen/dimen_15_dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/app_desc"
+        tools:ignore="SpUsage" />
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/dimen_21_dp"
+        android:orientation="horizontal"
+        android:layout_marginBottom="@dimen/dimen_15_dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/app_bottom_icon"
+        android:layout_width="@dimen/dimen_21_dp"
+        android:layout_height="@dimen/dimen_21_dp"
+        android:src="@mipmap/ic_yunxin_bottom" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/app_bottom_name"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/dimen_21_dp"
+            android:text="@string/yunxin_name"
+            android:textSize="@dimen/text_size_12"
+            android:layout_gravity="center"
+            android:layout_marginStart="@dimen/dimen_5_dp"
+            android:textColor="@color/color_333333"/>
+
+        <TextView android:id="@+id/tv_email_login"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="@string/email_login"
+            android:textColor="@color/color_333333"
+            android:gravity="center_vertical"
+            android:textSize="@dimen/text_size_12"
+            android:visibility="gone" />
+        <View android:id="@+id/v_email_line"
+            android:layout_width="@dimen/dimen_1_dp"
+            android:layout_height="@dimen/dimen_12_dp"
+            android:background="@color/color_999999"
+            android:layout_marginStart="@dimen/dimen_12_dp"
+            android:layout_gravity="center_vertical"
+            android:visibility="gone" />
+
+        <TextView android:id="@+id/tv_server_config"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:layout_marginStart="@dimen/dimen_12_dp"
+            android:textColor="@color/color_333333"
+            android:text="@string/server_config"
+            android:visibility="gone"
+            android:textSize="@dimen/text_size_12"/>
+    </androidx.appcompat.widget.LinearLayoutCompat>
+</androidx.constraintlayout.widget.ConstraintLayout>

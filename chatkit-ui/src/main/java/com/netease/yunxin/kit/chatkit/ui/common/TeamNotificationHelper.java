@@ -10,7 +10,6 @@ import com.netease.nimlib.sdk.team.constant.TeamAllMuteModeEnum;
 import com.netease.nimlib.sdk.team.constant.TeamBeInviteModeEnum;
 import com.netease.nimlib.sdk.team.constant.TeamFieldEnum;
 import com.netease.nimlib.sdk.team.constant.TeamInviteModeEnum;
-import com.netease.nimlib.sdk.team.constant.TeamTypeEnum;
 import com.netease.nimlib.sdk.team.constant.TeamUpdateModeEnum;
 import com.netease.nimlib.sdk.team.constant.VerifyTypeEnum;
 import com.netease.nimlib.sdk.team.model.MemberChangeAttachment;
@@ -22,6 +21,7 @@ import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.corekit.im.IMKitClient;
 import com.netease.yunxin.kit.corekit.im.model.UserInfo;
+import com.netease.yunxin.kit.corekit.im.utils.IMKitUtils;
 import java.util.List;
 import java.util.Map;
 
@@ -120,8 +120,8 @@ public class TeamNotificationHelper {
     sb.append(selfName);
     sb.append(IMKitClient.getApplicationContext().getString(R.string.chat_invite));
     sb.append(buildMemberListString(tid, a.getTargets(), fromUser));
-    Team team = ChatRepo.getTeamInfo(tid);
-    if (team == null || team.getType() == TeamTypeEnum.Advanced) {
+    Team team = getTeam(tid);
+    if (team != null && !IMKitUtils.isTeamGroup(team)) {
       sb.append(IMKitClient.getApplicationContext().getString(R.string.chat_join_team));
     } else {
       sb.append(IMKitClient.getApplicationContext().getString(R.string.chat_join_discuss_team));
@@ -133,8 +133,8 @@ public class TeamNotificationHelper {
   private static String buildKickMemberNotification(String tid, MemberChangeAttachment a) {
     StringBuilder sb = new StringBuilder();
     sb.append(buildMemberListString(tid, a.getTargets(), null));
-    Team team = ChatRepo.getTeamInfo(tid);
-    if (team == null || team.getType() == TeamTypeEnum.Advanced) {
+    Team team = getTeam(tid);
+    if (team != null && !IMKitUtils.isTeamGroup(team)) {
       sb.append(IMKitClient.getApplicationContext().getString(R.string.chat_removed_team));
     } else {
       sb.append(IMKitClient.getApplicationContext().getString(R.string.chat_removed_discuss_team));
@@ -145,13 +145,21 @@ public class TeamNotificationHelper {
 
   private static String buildLeaveTeamNotification(String tid, UserInfo fromUser) {
     String tip;
-    Team team = ChatRepo.getTeamInfo(tid);
-    if (team == null || team.getType() == TeamTypeEnum.Advanced) {
+    Team team = getTeam(tid);
+    if (team != null && !IMKitUtils.isTeamGroup(team)) {
       tip = IMKitClient.getApplicationContext().getString(R.string.chat_left_team);
     } else {
       tip = IMKitClient.getApplicationContext().getString(R.string.chat_left_discuss_team);
     }
     return getTeamMemberDisplayName(tid, fromUser) + tip;
+  }
+
+  private static Team getTeam(String teamId) {
+    Team team = ChatRepo.getCurrentTeam();
+    if (team == null || !TextUtils.equals(teamId, team.getId())) {
+      team = ChatRepo.getTeamInfo(teamId);
+    }
+    return team;
   }
 
   private static String buildDismissTeamNotification(String tid, UserInfo fromUser) {
@@ -162,6 +170,7 @@ public class TeamNotificationHelper {
   private static String buildUpdateTeamNotification(
       String tid, UserInfo fromUser, UpdateTeamAttachment a) {
     StringBuilder sb = new StringBuilder();
+    boolean showContent = true;
     for (Map.Entry<TeamFieldEnum, Object> field : a.getUpdatedFields().entrySet()) {
       if (field.getKey() == TeamFieldEnum.Name) {
         sb.append(IMKitClient.getApplicationContext().getString(R.string.chat_name_update))
@@ -194,15 +203,6 @@ public class TeamNotificationHelper {
                   IMKitClient.getApplicationContext()
                       .getString(R.string.chat_team_not_allow_anyone_join));
         }
-      } else if (field.getKey() == TeamFieldEnum.Extension) {
-        sb.append(
-                IMKitClient.getApplicationContext().getString(R.string.chat_team_extension_update))
-            .append(field.getValue());
-      } else if (field.getKey() == TeamFieldEnum.Ext_Server_Only) {
-        sb.append(
-                IMKitClient.getApplicationContext()
-                    .getString(R.string.chat_team_extension_server_update))
-            .append(field.getValue());
       } else if (field.getKey() == TeamFieldEnum.ICON) {
         sb.append(IMKitClient.getApplicationContext().getString(R.string.chat_team_avatar_update));
       } else if (field.getKey() == TeamFieldEnum.InviteMode) {
@@ -250,11 +250,6 @@ public class TeamNotificationHelper {
               IMKitClient.getApplicationContext()
                   .getString(R.string.chat_team_invited_permission_no));
         }
-      } else if (field.getKey() == TeamFieldEnum.TeamExtensionUpdateMode) {
-        sb.append(
-                IMKitClient.getApplicationContext()
-                    .getString(R.string.chat_team_modify_extension_permission_update))
-            .append(field.getValue());
       } else if (field.getKey() == TeamFieldEnum.AllMute) {
         TeamAllMuteModeEnum teamAllMuteModeEnum = (TeamAllMuteModeEnum) field.getValue();
         if (teamAllMuteModeEnum == TeamAllMuteModeEnum.Cancel) {
@@ -263,6 +258,11 @@ public class TeamNotificationHelper {
         } else {
           sb.append(IMKitClient.getApplicationContext().getString(R.string.chat_team_full_mute));
         }
+      } else if (field.getKey() == TeamFieldEnum.Extension
+          || field.getKey() == TeamFieldEnum.Ext_Server_Only
+          || field.getKey() == TeamFieldEnum.TeamExtensionUpdateMode) {
+        showContent = false;
+        continue;
       } else {
         sb.append(
             String.format(
@@ -271,6 +271,9 @@ public class TeamNotificationHelper {
                 field.getValue()));
       }
       sb.append("\r\n");
+    }
+    if (sb.length() < 2 && !showContent) {
+      return "";
     }
     if (sb.length() < 2) {
       return IMKitClient.getApplicationContext().getString(R.string.chat_team_unknown_notification);

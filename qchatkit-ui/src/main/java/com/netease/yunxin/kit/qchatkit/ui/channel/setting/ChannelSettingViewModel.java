@@ -76,7 +76,11 @@ public class ChannelSettingViewModel extends BaseViewModel {
 
           @Override
           public void onFailed(int code) {
-            fetchResult.setError(code, R.string.qchat_channel_delete_error);
+            if (code == QChatConstant.ERROR_CODE_IM_NO_PERMISSION) {
+              fetchResult.setError(code, R.string.qchat_no_permission);
+            } else {
+              fetchResult.setError(code, R.string.qchat_channel_delete_error);
+            }
             resultLiveData.postValue(fetchResult);
           }
 
@@ -104,7 +108,11 @@ public class ChannelSettingViewModel extends BaseViewModel {
 
           @Override
           public void onFailed(int code) {
-            fetchResult.setError(code, R.string.qchat_channel_update_error);
+            if (code == QChatConstant.ERROR_CODE_IM_NO_PERMISSION) {
+              fetchResult.setError(code, R.string.qchat_no_permission);
+            } else {
+              fetchResult.setError(code, R.string.qchat_channel_update_error);
+            }
             resultLiveData.postValue(fetchResult);
           }
 

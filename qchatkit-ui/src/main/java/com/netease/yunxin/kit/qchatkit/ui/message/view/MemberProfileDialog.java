@@ -13,6 +13,7 @@ import androidx.annotation.Nullable;
 import com.netease.yunxin.kit.common.ui.dialog.BaseBottomDialog;
 import com.netease.yunxin.kit.common.ui.utils.AvatarColor;
 import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
+import com.netease.yunxin.kit.corekit.qchat.QChatKitClient;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 import com.netease.yunxin.kit.qchatkit.repo.model.QChatServerMemberInfo;
 import com.netease.yunxin.kit.qchatkit.repo.model.QChatServerRoleInfo;
@@ -71,10 +72,16 @@ public class MemberProfileDialog extends BaseBottomDialog {
     }
     viewBinding.qChatMemberProfileAvatar.setOnClickListener(
         v -> {
-          XKitRouter.withKey(RouterConstant.PATH_USER_INFO_PAGE)
-              .withContext(v.getContext())
-              .withParam(RouterConstant.KEY_ACCOUNT_ID_KEY, memberInfo.getAccId())
-              .navigate();
+          if (TextUtils.equals(memberInfo.getAccId(), QChatKitClient.account())) {
+            XKitRouter.withKey(RouterConstant.PATH_MINE_INFO_PAGE)
+                .withContext(v.getContext())
+                .navigate();
+          } else {
+            XKitRouter.withKey(RouterConstant.PATH_USER_INFO_PAGE)
+                .withContext(v.getContext())
+                .withParam(RouterConstant.KEY_ACCOUNT_ID_KEY, memberInfo.getAccId())
+                .navigate();
+          }
         });
   }
 }

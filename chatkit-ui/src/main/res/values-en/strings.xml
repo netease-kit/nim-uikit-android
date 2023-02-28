@@ -12,7 +12,8 @@
     <string name="chat_message_send_error">Failed to send message</string> 
     <string name="chat_message_fetch_error">Failed to get message</string> 
     <string name="chat_message_revoke_error">Recall Failed</string>
-    <string name="chat_message_revoke_content">您撤回了一条消息</string>
+    <string name="chat_message_audio_to_short">Message too short</string>
+    <string name="chat_message_revoke_content">Revoke Message</string>
     <string name="chat_message_revoke_over_time">Too late to recall</string>
     <string name="chat_message_revoked">Message Recalled</string> 
     <string name="chat_message_re_edit">Edit</string> 
@@ -59,6 +60,16 @@
     <string name="chat_message_video_call_action">Video Call</string>
     <string name="chat_message_audio_call_action">Voice Call</string>
 
+    <string name="chat_message_call_canceled">Canceled</string>
+    <string name="chat_message_in_call_canceled">Canceled by other</string>
+    <string name="chat_message_in_call_canceled_self">Canceled</string>
+    <string name="chat_message_call_refused">Refused by other</string>
+    <string name="chat_message_call_refused_self">Refused</string>
+    <string name="chat_message_call_timeout">Time Out</string>
+    <string name="chat_message_call_busy">Busy</string>
+    <string name="chat_message_call_busy_self">Busy</string>
+    <string name="chat_message_call_completed">Call &#160;&#160; %s</string>
+
     <string name="chat_message_action_copy">Copy</string>
     <string name="chat_message_action_reply">Reply</string> 
     <string name="chat_message_action_transmit">Forward</string> 
@@ -72,6 +83,7 @@
 
     <string name="chat_message_action_revoke_this_message">Are you sure you want to recall message</string>
     <string name="chat_message_action_delete_this_message">Really want to delete this message?</string>
+    <string name="chat_message_removed_tip">This message was gone</string>
 
     <string name="chat_message_reply_someone">Reply %s</string> 
 
@@ -163,7 +175,11 @@
 
     <!-- tips -->
     <string name="chat_message_not_support_tips">[Unknown Message]</string>
-    <string name="chat_message_file_size_limit_tips">Oops！File size limit.</string>
+    <string name="chat_message_type_not_support_tips">Unknown Type</string>
+    <string name="chat_message_file_size_limit_tips">Oops！File size limit %sM.</string>
+    <string name="chat_message_type_resource_error">Read failed.</string>
+    <string name="chat_message_revoke_eidt_error">Time Out</string>
+
 
     <!-- location -->
     <string name="chat_location_mine">Location</string>
@@ -171,5 +187,6 @@
     <string name="chat_location_search_hint">Search Location</string>
     <string name="chat_location_search_empty">Not found</string>
     <string name="chat_location_empty">No location information</string>
+    <string name="chat_location_disable">No location information</string>
 
 </resources>

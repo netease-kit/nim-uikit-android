@@ -61,28 +61,6 @@
         </RelativeLayout>
 
         <RelativeLayout
-            android:id="@+id/qchat_btn_group"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:onClick="tabClick"
-            android:layout_weight="1">
-
-            <TextView
-                android:id="@+id/qchat"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:drawablePadding="3dp"
-                android:gravity="center"
-                android:textSize="12sp"
-                android:textColor="@color/tab_unchecked_color"
-                android:drawableTop="@drawable/ic_qchat_unchecked"
-                android:text="@string/tab_qchat_tab_text" />
-
-        </RelativeLayout>
-
-
-        <RelativeLayout
             android:id="@+id/live_btn_group"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

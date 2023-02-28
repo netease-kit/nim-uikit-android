@@ -26,10 +26,11 @@ import java.util.List;
 public class VerifyViewModel extends BaseViewModel {
 
   private final String TAG = "VerifyViewModel";
-  private final int pageSize = 100;
+  private final int PAGE_LIMIT = 100;
   //7 day expire time
   private final long expireLimit = 604800000;
   private int index = 0;
+  private boolean hasMore = true;
   private final MutableLiveData<FetchResult<List<ContactVerifyInfoBean>>> resultLiveData =
       new MutableLiveData<>();
   private final FetchResult<List<ContactVerifyInfoBean>> fetchResult =
@@ -68,21 +69,21 @@ public class VerifyViewModel extends BaseViewModel {
                     //update
                     fetchResult.setData(add);
                     fetchResult.setFetchType(FetchResult.FetchType.Add);
-                    resultLiveData.postValue(fetchResult);
+                    resultLiveData.setValue(fetchResult);
                   }
 
                   @Override
                   public void onFailed(int code) {
                     ALog.d(LIB_TAG, TAG, "infoObserver,onFailed:" + code);
                     fetchResult.setError(code, "");
-                    resultLiveData.postValue(fetchResult);
+                    resultLiveData.setValue(fetchResult);
                   }
 
                   @Override
                   public void onException(@Nullable Throwable exception) {
                     ALog.d(LIB_TAG, TAG, "infoObserver,onException");
                     fetchResult.setError(-1, "");
-                    resultLiveData.postValue(fetchResult);
+                    resultLiveData.setValue(fetchResult);
                   }
                 });
           }
@@ -94,13 +95,16 @@ public class VerifyViewModel extends BaseViewModel {
     fetchResult.setStatus(LoadStatus.Loading);
     resultLiveData.postValue(fetchResult);
     if (nextPage) {
-      index += pageSize;
+      if (!hasMore) {
+        return;
+      }
+      index += PAGE_LIMIT;
     } else {
       index = 0;
     }
     ContactRepo.getNotificationList(
         index,
-        pageSize,
+        PAGE_LIMIT,
         new FetchCallback<List<SystemMessageInfo>>() {
           @Override
           public void onSuccess(@Nullable List<SystemMessageInfo> param) {
@@ -111,32 +115,39 @@ public class VerifyViewModel extends BaseViewModel {
             if (param != null && param.size() > 0) {
               fetchResult.setStatus(LoadStatus.Success);
               resetMessageStatus(param);
+              List<ContactVerifyInfoBean> add = new ArrayList<>();
               for (SystemMessageInfo contactInfo : param) {
                 ContactVerifyInfoBean friendBean = new ContactVerifyInfoBean(contactInfo);
+                add.add(friendBean);
                 verifyBeanList.add(friendBean);
               }
-              fetchResult.setData(verifyBeanList);
+              hasMore = (param.size() == PAGE_LIMIT);
+              fetchResult.setData(add);
             } else {
               fetchResult.setData(null);
               fetchResult.setStatus(LoadStatus.Success);
             }
-            resultLiveData.postValue(fetchResult);
+            resultLiveData.setValue(fetchResult);
           }
 
           @Override
           public void onFailed(int code) {
             ALog.d(LIB_TAG, TAG, "fetchVerifyList,onFailed:" + code);
             fetchResult.setError(code, "");
-            resultLiveData.postValue(fetchResult);
+            resultLiveData.setValue(fetchResult);
           }
 
           @Override
           public void onException(@Nullable Throwable exception) {
             ALog.d(LIB_TAG, TAG, "fetchVerifyList,onException");
             fetchResult.setError(-1, "");
-            resultLiveData.postValue(fetchResult);
+            resultLiveData.setValue(fetchResult);
           }
         });
+  }
+
+  public boolean hasMore() {
+    return hasMore;
   }
 
   public void clearNotify() {
@@ -145,7 +156,7 @@ public class VerifyViewModel extends BaseViewModel {
     fetchResult.setFetchType(FetchResult.FetchType.Remove);
     fetchResult.setData(new ArrayList<>(verifyBeanList));
     verifyBeanList.clear();
-    resultLiveData.postValue(fetchResult);
+    resultLiveData.setValue(fetchResult);
   }
 
   public void agree(ContactVerifyInfoBean bean, FetchCallback<Void> callback) {

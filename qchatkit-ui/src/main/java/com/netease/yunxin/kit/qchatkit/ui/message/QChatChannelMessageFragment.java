@@ -4,6 +4,7 @@
 
 package com.netease.yunxin.kit.qchatkit.ui.message;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -12,54 +13,106 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.RecyclerView;
 import com.netease.nimlib.sdk.msg.attachment.ImageAttachment;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.common.ui.dialog.CommonAlertDialog;
 import com.netease.yunxin.kit.common.ui.fragments.BaseFragment;
+import com.netease.yunxin.kit.common.ui.utils.ToastX;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.common.utils.CommonFileProvider;
+import com.netease.yunxin.kit.common.utils.ImageUtils;
 import com.netease.yunxin.kit.common.utils.NetworkUtils;
+import com.netease.yunxin.kit.common.utils.PermissionUtils;
 import com.netease.yunxin.kit.corekit.im.IMKitClient;
 import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
 import com.netease.yunxin.kit.qchatkit.repo.model.QChatChannelInfo;
 import com.netease.yunxin.kit.qchatkit.repo.model.QChatMessageInfo;
 import com.netease.yunxin.kit.qchatkit.ui.R;
 import com.netease.yunxin.kit.qchatkit.ui.databinding.QChatChannelMessageFragmentBinding;
+import com.netease.yunxin.kit.qchatkit.ui.message.audio.QChatMessageAudioControl;
 import com.netease.yunxin.kit.qchatkit.ui.message.interfaces.IMessageLoadHandler;
 import com.netease.yunxin.kit.qchatkit.ui.message.interfaces.IMessageOptionCallBack;
 import com.netease.yunxin.kit.qchatkit.ui.message.interfaces.IMessageProxy;
 import com.netease.yunxin.kit.qchatkit.ui.message.utils.SendImageHelper;
-import com.netease.yunxin.kit.qchatkit.ui.message.view.MessageInputLayout;
 import com.netease.yunxin.kit.qchatkit.ui.message.view.PhotoPickerDialog;
+import com.netease.yunxin.kit.qchatkit.ui.message.view.QChatMessageListView;
 import com.netease.yunxin.kit.qchatkit.ui.model.QChatConstant;
 import com.netease.yunxin.kit.qchatkit.ui.utils.FileUtils;
 import java.io.File;
+import java.util.List;
+import java.util.Map;
 
 /** channel message page to send text message and image message */
 public class QChatChannelMessageFragment extends BaseFragment {
 
   public static final String TAG = "QChatChannelMessageFragment";
+  private final int REQUEST_PERMISSION = 0;
+  private int currentRequest = 0;
+
   private QChatChannelMessageFragmentBinding viewBinding;
   private MessageViewModel viewModel;
-  private MessageInputLayout bottomBarLayout;
   private ActivityResultLauncher<Intent> activityResultLauncher;
   private File tempFile;
   private PhotoPickerDialog photoPickerDialog;
   private long serverId;
   private long channelId;
+  private ActivityResultLauncher<String[]> permissionLauncher;
   private static final int COPY_SHOW_TIME = 1000;
+  private static final int AUDIO_MIN_TIME = 1000;
+  private final Observer<FetchResult<List<QChatMessageInfo>>> queryMessageObserver =
+      result -> {
+        if (result.getLoadStatus() == LoadStatus.Success) {
+          viewBinding.qChatMessageListRecyclerView.appendMessages(result.getData());
+        } else if (result.getLoadStatus() == LoadStatus.Finish) {
+          if (result.getType() == FetchResult.FetchType.Add) {
+            if (result.getTypeIndex() == -1) {
+              viewBinding.qChatMessageListRecyclerView.appendMessages(result.getData());
+            } else {
+              viewBinding.qChatMessageListRecyclerView.addMessagesForward(result.getData());
+              viewBinding.qChatMessageListRecyclerView.setHasMoreForwardMessages(
+                  viewModel.isHasForward());
+            }
+          } else if (result.getType() == FetchResult.FetchType.Remove) {
+            //todo delete message
+          } else if (result.getType() == FetchResult.FetchType.Update) {
+
+          }
+        }
+      };
+
+  private final Observer<FetchResult<QChatMessageInfo>> sendMessageObserver =
+      result -> {
+        if (result.getLoadStatus() == LoadStatus.Success) {
+          ALog.d(TAG, "SendMessageLiveData", "Success");
+          viewBinding.qChatMessageListRecyclerView.updateMessageStatus(result.getData());
+        } else if (result.getLoadStatus() == LoadStatus.Error) {
+          if (result.getError() != null
+              && result.getError().getCode() == QChatConstant.ERROR_CODE_IM_NO_PERMISSION) {
+            ALog.d(TAG, "SendMessageLiveData", "Error 403");
+            showPermissionErrorDialog();
+            if (result.getData() != null) {
+              viewBinding.qChatMessageListRecyclerView.deleteMessage(result.getData());
+            }
+          } else {
+            if (result.getData() != null) {
+              viewBinding.qChatMessageListRecyclerView.updateMessageStatus(result.getData());
+            }
+          }
+          ALog.d(TAG, "SendMessageLiveData", "Error");
+        }
+      };
 
   private final NetworkUtils.NetworkStateListener networkStateListener =
       new NetworkUtils.NetworkStateListener() {
@@ -68,7 +121,7 @@ public class QChatChannelMessageFragment extends BaseFragment {
           if (viewBinding == null) {
             return;
           }
-          viewBinding.networkTip.getRoot().setVisibility(View.GONE);
+          viewBinding.networkTip.setVisibility(View.GONE);
         }
 
         @Override
@@ -76,7 +129,7 @@ public class QChatChannelMessageFragment extends BaseFragment {
           if (viewBinding == null) {
             return;
           }
-          viewBinding.networkTip.getRoot().setVisibility(View.VISIBLE);
+          viewBinding.networkTip.setVisibility(View.VISIBLE);
         }
       };
 
@@ -104,8 +157,14 @@ public class QChatChannelMessageFragment extends BaseFragment {
           String.format(
               getResources().getString(R.string.qchat_channel_message_send_hint),
               channelInfo.getName());
-      viewBinding.qChatMessageBottomLayout.qChatMessageInputEt.setHint(hintText);
+      viewBinding.qChatMessageBottomLayout.getViewBinding().chatMessageInputEt.setHint(hintText);
     }
+  }
+
+  @Override
+  public void onStop() {
+    super.onStop();
+    QChatMessageAudioControl.getInstance().stopAudio();
   }
 
   private final IMessageProxy messageProxy =
@@ -114,7 +173,7 @@ public class QChatChannelMessageFragment extends BaseFragment {
         public boolean sendTextMessage(String msg) {
           ALog.d(TAG, "sendTextMessage", "info:" + msg);
           QChatMessageInfo messageInfo = viewModel.sendTextMessage(msg);
-          viewBinding.qChatChannelMemberListRecyclerView.appendMessage(messageInfo);
+          viewBinding.qChatMessageListRecyclerView.appendMessage(messageInfo);
           return true;
         }
 
@@ -147,9 +206,54 @@ public class QChatChannelMessageFragment extends BaseFragment {
         }
 
         @Override
+        public boolean hasPermission(String permission) {
+          if (TextUtils.isEmpty(permission)) {
+            return false;
+          }
+          if (PermissionUtils.hasPermissions(
+              QChatChannelMessageFragment.this.getContext(), permission)) {
+            return true;
+          } else {
+            requestCameraPermission(permission, REQUEST_PERMISSION);
+            return false;
+          }
+        }
+
+        @Override
+        public boolean pickMedia() {
+          photoPicker();
+          return false;
+        }
+
+        @Override
+        public boolean takePicture() {
+          return false;
+        }
+
+        @Override
+        public boolean captureVideo() {
+          return false;
+        }
+
+        @Override
         public void onInputPanelExpand() {
           Toast.makeText(getActivityContext(), R.string.qchat_develop_text, Toast.LENGTH_SHORT)
               .show();
+        }
+
+        @Override
+        public boolean sendAudio(File audioFile, long audioLength) {
+          if (audioLength < AUDIO_MIN_TIME) {
+            Toast.makeText(
+                    getActivityContext(),
+                    R.string.qchat_pressed_audio_too_short,
+                    Toast.LENGTH_SHORT)
+                .show();
+          } else {
+            QChatMessageInfo messageInfo = viewModel.sendVoiceMessage(audioFile, audioLength);
+            viewBinding.qChatMessageListRecyclerView.appendMessage(messageInfo);
+          }
+          return true;
         }
 
         @Override
@@ -171,40 +275,31 @@ public class QChatChannelMessageFragment extends BaseFragment {
     super.onViewCreated(view, savedInstanceState);
     viewModel = new ViewModelProvider(this).get(MessageViewModel.class);
     viewModel.init(serverId, channelId);
-    viewBinding.qChatChannelMemberListRecyclerView.addOnLayoutChangeListener(
+    viewBinding.qChatMessageListRecyclerView.addOnLayoutChangeListener(
         (v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
           if (bottom < oldBottom) {
-            viewBinding.qChatChannelMemberListRecyclerView.scrollBy(0, oldBottom - bottom);
+            viewBinding.qChatMessageListRecyclerView.scrollBy(0, oldBottom - bottom);
           }
         });
-    viewBinding.qChatChannelMemberListRecyclerView.addOnScrollListener(
-        new RecyclerView.OnScrollListener() {
+    viewBinding.qChatMessageListRecyclerView.setOnListViewEventListener(
+        new QChatMessageListView.OnListViewEventListener() {
           @Override
-          public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
-            super.onScrollStateChanged(recyclerView, newState);
-            if (viewBinding.qChatMessageBottomLayout.qChatMessageInputEt.hasFocus()) {
-              InputMethodManager imm =
-                  (InputMethodManager)
-                      QChatChannelMessageFragment.this
-                          .getActivity()
-                          .getSystemService(Context.INPUT_METHOD_SERVICE);
-              if (imm != null) {
-                imm.hideSoftInputFromWindow(
-                    viewBinding.qChatMessageBottomLayout.qChatMessageInputEt.getWindowToken(), 0);
-              }
-              viewBinding.qChatMessageBottomLayout.qChatMessageInputEt.setFocusable(false);
-              viewBinding.qChatMessageBottomLayout.qChatMessageInputEt.setFocusableInTouchMode(
-                  true);
-            }
+          public void onListViewStartScroll() {
+            viewBinding.qChatMessageBottomLayout.collapse(true);
           }
 
           @Override
-          public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-            super.onScrolled(recyclerView, dx, dy);
+          public void onListViewTouched() {
+            viewBinding.qChatMessageBottomLayout.collapse(true);
           }
         });
-    bottomBarLayout = new MessageInputLayout(viewBinding.qChatMessageBottomLayout, messageProxy);
-    viewBinding.qChatChannelMemberListRecyclerView.setLoadHandler(
+    viewBinding.qChatMessageBottomLayout.init(messageProxy);
+    viewBinding.qChatMessageListRecyclerView.setOnTouchListener(
+        (v, event) -> {
+          viewBinding.qChatMessageBottomLayout.collapse(true);
+          return false;
+        });
+    viewBinding.qChatMessageListRecyclerView.setLoadHandler(
         new IMessageLoadHandler() {
           @Override
           public boolean loadMoreForward(QChatMessageInfo messageInfo) {
@@ -218,7 +313,7 @@ public class QChatChannelMessageFragment extends BaseFragment {
             return true;
           }
         });
-    viewBinding.qChatChannelMemberListRecyclerView.setOptionCallback(
+    viewBinding.qChatMessageListRecyclerView.setOptionCallback(
         new IMessageOptionCallBack() {
           @Override
           public void onRead(QChatMessageInfo message) {
@@ -235,57 +330,9 @@ public class QChatChannelMessageFragment extends BaseFragment {
             showCopyTip();
           }
         });
-    viewModel
-        .getQueryMessageLiveData()
-        .observe(
-            this.getViewLifecycleOwner(),
-            result -> {
-              if (result.getLoadStatus() == LoadStatus.Success) {
-                viewBinding.qChatChannelMemberListRecyclerView.appendMessages(result.getData());
-              } else if (result.getLoadStatus() == LoadStatus.Finish) {
-                if (result.getType() == FetchResult.FetchType.Add) {
-                  if (result.getTypeIndex() == -1) {
-                    viewBinding.qChatChannelMemberListRecyclerView.appendMessages(result.getData());
-                  } else {
-                    viewBinding.qChatChannelMemberListRecyclerView.addMessagesForward(
-                        result.getData());
-                    viewBinding.qChatChannelMemberListRecyclerView.setHasMoreForwardMessages(
-                        viewModel.isHasForward());
-                  }
-                } else if (result.getType() == FetchResult.FetchType.Remove) {
-                  //todo delete message
-                } else if (result.getType() == FetchResult.FetchType.Update) {
+    viewModel.getQueryMessageLiveData().observeForever(queryMessageObserver);
 
-                }
-              }
-            });
-
-    viewModel
-        .getSendMessageLiveData()
-        .observe(
-            this.getViewLifecycleOwner(),
-            result -> {
-              if (result.getLoadStatus() == LoadStatus.Success) {
-                ALog.d(TAG, "SendMessageLiveData", "Success");
-                viewBinding.qChatChannelMemberListRecyclerView.updateMessageStatus(
-                    result.getData());
-              } else if (result.getLoadStatus() == LoadStatus.Error) {
-                if (result.getError() != null
-                    && result.getError().getCode() == QChatConstant.ERROR_CODE_IM_NO_PERMISSION) {
-                  ALog.d(TAG, "SendMessageLiveData", "Error 403");
-                  showPermissionErrorDialog();
-                  if (result.getData() != null) {
-                    viewBinding.qChatChannelMemberListRecyclerView.deleteMessage(result.getData());
-                  }
-                } else {
-                  if (result.getData() != null) {
-                    viewBinding.qChatChannelMemberListRecyclerView.updateMessageStatus(
-                        result.getData());
-                  }
-                }
-                ALog.d(TAG, "SendMessageLiveData", "Error");
-              }
-            });
+    viewModel.getSendMessageLiveData().observeForever(sendMessageObserver);
     activityResultLauncher =
         registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -297,7 +344,7 @@ public class QChatChannelMessageFragment extends BaseFragment {
                   ALog.d(TAG, "activityResultLauncher", "info:" + path);
                   QChatMessageInfo messageInfo =
                       viewModel.sendImageMessage(createImageMessage(path));
-                  viewBinding.qChatChannelMemberListRecyclerView.appendMessage(messageInfo);
+                  viewBinding.qChatMessageListRecyclerView.appendMessage(messageInfo);
                 } else {
                   Uri imageUri = result.getData().getData();
                   ALog.d(TAG, "activityResultLauncher", "intent info:" + imageUri.getPath());
@@ -307,23 +354,48 @@ public class QChatChannelMessageFragment extends BaseFragment {
                           (filePath, isOrig) -> {
                             QChatMessageInfo messageInfo =
                                 viewModel.sendImageMessage(createImageMessage(filePath));
-                            viewBinding.qChatChannelMemberListRecyclerView.appendMessage(
-                                messageInfo);
+                            viewBinding.qChatMessageListRecyclerView.appendMessage(messageInfo);
                           })
                       .execute();
                 }
               }
             });
 
-    viewModel.fetchMessageList();
+    permissionLauncher =
+        registerForActivityResult(
+            new ActivityResultContracts.RequestMultiplePermissions(),
+            result -> {
+              if (result != null) {
+                for (Map.Entry entry : result.entrySet()) {
+                  String permission = entry.getKey().toString();
+                  boolean grant = (Boolean) entry.getValue();
+                  if (!grant) {
+                    if (shouldShowRequestPermissionRationale(permission)) {
 
+                      ToastX.showShortToast(
+                          getResources().getString(R.string.qchat_permission_deny_tips));
+                    } else {
+
+                      ToastX.showShortToast(getPermissionText(permission));
+                    }
+                  }
+                }
+              }
+            });
     NetworkUtils.registerNetworkStatusChangedListener(networkStateListener);
+    if (NetworkUtils.isConnected()) {
+      viewModel.fetchMessageList();
+    } else {
+      viewModel.loadMessageCache();
+    }
   }
 
   @Override
   public void onDestroyView() {
     super.onDestroyView();
     NetworkUtils.unregisterNetworkStatusChangedListener(networkStateListener);
+    viewModel.getSendMessageLiveData().removeObserver(sendMessageObserver);
+    viewModel.getQueryMessageLiveData().removeObserver(queryMessageObserver);
   }
 
   private void photoPicker() {
@@ -377,6 +449,13 @@ public class QChatChannelMessageFragment extends BaseFragment {
   protected ImageAttachment createImageMessage(String path) {
     ImageAttachment imageAttachment = new ImageAttachment();
     imageAttachment.setPath(path);
+    File imageFile = new File(path);
+    if (imageFile.exists()) {
+      imageAttachment.setSize(imageFile.length());
+      int[] dimension = ImageUtils.getSize(path);
+      imageAttachment.setWidth(dimension[0]);
+      imageAttachment.setHeight(dimension[1]);
+    }
     ALog.d(TAG, "createImageMessage", "info:" + path);
     return imageAttachment;
   }
@@ -397,5 +476,22 @@ public class QChatChannelMessageFragment extends BaseFragment {
         .setPositiveStr(getString(R.string.qchat_ensure))
         .setConfirmListener(() -> {})
         .show(getActivity().getSupportFragmentManager());
+  }
+
+  private void requestCameraPermission(String permission, int request) {
+    currentRequest = request;
+    permissionLauncher.launch(new String[] {permission});
+  }
+
+  public String getPermissionText(String permission) {
+    String text = this.getContext().getString(R.string.qchat_permission_default);
+    if (TextUtils.equals(permission, Manifest.permission.CAMERA)) {
+      text = this.getContext().getString(R.string.qchat_permission_camera);
+    } else if (TextUtils.equals(permission, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+      text = this.getContext().getString(R.string.qchat_permission_storage);
+    } else if (TextUtils.equals(permission, Manifest.permission.RECORD_AUDIO)) {
+      text = this.getContext().getString(R.string.qchat_permission_audio);
+    }
+    return text;
   }
 }

@@ -123,11 +123,11 @@ public class MineFragment extends BaseFragment {
   }
 
   private void updateUI(UserInfo userInfo) {
+    String name =
+        TextUtils.isEmpty(userInfo.getName()) ? userInfo.getAccount() : userInfo.getName();
     binding.cavIcon.setData(
-        userInfo.getAvatar(),
-        userInfo.getName() == null ? "" : userInfo.getName(),
-        AvatarColor.avatarColor(IMKitClient.account()));
-    binding.tvName.setText(userInfo.getName());
+        userInfo.getAvatar(), name, AvatarColor.avatarColor(IMKitClient.account()));
+    binding.tvName.setText(name);
   }
 
   @Override

@@ -4,6 +4,7 @@
 
 package com.netease.yunxin.kit.chatkit.ui.view.message;
 
+import static com.netease.yunxin.kit.chatkit.ui.ChatMessageType.CALL_MESSAGE_VIEW_TYPE;
 import static com.netease.yunxin.kit.chatkit.ui.ChatMessageType.LOCATION_MESSAGE_VIEW_TYPE;
 import static com.netease.yunxin.kit.chatkit.ui.ChatMessageType.NORMAL_MESSAGE_VIEW_TYPE_AUDIO;
 import static com.netease.yunxin.kit.chatkit.ui.ChatMessageType.NORMAL_MESSAGE_VIEW_TYPE_FILE;
@@ -21,6 +22,7 @@ import com.netease.yunxin.kit.chatkit.ui.databinding.ChatBaseMessageViewHolderBi
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.view.message.viewholder.ChatAudioMessageViewHolder;
 import com.netease.yunxin.kit.chatkit.ui.view.message.viewholder.ChatBaseMessageViewHolder;
+import com.netease.yunxin.kit.chatkit.ui.view.message.viewholder.ChatCallMessageViewHolder;
 import com.netease.yunxin.kit.chatkit.ui.view.message.viewholder.ChatFileMessageViewHolder;
 import com.netease.yunxin.kit.chatkit.ui.view.message.viewholder.ChatImageMessageViewHolder;
 import com.netease.yunxin.kit.chatkit.ui.view.message.viewholder.ChatLocationMessageViewHolder;
@@ -65,6 +67,8 @@ public abstract class ChatMessageViewHolderFactory implements IChatFactory {
       viewHolder = new ChatFileMessageViewHolder(viewHolderBinding, viewType);
     } else if (viewType == LOCATION_MESSAGE_VIEW_TYPE) {
       viewHolder = new ChatLocationMessageViewHolder(viewHolderBinding, viewType);
+    } else if (viewType == CALL_MESSAGE_VIEW_TYPE) {
+      viewHolder = new ChatCallMessageViewHolder(viewHolderBinding, viewType);
     } else {
       //default as text message
       viewHolder = new ChatTextMessageViewHolder(viewHolderBinding, viewType);

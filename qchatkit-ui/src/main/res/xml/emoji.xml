@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2022 NetEase, Inc. All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be
+  ~ found in the LICENSE file.
+  -->
+
+<PopoEmoticons>
+    <Catalog Title="default">
+        <Emoticon File="emoji_00.png" ID="emoticon_emoji_0" Tag="[大笑]" />
+        <Emoticon File="emoji_01.png" ID="emoticon_emoji_01" Tag="[开心]" />
+        <Emoticon File="emoji_02.png" ID="emoticon_emoji_02" Tag="[色]" />
+        <Emoticon File="emoji_03.png" ID="emoticon_emoji_03" Tag="[酷]" />
+        <Emoticon File="emoji_04.png" ID="emoticon_emoji_04" Tag="[奸笑]" />
+        <Emoticon File="emoji_05.png" ID="emoticon_emoji_05" Tag="[亲]" />
+        <Emoticon File="emoji_06.png" ID="emoticon_emoji_06" Tag="[伸舌头]" />
+        <Emoticon File="emoji_07.png" ID="emoticon_emoji_07" Tag="[眯眼]" />
+        <Emoticon File="emoji_08.png" ID="emoticon_emoji_08" Tag="[可爱]" />
+        <Emoticon File="emoji_09.png" ID="emoticon_emoji_09" Tag="[鬼脸]" />
+        <Emoticon File="emoji_10.png" ID="emoticon_emoji_10" Tag="[偷笑]" />
+        <Emoticon File="emoji_11.png" ID="emoticon_emoji_11" Tag="[喜悦]" />
+        <Emoticon File="emoji_12.png" ID="emoticon_emoji_12" Tag="[狂喜]" />
+        <Emoticon File="emoji_13.png" ID="emoticon_emoji_13" Tag="[惊讶]" />
+        <Emoticon File="emoji_14.png" ID="emoticon_emoji_14" Tag="[流泪]" />
+        <Emoticon File="emoji_15.png" ID="emoticon_emoji_15" Tag="[流汗]" />
+        <Emoticon File="emoji_16.png" ID="emoticon_emoji_16" Tag="[天使]" />
+        <Emoticon File="emoji_17.png" ID="emoticon_emoji_17" Tag="[笑哭]" />
+        <Emoticon File="emoji_18.png" ID="emoticon_emoji_18" Tag="[尴尬]" />
+        <Emoticon File="emoji_19.png" ID="emoticon_emoji_19" Tag="[惊恐]" />
+        <Emoticon File="emoji_20.png" ID="emoticon_emoji_20" Tag="[大哭]" />
+        <Emoticon File="emoji_21.png" ID="emoticon_emoji_21" Tag="[烦躁]" />
+        <Emoticon File="emoji_22.png" ID="emoticon_emoji_22" Tag="[恐怖]" />
+        <Emoticon File="emoji_23.png" ID="emoticon_emoji_23" Tag="[两眼冒星]" />
+        <Emoticon File="emoji_24.png" ID="emoticon_emoji_24" Tag="[害羞]" />
+        <Emoticon File="emoji_25.png" ID="emoticon_emoji_25" Tag="[睡着]" />
+        <Emoticon File="emoji_26.png" ID="emoticon_emoji_26" Tag="[冒星]" />
+        <Emoticon File="emoji_27.png" ID="emoticon_emoji_27" Tag="[口罩]" />
+        <Emoticon File="emoji_28.png" ID="emoticon_emoji_28" Tag="[OK]" />
+        <Emoticon File="emoji_29.png" ID="emoticon_emoji_29" Tag="[好吧]" />
+        <Emoticon File="emoji_30.png" ID="emoticon_emoji_30" Tag="[鄙视]" />
+        <Emoticon File="emoji_31.png" ID="emoticon_emoji_31" Tag="[难受]" />
+        <Emoticon File="emoji_32.png" ID="emoticon_emoji_32" Tag="[不屑]" />
+        <Emoticon File="emoji_33.png" ID="emoticon_emoji_33" Tag="[不舒服]" />
+        <Emoticon File="emoji_34.png" ID="emoticon_emoji_34" Tag="[愤怒]" />
+        <Emoticon File="emoji_35.png" ID="emoticon_emoji_35" Tag="[鬼怪]" />
+        <Emoticon File="emoji_36.png" ID="emoticon_emoji_36" Tag="[发怒]" />
+        <Emoticon File="emoji_37.png" ID="emoticon_emoji_37" Tag="[生气]" />
+        <Emoticon File="emoji_38.png" ID="emoticon_emoji_38" Tag="[不高兴]" />
+        <Emoticon File="emoji_39.png" ID="emoticon_emoji_39" Tag="[皱眉]" />
+        <Emoticon File="emoji_40.png" ID="emoticon_emoji_40" Tag="[心碎]" />
+        <Emoticon File="emoji_41.png" ID="emoticon_emoji_41" Tag="[心动]" />
+        <Emoticon File="emoji_42.png" ID="emoticon_emoji_42" Tag="[好的]" />
+        <Emoticon File="emoji_43.png" ID="emoticon_emoji_43" Tag="[低级]" />
+        <Emoticon File="emoji_44.png" ID="emoticon_emoji_44" Tag="[赞]" />
+        <Emoticon File="emoji_45.png" ID="emoticon_emoji_45" Tag="[鼓掌]" />
+        <Emoticon File="emoji_46.png" ID="emoticon_emoji_46" Tag="[给力]" />
+        <Emoticon File="emoji_47.png" ID="emoticon_emoji_47" Tag="[打你]" />
+        <Emoticon File="emoji_48.png" ID="emoticon_emoji_48" Tag="[阿弥陀佛]" />
+        <Emoticon File="emoji_49.png" ID="emoticon_emoji_49" Tag="[拜拜]" />
+        <Emoticon File="emoji_50.png" ID="emoticon_emoji_50" Tag="[第一]" />
+        <Emoticon File="emoji_51.png" ID="emoticon_emoji_51" Tag="[拳头]" />
+        <Emoticon File="emoji_52.png" ID="emoticon_emoji_52" Tag="[手掌]" />
+        <Emoticon File="emoji_53.png" ID="emoticon_emoji_53" Tag="[剪刀]" />
+        <Emoticon File="emoji_54.png" ID="emoticon_emoji_54" Tag="[招手]" />
+        <Emoticon File="emoji_55.png" ID="emoticon_emoji_55" Tag="[不要]" />
+        <Emoticon File="emoji_56.png" ID="emoticon_emoji_56" Tag="[举着]" />
+        <Emoticon File="emoji_57.png" ID="emoticon_emoji_57" Tag="[思考]" />
+        <Emoticon File="emoji_58.png" ID="emoticon_emoji_58" Tag="[猪头]" />
+        <Emoticon File="emoji_59.png" ID="emoticon_emoji_59" Tag="[不听]" />
+        <Emoticon File="emoji_60.png" ID="emoticon_emoji_60" Tag="[不看]" />
+        <Emoticon File="emoji_61.png" ID="emoticon_emoji_61" Tag="[不说]" />
+        <Emoticon File="emoji_62.png" ID="emoticon_emoji_62" Tag="[猴子]" />
+        <Emoticon File="emoji_63.png" ID="emoticon_emoji_63" Tag="[炸弹]" />
+        <Emoticon File="emoji_64.png" ID="emoticon_emoji_64" Tag="[睡觉]" />
+        <Emoticon File="emoji_65.png" ID="emoticon_emoji_65" Tag="[筋斗云]" />
+        <Emoticon File="emoji_66.png" ID="emoticon_emoji_66" Tag="[火箭]" />
+        <Emoticon File="emoji_67.png" ID="emoticon_emoji_67" Tag="[救护车]" />
+        <Emoticon File="emoji_68.png" ID="emoticon_emoji_68" Tag="[便便]" />
+    </Catalog>
+</PopoEmoticons>
+
+

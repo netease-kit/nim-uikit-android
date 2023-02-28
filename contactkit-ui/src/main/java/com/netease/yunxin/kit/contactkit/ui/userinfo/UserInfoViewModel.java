@@ -189,7 +189,42 @@ public class UserInfoViewModel extends BaseViewModel {
 
   public void addFriend(String account, FriendVerifyType type, FetchCallback<Void> callback) {
     ALog.d(LIB_TAG, TAG, "addFriend:" + account);
-    ContactRepo.addFriend(account, type, callback);
+    if (isBlackList(account)) {
+      ALog.d(LIB_TAG, TAG, "addFriend，account in blacklist:" + account);
+      removeBlackList(
+          account,
+          new FetchCallback<Void>() {
+            @Override
+            public void onSuccess(@Nullable Void param) {
+              ALog.d(LIB_TAG, TAG, "addFriend,removeBlackList onSuccess:" + account);
+              ContactRepo.addFriend(account, type, callback);
+            }
+
+            @Override
+            public void onFailed(int code) {
+              ALog.d(LIB_TAG, TAG, "addFriend,removeBlackList onFailed:" + code);
+              callback.onFailed(code);
+            }
+
+            @Override
+            public void onException(@Nullable Throwable exception) {
+              ALog.d(
+                  LIB_TAG, TAG, "addFriend,removeBlackList onException:" + exception.getMessage());
+              callback.onException(exception);
+            }
+          });
+    } else {
+      ContactRepo.addFriend(account, type, callback);
+    }
+  }
+
+  public boolean isBlackList(String account) {
+    return ContactRepo.isBlackList(account);
+  }
+
+  public void removeBlackList(String account, FetchCallback<Void> callback) {
+    ALog.d(LIB_TAG, TAG, "removeBlackList:" + account);
+    ContactRepo.removeBlackList(account, callback);
   }
 
   public void updateAlias(String account, String alias) {

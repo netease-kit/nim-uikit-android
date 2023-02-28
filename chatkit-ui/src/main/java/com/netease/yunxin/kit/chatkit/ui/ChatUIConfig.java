@@ -37,4 +37,6 @@ public class ChatUIConfig {
 
   //个性化定制内容
   public ChatCustom chatCustom;
+
+  public IChatListener chatListener;
 }

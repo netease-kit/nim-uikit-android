@@ -140,8 +140,13 @@ public class ChatP2PViewModel extends ChatBaseViewModel {
 
   @Override
   public void sendReceipt(IMMessage message) {
-    ALog.d(LIB_TAG, TAG, "sendReceipt:" + (message == null ? "null" : message.getUuid()));
-    ChatRepo.markP2PMessageRead(mSessionId, message);
+    ALog.d(
+        LIB_TAG,
+        TAG,
+        "sendReceipt:" + (message == null ? "null" : message.getUuid() + message.needMsgAck()));
+    if (message != null && message.needMsgAck() && showRead) {
+      ChatRepo.markP2PMessageRead(mSessionId, message);
+    }
   }
 
   public void sendInputNotification(boolean isTyping) {

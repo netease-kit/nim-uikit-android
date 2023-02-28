@@ -35,6 +35,7 @@ public class SimpleVideoPlayer extends ConstraintLayout {
   private SurfaceHolder surfaceHolder;
   private boolean isSurfaceCreated = false;
   private CountDownTimer actionsCountDown;
+  private int currentPosition = -1;
 
   public enum PlayState {
     playing,
@@ -79,7 +80,14 @@ public class SimpleVideoPlayer extends ConstraintLayout {
 
   void init() {
     binding = ChatSimplePlayerViewBinding.inflate(LayoutInflater.from(getContext()), this);
-    binding.videoPlay.setOnClickListener(v -> playVideo());
+    binding.videoPlay.setOnClickListener(
+        v -> {
+          if (playState == PlayState.pause) {
+            resumeVideo();
+          } else {
+            playVideo();
+          }
+        });
     binding.videoProgressAction.setOnClickListener(
         v -> {
           ALog.d(TAG, "progress action click -->> " + playState);
@@ -203,6 +211,7 @@ public class SimpleVideoPlayer extends ConstraintLayout {
           playState = PlayState.stop;
           binding.videoProgressTime.setText(formatTime(0));
           removeCallbacks(timeRunnable);
+          currentPosition = -1;
         });
 
     mediaPlayer.setOnErrorListener(
@@ -226,6 +235,11 @@ public class SimpleVideoPlayer extends ConstraintLayout {
           mediaPlayer.start();
           initVideoSize();
           postDelayed(timeRunnable, 100);
+          if (currentPosition >= 0) {
+            pauseVideo();
+            mediaPlayer.seekTo(currentPosition);
+            currentPosition = -1;
+          }
         });
   }
 
@@ -304,6 +318,11 @@ public class SimpleVideoPlayer extends ConstraintLayout {
       if (mediaPlayer.isPlaying()) {
         playState = PlayState.stop;
         mediaPlayer.stop();
+      }
+      currentPosition = mediaPlayer.getCurrentPosition();
+      if (actionsCountDown != null) {
+        actionsCountDown.cancel();
+        actionsCountDown = null;
       }
       mediaPlayer.reset();
       mediaPlayer.release();

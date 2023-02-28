@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2022 NetEase, Inc. All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be
+  ~ found in the LICENSE file.
+  -->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:background="@color/color_eff1f4">
+
+    <com.netease.yunxin.kit.common.ui.widgets.BackTitleBar
+        android:id="@+id/type_select_title_bar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dimen_55_dp"
+        app:titleText="@string/server_config"
+        tools:ignore="MissingConstraints" />
+    <com.netease.yunxin.kit.common.ui.widgets.RoundFrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/color_white"
+        app:corner_radius="@dimen/dimen_8_dp"
+        android:layout_marginStart="@dimen/dimen_20_dp"
+        android:layout_marginEnd="@dimen/dimen_20_dp">
+    <RadioGroup android:id="@+id/server_radio_group"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginStart="@dimen/dimen_20_dp"
+        android:layout_marginEnd="@dimen/dimen_20_dp">
+        <RadioButton
+            android:id="@+id/server_china_config"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dimen_36_dp"
+            android:button="@null"
+            android:drawableStart="@drawable/app_radio_blue_selector"
+            android:drawablePadding="@dimen/dimen_8_dp"
+            android:text="@string/server_config_china_text"/>
+
+        <RadioButton
+            android:id="@+id/server_oversea_config"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dimen_36_dp"
+            android:button="@null"
+            android:drawableStart="@drawable/app_radio_blue_selector"
+            android:drawablePadding="@dimen/dimen_8_dp"
+            android:text="@string/server_config_oversea_text"/>
+    </RadioGroup>
+    </com.netease.yunxin.kit.common.ui.widgets.RoundFrameLayout>
+
+</LinearLayout>

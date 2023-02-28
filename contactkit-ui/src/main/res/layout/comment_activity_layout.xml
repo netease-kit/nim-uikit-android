@@ -19,6 +19,7 @@
     <com.netease.yunxin.kit.common.ui.widgets.CleanableEditText
         android:id="@+id/edt_comment"
         android:layout_width="match_parent"
+        android:maxLength="15"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="@dimen/dimen_20_dp" />
 

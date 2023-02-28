@@ -74,7 +74,7 @@
         android:textColor="@color/color_333333"
         android:layout_marginTop="@dimen/dimen_8_dp"
         app:corner_radius="@dimen/dimen_8_dp"
-        android:maxEms="50"
+        android:maxLength="50"
         tools:ignore="MissingConstraints" />
 
     <!-- channel topic-->
@@ -97,7 +97,7 @@
         android:layout_marginTop="@dimen/dimen_8_dp"
         android:textColor="@color/color_333333"
         app:corner_radius="@dimen/dimen_8_dp"
-        android:maxEms="64"
+        android:maxLength="64"
         android:lines="1"
         tools:ignore="MissingConstraints" />
 

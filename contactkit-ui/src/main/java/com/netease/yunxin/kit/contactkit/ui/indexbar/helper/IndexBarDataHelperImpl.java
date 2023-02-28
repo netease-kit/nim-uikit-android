@@ -80,7 +80,22 @@ public class IndexBarDataHelperImpl implements IIndexBarDataHelper {
               } else if (!lhs.getIndexTag().equals("#") && rhs.getIndexTag().equals("#")) {
                 return -1;
               } else {
-                return lhs.getIndexPinyin().compareTo(rhs.getIndexPinyin());
+                String lhsIndexTag = lhs.getIndexTag();
+                String rhsIndexTag = rhs.getIndexTag();
+                if (lhsIndexTag.equals("#") && rhsIndexTag.equals("#")) {
+                  String lhsFirst = lhs.getIndexPinyin().substring(0, 1);
+                  String rhsFirst = rhs.getIndexPinyin().substring(0, 1);
+                  if (TextUtils.isDigitsOnly(lhsFirst) && !TextUtils.isDigitsOnly(rhsFirst)) {
+                    return -1;
+                  } else if (!TextUtils.isDigitsOnly(lhsFirst)
+                      && TextUtils.isDigitsOnly(rhsFirst)) {
+                    return 1;
+                  } else {
+                    return lhs.getIndexPinyin().compareTo(rhs.getIndexPinyin());
+                  }
+                } else {
+                  return lhs.getIndexPinyin().compareTo(rhs.getIndexPinyin());
+                }
               }
             });
     return this;

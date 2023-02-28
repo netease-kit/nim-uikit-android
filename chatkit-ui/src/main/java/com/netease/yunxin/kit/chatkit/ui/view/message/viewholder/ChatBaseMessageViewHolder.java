@@ -14,11 +14,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
-import com.netease.nimlib.sdk.msg.constant.MsgDirectionEnum;
 import com.netease.nimlib.sdk.msg.constant.MsgStatusEnum;
 import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
 import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
-import com.netease.nimlib.sdk.msg.model.IMMessage;
 import com.netease.nimlib.sdk.msg.model.MsgThreadOption;
 import com.netease.nimlib.sdk.team.model.Team;
 import com.netease.yunxin.kit.alog.ALog;
@@ -50,8 +48,6 @@ public abstract class ChatBaseMessageViewHolder extends RecyclerView.ViewHolder 
 
   private static final int SHOW_TIME_INTERVAL = 5 * 60 * 1000;
 
-  private static final int REVOKE_TIME_INTERVAL = 2 * 60 * 1000;
-
   private static final int MAX_RECEIPT_NUM = 100;
 
   public IMessageItemClickListener itemClickListener;
@@ -68,11 +64,11 @@ public abstract class ChatBaseMessageViewHolder extends RecyclerView.ViewHolder 
 
   public ChatMessageBean currentMessage;
 
-  public boolean showReadStatus;
-
   MessageProperties properties = new MessageProperties();
 
   public ChatBaseMessageViewHolderBinding baseViewBinding;
+
+  public ChatMessageRevokedViewBinding revokedViewBinding;
 
   public ViewGroup parent;
 
@@ -101,10 +97,6 @@ public abstract class ChatBaseMessageViewHolder extends RecyclerView.ViewHolder 
     }
   }
 
-  public void setShowReadStatus(boolean show) {
-    this.showReadStatus = show;
-  }
-
   public void bindData(ChatMessageBean data, int position, @NonNull List<?> payload) {
     if (!payload.isEmpty()) {
       for (int i = 0; i < payload.size(); ++i) {
@@ -121,6 +113,8 @@ public abstract class ChatBaseMessageViewHolder extends RecyclerView.ViewHolder 
           onProgressUpdate(data);
         } else if (TextUtils.equals(payloadItem, ActionConstants.PAYLOAD_USERINFO)) {
           setUserInfo(data);
+        } else if (TextUtils.equals(payloadItem, ActionConstants.PAYLOAD_REVOKE_STATUS)) {
+          onMessageRevokeStatus(data);
         }
       }
     }
@@ -130,6 +124,8 @@ public abstract class ChatBaseMessageViewHolder extends RecyclerView.ViewHolder 
   protected void onMessageStatus(ChatMessageBean data) {}
 
   protected void onProgressUpdate(ChatMessageBean data) {}
+
+  public void onMessageRevokeStatus(ChatMessageBean data) {}
 
   private void onMessageSignal(ChatMessageBean data) {
     if (!TextUtils.isEmpty(data.getPinAccid())) {
@@ -169,7 +165,7 @@ public abstract class ChatBaseMessageViewHolder extends RecyclerView.ViewHolder 
 
       ConstraintLayout.LayoutParams layoutParams =
           (ConstraintLayout.LayoutParams) baseViewBinding.tvSignal.getLayoutParams();
-      if (isReceivedMessage(data)) {
+      if (MessageUtil.isReceivedMessage(data)) {
         layoutParams.horizontalBias = 0f;
       } else {
         layoutParams.horizontalBias = 1f;
@@ -196,13 +192,10 @@ public abstract class ChatBaseMessageViewHolder extends RecyclerView.ViewHolder 
     }
     baseViewBinding.tvReply.setVisibility(View.GONE);
     baseViewBinding.messageContainer.removeAllViews();
-    ChatMessageRevokedViewBinding revokedViewBinding =
+    revokedViewBinding =
         ChatMessageRevokedViewBinding.inflate(
             LayoutInflater.from(parent.getContext()), baseViewBinding.messageRevoke, true);
-
-    if (!isReceivedMessage(data)
-        && data.getMessageData().getMessage().getMsgType() == MsgTypeEnum.text
-        && revokeMsgIsEdit(data.getMessageData().getMessage())) {
+    if (MessageUtil.revokeMsgIsEdit(data)) {
       revokedViewBinding.tvAction.setVisibility(View.VISIBLE);
       //reedit
       revokedViewBinding.tvAction.setOnClickListener(
@@ -214,10 +207,6 @@ public abstract class ChatBaseMessageViewHolder extends RecyclerView.ViewHolder 
     } else {
       revokedViewBinding.tvAction.setVisibility(View.GONE);
     }
-  }
-
-  private boolean revokeMsgIsEdit(IMMessage message) {
-    return System.currentTimeMillis() - message.getTime() < REVOKE_TIME_INTERVAL;
   }
 
   public void bindData(ChatMessageBean message, ChatMessageBean lastMessage) {
@@ -255,7 +244,7 @@ public abstract class ChatBaseMessageViewHolder extends RecyclerView.ViewHolder 
     }
     ConstraintLayout.LayoutParams layoutParams =
         (ConstraintLayout.LayoutParams) baseViewBinding.messageBody.getLayoutParams();
-    if (isReceivedMessage(message)) {
+    if (MessageUtil.isReceivedMessage(message)) {
       baseViewBinding.messageBody.setGravity(Gravity.START);
       //防止UserInfo数据不存在
       if (message.getMessageData().getFromUser() == null) {
@@ -291,7 +280,8 @@ public abstract class ChatBaseMessageViewHolder extends RecyclerView.ViewHolder 
       baseViewBinding.tvName.setVisibility(View.GONE);
       UserInfo userInfo = message.getMessageData().getFromUser();
       if (userInfo != null) {
-        String nickname = userInfo.getName() == null ? "" : userInfo.getName();
+        userInfo.getName();
+        String nickname = userInfo.getName();
         baseViewBinding.avatarMine.setData(
             userInfo.getAvatar(), nickname, AvatarColor.avatarColor(userInfo.getAccount()));
       }
@@ -415,10 +405,6 @@ public abstract class ChatBaseMessageViewHolder extends RecyclerView.ViewHolder 
     }
   }
 
-  protected boolean isReceivedMessage(ChatMessageBean message) {
-    return message.getMessageData().getMessage().getDirect() == MsgDirectionEnum.In;
-  }
-
   public void setReceiptTime(long receiptTime) {
     this.receiptTime = receiptTime;
   }
@@ -436,20 +422,23 @@ public abstract class ChatBaseMessageViewHolder extends RecyclerView.ViewHolder 
       }
       baseViewBinding.ivStatus.setVisibility(View.GONE);
       baseViewBinding.readProcess.setVisibility(View.GONE);
-    } else if ((data.getMessageData().getMessage().getStatus() == MsgStatusEnum.fail)
-        || data.getMessageData().getMessage().isInBlackList()) {
+    } else if (needMsgSendingStatus()
+        && ((data.getMessageData().getMessage().getStatus() == MsgStatusEnum.fail)
+            || data.getMessageData().getMessage().isInBlackList())) {
       baseViewBinding.ivStatus.setVisibility(View.VISIBLE);
       baseViewBinding.ivStatus.setImageResource(R.drawable.ic_error);
+      baseViewBinding.readProcess.setVisibility(View.GONE);
       baseViewBinding.messageSending.setVisibility(View.GONE);
     } else if (data.getMessageData().getMessage().getSessionType() == SessionTypeEnum.P2P) {
       baseViewBinding.messageSending.setVisibility(View.GONE);
       baseViewBinding.readProcess.setVisibility(View.GONE);
-      if (!properties.getShowP2pMessageStatus() || !showReadStatus) {
+      if (!properties.getShowP2pMessageStatus()
+          || !data.getMessageData().getMessage().needMsgAck()
+          || !needReadStatus()) {
         baseViewBinding.ivStatus.setVisibility(View.GONE);
       } else {
         baseViewBinding.ivStatus.setVisibility(View.VISIBLE);
-        if (data.getMessageData().getMessage().getTime() <= receiptTime
-            || data.getMessageData().getMessage().isRemoteRead()) {
+        if (data.getMessageData().getMessage().isRemoteRead()) {
           baseViewBinding.ivStatus.setImageResource(R.drawable.ic_message_read);
           data.setHaveRead(true);
         } else {
@@ -459,16 +448,17 @@ public abstract class ChatBaseMessageViewHolder extends RecyclerView.ViewHolder 
     } else if (data.getMessageData().getMessage().getSessionType() == SessionTypeEnum.Team) {
       baseViewBinding.messageSending.setVisibility(View.GONE);
       baseViewBinding.ivStatus.setVisibility(View.GONE);
+      if (!properties.getShowTeamMessageStatus()
+          || !data.getMessageData().getMessage().needMsgAck()
+          || !needReadStatus()) {
+        baseViewBinding.readProcess.setVisibility(View.GONE);
+        return;
+      }
       if ((teamInfo != null && teamInfo.getMemberCount() >= MAX_RECEIPT_NUM)
           || !data.getMessageData().getMessage().needMsgAck()) {
         baseViewBinding.readProcess.setVisibility(View.GONE);
         return;
       }
-      if (!properties.getShowTeamMessageStatus() || !showReadStatus) {
-        baseViewBinding.readProcess.setVisibility(View.GONE);
-        return;
-      }
-      baseViewBinding.readProcess.setVisibility(View.VISIBLE);
       int ackCount = data.getMessageData().getMessage().getTeamMsgAckCount();
       int unAckCount = data.getMessageData().getMessage().getTeamMsgUnAckCount();
       float all = ackCount + unAckCount;
@@ -476,6 +466,7 @@ public abstract class ChatBaseMessageViewHolder extends RecyclerView.ViewHolder 
         float process = ackCount / all;
         if (process < 1) {
           baseViewBinding.readProcess.setProcess(process);
+          baseViewBinding.readProcess.setVisibility(View.VISIBLE);
         } else {
           baseViewBinding.ivStatus.setVisibility(View.VISIBLE);
           baseViewBinding.ivStatus.setImageResource(R.drawable.ic_message_read);
@@ -540,6 +531,14 @@ public abstract class ChatBaseMessageViewHolder extends RecyclerView.ViewHolder 
   }
 
   public boolean showSending() {
+    return true;
+  }
+
+  public boolean needReadStatus() {
+    return true;
+  }
+
+  public boolean needMsgSendingStatus() {
     return true;
   }
 }

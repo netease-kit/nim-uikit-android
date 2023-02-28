@@ -1,0 +1,27 @@
+<!--
+  ~ Copyright (c) 2022 NetEase, Inc. All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be
+  ~ found in the LICENSE file.
+  -->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="103dp"
+    android:height="103dp"
+    android:viewportWidth="103"
+    android:viewportHeight="103">
+    <path
+        android:pathData="M51.5,51.5m-51.5,0a51.5,51.5 0,1 1,103 0a51.5,51.5 0,1 1,-103 0">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startY="0"
+                android:startX="51.5"
+                android:endY="135"
+                android:endX="93"
+                android:type="linear">
+                <item android:offset="0" android:color="#FF6AA1FF"/>
+                <item android:offset="1" android:color="#FF3479EE"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+</vector>

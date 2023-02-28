@@ -13,6 +13,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -30,6 +31,7 @@ import com.netease.yunxin.kit.chatkit.ui.databinding.ActivityLocationBinding;
 import com.netease.yunxin.kit.chatkit.ui.page.adapter.SearchLocationAdapter;
 import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
 import com.netease.yunxin.kit.common.utils.KeyboardUtils;
+import com.netease.yunxin.kit.common.utils.LocationUtils;
 import com.netease.yunxin.kit.common.utils.NetworkUtils;
 import java.util.List;
 
@@ -74,6 +76,9 @@ public class LocationPageActivity extends BaseActivity {
     } else {
       searchHandler = new Handler();
       initView(savedInstanceState);
+    }
+    if (!LocationUtils.isLocationEnable(this)) {
+      Toast.makeText(this, R.string.chat_location_disable, Toast.LENGTH_LONG).show();
     }
     NetworkUtils.registerNetworkStatusChangedListener(networkStateListener);
   }
@@ -151,9 +156,12 @@ public class LocationPageActivity extends BaseActivity {
         MapMode.LOCATION,
         new ILocationSearchCallback() {
           @Override
-          public void onSuccess(@NonNull List<ChatLocationBean> result) {
+          public void onSuccess(List<ChatLocationBean> result) {
             ALog.i(TAG, "ILocationSearchCallback:onSuccess:" + result);
-            showSearch(!result.isEmpty());
+            showSearch(result != null && !result.isEmpty());
+            if (result == null) {
+              return;
+            }
             if (!result.isEmpty()) {
               mSelectLoc = result.get(0);
               selectLocation(result.get(0));

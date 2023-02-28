@@ -43,7 +43,8 @@
     <!--  oppo push-->
     <uses-permission android:name="com.coloros.mcs.permission.RECIEVE_MCS_MESSAGE"/>
     <uses-permission android:name="com.heytap.mcs.permission.RECIEVE_MCS_MESSAGE"/>
-
+    <!-- 8.0+系统需要-->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <application android:name=".IMApplication"
         android:allowBackup="true"
@@ -56,13 +57,14 @@
         android:theme="@style/Theme.Xkit">
         <meta-data
             android:name="com.netease.nim.appKey"
-            android:value="appkey" />
+            android:value="appKey" />
         <meta-data
             android:name="com.netease.nim.oversea.appKey"
-            android:value="oversea-appkey" />
+            android:value="appKey" />
         <meta-data
             android:name="com.amap.api.v2.apikey"
-            android:value="amap-key" />
+            android:value="apikey" />
+
         <activity android:name=".welcome.WelcomeActivity"
             android:screenOrientation="portrait"
             android:exported="true">
@@ -118,7 +120,6 @@
             android:name=".main.mine.setting.ClearCacheActivity"
             android:screenOrientation="portrait"
             android:exported="false" />
-
         <activity
             android:name=".welcome.ServerActivity"
             android:screenOrientation="portrait"
@@ -239,10 +240,10 @@
 
         <meta-data
             android:name="com.vivo.push.api_key"
-            android:value="your api_key"/>
+            android:value="api_key"/>
         <meta-data
             android:name="com.vivo.push.app_id"
-            android:value="your app_id"/>
+            android:value="app_id"/>
 
         <receiver android:name="com.netease.nimlib.mixpush.vivo.VivoPushReceiver">
             <intent-filter>
@@ -272,8 +273,10 @@
                 <action android:name="com.heytap.msp.push.RECEIVE_MCS_MESSAGE"/>
             </intent-filter>
         </service> <!--兼容Q版本-->
+
         <!-- 高德地图定位 -->
         <service android:name="com.amap.api.location.APSService" />
+
     </application>
 
 </manifest>

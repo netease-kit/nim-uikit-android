@@ -7,6 +7,7 @@ package com.netease.yunxin.kit.qchatkit.ui.channel.permission;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
@@ -69,6 +70,10 @@ public class QChatRolePermissionActivity extends BaseActivity {
   }
 
   private void initView() {
+    viewBiding
+        .qChatRolePermissionTitleBar
+        .getTitleTextView()
+        .setEllipsize(TextUtils.TruncateAt.MIDDLE);
     viewBiding.qChatRolePermissionTitleBar.setOnBackIconClickListener(
         view -> {
           finish();

@@ -8,6 +8,7 @@ import com.netease.yunxin.kit.teamkit.ITeamCustom;
 import com.netease.yunxin.kit.teamkit.TeamProvider;
 
 public class TeamKitClient {
+  public static final String LIB_TAG = "TeamKit-UI";
 
   public static void setTeamCustom(ITeamCustom custom) {
     TeamProvider.INSTANCE.setTeamCustom(custom);

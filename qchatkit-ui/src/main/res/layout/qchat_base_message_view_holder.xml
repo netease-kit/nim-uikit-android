@@ -10,8 +10,7 @@
     android:id="@+id/baseRoot"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingStart="@dimen/dimen_8_dp"
-    android:paddingEnd="@dimen/dimen_8_dp">
+    android:padding="@dimen/dimen_8_dp">
 
     <TextView
         android:id="@+id/tvTime"

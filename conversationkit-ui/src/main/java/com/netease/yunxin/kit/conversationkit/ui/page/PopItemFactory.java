@@ -32,9 +32,9 @@ import androidx.core.content.ContextCompat;
 import com.netease.nimlib.sdk.team.model.CreateTeamResult;
 import com.netease.nimlib.sdk.team.model.Team;
 import com.netease.yunxin.kit.alog.ALog;
+import com.netease.yunxin.kit.common.ui.photo.TransHelper;
 import com.netease.yunxin.kit.common.ui.widgets.ContentListPopView;
 import com.netease.yunxin.kit.conversationkit.ui.R;
-import com.netease.yunxin.kit.corekit.im.utils.TransHelper;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -72,6 +72,21 @@ public final class PopItemFactory {
         .configParams(params)
         .configClickListener(
             getClickListener(context, requestCode, PATH_CREATE_ADVANCED_TEAM_ACTION))
+        .build();
+  }
+
+  public static ContentListPopView.Item getCreateGroupTeamItem(Context context) {
+    LinearLayout.LayoutParams params = getParams(context);
+    params.setMargins(
+        (int) context.getResources().getDimension(R.dimen.pop_text_margin_left),
+        0,
+        (int) context.getResources().getDimension(R.dimen.pop_text_margin_right_top),
+        0);
+    int requestCode = 2;
+    return new ContentListPopView.Item.Builder()
+        .configView(getView(context, R.string.create_group_team, R.drawable.icon_group_team))
+        .configParams(params)
+        .configClickListener(getClickListener(context, requestCode, PATH_CREATE_NORMAL_TEAM_ACTION))
         .build();
   }
 
@@ -147,8 +162,6 @@ public final class PopItemFactory {
     textView.setTextColor(ContextCompat.getColor(context, R.color.color_333333));
     textView.setCompoundDrawablePadding(
         (int) context.getResources().getDimension(R.dimen.pop_text_margin_right_top));
-    textView.setPadding(
-            0, 0, (int) context.getResources().getDimension(R.dimen.pop_text_margin_right_top), 0);
     return textView;
   }
 

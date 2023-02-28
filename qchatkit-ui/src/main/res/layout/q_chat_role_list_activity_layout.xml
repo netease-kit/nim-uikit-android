@@ -6,6 +6,7 @@
   -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -23,8 +24,8 @@
         android:layout_height="wrap_content"
         android:paddingStart="@dimen/dimen_20_dp"
         android:paddingEnd="@dimen/dimen_20_dp"
-        android:paddingTop="@dimen/dimen_10_dp"
-        android:paddingBottom="@dimen/dimen_10_dp">
+        android:paddingTop="@dimen/dimen_6_dp"
+        android:paddingBottom="@dimen/dimen_6_dp">
 
         <ImageView
             android:id="@+id/avatar"
@@ -39,20 +40,23 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/color_333333"
-            android:textSize="@dimen/text_size_14"
+            android:textSize="@dimen/dimen_14_dp"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintLeft_toRightOf="@+id/avatar"
-            android:layout_marginStart="@dimen/dimen_12_dp" />
+            app:layout_constrainedHeight="true"
+            android:layout_marginStart="@dimen/dimen_12_dp"
+            tools:ignore="SpUsage" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/color_b3b7bc"
-            android:textSize="@dimen/text_size_12"
+            android:textSize="@dimen/dimen_12_dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toRightOf="@+id/avatar"
             android:layout_marginStart="@dimen/dimen_12_dp"
-            android:text="@string/qchat_everyone_role_ruler" />
+            android:text="@string/qchat_everyone_role_ruler"
+            tools:ignore="SpUsage" />
 
         <ImageView
             android:layout_width="wrap_content"
@@ -78,11 +82,13 @@
         android:paddingVertical="@dimen/dimen_8_dp">
 
         <TextView
+            android:id="@+id/tv_role_count"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="@dimen/text_size_12"
+            android:textSize="@dimen/dimen_12_dp"
             android:textColor="@color/color_666666"
-            android:text="@string/qchat_roles" />
+            android:text="@string/qchat_roles"
+            tools:ignore="SpUsage" />
 
         <TextView
             android:id="@+id/tv_sort"
@@ -92,8 +98,9 @@
             android:drawablePadding="@dimen/dimen_3_dp"
             android:text="@string/qchat_sort"
             android:textColor="@color/color_337eff"
-            android:textSize="@dimen/text_size_12"
-            app:drawableStartCompat="@drawable/ic_sort" />
+            android:textSize="@dimen/dimen_12_dp"
+            app:drawableStartCompat="@drawable/ic_sort"
+            tools:ignore="SpUsage" />
     </RelativeLayout>
 
     <androidx.recyclerview.widget.RecyclerView

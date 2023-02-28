@@ -20,6 +20,7 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.inputmethod.EditorInfo;
 import android.widget.FrameLayout;
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -130,26 +131,14 @@ public class MessageBottomLayout extends FrameLayout
     mBinding.llyReply.setVisibility(GONE);
     // init more panel
     mActionsPanel.init(
-        mBinding.chatMessageActionsPanel, ActionFactory.assembleInputMoreActions(), this);
+        mBinding.chatMessageActionsPanel,
+        ActionFactory.assembleInputMoreActions(mProxy.getSessionType()),
+        this);
 
     mBinding.chatMessageInputEt.setOnFocusChangeListener(
         (v, hasFocus) ->
             mProxy.onTypeStateChange(
                 !TextUtils.isEmpty(mBinding.chatMessageInputEt.getText()) && hasFocus));
-
-    mBinding.chatMessageInputEt.addTextChangedListener(
-        new TextWatcher() {
-          @Override
-          public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-          @Override
-          public void onTextChanged(CharSequence s, int start, int before, int count) {
-            mProxy.onTypeStateChange(!TextUtils.isEmpty(s));
-          }
-
-          @Override
-          public void afterTextChanged(Editable s) {}
-        });
   }
 
   public ChatMessageBottomLayoutBinding getViewBinding() {
@@ -181,6 +170,9 @@ public class MessageBottomLayout extends FrameLayout
       case ActionConstants.ACTION_TYPE_LOCATION:
         onLocationClick();
         break;
+      case ActionConstants.ACTION_TYPE_VIDEO_CALL:
+        onCallClick();
+        break;
       default:
         mProxy.onCustomAction(view, item.getAction());
         break;
@@ -193,7 +185,9 @@ public class MessageBottomLayout extends FrameLayout
 
   public void updateInputInfo(String name) {
     mEdieNormalHint = getContext().getString(R.string.chat_message_send_hint, name);
-    mBinding.chatMessageInputEt.setHint(mEdieNormalHint);
+    if (TextUtils.isEmpty(mBinding.chatMessageInputEt.getText().toString())) {
+      mBinding.chatMessageInputEt.setHint(mEdieNormalHint);
+    }
   }
 
   @SuppressLint("ClickableViewAccessibility")
@@ -235,6 +229,9 @@ public class MessageBottomLayout extends FrameLayout
             if (aitTextWatcher != null) {
               aitTextWatcher.onTextChanged(s, start, before, count);
             }
+            if (mProxy != null) {
+              mProxy.onTypeStateChange(!TextUtils.isEmpty(s));
+            }
           }
 
           @Override
@@ -242,6 +239,9 @@ public class MessageBottomLayout extends FrameLayout
             MessageUtil.replaceEmoticons(getContext(), s, start, count);
             if (aitTextWatcher != null) {
               aitTextWatcher.afterTextChanged(s);
+            }
+            if (TextUtils.isEmpty(s.toString())) {
+              mBinding.chatMessageInputEt.setHint(mEdieNormalHint);
             }
           }
         });
@@ -392,6 +392,37 @@ public class MessageBottomLayout extends FrameLayout
     dialog.show();
   }
 
+  public void onCallClick() {
+    BottomChoiceDialog dialog =
+        new BottomChoiceDialog(this.getContext(), ActionFactory.assembleVideoCallActions());
+    dialog.setOnChoiceListener(
+        new BottomChoiceDialog.OnChoiceListener() {
+          @Override
+          public void onChoice(@NonNull String type) {
+            if (!XKitUtils.getApplicationContext()
+                .getPackageManager()
+                .hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)) {
+              ToastX.showShortToast(R.string.chat_message_camera_unavailable);
+              return;
+            }
+            switch (type) {
+              case ActionConstants.ACTION_TYPE_VIDEO_CALL_ACTION:
+                mProxy.videoCall();
+                break;
+              case ActionConstants.ACTION_TYPE_AUDIO_CALL_ACTION:
+                mProxy.audioCall();
+                break;
+              default:
+                break;
+            }
+          }
+
+          @Override
+          public void onCancel() {}
+        });
+    dialog.show();
+  }
+
   public void onLocationClick() {
     String[] permissions = {
       Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION
@@ -410,12 +441,14 @@ public class MessageBottomLayout extends FrameLayout
                 @Override
                 public void onDenial(
                     List<String> permissionsDenial, List<String> permissionDenialForever) {
-                  ToastX.showShortToast(R.string.permission_default);
+                  Toast.makeText(getContext(), R.string.permission_default, Toast.LENGTH_SHORT)
+                      .show();
                 }
 
                 @Override
                 public void onException(Exception exception) {
-                  ToastX.showShortToast(R.string.permission_default);
+                  Toast.makeText(getContext(), R.string.permission_default, Toast.LENGTH_SHORT)
+                      .show();
                 }
               });
     }
@@ -432,18 +465,20 @@ public class MessageBottomLayout extends FrameLayout
   }
 
   public void setMute(boolean mute) {
-    mMute = mute;
-    mBinding.chatMessageInputEt.setEnabled(!mute);
-    mBinding.chatMessageInputEt.setText("");
-    String hint = mute ? getContext().getString(R.string.chat_team_all_mute) : mEdieNormalHint;
-    mBinding.chatMessageInputEt.setHint(hint);
-    if (mute) {
-      collapse(true);
-    }
-    mBinding.chatMessageInputLayout.setBackgroundResource(
-        mute ? R.color.color_e3e4e4 : R.color.color_white);
-    if (actionAdapter != null) {
-      actionAdapter.disableAll(mute);
+    if (mute != mMute) {
+      mMute = mute;
+      mBinding.chatMessageInputEt.setEnabled(!mute);
+      mBinding.chatMessageInputEt.setText("");
+      String hint = mute ? getContext().getString(R.string.chat_team_all_mute) : mEdieNormalHint;
+      mBinding.chatMessageInputEt.setHint(hint);
+      if (mute) {
+        collapse(true);
+      }
+      mBinding.chatMessageInputLayout.setBackgroundResource(
+          mute ? R.color.color_e3e4e4 : R.color.color_white);
+      if (actionAdapter != null) {
+        actionAdapter.disableAll(mute);
+      }
     }
   }
 

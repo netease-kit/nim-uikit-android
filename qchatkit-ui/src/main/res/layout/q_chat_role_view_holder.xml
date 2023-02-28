@@ -17,8 +17,12 @@
         android:id="@+id/tv_role_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="@dimen/text_size_14"
-        android:textColor="@color/color_333333" />
+        android:textSize="@dimen/dimen_14_dp"
+        android:layout_marginEnd="@dimen/dimen_26_dp"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:textColor="@color/color_333333"
+        tools:ignore="SpUsage" />
 
     <androidx.appcompat.widget.AppCompatRadioButton
         android:id="@+id/rb_check"

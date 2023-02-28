@@ -8,6 +8,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
+import android.view.View;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.yunxin.kit.alog.ALog;
@@ -27,8 +30,6 @@ public class ChatP2PFragment extends ChatBaseFragment {
 
   UserInfo userInfo;
 
-  String accId;
-
   private final Handler handler = new Handler();
 
   private final Runnable stopTypingRunnable = () -> binding.chatView.setTypeState(false);
@@ -38,13 +39,13 @@ public class ChatP2PFragment extends ChatBaseFragment {
     ALog.i(TAG, "initData");
     sessionType = SessionTypeEnum.P2P;
     userInfo = (UserInfo) bundle.getSerializable(RouterConstant.CHAT_KRY);
-    accId = (String) bundle.getSerializable(RouterConstant.CHAT_ID_KRY);
-    if (userInfo == null && TextUtils.isEmpty(accId)) {
+    sessionID = (String) bundle.getSerializable(RouterConstant.CHAT_ID_KRY);
+    if (userInfo == null && TextUtils.isEmpty(sessionID)) {
       getActivity().finish();
       return;
     }
-    if (TextUtils.isEmpty(accId)) {
-      accId = userInfo.getAccount();
+    if (TextUtils.isEmpty(sessionID)) {
+      sessionID = userInfo.getAccount();
     }
     binding
         .chatView
@@ -55,14 +56,14 @@ public class ChatP2PFragment extends ChatBaseFragment {
             v -> {
               Intent intent = new Intent();
               intent.setClass(getActivity(), ChatSettingActivity.class);
-              intent.putExtra(RouterConstant.CHAT_ID_KRY, accId);
+              intent.putExtra(RouterConstant.CHAT_ID_KRY, sessionID);
               startActivity(intent);
             });
     refreshView();
   }
 
   private void refreshView() {
-    String name = MessageHelper.getUserNickByAccId(accId, userInfo, false);
+    String name = MessageHelper.getUserNickByAccId(sessionID, userInfo, false);
     binding.chatView.getTitleBar().setTitle(name);
     binding.chatView.getInputView().updateInputInfo(name);
   }
@@ -71,10 +72,10 @@ public class ChatP2PFragment extends ChatBaseFragment {
   protected void initViewModel() {
     ALog.i(TAG, "initViewModel");
     viewModel = new ViewModelProvider(this).get(ChatP2PViewModel.class);
-    viewModel.init(accId, SessionTypeEnum.P2P);
+    viewModel.init(sessionID, SessionTypeEnum.P2P);
     //fetch history message
     viewModel.initFetch(null);
-    ((ChatP2PViewModel) viewModel).getP2pUserInfo(accId);
+    ((ChatP2PViewModel) viewModel).getP2pUserInfo(sessionID);
   }
 
   @Override
@@ -112,5 +113,16 @@ public class ChatP2PFragment extends ChatBaseFragment {
                 refreshView();
               }
             });
+  }
+
+  @Override
+  public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+    super.onViewCreated(view, savedInstanceState);
+    if (chatConfig != null && chatConfig.chatListener != null) {
+      chatConfig.chatListener.onSessionChange(sessionID, sessionType);
+    }
+    if (chatConfig != null && chatConfig.messageProperties != null) {
+      viewModel.setShowReadStatus(chatConfig.messageProperties.showP2pMessageStatus);
+    }
   }
 }

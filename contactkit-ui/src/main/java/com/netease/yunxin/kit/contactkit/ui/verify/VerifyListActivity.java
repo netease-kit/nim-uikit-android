@@ -4,16 +4,16 @@
 
 package com.netease.yunxin.kit.contactkit.ui.verify;
 
-import android.text.TextUtils;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
+import com.netease.yunxin.kit.contactkit.ui.ILoadListener;
 import com.netease.yunxin.kit.contactkit.ui.R;
 import com.netease.yunxin.kit.contactkit.ui.activity.BaseListActivity;
-import com.netease.yunxin.kit.contactkit.ui.model.BaseContactBean;
 import com.netease.yunxin.kit.contactkit.ui.model.ContactVerifyInfoBean;
 import com.netease.yunxin.kit.contactkit.ui.model.IViewTypeConstant;
 import com.netease.yunxin.kit.contactkit.ui.view.ContactViewHolderFactory;
@@ -24,7 +24,7 @@ import com.netease.yunxin.kit.corekit.im.model.SystemMessageInfoType;
 import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
 import java.util.List;
 
-public class VerifyListActivity extends BaseListActivity {
+public class VerifyListActivity extends BaseListActivity implements ILoadListener {
 
   private VerifyViewModel viewModel;
 
@@ -101,12 +101,15 @@ public class VerifyListActivity extends BaseListActivity {
             return null;
           }
         });
+
+    binding.contactListView.setLoadMoreListener(this);
   }
 
   @Override
   protected void onResume() {
     super.onResume();
     viewModel.resetUnreadCount();
+    updateView();
   }
 
   @Override
@@ -127,9 +130,18 @@ public class VerifyListActivity extends BaseListActivity {
                   viewModel.resetUnreadCount();
                 }
               }
+              updateView();
             });
 
     viewModel.fetchVerifyList(false);
+  }
+
+  private void updateView() {
+    if (binding.contactListView.getItemCount() > 0) {
+      binding.contactListView.setEmptyViewVisible(View.GONE);
+    } else {
+      binding.contactListView.setEmptyViewVisible(View.VISIBLE);
+    }
   }
 
   private void toastResult(boolean agree, SystemMessageInfoType type) {
@@ -157,25 +169,16 @@ public class VerifyListActivity extends BaseListActivity {
     if (addList == null || addList.size() < 1) {
       return;
     }
-    List<BaseContactBean> currentData = binding.contactListView.getAdapter().getDataList();
-    if (currentData != null) {
-      for (int index = addList.size() - 1; index >= 0; index--) {
-        ContactVerifyInfoBean addBean = addList.get(index);
-        currentData = binding.contactListView.getAdapter().getDataList();
-        for (int i = 0; i < currentData.size(); i++) {
-          if (currentData.get(i) instanceof ContactVerifyInfoBean) {
-            ContactVerifyInfoBean currentBean = (ContactVerifyInfoBean) currentData.get(i);
-            if (TextUtils.equals(currentBean.data.getTargetId(), addBean.data.getTargetId())
-                && currentBean.data.getInfoType() == addBean.data.getInfoType()
-                && TextUtils.equals(
-                    currentBean.data.getFromAccount(), addBean.data.getFromAccount())) {
-              binding.contactListView.removeContactData(currentData.get(i));
-              break;
-            }
-          }
-        }
-      }
-    }
     binding.contactListView.addForwardContactData(addList);
+  }
+
+  @Override
+  public boolean hasMore() {
+    return viewModel.hasMore();
+  }
+
+  @Override
+  public void loadMore(Object last) {
+    viewModel.fetchVerifyList(true);
   }
 }

@@ -10,7 +10,7 @@ import android.net.Uri;
 import android.os.Environment;
 import android.text.TextUtils;
 import com.netease.yunxin.kit.alog.ALog;
-import com.netease.yunxin.kit.qchatkit.ui.common.Constants;
+import com.netease.yunxin.kit.qchatkit.ui.model.QChatConstant;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -38,7 +38,7 @@ public class FileUtils {
         new File(
             context.getExternalFilesDir(Environment.DIRECTORY_DCIM)
                 + File.separator
-                + Constants.FILE_DIR);
+                + QChatConstant.FILE_DIR);
     if (!parentFileDir.exists()) {
       ALog.d(TAG, "mkdirs result is " + parentFileDir.mkdirs());
     }

@@ -25,8 +25,11 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:paddingHorizontal="@dimen/dimen_20_dp"
+            android:focusable="true"
+            android:paddingBottom="20dp"
+            android:focusableInTouchMode="true"
             android:orientation="vertical">
 
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -45,13 +48,18 @@
 
                 <TextView
                     android:id="@+id/tv_member"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textColor="@color/color_333333"
-                    android:textSize="@dimen/text_size_16"
+                    android:textSize="@dimen/dimen_16_dp"
+                    android:maxLines="2"
+                    android:ellipsize="end"
                     android:layout_marginStart="@dimen/dimen_16_dp"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constrainedWidth="true"
+                    app:layout_constraintStart_toEndOf="@+id/avatar"
                     app:layout_constraintLeft_toRightOf="@+id/avatar" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
@@ -60,7 +68,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@color/color_666666"
-                android:textSize="@dimen/text_size_12"
+                android:textSize="@dimen/dimen_12_dp"
                 android:text="@string/qchat_nickname"
                 android:layout_marginTop="@dimen/dimen_16_dp"
                 android:layout_marginStart="@dimen/dimen_12_dp" />
@@ -70,11 +78,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/dimen_50_dp"
                 android:gravity="center_vertical"
-                android:textSize="@dimen/text_size_16"
+                android:textSize="@dimen/dimen_16_dp"
                 app:hintText="@string/qchat_click_edit_and_edit_nickname"
                 app:corner_radius="@dimen/dimen_8_dp"
-                android:maxEms="50"
-                tools:ignore="MissingConstraints"
+                android:maxLength="50"
+                tools:ignore="MissingConstraints,SpUsage"
                 android:textColor="@color/color_333333"
                 android:background="@color/color_white"
                 android:layout_marginTop="@dimen/dimen_8_dp" />
@@ -84,9 +92,10 @@
                 android:layout_height="wrap_content"
                 android:textColor="@color/color_666666"
                 android:text="@string/qchat_roles"
-                android:textSize="@dimen/text_size_12"
+                android:textSize="@dimen/dimen_12_dp"
                 android:layout_marginTop="@dimen/dimen_16_dp"
-                android:layout_marginStart="@dimen/dimen_12_dp" />
+                android:layout_marginStart="@dimen/dimen_12_dp"
+                tools:ignore="SpUsage" />
 
 
             <LinearLayout
@@ -141,7 +150,7 @@
                     android:id="@+id/tv_kick"
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/dimen_50_dp"
-                    android:textSize="@dimen/text_size_16"
+                    android:textSize="@dimen/dimen_16_dp"
                     android:textColor="@color/color_e6605c"
                     android:text="@string/qchat_kick_someone"
                     android:gravity="center"

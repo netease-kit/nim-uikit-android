@@ -5,6 +5,7 @@
 package com.netease.yunxin.kit.conversationkit.ui.view;
 
 import android.graphics.drawable.Drawable;
+import android.text.TextUtils;
 import android.view.View;
 import androidx.annotation.NonNull;
 import com.netease.yunxin.kit.common.ui.utils.AvatarColor;
@@ -31,11 +32,16 @@ public class P2PViewHolder extends BaseViewHolder<ConversationBean> {
   @Override
   public void onBindData(ConversationBean data, int position) {
     loadUIConfig();
+    String name =
+        data.infoData.getFriendInfo() != null
+                && !TextUtils.isEmpty(data.infoData.getFriendInfo().getAlias())
+            ? data.infoData.getFriendInfo().getAlias()
+            : !TextUtils.isEmpty(data.infoData.getName())
+                ? data.infoData.getName()
+                : data.infoData.getContactId();
     viewBinding.avatarView.setData(
-        data.infoData.getAvatar(),
-        data.infoData.getName(),
-        AvatarColor.avatarColor(data.infoData.getContactId()));
-    viewBinding.conversationNameTv.setText(data.infoData.getName());
+        data.infoData.getAvatar(), name, AvatarColor.avatarColor(data.infoData.getContactId()));
+    viewBinding.conversationNameTv.setText(name);
     if (data.infoData.isStickTop()) {
       viewBinding.rootView.setBackground(stickTopDrawable);
     } else {

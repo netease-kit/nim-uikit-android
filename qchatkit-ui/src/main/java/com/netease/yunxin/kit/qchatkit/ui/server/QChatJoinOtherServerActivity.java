@@ -69,14 +69,16 @@ public class QChatJoinOtherServerActivity extends BaseActivity {
             InputMethodManager manager =
                 (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             manager.hideSoftInputFromWindow(v.getWindowToken(), 0);
-            if (getServerIdFromEdit() == null) {
-              Toast.makeText(QChatJoinOtherServerActivity.this, "error", Toast.LENGTH_SHORT).show();
+            Long serverId = getServerIdFromEdit();
+            if (serverId == null) {
+              binding.groupNoServerTip.setVisibility(View.VISIBLE);
+              adapter.addDataList(Collections.emptyList(), true);
             } else {
               QChatUtils.isConnectedToastAndRun(
                   this,
                   () ->
                       QChatServerRepo.searchServerById(
-                          getServerIdFromEdit(),
+                          serverId,
                           new FetchCallback<List<QChatSearchResultInfo>>() {
                             @Override
                             public void onSuccess(@Nullable List<QChatSearchResultInfo> param) {

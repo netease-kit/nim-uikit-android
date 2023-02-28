@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <item android:drawable="@drawable/ic_loading_bg" android:width="@dimen/dimen_120_dp"
+        android:height="@dimen/dimen_120_dp"/>
+    <item android:drawable="@drawable/ic_loading_qchat" android:width="@dimen/dimen_32_dp"
+        android:gravity="center"
+        android:height="@dimen/dimen_32_dp"/>
+</layer-list>

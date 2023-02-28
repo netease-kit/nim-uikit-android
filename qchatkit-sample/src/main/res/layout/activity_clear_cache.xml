@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2022 NetEase, Inc. All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be
+  ~ found in the LICENSE file.
+  -->
+
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/color_e9eff5"
+    tools:ignore="MissingDefaultResource">
+
+    <com.netease.yunxin.kit.common.ui.widgets.BackTitleBar
+        android:id="@+id/setting_title_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:ignore="MissingConstraints"
+        app:titleText="@string/setting_clear_cache"/>
+
+    <LinearLayout android:id="@+id/next_group_ll"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/rectangle_white_reduce_bg"
+        android:layout_marginRight="@dimen/dimen_20_dp"
+        android:layout_marginLeft="@dimen/dimen_20_dp"
+        android:layout_marginTop="@dimen/dimen_16_dp"
+        android:orientation="vertical"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/setting_title_bar"
+        tools:ignore="SpUsage">
+
+        <FrameLayout android:id="@+id/clear_message_fl"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dimen_46_dp">
+
+            <TextView
+                android:id="@+id/clear_message_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/dimen_46_dp"
+                android:layout_marginStart="@dimen/dimen_16_dp"
+                android:gravity="center"
+                android:text="@string/clear_message"
+                android:textColor="@color/color_333333"
+                android:textSize="@dimen/text_size_16" />
+
+            <TextView android:id="@+id/clear_message_size_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/text_size_14"
+                android:textColor="@color/color_666666"
+                android:layout_gravity="center_vertical|end"
+                android:layout_marginEnd="@dimen/dimen_16_dp"/>
+        </FrameLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="20dp"
+            android:background="@color/color_f5f8fc"/>
+
+        <FrameLayout android:id="@+id/clear_lucene_fl"
+            android:layout_width="match_parent"
+            android:visibility="gone"
+            android:layout_height="@dimen/dimen_46_dp">
+
+            <TextView
+                android:id="@+id/clear_lucene_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/dimen_46_dp"
+                android:layout_marginStart="@dimen/dimen_16_dp"
+                android:gravity="center"
+                android:text="@string/setting_clear_cache"
+                android:textColor="@color/color_333333"
+                android:textSize="@dimen/text_size_16" />
+
+            <TextView android:id="@+id/clear_lucene_size_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/text_size_14"
+                android:textColor="@color/color_666666"
+                android:layout_gravity="center_vertical|end"
+                android:layout_marginEnd="@dimen/dimen_16_dp"/>
+        </FrameLayout>
+        <FrameLayout android:id="@+id/clear_sdk_fl"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dimen_46_dp">
+
+            <TextView
+                android:id="@+id/clear_sdk_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/dimen_46_dp"
+                android:layout_marginStart="@dimen/dimen_16_dp"
+                android:gravity="center"
+                android:text="@string/clear_sdk_cache"
+                android:textColor="@color/color_333333"
+                android:textSize="@dimen/text_size_16" />
+
+            <TextView android:id="@+id/clear_sdk_size_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/text_size_14"
+                android:textColor="@color/color_666666"
+                android:layout_gravity="center_vertical|end"
+                android:layout_marginEnd="@dimen/dimen_16_dp"/>
+        </FrameLayout>
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -28,6 +28,8 @@ public interface ChatMessageType {
   /** location message type */
   int LOCATION_MESSAGE_VIEW_TYPE = MsgTypeEnum.location.getValue();
 
+  int CALL_MESSAGE_VIEW_TYPE = MsgTypeEnum.nrtc_netcall.getValue();
+
   /** 自定义消息类型从1000开始 */
   int CUSTOM_START = 1000;
 

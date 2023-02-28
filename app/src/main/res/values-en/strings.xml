@@ -37,6 +37,9 @@
     <string name="server_config_dialog_positive">OK</string>
     <string name="server_config_dialog_cancel">Cancel</string>
 
+    <string name="incoming_call_notify_audio">[Audio Call]</string>
+    <string name="incoming_call_notify_video">[Video Call]</string>
+
     <string name="mine_collect">Favorites</string>
     <string name="mine_about">About CommSEase</string>
     <string name="mine_setting">Settings</string>

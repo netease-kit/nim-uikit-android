@@ -9,7 +9,10 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
 import com.netease.nimlib.sdk.msg.model.StickTopSessionInfo;
 import com.netease.nimlib.sdk.team.constant.TeamInviteModeEnum;
+import com.netease.nimlib.sdk.team.constant.TeamTypeEnum;
 import com.netease.nimlib.sdk.team.constant.TeamUpdateModeEnum;
+import com.netease.nimlib.sdk.team.model.Team;
+import com.netease.nimlib.sdk.team.model.TeamMember;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
 import com.netease.yunxin.kit.corekit.im.IMKitClient;
@@ -207,14 +210,78 @@ public class TeamSettingViewModel extends BaseViewModel {
         });
   }
 
+  public void quitTeam(Team team) {
+    ALog.d(LIB_TAG, TAG, "quitTeam:" + team.getId());
+    if (team.getType() == TeamTypeEnum.Advanced
+        && TextUtils.equals(team.getCreator(), IMKitClient.account())) {
+      TeamRepo.getMemberList(
+          team.getId(),
+          new FetchCallback<List<UserInfoWithTeam>>() {
+            @Override
+            public void onSuccess(@Nullable List<UserInfoWithTeam> param) {
+              String account = IMKitClient.account();
+              if (param == null || param.size() <= 1) {
+                dismissTeam(team.getId());
+                return;
+              }
+              for (UserInfoWithTeam user : param) {
+                if (!TextUtils.equals(account, user.getTeamInfo().getAccount())) {
+                  account = user.getTeamInfo().getAccount();
+                  break;
+                }
+              }
+              TeamRepo.transferTeam(
+                  team.getId(),
+                  account,
+                  true,
+                  new FetchCallback<List<TeamMember>>() {
+                    @Override
+                    public void onSuccess(@Nullable List<TeamMember> param) {
+                      quitTeam(team.getId());
+                    }
+
+                    @Override
+                    public void onFailed(int code) {
+                      ALog.d(LIB_TAG, TAG, "quitTeam transferTeam,onFailed:" + code);
+                      quitTeamData.postValue(new ResultInfo<>(null, false, new ErrorMsg(code)));
+                    }
+
+                    @Override
+                    public void onException(@Nullable Throwable exception) {
+                      ALog.d(LIB_TAG, TAG, "quitTeam transferTeam,onException");
+                      quitTeamData.postValue(
+                          new ResultInfo<>(null, false, new ErrorMsg(-1, "", exception)));
+                    }
+                  });
+            }
+
+            @Override
+            public void onFailed(int code) {
+              ALog.d(LIB_TAG, TAG, "quitTeam  getMemberList,onFailed:" + code);
+              quitTeamData.postValue(new ResultInfo<>(null, false, new ErrorMsg(code)));
+            }
+
+            @Override
+            public void onException(@Nullable Throwable exception) {
+              ALog.d(LIB_TAG, TAG, "quitTeam getMemberList,onException");
+              quitTeamData.postValue(
+                  new ResultInfo<>(null, false, new ErrorMsg(-1, "", exception)));
+            }
+          });
+    } else {
+      quitTeam(team.getId());
+    }
+  }
+
   public void quitTeam(String teamId) {
-    ALog.d(LIB_TAG, TAG, "quitTeam:" + teamId);
     TeamRepo.quitTeam(
         teamId,
         new FetchCallback<Void>() {
           @Override
           public void onSuccess(@Nullable Void param) {
             ALog.d(LIB_TAG, TAG, "quitTeam,onSuccess");
+            clearNotify(teamId);
+            removeStickTop(teamId);
             quitTeamData.postValue(new ResultInfo<>(param));
           }
 
@@ -228,6 +295,54 @@ public class TeamSettingViewModel extends BaseViewModel {
           public void onException(@Nullable Throwable exception) {
             ALog.d(LIB_TAG, TAG, "quitTeam,onException");
             quitTeamData.postValue(new ResultInfo<>(null, false, new ErrorMsg(-1, "", exception)));
+          }
+        });
+  }
+
+  public void removeStickTop(String teamId) {
+    ALog.d(LIB_TAG, TAG, "removeStickTop,teamId:" + teamId);
+    if (TeamRepo.isStickTop(teamId)) {
+      ALog.d(LIB_TAG, TAG, "removeStickTop,isStickTop:" + teamId);
+      TeamRepo.removeStickTop(
+          teamId,
+          new FetchCallback<Void>() {
+            @Override
+            public void onSuccess(@Nullable Void param) {
+              ALog.d(LIB_TAG, TAG, "removeStickTop,onSuccess");
+            }
+
+            @Override
+            public void onFailed(int code) {
+              ALog.d(LIB_TAG, TAG, "removeStickTop,onFailed:" + code);
+            }
+
+            @Override
+            public void onException(@Nullable Throwable exception) {
+              ALog.d(LIB_TAG, TAG, "removeStickTop,onException");
+            }
+          });
+    }
+  }
+
+  public void clearNotify(String teamId) {
+    ALog.d(LIB_TAG, TAG, "clearNotify,teamId:" + teamId);
+    TeamRepo.setTeamNotify(
+        teamId,
+        false,
+        new FetchCallback<Void>() {
+          @Override
+          public void onSuccess(@Nullable Void param) {
+            ALog.d(LIB_TAG, TAG, "clearNotify,onSuccess");
+          }
+
+          @Override
+          public void onFailed(int code) {
+            ALog.d(LIB_TAG, TAG, "clearNotify,onFailed:" + code);
+          }
+
+          @Override
+          public void onException(@Nullable Throwable exception) {
+            ALog.d(LIB_TAG, TAG, "clearNotify,onException");
           }
         });
   }

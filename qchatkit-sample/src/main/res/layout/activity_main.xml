@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2022 NetEase, Inc. All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be
+  ~ found in the LICENSE file.
+  -->
+
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/view_pager"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintVertical_weight="1"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/bottom_group"
+        tools:ignore="MissingConstraints" />
+
+
+    <LinearLayout android:id="@+id/bottom_group"
+        android:layout_width="match_parent"
+        android:layout_height="57.18dp"
+        android:background="#f7f7f7"
+        android:clipChildren="false"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        tools:ignore="MissingConstraints">
+
+        <RelativeLayout
+            android:id="@+id/conversation_btn_group"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:onClick="tabClick"
+            android:layout_weight="1">
+
+            <TextView
+                android:id="@+id/conversation"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:drawablePadding="3dp"
+                android:gravity="center"
+                android:textSize="12sp"
+                android:textColor="@color/tab_checked_color"
+                android:drawableTop="@mipmap/ic_conversation_tab_checked"
+                android:text="@string/tab_session_tab_text" />
+
+            <View android:id="@+id/conversation_dot"
+                android:layout_width="@dimen/dimen_6_dp"
+                android:layout_height="@dimen/dimen_6_dp"
+                android:layout_alignRight="@+id/conversation"
+                android:layout_marginLeft="@dimen/dimen_10_dp"
+                android:layout_marginTop="@dimen/dimen_7_dp"
+                android:background="@drawable/bg_shape_red_dot"
+                android:visibility="gone"/>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/qchat_btn_group"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:onClick="tabClick"
+            android:layout_weight="1">
+
+            <TextView
+                android:id="@+id/qchat"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:drawablePadding="3dp"
+                android:gravity="center"
+                android:textSize="12sp"
+                android:textColor="@color/tab_unchecked_color"
+                android:drawableTop="@drawable/ic_qchat_unchecked"
+                android:text="@string/tab_qchat_tab_text" />
+
+        </RelativeLayout>
+
+
+        <RelativeLayout
+            android:id="@+id/live_btn_group"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:onClick="tabClick"
+            android:layout_weight="1"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/live"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:drawablePadding="3dp"
+                android:textSize="12sp"
+                android:gravity="center"
+                android:text="@string/tab_live_tab_text" />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/contact_btn_group"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:onClick="tabClick"
+            android:layout_weight="1">
+
+            <TextView
+                android:id="@+id/contact"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:drawableTop="@mipmap/ic_contact_tab_unchecked"
+                android:drawablePadding="3dp"
+                android:gravity="center"
+                android:text="@string/tab_contact_tab_text"
+                android:textColor="@color/tab_unchecked_color"
+                android:textSize="12sp" />
+
+            <View android:id="@+id/contact_dot"
+                android:layout_width="@dimen/dimen_6_dp"
+                android:layout_height="@dimen/dimen_6_dp"
+                android:layout_alignEnd="@+id/contact"
+                android:layout_marginTop="@dimen/dimen_7_dp"
+                android:layout_marginEnd="@dimen/dimen_4_dp"
+                android:background="@drawable/bg_shape_red_dot"
+                android:visibility="gone"/>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/myself_btn_group"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:onClick="tabClick"
+            android:layout_weight="1">
+
+            <TextView
+                android:id="@+id/mine"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:drawablePadding="3dp"
+                android:textSize="12sp"
+                android:gravity="center"
+                android:drawableTop="@mipmap/ic_mine_tab_unchecked"
+                android:textColor="@color/tab_unchecked_color"
+                android:text="@string/tab_mine_tab_text" />
+
+        </RelativeLayout>
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

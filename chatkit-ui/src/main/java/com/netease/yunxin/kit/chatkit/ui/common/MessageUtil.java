@@ -17,14 +17,21 @@ import android.text.style.ImageSpan;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
+import com.netease.nimlib.sdk.msg.constant.MsgDirectionEnum;
+import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
+import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.view.emoji.EmojiManager;
 import com.netease.yunxin.kit.chatkit.ui.view.emoji.ImageSpanAlignCenter;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class MessageUtil {
+
+  public static final int REVOKE_TIME_INTERVAL = 2 * 60 * 1000;
+
   private static final float DEF_SCALE = 0.6f;
   private static final float SMALL_SCALE = 0.6F;
 
@@ -47,6 +54,21 @@ public class MessageUtil {
       EditText et = (EditText) textView;
       et.setText(mSpannableString);
     }
+  }
+
+  public static boolean revokeMsgIsEdit(ChatMessageBean data) {
+    if (!isReceivedMessage(data)
+        && data.getMessageData().getMessage().getMsgType() == MsgTypeEnum.text
+        && (System.currentTimeMillis() - data.getMessageData().getMessage().getTime()
+            < REVOKE_TIME_INTERVAL)
+        && data.revokeMsgEdit) {
+      return true;
+    }
+    return false;
+  }
+
+  public static boolean isReceivedMessage(ChatMessageBean message) {
+    return message.getMessageData().getMessage().getDirect() == MsgDirectionEnum.In;
   }
 
   public static void identifyFaceExpression(
@@ -87,6 +109,30 @@ public class MessageUtil {
   public static SpannableString makeSpannableStringTags(
       Context context, String value, float scale, int align) {
     return makeSpannableStringTags(context, value, DEF_SCALE, align, true);
+  }
+
+  public static String formatCallTime(int time) {
+    DecimalFormat df = new DecimalFormat("00");
+    int midTime = 0;
+    StringBuilder resultBuilder = new StringBuilder();
+    if (time > 60) {
+      midTime = time / 60;
+    }
+    resultBuilder.append(df.format(time % 60));
+    if (midTime >= 0) {
+      resultBuilder.insert(0, ":");
+      resultBuilder.insert(0, df.format(midTime % 60));
+      if (midTime > 60) {
+        midTime = midTime / 60;
+      } else {
+        midTime = 0;
+      }
+    }
+    if (midTime > 0) {
+      resultBuilder.insert(0, ":");
+      resultBuilder.insert(0, df.format(midTime));
+    }
+    return resultBuilder.toString();
   }
 
   public static SpannableString makeSpannableStringTags(

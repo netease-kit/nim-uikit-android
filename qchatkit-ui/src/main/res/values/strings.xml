@@ -22,6 +22,7 @@
     <string name="qchat_delete_server">删除服务器</string>
     <string name="qchat_leave_server">退出服务器</string>
     <string name="qchat_roles">身份组</string>
+    <string name="qchat_roles_count">身份组（%s）</string>
     <string name="qchat_member">成员</string>
     <string name="qchat_permission">权限</string>
     <string name="qchat_server_topic">服务器主题</string>
@@ -67,6 +68,7 @@
     <!-- permission -->
     <string name="qchat_message_permission">消息权限</string>
     <string name="qchat_send_message">发送消息</string>
+    <string name="qchat_send">发送</string>
     <string name="qchat_send_quick_comment">发送快捷评论</string>
     <string name="qchat_thread_replay">Thread 回复</string>
     <string name="qchat_at_permission">\t@权限</string>
@@ -84,6 +86,12 @@
     <string name="qchat_forbid_other">封禁他人</string>
     <string name="qchat_change_other_nickname">变更他人昵称</string>
     <string name="qchat_create_new_role_group">创建新身份组</string>
+
+    <string name="qchat_permission_deny_tips">您拒绝了权限申请，该功能将无法使用</string>
+    <string name="qchat_permission_default">请在设置页面添加相关权限</string>
+    <string name="qchat_permission_camera">请在设置页面添加相机权限</string>
+    <string name="qchat_permission_audio">请在设置页面添加麦克风权限</string>
+    <string name="qchat_permission_storage">请在设置页面添加读写手机存储权限</string>
 
     <!--server create -->
     <string name="qchat_fragment_no_server_tip">暂无服务器，\n赶紧去添加心仪的服务器吧</string>
@@ -115,6 +123,7 @@
     <string name="qchat_network_error">当前网络错误</string>
     <string name="qchat_user_cancel">用户取消</string>
     <string name="qchat_network_error_tip">当前网络不可用，请检查你当网络设置。</string>
+    <string name="qchat_server_name_empty_error">服务名称不能为空</string>
 
     <!-- channel-->
     <string name="qchat_channel_setting_title">频道设置</string>
@@ -141,6 +150,7 @@
 
     <string name="qchat_channel_name_empty_error">频道名称不能为空</string>
     <string name="qchat_channel_create_error">频道创建失败</string>
+    <string name="qchat_channel_create_error_count_limit">数量超限</string>
     <string name="qchat_channel_fetch_error">获取频道失败</string>
     <string name="qchat_channel_fetch_role_error">获取频道身份组失败</string>
 
@@ -153,12 +163,13 @@
     <string name="qchat_channel_add_member_title">添加成员</string>
     <string name="qchat_channel_fetch_member_error">获取频道成员失败</string>
     <string name="qchat_channel_add_member_error">添加成员失败</string>
+    <string name="qchat_channel_add_member_empty">暂无成员</string>
     <string name="qchat_member_selector_max_count">最多选择10个好友</string>
 
     <!-- role permission-->
     <string name="qchat_role_list_title">身份组</string>
     <string name="qchat_member_list_title">成员</string>
-    <string name="qchat_more_title">查看更多</string>
+    <string name="qchat_more_title">查看更多(共%s个)</string>
     <string name="qchat_channel_role_delete_title">移除身份组</string>
     <string name="qchat_channel_role_delete_content">确定要移除身份组%s吗？</string>
     <string name="qchat_channel_member_delete_title">移除成员</string>
@@ -168,6 +179,7 @@
 
     <string name="qchat_channel_role_delete_error">身份组删除失败</string>
     <string name="qchat_channel_member_delete_error">成员删除失败</string>
+    <string name="qchat_channel_member_add_error">成员添加失败</string>
     <string name="qchat_role_permission_title">%s权限设置</string>
     <string name="qchat_role_permission_general_title">通用权限</string>
     <string name="qchat_role_permission_role_member_title">成员权限</string>
@@ -211,4 +223,13 @@
     <!-- empty -->
     <string name="qchat_empty_text">查询%s为空</string>
     <string name="qchat_develop_text">暂未开放</string>
+
+    <!--message -->
+    <string name="qchat_message_voice_in">松开发送，按住滑到空白区域取消</string>
+    <string name="qchat_message_camera_unavailable">相机不可用</string>
+    <string name="qchat_pressed_to_speak">按住说话</string>
+    <string name="qchat_pressed_audio_too_short">录制时间过短</string>
+    <string name="qchat_message_not_support_tips">[未知消息体]</string>
+
+
 </resources>

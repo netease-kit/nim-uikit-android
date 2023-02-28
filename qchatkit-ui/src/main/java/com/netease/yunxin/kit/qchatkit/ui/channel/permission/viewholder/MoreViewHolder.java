@@ -40,9 +40,17 @@ public class MoreViewHolder extends CommonViewHolder<QChatBaseBean> {
       this.position = position;
       QChatMoreBean bean = (QChatMoreBean) data;
       if (!TextUtils.isEmpty(bean.title)) {
-        viewBinding.qChatVhMoreTv.setText(bean.title);
+        String title = bean.title;
+        if (bean.extend != null) {
+          title = String.format(bean.title, bean.extend);
+        }
+        viewBinding.qChatVhMoreTv.setText(title);
       } else {
-        viewBinding.qChatVhMoreTv.setText(bean.titleRes);
+        String title = viewBinding.getRoot().getContext().getString(bean.titleRes);
+        if (bean.extend != null) {
+          title = String.format(title, bean.extend);
+        }
+        viewBinding.qChatVhMoreTv.setText(title);
       }
     }
   }

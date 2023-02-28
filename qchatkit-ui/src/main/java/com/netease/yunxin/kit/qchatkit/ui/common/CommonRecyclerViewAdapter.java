@@ -31,23 +31,29 @@ public class CommonRecyclerViewAdapter
   }
 
   public void addData(int index, List<? extends QChatBaseBean> data) {
-    if (index > 0 && index < dataList.size()) {
-      dataList.addAll(index, data);
-    } else {
-      dataList.addAll(data);
+    if (data != null && data.size() > 0) {
+      if (index > 0 && index < dataList.size()) {
+        dataList.addAll(index, data);
+      } else {
+        index = dataList.size();
+        dataList.addAll(data);
+      }
+      notifyDataSetChanged();
     }
-    notifyDataSetChanged();
   }
 
   public void addData(List<? extends QChatBaseBean> data) {
-    dataList.addAll(data);
-    notifyDataSetChanged();
+    if (data != null && data.size() > 0) {
+      int size = dataList.size();
+      dataList.addAll(data);
+      notifyItemRangeChanged(size, data.size());
+    }
   }
 
   public void removeData(int index) {
     if (index > 0 && index < dataList.size()) {
       dataList.remove(index);
-      notifyDataSetChanged();
+      notifyItemRemoved(index);
     }
   }
 

@@ -5,6 +5,7 @@
 package com.netease.yunxin.kit.qchatkit.ui.message.interfaces;
 
 import android.content.Context;
+import java.io.File;
 
 public interface IMessageProxy {
 
@@ -17,6 +18,16 @@ public interface IMessageProxy {
   boolean sendEmoji();
 
   boolean sendVoice();
+
+  boolean pickMedia();
+
+  boolean takePicture();
+
+  boolean captureVideo();
+
+  boolean hasPermission(String permission);
+
+  boolean sendAudio(File audioFile, long audioLength);
 
   void onInputPanelExpand();
 

@@ -13,15 +13,15 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Toast;
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
+import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
+import com.netease.yunxin.kit.qchatkit.repo.model.QChatChannelInfo;
 import com.netease.yunxin.kit.qchatkit.repo.model.QChatChannelModeEnum;
 import com.netease.yunxin.kit.qchatkit.ui.R;
 import com.netease.yunxin.kit.qchatkit.ui.databinding.QChatChannelCreateActivityBinding;
@@ -32,6 +32,9 @@ import java.util.ArrayList;
 public class QChatChannelCreateActivity extends BaseActivity {
 
   private static final String TAG = "QChatChannelCreateActivity";
+
+  /** 创建频道超出数量限制 */
+  private static final int ERROR_CODE_OVER_LIMIT = 419;
 
   private QChatChannelCreateActivityBinding viewBinding;
   private ChannelCreateViewModel viewModel;
@@ -59,17 +62,14 @@ public class QChatChannelCreateActivity extends BaseActivity {
     activityResultLauncher =
         registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
-            new ActivityResultCallback<ActivityResult>() {
-              @Override
-              public void onActivityResult(ActivityResult result) {
-                selectIndex = result.getResultCode();
-                if (selectIndex >= 0 && selectIndex < channelTypeList.size()) {
-                  viewBinding.channelCreateTypeRtv.setText(channelTypeList.get(selectIndex));
-                } else {
-                  selectIndex = 0;
-                }
-                ALog.d(TAG, "activityResultLauncher", "channel type select:" + selectIndex);
+            result -> {
+              selectIndex = result.getResultCode();
+              if (selectIndex >= 0 && selectIndex < channelTypeList.size()) {
+                viewBinding.channelCreateTypeRtv.setText(channelTypeList.get(selectIndex));
+              } else {
+                selectIndex = 0;
               }
+              ALog.d(TAG, "activityResultLauncher", "channel type select:" + selectIndex);
             });
 
     viewBinding.channelCreateLeftTv.setOnClickListener(view -> finish());
@@ -142,17 +142,36 @@ public class QChatChannelCreateActivity extends BaseActivity {
             (result) -> {
               if (result.getLoadStatus() == LoadStatus.Success) {
                 ALog.d(TAG, "viewModel:observe Success");
+                Intent intent = new Intent();
+                QChatChannelInfo chatChannelInfo = result.getData();
+                intent.putExtra(QChatConstant.CHANNEL_ID, chatChannelInfo.getChannelId());
+                intent.putExtra(QChatConstant.CHANNEL_NAME, chatChannelInfo.getName());
+                intent.putExtra(QChatConstant.CHANNEL_TOPIC, chatChannelInfo.getTopic());
+                setResult(RESULT_OK, intent);
                 finish();
               } else if (result.getLoadStatus() == LoadStatus.Error) {
-                ALog.d(TAG, "viewModel:observe Error" + result.getError().getCode());
-                Toast.makeText(this, result.getErrorMsg(this), Toast.LENGTH_SHORT).show();
+                FetchResult.ErrorMsg msg = result.getError();
+                int errorCode = -1;
+                if (msg != null) {
+                  errorCode = msg.getCode();
+                  ALog.d(TAG, "viewModel:observe Error" + errorCode);
+                }
+                if (errorCode == ERROR_CODE_OVER_LIMIT) {
+                  Toast.makeText(
+                          this, R.string.qchat_channel_create_error_count_limit, Toast.LENGTH_SHORT)
+                      .show();
+                } else {
+                  Toast.makeText(this, result.getErrorMsg(this), Toast.LENGTH_SHORT).show();
+                }
+
+                isCreate = false;
+                updateCreateUI();
               }
-              isCreate = false;
-              updateCreateUI();
             });
   }
 
   private void createChannel() {
+
     String channelName = viewBinding.channelCreateNameEt.getText();
     if (TextUtils.isEmpty(channelName)) {
       Toast.makeText(
@@ -160,6 +179,9 @@ public class QChatChannelCreateActivity extends BaseActivity {
               getResources().getString(R.string.qchat_channel_name_empty_error),
               Toast.LENGTH_SHORT)
           .show();
+      return;
+    }
+    if (isCreate) {
       return;
     }
     String channelTopic = viewBinding.channelCreateTopicEt.getText();
