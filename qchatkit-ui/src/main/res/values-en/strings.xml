@@ -198,8 +198,8 @@
     <string name="qchat_channel_permission_history_message">View historical messages</string> 
 
 
-    <string name="qchat_channel_permission_update_error">Failed to update permission</string> 
-
+    <string name="qchat_channel_permission_update_error">Failed to update permission</string>
+    <string name="dialog_permission_tips">Please give your permission</string>
 
     <!-- member permission-->
     <string name="qchat_channel_member_permission_title">Member Permission Setting</string> 
