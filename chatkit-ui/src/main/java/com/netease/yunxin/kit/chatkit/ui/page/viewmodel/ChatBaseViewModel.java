@@ -21,21 +21,26 @@ import com.netease.nimlib.sdk.ResponseCode;
 import com.netease.nimlib.sdk.msg.MessageBuilder;
 import com.netease.nimlib.sdk.msg.attachment.FileAttachment;
 import com.netease.nimlib.sdk.msg.attachment.MsgAttachment;
+import com.netease.nimlib.sdk.msg.attachment.NotificationAttachment;
 import com.netease.nimlib.sdk.msg.constant.MsgStatusEnum;
+import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
+import com.netease.nimlib.sdk.msg.constant.NotificationType;
 import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.msg.model.AttachmentProgress;
 import com.netease.nimlib.sdk.msg.model.CollectInfo;
 import com.netease.nimlib.sdk.msg.model.CustomMessageConfig;
+import com.netease.nimlib.sdk.msg.model.GetMessageDirectionEnum;
+import com.netease.nimlib.sdk.msg.model.GetMessagesDynamicallyParam;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
 import com.netease.nimlib.sdk.msg.model.MemberPushOption;
 import com.netease.nimlib.sdk.msg.model.MsgPinOption;
 import com.netease.nimlib.sdk.msg.model.MsgPinSyncResponseOption;
-import com.netease.nimlib.sdk.msg.model.QueryDirectionEnum;
 import com.netease.nimlib.sdk.msg.model.RevokeMsgNotification;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.map.ChatLocationBean;
 import com.netease.yunxin.kit.chatkit.media.ImageUtil;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
+import com.netease.yunxin.kit.chatkit.model.MessageDynamicallyResult;
 import com.netease.yunxin.kit.chatkit.repo.ChatObserverRepo;
 import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
 import com.netease.yunxin.kit.chatkit.ui.R;
@@ -57,6 +62,7 @@ import com.netease.yunxin.kit.corekit.im.model.UserInfo;
 import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
 import com.netease.yunxin.kit.corekit.im.provider.UserInfoObserver;
 import com.netease.yunxin.kit.corekit.im.repo.SettingRepo;
+import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -67,9 +73,15 @@ import java.util.Map;
 /** chat info view model fetch and send messages for chat page */
 public abstract class ChatBaseViewModel extends BaseViewModel {
   public static final String TAG = "ChatViewModel";
+  //拉取历史消息
   private final MutableLiveData<FetchResult<List<ChatMessageBean>>> messageLiveData =
       new MutableLiveData<>();
   private final FetchResult<List<ChatMessageBean>> messageFetchResult =
+      new FetchResult<>(LoadStatus.Finish);
+  //接受消息
+  private final MutableLiveData<FetchResult<List<ChatMessageBean>>> messageRecLiveData =
+      new MutableLiveData<>();
+  private final FetchResult<List<ChatMessageBean>> messageRecFetchResult =
       new FetchResult<>(LoadStatus.Finish);
   private final MutableLiveData<FetchResult<List<UserInfo>>> userInfoLiveData =
       new MutableLiveData<>();
@@ -86,8 +98,10 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
 
   protected String mSessionId;
   private SessionTypeEnum mSessionType;
+  protected boolean mIsTeamGroup = false;
+  protected boolean needACK = false;
+  protected boolean showRead = true;
 
-  private long credibleTimestamp = -1;
   private final int messagePageSize = 100;
   private final String Orientation_Vertical = "90";
 
@@ -96,11 +110,11 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
         @Override
         public void onEvent(@Nullable List<IMMessageInfo> event) {
           ALog.d(LIB_TAG, TAG, "receive msg -->> " + (event == null ? "null" : event.size()));
-          messageFetchResult.setLoadStatus(LoadStatus.Finish);
-          messageFetchResult.setData(convert(event));
-          messageFetchResult.setType(FetchResult.FetchType.Add);
-          messageFetchResult.setTypeIndex(-1);
-          messageLiveData.postValue(messageFetchResult);
+          messageRecFetchResult.setLoadStatus(LoadStatus.Finish);
+          messageRecFetchResult.setData(convert(event));
+          messageRecFetchResult.setType(FetchResult.FetchType.Add);
+          messageRecFetchResult.setTypeIndex(-1);
+          messageRecLiveData.setValue(messageRecFetchResult);
         }
       };
 
@@ -113,11 +127,13 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
               TAG,
               "msg status change -->> "
                   + (event == null ? "null" : event.getMessage().getStatus()));
-          sendMessageFetchResult.setLoadStatus(LoadStatus.Finish);
-          sendMessageFetchResult.setData(new ChatMessageBean(event));
-          sendMessageFetchResult.setType(FetchResult.FetchType.Update);
-          sendMessageFetchResult.setTypeIndex(-1);
-          sendMessageLiveData.postValue(sendMessageFetchResult);
+          if (event != null && TextUtils.equals(event.getMessage().getSessionId(), mSessionId)) {
+            sendMessageFetchResult.setLoadStatus(LoadStatus.Finish);
+            sendMessageFetchResult.setData(new ChatMessageBean(event));
+            sendMessageFetchResult.setType(FetchResult.FetchType.Update);
+            sendMessageFetchResult.setTypeIndex(-1);
+            sendMessageLiveData.setValue(sendMessageFetchResult);
+          }
         }
       };
 
@@ -146,9 +162,10 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
         result.setData(attachmentProgress);
         result.setType(FetchResult.FetchType.Update);
         result.setTypeIndex(-1);
-        attachmentProgressMutableLiveData.postValue(result);
+        attachmentProgressMutableLiveData.setValue(result);
       };
 
+  //他人撤回消息底层会收到通知进行处理，并保存到本地。当前账号的撤回需要自行处理
   private Observer<RevokeMsgNotification> revokeMsgObserver =
       revokeMsgNotification -> {
         ALog.d(LIB_TAG, TAG, "revokeMsgObserver");
@@ -156,8 +173,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
             new ChatMessageBean(new IMMessageInfo(revokeMsgNotification.getMessage()));
         FetchResult<ChatMessageBean> fetchResult = new FetchResult<>(LoadStatus.Success);
         fetchResult.setData(messageBean);
-        saveLocalRevokeMessage(messageBean.getMessageData());
-        revokeMessageLiveData.postValue(fetchResult);
+        revokeMessageLiveData.setValue(fetchResult);
       };
 
   private final UserInfoObserver userInfoObserver =
@@ -166,7 +182,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
         userInfoFetchResult.setData(userList);
         userInfoFetchResult.setType(FetchResult.FetchType.Update);
         userInfoFetchResult.setTypeIndex(-1);
-        userInfoLiveData.postValue(userInfoFetchResult);
+        userInfoLiveData.setValue(userInfoFetchResult);
       };
 
   /** chat message revoke live data */
@@ -177,6 +193,11 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
   /** query chat message list */
   public MutableLiveData<FetchResult<List<ChatMessageBean>>> getQueryMessageLiveData() {
     return messageLiveData;
+  }
+
+  /** receive chat message list */
+  public MutableLiveData<FetchResult<List<ChatMessageBean>>> getRecMessageLiveData() {
+    return messageRecLiveData;
   }
 
   public MutableLiveData<FetchResult<List<UserInfo>>> getUserInfoLiveData() {
@@ -198,7 +219,8 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
               FetchResult<ChatMessageBean> fetchResult = new FetchResult<>(LoadStatus.Success);
               fetchResult.setData(messageBean);
               revokeMessageLiveData.postValue(fetchResult);
-              saveLocalRevokeMessage(messageBean.getMessageData());
+              //他人撤回消息底层会收到通知进行处理，并保存到本地。当前账号的撤回需要自行处理
+              saveLocalRevokeMessage(messageBean.getMessageData().getMessage());
               ALog.d(LIB_TAG, TAG, "revokeMessage, onSuccess");
             }
 
@@ -239,6 +261,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
     ALog.d(LIB_TAG, TAG, "init sessionId:" + sessionId + " sessionType:" + sessionType);
     this.mSessionId = sessionId;
     this.mSessionType = sessionType;
+    this.needACK = SettingRepo.getShowReadStatus();
   }
 
   public void setChattingAccount() {
@@ -246,12 +269,16 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
     ChatRepo.setChattingAccount(mSessionId, mSessionType);
   }
 
+  public void setTeamGroup(boolean group) {
+    mIsTeamGroup = group;
+  }
+
   public String getSessionId() {
     return mSessionId;
   }
 
-  public boolean isShowReadStatus() {
-    return SettingRepo.getShowReadStatus();
+  public void setShowReadStatus(boolean show) {
+    showRead = show;
   }
 
   public void clearChattingAccount() {
@@ -351,28 +378,33 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
     }
   }
 
-  private void saveLocalRevokeMessage(IMMessageInfo messageInfo) {
-    IMMessage message = messageInfo.getMessage();
+  private static void saveLocalRevokeMessage(IMMessage message) {
     Map<String, Object> map = new HashMap<>(2);
     map.put(KEY_REVOKE_TAG, true);
     map.put(KEY_REVOKE_TIME_TAG, SystemClock.elapsedRealtime());
-    map.put(KEY_REVOKE_CONTENT_TAG, messageInfo.getMessage().getContent());
+    map.put(KEY_REVOKE_CONTENT_TAG, message.getContent());
+    if (message.getMsgType() != MsgTypeEnum.text) {
+      map.put(RouterConstant.KEY_REVOKE_EDIT_TAG, false);
+    } else {
+      map.put(RouterConstant.KEY_REVOKE_EDIT_TAG, true);
+    }
+
     IMMessage revokeMsg =
         MessageBuilder.createTextMessage(
             message.getSessionId(),
-            mSessionType,
+            message.getSessionType(),
             IMKitClient.getApplicationContext()
                 .getResources()
                 .getString(R.string.chat_message_revoke_content));
     revokeMsg.setStatus(MsgStatusEnum.success);
-    revokeMsg.setDirect(messageInfo.getMessage().getDirect());
+    revokeMsg.setDirect(message.getDirect());
     revokeMsg.setFromAccount(message.getFromAccount());
     revokeMsg.setLocalExtension(map);
     CustomMessageConfig config = new CustomMessageConfig();
     config.enableUnreadCount = false;
     revokeMsg.setConfig(config);
-    ChatRepo.saveLocalMessageExt(revokeMsg, messageInfo.getMessage().getTime());
-    ALog.d(LIB_TAG, TAG, "saveLocalRevokeMessage:" + messageInfo.getMessage().getTime());
+    ChatRepo.saveLocalMessageExt(revokeMsg, message.getTime());
+    ALog.d(LIB_TAG, TAG, "saveLocalRevokeMessage:" + message.getTime());
   }
 
   public void sendVideoMessage(
@@ -412,8 +444,13 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
     }
     String mimeType = FileUtils.getFileExtension(uri.getPath());
     if (TextUtils.isEmpty(mimeType)) {
-      String realPath = UriUtils.uri2FileRealPath(uri);
-      mimeType = FileUtils.getFileExtension(realPath);
+      try {
+        String realPath = UriUtils.uri2FileRealPath(uri);
+        mimeType = FileUtils.getFileExtension(realPath);
+      } catch (IllegalStateException e) {
+        ToastX.showShortToast(R.string.chat_message_type_resource_error);
+        return;
+      }
     }
     if (ImageUtil.isValidPictureFile(mimeType)) {
       SendMediaHelper.handleImage(uri, false, this::sendImageMessage);
@@ -451,22 +488,13 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
             }
           });
     } else {
+      ToastX.showShortToast(R.string.chat_message_type_not_support_tips);
       ALog.e(LIB_TAG, TAG, "invalid file type");
     }
   }
 
   public void sendFile(Uri uri) {
     ALog.d(LIB_TAG, TAG, "sendFile:" + (uri != null ? uri.getPath() : "uri is null"));
-    if (uri == null) {
-      return;
-    }
-    String size = ChatUtils.getUrlFileSize(IMKitClient.getApplicationContext(), uri);
-    if (ChatUtils.fileSizeLimit(Long.parseLong(size))) {
-      ToastX.showShortToast(R.string.chat_message_file_size_limit_tips);
-      return;
-    }
-    ALog.d(
-        LIB_TAG, TAG, "sendFile:" + (uri != null ? uri.getPath() : "uri is null") + "size=" + size);
     SendMediaHelper.handleFile(
         uri,
         file -> {
@@ -480,35 +508,6 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
         });
   }
 
-  private void onMessageSend(IMMessage message, boolean resend) {
-    ALog.d(LIB_TAG, TAG, "onMessageSend:sending");
-    ChatRepo.fetchUserInfo(
-        message.getFromAccount(),
-        new FetchCallback<UserInfo>() {
-          @Override
-          public void onSuccess(@Nullable UserInfo param) {
-            ALog.d(LIB_TAG, TAG, "onMessageSend:onSuccess");
-            IMMessageInfo messageInfo = new IMMessageInfo(message);
-            messageInfo.setFromUser(param);
-            postMessageSend(messageInfo, resend);
-          }
-
-          @Override
-          public void onFailed(int code) {
-            ALog.d(LIB_TAG, TAG, "onMessageSend:onFailed" + code);
-            IMMessageInfo messageInfo = new IMMessageInfo(message);
-            postMessageSend(messageInfo, resend);
-          }
-
-          @Override
-          public void onException(@Nullable Throwable exception) {
-            ALog.d(LIB_TAG, TAG, "onMessageSend:onException");
-            IMMessageInfo messageInfo = new IMMessageInfo(message);
-            postMessageSend(messageInfo, resend);
-          }
-        });
-  }
-
   private void postMessageSend(IMMessageInfo message, boolean resend) {
     ALog.d(LIB_TAG, TAG, "postMessageSend");
     sendMessageFetchResult.setLoadStatus(LoadStatus.Loading);
@@ -518,13 +517,13 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
       sendMessageFetchResult.setType(FetchResult.FetchType.Add);
     }
     sendMessageFetchResult.setData(new ChatMessageBean(message));
-    sendMessageLiveData.postValue(sendMessageFetchResult);
+    sendMessageLiveData.setValue(sendMessageFetchResult);
   }
 
   public void sendMessage(IMMessage message, boolean resend, boolean needSendMessage) {
     if (message != null) {
       ALog.d(LIB_TAG, TAG, "sendMessage:" + message.getUuid());
-      if (SettingRepo.getShowReadStatus()) {
+      if (needACK && showRead) {
         message.setMsgAck();
       }
       ChatRepo.sendMessage(message, resend, null);
@@ -537,83 +536,75 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
   public void initFetch(IMMessage anchor) {
     ALog.d(LIB_TAG, TAG, "initFetch:" + (anchor == null ? "null" : anchor.getUuid()));
     registerObservers();
-
-    queryRoamMsgHasMoreTime(
-        new FetchCallback<Long>() {
-          @Override
-          public void onSuccess(@Nullable Long param) {
-            credibleTimestamp = param == null ? 0 : param;
-            ALog.d(
-                LIB_TAG,
-                TAG,
-                "initFetch:queryRoamMsgHasMoreTime -->> credibleTimestamp:" + credibleTimestamp);
-            if (anchor == null) {
-              fetchMoreMessage(
-                  MessageBuilder.createEmptyMessage(mSessionId, mSessionType, 0),
-                  QueryDirectionEnum.QUERY_OLD);
-            } else {
-              fetchMessageListBothDirect(anchor);
+    if (anchor == null) {
+      GetMessagesDynamicallyParam dynamicallyParam =
+          new GetMessagesDynamicallyParam(mSessionId, mSessionType);
+      dynamicallyParam.setLimit(messagePageSize);
+      dynamicallyParam.setDirection(GetMessageDirectionEnum.FORWARD);
+      ChatRepo.getMessagesDynamically(
+          dynamicallyParam,
+          new FetchCallback<MessageDynamicallyResult>() {
+            @Override
+            public void onSuccess(@Nullable MessageDynamicallyResult result) {
+              if (result != null) {
+                Collections.reverse(result.getMessageList());
+                onListFetchSuccess(result.getMessageList(), GetMessageDirectionEnum.FORWARD);
+              }
             }
-          }
 
-          @Override
-          public void onFailed(int code) {
-            ALog.d(LIB_TAG, TAG, "initFetch:queryRoamMsgHasMoreTime:onFailed" + code);
-          }
+            @Override
+            public void onFailed(int code) {
+              ALog.d(LIB_TAG, TAG, "initFetch:getMessagesDynamically:onFailed" + code);
+            }
 
-          @Override
-          public void onException(@Nullable Throwable exception) {
-            ALog.d(LIB_TAG, TAG, "initFetch:queryRoamMsgHasMoreTime:onException");
-          }
-        });
+            @Override
+            public void onException(@Nullable Throwable exception) {
+              ALog.d(LIB_TAG, TAG, "initFetch:getMessagesDynamically:onException");
+            }
+          });
+    } else {
+      fetchMessageListBothDirect(anchor);
+    }
   }
 
-  public void fetchMoreMessage(IMMessage anchor, QueryDirectionEnum direction) {
-    if (!isMessageCredible(anchor)) {
-      ALog.d(LIB_TAG, TAG, "fetchMoreMessage anchor is not credible");
-      if (direction == QueryDirectionEnum.QUERY_NEW) {
-        fetchMessageRemoteNewer(anchor);
-      } else {
-        fetchMessageRemoteOlder(anchor, false);
-      }
-      return;
+  public void fetchMoreMessage(IMMessage anchor, GetMessageDirectionEnum direction) {
+    ALog.d(
+        LIB_TAG,
+        TAG,
+        "fetchMoreMessage:" + anchor.getContent() + anchor.getTime() + " direction:" + direction);
+
+    GetMessagesDynamicallyParam dynamicallyParam =
+        new GetMessagesDynamicallyParam(mSessionId, mSessionType);
+    dynamicallyParam.setLimit(messagePageSize);
+    dynamicallyParam.setDirection(direction);
+    if (anchor != null) {
+      dynamicallyParam.setAnchorServerId(anchor.getServerId());
+      dynamicallyParam.setAnchorClientId(anchor.getUuid());
     }
-    ALog.d(LIB_TAG, TAG, "fetch local anchor time:" + anchor.getTime() + " direction:" + direction);
-    ChatRepo.getHistoryMessage(
-        anchor,
-        direction,
-        messagePageSize,
-        new FetchCallback<List<IMMessageInfo>>() {
+    if (direction == GetMessageDirectionEnum.FORWARD) {
+      dynamicallyParam.setToTime(anchor.getTime());
+    } else {
+      dynamicallyParam.setFromTime(anchor.getTime());
+    }
+
+    ChatRepo.getMessagesDynamically(
+        dynamicallyParam,
+        new FetchCallback<MessageDynamicallyResult>() {
           @Override
-          public void onSuccess(@Nullable List<IMMessageInfo> param) {
-            ALog.d(
-                LIB_TAG,
-                TAG,
-                "fetch local no more messages -->> try remote,onSuccess" + (param == null));
-            if (param == null || param.isEmpty()) {
-              // no more local messages
-              if (direction == QueryDirectionEnum.QUERY_OLD && credibleTimestamp > 0) {
-                fetchMessageRemoteOlder(anchor, true);
-              } else {
-                onListFetchSuccess(param, direction);
+          public void onSuccess(@Nullable MessageDynamicallyResult result) {
+            if (result != null && result.getMessageList() != null) {
+              if (direction == GetMessageDirectionEnum.FORWARD) {
+                Collections.reverse(result.getMessageList());
               }
-              return;
-            }
-            if (direction == QueryDirectionEnum.QUERY_OLD) {
-              if (isMessageCredible(param.get(0).getMessage())) {
-                onListFetchSuccess(param, direction);
-              } else {
-                fetchMessageRemoteOlder(anchor, true);
-              }
-            } else {
-              onListFetchSuccess(param, direction);
+              ALog.d(LIB_TAG, TAG, "fetchMoreMessage,reverse:" + result.getMessageList().size());
+              onListFetchSuccess(result.getMessageList(), direction);
             }
           }
 
           @Override
           public void onFailed(int code) {
             onListFetchFailed(code);
-            ALog.d(LIB_TAG, TAG, "fetch local no more messages -->> try remote,onFailed:" + code);
+            ALog.d(LIB_TAG, TAG, "fetchMoreMessage:" + code);
           }
 
           @Override
@@ -625,98 +616,11 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
 
   public void fetchMessageListBothDirect(IMMessage anchor) {
     ALog.d(LIB_TAG, TAG, "fetchMessageListBothDirect");
-    fetchMoreMessage(anchor, QueryDirectionEnum.QUERY_OLD);
-    fetchMoreMessage(anchor, QueryDirectionEnum.QUERY_NEW);
+    fetchMoreMessage(anchor, GetMessageDirectionEnum.FORWARD);
+    fetchMoreMessage(anchor, GetMessageDirectionEnum.BACKWARD);
   }
 
-  private void fetchMessageRemoteOlder(IMMessage anchor, boolean updateCredible) {
-    ALog.d(
-        LIB_TAG,
-        TAG,
-        "fetch remote old anchor time:" + anchor.getTime() + " need update:" + updateCredible);
-    ChatRepo.fetchHistoryMessage(
-        anchor,
-        0,
-        messagePageSize,
-        QueryDirectionEnum.QUERY_OLD,
-        new FetchCallback<List<IMMessageInfo>>() {
-          @Override
-          public void onSuccess(@Nullable List<IMMessageInfo> param) {
-            ALog.d(
-                LIB_TAG,
-                TAG,
-                "fetchMessageRemoteOlder, fetchHistoryMessage,onSuccess:"
-                    + (param == null)
-                    + credibleTimestamp);
-            if (param != null) {
-              Collections.reverse(param);
-            }
-            if (updateCredible && param != null && param.size() > 0) {
-              credibleTimestamp = param.get(0).getMessage().getTime();
-              updateRoamMsgHasMoreTag(param.get(0).getMessage());
-            }
-            onListFetchSuccess(param, QueryDirectionEnum.QUERY_OLD);
-          }
-
-          @Override
-          public void onFailed(int code) {
-            onListFetchFailed(code);
-            ALog.d(LIB_TAG, TAG, "fetchMessageRemoteOlder, fetchHistoryMessage,onFailed:" + code);
-          }
-
-          @Override
-          public void onException(@Nullable Throwable exception) {
-            onListFetchFailed(ChatConstants.ERROR_CODE_FETCH_MSG);
-            ALog.d(LIB_TAG, TAG, "fetchMessageRemoteOlder, fetchHistoryMessage,onException:");
-          }
-        });
-  }
-
-  private void fetchMessageRemoteNewer(IMMessage anchor) {
-    ALog.d(LIB_TAG, TAG, "fetchMessageRemoteNewer:" + anchor.getTime());
-    ChatRepo.fetchHistoryMessage(
-        anchor,
-        0,
-        messagePageSize,
-        QueryDirectionEnum.QUERY_NEW,
-        new FetchCallback<List<IMMessageInfo>>() {
-          @Override
-          public void onSuccess(@Nullable List<IMMessageInfo> param) {
-            ALog.d(
-                LIB_TAG,
-                TAG,
-                "fetchMessageRemoteNewer,onSuccess:" + (param == null ? "null" : param.size()));
-            // no need to update credible time, because all messages behind this
-            onListFetchSuccess(param, QueryDirectionEnum.QUERY_NEW);
-          }
-
-          @Override
-          public void onFailed(int code) {
-
-            ALog.d(LIB_TAG, TAG, "fetchMessageRemoteNewer,onFailed:" + code);
-            onListFetchFailed(code);
-          }
-
-          @Override
-          public void onException(@Nullable Throwable exception) {
-            ALog.d(LIB_TAG, TAG, "fetchMessageRemoteNewer,onException:");
-            onListFetchFailed(ChatConstants.ERROR_CODE_FETCH_MSG);
-          }
-        });
-  }
-
-  private boolean isMessageCredible(IMMessage message) {
-    ALog.d(
-        LIB_TAG,
-        TAG,
-        "isMessageCredible -->> credibleTimestamp:"
-            + credibleTimestamp
-            + " msgTime:"
-            + message.getTime());
-    return credibleTimestamp <= 0 || message.getTime() >= credibleTimestamp;
-  }
-
-  private void onListFetchSuccess(List<IMMessageInfo> param, QueryDirectionEnum direction) {
+  private void onListFetchSuccess(List<IMMessageInfo> param, GetMessageDirectionEnum direction) {
     ALog.d(
         LIB_TAG,
         TAG,
@@ -729,8 +633,8 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
         (param == null || param.size() == 0) ? LoadStatus.Finish : LoadStatus.Success;
     messageFetchResult.setLoadStatus(loadStatus);
     messageFetchResult.setData(convert(param));
-    messageFetchResult.setTypeIndex(direction == QueryDirectionEnum.QUERY_OLD ? 0 : -1);
-    messageLiveData.postValue(messageFetchResult);
+    messageFetchResult.setTypeIndex(direction == GetMessageDirectionEnum.FORWARD ? 0 : -1);
+    messageLiveData.setValue(messageFetchResult);
   }
 
   private void onListFetchFailed(int code) {
@@ -738,17 +642,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
     messageFetchResult.setError(code, R.string.chat_message_fetch_error);
     messageFetchResult.setData(null);
     messageFetchResult.setTypeIndex(-1);
-    messageLiveData.postValue(messageFetchResult);
-  }
-
-  public void queryRoamMsgHasMoreTime(FetchCallback<Long> callback) {
-    ALog.d(LIB_TAG, TAG, "queryRoamMsgHasMoreTime");
-    ChatRepo.queryRoamMsgTimestamps(mSessionId, mSessionType, callback);
-  }
-
-  public void updateRoamMsgHasMoreTag(IMMessage newTag) {
-    ALog.d(LIB_TAG, TAG, "updateRoamMsgHasMoreTag:" + (newTag == null ? "null" : newTag.getTime()));
-    ChatRepo.updateRoamMsgTimestamps(newTag);
+    messageLiveData.setValue(messageFetchResult);
   }
 
   private List<ChatMessageBean> convert(List<IMMessageInfo> messageList) {
@@ -757,6 +651,13 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
     }
     ArrayList<ChatMessageBean> result = new ArrayList<>(messageList.size());
     for (IMMessageInfo message : messageList) {
+      if (mIsTeamGroup && message.getMessage().getAttachment() instanceof NotificationAttachment) {
+        NotificationAttachment attachment =
+            (NotificationAttachment) message.getMessage().getAttachment();
+        if (attachment.getType() == NotificationType.TransferOwner) {
+          continue;
+        }
+      }
       result.add(new ChatMessageBean(message));
     }
     return result;
@@ -767,7 +668,6 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
     ALog.d(LIB_TAG, TAG, "replyMessage,message" + (message == null ? "null" : message.getUuid()));
     message.setThreadOption(replyMsg);
     message.setMsgAck();
-    //    onMessageSend(message, resend);
     ChatRepo.replyMessage(message, replyMsg, resend, null);
   }
 

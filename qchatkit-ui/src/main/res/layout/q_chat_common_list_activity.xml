@@ -34,9 +34,11 @@
             android:layout_gravity="center_horizontal"
             android:src="@drawable/ic_qchat_list_empty"/>
         <TextView android:id="@+id/common_empty_tv"
-            android:layout_width="wrap_content"
+            android:layout_width="@dimen/dimen_118_dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"/>
+            android:layout_gravity="center_horizontal"
+            android:gravity="center"
+            android:text="@string/qchat_channel_add_member_empty"/>
 
     </LinearLayout>
 

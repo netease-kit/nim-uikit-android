@@ -20,7 +20,8 @@
     <!--    server setting-->
     <string name="qchat_delete_server">Delete Server</string> 
     <string name="qchat_leave_server">Leave Server</string> 
-    <string name="qchat_roles">Role</string> 
+    <string name="qchat_roles">Role</string>
+    <string name="qchat_roles_count">Role(%s)</string>
     <string name="qchat_member">Member</string> 
     <string name="qchat_permission">Permission</string> 
     <string name="qchat_server_topic">Server Theme</string> 
@@ -65,7 +66,8 @@
 
     <!-- permission -->
     <string name="qchat_message_permission">Message Setting</string> 
-    <string name="qchat_send_message">Send Message</string> 
+    <string name="qchat_send_message">Send Message</string>
+    <string name="qchat_send">Send</string>
     <string name="qchat_send_quick_comment">Quick Reply</string> 
     <string name="qchat_thread_replay">Thread Reply</string> 
     <string name="qchat_at_permission"> Permission of \t@</string>
@@ -82,8 +84,13 @@
     <string name="qchat_kick_member">Remove Member</string> 
     <string name="qchat_forbid_other">Block Others</string> 
     <string name="qchat_change_other_nickname">Change other\'s nick name</string>
-    <string name="qchat_create_new_role_group">Create New Role</string> 
+    <string name="qchat_create_new_role_group">Create New Role</string>
 
+    <string name="qchat_permission_deny_tips">Can\'t use this function when you closed</string>
+    <string name="qchat_permission_default">Please give your permission</string>
+    <string name="qchat_permission_camera">Please give your phone camera permission</string>
+    <string name="qchat_permission_audio">Please give your phone micro permission</string>
+    <string name="qchat_permission_storage">Please give your phone storage permission</string>
     <!--server create -->
     <string name="qchat_fragment_no_server_tip">No server，let\'s join it</string>
     <string name="qchat_create_title">Server</string>
@@ -113,7 +120,8 @@
     <string name="qchat_server_request_exception">Server wrong</string> 
     <string name="qchat_network_error">No internet</string> 
     <string name="qchat_user_cancel">User cancels</string> 
-    <string name="qchat_network_error_tip">No internet。</string> 
+    <string name="qchat_network_error_tip">No internet</string>
+    <string name="qchat_server_name_empty_error">need a server name</string>
 
     <!-- channel-->
     <string name="qchat_channel_setting_title"> Channel Settings</string>
@@ -139,7 +147,8 @@
     <string name="qchat_channel_message_copy_success">copy successfully</string> 
 
     <string name="qchat_channel_name_empty_error">need a channel name</string> 
-    <string name="qchat_channel_create_error">Failed to create channel</string> 
+    <string name="qchat_channel_create_error">Failed to create channel</string>
+    <string name="qchat_channel_create_error_count_limit">Over limit</string>
     <string name="qchat_channel_fetch_error">Failed to get channel</string> 
     <string name="qchat_channel_fetch_role_error">Failed to get channel role</string> 
 
@@ -152,13 +161,14 @@
     <string name="qchat_channel_add_member_title">Add member</string> 
     <string name="qchat_channel_fetch_member_error">Failed to get channel member</string> 
     <string name="qchat_channel_add_member_error">Failed to add member</string>
+    <string name="qchat_channel_add_member_empty">No Member</string>
     <string name="qchat_member_selector_max_count">select up to 10 friends</string> 
 
     <!-- role permission-->
     <string name="qchat_role_list_title">Role</string> 
     <string name="qchat_member_list_title"> Member</string>
-    <string name="qchat_more_title">View More</string> 
-    <string name="qchat_channel_role_delete_title">Remove role</string> 
+    <string name="qchat_more_title">View More(Total %s)</string>
+    <string name="qchat_channel_role_delete_title">Remove role</string>
     <string name="qchat_channel_role_delete_content">If remove role of%s？</string> 
     <string name="qchat_channel_member_delete_title">Remove member</string> 
     <string name="qchat_channel_member_delete_content">If remover%s？</string> 
@@ -167,7 +177,8 @@
 
     <string name="qchat_channel_role_delete_error">Failed to delete role</string> 
     <string name="qchat_channel_member_delete_error">Failed to delete member</string> 
-    <string name="qchat_role_permission_title">%sPermission Setting</string> 
+    <string name="qchat_channel_member_add_error">Failed to add member</string>
+    <string name="qchat_role_permission_title">%sPermission Setting</string>
     <string name="qchat_role_permission_general_title">General Setting</string> 
     <string name="qchat_role_permission_role_member_title">Member Permission</string> 
     <string name="qchat_role_permission_channel_attr">Manage channel info</string> 
@@ -187,8 +198,8 @@
     <string name="qchat_channel_permission_history_message">View historical messages</string> 
 
 
-    <string name="qchat_channel_permission_update_error">Failed to update permission</string> 
-
+    <string name="qchat_channel_permission_update_error">Failed to update permission</string>
+    <string name="dialog_permission_tips">Please give your permission</string>
 
     <!-- member permission-->
     <string name="qchat_channel_member_permission_title">Member Permission Setting</string> 
@@ -211,5 +222,12 @@
     <!-- empty -->
     <string name="qchat_empty_text">No Content in %s</string> 
     <string name="qchat_develop_text">Unavailable</string>
+
+    <!--message -->
+    <string name="qchat_message_voice_in">Release to send</string>
+    <string name="qchat_message_camera_unavailable">camera unavailable</string>
+    <string name="qchat_pressed_to_speak">Hold to Talk</string>
+    <string name="qchat_pressed_audio_too_short">Message too short</string>
+    <string name="qchat_message_not_support_tips">[Unknown Message]</string>
 
 </resources>

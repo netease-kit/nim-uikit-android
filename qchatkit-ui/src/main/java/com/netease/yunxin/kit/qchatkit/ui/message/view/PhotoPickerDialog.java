@@ -25,12 +25,7 @@ public class PhotoPickerDialog extends Dialog {
   private static final String TAG = "PhotoChoiceDialog";
   private QChatDialogPhotoChoiceBinding binding;
   private FetchCallback<Integer> callback;
-  private final String[] permissionForCamera =
-      new String[] {
-        Manifest.permission.CAMERA,
-        Manifest.permission.READ_EXTERNAL_STORAGE,
-        Manifest.permission.WRITE_EXTERNAL_STORAGE
-      };
+  private final String[] permissionForCamera = new String[] {Manifest.permission.CAMERA};
   private final String[] permissionForAlbum =
       new String[] {
         Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE
@@ -63,8 +58,10 @@ public class PhotoPickerDialog extends Dialog {
     binding = QChatDialogPhotoChoiceBinding.inflate(getLayoutInflater());
     binding.tvTakePhoto.setOnClickListener(
         v -> {
+          FetchCallback<Integer> localCallback = callback;
+          PhotoPickerDialog.this.dismiss();
           if (PermissionUtils.checkPermission(getContext(), permissionForCamera)) {
-            callback.onSuccess(0);
+            localCallback.onSuccess(0);
             return;
           }
           PermissionUtils.requirePermissions(getContext(), permissionForCamera)
@@ -72,11 +69,12 @@ public class PhotoPickerDialog extends Dialog {
                   new PermissionUtils.PermissionCallback() {
                     @Override
                     public void onGranted(List<String> permissionsGranted) {
+                      PhotoPickerDialog.this.dismiss();
                       if (permissionsGranted.containsAll(Arrays.asList(permissionForCamera))) {
-                        callback.onSuccess(0);
+                        localCallback.onSuccess(0);
                       } else {
                         Toast.makeText(
-                                getContext(), "request permission failed", Toast.LENGTH_SHORT)
+                                getContext(), R.string.dialog_permission_tips, Toast.LENGTH_SHORT)
                             .show();
                       }
                     }
@@ -84,22 +82,27 @@ public class PhotoPickerDialog extends Dialog {
                     @Override
                     public void onDenial(
                         List<String> permissionsDenial, List<String> permissionDenialForever) {
-                      Toast.makeText(getContext(), "request permission failed", Toast.LENGTH_SHORT)
+                      PhotoPickerDialog.this.dismiss();
+                      Toast.makeText(
+                              getContext(), R.string.dialog_permission_tips, Toast.LENGTH_SHORT)
                           .show();
                     }
 
                     @Override
                     public void onException(Exception exception) {
+                      PhotoPickerDialog.this.dismiss();
                       Toast.makeText(
-                              getContext(), "request permission exception", Toast.LENGTH_SHORT)
+                              getContext(), R.string.dialog_permission_tips, Toast.LENGTH_SHORT)
                           .show();
                     }
                   });
         });
     binding.tvGetFromAlbum.setOnClickListener(
         v -> {
+          FetchCallback<Integer> localCallback = callback;
+          PhotoPickerDialog.this.dismiss();
           if (PermissionUtils.checkPermission(getContext(), permissionForAlbum)) {
-            callback.onSuccess(1);
+            localCallback.onSuccess(1);
             return;
           }
           PermissionUtils.requirePermissions(getContext(), permissionForAlbum)
@@ -108,10 +111,10 @@ public class PhotoPickerDialog extends Dialog {
                     @Override
                     public void onGranted(List<String> permissionsGranted) {
                       if (permissionsGranted.containsAll(Arrays.asList(permissionForAlbum))) {
-                        callback.onSuccess(1);
+                        localCallback.onSuccess(1);
                       } else {
                         Toast.makeText(
-                                getContext(), "request permission failed", Toast.LENGTH_SHORT)
+                                getContext(), R.string.dialog_permission_tips, Toast.LENGTH_SHORT)
                             .show();
                       }
                     }
@@ -119,13 +122,15 @@ public class PhotoPickerDialog extends Dialog {
                     @Override
                     public void onDenial(
                         List<String> permissionsDenial, List<String> permissionDenialForever) {
-                      Toast.makeText(getContext(), "request permission failed", Toast.LENGTH_SHORT)
+                      Toast.makeText(
+                              getContext(), R.string.dialog_permission_tips, Toast.LENGTH_SHORT)
                           .show();
                     }
 
                     @Override
                     public void onException(Exception exception) {
-                      Toast.makeText(getContext(), "request permission failed", Toast.LENGTH_SHORT)
+                      Toast.makeText(
+                              getContext(), R.string.dialog_permission_tips, Toast.LENGTH_SHORT)
                           .show();
                     }
                   });

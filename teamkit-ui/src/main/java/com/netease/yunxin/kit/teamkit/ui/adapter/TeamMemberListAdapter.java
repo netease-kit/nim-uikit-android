@@ -17,7 +17,7 @@ import com.netease.yunxin.kit.corekit.route.XKitRouter;
 import com.netease.yunxin.kit.teamkit.model.UserInfoWithTeam;
 import com.netease.yunxin.kit.teamkit.ui.databinding.TeamMemberListItemBinding;
 import com.netease.yunxin.kit.teamkit.ui.utils.ColorUtils;
-import com.netease.yunxin.kit.teamkit.utils.FilterUtils;
+import com.netease.yunxin.kit.teamkit.ui.utils.FilterUtils;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -26,11 +26,16 @@ public class TeamMemberListAdapter
     extends TeamCommonAdapter<UserInfoWithTeam, TeamMemberListItemBinding> {
   private final TeamTypeEnum teamTypeEnum;
   private List<UserInfoWithTeam> backupTotalData;
+  private boolean showGroupIdentify = false;
 
   public TeamMemberListAdapter(
       Context context, TeamTypeEnum teamTypeEnum, Class<TeamMemberListItemBinding> viewBinding) {
     super(context, viewBinding);
     this.teamTypeEnum = teamTypeEnum;
+  }
+
+  public void setGroupIdentify(boolean identify) {
+    showGroupIdentify = identify;
   }
 
   @Override
@@ -40,7 +45,8 @@ public class TeamMemberListAdapter
       UserInfoWithTeam data,
       int bingingAdapterPosition) {
     binding.tvUserName.setText(data.getName());
-    if (data.getTeamInfo().getType() == TeamMemberType.Owner
+    if (!showGroupIdentify
+        && data.getTeamInfo().getType() == TeamMemberType.Owner
         && teamTypeEnum == TeamTypeEnum.Advanced) {
       binding.tvIdentify.setVisibility(View.VISIBLE);
     } else {

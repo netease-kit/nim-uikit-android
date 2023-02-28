@@ -63,6 +63,17 @@ public final class QChatServerListViewModel extends BaseViewModel {
   private final MutableLiveData<List<Long>> unreadInfoResult = new MutableLiveData<>();
 
   private final MutableLiveData<Pair<Integer, Long>> onRefreshResult = new MutableLiveData<>();
+
+  private final EventObserver<QChatUnreadInfoChangedEventInfo> unreadInfoChangedEventObserver =
+      new EventObserver<QChatUnreadInfoChangedEventInfo>() {
+        @Override
+        public void onEvent(@Nullable QChatUnreadInfoChangedEventInfo event) {
+          if (event != null) {
+            unreadInfoResult.setValue(
+                ObserverUnreadInfoResultHelper.appendUnreadInfoList(event.getUnreadInfos()));
+          }
+        }
+      };
   /** the receiver of system notification. */
   private final EventObserver<List<QChatSystemNotificationInfo>> notificationObserver =
       new EventObserver<List<QChatSystemNotificationInfo>>() {
@@ -91,7 +102,7 @@ public final class QChatServerListViewModel extends BaseViewModel {
                 QChatUnreadInfoSubscriberHelper.fetchServerUnreadInfoCount(
                     new QChatServerInfo(item.getServerId()),
                     result ->
-                        unreadInfoResult.postValue(Collections.singletonList(item.getServerId())));
+                        unreadInfoResult.setValue(Collections.singletonList(item.getServerId())));
               }
               break;
             } else {
@@ -101,28 +112,28 @@ public final class QChatServerListViewModel extends BaseViewModel {
                       && (item.getToAccIds() != null
                           && item.getToAccIds().contains(currentAccount)))) {
                 // in the branch, the server list will remove one.
-                onRefreshResult.postValue(new Pair<>(TYPE_SERVER_REMOVE, item.getServerId()));
+                onRefreshResult.setValue(new Pair<>(TYPE_SERVER_REMOVE, item.getServerId()));
               } else if (type == ServerUpdate.INSTANCE) {
                 // in the branch, the serverInfo was changed, to get the server info from sdk again.
-                onRefreshResult.postValue(new Pair<>(TYPE_SERVER_UPDATE, item.getServerId()));
+                onRefreshResult.setValue(new Pair<>(TYPE_SERVER_UPDATE, item.getServerId()));
                 if (item.getServerId() != null) {
                   QChatServerRepo.fetchServerInfoById(
                       item.getServerId(),
                       new FetchCallback<QChatServerInfo>() {
                         @Override
                         public void onSuccess(@Nullable QChatServerInfo param) {
-                          updateItemResult.postValue(new ResultInfo<>(param));
+                          updateItemResult.setValue(new ResultInfo<>(param));
                         }
 
                         @Override
                         public void onFailed(int code) {
-                          updateItemResult.postValue(
+                          updateItemResult.setValue(
                               new ResultInfo<>(null, false, new ErrorMsg(code)));
                         }
 
                         @Override
                         public void onException(@Nullable Throwable exception) {
-                          updateItemResult.postValue(
+                          updateItemResult.setValue(
                               new ResultInfo<>(
                                   null,
                                   false,
@@ -132,7 +143,7 @@ public final class QChatServerListViewModel extends BaseViewModel {
                 }
               } else if (type == ServerCreate.INSTANCE) {
                 // current the server create one.
-                onRefreshResult.postValue(new Pair<>(TYPE_SERVER_CREATE, item.getServerId()));
+                onRefreshResult.setValue(new Pair<>(TYPE_SERVER_CREATE, item.getServerId()));
               } else {
                 if (item.getChannelId() != null && item.getServerId() != null) {
                   ObserverUnreadInfoResultHelper.clear(item.getServerId(), item.getChannelId());
@@ -143,21 +154,21 @@ public final class QChatServerListViewModel extends BaseViewModel {
                         @Override
                         public void onSuccess(@Nullable List<QChatUnreadInfoItem> param) {
                           ObserverUnreadInfoResultHelper.appendUnreadInfoList(param);
-                          unreadInfoResult.postValue(Collections.singletonList(item.getServerId()));
+                          unreadInfoResult.setValue(Collections.singletonList(item.getServerId()));
                         }
 
                         @Override
                         public void onFailed(int code) {
-                          unreadInfoResult.postValue(Collections.singletonList(item.getServerId()));
+                          unreadInfoResult.setValue(Collections.singletonList(item.getServerId()));
                         }
 
                         @Override
                         public void onException(@Nullable Throwable exception) {
-                          unreadInfoResult.postValue(Collections.singletonList(item.getServerId()));
+                          unreadInfoResult.setValue(Collections.singletonList(item.getServerId()));
                         }
                       });
                 }
-                onRefreshResult.postValue(new Pair<>(TYPE_REFRESH_CHANNEL, item.getServerId()));
+                onRefreshResult.setValue(new Pair<>(TYPE_REFRESH_CHANNEL, item.getServerId()));
               }
             }
           }
@@ -184,17 +195,7 @@ public final class QChatServerListViewModel extends BaseViewModel {
             ServerMemberKick.INSTANCE,
             ServerMemberLeave.INSTANCE));
     // observer unread notification to update unread info.
-    QChatServiceObserverRepo.observeUnreadInfoChanged(
-        new EventObserver<QChatUnreadInfoChangedEventInfo>() {
-          @Override
-          public void onEvent(@Nullable QChatUnreadInfoChangedEventInfo event) {
-            if (event != null) {
-              unreadInfoResult.postValue(
-                  ObserverUnreadInfoResultHelper.appendUnreadInfoList(event.getUnreadInfos()));
-            }
-          }
-        },
-        true);
+    QChatServiceObserverRepo.observeUnreadInfoChanged(unreadInfoChangedEventObserver, true);
   }
 
   public MutableLiveData<ResultInfo<List<QChatServerInfo>>> getLoadMoreResult() {
@@ -236,16 +237,16 @@ public final class QChatServerListViewModel extends BaseViewModel {
         new FetchCallback<List<QChatServerInfo>>() {
           @Override
           public void onSuccess(@Nullable List<QChatServerInfo> param) {
-            result.postValue(new ResultInfo<>(param));
+            result.setValue(new ResultInfo<>(param));
           }
 
           public void onFailed(int code) {
-            result.postValue(new ResultInfo<>(null, false, new ErrorMsg(code)));
+            result.setValue(new ResultInfo<>(null, false, new ErrorMsg(code)));
           }
 
           @Override
           public void onException(@Nullable Throwable exception) {
-            result.postValue(
+            result.setValue(
                 new ResultInfo<>(
                     null,
                     false,
@@ -258,5 +259,6 @@ public final class QChatServerListViewModel extends BaseViewModel {
   protected void onCleared() {
     super.onCleared();
     QChatServiceObserverRepo.observerSystemNotification(notificationObserver, false);
+    QChatServiceObserverRepo.observeUnreadInfoChanged(unreadInfoChangedEventObserver, false);
   }
 }

@@ -31,7 +31,7 @@ public class QChatRoleListActivity extends CommonActivity {
 
   private QChatServerInfo serverInfo;
 
-  private static final int PAGE_SIZE = 20;
+  private static final int PAGE_SIZE = 100;
 
   private QChatServerRolesAdapter rolesAdapter;
 
@@ -110,6 +110,8 @@ public class QChatRoleListActivity extends CommonActivity {
                 rolesAdapter.refresh(roleInfoList);
                 if (!roleInfoList.isEmpty()) {
                   binding.rlyRoleTitle.setVisibility(View.VISIBLE);
+                  binding.tvRoleCount.setText(
+                      getString(R.string.qchat_roles_count, roleInfoList.size()));
                 } else {
                   binding.rlyRoleTitle.setVisibility(View.GONE);
                 }
@@ -118,6 +120,18 @@ public class QChatRoleListActivity extends CommonActivity {
               }
             }
             super.onSuccess(param);
+          }
+
+          @Override
+          public void onFailed(int code) {
+            super.onFailed(code);
+            binding.tvRoleCount.setText(getString(R.string.qchat_roles_count, 0));
+          }
+
+          @Override
+          public void onException(@Nullable Throwable exception) {
+            super.onException(exception);
+            binding.tvRoleCount.setText(getString(R.string.qchat_roles_count, 0));
           }
         });
   }

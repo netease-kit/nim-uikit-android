@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2022 NetEase, Inc. All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be
+  ~ found in the LICENSE file.
+  -->
+
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:ignore="MissingDefaultResource">
+
+    <ImageView android:id="@+id/about_logo_iv"
+        android:layout_width="@dimen/dimen_46_dp"
+        android:layout_height="@dimen/dimen_46_dp"
+        android:src="@drawable/ic_yunxin"
+        tools:ignore="MissingConstraints"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="@dimen/dimen_46_dp"/>
+
+    <TextView android:id="@+id/about_app_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/text_size_24"
+        android:textColor="@color/color_333333"
+        android:text="@string/yunxin_name"
+        app:layout_constraintTop_toBottomOf="@id/about_logo_iv"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+
+    <LinearLayout android:id="@+id/llUserInfo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/rectangle_white_reduce_bg"
+        android:layout_marginRight="@dimen/dimen_20_dp"
+        android:layout_marginLeft="@dimen/dimen_20_dp"
+        android:layout_marginTop="@dimen/dimen_16_dp"
+        android:orientation="vertical"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/about_app_tv"
+        tools:ignore="SpUsage">
+
+        <FrameLayout android:id="@+id/flVersion"
+            android:layout_width="match_parent"
+            android:layout_height="46dp">
+
+            <TextView
+                android:id="@+id/tvVersionTip"
+                android:layout_width="wrap_content"
+                android:layout_height="46dp"
+                android:gravity="center"
+                android:text="@string/mine_version"
+                android:textColor="@color/color_333333"
+                android:textSize="16dp" />
+
+            <TextView
+                android:id="@+id/tvVersion"
+                android:layout_width="wrap_content"
+                android:layout_height="46dp"
+                android:gravity="end|center_vertical"
+                android:singleLine="true"
+                android:textColor="@color/color_333333"
+                android:textSize="@dimen/text_size_14"
+                android:layout_gravity="end|center_vertical"/>
+
+        </FrameLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="20dp"
+            android:background="@color/color_f5f8fc"/>
+
+        <FrameLayout android:id="@+id/flProduct"
+            android:layout_width="match_parent"
+            android:layout_height="46dp">
+
+            <TextView
+                android:id="@+id/tvProductTip"
+                android:layout_width="wrap_content"
+                android:layout_height="46dp"
+                android:gravity="center"
+                android:text="@string/mine_product"
+                android:textColor="@color/color_333333"
+                android:textSize="16dp"
+                tools:ignore="SpUsage" />
+
+            <TextView
+                android:id="@+id/tvProduct"
+                android:layout_width="wrap_content"
+                android:layout_height="46dp"
+                android:layout_marginEnd="12dp"
+                android:gravity="end|center_vertical"
+                android:singleLine="true"
+                android:textColor="@color/color_a6adb6"
+                android:textSize="12dp"
+                android:layout_marginStart="@dimen/dimen_50_dp"
+                android:layout_gravity="end|center_vertical"/>
+
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:src="@drawable/ic_frame_mine_right_arrow"
+                android:layout_gravity="end|center_vertical"/>
+        </FrameLayout>
+
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

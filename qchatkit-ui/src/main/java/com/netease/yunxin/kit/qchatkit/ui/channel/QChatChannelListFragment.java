@@ -4,13 +4,18 @@
 
 package com.netease.yunxin.kit.qchatkit.ui.channel;
 
+import static android.app.Activity.RESULT_OK;
+
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -28,6 +33,7 @@ import com.netease.yunxin.kit.qchatkit.ui.channel.adapter.QChatFragmentChannelAd
 import com.netease.yunxin.kit.qchatkit.ui.common.LoadMoreRecyclerViewDecorator;
 import com.netease.yunxin.kit.qchatkit.ui.databinding.QChatFragmentChannelListBinding;
 import com.netease.yunxin.kit.qchatkit.ui.message.QChatChannelMessageActivity;
+import com.netease.yunxin.kit.qchatkit.ui.model.QChatConstant;
 import com.netease.yunxin.kit.qchatkit.ui.server.QChatServerSettingActivity;
 import java.util.Collections;
 import java.util.List;
@@ -40,6 +46,7 @@ public class QChatChannelListFragment extends BaseFragment {
 
   private QChatFragmentChannelListBinding binding;
   private QChatFragmentChannelAdapter adapter;
+  private ActivityResultLauncher<Intent> launcher;
 
   private final NetworkUtils.NetworkStateListener networkStateListener =
       new NetworkUtils.NetworkStateListener() {
@@ -85,9 +92,32 @@ public class QChatChannelListFragment extends BaseFragment {
     binding.ryChannelList.setLayoutManager(layoutManager);
     binding.ivMore.setOnClickListener(
         v -> QChatServerSettingActivity.launch(this.getActivity(), serverInfo));
-
+    launcher =
+        registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+              Intent data = result.getData();
+              if (result.getResultCode() != RESULT_OK || data == null) {
+                return;
+              }
+              Long channelId = data.getLongExtra(QChatConstant.CHANNEL_ID, -1);
+              String channelName = data.getStringExtra(QChatConstant.CHANNEL_NAME);
+              String channelTopic = data.getStringExtra(QChatConstant.CHANNEL_TOPIC);
+              if (channelId > 0) {
+                QChatChannelMessageActivity.launch(
+                    this.getActivity(),
+                    serverInfo.getServerId(),
+                    channelId,
+                    channelName,
+                    channelTopic);
+              }
+            });
     binding.ivAddChannel.setOnClickListener(
-        v -> QChatChannelCreateActivity.launch(this.getActivity(), serverInfo.getServerId()));
+        v -> {
+          Intent intent = new Intent(this.getActivity(), QChatChannelCreateActivity.class);
+          intent.putExtra(QChatConstant.SERVER_ID, serverInfo.getServerId());
+          launcher.launch(intent);
+        });
 
     LoadMoreRecyclerViewDecorator<QChatChannelInfo> loadMoreRecyclerViewDecorator =
         new LoadMoreRecyclerViewDecorator<>(binding.ryChannelList, layoutManager, adapter);

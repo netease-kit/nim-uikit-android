@@ -10,6 +10,9 @@ import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.PATH_TEAM_S
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.View;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
@@ -22,6 +25,7 @@ import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.page.viewmodel.ChatTeamViewModel;
 import com.netease.yunxin.kit.chatkit.ui.view.ait.AitManager;
 import com.netease.yunxin.kit.corekit.im.IMKitClient;
+import com.netease.yunxin.kit.corekit.im.utils.IMKitConstant;
 import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 import java.util.ArrayList;
@@ -31,7 +35,6 @@ import java.util.List;
 public class ChatTeamFragment extends ChatBaseFragment {
   private static final String TAG = "ChatTeamFragment";
   Team teamInfo;
-  String teamId;
   IMMessage anchorMessage;
 
   @Override
@@ -39,13 +42,13 @@ public class ChatTeamFragment extends ChatBaseFragment {
     ALog.i(TAG, "initData");
     sessionType = SessionTypeEnum.Team;
     teamInfo = (Team) bundle.getSerializable(RouterConstant.CHAT_KRY);
-    teamId = (String) bundle.getSerializable(RouterConstant.CHAT_ID_KRY);
-    if (teamInfo == null && TextUtils.isEmpty(teamId)) {
+    sessionID = (String) bundle.getSerializable(RouterConstant.CHAT_ID_KRY);
+    if (teamInfo == null && TextUtils.isEmpty(sessionID)) {
       getActivity().finish();
       return;
     }
-    if (TextUtils.isEmpty(teamId)) {
-      teamId = teamInfo.getId();
+    if (TextUtils.isEmpty(sessionID)) {
+      sessionID = teamInfo.getId();
     }
     anchorMessage = (IMMessage) bundle.getSerializable(RouterConstant.KEY_MESSAGE);
     binding
@@ -58,11 +61,11 @@ public class ChatTeamFragment extends ChatBaseFragment {
               //go to team setting
               XKitRouter.withKey(PATH_TEAM_SETTING_PAGE)
                   .withContext(requireContext())
-                  .withParam(KEY_TEAM_ID, teamId)
+                  .withParam(KEY_TEAM_ID, sessionID)
                   .navigate();
             });
 
-    aitManager = new AitManager(getContext(), teamId);
+    aitManager = new AitManager(getContext(), sessionID);
     binding.chatView.setAitManager(aitManager);
     refreshView();
   }
@@ -82,13 +85,24 @@ public class ChatTeamFragment extends ChatBaseFragment {
   protected void initViewModel() {
     ALog.i(TAG, "initViewModel");
     viewModel = new ViewModelProvider(this).get(ChatTeamViewModel.class);
-    viewModel.init(teamId, SessionTypeEnum.Team);
+    viewModel.init(sessionID, SessionTypeEnum.Team);
     //fetch history message
     viewModel.initFetch(anchorMessage);
     // query team info
-    ((ChatTeamViewModel) viewModel).requestTeamInfo(teamId);
+    ((ChatTeamViewModel) viewModel).requestTeamInfo(sessionID);
     // init team members
-    ((ChatTeamViewModel) viewModel).requestTeamMembers(teamId);
+    ((ChatTeamViewModel) viewModel).requestTeamMembers(sessionID);
+  }
+
+  @Override
+  public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+    super.onViewCreated(view, savedInstanceState);
+    if (chatConfig != null && chatConfig.chatListener != null) {
+      chatConfig.chatListener.onSessionChange(sessionID, sessionType);
+    }
+    if (chatConfig != null && chatConfig.messageProperties != null) {
+      viewModel.setShowReadStatus(chatConfig.messageProperties.showTeamMessageStatus);
+    }
   }
 
   @Override
@@ -116,7 +130,9 @@ public class ChatTeamFragment extends ChatBaseFragment {
                 }
                 if (msg == null) {
                   msg = binding.chatView.getMessageListView().searchMessage(msgId);
-                  messageList.add(msg);
+                  if (msg != null) {
+                    messageList.add(msg);
+                  }
                 }
               }
               for (ChatMessageBean message : messageList) {
@@ -134,9 +150,17 @@ public class ChatTeamFragment extends ChatBaseFragment {
                 if (!team.isMyTeam()) {
                   requireActivity().finish();
                 }
+                if (!TextUtils.isEmpty(team.getExtension())
+                    && team.getExtension().contains(IMKitConstant.TEAM_GROUP_TAG)) {
+                  viewModel.setTeamGroup(true);
+                }
                 refreshView();
               }
             });
+
+    ((ChatTeamViewModel) viewModel)
+        .getTeamRemoveLiveData()
+        .observe(getViewLifecycleOwner(), team -> this.getActivity().finish());
 
     ((ChatTeamViewModel) viewModel)
         .getUserInfoData()

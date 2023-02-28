@@ -52,11 +52,17 @@ public class WatchImageActivity extends BaseActivity {
     String path = ((ImageAttachment) sMessage.getAttachment()).getPath();
     String url = ((ImageAttachment) sMessage.getAttachment()).getUrl();
     if (!TextUtils.isEmpty(path)) {
-      Glide.with(this).load(new File(path)).into(viewBiding.simpleImageView);
+      Glide.with(this)
+          .load(new File(path))
+          .placeholder(R.drawable.bg_image_loading_qchat)
+          .into(viewBiding.simpleImageView);
       return;
     }
     if (!TextUtils.isEmpty(url)) {
-      Glide.with(this).load(url).into(viewBiding.simpleImageView);
+      Glide.with(this)
+          .load(url)
+          .placeholder(R.drawable.bg_image_loading_qchat)
+          .into(viewBiding.simpleImageView);
     }
   }
 }

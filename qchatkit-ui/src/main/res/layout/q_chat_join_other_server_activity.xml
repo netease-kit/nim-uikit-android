@@ -54,7 +54,7 @@
         android:hint="@string/qchat_search_tip"
         android:imeOptions="actionSearch"
         android:inputType="number"
-        android:maxLength="50"
+        android:maxLength="20"
         android:paddingStart="16dp"
         android:paddingEnd="35dp"
         android:singleLine="true"

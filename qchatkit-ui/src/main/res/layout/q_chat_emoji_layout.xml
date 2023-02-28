@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2022 NetEase, Inc. All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be
+  ~ found in the LICENSE file.
+  -->
+
+<LinearLayout android:id="@+id/emojiLayout"
+              xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:background="@android:color/white"
+              android:orientation="vertical"
+              android:visibility="visible">
+
+    <View
+        android:id="@+id/top_divider_line"
+        android:layout_height="2px"
+        android:layout_width="match_parent"
+        android:background="@color/color_d9d9d9"
+        android:visibility="gone"/>
+
+    <androidx.viewpager.widget.ViewPager
+        android:id="@+id/scrPlugin"
+        android:layout_width="fill_parent"
+        android:layout_height="152dp"
+        android:layout_marginBottom="4dp"
+        android:layout_marginTop="4dp"
+        android:overScrollMode="never"
+        android:scrollbars="none"/>
+
+    <LinearLayout
+        android:id="@+id/layout_scr_bottom"
+        android:layout_width="fill_parent"
+        android:layout_height="8dp"
+        android:layout_marginBottom="4dp"
+        android:gravity="center"
+        android:orientation="horizontal"></LinearLayout>
+
+    <View style="@style/qchat_horizontal_light_thin_divider"/>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="@dimen/dimen_42_dp"
+        android:orientation="horizontal">
+
+        <HorizontalScrollView
+            android:id="@+id/emoj_tab_view_container"
+            android:layout_width="0dip"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@android:color/white"
+            android:scrollbars="none">
+
+            <LinearLayout
+                android:id="@+id/emoji_tab_view"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
+            </LinearLayout>
+        </HorizontalScrollView>
+        <TextView android:id="@+id/emoji_send_tv"
+            android:layout_width="@dimen/dimen_70_dp"
+            android:layout_height="@dimen/dimen_42_dp"
+            android:background="@color/color_337eff"
+            android:text="@string/qchat_send"
+            android:textColor="@color/color_white"
+            android:layout_gravity="center_vertical"
+            android:gravity="center"/>
+    </LinearLayout>
+
+</LinearLayout>

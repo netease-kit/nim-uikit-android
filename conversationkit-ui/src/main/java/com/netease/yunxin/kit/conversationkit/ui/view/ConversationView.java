@@ -60,7 +60,7 @@ public class ConversationView extends FrameLayout {
         new FrameLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
     LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
-    adapter = new ConversationAdapter();
+    adapter = new ConversationAdapter(layoutManager);
     recyclerView.setLayoutManager(layoutManager);
     recyclerView.setAdapter(adapter);
     recyclerView.addOnScrollListener(
@@ -166,6 +166,13 @@ public class ConversationView extends FrameLayout {
     }
   }
 
+  public int getDataSize() {
+    if (adapter != null) {
+      return adapter.getItemCount();
+    }
+    return 0;
+  }
+
   public void removeConversation(String id) {
     if (adapter != null) {
       adapter.removeData(id);
@@ -181,6 +188,12 @@ public class ConversationView extends FrameLayout {
   public void removeStickTop(String id) {
     if (adapter != null) {
       adapter.removeStickTop(id);
+    }
+  }
+
+  public void setShowTag(boolean show) {
+    if (adapter != null) {
+      adapter.setShowTag(show);
     }
   }
 }

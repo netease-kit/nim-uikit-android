@@ -158,7 +158,7 @@ public class QChatMemberSelectorActivity extends CommonActivity {
           @Override
           public void onSuccess(@Nullable QChatPageResult<QChatServerRoleMemberInfo> param) {
             if (param != null) {
-              if (param.getDataList() != null) {
+              if (param.getDataList() != null && param.getDataList().size() > 0) {
                 List<QChatServerRoleMemberInfo> memberList = new ArrayList<>(param.getDataList());
                 if (filterList != null && !filterList.isEmpty()) {
                   for (QChatServerRoleMemberInfo member : param.getDataList()) {
@@ -169,8 +169,13 @@ public class QChatMemberSelectorActivity extends CommonActivity {
                 }
                 if (timeTag == 0) {
                   memberAdapter.refresh(memberList);
+                  binding.emptyLayout.setVisibility(View.GONE);
                 } else {
                   memberAdapter.append(memberList);
+                }
+              } else {
+                if (timeTag == 0) {
+                  binding.emptyLayout.setVisibility(View.VISIBLE);
                 }
               }
               decorator.setHasMore(param.getHasMore());

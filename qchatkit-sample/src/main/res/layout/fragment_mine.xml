@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (c) 2022 NetEase, Inc. All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be
+  ~ found in the LICENSE file.
+  -->
+
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.netease.yunxin.kit.common.ui.widgets.ContactAvatarView
+        android:id="@+id/cavIcon"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="46dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/ivRightArrow"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:layout_marginEnd="36dp"
+        android:src="@drawable/ic_frame_mine_right_arrow"
+        app:layout_constraintBottom_toBottomOf="@id/cavIcon"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/cavIcon" />
+
+    <TextView
+        android:id="@+id/tvName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:gravity="start"
+        android:singleLine="true"
+        android:textColor="@color/color_333333"
+        android:textSize="22dp"
+        app:layout_constraintEnd_toStartOf="@id/ivRightArrow"
+        app:layout_constraintStart_toEndOf="@id/cavIcon"
+        app:layout_constraintTop_toTopOf="@id/cavIcon"
+        tools:ignore="SpUsage" />
+
+    <TextView
+        android:id="@+id/tvAccount"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:gravity="start"
+        android:singleLine="true"
+        android:textColor="@color/color_333333"
+        android:textSize="16dp"
+        app:layout_constraintEnd_toStartOf="@id/ivRightArrow"
+        app:layout_constraintStart_toEndOf="@id/cavIcon"
+        app:layout_constraintTop_toBottomOf="@id/tvName"
+        tools:ignore="SpUsage" />
+
+    <View
+        android:id="@+id/userInfoClick"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="@id/cavIcon"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/cavIcon"
+        app:layout_constraintTop_toTopOf="@id/cavIcon" />
+
+    <View
+        android:id="@+id/divideForBasic"
+        android:layout_width="0dp"
+        android:layout_height="6dp"
+        android:layout_marginTop="47dp"
+        android:background="@color/color_eff1f4"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/cavIcon" />
+
+    <LinearLayout
+        android:id="@+id/collect_ll"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/divideForBasic"
+        android:visibility="gone"
+        tools:ignore="SpUsage">
+
+
+        <TextView
+            android:id="@+id/collect_tv"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dimen_46_dp"
+            android:layout_marginLeft="@dimen/dimen_20_dp"
+            android:layout_marginRight="@dimen/dimen_20_dp"
+            android:drawablePadding="@dimen/dimen_12_dp"
+            android:gravity="center_vertical"
+            android:text="@string/mine_collect"
+            android:textColor="@color/color_333333"
+            app:drawableLeftCompat="@drawable/ic_collect"
+            app:drawableRightCompat="@drawable/ic_frame_mine_right_arrow"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/divideForBasic" />
+
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:id="@+id/setting_ll"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/collect_ll"
+        tools:ignore="SpUsage">
+
+
+        <TextView
+            android:id="@+id/setting_tv"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dimen_46_dp"
+            android:layout_marginLeft="@dimen/dimen_20_dp"
+            android:layout_marginRight="@dimen/dimen_20_dp"
+            android:drawablePadding="@dimen/dimen_12_dp"
+            android:gravity="center_vertical"
+            android:text="@string/mine_setting"
+            android:textColor="@color/color_333333"
+            app:drawableLeftCompat="@drawable/ic_user_setting"
+            app:drawableRightCompat="@drawable/ic_frame_mine_right_arrow"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/divideForBasic" />
+
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/about_ll"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/setting_ll"
+        tools:ignore="SpUsage">
+
+
+        <TextView
+            android:id="@+id/about_tv"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dimen_46_dp"
+            android:layout_marginLeft="@dimen/dimen_20_dp"
+            android:layout_marginRight="@dimen/dimen_20_dp"
+            android:drawablePadding="@dimen/dimen_12_dp"
+            android:gravity="center_vertical"
+            android:text="@string/mine_about"
+            android:textColor="@color/color_333333"
+            app:drawableLeftCompat="@drawable/ic_about"
+            app:drawableRightCompat="@drawable/ic_frame_mine_right_arrow"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/divideForBasic" />
+
+    </LinearLayout>
+    
+</androidx.constraintlayout.widget.ConstraintLayout>

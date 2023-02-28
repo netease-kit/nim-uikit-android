@@ -88,6 +88,12 @@ public class ConversationFragment extends BaseFragment implements ILoadListener 
               } else if (result.getLoadStatus() == LoadStatus.Finish) {
                 viewBinding.conversationViewLayout.getConversationView().addData(result.getData());
               }
+
+              if (viewBinding.conversationViewLayout.getConversationView().getDataSize() > 0) {
+                viewBinding.conversationViewLayout.setEmptyViewVisible(View.GONE);
+              } else {
+                viewBinding.conversationViewLayout.setEmptyViewVisible(View.VISIBLE);
+              }
               doCallback();
             });
     initObserver();
@@ -206,6 +212,7 @@ public class ConversationFragment extends BaseFragment implements ILoadListener 
               ContentListPopView contentListPopView =
                   new ContentListPopView.Builder(context)
                       .addItem(PopItemFactory.getAddFriendItem(context))
+                      .addItem(PopItemFactory.getCreateGroupTeamItem(context))
                       .addItem(PopItemFactory.getCreateAdvancedTeamItem(context))
                       .build();
               contentListPopView.showAsDropDown(
@@ -331,6 +338,11 @@ public class ConversationFragment extends BaseFragment implements ILoadListener 
               viewBinding.conversationViewLayout.getConversationView().remove(result.getData());
             }
           }
+          if (viewBinding.conversationViewLayout.getConversationView().getDataSize() > 0) {
+            viewBinding.conversationViewLayout.setEmptyViewVisible(View.GONE);
+          } else {
+            viewBinding.conversationViewLayout.setEmptyViewVisible(View.VISIBLE);
+          }
           doCallback();
         };
 
@@ -407,7 +419,20 @@ public class ConversationFragment extends BaseFragment implements ILoadListener 
         };
   }
 
+  @Override
+  public void onStop() {
+    super.onStop();
+    viewBinding.conversationViewLayout.getConversationView().setShowTag(false);
+  }
+
+  @Override
+  public void onStart() {
+    super.onStart();
+    viewBinding.conversationViewLayout.getConversationView().setShowTag(true);
+  }
+
   private void registerObserver() {
+    viewModel.getAddRemoveStickLiveData().observeForever(addRemoveStickObserver);
     viewModel.getChangeLiveData().observeForever(changeObserver);
     viewModel.getStickLiveData().observeForever(stickObserver);
     viewModel.getUserInfoLiveData().observeForever(userInfoObserver);

@@ -41,4 +41,7 @@
 
     <string name="team_request_fail">Failed</string>
     <string name="team_network_error">No internet</string>
+
+    <string name="group_team">Temp Group</string>
+    <string name="advanced_team">Group</string>
 </resources>

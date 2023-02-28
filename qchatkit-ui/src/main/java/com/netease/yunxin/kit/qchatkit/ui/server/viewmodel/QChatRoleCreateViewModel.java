@@ -55,6 +55,10 @@ public class QChatRoleCreateViewModel extends BaseViewModel {
     selectedUsers.addAll(member);
   }
 
+  public void deleteSelectMember(String member) {
+    selectedUsers.remove(member);
+  }
+
   public Set<String> getSelectedUsers() {
     return selectedUsers;
   }

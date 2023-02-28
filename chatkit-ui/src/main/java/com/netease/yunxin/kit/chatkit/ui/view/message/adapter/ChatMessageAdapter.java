@@ -4,7 +4,6 @@
 
 package com.netease.yunxin.kit.chatkit.ui.view.message.adapter;
 
-import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
 import static com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants.PAYLOAD_PROGRESS;
 import static com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants.PAYLOAD_REVOKE;
 import static com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants.PAYLOAD_SIGNAL;
@@ -18,7 +17,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.netease.nimlib.sdk.msg.model.AttachmentProgress;
 import com.netease.nimlib.sdk.msg.model.MsgPinOption;
 import com.netease.nimlib.sdk.team.model.Team;
-import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.ui.ChatDefaultFactory;
 import com.netease.yunxin.kit.chatkit.ui.IChatFactory;
@@ -47,8 +45,6 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatBaseMessageView
   private IMessageReader messageReader;
 
   private MessageProperties messageProperties;
-
-  private boolean showReadStatus = true;
 
   public ChatMessageAdapter() {
     viewHolderFactory = ChatDefaultFactory.getInstance();
@@ -90,7 +86,6 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatBaseMessageView
     holder.setItemClickListener(itemClickListener);
     holder.setMessageReader(messageReader);
     holder.setProperties(messageProperties);
-    holder.setShowReadStatus(showReadStatus);
     holder.bindData(data, lastMessage);
   }
 
@@ -107,10 +102,6 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatBaseMessageView
 
   public void setMessageReader(IMessageReader messageReader) {
     this.messageReader = messageReader;
-  }
-
-  public void setShowReadStatus(boolean show) {
-    this.showReadStatus = show;
   }
 
   @Override
@@ -191,15 +182,13 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatBaseMessageView
       }
       messageBean.progress = progress.getTransferred();
       messageBean.setLoadProgress(pg);
-      if (pg >= 100) {
-        ALog.d(LIB_TAG, "ChatFileViewHolder", "progress=" + pg);
-      }
-      ALog.d(LIB_TAG, "ChatFileViewHolder", "progress=" + pg + "message:" + messageBean.hashCode());
       updateMessage(messageBean, PAYLOAD_PROGRESS);
     }
   }
 
-  public void updateMessageStatus(ChatMessageBean message) {
+  public void updateMessageStatus(
+      ChatMessageBean message, AdapterProcessCallback<Boolean> callback) {
+    boolean process;
     int index = getMessageIndex(message);
     if (index >= 0 && index < messageList.size()) {
       ChatMessageBean origin = messageList.get(index);
@@ -208,6 +197,15 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatBaseMessageView
           .getMessage()
           .setStatus(message.getMessageData().getMessage().getStatus());
       updateMessage(origin, PAYLOAD_STATUS);
+      process = false;
+    } else {
+      //音视频消息，服务端消息抄送下发到发送方，
+      // 通过msgStatusObserver所以在状态变更也需要把不存在的消息添加到列表中
+      appendMessage(message);
+      process = true;
+    }
+    if (callback != null) {
+      callback.onProcess(process);
     }
   }
 
@@ -264,7 +262,6 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatBaseMessageView
 
   public void updateMessage(ChatMessageBean message, Object payload) {
     int pos = getMessageIndex(message);
-    ALog.d(LIB_TAG, "ChatFileViewHolder", "updateMessage=" + payload.toString());
     if (pos >= 0) {
       messageList.set(pos, message);
       notifyItemChanged(pos, payload);
@@ -345,5 +342,9 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatBaseMessageView
 
   public interface EndItemBindingListener {
     void onEndItemBinding();
+  }
+
+  public interface AdapterProcessCallback<T> {
+    void onProcess(T data);
   }
 }

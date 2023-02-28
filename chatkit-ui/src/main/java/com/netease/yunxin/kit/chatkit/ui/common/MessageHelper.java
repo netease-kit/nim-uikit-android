@@ -240,7 +240,8 @@ public class MessageHelper {
 
   public static void getReplyMessageInfo(String uuid, FetchCallback<String> callback) {
     if (TextUtils.isEmpty(uuid)) {
-      callback.onSuccess("...");
+      callback.onSuccess(
+          IMKitClient.getApplicationContext().getString(R.string.chat_message_removed_tip));
     }
     List<String> uuidList = new ArrayList<>(1);
     uuidList.add(uuid);
@@ -251,7 +252,8 @@ public class MessageHelper {
           public void onSuccess(@Nullable List<IMMessageInfo> msgList) {
             String result = "";
             if (msgList == null || msgList.isEmpty()) {
-              result = "...";
+              result =
+                  IMKitClient.getApplicationContext().getString(R.string.chat_message_removed_tip);
             } else {
               IMMessageInfo msg = msgList.get(0);
               String nickName = getChatMessageUserName(msg);

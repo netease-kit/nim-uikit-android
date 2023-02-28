@@ -12,4 +12,5 @@ public class QChatViewType {
   public static final int CHANNEL_MEMBER_VIEW_TYPE = 4;
   public static final int CHANNEL_ROLE_VIEW_TYPE = 5;
   public static final int SERVER_MEMBER_VIEW_TYPE = 6;
+  public static final int CORNER_VIEW_TYPE = 7;
 }

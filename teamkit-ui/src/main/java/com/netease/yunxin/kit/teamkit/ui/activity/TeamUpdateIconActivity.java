@@ -26,8 +26,8 @@ import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
 import com.netease.yunxin.kit.corekit.im.repo.CommonRepo;
 import com.netease.yunxin.kit.teamkit.ui.R;
 import com.netease.yunxin.kit.teamkit.ui.databinding.TeamUpdateIconActivityBinding;
+import com.netease.yunxin.kit.teamkit.ui.utils.TeamIconUtils;
 import com.netease.yunxin.kit.teamkit.ui.viewmodel.TeamSettingViewModel;
-import com.netease.yunxin.kit.teamkit.utils.IconUrlUtils;
 import java.io.File;
 
 /** set team icon activity */
@@ -55,7 +55,7 @@ public class TeamUpdateIconActivity extends BaseActivity {
     changeStatusBarColor(R.color.color_eff1f4);
     binding.ivCamera.setOnClickListener(v -> choicePhoto());
 
-    int index = IconUrlUtils.getDefaultIconUrlIndex(lastUrl);
+    int index = TeamIconUtils.getDefaultIconUrlIndex(lastUrl);
     switch (index) {
       case 0:
         updateFocusBg(binding.ivDefault1, lastUrl);
@@ -74,11 +74,16 @@ public class TeamUpdateIconActivity extends BaseActivity {
         break;
     }
 
-    binding.ivDefault1.setOnClickListener(v -> updateFocusBg(v, IconUrlUtils.getDefaultIconUrl(0)));
-    binding.ivDefault2.setOnClickListener(v -> updateFocusBg(v, IconUrlUtils.getDefaultIconUrl(1)));
-    binding.ivDefault3.setOnClickListener(v -> updateFocusBg(v, IconUrlUtils.getDefaultIconUrl(2)));
-    binding.ivDefault4.setOnClickListener(v -> updateFocusBg(v, IconUrlUtils.getDefaultIconUrl(3)));
-    binding.ivDefault5.setOnClickListener(v -> updateFocusBg(v, IconUrlUtils.getDefaultIconUrl(4)));
+    binding.ivDefault1.setOnClickListener(
+        v -> updateFocusBg(v, TeamIconUtils.getDefaultIconUrl(0)));
+    binding.ivDefault2.setOnClickListener(
+        v -> updateFocusBg(v, TeamIconUtils.getDefaultIconUrl(1)));
+    binding.ivDefault3.setOnClickListener(
+        v -> updateFocusBg(v, TeamIconUtils.getDefaultIconUrl(2)));
+    binding.ivDefault4.setOnClickListener(
+        v -> updateFocusBg(v, TeamIconUtils.getDefaultIconUrl(3)));
+    binding.ivDefault5.setOnClickListener(
+        v -> updateFocusBg(v, TeamIconUtils.getDefaultIconUrl(4)));
 
     binding.tvCancel.setOnClickListener(v -> finish());
 

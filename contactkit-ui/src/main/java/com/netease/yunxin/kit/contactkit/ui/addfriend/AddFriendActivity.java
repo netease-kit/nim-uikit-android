@@ -19,6 +19,7 @@ import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.contactkit.ui.R;
 import com.netease.yunxin.kit.contactkit.ui.databinding.AddFriendActivityBinding;
+import com.netease.yunxin.kit.corekit.im.IMKitClient;
 import com.netease.yunxin.kit.corekit.im.model.UserInfo;
 import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
@@ -96,9 +97,16 @@ public class AddFriendActivity extends BaseActivity {
   }
 
   private void startProfileActivity(UserInfo userInfo) {
-    XKitRouter.withKey(RouterConstant.PATH_USER_INFO_PAGE)
-        .withContext(this)
-        .withParam(RouterConstant.KEY_ACCOUNT_ID_KEY, userInfo.getAccount())
-        .navigate();
+    if (userInfo == null) {
+      return;
+    }
+    if (TextUtils.equals(userInfo.getAccount(), IMKitClient.account())) {
+      XKitRouter.withKey(RouterConstant.PATH_MINE_INFO_PAGE).withContext(this).navigate();
+    } else {
+      XKitRouter.withKey(RouterConstant.PATH_USER_INFO_PAGE)
+          .withContext(this)
+          .withParam(RouterConstant.KEY_ACCOUNT_ID_KEY, userInfo.getAccount())
+          .navigate();
+    }
   }
 }

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2022 NetEase, Inc. All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be
+  ~ found in the LICENSE file.
+  -->
+
+<scale xmlns:android="http://schemas.android.com/apk/res/android"
+    android:fromXScale="@dimen/dimen_103_dp"
+    android:fromYScale="@dimen/dimen_103_dp"
+    android:pivotX="50%"
+    android:pivotY="50%"
+    android:toXScale="@dimen/dimen_150_dp"
+    android:toYScale="@dimen/dimen_150_dp" />

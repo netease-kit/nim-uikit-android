@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (c) 2022 NetEase, Inc. All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be
+  ~ found in the LICENSE file.
+  -->
+
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/color_e9eff5"
+    tools:ignore="MissingDefaultResource">
+
+    <com.netease.yunxin.kit.common.ui.widgets.BackTitleBar
+        android:id="@+id/setting_title_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:titleText="@string/setting_notify"
+        tools:ignore="MissingConstraints" />
+
+    <RelativeLayout
+        android:id="@+id/notify_ll"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dimen_46_dp"
+        android:background="@drawable/app_white_round_bg"
+        android:layout_marginLeft="@dimen/dimen_20_dp"
+        android:layout_marginTop="@dimen/dimen_4_dp"
+        android:layout_marginRight="@dimen/dimen_20_dp"
+        app:layout_constraintTop_toBottomOf="@id/setting_title_bar">
+
+        <TextView
+            android:id="@+id/notify_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/dimen_46_dp"
+            android:layout_marginStart="@dimen/dimen_16_dp"
+            android:gravity="center"
+            android:text="@string/setting_notify_info"
+            android:textColor="@color/color_333333"
+            android:textSize="@dimen/text_size_16" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/notify_sc"
+            android:layout_width="@dimen/dimen_60_dp"
+            android:layout_height="@dimen/dimen_20_dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="@dimen/dimen_16_dp"
+            android:clickable="false"
+            android:thumb="@drawable/switch_thumb_selector"
+            app:track="@drawable/switch_track_selector" />
+    </RelativeLayout>
+
+
+    <TextView
+        android:id="@+id/setting_notify_mode_tv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/dimen_28_dp"
+        android:layout_marginTop="@dimen/dimen_16_dp"
+        android:layout_marginRight="@dimen/dimen_20_dp"
+        android:text="@string/setting_notify_mode"
+        android:textColor="@color/color_666666"
+        android:textSize="@dimen/text_size_12"
+        app:layout_constraintTop_toBottomOf="@id/notify_ll"
+        tools:ignore="MissingConstraints" />
+
+    <LinearLayout
+        android:id="@+id/notify_mode_ll"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/dimen_20_dp"
+        android:layout_marginTop="@dimen/dimen_8_dp"
+        android:layout_marginRight="@dimen/dimen_20_dp"
+        android:background="@drawable/app_white_round_bg"
+        android:orientation="vertical"
+        app:layout_constraintTop_toBottomOf="@id/setting_notify_mode_tv">
+
+        <RelativeLayout
+            android:id="@+id/notify_ring_rl"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dimen_46_dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/dimen_46_dp"
+                android:layout_marginStart="@dimen/dimen_16_dp"
+                android:gravity="center"
+                android:text="@string/setting_notify_mode_ring"
+                android:textColor="@color/color_333333"
+                android:textSize="@dimen/text_size_16" />
+
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/notify_ring_sc"
+                android:layout_width="@dimen/dimen_60_dp"
+                android:layout_height="@dimen/dimen_20_dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="@dimen/dimen_16_dp"
+                android:clickable="false"
+                android:thumb="@drawable/switch_thumb_selector"
+                app:track="@drawable/switch_track_selector" />
+        </RelativeLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dimen_1_dp"
+            android:background="@color/color_f5f8fc" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dimen_46_dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/dimen_46_dp"
+                android:layout_marginStart="@dimen/dimen_16_dp"
+                android:gravity="center"
+                android:text="@string/setting_notify_mode_shake"
+                android:textColor="@color/color_333333"
+                android:textSize="@dimen/text_size_16" />
+
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/notify_shake_sc"
+                android:layout_width="@dimen/dimen_60_dp"
+                android:layout_height="@dimen/dimen_20_dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="@dimen/dimen_16_dp"
+                android:clickable="false"
+                android:thumb="@drawable/switch_thumb_selector"
+                app:track="@drawable/switch_track_selector" />
+        </RelativeLayout>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/setting_push_mode_tv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/dimen_28_dp"
+        android:layout_marginTop="@dimen/dimen_16_dp"
+        android:layout_marginRight="@dimen/dimen_20_dp"
+        android:text="@string/setting_notify_other"
+        android:textColor="@color/color_666666"
+        android:textSize="@dimen/text_size_12"
+        app:layout_constraintTop_toBottomOf="@id/notify_mode_ll"
+        tools:ignore="MissingConstraints" />
+
+    <LinearLayout
+        android:id="@+id/push_mode_ll"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/dimen_20_dp"
+        android:layout_marginTop="@dimen/dimen_8_dp"
+        android:layout_marginRight="@dimen/dimen_20_dp"
+        android:background="@drawable/app_white_round_bg"
+        android:orientation="vertical"
+        app:layout_constraintTop_toBottomOf="@id/setting_push_mode_tv">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dimen_1_dp"
+            android:background="@color/color_f5f8fc" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dimen_46_dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/dimen_46_dp"
+                android:layout_marginStart="@dimen/dimen_16_dp"
+                android:gravity="center"
+                android:text="@string/setting_notify_push_detail"
+                android:textColor="@color/color_333333"
+                android:textSize="@dimen/text_size_16" />
+
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/notify_show_info_sc"
+                android:layout_width="@dimen/dimen_60_dp"
+                android:layout_height="@dimen/dimen_20_dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="@dimen/dimen_16_dp"
+                android:clickable="false"
+                android:thumb="@drawable/switch_thumb_selector"
+                app:track="@drawable/switch_track_selector" />
+        </RelativeLayout>
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -32,7 +32,6 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <application>
-
         <provider
             android:name="com.netease.yunxin.kit.corekit.startup.InitializationProvider"
             android:authorities="${applicationId}.xkit-startup"
@@ -41,6 +40,17 @@
             <meta-data
                 android:name="com.netease.yunxin.kit.qchatkit.ui.QChatUIService"
                 android:value="xkit.startup"/>
+        </provider>
+
+
+        <provider
+            android:name="com.netease.yunxin.kit.common.utils.CommonFileProvider"
+            android:authorities="${applicationId}.IMKitFileProvider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths"/>
         </provider>
 
         <activity

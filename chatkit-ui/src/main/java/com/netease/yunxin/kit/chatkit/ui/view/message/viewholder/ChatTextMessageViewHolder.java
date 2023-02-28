@@ -6,6 +6,7 @@ package com.netease.yunxin.kit.chatkit.ui.view.message.viewholder;
 
 import android.text.style.ImageSpan;
 import android.view.LayoutInflater;
+import android.view.View;
 import androidx.annotation.NonNull;
 import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
 import com.netease.yunxin.kit.chatkit.ui.R;
@@ -50,6 +51,16 @@ public class ChatTextMessageViewHolder extends ChatBaseMessageViewHolder {
       //文件消息暂不支持所以展示提示信息
       textBinding.messageText.setText(
           parent.getContext().getResources().getString(R.string.chat_message_not_support_tips));
+    }
+  }
+
+  @Override
+  public void onMessageRevokeStatus(ChatMessageBean data) {
+    super.onMessageRevokeStatus(data);
+    if (revokedViewBinding != null) {
+      if (!MessageUtil.revokeMsgIsEdit(data)) {
+        revokedViewBinding.tvAction.setVisibility(View.GONE);
+      }
     }
   }
 }

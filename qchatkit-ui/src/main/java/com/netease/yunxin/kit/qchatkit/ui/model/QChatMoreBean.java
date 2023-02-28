@@ -7,6 +7,7 @@ package com.netease.yunxin.kit.qchatkit.ui.model;
 public class QChatMoreBean extends QChatBaseBean {
   public String title;
   public int titleRes;
+  public String extend;
 
   public QChatMoreBean(String title) {
     this.title = title;

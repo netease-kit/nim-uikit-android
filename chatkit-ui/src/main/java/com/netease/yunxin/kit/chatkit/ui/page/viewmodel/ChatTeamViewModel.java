@@ -36,6 +36,7 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
       teamMessageReceiptLiveData = new MutableLiveData<>();
 
   private final MutableLiveData<Team> teamLiveData = new MutableLiveData<>();
+  private final MutableLiveData<Team> teamRemoveLiveData = new MutableLiveData<>();
   private final MutableLiveData<ResultInfo<List<UserInfoWithTeam>>> userInfoData =
       new MutableLiveData<>();
 
@@ -64,6 +65,13 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
         }
       };
 
+  private final Observer<Team> teamRemoveObserver =
+      team -> {
+        if (team != null && TextUtils.equals(team.getId(), mSessionId)) {
+          teamRemoveLiveData.setValue(team);
+        }
+      };
+
   public MutableLiveData<FetchResult<List<IMTeamMessageReceiptInfo>>>
       getTeamMessageReceiptLiveData() {
     return teamMessageReceiptLiveData;
@@ -86,6 +94,10 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
     return teamLiveData;
   }
 
+  public MutableLiveData<Team> getTeamRemoveLiveData() {
+    return teamRemoveLiveData;
+  }
+
   /** team member info live data */
   public MutableLiveData<ResultInfo<List<UserInfoWithTeam>>> getUserInfoData() {
     return userInfoData;
@@ -96,6 +108,7 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
     super.registerObservers();
     ChatObserverRepo.registerTeamMessageReceiptObserve(teamMessageReceiptObserver);
     ChatObserverRepo.registerTeamUpdateObserver(teamObserver);
+    ChatObserverRepo.registerTeamRemoveObserver(teamRemoveObserver);
   }
 
   @Override
@@ -103,12 +116,15 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
     super.unregisterObservers();
     ChatObserverRepo.unregisterTeamMessageReceiptObserve(teamMessageReceiptObserver);
     ChatObserverRepo.unregisterTeamUpdateObserver(teamObserver);
+    ChatObserverRepo.unregisterTeamRemoveObserver(teamRemoveObserver);
   }
 
   @Override
   public void sendReceipt(IMMessage message) {
     ALog.d(LIB_TAG, TAG, "sendReceipt:" + (message == null ? "null" : message.getUuid()));
-    ChatRepo.markTeamMessageRead(message);
+    if (message != null && message.needMsgAck() && showRead) {
+      ChatRepo.markTeamMessageRead(message);
+    }
   }
 
   public void requestTeamInfo(String teamId) {
@@ -120,6 +136,7 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
           public void onSuccess(@Nullable Team param) {
             ALog.d(LIB_TAG, TAG, "sendReceipt,onSuccess:" + (param == null));
             teamLiveData.setValue(param);
+            ChatRepo.setCurrentTeam(param);
           }
 
           @Override

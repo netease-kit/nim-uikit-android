@@ -20,6 +20,7 @@ import com.netease.yunxin.kit.qchatkit.ui.R;
 import com.netease.yunxin.kit.qchatkit.ui.channel.add.QChatChannelAddMemberActivity;
 import com.netease.yunxin.kit.qchatkit.ui.channel.add.QChatChannelAddRoleActivity;
 import com.netease.yunxin.kit.qchatkit.ui.channel.permission.viewholder.ArrowViewHolder;
+import com.netease.yunxin.kit.qchatkit.ui.channel.permission.viewholder.CornerViewHolder;
 import com.netease.yunxin.kit.qchatkit.ui.channel.permission.viewholder.MemberViewHolder;
 import com.netease.yunxin.kit.qchatkit.ui.channel.permission.viewholder.MoreViewHolder;
 import com.netease.yunxin.kit.qchatkit.ui.channel.permission.viewholder.RoleViewHolder;
@@ -29,6 +30,7 @@ import com.netease.yunxin.kit.qchatkit.ui.common.CommonViewHolder;
 import com.netease.yunxin.kit.qchatkit.ui.databinding.QChatArrowViewHolderBinding;
 import com.netease.yunxin.kit.qchatkit.ui.databinding.QChatChannelMemberConerViewHolderBinding;
 import com.netease.yunxin.kit.qchatkit.ui.databinding.QChatChannelRoleViewHolderBinding;
+import com.netease.yunxin.kit.qchatkit.ui.databinding.QChatCornerViewholderLayoutBinding;
 import com.netease.yunxin.kit.qchatkit.ui.databinding.QChatMoreViewholderLayoutBinding;
 import com.netease.yunxin.kit.qchatkit.ui.databinding.QChatTitleViewholderLayoutBinding;
 import com.netease.yunxin.kit.qchatkit.ui.model.QChatBaseBean;
@@ -46,6 +48,8 @@ public class QChatChannelPermissionActivity extends CommonListActivity {
   private long channelId;
   private long serverId;
   private boolean editStatus = false;
+  //进入页面重新加载状态，0开始加载，2加载完成
+  private int reloadStatus = 2;
 
   @Override
   public void initData() {
@@ -65,7 +69,15 @@ public class QChatChannelPermissionActivity extends CommonListActivity {
               } else if (result.getLoadStatus() == LoadStatus.Finish) {
                 if (result.getType() == FetchResult.FetchType.Add) {
                   addData(result.getTypeIndex() + ROLE_INDEX, result.getData());
-                  ALog.d(TAG, "getRoleLiveData", "Add" + result.getTypeIndex() + ROLE_INDEX);
+                  ALog.d(
+                      TAG,
+                      "getRoleLiveData",
+                      "Add index:"
+                          + result.getTypeIndex()
+                          + "role index:"
+                          + ROLE_INDEX
+                          + "size:"
+                          + result.getData().size());
                 } else if (result.getType() == FetchResult.FetchType.Remove) {
                   removeData(result.getTypeIndex());
                   checkAdapterData();
@@ -79,6 +91,8 @@ public class QChatChannelPermissionActivity extends CommonListActivity {
                 Toast.makeText(this, errorMsg, Toast.LENGTH_SHORT).show();
                 ALog.d(TAG, "getRoleLiveData", "Error" + errorMsg);
               }
+              reloadStatus++;
+              updateTitleAction();
             });
 
     viewModel
@@ -106,6 +120,8 @@ public class QChatChannelPermissionActivity extends CommonListActivity {
                 Toast.makeText(this, errorMsg, Toast.LENGTH_SHORT).show();
                 ALog.d(TAG, "getMemberLiveData", "Error");
               }
+              reloadStatus++;
+              updateTitleAction();
             });
 
     viewModel
@@ -124,7 +140,10 @@ public class QChatChannelPermissionActivity extends CommonListActivity {
   /** if title type is last item ,it should be remove */
   private void checkAdapterData() {
     while (recyclerViewAdapter.getItemViewType(recyclerViewAdapter.getItemCount() - 1)
-        == QChatViewType.TITLE_VIEW_TYPE) {
+            == QChatViewType.CORNER_VIEW_TYPE
+        && recyclerViewAdapter.getItemViewType(recyclerViewAdapter.getItemCount() - 2)
+            == QChatViewType.TITLE_VIEW_TYPE) {
+      recyclerViewAdapter.removeData(recyclerViewAdapter.getItemCount() - 2);
       recyclerViewAdapter.removeData(recyclerViewAdapter.getItemCount() - 1);
     }
   }
@@ -134,6 +153,8 @@ public class QChatChannelPermissionActivity extends CommonListActivity {
     super.onResume();
     ALog.d(TAG, "onResume");
     loadHeaderData();
+    reloadStatus = 0;
+    updateTitleAction();
     viewModel.fetchData(serverId, channelId);
   }
 
@@ -151,9 +172,18 @@ public class QChatChannelPermissionActivity extends CommonListActivity {
       viewBinding.commonActTitleView.setActionText(R.string.qchat_edit);
     } else {
       viewBinding.commonActTitleView.setActionText(R.string.qchat_complete);
+      viewModel.loadMoreRole();
     }
     editStatus = !editStatus;
     recyclerViewAdapter.setEditStatus(editStatus);
+  }
+
+  private void updateTitleAction() {
+    if (reloadStatus < 2) {
+      viewBinding.commonActTitleView.getRightTextView().setVisibility(View.GONE);
+    } else {
+      viewBinding.commonActTitleView.getRightTextView().setVisibility(View.VISIBLE);
+    }
   }
 
   private void loadHeaderData() {
@@ -226,14 +256,17 @@ public class QChatChannelPermissionActivity extends CommonListActivity {
           });
       roleViewHolder.setOnDeleteClickListener(this::showDeleteDialog);
       return roleViewHolder;
+    } else {
+      QChatCornerViewholderLayoutBinding viewBinding =
+          QChatCornerViewholderLayoutBinding.inflate(getLayoutInflater(), parent, false);
+      CornerViewHolder cornerViewHolder = new CornerViewHolder(viewBinding);
+      return cornerViewHolder;
     }
-    return null;
   }
 
   @Override
   public boolean isLoadMore() {
     ALog.d(TAG, "isLoadMore", "isLoadMore" + viewModel.hasMore());
-
     return viewModel.hasMore();
   }
 
@@ -281,10 +314,21 @@ public class QChatChannelPermissionActivity extends CommonListActivity {
               @Override
               public void onPositive() {
                 ALog.d(TAG, "showDeleteDialog", "onPositive");
-                viewModel.delete(data, position);
+                viewModel.delete(data, findAdapterIndex(data));
               }
             })
         .show(getSupportFragmentManager());
+  }
+
+  private int findAdapterIndex(QChatBaseBean bean) {
+    int count = recyclerViewAdapter.getItemCount();
+    for (int index = 0; index < count; index++) {
+      if (recyclerViewAdapter.getData(index) == bean) {
+        return index;
+      }
+    }
+
+    return -1;
   }
 
   public static void launch(Activity activity, long serverId, long channelId) {

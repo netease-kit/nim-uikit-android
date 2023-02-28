@@ -28,4 +28,20 @@
         app:layout_constraintRight_toRightOf="parent"
         app:indexBarTextSize="@dimen/text_size_8" />
 
+    <FrameLayout
+        android:id="@+id/contact_empty_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/color_white"
+        android:visibility="gone" >
+
+        <ImageView
+            android:layout_width="@dimen/dimen_120_dp"
+            android:layout_height="@dimen/dimen_92_dp"
+            android:src="@drawable/ic_contact_empty"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="@dimen/dimen_150_dp"/>
+
+    </FrameLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

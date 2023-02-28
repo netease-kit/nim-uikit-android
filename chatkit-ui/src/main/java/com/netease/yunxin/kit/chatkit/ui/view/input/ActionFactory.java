@@ -4,6 +4,7 @@
 
 package com.netease.yunxin.kit.chatkit.ui.view.input;
 
+import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitClient;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.common.ui.action.ActionItem;
@@ -32,7 +33,7 @@ public class ActionFactory {
     return actions;
   }
 
-  public static List<ActionItem> assembleInputMoreActions() {
+  public static List<ActionItem> assembleInputMoreActions(SessionTypeEnum sessionType) {
     ArrayList<ActionItem> actions = new ArrayList<>();
     actions.add(
         new ActionItem(
@@ -47,11 +48,13 @@ public class ActionFactory {
     actions.add(
         new ActionItem(
             ActionConstants.ACTION_TYPE_FILE, R.drawable.ic_send_file, R.string.chat_message_file));
-    //    actions.add(
-    //        new ActionItem(
-    //            ActionConstants.ACTION_TYPE_VIDEO_CALL,
-    //            R.drawable.ic_video_call,
-    //            R.string.chat_message_video_call));
+    if (sessionType == SessionTypeEnum.P2P) {
+      actions.add(
+          new ActionItem(
+              ActionConstants.ACTION_TYPE_VIDEO_CALL,
+              R.drawable.ic_video_call,
+              R.string.chat_message_video_call));
+    }
     if (ChatKitClient.getChatUIConfig() != null
         && ChatKitClient.getChatUIConfig().chatInputMenu != null) {
       return ChatKitClient.getChatUIConfig().chatInputMenu.customizeInputMore(actions);

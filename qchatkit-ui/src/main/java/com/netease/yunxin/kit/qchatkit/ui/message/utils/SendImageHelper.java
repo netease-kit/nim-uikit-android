@@ -7,8 +7,7 @@ package com.netease.yunxin.kit.qchatkit.ui.message.utils;
 import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
-import com.netease.yunxin.kit.qchatkit.ui.utils.FileUtils;
-import java.io.File;
+import com.netease.yunxin.kit.common.utils.UriUtils;
 
 public class SendImageHelper {
   public interface Callback {
@@ -29,9 +28,10 @@ public class SendImageHelper {
 
     @Override
     protected String doInBackground(Void... voids) {
-      File tempFile = FileUtils.getTempFile(context, originUri.getPath());
-      FileUtils.copy(context, originUri, tempFile.getPath());
-      return tempFile.getPath();
+      //      File tempFile = FileUtils.getTempFile(context, originUri.getPath());
+      //      FileUtils.copy(context, originUri, tempFile.getPath());
+      String filePath = UriUtils.uri2FileRealPath(originUri);
+      return filePath;
     }
 
     @Override

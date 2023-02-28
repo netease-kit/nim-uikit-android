@@ -92,10 +92,6 @@ public class ChatView extends LinearLayout {
     binding.messageView.setMessageProperties(properties);
   }
 
-  public void setShowReadStatus(boolean show) {
-    binding.messageView.setShowReadStatus(show);
-  }
-
   public void clearMessageList() {
     binding.messageView.clearMessageList();
   }
@@ -126,14 +122,9 @@ public class ChatView extends LinearLayout {
 
   public void setTypeState(boolean isTyping) {
     if (isTyping) {
-      binding.tvNotification.setVisibility(VISIBLE);
-      binding.tvNotification.setTextColor(
-          getContext().getResources().getColor(R.color.color_333333));
-      binding.tvNotification.setBackgroundResource(R.color.color_white);
-      binding.tvNotification.setTextSize(10);
-      binding.tvNotification.setText(R.string.chat_message_is_typing);
+      binding.tvInputTip.setVisibility(VISIBLE);
     } else {
-      binding.tvNotification.setVisibility(GONE);
+      binding.tvInputTip.setVisibility(GONE);
     }
   }
 

@@ -19,7 +19,6 @@ import com.netease.yunxin.app.im.utils.Constant;
 import com.netease.yunxin.app.im.utils.DataUtils;
 import com.netease.yunxin.app.im.welcome.WelcomeActivity;
 import com.netease.yunxin.kit.alog.ALog;
-import com.netease.yunxin.kit.chatkit.ui.ChatKitClient;
 import com.netease.yunxin.kit.corekit.im.IMKitClient;
 import com.netease.yunxin.kit.corekit.im.repo.SettingRepo;
 import com.netease.yunxin.kit.corekit.im.utils.IMKitUtils;
@@ -35,6 +34,7 @@ public class IMApplication extends MultiDexApplication {
 
   private static final String TAG = "IMApplication";
   private static boolean coldStart = false;
+  private static int foregroundActCount = 0;
 
   @Override
   public void onCreate() {
@@ -93,7 +93,9 @@ public class IMApplication extends MultiDexApplication {
           }
 
           @Override
-          public void onActivityStarted(Activity activity) {}
+          public void onActivityStarted(Activity activity) {
+            foregroundActCount++;
+          }
 
           @Override
           public void onActivityResumed(Activity activity) {}
@@ -102,7 +104,9 @@ public class IMApplication extends MultiDexApplication {
           public void onActivityPaused(Activity activity) {}
 
           @Override
-          public void onActivityStopped(Activity activity) {}
+          public void onActivityStopped(Activity activity) {
+            foregroundActCount--;
+          }
 
           @Override
           public void onActivitySaveInstanceState(Activity activity, Bundle outState) {}
@@ -127,5 +131,15 @@ public class IMApplication extends MultiDexApplication {
 
   public static void setColdStart(boolean value) {
     coldStart = value;
+  }
+
+  @Override
+  public void onTerminate() {
+    super.onTerminate();
+    foregroundActCount = 0;
+  }
+
+  public static int getForegroundActCount() {
+    return foregroundActCount;
   }
 }

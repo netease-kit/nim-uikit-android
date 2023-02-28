@@ -6,7 +6,6 @@ package com.netease.yunxin.kit.contactkit.ui.userinfo;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.InputFilter;
 import android.text.TextUtils;
 import androidx.annotation.Nullable;
 import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
@@ -30,8 +29,10 @@ public class CommentActivity extends BaseActivity {
 
   private void initView() {
     String comment = getIntent().getStringExtra(REQUEST_COMMENT_NAME_KEY);
+    comment = comment == null ? "" : comment;
     binding.edtComment.setText(comment);
-    binding.edtComment.setFilter(new InputFilter[] {new InputFilter.LengthFilter(30)});
+    binding.edtComment.getBinding().editText.setSelection(comment.length());
+    binding.edtComment.getBinding().editText.requestFocus();
     binding
         .title
         .setTitle(R.string.comment_name)

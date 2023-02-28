@@ -9,6 +9,7 @@ import static com.netease.yunxin.kit.qchatkit.ui.model.QChatConstant.SERVER_ROLE
 
 import android.app.Activity;
 import android.content.Intent;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.CompoundButton;
 import androidx.activity.result.ActivityResultLauncher;
@@ -16,6 +17,8 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.netease.yunxin.kit.common.ui.activities.CommonActivity;
+import com.netease.yunxin.kit.common.ui.utils.ToastX;
+import com.netease.yunxin.kit.common.utils.NetworkUtils;
 import com.netease.yunxin.kit.qchatkit.repo.QChatRoleRepo;
 import com.netease.yunxin.kit.qchatkit.repo.model.QChatRoleOptionEnum;
 import com.netease.yunxin.kit.qchatkit.repo.model.QChatRoleResourceEnum;
@@ -47,6 +50,7 @@ public class QChatRoleSettingActivity extends CommonActivity {
     registerResult();
     changeStatusBarColor(R.color.color_eef1f4);
     binding.title.setOnBackIconClickListener(v -> onBackPressed());
+    binding.title.getTitleTextView().setEllipsize(TextUtils.TruncateAt.MIDDLE);
     binding.rlyMemberModify.setOnClickListener(
         v -> {
           Intent intent = new Intent(QChatRoleSettingActivity.this, QChatRoleMemberActivity.class);
@@ -94,7 +98,8 @@ public class QChatRoleSettingActivity extends CommonActivity {
   @Override
   public void initData() {
     role = (QChatServerRoleInfo) getIntent().getSerializableExtra(SERVER_ROLE_INFO);
-    binding.title.setTitle(role.getName());
+    String title = getResources().getString(R.string.qchat_role_permission_title);
+    binding.title.setTitle(String.format(title, role.getName()));
     binding.chatRoleName.setText(role.getName());
 
     if (role.getType() == ROLE_EVERYONE_TYPE) {
@@ -107,6 +112,10 @@ public class QChatRoleSettingActivity extends CommonActivity {
           .setActionTextColor(getResources().getColor(R.color.color_337eff))
           .setActionListener(
               v -> {
+                if (!NetworkUtils.isConnected()) {
+                  ToastX.showShortToast(R.string.qchat_network_error_tip);
+                  return;
+                }
                 String name = binding.chatRoleName.getText().toString().trim();
                 QChatRoleRepo.updateRole(
                     role.getServerId(),

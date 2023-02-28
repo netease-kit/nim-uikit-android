@@ -83,7 +83,7 @@
         android:layout_marginTop="@dimen/dimen_8_dp"
         app:corner_radius="@dimen/dimen_8_dp"
         app:hintText="@string/qchat_channel_channel_name_hint"
-        android:maxEms="50"
+        android:maxLength="50"
         tools:ignore="MissingConstraints" />
 
     <!-- channel name-->
@@ -107,7 +107,7 @@
         app:hintText="@string/qchat_channel_topic_hint"
         android:layout_marginTop="@dimen/dimen_8_dp"
         app:corner_radius="@dimen/dimen_8_dp"
-        android:maxEms="200"
+        android:maxLength="64"
         tools:ignore="MissingConstraints" />
 
     <!-- channel type select -->

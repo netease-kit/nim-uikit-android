@@ -20,9 +20,12 @@
     <string name="sure_count_title">Yes(%d)</string> 
 
     <string name="conversation_network_error_tip">No Internet</string>
+    <string name="conversation_empty_tip">No Chat</string>
 
     <!-- message type-->
     <string name="msg_type_location">[Location Message]</string>
+    <string name="msg_type_rtc_video">[Video Call]</string>
+    <string name="msg_type_rtc_audio">[Audio Call]</string>
     <string name="msg_type_image">[Photo Message]</string>
     <string name="msg_type_audio">[Voice Message]</string>
     <string name="msg_type_video">[Video Message]</string>

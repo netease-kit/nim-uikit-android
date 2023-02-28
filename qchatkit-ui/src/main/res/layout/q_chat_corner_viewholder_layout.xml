@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2022 NetEase, Inc. All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be
+  ~ found in the LICENSE file.
+  -->
+
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_marginTop="-8dp"
+    android:background="@color/color_eff1f4"
+    android:layout_height="@dimen/dimen_8_dp">
+
+    <com.netease.yunxin.kit.common.ui.widgets.RoundFrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:corner_bottomRadius="@dimen/dimen_8_dp"
+        android:layout_marginStart="@dimen/dimen_20_dp"
+        android:layout_marginEnd="@dimen/dimen_20_dp"
+        android:background="@color/color_white">
+    </com.netease.yunxin.kit.common.ui.widgets.RoundFrameLayout>
+</FrameLayout>

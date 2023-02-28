@@ -6,6 +6,7 @@ package com.netease.yunxin.kit.qchatkit.ui.model;
 
 public class QChatConstant {
 
+  public static final String FILE_DIR = "tempPictures";
   public static final String TITLE = "title";
   public static final String CHOICE_LIST = "choice_list";
   public static final String SELECTED_INDEX = "selected_index";

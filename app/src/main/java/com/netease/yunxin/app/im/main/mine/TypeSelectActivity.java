@@ -8,13 +8,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.content.res.AppCompatResources;
 import com.netease.yunxin.app.im.R;
 import com.netease.yunxin.app.im.databinding.TypeSelectActivityBinding;
 import com.netease.yunxin.app.im.utils.Constant;
@@ -83,9 +83,11 @@ public class TypeSelectActivity extends BaseActivity {
   private RadioButton createRadioButton(int index, String title) {
     RadioButton radioButton = new RadioButton(this);
     radioButton.setId(index);
-    radioButton.setButtonDrawable(getDrawable(R.drawable.app_radio_button_select));
+    radioButton.setButtonDrawable(null);
+    radioButton.setBackgroundResource(R.color.transparent);
     radioButton.setText(title);
-    radioButton.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
+    radioButton.setCompoundDrawablesWithIntrinsicBounds(
+        null, null, AppCompatResources.getDrawable(this, R.drawable.app_radio_button_select), null);
     return radioButton;
   }
 

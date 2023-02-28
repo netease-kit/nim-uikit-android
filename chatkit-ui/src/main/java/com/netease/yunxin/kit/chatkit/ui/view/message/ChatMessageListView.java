@@ -170,12 +170,7 @@ public class ChatMessageListView extends RecyclerView implements IMessageData {
   public void addMessageListForward(List<ChatMessageBean> messageList) {
     if (messageAdapter != null) {
       messageAdapter.forwardMessages(messageList);
-      if (messageReader != null
-          && !messageList.isEmpty()
-          && messageList.get(0).getMessageData().getMessage().getSessionType()
-              == SessionTypeEnum.P2P) {
-        messageReader.messageRead(messageList.get(messageList.size() - 1).getMessageData());
-      }
+      markMessageRead(messageList);
     }
   }
 
@@ -185,24 +180,26 @@ public class ChatMessageListView extends RecyclerView implements IMessageData {
     }
   }
 
-  public void setShowReadStatus(boolean show) {
-    if (messageAdapter != null) {
-      messageAdapter.setShowReadStatus(show);
-    }
-  }
-
   @Override
   public void appendMessageList(List<ChatMessageBean> messageList) {
     if (messageAdapter != null) {
       messageAdapter.appendMessages(messageList);
-      if (needScrollToBottom()) {
-        scrollToEnd();
-      }
-      if (messageReader != null
-          && !messageList.isEmpty()
-          && messageList.get(0).getMessageData().getMessage().getSessionType()
-              == SessionTypeEnum.P2P) {
-        messageReader.messageRead(messageList.get(messageList.size() - 1).getMessageData());
+      scrollToEnd();
+      markMessageRead(messageList);
+    }
+  }
+
+  private void markMessageRead(List<ChatMessageBean> messageList) {
+    if (messageReader != null
+        && !messageList.isEmpty()
+        && messageList.get(0).getMessageData().getMessage().getSessionType()
+            == SessionTypeEnum.P2P) {
+      for (int index = messageList.size() - 1; index >= 0; index--) {
+        IMMessageInfo messageInfo = messageList.get(index).getMessageData();
+        if (messageInfo != null && messageInfo.getMessage().needMsgAck()) {
+          messageReader.messageRead(messageInfo);
+          break;
+        }
       }
     }
   }
@@ -211,9 +208,7 @@ public class ChatMessageListView extends RecyclerView implements IMessageData {
   public void appendMessage(ChatMessageBean message) {
     if (messageAdapter != null) {
       messageAdapter.appendMessage(message);
-      if (needScrollToBottom()) {
-        scrollToEnd();
-      }
+      scrollToEnd();
       if (messageReader != null
           && message != null
           && message.getMessageData().getMessage().getDirect() == MsgDirectionEnum.In
@@ -227,7 +222,13 @@ public class ChatMessageListView extends RecyclerView implements IMessageData {
   @Override
   public void updateMessageStatus(ChatMessageBean message) {
     if (messageAdapter != null) {
-      messageAdapter.updateMessageStatus(message);
+      messageAdapter.updateMessageStatus(
+          message,
+          data -> {
+            if (data) {
+              scrollToEnd();
+            }
+          });
     }
   }
 

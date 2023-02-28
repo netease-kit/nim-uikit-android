@@ -60,6 +60,12 @@ public class ChatActionFactory {
         actions.add(getDeleteAction(message));
         return actions;
       }
+
+      if (message.getViewType() == MsgTypeEnum.nrtc_netcall.getValue()) {
+        //call
+        actions.add(getDeleteAction(message));
+        return actions;
+      }
       if (message.getViewType() == MsgTypeEnum.text.getValue()) {
         //text
         actions.add(getCopyAction(message));

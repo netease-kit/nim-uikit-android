@@ -18,6 +18,7 @@ import com.netease.yunxin.app.im.main.MainActivity;
 import com.netease.yunxin.app.im.push.PushUserInfoProvider;
 import com.netease.yunxin.app.im.utils.Constant;
 import com.netease.yunxin.app.im.utils.DataUtils;
+import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.common.utils.ScreenUtils;
 import java.io.IOException;
 
@@ -64,6 +65,7 @@ public class NimSDKOptionConfig {
       serverAddresses.nosDownloadUrlFormat = "{bucket}-nosdn.netease.im/{object}";
       serverAddresses.nosUpload = "nosup-hz1.127.net";
       serverAddresses.nosSupportHttps = true;
+      ALog.d("ServerAddresses", "ServerConfig:use Singapore node");
       return serverAddresses;
     }
     return null;
@@ -74,7 +76,11 @@ public class NimSDKOptionConfig {
     StatusBarNotificationConfig config = loadStatusBarNotificationConfig();
     // load 用户的 StatusBarNotificationConfig 设置项
     // SDK statusBarNotificationConfig 生效
-    config.notificationFilter = imMessage -> StatusBarNotificationFilter.FilterPolicy.DEFAULT;
+    config.notificationFilter =
+        imMessage ->
+            IMApplication.getForegroundActCount() > 0
+                ? StatusBarNotificationFilter.FilterPolicy.DENY
+                : StatusBarNotificationFilter.FilterPolicy.DEFAULT;
     options.statusBarNotificationConfig = config;
   }
 

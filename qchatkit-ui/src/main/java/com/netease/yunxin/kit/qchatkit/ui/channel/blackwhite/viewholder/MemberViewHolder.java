@@ -13,7 +13,6 @@ import com.netease.yunxin.kit.qchatkit.ui.common.CommonClickListener;
 import com.netease.yunxin.kit.qchatkit.ui.common.CommonViewHolder;
 import com.netease.yunxin.kit.qchatkit.ui.databinding.QChatChannelNameListMemberViewHolderBinding;
 import com.netease.yunxin.kit.qchatkit.ui.model.QChatBaseBean;
-import com.netease.yunxin.kit.qchatkit.ui.model.QChatConstant;
 import com.netease.yunxin.kit.qchatkit.ui.model.QChatServerMemberBean;
 
 public class MemberViewHolder extends CommonViewHolder<QChatBaseBean> {
@@ -60,7 +59,7 @@ public class MemberViewHolder extends CommonViewHolder<QChatBaseBean> {
           bean.serverMember.getAvatarUrl(),
           bean.serverMember.getNickName(),
           AvatarColor.avatarColor(bean.serverMember.getAccId()));
-      if (editStatus && bean.serverMember.getType() != QChatConstant.MEMBER_TYPE_OWNER) {
+      if (editStatus) {
         binding.qChatNameListDelete.setVisibility(View.VISIBLE);
       } else {
         binding.qChatNameListDelete.setVisibility(View.GONE);

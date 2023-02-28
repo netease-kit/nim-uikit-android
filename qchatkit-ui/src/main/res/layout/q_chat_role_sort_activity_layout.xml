@@ -6,6 +6,7 @@
   -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -19,11 +20,12 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="@dimen/text_size_12"
+        android:textSize="@dimen/dimen_12_dp"
         android:textColor="@color/color_b3b7bc"
         android:text="@string/qchat_role_sort_ruler"
         android:gravity="center"
-        android:paddingVertical="@dimen/dimen_8_dp" />
+        android:paddingVertical="@dimen/dimen_8_dp"
+        tools:ignore="SpUsage" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_members"

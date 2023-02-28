@@ -34,12 +34,17 @@ public class ChatLocationMessageViewHolder extends ChatBaseMessageViewHolder {
     binding =
         ChatMessageLocationViewHolderBinding.inflate(
             LayoutInflater.from(parent.getContext()), getContainer(), true);
-    chatMap = ChatKitClient.getMessageMapProvider().createChatMap(parent.getContext(), null);
+    if (ChatKitClient.getMessageMapProvider() != null) {
+      chatMap = ChatKitClient.getMessageMapProvider().createChatMap(parent.getContext(), null);
+    }
   }
 
   @Override
   public void bindData(ChatMessageBean message, ChatMessageBean lastMessage) {
-    ALog.i(ChatKitUIConstant.LIB_TAG, TAG, "bindData");
+    ALog.i(
+        ChatKitUIConstant.LIB_TAG,
+        TAG,
+        "bindData" + "title" + message.getMessageData().getMessage().getContent());
     super.bindData(message, lastMessage);
     LocationAttachment attachment =
         (LocationAttachment) message.getMessageData().getMessage().getAttachment();
@@ -54,7 +59,7 @@ public class ChatLocationMessageViewHolder extends ChatBaseMessageViewHolder {
           v -> itemClickListener.onMessageClick(v, position, currentMessage));
     }
 
-    if (ChatKitClient.getMessageMapProvider() != null) {
+    if (ChatKitClient.getMessageMapProvider() != null && chatMap != null) {
       View view =
           ChatKitClient.getMessageMapProvider()
               .setLocation(chatMap, attachment.getLatitude(), attachment.getLongitude());
@@ -64,11 +69,5 @@ public class ChatLocationMessageViewHolder extends ChatBaseMessageViewHolder {
     ImageView emptyImage = new ImageView(parent.getContext());
     emptyImage.setImageResource(R.drawable.ic_map_empty);
     binding.locationItemMapView.addView(emptyImage);
-  }
-
-  @Override
-  public void onDetachedFromWindow() {
-    super.onDetachedFromWindow();
-    chatMap.onDestroy();
   }
 }

@@ -21,6 +21,7 @@ import com.netease.yunxin.kit.teamkit.ui.R;
 import com.netease.yunxin.kit.teamkit.ui.adapter.TeamMemberListAdapter;
 import com.netease.yunxin.kit.teamkit.ui.databinding.TeamMemberListActivityBinding;
 import com.netease.yunxin.kit.teamkit.ui.databinding.TeamMemberListItemBinding;
+import com.netease.yunxin.kit.teamkit.ui.utils.TeamUtils;
 import com.netease.yunxin.kit.teamkit.ui.viewmodel.TeamSettingViewModel;
 
 /** team member list activity */
@@ -29,6 +30,7 @@ public class TeamMemberListActivity extends BaseActivity {
   private final TeamSettingViewModel model = new TeamSettingViewModel();
   private TeamMemberListActivityBinding binding;
   private String teamId;
+  private boolean teamGroup = false;
   private TeamMemberListAdapter adapter;
   private TeamTypeEnum teamTypeEnum;
 
@@ -43,7 +45,7 @@ public class TeamMemberListActivity extends BaseActivity {
     Team teamInfo = (Team) getIntent().getSerializableExtra(KEY_TEAM_INFO);
     teamId = teamInfo.getId();
     teamTypeEnum = teamInfo.getType();
-
+    teamGroup = TeamUtils.isTeamGroup(teamInfo);
     initUI();
     configViewModel();
   }
@@ -53,6 +55,7 @@ public class TeamMemberListActivity extends BaseActivity {
     binding.rvMemberList.setLayoutManager(
         new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
     adapter = new TeamMemberListAdapter(this, teamTypeEnum, TeamMemberListItemBinding.class);
+    adapter.setGroupIdentify(teamGroup);
     binding.rvMemberList.setAdapter(adapter);
     binding.ivClear.setOnClickListener(v -> binding.etSearch.setText(null));
     binding.etSearch.addTextChangedListener(

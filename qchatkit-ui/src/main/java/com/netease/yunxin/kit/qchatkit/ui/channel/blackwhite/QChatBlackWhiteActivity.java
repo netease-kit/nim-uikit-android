@@ -96,11 +96,14 @@ public class QChatBlackWhiteActivity extends CommonListActivity {
                   ALog.d(TAG, "ResultLiveData", "Remove" + result.getTypeIndex());
                 }
               } else if (result.getLoadStatus() == LoadStatus.Error) {
-                Toast.makeText(
-                        this,
-                        getResources().getString(result.errorMsg().getRes()),
-                        Toast.LENGTH_SHORT)
-                    .show();
+                FetchResult.ErrorMsg errorMsg = result.errorMsg();
+                if (errorMsg != null
+                    && errorMsg.getCode() != QChatConstant.ERROR_CODE_IM_NO_PERMISSION) {
+                  Toast.makeText(
+                          this, getResources().getString(errorMsg.getRes()), Toast.LENGTH_SHORT)
+                      .show();
+                }
+
                 ALog.d(TAG, "ResultLiveData", "Error");
               }
             });
@@ -120,6 +123,21 @@ public class QChatBlackWhiteActivity extends CommonListActivity {
                         getResources().getString(result.errorMsg().getRes()),
                         Toast.LENGTH_SHORT)
                     .show();
+              }
+            });
+
+    viewModel
+        .getRemoveLiveData()
+        .observe(
+            this,
+            result -> {
+              if (result.getLoadStatus() == LoadStatus.Error) {
+                ALog.d(TAG, "AddLiveData", "Error");
+                Toast.makeText(
+                        this,
+                        getResources().getString(result.errorMsg().getRes()),
+                        Toast.LENGTH_SHORT)
+                    .show();
               } else if (result.getLoadStatus() == LoadStatus.Finish) {
                 if (result.getType() == FetchResult.FetchType.Remove) {
                   ALog.d(TAG, "AddLiveData", "Remove");
@@ -129,11 +147,11 @@ public class QChatBlackWhiteActivity extends CommonListActivity {
             });
 
     registerResult();
+    loadData();
   }
 
   private void loadData() {
-    setData(null);
-    addData(viewModel.loadHeader());
+    setData(viewModel.loadHeader());
     viewModel.fetchMemberList(serverId, channelId, channelType);
     ALog.d(TAG, "loadData");
   }
@@ -142,7 +160,7 @@ public class QChatBlackWhiteActivity extends CommonListActivity {
   protected void onResume() {
     super.onResume();
     ALog.d(TAG, "onResume");
-    loadData();
+    //    loadData();
   }
 
   @Override
@@ -191,6 +209,13 @@ public class QChatBlackWhiteActivity extends CommonListActivity {
           (data, position) -> {
             if (data instanceof QChatServerMemberBean) {
               QChatServerMemberBean bean = (QChatServerMemberBean) data;
+              int count = recyclerViewAdapter.getItemCount();
+              for (int index = 1; index < count; index++) {
+                if (bean.equals(recyclerViewAdapter.getData(index))) {
+                  position = index;
+                  break;
+                }
+              }
               showDeleteDialog(bean.serverMember, position);
             }
           });

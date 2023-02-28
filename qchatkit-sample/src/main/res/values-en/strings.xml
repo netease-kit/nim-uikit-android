@@ -1,0 +1,87 @@
+<!--
+  ~ Copyright (c) 2022 NetEase, Inc. All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be
+  ~ found in the LICENSE file.
+  -->
+
+<resources>
+    <string name="app_name">Netease QChat</string>
+    <string name="yunxin_name">Netease CommsEase</string>
+    <string name="yunxin_desc">Stable instant messaging service</string>
+
+    <string name="welcome_button">register/login</string>
+    <string name="email_login">Email Login</string>
+    <string name="server_config">Select Node</string>
+    <string name="tab_session_tab_text">Chats</string>
+    <string name="tab_contact_tab_text">Contacts</string>
+    <string name="tab_qchat_tab_text">QChat</string>
+    <string name="tab_live_tab_text">live</string>
+    <string name="tab_mine_tab_text">Me</string>
+    <string name="tab_mine_logout">Log Out</string>
+    <string name="user_info_title">My Profile</string>
+    <string name="tab_mine_account">Account:%s</string>
+    <string name="user_info_avatar">Profile Photo</string>
+    <string name="user_info_account">ID</string>
+    <string name="user_info_nickname">Name</string>
+    <string name="user_info_sexual">Gender</string>
+    <string name="user_info_birthday">Birthday</string>
+    <string name="user_info_phone">Phone</string>
+    <string name="user_info_email">E-mail</string>
+    <string name="user_info_sign">What\'s Up</string>
+    <string name="action_copy_success">Coped</string>
+
+    <string name="server_config_china_text">China</string>
+    <string name="server_config_oversea_text">Singapore</string>
+    <string name="server_config_dialog_title">Select Node</string>
+    <string name="server_config_dialog_content">The app will exit after switching nodes and take effect after restarting</string>
+    <string name="server_config_dialog_positive">OK</string>
+    <string name="server_config_dialog_cancel">Cancel</string>
+
+    <string name="incoming_call_notify_audio">[Audio Call]</string>
+    <string name="incoming_call_notify_video">[Video Call]</string>
+
+    <string name="mine_collect">Favorites</string>
+    <string name="mine_about">About CommSEase</string>
+    <string name="mine_setting">Settings</string>
+    <string name="mine_version">Version</string>
+    <string name="mine_product">introduce</string>
+
+    <!-- setting -->
+    <string name="setting_notify">Notification</string>
+    <string name="setting_clear_cache">Clear Cache</string>
+    <string name="setting_play_mode">Handset Mode</string>
+    <string name="setting_filter_notify">Filter notifications</string>
+    <string name="setting_friend_delete_mode">Delete Remark</string>
+    <string name="setting_message_read_mode">Read/Unread</string>
+
+    <!-- notify setting-->
+    <string name="setting_notify_info">New Message Notification</string>
+    <string name="setting_notify_mode">Message Reminder</string>
+    <string name="setting_notify_other">Other</string>
+    <string name="setting_notify_mode_ring">Ring Mode</string>
+    <string name="setting_notify_mode_shake">Vibration Mode</string>
+    <string name="setting_notify_push">Push settings</string>
+    <string name="setting_notify_push_sync">Multi-terminal</string>
+    <string name="setting_notify_push_detail">Message Notification Banner</string>
+    <string name="setting_complete">Done</string>
+
+    <!-- clear cache -->
+    <string name="clear_message">Clear message history</string>
+    <string name="clear_sdk_cache">Clear SDK Cache</string>
+    <string name="clear_message_tips">Chat history Cleared</string>
+    <string name="cache_size_text">%.2f &#8197;M</string>
+    <string name="cache_size_null_text">0.00 &#8197;M</string>
+
+    <string name="sexual_male">Male</string>
+    <string name="sexual_female">Female</string>
+    <string name="sexual_unknown">Other</string>
+
+    <!-- toast -->
+    <string name="not_usable">Not open</string>
+    <string name="setting_fail">Setting Failed</string>
+    <string name="setting_success">Setting Successfully</string>
+    <string name="login_fail">Login Failed:%d</string>
+    <string name="request_fail">Failed</string>
+    <string name="user_fail">Failed</string>
+    <string name="network_error">No internet</string>
+</resources>

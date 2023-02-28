@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
+import com.netease.nimlib.sdk.msg.constant.MsgDirectionEnum;
 import com.netease.nimlib.sdk.msg.constant.MsgStatusEnum;
 import com.netease.nimlib.sdk.uinfo.model.NimUserInfo;
 import com.netease.yunxin.kit.common.ui.utils.AvatarColor;
@@ -38,6 +39,8 @@ public abstract class QChatBaseMessageViewHolder extends RecyclerView.ViewHolder
 
   public QchatBaseMessageViewHolderBinding baseViewBinding;
 
+  public QChatMessageInfo currentMessage;
+
   public QChatBaseMessageViewHolder(@NonNull QchatBaseMessageViewHolderBinding viewBiding) {
     super(viewBiding.baseRoot);
     baseViewBinding = viewBiding;
@@ -53,12 +56,14 @@ public abstract class QChatBaseMessageViewHolder extends RecyclerView.ViewHolder
         && TextUtils.equals(payload.get(0).toString(), QChatMessageAdapter.STATUS_PAYLOAD)) {
       setStatus(data);
     }
+    currentMessage = data;
   }
 
   public void bindData(QChatMessageInfo data, QChatMessageInfo lastMessage) {
     String name =
         TextUtils.isEmpty(data.getFromNick()) ? data.getFromAccount() : data.getFromNick();
     String myAccId = IMKitClient.account();
+    currentMessage = data;
     ConstraintLayout.LayoutParams layoutParams =
         (ConstraintLayout.LayoutParams) baseViewBinding.messageBody.getLayoutParams();
     isMine = TextUtils.equals(myAccId, data.getFromAccount());
@@ -126,6 +131,10 @@ public abstract class QChatBaseMessageViewHolder extends RecyclerView.ViewHolder
       baseViewBinding.messageSending.setVisibility(View.GONE);
       baseViewBinding.ivStatus.setVisibility(View.GONE);
     }
+  }
+
+  public boolean isReceivedMessage(QChatMessageInfo message) {
+    return message.getMessage().getDirect() == MsgDirectionEnum.In;
   }
 
   public ViewGroup getParent() {

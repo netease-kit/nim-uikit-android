@@ -21,7 +21,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import com.netease.nimlib.sdk.uinfo.constant.GenderEnum;
 import com.netease.yunxin.app.im.R;
-import com.netease.yunxin.app.im.databinding.ActivityUserInfoBinding;
+import com.netease.yunxin.app.im.databinding.ActivityMineInfoBinding;
 import com.netease.yunxin.app.im.utils.Constant;
 import com.netease.yunxin.kit.common.ui.photo.PhotoChoiceDialog;
 import com.netease.yunxin.kit.common.ui.utils.AvatarColor;
@@ -41,7 +41,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class MineInfoActivity extends AppCompatActivity {
-  private ActivityUserInfoBinding binding;
+  private ActivityMineInfoBinding binding;
   private ActivityResultLauncher<Intent> launcher;
   private UserInfo userInfo;
   private int resultCode = RESULT_CANCELED;
@@ -49,7 +49,7 @@ public class MineInfoActivity extends AppCompatActivity {
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    binding = ActivityUserInfoBinding.inflate(getLayoutInflater());
+    binding = ActivityMineInfoBinding.inflate(getLayoutInflater());
     setContentView(binding.getRoot());
     Window window = getWindow();
     window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);

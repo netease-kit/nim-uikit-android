@@ -47,43 +47,59 @@
         <activity
             android:name="com.netease.yunxin.kit.chatkit.ui.page.ChatP2PActivity"
             android:screenOrientation="portrait"
-            android:launchMode="singleTask" />
+            android:launchMode="singleTask"
+            />
 
         <activity
             android:name="com.netease.yunxin.kit.chatkit.ui.page.ChatTeamActivity"
             android:screenOrientation="portrait"
-            android:launchMode="singleTask" />
+            android:launchMode="singleTask"
+            />
 
         <activity
             android:name="com.netease.yunxin.kit.chatkit.ui.page.ChatSettingActivity"
             android:screenOrientation="portrait"
-            android:launchMode="singleTop" />
+            android:launchMode="singleTop"
+            />
 
         <activity
             android:name="com.netease.yunxin.kit.chatkit.ui.page.ChatMessageAckActivity"
             android:screenOrientation="portrait"
-            android:launchMode="singleTop" />
+            android:launchMode="singleTop"
+            />
 
         <activity
             android:name="com.netease.yunxin.kit.chatkit.ui.page.ChatSearchActivity"
             android:screenOrientation="portrait"
-            android:launchMode="singleTop" />
+            android:launchMode="singleTop"
+            />
 
         <activity
             android:name="com.netease.yunxin.kit.chatkit.ui.page.WatchImageActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.NoActionBar" />
+             />
 
         <activity
             android:name="com.netease.yunxin.kit.chatkit.ui.page.WatchVideoActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.NoActionBar" />
+             />
 
         <activity
             android:name="com.netease.yunxin.kit.chatkit.ui.page.LocationPageActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.NoActionBar"
             android:windowSoftInputMode="adjustResize"/>
+
+        <provider
+            android:name="com.netease.yunxin.kit.common.utils.CommonFileProvider"
+            android:authorities="${applicationId}.IMKitFileProvider"
+            android:exported="false"
+            tools:replace="name,authorities,exported,grantUriPermissions"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths"
+                tools:replace="android:resource"/>
+        </provider>
     </application>
 
 </manifest>

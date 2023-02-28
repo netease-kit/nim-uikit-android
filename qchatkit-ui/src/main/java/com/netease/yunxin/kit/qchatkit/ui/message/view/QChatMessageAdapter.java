@@ -62,6 +62,10 @@ public class QChatMessageAdapter extends RecyclerView.Adapter<QChatBaseMessageVi
     return messageList.size();
   }
 
+  public List<QChatMessageInfo> getMessageList() {
+    return messageList;
+  }
+
   public void setViewHolderFactory(QChatMessageViewHolderFactory viewHolderFactory) {
     this.viewHolderFactory = viewHolderFactory;
   }

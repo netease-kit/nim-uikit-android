@@ -101,7 +101,7 @@
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="@dimen/dimen_70_dp"
             android:layout_marginBottom="@dimen/dimen_16_dp"
-            android:src="@drawable/ic_search_empty"/>
+            android:src="@drawable/ic_contact_empty"/>
 
         <TextView android:id="@+id/add_friend_empty_tv"
             android:layout_width="wrap_content"

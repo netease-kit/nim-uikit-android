@@ -23,43 +23,51 @@
         <activity
             android:name=".contact.ContactActivity"
             android:screenOrientation="portrait"
-            android:exported="false" />
+            android:exported="false"
+            />
 
         <activity
             android:name=".addfriend.AddFriendActivity"
             android:screenOrientation="portrait"
-            android:exported="false" />
+            android:exported="false"
+            />
 
 
         <activity
             android:name=".blacklist.BlackListActivity"
             android:screenOrientation="portrait"
-            android:launchMode="singleTop" />
+            android:launchMode="singleTop"
+            />
 
         <activity
             android:name=".team.TeamListActivity"
             android:screenOrientation="portrait"
-            android:launchMode="singleTop" />
+            android:launchMode="singleTop"
+            />
 
         <activity
             android:name=".verify.VerifyListActivity"
             android:screenOrientation="portrait"
-            android:launchMode="singleTop" />
+            android:launchMode="singleTop"
+            />
 
         <activity
             android:name=".userinfo.UserInfoActivity"
             android:screenOrientation="portrait"
-            android:launchMode="singleTop" />
+            android:launchMode="singleTop"
+            />
 
         <activity
             android:name=".userinfo.CommentActivity"
             android:screenOrientation="portrait"
-            android:launchMode="singleTop" />
+            android:launchMode="singleTop"
+            />
 
         <activity
             android:name=".selector.ContactSelectorActivity"
             android:screenOrientation="portrait"
-            android:launchMode="singleTop" />
+            android:launchMode="singleTop"
+            />
 
     </application>
 

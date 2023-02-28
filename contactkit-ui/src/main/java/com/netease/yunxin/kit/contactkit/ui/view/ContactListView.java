@@ -11,10 +11,13 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.widget.FrameLayout;
 import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.contactkit.ui.IContactFactory;
+import com.netease.yunxin.kit.contactkit.ui.ILoadListener;
 import com.netease.yunxin.kit.contactkit.ui.R;
 import com.netease.yunxin.kit.contactkit.ui.databinding.ContactListViewBinding;
 import com.netease.yunxin.kit.contactkit.ui.indexbar.suspension.SuspensionDecoration;
@@ -35,13 +38,17 @@ public class ContactListView extends FrameLayout
     implements IContactDataChanged, IContactListView, IContactViewAttrs {
   private final String TAG = "ContactListView";
 
-  private ContactListViewBinding binding;
+  public ContactListViewBinding binding;
 
   private ContactAdapter contactAdapter;
 
   private SuspensionDecoration decoration;
 
+  private ILoadListener loadMoreListener;
+
   private ContactListViewAttrs contactListViewAttrs;
+
+  private final int LOAD_MORE_DIFF = 5;
 
   public ContactListView(Context context) {
     super(context);
@@ -75,6 +82,28 @@ public class ContactListView extends FrameLayout
         decoration.setPaddingLeft(getContext().getResources().getDimension(R.dimen.dimen_20_dp)));
     binding.contactList.setAdapter(contactAdapter);
     binding.indexBar.setLayoutManager(layoutManager);
+    binding.contactList.addOnScrollListener(
+        new RecyclerView.OnScrollListener() {
+          @Override
+          public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+            super.onScrollStateChanged(recyclerView, newState);
+            if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+              int position = layoutManager.findLastVisibleItemPosition();
+              if (loadMoreListener != null
+                  && loadMoreListener.hasMore()
+                  && contactAdapter.getItemCount() < position + LOAD_MORE_DIFF) {
+                BaseContactBean last =
+                    contactAdapter.getDataList().get(contactAdapter.getItemCount() - 1);
+                loadMoreListener.loadMore(last);
+              }
+            }
+          }
+
+          @Override
+          public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+            super.onScrolled(recyclerView, dx, dy);
+          }
+        });
     loadAttar();
   }
 
@@ -137,6 +166,10 @@ public class ContactListView extends FrameLayout
     if (contactAdapter != null) {
       contactAdapter.setDefaultActions(contactActions);
     }
+  }
+
+  public void setLoadMoreListener(ILoadListener listener) {
+    this.loadMoreListener = listener;
   }
 
   @Override
@@ -229,6 +262,13 @@ public class ContactListView extends FrameLayout
     }
   }
 
+  public int getItemCount() {
+    if (contactAdapter != null) {
+      return contactAdapter.getItemCount();
+    }
+    return 0;
+  }
+
   @Override
   public void updateContactData(int viewType, List<? extends BaseContactBean> data) {
     if (contactAdapter != null) {
@@ -281,5 +321,9 @@ public class ContactListView extends FrameLayout
     if (contactAdapter != null) {
       contactAdapter.clearData();
     }
+  }
+
+  public void setEmptyViewVisible(int visible) {
+    binding.contactEmptyView.setVisibility(visible);
   }
 }

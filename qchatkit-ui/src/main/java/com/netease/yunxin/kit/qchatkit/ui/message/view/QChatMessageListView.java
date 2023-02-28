@@ -7,6 +7,8 @@ package com.netease.yunxin.kit.qchatkit.ui.message.view;
 import android.content.Context;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -38,6 +40,12 @@ public class QChatMessageListView extends RecyclerView implements IMessageList {
 
   private boolean hasMoreNewerMessages = false;
 
+  private GestureDetector gestureDetector = null;
+
+  private OnListViewEventListener onListViewEventListener;
+
+  private boolean isScroll = false;
+
   public QChatMessageListView(@NonNull Context context) {
     super(context);
     initView(null);
@@ -65,6 +73,34 @@ public class QChatMessageListView extends RecyclerView implements IMessageList {
     viewHolderFactory = new QChatMessageViewHolderFactory();
     messageAdapter = new QChatMessageAdapter(viewHolderFactory);
     setAdapter(messageAdapter);
+
+    gestureDetector =
+        new GestureDetector(
+            getContext(),
+            new GestureDetector.SimpleOnGestureListener() {
+              @Override
+              public boolean onSingleTapUp(MotionEvent e) {
+                if (!isScroll) {
+                  if (onListViewEventListener != null) {
+                    onListViewEventListener.onListViewStartScroll();
+                  }
+                  isScroll = true;
+                }
+                return true;
+              }
+
+              @Override
+              public boolean onScroll(
+                  MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+                if (!isScroll) {
+                  if (onListViewEventListener != null) {
+                    onListViewEventListener.onListViewStartScroll();
+                  }
+                  isScroll = true;
+                }
+                return true;
+              }
+            });
   }
 
   @Override
@@ -101,6 +137,10 @@ public class QChatMessageListView extends RecyclerView implements IMessageList {
     this.hasMoreForwardMessages = hasMoreForwardMessages;
   }
 
+  public void setOnListViewEventListener(OnListViewEventListener onListViewEventListener) {
+    this.onListViewEventListener = onListViewEventListener;
+  }
+
   public void setHasMoreNewerMessages(boolean hasMoreNewerMessages) {
     this.hasMoreNewerMessages = hasMoreNewerMessages;
   }
@@ -127,6 +167,20 @@ public class QChatMessageListView extends RecyclerView implements IMessageList {
         optionCallBack.onRead(lastMessage);
       }
     }
+  }
+
+  @Override
+  public boolean onTouchEvent(MotionEvent e) {
+    if (gestureDetector != null) {
+      gestureDetector.onTouchEvent(e);
+    }
+    if (e.getAction() == MotionEvent.ACTION_CANCEL || e.getAction() == MotionEvent.ACTION_UP) {
+      isScroll = false;
+    }
+    if (onListViewEventListener != null) {
+      onListViewEventListener.onListViewTouched();
+    }
+    return super.onTouchEvent(e);
   }
 
   private QChatMessageInfo findLastUnreadMessage(List<QChatMessageInfo> messages) {
@@ -188,5 +242,11 @@ public class QChatMessageListView extends RecyclerView implements IMessageList {
     if (messageAdapter != null) {
       messageAdapter.setOptionCallBack(callback);
     }
+  }
+
+  public interface OnListViewEventListener {
+    void onListViewStartScroll();
+
+    void onListViewTouched();
   }
 }

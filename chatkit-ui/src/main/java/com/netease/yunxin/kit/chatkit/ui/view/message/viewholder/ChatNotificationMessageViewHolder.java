@@ -4,6 +4,7 @@
 
 package com.netease.yunxin.kit.chatkit.ui.view.message.viewholder;
 
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import androidx.annotation.NonNull;
@@ -42,8 +43,15 @@ public class ChatNotificationMessageViewHolder extends ChatBaseMessageViewHolder
       textBinding.messageText.setTextColor(
           IMKitClient.getApplicationContext().getResources().getColor(R.color.color_999999));
       textBinding.messageText.setTextSize(12);
-      textBinding.messageText.setText(
-          TeamNotificationHelper.getTeamNotificationText(message.getMessageData()));
+      String content = TeamNotificationHelper.getTeamNotificationText(message.getMessageData());
+      textBinding.messageText.setText(content);
+      if (TextUtils.isEmpty(content)) {
+        baseViewBinding.baseRoot.setVisibility(View.GONE);
+        baseViewBinding.messageBody.setVisibility(View.GONE);
+      } else {
+        baseViewBinding.baseRoot.setVisibility(View.VISIBLE);
+        baseViewBinding.messageBody.setVisibility(View.VISIBLE);
+      }
     } else {
       baseViewBinding.baseRoot.setVisibility(View.GONE);
     }

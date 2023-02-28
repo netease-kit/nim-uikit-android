@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2022 NetEase, Inc. All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be
+  ~ found in the LICENSE file.
+  -->
+
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/color_eef1f4">
+
+    <LinearLayout
+        android:id="@+id/llyReply"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:background="@color/color_eff1f4"
+        android:visibility="gone"
+        android:gravity="center_vertical"
+        android:paddingVertical="@dimen/dimen_11_dp"
+        android:paddingHorizontal="@dimen/dimen_8_dp"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/iv_reply_close"
+            android:layout_width="@dimen/dimen_14_dp"
+            android:layout_height="@dimen/dimen_14_dp"
+            android:src="@drawable/ic_grey_close" />
+
+        <View
+            android:layout_width="@dimen/dimen_1_dp"
+            android:layout_height="@dimen/dimen_14_dp"
+            android:layout_marginHorizontal="@dimen/dimen_6_dp"
+            android:background="@color/color_d8eae4" />
+
+        <TextView
+            android:id="@+id/tvReplyContent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:textColor="@color/color_929299"
+            android:textSize="@dimen/text_size_12" />
+
+    </LinearLayout>
+
+    <com.netease.yunxin.kit.common.ui.widgets.RoundFrameLayout
+        android:id="@+id/chat_message_input_layout"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dimen_40_dp"
+        android:layout_marginStart="@dimen/dimen_7_dp"
+        android:layout_marginTop="@dimen/dimen_6_dp"
+        android:layout_marginEnd="@dimen/dimen_7_dp"
+        android:background="@color/color_white"
+        app:corner_radius="@dimen/dimen_8_dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/llyReply">
+
+        <EditText
+            android:id="@+id/chat_message_input_et"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@null"
+            android:imeOptions="actionSend"
+            android:paddingStart="@dimen/dimen_12_dp"
+            android:paddingEnd="@dimen/dimen_12_dp"
+            android:singleLine="true"
+            android:ellipsize="end"
+            android:textColorHint="@color/color_b3b7bc"
+            android:textCursorDrawable="@null"
+            android:textSize="@dimen/text_size_16"
+            android:autofillHints=""
+            android:inputType="text"
+            tools:ignore="LabelFor" />
+    </com.netease.yunxin.kit.common.ui.widgets.RoundFrameLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/chat_message_action_container"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dimen_56_dp"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/chat_message_input_layout" />
+
+    <TextView
+        android:id="@+id/chat_message_voice_in_tip"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:paddingTop="@dimen/dimen_24_dp"
+        android:text="@string/qchat_message_voice_in"
+        android:textColor="@color/color_999999"
+        android:textSize="@dimen/text_size_12"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/chat_message_input_layout" />
+
+    <FrameLayout
+        android:id="@+id/chat_message_input_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/chat_message_action_container">
+
+        <com.netease.yunxin.kit.qchatkit.ui.message.input.RecordView
+            android:id="@+id/chat_message_record_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone" />
+
+        <com.netease.yunxin.kit.qchatkit.ui.message.emoji.EmojiPickerView
+            android:id="@+id/chat_message_emoji_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"/>
+
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/chat_message_actions_panel"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dimen_188_dp"
+            android:visibility="gone"/>
+    </FrameLayout>
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/chat_message_edit_input"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:constraint_referenced_ids="chat_message_input_layout,chat_message_action_container" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

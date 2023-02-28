@@ -10,6 +10,7 @@ import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.REQUEST_CON
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.View;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
@@ -62,6 +63,12 @@ public class ContactSelectorActivity extends BaseActivity {
         .setActionTextColor(getResources().getColor(R.color.color_337eff))
         .setActionListener(
             v -> {
+              List<String> select = getSelectedAccount();
+              if (select.size() < 1) {
+                Toast.makeText(this, getString(R.string.select_empty_tips), Toast.LENGTH_LONG)
+                    .show();
+                return;
+              }
               Intent result = new Intent();
               if (!selectedListAdapter.getSelectedFriends().isEmpty()) {
                 result.putExtra(REQUEST_CONTACT_SELECTOR_KEY, getSelectedAccount());
@@ -124,11 +131,22 @@ public class ContactSelectorActivity extends BaseActivity {
             this,
             contactBeansResult -> {
               if (contactBeansResult.getLoadStatus() == LoadStatus.Success) {
-                binding.contactListView.onFriendDataSourceChanged(
-                    filterUser(contactBeansResult.getData()));
+                List<ContactFriendBean> accountList = filterUser(contactBeansResult.getData());
+                binding.contactListView.onFriendDataSourceChanged(accountList);
+                showEmptyView(accountList == null || accountList.size() < 1);
               }
             });
     viewModel.fetchContactList();
+  }
+
+  private void showEmptyView(boolean show) {
+    if (show) {
+      binding.emptyLayout.setVisibility(View.VISIBLE);
+      binding.contactListView.setVisibility(View.GONE);
+    } else {
+      binding.contactListView.setVisibility(View.VISIBLE);
+      binding.emptyLayout.setVisibility(View.GONE);
+    }
   }
 
   private List<ContactFriendBean> filterUser(List<ContactFriendBean> source) {

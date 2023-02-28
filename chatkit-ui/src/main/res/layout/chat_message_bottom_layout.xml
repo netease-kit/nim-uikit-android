@@ -74,7 +74,6 @@
             android:textColorHint="@color/color_b3b7bc"
             android:textCursorDrawable="@null"
             android:textSize="@dimen/text_size_16"
-            android:autofillHints=""
             android:inputType="text"
             tools:ignore="LabelFor" />
     </com.netease.yunxin.kit.common.ui.widgets.RoundFrameLayout>

@@ -72,7 +72,7 @@ public class TeamUpdateNicknameActivity extends BaseActivity {
           }
         });
     binding.tvSave.setOnClickListener(
-        v -> model.updateNickname(teamId, String.valueOf(binding.etNickname.getText())));
+        v -> model.updateNickname(teamId, String.valueOf(binding.etNickname.getText()).trim()));
     model
         .getNicknameData()
         .observe(

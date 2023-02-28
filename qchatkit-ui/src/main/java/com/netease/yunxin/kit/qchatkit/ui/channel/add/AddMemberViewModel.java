@@ -54,11 +54,11 @@ public class AddMemberViewModel extends BaseViewModel {
     fetchMemberData(serverId, channelId, 0);
   }
 
-  private void fetchMemberData(long serverId, long channelId, long offset) {
+  private void fetchMemberData(long serverId, long channelId, long timeTag) {
     QChatServerRepo.fetchServerMemberWithoutChannel(
         serverId,
         channelId,
-        offset,
+        timeTag,
         QChatConstant.MEMBER_PAGE_SIZE,
         new FetchCallback<List<QChatServerMemberInfo>>() {
           @Override
@@ -77,7 +77,7 @@ public class AddMemberViewModel extends BaseViewModel {
             roleHasMore = param != null && param.size() >= QChatConstant.MEMBER_PAGE_SIZE;
             ALog.d(TAG, "fetchMemberData", "onSuccess" + addList.size());
             fetchResult.setData(addList);
-            if (offset == 0) {
+            if (timeTag == 0) {
               fetchResult.setLoadStatus(LoadStatus.Success);
             } else {
               fetchResult.setFetchType(FetchResult.FetchType.Add);

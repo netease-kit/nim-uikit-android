@@ -109,11 +109,13 @@ public class QChatServerMemberListActivity extends BaseActivity {
                                 public void onFailed(int code) {
                                   String msg = "invite failed, code is " + code;
                                   ALog.w(TAG, msg);
-                                  Toast.makeText(
-                                          QChatServerMemberListActivity.this,
-                                          msg,
-                                          Toast.LENGTH_SHORT)
-                                      .show();
+                                  if (code == QChatConstant.ERROR_CODE_IM_NO_PERMISSION) {
+                                    Toast.makeText(
+                                            QChatServerMemberListActivity.this,
+                                            R.string.qchat_no_permission,
+                                            Toast.LENGTH_SHORT)
+                                        .show();
+                                  }
                                 }
 
                                 @Override

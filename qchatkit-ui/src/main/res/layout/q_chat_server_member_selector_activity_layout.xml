@@ -27,5 +27,26 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
+    <LinearLayout android:id="@+id/empty_layout"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dimen_188_dp"
+        android:layout_marginTop="@dimen/dimen_150_dp"
+        android:visibility="gone"
+        android:orientation="vertical">
+
+        <ImageView
+            android:layout_width="@dimen/dimen_118_dp"
+            android:layout_height="@dimen/dimen_96_dp"
+            android:layout_gravity="center_horizontal"
+            android:src="@drawable/ic_qchat_list_empty"/>
+        <TextView android:id="@+id/empty_tv"
+            android:layout_width="@dimen/dimen_118_dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:gravity="center"
+            android:text="@string/qchat_channel_add_member_empty"/>
+
+    </LinearLayout>
+
 
 </LinearLayout>

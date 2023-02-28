@@ -17,6 +17,7 @@ import android.widget.RelativeLayout;
 import androidx.annotation.NonNull;
 import com.netease.nimlib.sdk.msg.attachment.AudioAttachment;
 import com.netease.yunxin.kit.chatkit.ui.R;
+import com.netease.yunxin.kit.chatkit.ui.common.MessageUtil;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatBaseMessageViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatMessageAudioViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
@@ -84,7 +85,7 @@ public class ChatAudioMessageViewHolder extends ChatBaseMessageViewHolder {
   }
 
   private void initPlayAnim() {
-    if (isReceivedMessage(currentMessage)) {
+    if (MessageUtil.isReceivedMessage(currentMessage)) {
       audioBinding.animation.setImageResource(R.drawable.ani_message_audio_from);
     } else {
       audioBinding.animation.setImageResource(R.drawable.ani_message_audio_to);
@@ -92,7 +93,7 @@ public class ChatAudioMessageViewHolder extends ChatBaseMessageViewHolder {
   }
 
   private void endPlayAnim() {
-    if (isReceivedMessage(currentMessage)) {
+    if (MessageUtil.isReceivedMessage(currentMessage)) {
       audioBinding.animation.setImageResource(R.drawable.ic_message_from_audio);
     } else {
       audioBinding.animation.setImageResource(R.drawable.ic_message_to_audio);
@@ -102,11 +103,10 @@ public class ChatAudioMessageViewHolder extends ChatBaseMessageViewHolder {
   private void updateTime(long milliseconds) {
     long seconds = milliseconds / 1000;
 
-    if (seconds >= 0) {
-      audioBinding.tvTime.setText(String.format("%ss", seconds));
-    } else {
-      audioBinding.tvTime.setText("");
+    if (seconds <= 0) {
+      seconds = 1;
     }
+    audioBinding.tvTime.setText(String.format("%ss", seconds));
   }
 
   private boolean isTheSame(String uuid) {
@@ -165,14 +165,16 @@ public class ChatAudioMessageViewHolder extends ChatBaseMessageViewHolder {
         (RelativeLayout.LayoutParams) audioBinding.animation.getLayoutParams();
     RelativeLayout.LayoutParams timeLp =
         (RelativeLayout.LayoutParams) audioBinding.tvTime.getLayoutParams();
-    if (isReceivedMessage(message)) {
+    if (MessageUtil.isReceivedMessage(message)) {
       aniLp.removeRule(ALIGN_PARENT_RIGHT);
       aniLp.addRule(ALIGN_PARENT_LEFT);
+      timeLp.removeRule(START_OF);
       timeLp.addRule(END_OF, R.id.animation);
       audioBinding.animation.setImageResource(R.drawable.ic_message_from_audio);
     } else {
       aniLp.removeRule(ALIGN_PARENT_LEFT);
       aniLp.addRule(ALIGN_PARENT_RIGHT);
+      timeLp.removeRule(END_OF);
       timeLp.addRule(START_OF, R.id.animation);
       audioBinding.animation.setImageResource(R.drawable.ic_message_to_audio);
     }

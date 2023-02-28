@@ -4,9 +4,8 @@
 
 package com.netease.yunxin.kit.qchatkit.ui.common.permission;
 
-import static com.netease.yunxin.kit.corekit.im.utils.TransHelper.KEY_PERMISSION_RESULT_DENIED;
-import static com.netease.yunxin.kit.corekit.im.utils.TransHelper.KEY_PERMISSION_RESULT_DENIED_FOREVER;
-import static com.netease.yunxin.kit.corekit.im.utils.TransHelper.KEY_PERMISSION_RESULT_GRANTED;
+import static com.netease.yunxin.kit.common.ui.photo.TransHelper.KEY_PERMISSION_RESULT_DENIED;
+import static com.netease.yunxin.kit.common.ui.photo.TransHelper.KEY_PERMISSION_RESULT_DENIED_FOREVER;
 
 import android.app.Activity;
 import android.content.Context;
@@ -14,7 +13,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import com.netease.yunxin.kit.corekit.im.utils.TransHelper;
+import com.netease.yunxin.kit.common.ui.photo.TransHelper;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -98,8 +97,12 @@ public final class PermissionUtils {
                   callback, new IllegalStateException("No permission data."));
               return null;
             }
-            callbackWrapper.onGranted(
-                callback, intent.getStringArrayListExtra(KEY_PERMISSION_RESULT_GRANTED));
+
+            ArrayList<String> grantedList =
+                intent.getStringArrayListExtra(TransHelper.KEY_PERMISSION_RESULT_GRANTED);
+            if (grantedList != null && !grantedList.isEmpty()) {
+              callbackWrapper.onGranted(callback, grantedList);
+            }
 
             List<String> deniedList = intent.getStringArrayListExtra(KEY_PERMISSION_RESULT_DENIED);
             List<String> deniedForeverList =

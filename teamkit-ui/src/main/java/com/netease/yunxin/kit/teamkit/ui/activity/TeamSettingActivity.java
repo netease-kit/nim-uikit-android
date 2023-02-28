@@ -43,6 +43,7 @@ import com.netease.yunxin.kit.teamkit.ui.databinding.TeamSettingActivityBinding;
 import com.netease.yunxin.kit.teamkit.ui.databinding.TeamSettingUserItemBinding;
 import com.netease.yunxin.kit.teamkit.ui.dialog.TeamIdentifyDialog;
 import com.netease.yunxin.kit.teamkit.ui.utils.ColorUtils;
+import com.netease.yunxin.kit.teamkit.ui.utils.TeamUtils;
 import com.netease.yunxin.kit.teamkit.ui.viewmodel.TeamSettingViewModel;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -246,17 +247,10 @@ public class TeamSettingActivity extends BaseActivity {
 
   private void refreshUI(Team team, TeamMember teamMember) {
     initForCommon(team, teamMember);
-    switch (team.getType()) {
-      case Normal:
-        {
-          initForNormal();
-          break;
-        }
-      case Advanced:
-        {
-          initForAdvanced(teamMember);
-          break;
-        }
+    if (TeamUtils.isTeamGroup(team)) {
+      initForNormal();
+    } else {
+      initForAdvanced(teamMember);
     }
   }
 
@@ -280,6 +274,7 @@ public class TeamSettingActivity extends BaseActivity {
                 teamName,
                 teamIntroduce,
                 teamIcon,
+                TeamUtils.isTeamGroup(teamInfo),
                 launcher));
 
     binding.tvHistory.setOnClickListener(
@@ -369,7 +364,7 @@ public class TeamSettingActivity extends BaseActivity {
                   new ChoiceListener() {
                     @Override
                     public void onPositive() {
-                      model.quitTeam(teamId);
+                      model.quitTeam(teamInfo);
                     }
 
                     @Override

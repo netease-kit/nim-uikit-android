@@ -74,7 +74,11 @@ public class QChatRoleCreateActivity extends CommonActivity {
 
     binding.rvMember.setLayoutManager(new LinearLayoutManager(this));
     memberListAdapter =
-        new QChatServerMemberListAdapter(item -> memberListAdapter.deleteItem(item));
+        new QChatServerMemberListAdapter(
+            item -> {
+              memberListAdapter.deleteItem(item);
+              viewModel.deleteSelectMember(item.getAccId());
+            });
     binding.rvMember.setAdapter(memberListAdapter);
     binding.chatRoleName.addTextChangedListener(
         new TextWatcher() {
@@ -124,9 +128,7 @@ public class QChatRoleCreateActivity extends CommonActivity {
 
   @Override
   protected void initViewModel() {
-    ViewModelProvider provider =
-        new ViewModelProvider(this, new ViewModelProvider.NewInstanceFactory());
-    viewModel = provider.get(QChatRoleCreateViewModel.class);
+    viewModel = new ViewModelProvider(this).get(QChatRoleCreateViewModel.class);
   }
 
   public static void launch(Activity activity, long serverId) {

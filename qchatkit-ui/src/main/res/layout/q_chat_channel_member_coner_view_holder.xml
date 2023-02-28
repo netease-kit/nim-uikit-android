@@ -40,6 +40,8 @@
                 android:layout_gravity="center_vertical"
                 android:background="@color/color_white"
                 android:textColor="@color/color_333333"
+                android:maxLines="1"
+                android:ellipsize="end"
                 android:textSize="@dimen/text_size_16" />
 
             <TextView
@@ -51,6 +53,8 @@
                 android:background="@color/color_white"
                 android:textColor="@color/color_666666"
                 android:textSize="@dimen/text_size_12"
+                android:maxLines="1"
+                android:ellipsize="end"
                 android:visibility="gone" />
 
         </LinearLayout>
