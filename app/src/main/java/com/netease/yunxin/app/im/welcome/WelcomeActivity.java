@@ -53,8 +53,8 @@ public class WelcomeActivity extends AppCompatActivity {
     ALog.d(Constant.PROJECT_TAG, TAG, "startLogin");
 
       //填入你的 account and token
-      String account = "332103880306944";
-      String token = "2d9770b3-1b02-4b67-bbe1-851b522294e8";
+      String account = "";
+      String token = "";
       LoginInfo loginInfo = LoginInfo.LoginInfoBuilder.loginInfoDefault(account,token).build();
 
       if (!TextUtils.isEmpty(account) && !TextUtils.isEmpty(token)) {
