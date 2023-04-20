@@ -29,8 +29,7 @@ public class ChatCustom {
             .getString(R.string.chat_reply_message_brief_audio);
       case location:
         return IMKitClient.getApplicationContext()
-                .getString(R.string.chat_reply_message_brief_location)
-            + msg.getContent();
+            .getString(R.string.chat_reply_message_brief_location);
       case file:
         return IMKitClient.getApplicationContext()
             .getString(R.string.chat_reply_message_brief_file);

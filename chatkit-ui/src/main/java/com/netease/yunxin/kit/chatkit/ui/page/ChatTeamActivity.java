@@ -55,4 +55,9 @@ public class ChatTeamActivity extends ChatBaseActivity {
     ALog.e(LIB_TAG, TAG, "onNewIntent");
     chatFragment.onNewIntent(intent);
   }
+
+  @Override
+  protected void onDestroy() {
+    super.onDestroy();
+  }
 }

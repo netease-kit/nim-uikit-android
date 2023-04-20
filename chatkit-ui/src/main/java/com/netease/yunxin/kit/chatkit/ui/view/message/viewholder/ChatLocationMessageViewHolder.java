@@ -41,7 +41,7 @@ public class ChatLocationMessageViewHolder extends ChatBaseMessageViewHolder {
 
   @Override
   public void bindData(ChatMessageBean message, ChatMessageBean lastMessage) {
-    ALog.i(
+    ALog.d(
         ChatKitUIConstant.LIB_TAG,
         TAG,
         "bindData" + "title" + message.getMessageData().getMessage().getContent());

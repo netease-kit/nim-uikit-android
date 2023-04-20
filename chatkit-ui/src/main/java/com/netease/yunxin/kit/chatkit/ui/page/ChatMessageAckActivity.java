@@ -4,6 +4,8 @@
 
 package com.netease.yunxin.kit.chatkit.ui.page;
 
+import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
+
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -27,6 +29,7 @@ import java.util.List;
 public class ChatMessageAckActivity extends BaseActivity {
 
   private static final String IMMESSAGE_KEY = "message_key";
+  private static final String TAG = "ChatMessageAckActivity";
 
   ChatReadStateLayoutBinding binding;
 
@@ -76,7 +79,7 @@ public class ChatMessageAckActivity extends BaseActivity {
         new TabLayoutMediator(
             binding.tabLayout,
             binding.viewPager,
-            (tab, position) -> ALog.i("onConfigureTab pos = " + position));
+            (tab, position) -> ALog.d(LIB_TAG, TAG, "onConfigureTab pos = " + position));
 
     mediator.attach();
   }
@@ -92,7 +95,7 @@ public class ChatMessageAckActivity extends BaseActivity {
     if (message == null) {
       return;
     }
-    ALog.i("initViewModel");
+    ALog.d(LIB_TAG, "initViewModel");
     Bundle readBundle = new Bundle();
     readBundle.putBoolean(ChatReadUserListFragment.ACK_KEY, true);
     readBundle.putString(ChatReadUserListFragment.TID_KEY, message.getSessionId());

@@ -57,6 +57,9 @@ public class EditUserInfoActivity extends AppCompatActivity {
         v -> {
           Map<UserField, Object> map = new HashMap<>(1);
           String result = binding.etNickname.getText().toString();
+          if (userField == UserField.Name && TextUtils.isEmpty(result)) {
+            result = userInfo.getAccount();
+          }
           map.put(userField, result);
 
           CommonRepo.updateUserInfo(
@@ -87,28 +90,6 @@ public class EditUserInfoActivity extends AppCompatActivity {
                       .show();
                 }
               });
-        });
-
-    binding.etNickname.addTextChangedListener(
-        new TextWatcher() {
-          @Override
-          public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-          @Override
-          public void onTextChanged(CharSequence s, int start, int before, int count) {}
-
-          @Override
-          public void afterTextChanged(Editable s) {
-            //            if (TextUtils.isEmpty(String.valueOf(s))) {
-            //              binding.ivClear.setVisibility(View.GONE);
-            //              binding.tvDone.setEnabled(false);
-            //              binding.tvDone.setAlpha(0.5f);
-            //            } else {
-            //              binding.ivClear.setVisibility(View.VISIBLE);
-            //              binding.tvDone.setEnabled(true);
-            //              binding.tvDone.setAlpha(1f);
-            //            }
-          }
         });
 
     binding.etNickname.requestFocus();

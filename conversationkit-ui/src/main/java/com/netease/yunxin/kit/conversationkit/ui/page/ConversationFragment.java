@@ -32,8 +32,10 @@ import com.netease.yunxin.kit.common.utils.NetworkUtils;
 import com.netease.yunxin.kit.conversationkit.model.ConversationInfo;
 import com.netease.yunxin.kit.conversationkit.ui.ConversationKitClient;
 import com.netease.yunxin.kit.conversationkit.ui.ConversationUIConfig;
+import com.netease.yunxin.kit.conversationkit.ui.ConversationUIConstant;
 import com.netease.yunxin.kit.conversationkit.ui.R;
 import com.netease.yunxin.kit.conversationkit.ui.common.ConversationConstant;
+import com.netease.yunxin.kit.conversationkit.ui.common.ConversationHelper;
 import com.netease.yunxin.kit.conversationkit.ui.databinding.ConversationFragmentBinding;
 import com.netease.yunxin.kit.conversationkit.ui.model.ConversationBean;
 import com.netease.yunxin.kit.conversationkit.ui.page.interfaces.IConversationCallback;
@@ -62,6 +64,8 @@ public class ConversationFragment extends BaseFragment implements ILoadListener 
   private Observer<FetchResult<List<Team>>> teamInfoObserver;
   private Observer<FetchResult<MuteListChangedNotify>> muteObserver;
   private Observer<FetchResult<String>> addRemoveStickObserver;
+  private Observer<FetchResult<List<String>>> aitObserver;
+  private Observer<FetchResult<Integer>> unreadCountObserver;
 
   @Nullable
   @Override
@@ -107,6 +111,7 @@ public class ConversationFragment extends BaseFragment implements ILoadListener 
   private void initView() {
     //设置会话排序Comparator，默认按照置顶和时间优先级进行排序
     viewBinding.conversationViewLayout.getConversationView().setComparator(conversationComparator);
+    viewBinding.conversationViewLayout.getConversationView().setLoadMoreListener(this);
     viewBinding
         .conversationViewLayout
         .getConversationView()
@@ -129,7 +134,7 @@ public class ConversationFragment extends BaseFragment implements ILoadListener 
                 if (!result) {
                   XKitRouter.withKey(data.router)
                       .withParam(data.paramKey, data.param)
-                      .withContext(ConversationFragment.this.getContext())
+                      .withContext(ConversationFragment.this.requireContext())
                       .navigate();
                 }
                 return true;
@@ -152,7 +157,7 @@ public class ConversationFragment extends BaseFragment implements ILoadListener 
                 if (!result) {
                   XKitRouter.withKey(data.router)
                       .withParam(data.paramKey, data.param)
-                      .withContext(ConversationFragment.this.getContext())
+                      .withContext(ConversationFragment.this.requireContext())
                       .navigate();
                 }
                 return true;
@@ -209,14 +214,22 @@ public class ConversationFragment extends BaseFragment implements ILoadListener 
                 return;
               }
               Context context = getContext();
+              int memberLimit = ConversationUIConstant.MAX_TEAM_MEMBER;
+              if (ConversationKitClient.getConversationUIConfig() != null
+                  && ConversationKitClient.getConversationUIConfig().teamMemberLimit
+                      != ConversationUIConfig.INT_DEFAULT_NULL) {
+                memberLimit = ConversationKitClient.getConversationUIConfig().teamMemberLimit;
+              }
               ContentListPopView contentListPopView =
                   new ContentListPopView.Builder(context)
                       .addItem(PopItemFactory.getAddFriendItem(context))
-                      .addItem(PopItemFactory.getCreateGroupTeamItem(context))
-                      .addItem(PopItemFactory.getCreateAdvancedTeamItem(context))
+                      .addItem(PopItemFactory.getCreateGroupTeamItem(context, memberLimit))
+                      .addItem(PopItemFactory.getCreateAdvancedTeamItem(context, memberLimit))
                       .build();
               contentListPopView.showAsDropDown(
-                  v, (int) getContext().getResources().getDimension(R.dimen.pop_margin_right), 0);
+                  v,
+                  (int) requireContext().getResources().getDimension(R.dimen.pop_margin_right),
+                  0);
             });
 
     viewBinding
@@ -230,7 +243,7 @@ public class ConversationFragment extends BaseFragment implements ILoadListener 
                 return;
               }
               XKitRouter.withKey(RouterConstant.PATH_GLOBAL_SEARCH_PAGE)
-                  .withContext(getContext())
+                  .withContext(requireContext())
                   .navigate();
             });
 
@@ -399,6 +412,21 @@ public class ConversationFragment extends BaseFragment implements ILoadListener 
           }
         };
 
+    aitObserver =
+        result -> {
+          if (result.getLoadStatus() == LoadStatus.Finish) {
+            if (result.getType() == FetchResult.FetchType.Add) {
+              ALog.d(LIB_TAG, TAG, "AddStickLiveData, Success");
+              ConversationHelper.updateAitInfo(result.getData(), true);
+              viewBinding.conversationViewLayout.getConversationView().updateAit(result.getData());
+            } else if (result.getType() == FetchResult.FetchType.Remove) {
+              ALog.d(LIB_TAG, TAG, "RemoveStickLiveData, Success");
+              ConversationHelper.updateAitInfo(result.getData(), false);
+              viewBinding.conversationViewLayout.getConversationView().updateAit(result.getData());
+            }
+          }
+        };
+
     addRemoveStickObserver =
         result -> {
           if (result.getLoadStatus() == LoadStatus.Finish) {
@@ -417,6 +445,17 @@ public class ConversationFragment extends BaseFragment implements ILoadListener 
             }
           }
         };
+
+    unreadCountObserver =
+        result -> {
+          if (result.getLoadStatus() == LoadStatus.Success) {
+            ALog.d(LIB_TAG, TAG, "unreadCount, Success");
+            if (conversationCallback != null) {
+              conversationCallback.updateUnreadCount(
+                  result.getData() == null ? 0 : result.getData());
+            }
+          }
+        };
   }
 
   @Override
@@ -432,7 +471,6 @@ public class ConversationFragment extends BaseFragment implements ILoadListener 
   }
 
   private void registerObserver() {
-    viewModel.getAddRemoveStickLiveData().observeForever(addRemoveStickObserver);
     viewModel.getChangeLiveData().observeForever(changeObserver);
     viewModel.getStickLiveData().observeForever(stickObserver);
     viewModel.getUserInfoLiveData().observeForever(userInfoObserver);
@@ -440,6 +478,8 @@ public class ConversationFragment extends BaseFragment implements ILoadListener 
     viewModel.getTeamInfoLiveData().observeForever(teamInfoObserver);
     viewModel.getMuteInfoLiveData().observeForever(muteObserver);
     viewModel.getAddRemoveStickLiveData().observeForever(addRemoveStickObserver);
+    viewModel.getAitLiveData().observeForever(aitObserver);
+    viewModel.getUnreadCountLiveData().observeForever(unreadCountObserver);
   }
 
   private void unregisterObserver() {
@@ -450,6 +490,8 @@ public class ConversationFragment extends BaseFragment implements ILoadListener 
     viewModel.getTeamInfoLiveData().removeObserver(teamInfoObserver);
     viewModel.getMuteInfoLiveData().removeObserver(muteObserver);
     viewModel.getAddRemoveStickLiveData().removeObserver(addRemoveStickObserver);
+    viewModel.getAitLiveData().removeObserver(aitObserver);
+    viewModel.getUnreadCountLiveData().removeObserver(unreadCountObserver);
   }
 
   public void setConversationCallback(IConversationCallback callback) {
@@ -483,7 +525,7 @@ public class ConversationFragment extends BaseFragment implements ILoadListener 
 
   private final Comparator<ConversationInfo> conversationComparator =
       (bean1, bean2) -> {
-        int result = -1;
+        int result;
         if (bean1 == null) {
           result = 1;
         } else if (bean2 == null) {
@@ -514,8 +556,8 @@ public class ConversationFragment extends BaseFragment implements ILoadListener 
   }
 
   private void doCallback() {
-    if (conversationCallback != null && viewModel != null) {
-      conversationCallback.updateUnreadCount(viewModel.getUnreadCount());
+    if (viewModel != null) {
+      viewModel.getUnreadCount();
     }
   }
 

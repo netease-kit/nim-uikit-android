@@ -27,6 +27,7 @@ import java.util.Map;
 
 public class TeamNotificationHelper {
 
+  // TODO DB
   public static String getTeamNotificationText(IMMessageInfo message) {
     return buildNotification(
         message.getMessage().getSessionId(),
@@ -172,15 +173,19 @@ public class TeamNotificationHelper {
     StringBuilder sb = new StringBuilder();
     boolean showContent = true;
     for (Map.Entry<TeamFieldEnum, Object> field : a.getUpdatedFields().entrySet()) {
+      StringBuilder subStr = new StringBuilder();
+      subStr.append(getTeamMemberDisplayName(tid, fromUser)).append(" ");
       if (field.getKey() == TeamFieldEnum.Name) {
-        sb.append(IMKitClient.getApplicationContext().getString(R.string.chat_name_update))
-            .append(field.getValue());
+        subStr.append(
+            String.format(
+                IMKitClient.getApplicationContext().getString(R.string.chat_name_update),
+                field.getValue()));
       } else if (field.getKey() == TeamFieldEnum.Introduce) {
-        sb.append(
-                IMKitClient.getApplicationContext().getString(R.string.chat_team_introduce_update))
-            .append(field.getValue());
+        subStr.append(
+            IMKitClient.getApplicationContext().getString(R.string.chat_team_introduce_update));
       } else if (field.getKey() == TeamFieldEnum.Announcement) {
-        sb.append(MessageHelper.getTeamMemberDisplayName(tid, fromUser))
+        subStr
+            .append(MessageHelper.getTeamMemberDisplayName(tid, fromUser))
             .append(
                 IMKitClient.getApplicationContext().getString(R.string.chat_team_notice_update));
       } else if (field.getKey() == TeamFieldEnum.VerifyType) {
@@ -188,75 +193,81 @@ public class TeamNotificationHelper {
         String auth =
             IMKitClient.getApplicationContext().getString(R.string.chat_team_verify_update);
         if (type == VerifyTypeEnum.Free) {
-          sb.append(auth)
+          subStr
+              .append(auth)
               .append(
                   IMKitClient.getApplicationContext()
                       .getString(R.string.chat_team_allow_anyone_join));
         } else if (type == VerifyTypeEnum.Apply) {
-          sb.append(auth)
+          subStr
+              .append(auth)
               .append(
                   IMKitClient.getApplicationContext()
                       .getString(R.string.chat_team_need_authentication));
         } else {
-          sb.append(auth)
+          subStr
+              .append(auth)
               .append(
                   IMKitClient.getApplicationContext()
                       .getString(R.string.chat_team_not_allow_anyone_join));
         }
       } else if (field.getKey() == TeamFieldEnum.ICON) {
-        sb.append(IMKitClient.getApplicationContext().getString(R.string.chat_team_avatar_update));
+        subStr.append(
+            IMKitClient.getApplicationContext().getString(R.string.chat_team_avatar_update));
       } else if (field.getKey() == TeamFieldEnum.InviteMode) {
-        sb.append(
+        subStr.append(
             IMKitClient.getApplicationContext()
                 .getString(R.string.chat_team_invitation_permission_update));
         TeamInviteModeEnum inviteModeEnum = (TeamInviteModeEnum) field.getValue();
         if (inviteModeEnum == TeamInviteModeEnum.All) {
-          sb.append(
+          subStr.append(
               IMKitClient.getApplicationContext()
                   .getString(R.string.chat_team_invitation_permission_all));
         } else {
-          sb.append(
+          subStr.append(
               IMKitClient.getApplicationContext()
                   .getString(R.string.chat_team_invitation_permission_manager));
         }
       } else if (field.getKey() == TeamFieldEnum.TeamUpdateMode) {
-        sb.append(
+        subStr.append(
             IMKitClient.getApplicationContext()
                 .getString(R.string.chat_team_modify_resource_permission_update));
         TeamUpdateModeEnum updateModeEnum = (TeamUpdateModeEnum) field.getValue();
         if (updateModeEnum == TeamUpdateModeEnum.All) {
-          sb.append(
+          subStr.append(
               IMKitClient.getApplicationContext()
                   .getString(R.string.chat_team_modify_permission_all));
         } else {
-          sb.append(
+          subStr.append(
               IMKitClient.getApplicationContext()
                   .getString(R.string.chat_team_modify_permission_manager));
         }
       } else if (field.getKey() == TeamFieldEnum.BeInviteMode) {
-        sb.append(
+        subStr.append(
             IMKitClient.getApplicationContext()
                 .getString(R.string.chat_team_invited_id_verify_permission_update));
-        sb.append(
+        subStr.append(
             IMKitClient.getApplicationContext()
                 .getString(R.string.chat_team_invited_id_verify_permission_update));
         TeamBeInviteModeEnum inviteModeEnum = (TeamBeInviteModeEnum) field.getValue();
         if (inviteModeEnum == TeamBeInviteModeEnum.NeedAuth) {
-          sb.append(
+          subStr.append(
               IMKitClient.getApplicationContext()
                   .getString(R.string.chat_team_invited_permission_need));
         } else {
-          sb.append(
+          subStr.append(
               IMKitClient.getApplicationContext()
                   .getString(R.string.chat_team_invited_permission_no));
         }
       } else if (field.getKey() == TeamFieldEnum.AllMute) {
         TeamAllMuteModeEnum teamAllMuteModeEnum = (TeamAllMuteModeEnum) field.getValue();
+        subStr.delete(0, subStr.length());
         if (teamAllMuteModeEnum == TeamAllMuteModeEnum.Cancel) {
-          sb.append(
+          subStr.append(
               IMKitClient.getApplicationContext().getString(R.string.chat_team_cancel_all_mute));
         } else {
-          sb.append(IMKitClient.getApplicationContext().getString(R.string.chat_team_full_mute));
+          subStr.append(
+              IMKitClient.getApplicationContext().getString(R.string.chat_team_full_mute));
         }
       } else if (field.getKey() == TeamFieldEnum.Extension
           || field.getKey() == TeamFieldEnum.Ext_Server_Only
@@ -264,12 +275,13 @@ public class TeamNotificationHelper {
         showContent = false;
         continue;
       } else {
-        sb.append(
+        subStr.append(
             String.format(
                 IMKitClient.getApplicationContext().getString(R.string.chat_team_update),
                 field.getKey(),
                 field.getValue()));
       }
+      sb.append(subStr);
       sb.append("\r\n");
     }
     if (sb.length() < 2 && !showContent) {

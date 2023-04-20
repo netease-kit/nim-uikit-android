@@ -16,6 +16,7 @@ import com.netease.yunxin.kit.common.ui.viewholder.BaseViewHolder;
 import com.netease.yunxin.kit.conversationkit.ui.ConversationKitClient;
 import com.netease.yunxin.kit.conversationkit.ui.ConversationUIConfig;
 import com.netease.yunxin.kit.conversationkit.ui.R;
+import com.netease.yunxin.kit.conversationkit.ui.common.ConversationHelper;
 import com.netease.yunxin.kit.conversationkit.ui.common.ConversationUtils;
 import com.netease.yunxin.kit.conversationkit.ui.databinding.TeamViewHolderLayoutBinding;
 import com.netease.yunxin.kit.conversationkit.ui.model.ConversationBean;
@@ -66,6 +67,13 @@ public class TeamViewHolder extends BaseViewHolder<ConversationBean> {
       } else {
         viewBinding.conversationUnreadTv.setVisibility(View.GONE);
       }
+    }
+
+    if (ConversationHelper.hasAit(data.infoData.getContactId())
+        && data.infoData.getUnreadCount() > 0) {
+      viewBinding.conversationAitTv.setVisibility(View.VISIBLE);
+    } else {
+      viewBinding.conversationAitTv.setVisibility(View.GONE);
     }
     viewBinding.conversationMessageTv.setText(
         ConversationUtils.getConversationText(context, data.infoData));

@@ -22,6 +22,7 @@ import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.team.constant.TeamBeInviteModeEnum;
 import com.netease.nimlib.sdk.team.constant.TeamInviteModeEnum;
 import com.netease.nimlib.sdk.team.constant.TeamMemberType;
@@ -67,6 +68,7 @@ public class TeamSettingActivity extends BaseActivity {
   private String teamIntroduce;
   private String myTeamNickname;
   private String teamIcon;
+  private boolean isStickTop;
   private TeamBeInviteModeEnum beInviteModeEnum;
 
   private List<UserInfoWithTeam> teamMemberInfoList;
@@ -143,6 +145,7 @@ public class TeamSettingActivity extends BaseActivity {
               teamIntroduce = teamInfo.getIntroduce();
               teamIcon = teamInfo.getIcon();
               teamMember = teamResultInfo.getValue().getTeamMember();
+              isStickTop = teamResultInfo.getValue().isStickTop();
               if (teamMember != null) {
                 myTeamNickname = teamMember.getTeamNick();
               }
@@ -239,7 +242,6 @@ public class TeamSettingActivity extends BaseActivity {
                     booleanResultInfo.getValue() == Boolean.TRUE
                         ? TeamBeInviteModeEnum.NeedAuth
                         : TeamBeInviteModeEnum.NoAuth;
-                return;
               }
               //              binding.swInviteAgree.toggle();
             });
@@ -283,10 +285,18 @@ public class TeamSettingActivity extends BaseActivity {
                 .withParam(RouterConstant.CHAT_KRY, team)
                 .withContext(TeamSettingActivity.this)
                 .navigate());
+
+    binding.tvMark.setOnClickListener(
+        v ->
+            XKitRouter.withKey(RouterConstant.PATH_CHAT_PIN_PAGE)
+                .withParam(RouterConstant.KEY_SESSION_TYPE, SessionTypeEnum.Team.getValue())
+                .withParam(RouterConstant.KEY_SESSION_ID, teamId)
+                .withContext(TeamSettingActivity.this)
+                .navigate());
     binding.swMessageTip.setChecked(team.getMessageNotifyType() == TeamMessageNotifyTypeEnum.All);
     binding.swMessageTip.setOnClickListener(
         v -> model.muteTeam(teamId, !binding.swMessageTip.isChecked()));
-    binding.swSessionPin.setChecked(model.isStick(teamId));
+    binding.swSessionPin.setChecked(isStickTop);
     binding.swSessionPin.setOnClickListener(
         v -> model.configStick(teamId, binding.swSessionPin.isChecked()));
     binding.tvCount.setText(String.valueOf(team.getMemberCount()));
@@ -311,7 +321,9 @@ public class TeamSettingActivity extends BaseActivity {
                   // max count of the team is 200， 199 exclude self.
                   .withParam(
                       RouterConstant.KEY_CONTACT_SELECTOR_MAX_COUNT,
-                      teamMemberInfoList == null ? 199 : 200 - teamMemberInfoList.size())
+                      teamMemberInfoList == null
+                          ? teamInfo.getMemberLimit()
+                          : teamInfo.getMemberLimit() - teamMemberInfoList.size())
                   .withContext(TeamSettingActivity.this)
                   .navigate(launcher));
       params.setMarginStart(SizeUtils.dp2px(6));
@@ -372,6 +384,7 @@ public class TeamSettingActivity extends BaseActivity {
                   })
               .show(getSupportFragmentManager());
         });
+
     binding.nicknameGroup.setVisibility(View.GONE);
     binding.teamMuteGroup.setVisibility(View.GONE);
     binding.bg3.setVisibility(View.GONE);

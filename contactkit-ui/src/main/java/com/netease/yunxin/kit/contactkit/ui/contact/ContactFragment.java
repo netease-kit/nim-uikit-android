@@ -40,6 +40,7 @@ public class ContactFragment extends BaseFragment {
   private ContactFragmentBinding viewBinding;
   private ContactUIConfig contactConfig;
   private Observer<FetchResult<List<ContactFriendBean>>> contactObserver;
+  private Observer<FetchResult<List<ContactFriendBean>>> userInfoObserver;
   private IContactCallback contactCallback;
 
   public void setContactConfig(ContactUIConfig config) {
@@ -74,21 +75,21 @@ public class ContactFragment extends BaseFragment {
                 .onFriendDataSourceChanged(contactBeansResult.getData());
           } else if (contactBeansResult.getLoadStatus() == LoadStatus.Finish) {
             if (contactBeansResult.getType() == FetchResult.FetchType.Add
-                && !contactBeansResult.getData().isEmpty()) {
+                && contactBeansResult.getData() != null) {
               ALog.d(LIB_TAG, TAG, "contactObserver,Add");
               viewBinding
                   .contactLayout
                   .getContactListView()
                   .addFriendData(contactBeansResult.getData());
             } else if (contactBeansResult.getType() == FetchResult.FetchType.Remove
-                && !contactBeansResult.getData().isEmpty()) {
+                && contactBeansResult.getData() != null) {
               ALog.d(LIB_TAG, TAG, "contactObserver,Remove");
               viewBinding
                   .contactLayout
                   .getContactListView()
                   .removeFriendData(contactBeansResult.getData());
             } else if (contactBeansResult.getType() == FetchResult.FetchType.Update
-                && !contactBeansResult.getData().isEmpty()) {
+                && contactBeansResult.getData() != null) {
               ALog.d(LIB_TAG, TAG, "contactObserver,Update");
               viewBinding
                   .contactLayout
@@ -98,8 +99,19 @@ public class ContactFragment extends BaseFragment {
           }
         };
 
+    userInfoObserver =
+        userInfoResult -> {
+          if (userInfoResult.getLoadStatus() == LoadStatus.Finish) {
+            viewBinding
+                .contactLayout
+                .getContactListView()
+                .updateFriendData(userInfoResult.getData());
+          }
+        };
+
     initView();
     viewModel.getContactLiveData().observeForever(contactObserver);
+    viewModel.getUserInfoLiveData().observeForever(userInfoObserver);
     viewModel.fetchContactList();
   }
 
@@ -163,7 +175,7 @@ public class ContactFragment extends BaseFragment {
         (position, data) -> {
           FriendInfo friendInfo = ((ContactFriendBean) data).data;
           XKitRouter.withKey(RouterConstant.PATH_USER_INFO_PAGE)
-              .withContext(getContext())
+              .withContext(requireContext())
               .withParam(RouterConstant.KEY_ACCOUNT_ID_KEY, friendInfo.getAccount())
               .navigate();
         });
@@ -207,7 +219,7 @@ public class ContactFragment extends BaseFragment {
             (position, data) -> {
               if (!TextUtils.isEmpty(data.router)) {
                 XKitRouter.withKey(data.router)
-                    .withContext(ContactFragment.this.getContext())
+                    .withContext(ContactFragment.this.requireContext())
                     .navigate();
               }
             });
@@ -251,7 +263,7 @@ public class ContactFragment extends BaseFragment {
                   contactConfig.titleBarRight2Click.onClick(v);
                 } else {
                   XKitRouter.withKey(RouterConstant.PATH_GLOBAL_SEARCH_PAGE)
-                      .withContext(getContext())
+                      .withContext(requireContext())
                       .navigate();
                 }
               });
@@ -275,9 +287,10 @@ public class ContactFragment extends BaseFragment {
             .contactLayout
             .getTitleBar()
             .setRightImageClick(
-                v -> {
-                  XKitRouter.withKey(PATH_ADD_FRIEND_PAGE).withContext(getContext()).navigate();
-                });
+                v ->
+                    XKitRouter.withKey(PATH_ADD_FRIEND_PAGE)
+                        .withContext(requireContext())
+                        .navigate());
       }
 
     } else {

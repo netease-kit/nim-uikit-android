@@ -9,14 +9,6 @@ import com.netease.yunxin.kit.corekit.im.repo.SettingRepo;
 
 public class SettingViewModel extends BaseViewModel {
 
-  public boolean getDeleteAlias() {
-    return SettingRepo.getDeleteWithAlias();
-  }
-
-  public void setDeleteAlias(boolean delete) {
-    SettingRepo.setDeleteWithAlias(delete);
-  }
-
   public boolean getShowReadStatus() {
     return SettingRepo.getShowReadStatus();
   }

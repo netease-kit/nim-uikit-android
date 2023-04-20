@@ -8,12 +8,19 @@ import android.content.Context;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import androidx.annotation.Nullable;
 import com.netease.yunxin.kit.chatkit.model.UserInfoWithTeam;
+import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
 import com.netease.yunxin.kit.chatkit.ui.R;
+import com.netease.yunxin.kit.chatkit.ui.common.ChatUserCache;
 import com.netease.yunxin.kit.chatkit.ui.model.ait.AitBlock;
 import com.netease.yunxin.kit.chatkit.ui.model.ait.AitContactsModel;
+import com.netease.yunxin.kit.corekit.im.IMKitClient;
 import com.netease.yunxin.kit.corekit.im.model.UserInfo;
+import com.netease.yunxin.kit.corekit.im.provider.FetchCallbackImpl;
+import java.util.ArrayList;
 import java.util.List;
+import org.json.JSONObject;
 
 /** Team member @ manager */
 public class AitManager implements TextWatcher {
@@ -21,7 +28,7 @@ public class AitManager implements TextWatcher {
   private final String tid;
   private final AitContactsModel aitContactsModel;
   private AitTextChangeListener aitTextChangeListener;
-  private List<UserInfoWithTeam> members;
+  private final List<UserInfoWithTeam> teamMemberList = new ArrayList<>();
 
   private int curPos;
   private boolean ignoreTextChange = false;
@@ -30,15 +37,26 @@ public class AitManager implements TextWatcher {
   private int editTextCount;
   private int editTextBefore;
   private boolean delete;
+  private boolean fetchNewInfo;
 
   public AitManager(Context context, String teamId) {
+    this(context, teamId, true);
+  }
+
+  public AitManager(Context context, String teamId, boolean fetchNewInfo) {
     this.mContext = context;
     this.tid = teamId;
     aitContactsModel = new AitContactsModel();
+    this.fetchNewInfo = fetchNewInfo;
   }
 
   public void setTeamMembers(List<UserInfoWithTeam> userInfoWithTeams) {
-    this.members = userInfoWithTeams;
+    this.teamMemberList.clear();
+    for (UserInfoWithTeam member : userInfoWithTeams) {
+      if (!TextUtils.equals(IMKitClient.account(), member.getTeamInfo().getAccount())) {
+        this.teamMemberList.add(member);
+      }
+    }
   }
 
   public void setAitTextChangeListener(AitTextChangeListener listener) {
@@ -65,6 +83,19 @@ public class AitManager implements TextWatcher {
     aitContactsModel.reset();
     ignoreTextChange = false;
     curPos = 0;
+  }
+
+  public void setAitContactsModel(AitContactsModel model) {
+    if (model != null) {
+      List<String> accountList = model.getAitTeamMember();
+      for (String account : accountList) {
+        aitContactsModel.addAitBlock(account, model.getAitBlock(account));
+      }
+    }
+  }
+
+  public JSONObject getAitData() {
+    return aitContactsModel.getBlockJson();
   }
 
   @Override
@@ -101,8 +132,9 @@ public class AitManager implements TextWatcher {
       }
       CharSequence s = editable.subSequence(start, start + count);
       if (s.toString().equals("@") && !TextUtils.isEmpty(tid)) {
+
         AitContactSelectorDialog dialog = new AitContactSelectorDialog(mContext);
-        dialog.setData(members);
+        dialog.setData(teamMemberList, false);
         dialog.setOnItemSelectListener(
             item -> {
               if (item == null) {
@@ -115,11 +147,28 @@ public class AitManager implements TextWatcher {
               } else {
                 UserInfo userInfo = item.getUserInfo();
                 if (userInfo != null) {
-                  insertAitMemberInner(userInfo.getAccount(), item.getAitName(), curPos, false);
+                  insertAitMemberInner(
+                      userInfo.getAccount(), ChatUserCache.getAitName(item), curPos, false);
                 }
               }
             });
         dialog.show();
+        if (fetchNewInfo) {
+          ChatRepo.queryTeamMemberList(
+              tid,
+              true,
+              new FetchCallbackImpl<List<UserInfoWithTeam>>() {
+                @Override
+                public void onSuccess(@Nullable List<UserInfoWithTeam> param) {
+                  if (param != null) {
+                    setTeamMembers(param);
+                  }
+                  if (dialog.isShowing()) {
+                    dialog.setData(teamMemberList, true);
+                  }
+                }
+              });
+        }
       }
       aitContactsModel.onInsertText(start, s.toString());
     }

@@ -34,12 +34,6 @@ public class SettingActivity extends BaseActivity {
 
   private void initView() {
     // delete alias
-    viewBinding.friendDeleteSc.setChecked(viewModel.getDeleteAlias());
-    viewBinding.friendDeleteSc.setOnClickListener(
-        v -> {
-          boolean checked = viewBinding.friendDeleteSc.isChecked();
-          viewModel.setDeleteAlias(checked);
-        });
 
     // show read and unread status
     viewBinding.messageReadSc.setChecked(viewModel.getShowReadStatus());

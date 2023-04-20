@@ -91,7 +91,8 @@ public class ContactListView extends FrameLayout
               int position = layoutManager.findLastVisibleItemPosition();
               if (loadMoreListener != null
                   && loadMoreListener.hasMore()
-                  && contactAdapter.getItemCount() < position + LOAD_MORE_DIFF) {
+                  && contactAdapter.getItemCount() < position + LOAD_MORE_DIFF
+                  && contactAdapter.getItemCount() > 0) {
                 BaseContactBean last =
                     contactAdapter.getDataList().get(contactAdapter.getItemCount() - 1);
                 loadMoreListener.loadMore(last);
@@ -262,6 +263,16 @@ public class ContactListView extends FrameLayout
     }
   }
 
+  public void updateContactDataAndSort(BaseContactBean data) {
+    if (contactAdapter != null) {
+      contactAdapter.updateDataAndSort(data);
+      if (data.isNeedToPinyin()) {
+        binding.indexBar.setSourceData(contactAdapter.getDataList()).invalidate();
+      }
+      decoration.setData(contactAdapter.getDataList());
+    }
+  }
+
   public int getItemCount() {
     if (contactAdapter != null) {
       return contactAdapter.getItemCount();
@@ -323,7 +334,8 @@ public class ContactListView extends FrameLayout
     }
   }
 
-  public void setEmptyViewVisible(int visible) {
+  public void setEmptyViewVisible(int visible, String text) {
     binding.contactEmptyView.setVisibility(visible);
+    binding.contactEmptyTv.setText(text);
   }
 }

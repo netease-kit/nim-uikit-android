@@ -6,6 +6,6 @@ package com.netease.yunxin.kit.contactkit.ui;
 
 public class ContactConstant {
 
-  public static final String LIB_TAG = "ChatKit-UI";
+  public static final String LIB_TAG = "ContactKit-UI";
   public static final String USER_INFO_KEY = "UserInfo";
 }

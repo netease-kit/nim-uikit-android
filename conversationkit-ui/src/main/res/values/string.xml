@@ -10,7 +10,7 @@
     <string name="add_friend">添加好友</string>
     <string name="create_group_team">创建讨论组</string>
     <string name="create_advanced_team">创建高级群</string>
-    <string name="create_advanced_team_success">成功创建高级群</string>
+    <string name="create_advanced_team_success">成功创建了群聊</string>
 
     <string name="stick_title">置顶该聊天</string>
     <string name="cancel_stick_title">取消置顶</string>
@@ -22,12 +22,13 @@
 
     <string name="conversation_network_error_tip">当前网络不可用，请检查你当网络设置。</string>
     <string name="conversation_empty_tip">暂无会话</string>
+    <string name="conversation_ait_tip">[有人@我]</string>
 
     <!-- message type-->
     <string name="msg_type_location">[地理位置]</string>
     <string name="msg_type_rtc_video">[视频通话]</string>
     <string name="msg_type_rtc_audio">[音频通话]</string>
-    <string name="msg_type_image">[图片]</string>
+    <string name="msg_type_image">[图片消息]</string>
     <string name="msg_type_audio">[语音消息]</string>
     <string name="msg_type_video">[视频消息]</string>
     <string name="msg_type_file">[文件消息]</string>

@@ -36,11 +36,10 @@ public class VerifyInfoViewHolder extends BaseContactViewHolder {
 
   @Override
   public void onBind(BaseContactBean bean, int position, ContactListViewAttrs attrs) {
-    SystemMessageInfo info = ((ContactVerifyInfoBean) bean).data;
-    String name =
-        info.getFromUserInfo() != null ? info.getFromUserInfo().getName() : info.getFromAccount();
-    String targetName =
-        info.getTargetTeam() != null ? info.getTargetTeam().getName() : info.getTargetId();
+    ContactVerifyInfoBean infoBean = ((ContactVerifyInfoBean) bean);
+    SystemMessageInfo info = infoBean.data;
+    String name = info.getFromUserName();
+    String targetName = info.getTargetName();
     String avatar =
         info.getTargetTeam() != null
             ? info.getTargetTeam().getIcon()
@@ -48,6 +47,23 @@ public class VerifyInfoViewHolder extends BaseContactViewHolder {
     binding.tvName.setText(name);
 
     binding.avatarView.setData(avatar, name, AvatarColor.avatarColor(info.getFromAccount()));
+    int unreadCount = infoBean.getUnreadCount();
+    if (unreadCount > 1) {
+      binding.unreadTv.setVisibility(View.VISIBLE);
+      if (unreadCount > 99) {
+        binding.unreadTv.setText(context.getString(R.string.verify_max_count_text));
+      } else {
+        binding.unreadTv.setText(String.valueOf(unreadCount));
+      }
+    } else {
+      binding.unreadTv.setVisibility(View.GONE);
+    }
+
+    if (infoBean.data.getUnread()) {
+      binding.rootView.setBackgroundColor(context.getResources().getColor(R.color.color_ededef));
+    } else {
+      binding.rootView.setBackgroundColor(context.getResources().getColor(R.color.color_white));
+    }
 
     switch (info.getInfoStatus()) {
       case Init:
@@ -57,6 +73,12 @@ public class VerifyInfoViewHolder extends BaseContactViewHolder {
             v -> {
               if (verifyListener != null) {
                 verifyListener.onAccept((ContactVerifyInfoBean) bean);
+              }
+            });
+        binding.tvReject.setOnClickListener(
+            v -> {
+              if (verifyListener != null) {
+                verifyListener.onReject((ContactVerifyInfoBean) bean);
               }
             });
         break;

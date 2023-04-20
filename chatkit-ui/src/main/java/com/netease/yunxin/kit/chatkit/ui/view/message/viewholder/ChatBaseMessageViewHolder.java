@@ -20,11 +20,12 @@ import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.msg.model.MsgThreadOption;
 import com.netease.nimlib.sdk.team.model.Team;
 import com.netease.yunxin.kit.alog.ALog;
+import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
+import com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant;
 import com.netease.yunxin.kit.chatkit.ui.ChatMessageType;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
-import com.netease.yunxin.kit.chatkit.ui.common.MessageUtil;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatBaseMessageViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatMessageRevokedViewBinding;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
@@ -44,7 +45,7 @@ import java.util.List;
 /** base message view holder for chat message item */
 public abstract class ChatBaseMessageViewHolder extends RecyclerView.ViewHolder {
 
-  private static final String LOG_TAG = "ChatBaseMessageViewHolder";
+  private static final String TAG = "ChatBaseMessageViewHolder";
 
   private static final int SHOW_TIME_INTERVAL = 5 * 60 * 1000;
 
@@ -63,6 +64,8 @@ public abstract class ChatBaseMessageViewHolder extends RecyclerView.ViewHolder 
   public Team teamInfo;
 
   public ChatMessageBean currentMessage;
+
+  public IMMessageInfo replyMessage;
 
   MessageProperties properties = new MessageProperties();
 
@@ -85,6 +88,7 @@ public abstract class ChatBaseMessageViewHolder extends RecyclerView.ViewHolder 
 
   public void setItemClickListener(IMessageItemClickListener callBack) {
     itemClickListener = callBack;
+    ALog.d(ChatKitUIConstant.LIB_TAG, TAG, "setItemClickListener" + (callBack == null));
   }
 
   public void setMessageReader(IMessageReader messageReader) {
@@ -101,12 +105,14 @@ public abstract class ChatBaseMessageViewHolder extends RecyclerView.ViewHolder 
     if (!payload.isEmpty()) {
       for (int i = 0; i < payload.size(); ++i) {
         String payloadItem = payload.get(i).toString();
+        ALog.d(ChatKitUIConstant.LIB_TAG, TAG, "bindData,payload" + payloadItem);
         if (TextUtils.equals(payloadItem, ActionConstants.PAYLOAD_STATUS)) {
           setStatus(data);
           currentMessage = data;
           onMessageStatus(data);
         } else if (TextUtils.equals(payloadItem, ActionConstants.PAYLOAD_REVOKE)) {
           onMessageRevoked(data);
+          onMessageSignal(data);
         } else if (TextUtils.equals(payloadItem, ActionConstants.PAYLOAD_SIGNAL)) {
           onMessageSignal(data);
         } else if (TextUtils.equals(payloadItem, ActionConstants.PAYLOAD_PROGRESS)) {
@@ -115,6 +121,9 @@ public abstract class ChatBaseMessageViewHolder extends RecyclerView.ViewHolder 
           setUserInfo(data);
         } else if (TextUtils.equals(payloadItem, ActionConstants.PAYLOAD_REVOKE_STATUS)) {
           onMessageRevokeStatus(data);
+          onMessageSignal(data);
+        } else if (TextUtils.equals(payloadItem, ActionConstants.PAYLOAD_REPLY)) {
+          setReplyInfo(data);
         }
       }
     }
@@ -128,48 +137,37 @@ public abstract class ChatBaseMessageViewHolder extends RecyclerView.ViewHolder 
   public void onMessageRevokeStatus(ChatMessageBean data) {}
 
   private void onMessageSignal(ChatMessageBean data) {
-    if (!TextUtils.isEmpty(data.getPinAccid())) {
+    ALog.d(ChatKitUIConstant.LIB_TAG, TAG, "onMessageSignal" + data.getPinAccid());
+    if (!TextUtils.isEmpty(data.getPinAccid()) && !data.isRevoked()) {
       baseViewBinding.tvSignal.setVisibility(View.VISIBLE);
       String tid = null;
       if (data.getMessageData().getMessage().getSessionType() == SessionTypeEnum.Team) {
         tid = data.getMessageData().getMessage().getSessionId();
       }
-      MessageHelper.getChatDisplayNameYou(
-          tid,
-          data.getPinAccid(),
-          new FetchCallback<String>() {
-            @Override
-            public void onSuccess(@Nullable String nick) {
-              if (data.getMessageData().getMessage().getSessionType() == SessionTypeEnum.P2P) {
-                baseViewBinding.tvSignal.setText(
-                    String.format(
-                        IMKitClient.getApplicationContext()
-                            .getString(R.string.chat_message_signal_tip),
-                        nick));
-              } else if (data.getMessageData().getMessage().getSessionType()
-                  == SessionTypeEnum.Team) {
-                baseViewBinding.tvSignal.setText(
-                    String.format(
-                        IMKitClient.getApplicationContext()
-                            .getString(R.string.chat_message_signal_tip_for_team),
-                        nick));
-              }
-            }
-
-            @Override
-            public void onFailed(int code) {}
-
-            @Override
-            public void onException(@Nullable Throwable exception) {}
-          });
+      String nick = MessageHelper.getChatDisplayNameYou(tid, data.getPinAccid());
+      if (data.getMessageData().getMessage().getSessionType() == SessionTypeEnum.P2P) {
+        baseViewBinding.tvSignal.setText(
+            String.format(
+                IMKitClient.getApplicationContext().getString(R.string.chat_message_signal_tip),
+                nick));
+      } else if (data.getMessageData().getMessage().getSessionType() == SessionTypeEnum.Team) {
+        baseViewBinding.tvSignal.setText(
+            String.format(
+                IMKitClient.getApplicationContext()
+                    .getString(R.string.chat_message_signal_tip_for_team),
+                nick));
+      }
 
       ConstraintLayout.LayoutParams layoutParams =
           (ConstraintLayout.LayoutParams) baseViewBinding.tvSignal.getLayoutParams();
-      if (MessageUtil.isReceivedMessage(data)) {
-        layoutParams.horizontalBias = 0f;
+      if (MessageHelper.isReceivedMessage(data)) {
+        layoutParams.leftToLeft = R.id.marginStart;
+        layoutParams.rightToRight = -1;
       } else {
-        layoutParams.horizontalBias = 1f;
+        layoutParams.leftToLeft = -1;
+        layoutParams.rightToRight = R.id.marginEnd;
       }
+      baseViewBinding.tvSignal.setLayoutParams(layoutParams);
 
       if (properties.getSignalBgColor() != MessageProperties.INT_NULL) {
         baseViewBinding.baseRoot.setBackgroundColor(properties.getSignalBgColor());
@@ -186,7 +184,7 @@ public abstract class ChatBaseMessageViewHolder extends RecyclerView.ViewHolder 
     }
   }
 
-  private void onMessageRevoked(ChatMessageBean data) {
+  public void onMessageRevoked(ChatMessageBean data) {
     if (!data.isRevoked()) {
       return;
     }
@@ -195,7 +193,7 @@ public abstract class ChatBaseMessageViewHolder extends RecyclerView.ViewHolder 
     revokedViewBinding =
         ChatMessageRevokedViewBinding.inflate(
             LayoutInflater.from(parent.getContext()), baseViewBinding.messageRevoke, true);
-    if (MessageUtil.revokeMsgIsEdit(data)) {
+    if (MessageHelper.revokeMsgIsEdit(data)) {
       revokedViewBinding.tvAction.setVisibility(View.VISIBLE);
       //reedit
       revokedViewBinding.tvAction.setOnClickListener(
@@ -225,11 +223,8 @@ public abstract class ChatBaseMessageViewHolder extends RecyclerView.ViewHolder 
       baseViewBinding.messageBody.setGravity(Gravity.CENTER);
       return;
     }
-    if (message.getMessageData().getMessage().getThreadOption() != null) {
-      setReplyInfo(message);
-    } else {
-      baseViewBinding.tvReply.setVisibility(View.GONE);
-    }
+
+    setReplyInfo(message);
     setUserInfo(message);
     setTime(message, lastMessage);
     onMessageSignal(message);
@@ -237,14 +232,14 @@ public abstract class ChatBaseMessageViewHolder extends RecyclerView.ViewHolder 
     setStatusCallback();
   }
 
-  private void setUserInfo(ChatMessageBean message) {
+  public void setUserInfo(ChatMessageBean message) {
     if (type == ChatMessageType.NOTICE_MESSAGE_VIEW_TYPE
         || type == ChatMessageType.TIP_MESSAGE_VIEW_TYPE) {
       return;
     }
     ConstraintLayout.LayoutParams layoutParams =
         (ConstraintLayout.LayoutParams) baseViewBinding.messageBody.getLayoutParams();
-    if (MessageUtil.isReceivedMessage(message)) {
+    if (MessageHelper.isReceivedMessage(message)) {
       baseViewBinding.messageBody.setGravity(Gravity.START);
       //防止UserInfo数据不存在
       if (message.getMessageData().getFromUser() == null) {
@@ -278,9 +273,12 @@ public abstract class ChatBaseMessageViewHolder extends RecyclerView.ViewHolder 
         baseViewBinding.avatarMine.setCornerRadius(properties.getAvatarCornerRadius());
       }
       baseViewBinding.tvName.setVisibility(View.GONE);
-      UserInfo userInfo = message.getMessageData().getFromUser();
+      String messageUser = message.getMessageData().getMessage().getFromAccount();
+      UserInfo userInfo = MessageHelper.getChatMessageUserInfo(messageUser);
+      if (userInfo == null) {
+        userInfo = message.getMessageData().getFromUser();
+      }
       if (userInfo != null) {
-        userInfo.getName();
         String nickname = userInfo.getName();
         baseViewBinding.avatarMine.setData(
             userInfo.getAvatar(), nickname, AvatarColor.avatarColor(userInfo.getAccount()));
@@ -303,7 +301,7 @@ public abstract class ChatBaseMessageViewHolder extends RecyclerView.ViewHolder 
     }
   }
 
-  private void loadNickAndAvatar(ChatMessageBean message) {
+  public void loadNickAndAvatar(ChatMessageBean message) {
     ConstraintLayout.LayoutParams layoutParams =
         (ConstraintLayout.LayoutParams) baseViewBinding.messageBody.getLayoutParams();
     //get nick name
@@ -320,16 +318,24 @@ public abstract class ChatBaseMessageViewHolder extends RecyclerView.ViewHolder 
       layoutParams.topToBottom = R.id.tv_name;
     }
     String avatar =
+        MessageHelper.getChatCacheAvatar(message.getMessageData().getMessage().getFromAccount());
+    if (TextUtils.isEmpty(avatar)) {
+      avatar =
+          message.getMessageData().getFromUser() == null
+              ? ""
+              : message.getMessageData().getFromUser().getAvatar();
+    }
+    String avatarName =
         message.getMessageData().getFromUser() == null
-            ? ""
-            : message.getMessageData().getFromUser().getAvatar();
+            ? message.getMessageData().getMessage().getFromAccount()
+            : message.getMessageData().getFromUser().getUserInfoName();
     baseViewBinding.fromAvatar.setVisibility(View.VISIBLE);
     if (properties.getAvatarCornerRadius() >= 0) {
       baseViewBinding.fromAvatar.setCornerRadius(properties.getAvatarCornerRadius());
     }
     baseViewBinding.fromAvatar.setData(
         avatar,
-        name,
+        avatarName,
         AvatarColor.avatarColor(message.getMessageData().getMessage().getFromAccount()));
     baseViewBinding.avatarMine.setVisibility(View.GONE);
     if (properties.receiveMessageRes != MessageProperties.INT_NULL) {
@@ -345,12 +351,12 @@ public abstract class ChatBaseMessageViewHolder extends RecyclerView.ViewHolder 
     layoutParams.horizontalBias = 0f;
   }
 
-  private void setReplyInfo(ChatMessageBean messageBean) {
+  public void setThreadReplyInfo(ChatMessageBean messageBean) {
     MsgThreadOption threadOption = messageBean.getMessageData().getMessage().getThreadOption();
     String replyFrom = threadOption.getReplyMsgFromAccount();
     if (TextUtils.isEmpty(replyFrom)) {
       ALog.w(
-          LOG_TAG,
+          TAG,
           "no reply message found, uuid=" + messageBean.getMessageData().getMessage().getUuid());
       baseViewBinding.tvReply.setVisibility(View.GONE);
       return;
@@ -360,31 +366,93 @@ public abstract class ChatBaseMessageViewHolder extends RecyclerView.ViewHolder 
     String replyUuid = threadOption.getReplyMsgIdClient();
     MessageHelper.getReplyMessageInfo(
         replyUuid,
-        new FetchCallback<String>() {
+        new FetchCallback<List<IMMessageInfo>>() {
           @Override
-          public void onSuccess(@Nullable String param) {
-            String content = "| " + param;
-            MessageUtil.identifyFaceExpression(
-                baseViewBinding.tvReply.getContext(),
-                baseViewBinding.tvReply,
-                content,
-                ImageSpan.ALIGN_BOTTOM);
+          public void onSuccess(@Nullable List<IMMessageInfo> param) {
+            if (param != null && param.size() > 0) {
+              replyMessage = param.get(0);
+
+              String content = "| " + MessageHelper.getReplyContent(replyMessage);
+              MessageHelper.identifyFaceExpression(
+                  baseViewBinding.tvReply.getContext(),
+                  baseViewBinding.tvReply,
+                  content,
+                  ImageSpan.ALIGN_BOTTOM);
+            }
           }
 
           @Override
-          public void onFailed(int code) {}
+          public void onFailed(int code) {
+            baseViewBinding.tvReply.setVisibility(View.GONE);
+          }
 
           @Override
-          public void onException(@Nullable Throwable exception) {}
+          public void onException(@Nullable Throwable exception) {
+            baseViewBinding.tvReply.setVisibility(View.GONE);
+          }
         });
 
     if (itemClickListener != null) {
       baseViewBinding.tvReply.setOnClickListener(
-          v -> itemClickListener.onReplyMessageClick(v, position, replyUuid));
+          v -> itemClickListener.onReplyMessageClick(v, position, replyMessage));
     }
   }
 
-  private void setTime(ChatMessageBean message, ChatMessageBean lastMessage) {
+  public void setReplyInfo(ChatMessageBean messageBean) {
+    replyMessage = null;
+    if (messageBean == null || messageBean.getMessageData() == null) {
+      return;
+    }
+    ALog.w(TAG, TAG, "setReplyInfo, uuid=" + messageBean.getMessageData().getMessage().getUuid());
+    if (messageBean.hasReply()) {
+      //自定义回复实现
+      baseViewBinding.tvReply.setVisibility(View.VISIBLE);
+      String replyUuid = messageBean.getReplyUUid();
+      if (!TextUtils.isEmpty(replyUuid)) {
+        MessageHelper.getReplyMessageInfo(
+            replyUuid,
+            new FetchCallback<List<IMMessageInfo>>() {
+              @Override
+              public void onSuccess(@Nullable List<IMMessageInfo> param) {
+                replyMessage = null;
+                if (param != null && param.size() > 0) {
+                  replyMessage = param.get(0);
+                }
+                String content = "| " + MessageHelper.getReplyContent(replyMessage);
+                MessageHelper.identifyFaceExpression(
+                    baseViewBinding.tvReply.getContext(),
+                    baseViewBinding.tvReply,
+                    content,
+                    ImageSpan.ALIGN_BOTTOM);
+              }
+
+              @Override
+              public void onFailed(int code) {
+                baseViewBinding.tvReply.setVisibility(View.GONE);
+              }
+
+              @Override
+              public void onException(@Nullable Throwable exception) {
+                baseViewBinding.tvReply.setVisibility(View.GONE);
+              }
+            });
+      }
+
+      if (itemClickListener != null) {
+        baseViewBinding.tvReply.setOnClickListener(
+            v -> itemClickListener.onReplyMessageClick(v, position, replyMessage));
+      }
+    } else if (messageBean.getMessageData().getMessage().getThreadOption() != null
+        && !TextUtils.isEmpty(
+            messageBean.getMessageData().getMessage().getThreadOption().getReplyMsgIdClient())) {
+      //thread 回复
+      setThreadReplyInfo(messageBean);
+    } else {
+      baseViewBinding.tvReply.setVisibility(View.GONE);
+    }
+  }
+
+  public void setTime(ChatMessageBean message, ChatMessageBean lastMessage) {
     long createTime =
         message.getMessageData().getMessage().getTime() == 0
             ? System.currentTimeMillis()
@@ -475,7 +543,6 @@ public abstract class ChatBaseMessageViewHolder extends RecyclerView.ViewHolder 
       }
       baseViewBinding.readProcess.setOnClickListener(
           v -> {
-            //goto ChatMessageReadStateActivity
             ChatMessageAckActivity.startMessageAckActivity(
                 v.getContext(), data.getMessageData().getMessage());
           });

@@ -8,6 +8,7 @@ import static android.widget.RelativeLayout.ALIGN_PARENT_LEFT;
 import static android.widget.RelativeLayout.ALIGN_PARENT_RIGHT;
 import static android.widget.RelativeLayout.END_OF;
 import static android.widget.RelativeLayout.START_OF;
+import static com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants.PAYLOAD_REFRESH_AUDIO_ANIM;
 
 import android.graphics.drawable.AnimationDrawable;
 import android.text.TextUtils;
@@ -17,7 +18,7 @@ import android.widget.RelativeLayout;
 import androidx.annotation.NonNull;
 import com.netease.nimlib.sdk.msg.attachment.AudioAttachment;
 import com.netease.yunxin.kit.chatkit.ui.R;
-import com.netease.yunxin.kit.chatkit.ui.common.MessageUtil;
+import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatBaseMessageViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatMessageAudioViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
@@ -25,6 +26,8 @@ import com.netease.yunxin.kit.chatkit.ui.view.message.audio.ChatMessageAudioCont
 import com.netease.yunxin.kit.common.utils.SizeUtils;
 import com.netease.yunxin.kit.corekit.im.audioplayer.Playable;
 import com.netease.yunxin.kit.corekit.im.repo.SettingRepo;
+import java.util.List;
+import java.util.Objects;
 
 /** view holder for audio message */
 public class ChatAudioMessageViewHolder extends ChatBaseMessageViewHolder {
@@ -85,7 +88,7 @@ public class ChatAudioMessageViewHolder extends ChatBaseMessageViewHolder {
   }
 
   private void initPlayAnim() {
-    if (MessageUtil.isReceivedMessage(currentMessage)) {
+    if (MessageHelper.isReceivedMessage(currentMessage)) {
       audioBinding.animation.setImageResource(R.drawable.ani_message_audio_from);
     } else {
       audioBinding.animation.setImageResource(R.drawable.ani_message_audio_to);
@@ -93,7 +96,7 @@ public class ChatAudioMessageViewHolder extends ChatBaseMessageViewHolder {
   }
 
   private void endPlayAnim() {
-    if (MessageUtil.isReceivedMessage(currentMessage)) {
+    if (MessageHelper.isReceivedMessage(currentMessage)) {
       audioBinding.animation.setImageResource(R.drawable.ic_message_from_audio);
     } else {
       audioBinding.animation.setImageResource(R.drawable.ic_message_to_audio);
@@ -137,10 +140,34 @@ public class ChatAudioMessageViewHolder extends ChatBaseMessageViewHolder {
     audioBinding.container.setOnClickListener(
         v -> {
           initPlayAnim();
-          audioControl.setEarPhoneModeEnable(SettingRepo.INSTANCE.getHandsetMode());
+          audioControl.setEarPhoneModeEnable(SettingRepo.getHandsetMode());
           audioControl.startPlayAudioDelay(
               CLICK_TO_PLAY_AUDIO_DELAY, message.getMessageData(), onPlayListener);
         });
+    checkAudioPlayAndRefreshAnim();
+  }
+
+  @Override
+  public void bindData(ChatMessageBean data, int position, @NonNull List<?> payload) {
+    super.bindData(data, position, payload);
+    if (payload.contains(PAYLOAD_REFRESH_AUDIO_ANIM)) {
+      checkAudioPlayAndRefreshAnim();
+    }
+  }
+
+  private void checkAudioPlayAndRefreshAnim() {
+    if (currentMessage == null) {
+      return;
+    }
+    if (audioControl == null) {
+      audioControl = ChatMessageAudioControl.getInstance();
+    }
+    if (!Objects.equals(audioControl.getPlayingAudio(), currentMessage.getMessageData())) {
+      return;
+    }
+    audioControl.setAudioControlListenerWhenPlaying(onPlayListener);
+    initPlayAnim();
+    play();
   }
 
   private void setAudioLayout(ChatMessageBean message) {
@@ -165,7 +192,7 @@ public class ChatAudioMessageViewHolder extends ChatBaseMessageViewHolder {
         (RelativeLayout.LayoutParams) audioBinding.animation.getLayoutParams();
     RelativeLayout.LayoutParams timeLp =
         (RelativeLayout.LayoutParams) audioBinding.tvTime.getLayoutParams();
-    if (MessageUtil.isReceivedMessage(message)) {
+    if (MessageHelper.isReceivedMessage(message)) {
       aniLp.removeRule(ALIGN_PARENT_RIGHT);
       aniLp.addRule(ALIGN_PARENT_LEFT);
       timeLp.removeRule(START_OF);

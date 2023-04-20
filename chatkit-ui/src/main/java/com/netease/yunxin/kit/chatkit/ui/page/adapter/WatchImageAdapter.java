@@ -4,6 +4,8 @@
 
 package com.netease.yunxin.kit.chatkit.ui.page.adapter;
 
+import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.text.TextUtils;
@@ -115,7 +117,7 @@ public class WatchImageAdapter
     if (TextUtils.isEmpty(path)) {
       return;
     }
-    ALog.i(TAG, "updateImage path:" + path);
+    ALog.d(LIB_TAG, TAG, "updateImage path:" + path);
     holder.binding.watchPhotoView.setVisibility(View.VISIBLE);
     holder.binding.watchImageView.setVisibility(View.GONE);
     Bitmap bitmap = ImageUtils.getBitmap(path);

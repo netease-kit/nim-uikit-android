@@ -74,9 +74,9 @@ public class ChatActionFactory {
       if (message.getViewType() != MsgTypeEnum.audio.getValue()) {
         actions.add(getTransmitAction(message));
       }
-      if (message.getViewType() != MsgTypeEnum.location.getValue()) {
-        actions.add(getPinAction(message));
-      }
+      //      if (message.getViewType() != MsgTypeEnum.location.getValue()) {
+      actions.add(getPinAction(message));
+      //      }
       //    actions.add(getMultiSelectAction(message));
       //    actions.add(getCollectionAction(message));
       actions.add(getDeleteAction(message));

@@ -4,15 +4,20 @@
 
 package com.netease.yunxin.kit.chatkit.ui.model;
 
+import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
 import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.KEY_REVOKE_EDIT_TAG;
 import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.KEY_REVOKE_TAG;
 
 import com.netease.nimlib.sdk.msg.model.MsgPinOption;
+import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
+import com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant;
+import java.io.Serializable;
+import java.util.Map;
 import java.util.Objects;
 
 /** this bean for UI show message， only IMMessageInfo will store in db */
-public class ChatMessageBean {
+public class ChatMessageBean implements Serializable {
 
   public ChatMessageBean() {}
 
@@ -50,9 +55,50 @@ public class ChatMessageBean {
     return messageData;
   }
 
-  public ChatMessageBean setMessageData(IMMessageInfo messageData) {
+  public void setMessageData(IMMessageInfo messageData) {
     this.messageData = messageData;
-    return this;
+  }
+
+  public boolean hasReply() {
+    return messageData != null
+        && messageData.getMessage().getRemoteExtension() != null
+        && messageData
+            .getMessage()
+            .getRemoteExtension()
+            .containsKey(ChatKitUIConstant.REPLY_REMOTE_EXTENSION_KEY);
+  }
+
+  public String getReplyUUid() {
+    if (messageData != null
+        && messageData.getMessage().getRemoteExtension() != null
+        && messageData
+            .getMessage()
+            .getRemoteExtension()
+            .containsKey(ChatKitUIConstant.REPLY_REMOTE_EXTENSION_KEY)) {
+      Object replyInfo =
+          messageData
+              .getMessage()
+              .getRemoteExtension()
+              .get(ChatKitUIConstant.REPLY_REMOTE_EXTENSION_KEY);
+      if (replyInfo instanceof Map) {
+        try {
+          Map<String, Object> replyMap = (Map<String, Object>) replyInfo;
+          if (replyMap.containsKey(ChatKitUIConstant.REPLY_UUID_KEY)) {
+            Object uuid = replyMap.get(ChatKitUIConstant.REPLY_UUID_KEY);
+            if (uuid != null) {
+              return uuid.toString();
+            }
+          }
+        } catch (Exception e) {
+          ALog.e(
+              LIB_TAG,
+              "ChatMessageBean",
+              "getReplyUUid,error message"
+                  + (messageData == null ? "null" : messageData.getMessage().getUuid()));
+        }
+      }
+    }
+    return null;
   }
 
   public boolean isRevoked() {

@@ -6,16 +6,19 @@ package com.netease.yunxin.kit.chatkit.ui.page;
 
 import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.Toast;
 import androidx.viewpager2.widget.ViewPager2;
 import com.netease.nimlib.sdk.msg.attachment.ImageAttachment;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.page.adapter.WatchImageAdapter;
+import com.netease.yunxin.kit.common.ui.utils.Permission;
 import com.netease.yunxin.kit.common.ui.utils.ToastX;
 import com.netease.yunxin.kit.common.utils.storage.ExternalStorage;
 import java.io.File;
@@ -122,12 +125,51 @@ public class WatchImageActivity extends WatchBaseActivity {
         return;
       }
       ALog.d(TAG, "save path:" + path);
+      Permission.requirePermissions(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+          .request(
+              new Permission.PermissionCallback() {
+                @Override
+                public void onGranted(List<String> permissionsGranted) {
+                  if (permissionsGranted.contains(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                    if (ExternalStorage.savePictureFile(new File(path))) {
+                      ToastX.showShortToast(R.string.chat_message_image_save);
+                    } else {
+                      ToastX.showShortToast(R.string.chat_message_image_save_fail);
+                    }
+                  } else {
+                    Toast.makeText(
+                            WatchImageActivity.this,
+                            WatchImageActivity.this
+                                .getResources()
+                                .getString(R.string.permission_default),
+                            Toast.LENGTH_SHORT)
+                        .show();
+                  }
+                }
 
-      if (ExternalStorage.savePictureFile(new File(path))) {
-        ToastX.showShortToast(R.string.chat_message_image_save);
-      } else {
-        ToastX.showShortToast(R.string.chat_message_image_save_fail);
-      }
+                @Override
+                public void onDenial(
+                    List<String> permissionsDenial, List<String> permissionDenialForever) {
+                  Toast.makeText(
+                          WatchImageActivity.this,
+                          WatchImageActivity.this
+                              .getResources()
+                              .getString(R.string.permission_default),
+                          Toast.LENGTH_SHORT)
+                      .show();
+                }
+
+                @Override
+                public void onException(Exception exception) {
+                  Toast.makeText(
+                          WatchImageActivity.this,
+                          WatchImageActivity.this
+                              .getResources()
+                              .getString(R.string.permission_default),
+                          Toast.LENGTH_SHORT)
+                      .show();
+                }
+              });
     }
   }
 }

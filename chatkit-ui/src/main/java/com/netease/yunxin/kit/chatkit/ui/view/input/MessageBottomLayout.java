@@ -4,6 +4,8 @@
 
 package com.netease.yunxin.kit.chatkit.ui.view.input;
 
+import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
+
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -12,6 +14,7 @@ import android.content.pm.PackageManager;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.text.style.ImageSpan;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -31,7 +34,6 @@ import com.netease.nimlib.sdk.msg.attachment.MsgAttachment;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
-import com.netease.yunxin.kit.chatkit.ui.common.MessageUtil;
 import com.netease.yunxin.kit.chatkit.ui.custom.StickerAttachment;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatMessageBottomLayoutBinding;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
@@ -236,7 +238,7 @@ public class MessageBottomLayout extends FrameLayout
 
           @Override
           public void afterTextChanged(Editable s) {
-            MessageUtil.replaceEmoticons(getContext(), s, start, count);
+            MessageHelper.replaceEmoticons(getContext(), s, start, count);
             if (aitTextWatcher != null) {
               aitTextWatcher.afterTextChanged(s);
             }
@@ -494,9 +496,13 @@ public class MessageBottomLayout extends FrameLayout
     this.replyMessage = messageBean;
     mBinding.llyReply.setVisibility(VISIBLE);
     String tips = MessageHelper.getReplyMessageTips(messageBean.getMessageData());
-    mBinding.tvReplyContent.setText(
-        String.format(getContext().getString(R.string.chat_message_reply_someone), tips));
-
+    tips = String.format(getContext().getString(R.string.chat_message_reply_someone), tips);
+    MessageHelper.identifyFaceExpression(
+        getContext(),
+        mBinding.tvReplyContent,
+        tips,
+        ImageSpan.ALIGN_CENTER,
+        MessageHelper.SMALL_SCALE);
     mBinding.ivReplyClose.setOnClickListener(v -> clearReplyMsg());
     switchInput();
   }
@@ -528,18 +534,21 @@ public class MessageBottomLayout extends FrameLayout
 
   @Override
   public void onRecordReady() {
-    ALog.i(TAG, "onRecordReady");
+    ALog.d(LIB_TAG, TAG, "onRecordReady");
   }
 
   @Override
   public void onRecordStart(File audioFile, RecordType recordType) {
-    ALog.i(TAG, "onRecordStart");
+    ALog.d(LIB_TAG, TAG, "onRecordStart");
     startRecord();
   }
 
   @Override
   public void onRecordSuccess(File audioFile, long audioLength, RecordType recordType) {
-    ALog.i(TAG, "onRecordSuccess -->> file:" + audioFile.getName() + " length:" + audioLength);
+    ALog.d(
+        LIB_TAG,
+        TAG,
+        "onRecordSuccess -->> file:" + audioFile.getName() + " length:" + audioLength);
     endRecord();
     mProxy.sendAudio(audioFile, audioLength, replyMessage);
     clearReplyMsg();
@@ -547,19 +556,19 @@ public class MessageBottomLayout extends FrameLayout
 
   @Override
   public void onRecordFail() {
-    ALog.i(TAG, "onRecordFail");
+    ALog.d(LIB_TAG, TAG, "onRecordFail");
     endRecord();
   }
 
   @Override
   public void onRecordCancel() {
-    ALog.i(TAG, "onRecordCancel");
+    ALog.d(LIB_TAG, TAG, "onRecordCancel");
     endRecord();
   }
 
   @Override
   public void onRecordReachedMaxTime(int maxTime) {
-    ALog.i(TAG, "onRecordReachedMaxTime -->> " + maxTime);
+    ALog.d(LIB_TAG, TAG, "onRecordReachedMaxTime -->> " + maxTime);
     mBinding.chatMessageRecordView.recordReachMaxTime(maxTime);
   }
 
@@ -576,7 +585,7 @@ public class MessageBottomLayout extends FrameLayout
   }
 
   private void onKeyboardShow() {
-    ALog.i(TAG, "onKeyboardShow inputState:" + mInputState);
+    ALog.d(LIB_TAG, TAG, "onKeyboardShow inputState:" + mInputState);
     if (mInputState != InputState.input) {
       hideCurrentInput();
       mInputState = InputState.input;
@@ -584,7 +593,7 @@ public class MessageBottomLayout extends FrameLayout
   }
 
   private void onKeyboardHide() {
-    ALog.i(TAG, "onKeyboardHide inputState:" + mInputState);
+    ALog.d(LIB_TAG, TAG, "onKeyboardHide inputState:" + mInputState);
     if (mInputState == InputState.input) {
       mInputState = InputState.none;
     }
@@ -592,6 +601,7 @@ public class MessageBottomLayout extends FrameLayout
 
   private void hideKeyboard() {
     KeyboardUtils.hideKeyboard(mBinding.chatMessageInputEt);
+    mBinding.chatMessageInputEt.clearFocus();
   }
 
   private void showKeyboard() {

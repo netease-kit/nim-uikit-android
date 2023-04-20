@@ -16,6 +16,8 @@ public interface IMessageData {
 
   void appendMessageList(List<ChatMessageBean> messageList);
 
+  void appendMessageList(List<ChatMessageBean> messageList, boolean needToScrollEnd);
+
   void appendMessage(ChatMessageBean message);
 
   void updateMessageStatus(ChatMessageBean message);

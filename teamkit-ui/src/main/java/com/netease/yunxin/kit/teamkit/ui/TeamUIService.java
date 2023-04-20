@@ -9,6 +9,7 @@ import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.KEY_TEAM_FI
 import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.KEY_TEAM_NAME;
 import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.PATH_CREATE_ADVANCED_TEAM_ACTION;
 import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.PATH_CREATE_NORMAL_TEAM_ACTION;
+import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.PATH_TEAM_INVITE_ACTION;
 import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.PATH_TEAM_SETTING_PAGE;
 import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.REQUEST_CONTACT_SELECTOR_KEY;
 
@@ -27,6 +28,7 @@ import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.corekit.XKitService;
 import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
 import com.netease.yunxin.kit.corekit.im.utils.IMKitConstant;
+import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.model.ErrorMsg;
 import com.netease.yunxin.kit.corekit.model.ResultInfo;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
@@ -67,11 +69,13 @@ public class TeamUIService extends TeamService {
     return null;
   }
 
+  @NonNull
   @Override
   public XKitService create(@NonNull Context context) {
     XKitRouter.registerRouter(PATH_TEAM_SETTING_PAGE, TeamSettingActivity.class);
     registerCreateNormalTeamRouter(context);
     registerCreateAdvanceTeamRouter(context);
+    registerInviteUser();
     return this;
   }
 
@@ -82,6 +86,7 @@ public class TeamUIService extends TeamService {
   }
 
   //将创建讨论组注册到路由器，可通过路由触发
+  @SuppressWarnings("unchecked")
   public void registerCreateNormalTeamRouter(Context context) {
     XKitRouter.registerRouter(
         PATH_CREATE_NORMAL_TEAM_ACTION,
@@ -113,6 +118,10 @@ public class TeamUIService extends TeamService {
                         : TeamUtils.generateNameFromAccIdList(
                             nameList, context.getString(R.string.group_team));
 
+                if (fieldMap == null) {
+                  fieldMap = new HashMap<>();
+                }
+
                 fieldMap.put(TeamFieldEnum.BeInviteMode, TeamBeInviteModeEnum.NoAuth);
                 fieldMap.put(TeamFieldEnum.InviteMode, TeamInviteModeEnum.All);
                 fieldMap.put(TeamFieldEnum.VerifyType, VerifyTypeEnum.Free);
@@ -127,6 +136,10 @@ public class TeamUIService extends TeamService {
                   fieldMap.put(TeamFieldEnum.Extension, extension);
                 } else {
                   fieldMap.put(TeamFieldEnum.Extension, IMKitConstant.TEAM_GROUP_TAG);
+                }
+
+                if (accIdList == null) {
+                  accIdList = new ArrayList<>();
                 }
 
                 TeamRepo.createAdvanceTeam(
@@ -155,12 +168,10 @@ public class TeamUIService extends TeamService {
                       public void onException(@Nullable Throwable exception) {
                         if (observer != null) {
                           observer.onResult(
-                              new ResultInfo<>(null, false, new ErrorMsg(-1, null, exception)));
+                              new ResultInfo<>(
+                                  null, false, new ErrorMsg(-1, "onException", exception)));
                         }
-                        ALog.e(
-                            TeamKitClient.LIB_TAG,
-                            TAG,
-                            "createNormalTeam onException:" + exception.getMessage());
+                        ALog.e(TeamKitClient.LIB_TAG, TAG, "createNormalTeam onException:");
                       }
                     });
               } catch (Exception exception) {
@@ -175,7 +186,8 @@ public class TeamUIService extends TeamService {
   }
 
   //将创建高级群注册到路由器，可通过路由触发
-  private void registerCreateAdvanceTeamRouter(Context context) {
+  @SuppressWarnings("unchecked")
+  public void registerCreateAdvanceTeamRouter(Context context) {
 
     XKitRouter.registerRouter(
         PATH_CREATE_ADVANCED_TEAM_ACTION,
@@ -204,6 +216,9 @@ public class TeamUIService extends TeamService {
                       ? customParam.get(KEY_TEAM_NAME).toString()
                       : TeamUtils.generateNameFromAccIdList(
                           nameList, context.getString(R.string.advanced_team));
+              if (fieldMap != null && !fieldMap.containsKey(TeamFieldEnum.BeInviteMode)) {
+                fieldMap.put(TeamFieldEnum.BeInviteMode, TeamBeInviteModeEnum.NoAuth);
+              }
 
               TeamRepo.createAdvanceTeam(
                   teamName,
@@ -231,16 +246,36 @@ public class TeamUIService extends TeamService {
                     public void onException(@Nullable Throwable exception) {
                       if (observer != null) {
                         observer.onResult(
-                            new ResultInfo<>(null, false, new ErrorMsg(-1, null, exception)));
+                            new ResultInfo<>(
+                                null, false, new ErrorMsg(-1, "onException", exception)));
                       }
-                      ALog.e(
-                          TeamKitClient.LIB_TAG,
-                          TAG,
-                          "createNormalTeam onException:" + exception.getMessage());
+                      ALog.e(TeamKitClient.LIB_TAG, TAG, "createNormalTeam onException:");
                     }
                   });
 
               return true;
+            }));
+  }
+
+  public void registerInviteUser() {
+    XKitRouter.registerRouter(
+        PATH_TEAM_INVITE_ACTION,
+        new XKitRouter.RouterValue(
+            PATH_TEAM_INVITE_ACTION,
+            (value, params, observer) -> {
+              Map<String, Object> customParam = params;
+              List<String> accIdList =
+                  customParam.get(REQUEST_CONTACT_SELECTOR_KEY) != null
+                      ? (List<String>) customParam.get(REQUEST_CONTACT_SELECTOR_KEY)
+                      : new ArrayList<>();
+              Object teamIdObject = customParam.get(RouterConstant.KEY_TEAM_ID);
+              if (teamIdObject != null && accIdList != null && accIdList.size() > 0) {
+                String teamId = teamIdObject.toString();
+                TeamRepo.inviteUser(teamId, accIdList, null);
+                return true;
+              }
+
+              return false;
             }));
   }
 }

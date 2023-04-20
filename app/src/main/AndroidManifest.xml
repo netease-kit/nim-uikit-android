@@ -125,6 +125,17 @@
             android:screenOrientation="portrait"
             android:exported="false" />
 
+        <!-- 云信 NIM SDK 进程间通信provider-->
+        <provider
+            android:authorities="com.netease.yunxin.app.im.ipc.provider"
+            android:exported="false"
+            android:name="com.netease.nimlib.ipc.NIMContentProvider"
+            android:process=":core"/>
+        <provider
+            android:authorities="com.netease.yunxin.app.im.ipc.provider.preference"
+            android:exported="false"
+            android:name="com.netease.nimlib.ipc.cp.provider.PreferenceContentProvider"/>
+
         <!-- 小米推送配置 -->
         <service
             android:name="com.xiaomi.push.service.XMJobService"
@@ -245,7 +256,8 @@
             android:name="com.vivo.push.app_id"
             android:value="app_id"/>
 
-        <receiver android:name="com.netease.nimlib.mixpush.vivo.VivoPushReceiver">
+        <receiver android:name="com.netease.nimlib.mixpush.vivo.VivoPushReceiver"
+            android:exported="true">
             <intent-filter>
                 <!-- 接收 push 消息 -->
                 <action android:name="com.vivo.pushclient.action.RECEIVE"/>
@@ -256,7 +268,8 @@
         <service
             android:name="com.netease.nimlib.mixpush.oppo.OppoPushService"
 
-            android:permission="com.coloros.mcs.permission.SEND_MCS_MESSAGE">
+            android:permission="com.coloros.mcs.permission.SEND_MCS_MESSAGE"
+            android:exported="true">
             <intent-filter>
                 <action android:name="com.coloros.mcs.action.RECEIVE_MCS_MESSAGE"/>
             </intent-filter>
@@ -265,7 +278,8 @@
         <service
             android:name="com.netease.nimlib.mixpush.oppo.OppoAppPushService"
 
-            android:permission="com.heytap.mcs.permission.SEND_PUSH_MESSAGE">
+            android:permission="com.heytap.mcs.permission.SEND_PUSH_MESSAGE"
+            android:exported="true">
 
             <intent-filter>
                 <action android:name="com.heytap.mcs.action.RECEIVE_MCS_MESSAGE"/>
@@ -275,7 +289,7 @@
         </service> <!--兼容Q版本-->
 
         <!-- 高德地图定位 -->
-        <service android:name="com.amap.api.location.APSService" />
+        <service android:name="com.amap.api.location.APSService"></service>
 
     </application>
 

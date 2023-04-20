@@ -5,6 +5,7 @@
 package com.netease.yunxin.kit.chatkit.ui.view.message.adapter;
 
 import static com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants.PAYLOAD_PROGRESS;
+import static com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants.PAYLOAD_REPLY;
 import static com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants.PAYLOAD_REVOKE;
 import static com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants.PAYLOAD_SIGNAL;
 import static com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants.PAYLOAD_STATUS;
@@ -28,8 +29,10 @@ import com.netease.yunxin.kit.chatkit.ui.view.message.viewholder.ChatBaseMessage
 import com.netease.yunxin.kit.corekit.im.model.UserInfo;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /** chat message adapter for message list */
 public class ChatMessageAdapter extends RecyclerView.Adapter<ChatBaseMessageViewHolder> {
@@ -134,6 +137,10 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatBaseMessageView
     int pos = messageList.size();
     messageList.addAll(message);
     notifyItemRangeInserted(pos, message.size());
+    if (pos + message.size() < messageList.size()) {
+      //刷新消息之间的时间是否需要展示
+      notifyItemChanged(pos + message.size());
+    }
   }
 
   private void removeSameMessage(List<ChatMessageBean> message) {
@@ -212,6 +219,20 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatBaseMessageView
   public void revokeMessage(ChatMessageBean messageBean) {
     messageBean.setRevoked(true);
     updateMessage(messageBean, PAYLOAD_REVOKE);
+    clearReply(messageBean);
+  }
+
+  public void clearReply(ChatMessageBean messageBean) {
+    String uuid = messageBean.getMessageData().getMessage().getUuid();
+    if (TextUtils.isEmpty(uuid)) {
+      return;
+    }
+    for (int i = 0; i < messageList.size(); i++) {
+      ChatMessageBean messageInfo = messageList.get(i);
+      if (messageInfo != null && TextUtils.equals(uuid, messageInfo.getReplyUUid())) {
+        notifyItemChanged(i, PAYLOAD_REPLY);
+      }
+    }
   }
 
   public void updateUserInfo(List<UserInfo> userInfoList) {
@@ -225,8 +246,21 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatBaseMessageView
     for (int i = 0; i < messageList.size(); i++) {
       IMMessageInfo messageInfo = messageList.get(i).getMessageData();
       if (messageInfo != null
-          && messageInfo.getFromUser() != null
-          && accountSet.containsKey(messageInfo.getFromUser().getAccount())) {
+          && accountSet.containsKey(messageInfo.getMessage().getFromAccount())) {
+        notifyItemChanged(i, PAYLOAD_USERINFO);
+      }
+    }
+  }
+
+  public void notifyUserInfoChange(List<String> userInfoList) {
+    if (userInfoList == null || userInfoList.size() < 1) {
+      return;
+    }
+    Set<String> accountSet = new HashSet<>(userInfoList);
+
+    for (int i = 0; i < messageList.size(); i++) {
+      IMMessageInfo messageInfo = messageList.get(i).getMessageData();
+      if (messageInfo != null && accountSet.contains(messageInfo.getMessage().getFromAccount())) {
         notifyItemChanged(i, PAYLOAD_USERINFO);
       }
     }
@@ -294,6 +328,9 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatBaseMessageView
     removeSameMessage(message);
     messageList.addAll(0, message);
     notifyItemRangeInserted(0, message.size());
+    if (messageList.size() > message.size()) {
+      notifyItemChanged(message.size());
+    }
   }
 
   public ChatMessageBean getFirstMessage() {
@@ -316,6 +353,7 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatBaseMessageView
       messageList.remove(message);
       notifyItemRemoved(pos);
     }
+    clearReply(message);
   }
 
   public ChatMessageBean searchMessage(String messageId) {

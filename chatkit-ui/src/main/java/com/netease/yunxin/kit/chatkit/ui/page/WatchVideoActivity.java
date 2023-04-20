@@ -4,18 +4,22 @@
 
 package com.netease.yunxin.kit.chatkit.ui.page;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.Toast;
 import com.netease.nimlib.sdk.msg.attachment.VideoAttachment;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.view.media.SimpleVideoPlayer;
+import com.netease.yunxin.kit.common.ui.utils.Permission;
 import com.netease.yunxin.kit.common.ui.utils.ToastX;
 import com.netease.yunxin.kit.common.utils.storage.ExternalStorage;
 import java.io.File;
+import java.util.List;
 
 /** Watch video page */
 public class WatchVideoActivity extends WatchBaseActivity {
@@ -56,11 +60,51 @@ public class WatchVideoActivity extends WatchBaseActivity {
     }
     ALog.d(TAG, "save path:" + path);
 
-    if (ExternalStorage.saveVideoFile(new File(path))) {
-      ToastX.showShortToast(R.string.chat_message_video_save);
-    } else {
-      ToastX.showShortToast(R.string.chat_message_video_save_fail);
-    }
+    Permission.requirePermissions(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        .request(
+            new Permission.PermissionCallback() {
+              @Override
+              public void onGranted(List<String> permissionsGranted) {
+                if (permissionsGranted.contains(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                  if (ExternalStorage.saveVideoFile(new File(path))) {
+                    ToastX.showShortToast(R.string.chat_message_video_save);
+                  } else {
+                    ToastX.showShortToast(R.string.chat_message_video_save_fail);
+                  }
+                } else {
+                  Toast.makeText(
+                          WatchVideoActivity.this,
+                          WatchVideoActivity.this
+                              .getResources()
+                              .getString(R.string.permission_default),
+                          Toast.LENGTH_SHORT)
+                      .show();
+                }
+              }
+
+              @Override
+              public void onDenial(
+                  List<String> permissionsDenial, List<String> permissionDenialForever) {
+                Toast.makeText(
+                        WatchVideoActivity.this,
+                        WatchVideoActivity.this
+                            .getResources()
+                            .getString(R.string.permission_default),
+                        Toast.LENGTH_SHORT)
+                    .show();
+              }
+
+              @Override
+              public void onException(Exception exception) {
+                Toast.makeText(
+                        WatchVideoActivity.this,
+                        WatchVideoActivity.this
+                            .getResources()
+                            .getString(R.string.permission_default),
+                        Toast.LENGTH_SHORT)
+                    .show();
+              }
+            });
   }
 
   @Override

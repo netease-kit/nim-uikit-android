@@ -32,10 +32,11 @@ public class ContactViewHolder extends BaseContactViewHolder {
   public void onBind(BaseContactBean bean, int position, ContactListViewAttrs attrs) {
     FriendInfo friendInfo = ((ContactFriendBean) bean).data;
     String nickName = friendInfo.getName();
+    String avatarName = friendInfo.getAvatarName();
     binding.tvName.setText(nickName);
 
     binding.avatarView.setData(
-        friendInfo.getAvatar(), nickName, ColorUtils.avatarColor(friendInfo.getAccount()));
+        friendInfo.getAvatar(), avatarName, ColorUtils.avatarColor(friendInfo.getAccount()));
 
     if (attrs.getShowSelector()) {
       binding.rbSelector.setChecked(((ContactFriendBean) bean).isSelected());

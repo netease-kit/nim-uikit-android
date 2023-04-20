@@ -54,7 +54,9 @@ public class ActionConstants {
   public static final String PAYLOAD_STATUS = "messageStatus";
   public static final String PAYLOAD_PROGRESS = "messageProgress";
   public static final String PAYLOAD_REVOKE = "messageRevoke";
+  public static final String PAYLOAD_REPLY = "messageReply";
   public static final String PAYLOAD_REVOKE_STATUS = "messageRevokeStatus";
   public static final String PAYLOAD_SIGNAL = "messageSignal";
   public static final String PAYLOAD_USERINFO = "userInfo";
+  public static final String PAYLOAD_REFRESH_AUDIO_ANIM = "refreshAudioAnim";
 }

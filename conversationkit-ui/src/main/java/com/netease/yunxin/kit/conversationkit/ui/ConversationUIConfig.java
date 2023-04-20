@@ -13,6 +13,7 @@ public class ConversationUIConfig {
 
   public static int INT_DEFAULT_NULL = -1;
 
+  public int teamMemberLimit = INT_DEFAULT_NULL;
   public boolean showTitleBar = true;
   public boolean showTitleBarLeftIcon = true;
   public boolean showTitleBarRightIcon = true;
