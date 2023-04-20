@@ -15,7 +15,7 @@ android {
         minSdk = 21
         targetSdk = 30
         versionCode = 1
-        versionName = "9.5.1"
+        versionName = "9.5.2"
         multiDexEnabled = true
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -56,12 +56,12 @@ dependencies {
 //    implementation(project(":searchkit-ui"))
 //    implementation(project(":locationkit"))
 
-    implementation("com.netease.yunxin.kit.contact:contactkit-ui:9.5.1")
-    implementation("com.netease.yunxin.kit.conversation:conversationkit-ui:9.5.1")
-    implementation("com.netease.yunxin.kit.team:teamkit-ui:9.5.1")
-    implementation("com.netease.yunxin.kit.chat:chatkit-ui:9.5.1")
-    implementation("com.netease.yunxin.kit.search:searchkit-ui:9.5.1")
-    implementation("com.netease.yunxin.kit.locationkit:locationkit:9.5.1")
+    implementation("com.netease.yunxin.kit.contact:contactkit-ui:9.5.2")
+    implementation("com.netease.yunxin.kit.conversation:conversationkit-ui:9.5.2")
+    implementation("com.netease.yunxin.kit.team:teamkit-ui:9.5.2")
+    implementation("com.netease.yunxin.kit.chat:chatkit-ui:9.5.2")
+    implementation("com.netease.yunxin.kit.search:searchkit-ui:9.5.2")
+    implementation("com.netease.yunxin.kit.locationkit:locationkit:9.5.2")
     implementation("com.netease.yunxin.kit.call:call-ui:1.8.2") //呼叫组件 UI 包
     api("com.netease.nimlib:avsignalling:9.10.0") //呼叫组件 依赖信令包
     implementation("com.airbnb.android:lottie:5.0.3")
