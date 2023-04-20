@@ -117,16 +117,16 @@
         android:id="@+id/tvSignal"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:maxLines="1"
-        android:ellipsize="end"
+        android:ellipsize="middle"
         app:layout_constraintTop_toBottomOf="@id/messageBody"
-        app:layout_constraintLeft_toLeftOf="@id/marginStart"
-        app:layout_constraintRight_toRightOf="@+id/marginEnd"
+        app:layout_constraintStart_toStartOf="@id/marginStart"
+        app:layout_constraintEnd_toEndOf="@id/marginEnd"
         android:textColor="@color/color_3eaf96"
         android:textSize="@dimen/text_size_11"
         app:drawableStartCompat="@drawable/ic_message_signal"
         android:drawablePadding="@dimen/dimen_5_dp"
-        android:visibility="gone" />
+        android:visibility="gone"
+        android:singleLine="true" />
 
     <com.netease.yunxin.kit.common.ui.widgets.ContactAvatarView
         android:id="@+id/avatarMine"

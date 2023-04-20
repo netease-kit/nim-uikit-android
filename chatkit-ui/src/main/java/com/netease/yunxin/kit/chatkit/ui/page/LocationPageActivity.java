@@ -4,6 +4,8 @@
 
 package com.netease.yunxin.kit.chatkit.ui.page;
 
+import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
+
 import android.content.Context;
 import android.content.Intent;
 import android.net.NetworkInfo;
@@ -157,7 +159,7 @@ public class LocationPageActivity extends BaseActivity {
         new ILocationSearchCallback() {
           @Override
           public void onSuccess(List<ChatLocationBean> result) {
-            ALog.i(TAG, "ILocationSearchCallback:onSuccess:" + result);
+            ALog.d(LIB_TAG, TAG, "ILocationSearchCallback:onSuccess:" + result);
             showSearch(result != null && !result.isEmpty());
             if (result == null) {
               return;
@@ -168,7 +170,7 @@ public class LocationPageActivity extends BaseActivity {
               adapter.setData(
                   result,
                   bean -> {
-                    ALog.i(TAG, "location selected:" + bean);
+                    ALog.d(LIB_TAG, TAG, "location selected:" + bean);
                     mSelectLoc = bean;
                     selectLocation(bean);
                   });
@@ -190,7 +192,7 @@ public class LocationPageActivity extends BaseActivity {
     binding.mapViewCancel.setOnClickListener(v -> finish());
     binding.mapViewSend.setOnClickListener(
         v -> {
-          ALog.i(TAG, "send location message:" + mSelectLoc);
+          ALog.d(LIB_TAG, TAG, "send location message:" + mSelectLoc);
           Intent result = new Intent();
           result.putExtra(SEND_LOCATION_RESULT, mSelectLoc);
           setResult(RESULT_OK, result);

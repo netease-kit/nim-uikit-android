@@ -4,6 +4,7 @@
 
 package com.netease.yunxin.kit.chatkit.ui.dialog;
 
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +13,7 @@ import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.team.model.Team;
+import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatMessageForwardConfirmLayoutBinding;
@@ -23,6 +25,7 @@ import com.netease.yunxin.kit.common.ui.utils.AvatarColor;
 import com.netease.yunxin.kit.corekit.im.model.UserInfo;
 import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
 import com.netease.yunxin.kit.corekit.im.provider.TeamProvider;
+import java.util.ArrayList;
 
 public class ChatMessageForwardConfirmDialog extends BaseDialog {
 
@@ -163,5 +166,21 @@ public class ChatMessageForwardConfirmDialog extends BaseDialog {
         getBinding().nickname.setVisibility(View.GONE);
       }
     }
+  }
+
+  public static ChatMessageForwardConfirmDialog createForwardConfirmDialog(
+      SessionTypeEnum type, ArrayList<String> sessionIds, IMMessageInfo messageInfo) {
+    ChatMessageForwardConfirmDialog confirmDialog = new ChatMessageForwardConfirmDialog();
+    Bundle bundle = new Bundle();
+    bundle.putInt(ChatMessageForwardConfirmDialog.FORWARD_TYPE, type.getValue());
+    bundle.putStringArrayList(ChatMessageForwardConfirmDialog.FORWARD_SESSION_LIST, sessionIds);
+    String sendName =
+        messageInfo.getFromUser() == null
+            ? messageInfo.getMessage().getFromAccount()
+            : messageInfo.getFromUser().getName();
+    bundle.putString(ChatMessageForwardConfirmDialog.FORWARD_MESSAGE_SEND, sendName);
+    confirmDialog.setArguments(bundle);
+
+    return confirmDialog;
   }
 }

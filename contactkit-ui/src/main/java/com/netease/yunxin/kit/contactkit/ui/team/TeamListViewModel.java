@@ -58,7 +58,7 @@ public class TeamListViewModel extends BaseViewModel {
               fetchResult.setStatus(LoadStatus.Success);
               for (Team teamInfo : param) {
                 ContactTeamBean teamBean = new ContactTeamBean(teamInfo);
-                teamBeanList.add(teamBean);
+                teamBeanList.add(0, teamBean);
               }
               fetchResult.setData(teamBeanList);
             } else {

@@ -70,7 +70,9 @@ public class ConversationAdapter extends RecyclerView.Adapter<BaseViewHolder> {
   /** append data to list */
   public void appendData(List<ConversationBean> data) {
     if (data != null) {
+      int position = conversationList.size();
       conversationList.addAll(data);
+      notifyItemInserted(position);
     }
   }
 
@@ -236,6 +238,21 @@ public class ConversationAdapter extends RecyclerView.Adapter<BaseViewHolder> {
       conversationList.remove(position);
       if (isShow) {
         notifyItemRemoved(position);
+      }
+    }
+  }
+
+  public void updateAit(List<String> idList) {
+    int index = -1;
+    for (String id : idList) {
+      for (int j = 0; j < conversationList.size(); j++) {
+        if (TextUtils.equals(conversationList.get(j).infoData.getContactId(), id)) {
+          index = j;
+          break;
+        }
+      }
+      if (index > -1) {
+        notifyItemChanged(index);
       }
     }
   }

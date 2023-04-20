@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.netease.nimlib.sdk.uinfo.model.NimUserInfo;
 import com.netease.yunxin.kit.chatkit.model.UserInfoWithTeam;
 import com.netease.yunxin.kit.chatkit.ui.R;
+import com.netease.yunxin.kit.chatkit.ui.common.ChatUserCache;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatMessageAitContactViewHolderBinding;
 import com.netease.yunxin.kit.common.ui.utils.AvatarColor;
 import java.util.List;
@@ -56,11 +57,12 @@ public class AitContactAdapter extends RecyclerView.Adapter<AitContactAdapter.Ai
       if (member == null) {
         return;
       }
-      holder.binding.contactName.setText(member.getName());
-      NimUserInfo userInfo = member.getUserInfo();
+      String showName = ChatUserCache.getName(member);
+      holder.binding.contactName.setText(showName);
+      NimUserInfo userInfo = ChatUserCache.getUserInfo(member);
       if (userInfo != null) {
         holder.binding.contactHeader.setData(
-            userInfo.getAvatar(), member.getName(), AvatarColor.avatarColor(userInfo.getAccount()));
+            userInfo.getAvatar(), showName, AvatarColor.avatarColor(userInfo.getAccount()));
       }
       holder
           .binding

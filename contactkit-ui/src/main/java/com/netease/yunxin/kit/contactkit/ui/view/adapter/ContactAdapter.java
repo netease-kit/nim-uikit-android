@@ -16,9 +16,11 @@ import com.netease.yunxin.kit.contactkit.ui.contact.ContactDefaultFactory;
 import com.netease.yunxin.kit.contactkit.ui.interfaces.ContactActions;
 import com.netease.yunxin.kit.contactkit.ui.model.BaseContactBean;
 import com.netease.yunxin.kit.contactkit.ui.model.ContactFriendBean;
+import com.netease.yunxin.kit.contactkit.ui.model.IViewTypeConstant;
 import com.netease.yunxin.kit.contactkit.ui.view.ContactListViewAttrs;
 import com.netease.yunxin.kit.contactkit.ui.view.viewholder.BaseContactViewHolder;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -59,20 +61,30 @@ public class ContactAdapter extends RecyclerView.Adapter<BaseContactViewHolder> 
     holder.onBind(bean, position, contactListViewAttrs);
   }
 
+  // 通讯录调用，添加，更新，删除 好友列表
   @SuppressLint("NotifyDataSetChanged")
   public void updateFriendData(List<ContactFriendBean> list) {
     if (list == null || list.isEmpty()) {
       return;
     }
-    if (!friendList.isEmpty()) {
-      dataList.removeAll(friendList);
+
+    // 以前调用 removeAll 操作，数量级为 mn，
+    // 由于此处目的为了移除当前所有的好友数据，直接过滤源单列表，数量级缩减为 m
+    Iterator<BaseContactBean> iterator = dataList.iterator();
+    while (iterator.hasNext()) {
+      BaseContactBean item = iterator.next();
+      if (item.viewType == IViewTypeConstant.CONTACT_FRIEND) {
+        iterator.remove();
+      }
     }
+
     friendList.clear();
     friendList.addAll(list);
     dataList.addAll(list);
     notifyDataSetChanged();
   }
 
+  // 通讯录调用，添加，删除，更新 好友
   @SuppressLint("NotifyDataSetChanged")
   public void updateFriendData() {
     int indexStart = 0;
@@ -90,6 +102,7 @@ public class ContactAdapter extends RecyclerView.Adapter<BaseContactViewHolder> 
     notifyDataSetChanged();
   }
 
+  // 黑名单调用
   public void removeData(BaseContactBean data) {
     if (data == null) {
       return;
@@ -101,6 +114,7 @@ public class ContactAdapter extends RecyclerView.Adapter<BaseContactViewHolder> 
     }
   }
 
+  // 黑名单和验证消息列表调用
   @SuppressLint("NotifyDataSetChanged")
   public void removeListData(List<? extends BaseContactBean> listData) {
     if (listData == null || listData.isEmpty()) {
@@ -111,6 +125,7 @@ public class ContactAdapter extends RecyclerView.Adapter<BaseContactViewHolder> 
     }
   }
 
+  // 群列表调用
   @SuppressLint("NotifyDataSetChanged")
   public void clearData() {
     if (!dataList.isEmpty()) {
@@ -119,12 +134,14 @@ public class ContactAdapter extends RecyclerView.Adapter<BaseContactViewHolder> 
     }
   }
 
+  // 暂未调用
   public void clearFriendData() {
     if (!friendList.isEmpty()) {
       friendList.clear();
     }
   }
 
+  // 通讯录调用，用于添加头部
   public void addData(BaseContactBean data) {
     if (data == null) {
       return;
@@ -144,6 +161,7 @@ public class ContactAdapter extends RecyclerView.Adapter<BaseContactViewHolder> 
     }
   }
 
+  // 验证，好友选择，通讯录调用
   public void updateData(BaseContactBean data) {
     int index = dataList.indexOf(data);
     if (index >= 0) {
@@ -152,6 +170,18 @@ public class ContactAdapter extends RecyclerView.Adapter<BaseContactViewHolder> 
     }
   }
 
+  // 验证，好友选择，通讯录调用
+  public void updateDataAndSort(BaseContactBean data) {
+    int index = dataList.indexOf(data);
+    if (index >= 0) {
+      dataList.remove(index);
+      notifyItemRemoved(index);
+      dataList.add(0, data);
+      notifyItemInserted(0);
+    }
+  }
+
+  // 暂未调用
   public void updateData(int viewType, List<? extends BaseContactBean> list) {
     if (list == null || list.isEmpty()) {
       return;
@@ -180,6 +210,7 @@ public class ContactAdapter extends RecyclerView.Adapter<BaseContactViewHolder> 
     notifyItemRangeChanged(indexStart, indexEnd);
   }
 
+  // 用户配置，通讯录添加列表头部信息
   public void addListData(List<? extends BaseContactBean> listData) {
     if (listData == null || listData.isEmpty()) {
       return;
@@ -199,6 +230,7 @@ public class ContactAdapter extends RecyclerView.Adapter<BaseContactViewHolder> 
     }
   }
 
+  // 验证消息调用
   public void addForwardListData(List<? extends BaseContactBean> listData) {
     if (listData == null || listData.isEmpty()) {
       return;

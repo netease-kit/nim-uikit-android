@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/color_eef1f4"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/pin_top_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        tools:ignore="MissingConstraints">
+
+        <com.netease.yunxin.kit.common.ui.widgets.BackTitleBar
+            android:id="@+id/pin_title_bar"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dimen_52_dp"
+            app:titleText="@string/chat_pin_title"
+            tools:ignore="MissingConstraints" />
+
+        <View
+            android:id="@+id/pin_split_line"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dimen_1_dp"
+            android:alpha="0.6"
+            android:background="@color/color_e9eff5"
+            tools:ignore="MissingConstraints" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/pin_body_layout"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        tools:ignore="MissingConstraints">
+
+        <TextView
+            android:id="@+id/pin_network_error_tv"
+            android:layout_width="match_parent"
+            android:layout_height="36dp"
+            android:background="@color/color_fee3e6"
+            android:gravity="center"
+            android:text="@string/chat_network_error_tip"
+            android:textColor="@color/color_fc596a"
+            android:textSize="14dp"
+            android:visibility="gone" />
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/pin_recycler_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingBottom="@dimen/dimen_16_dp"/>
+
+            <LinearLayout android:id="@+id/pin_empty_view"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dimen_188_dp"
+                android:layout_marginTop="@dimen/dimen_150_dp"
+                android:visibility="gone"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:layout_width="@dimen/dimen_118_dp"
+                    android:layout_height="@dimen/dimen_96_dp"
+                    android:layout_gravity="center_horizontal"
+                    android:src="@drawable/ic_chat_empty"/>
+
+                <TextView android:id="@+id/empty_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:text="@string/chat_pin_empty_tips"/>
+
+            </LinearLayout>
+        </FrameLayout>
+    </LinearLayout>
+
+</LinearLayout>

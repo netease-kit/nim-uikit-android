@@ -32,6 +32,8 @@
     <string name="reject_your_friend_apply">拒绝了你的好友请求</string>
     <string name="verify_msg">验证消息</string>
     <string name="verify_max_count_text">99+</string>
+    <string name="verify_agree_message_text">我已经同意了你的申请，现在开始聊天吧~</string>
+    <string name="verify_empty_text">暂无验证消息</string>
 
     <!-- my team page -->
     <string name="my_team">我的群聊</string>
@@ -72,8 +74,8 @@
     <string name="disagree_apply_join_team_fail">拒绝入群申请失败</string>
     <string name="agree_invite_team_fail">同意入群邀请失败</string>
     <string name="disagree_invite_team_fail">拒绝入群邀请失败</string>
-
     <string name="remove_black_fail">黑名单移除失败</string>
+    <string name="verify_duplicate_fail">该验证消息已在其他端处理</string>
 
     <!--    selector-->
     <string name="select">选择</string>

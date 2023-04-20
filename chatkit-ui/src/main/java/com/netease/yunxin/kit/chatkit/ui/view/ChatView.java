@@ -104,6 +104,10 @@ public class ChatView extends LinearLayout {
     binding.messageView.appendMessageList(messageList);
   }
 
+  public void appendMessageList(List<ChatMessageBean> messageList, boolean needToScrollEnd) {
+    binding.messageView.appendMessageList(messageList, needToScrollEnd);
+  }
+
   public void updateUserInfo(List<UserInfo> userInfoList) {
     binding.messageView.updateUserInfo(userInfoList);
   }

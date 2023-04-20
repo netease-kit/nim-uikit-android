@@ -6,9 +6,11 @@ package com.netease.yunxin.kit.chatkit.ui.page;
 
 import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import androidx.fragment.app.FragmentManager;
+import com.netease.nimlib.sdk.msg.model.IMMessage;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.builder.P2PChatFragmentBuilder;
@@ -39,9 +41,20 @@ public class ChatP2PActivity extends ChatBaseActivity {
     Bundle bundle = new Bundle();
     bundle.putSerializable(RouterConstant.CHAT_ID_KRY, accId);
     bundle.putSerializable(RouterConstant.CHAT_KRY, userInfo);
+    IMMessage message = (IMMessage) getIntent().getSerializableExtra(RouterConstant.KEY_MESSAGE);
+    if (message != null) {
+      bundle.putSerializable(RouterConstant.KEY_MESSAGE, message);
+    }
     chatFragment.setArguments(bundle);
 
     FragmentManager fragmentManager = getSupportFragmentManager();
     fragmentManager.beginTransaction().add(R.id.container, chatFragment).commitAllowingStateLoss();
+  }
+
+  @Override
+  protected void onNewIntent(Intent intent) {
+    super.onNewIntent(intent);
+    ALog.e(LIB_TAG, TAG, "onNewIntent");
+    chatFragment.onNewIntent(intent);
   }
 }

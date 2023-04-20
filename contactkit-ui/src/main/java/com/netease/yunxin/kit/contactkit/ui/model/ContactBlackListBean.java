@@ -31,6 +31,13 @@ public class ContactBlackListBean extends BaseContactBean {
     return data.getAccount();
   }
 
+  public String getAvatarName() {
+    if (!TextUtils.isEmpty(data.getName())) {
+      return data.getName();
+    }
+    return data.getAccount();
+  }
+
   @Override
   public boolean isShowDivision() {
     return false;

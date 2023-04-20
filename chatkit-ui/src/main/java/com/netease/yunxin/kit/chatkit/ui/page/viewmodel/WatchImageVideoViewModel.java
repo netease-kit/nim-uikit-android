@@ -97,7 +97,7 @@ public class WatchImageVideoViewModel extends BaseViewModel {
   }
 
   private void onDownloadSuccess(IMMessage message) {
-    ALog.i(
+    ALog.d(
         TAG, "on download success -->> " + (((FileAttachment) message.getAttachment()).getPath()));
     statusMessageResult.setLoadStatus(LoadStatus.Success);
     statusMessageResult.setData(message);

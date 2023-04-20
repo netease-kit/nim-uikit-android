@@ -40,13 +40,6 @@ public class ContactInfoView extends FrameLayout {
   private void init(AttributeSet attrs) {
     LayoutInflater layoutInflater = LayoutInflater.from(getContext());
     binding = UserInfoLayoutBinding.inflate(layoutInflater, this, true);
-
-    binding.scBlackList.setOnCheckedChangeListener(
-        (buttonView, isChecked) -> {
-          if (userCallback != null) {
-            userCallback.addBlackList(isChecked);
-          }
-        });
   }
 
   public void setUserCallback(IUserCallback userCallback) {
@@ -61,9 +54,7 @@ public class ContactInfoView extends FrameLayout {
     }
     //avatar
     binding.avatarView.setData(
-        userInfo.data.getAvatar(),
-        TextUtils.isEmpty(nickName) ? name : nickName,
-        ColorUtils.avatarColor(userInfo.data.getAccount()));
+        userInfo.data.getAvatar(), name, ColorUtils.avatarColor(userInfo.data.getAccount()));
 
     //name
     if (TextUtils.isEmpty(nickName)) {
@@ -94,9 +85,15 @@ public class ContactInfoView extends FrameLayout {
     } else {
       binding.tvDelete.setText(getResources().getText(R.string.add_friend));
     }
-
+    binding.scBlackList.setOnCheckedChangeListener(null);
     binding.scBlackList.setChecked(userInfo.isBlack);
 
+    binding.scBlackList.setOnCheckedChangeListener(
+        (buttonView, isChecked) -> {
+          if (userCallback != null) {
+            userCallback.addBlackList(isChecked);
+          }
+        });
     setIsFriend(userInfo.isFriend);
   }
 

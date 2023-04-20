@@ -41,7 +41,6 @@
     <string name="team_search_friend">搜索好友</string>
     <string name="team_network_error">当前网络不可用，请检查你当网络设置。</string>
     <string name="team_request_fail">操作失败</string>
-
     <string name="group_team">讨论组</string>
     <string name="advanced_team">高级群</string>
 </resources>

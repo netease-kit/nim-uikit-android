@@ -14,7 +14,9 @@ import com.netease.yunxin.kit.chatkit.ui.common.TeamNotificationHelper;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatBaseMessageViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatMessageTextViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
+import com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants;
 import com.netease.yunxin.kit.corekit.im.IMKitClient;
+import java.util.List;
 
 /** view holder for Text message */
 public class ChatNotificationMessageViewHolder extends ChatBaseMessageViewHolder {
@@ -38,6 +40,21 @@ public class ChatNotificationMessageViewHolder extends ChatBaseMessageViewHolder
   @Override
   public void bindData(ChatMessageBean message, ChatMessageBean lastMessage) {
     super.bindData(message, lastMessage);
+    loadData(message, lastMessage, true);
+  }
+
+  @Override
+  public void bindData(ChatMessageBean data, int position, @NonNull List<?> payload) {
+    super.bindData(data, position, payload);
+    for (int i = 0; i < payload.size(); ++i) {
+      String payloadItem = payload.get(i).toString();
+      if (TextUtils.equals(payloadItem, ActionConstants.PAYLOAD_USERINFO)) {
+        loadData(data, null, false);
+      }
+    }
+  }
+
+  private void loadData(ChatMessageBean message, ChatMessageBean lastMessage, boolean refreshTime) {
     if (message.getMessageData().getMessage().getAttachment()
         instanceof NotificationAttachmentWithExtension) {
       textBinding.messageText.setTextColor(
@@ -51,6 +68,9 @@ public class ChatNotificationMessageViewHolder extends ChatBaseMessageViewHolder
       } else {
         baseViewBinding.baseRoot.setVisibility(View.VISIBLE);
         baseViewBinding.messageBody.setVisibility(View.VISIBLE);
+        if (lastMessage == null && refreshTime) {
+          setTime(message, null);
+        }
       }
     } else {
       baseViewBinding.baseRoot.setVisibility(View.GONE);

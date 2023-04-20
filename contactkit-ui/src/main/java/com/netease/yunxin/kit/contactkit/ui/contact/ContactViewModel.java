@@ -29,6 +29,7 @@ import com.netease.yunxin.kit.corekit.im.provider.FriendObserver;
 import com.netease.yunxin.kit.corekit.im.provider.LoginSyncObserver;
 import com.netease.yunxin.kit.corekit.im.provider.SyncStatus;
 import com.netease.yunxin.kit.corekit.im.provider.SystemUnreadCountObserver;
+import com.netease.yunxin.kit.corekit.im.provider.UserInfoObserver;
 import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,6 +44,8 @@ public class ContactViewModel extends BaseViewModel {
   private final List<ContactFriendBean> contactFriendBeanList = new ArrayList<>();
   private final MutableLiveData<ContactEntranceBean> contactEntranceLiveData =
       new MutableLiveData<>();
+  private final MutableLiveData<FetchResult<List<ContactFriendBean>>> userInfoLiveData =
+      new MutableLiveData<>();
   private ContactEntranceBean verifyBean;
   private int unreadCount = 0;
 
@@ -56,6 +59,10 @@ public class ContactViewModel extends BaseViewModel {
 
   public LiveData<ContactEntranceBean> getContactEntranceLiveData() {
     return contactEntranceLiveData;
+  }
+
+  public MutableLiveData<FetchResult<List<ContactFriendBean>>> getUserInfoLiveData() {
+    return userInfoLiveData;
   }
 
   public void fetchContactList() {
@@ -118,9 +125,30 @@ public class ContactViewModel extends BaseViewModel {
 
   private void registerObserver() {
     ContactRepo.registerFriendObserver(friendObserver);
+    ContactRepo.registerUserInfoObserver(userInfoObserver);
     ContactRepo.registerNotificationUnreadCountObserver(unreadCountObserver);
     ContactRepo.registerLoginSyncObserver(loginSyncObserver);
   }
+
+  private final UserInfoObserver userInfoObserver =
+      userList -> {
+        ALog.d(LIB_TAG, TAG, "userInfoObserver,userList:" + userList.size());
+        if (userList.size() > 0) {
+          FetchResult<List<ContactFriendBean>> result = new FetchResult<>(LoadStatus.Finish);
+          List<ContactFriendBean> updateBean = new ArrayList<>();
+          for (ContactFriendBean bean : contactFriendBeanList) {
+            for (UserInfo userInfo : userList) {
+              if (TextUtils.equals(userInfo.getAccount(), bean.data.getAccount())) {
+                bean.data.setUserInfo(userInfo);
+                updateBean.add(bean);
+                break;
+              }
+            }
+          }
+          result.setData(updateBean);
+          userInfoLiveData.setValue(result);
+        }
+      };
 
   private final FriendObserver friendObserver =
       (friendChangeType, accountList) -> {
@@ -219,25 +247,20 @@ public class ContactViewModel extends BaseViewModel {
         LIB_TAG,
         TAG,
         "addFriend:" + type.name() + (accountList == null ? "null" : accountList.size()));
-    if (!accountList.isEmpty()) {
-      ContactRepo.getUserInfo(
+    assert accountList != null;
+    if (!accountList.isEmpty() && accountList.size() > 0) {
+      ContactRepo.getFriendWithUserInfo(
           accountList,
-          new FetchCallback<List<UserInfo>>() {
+          new FetchCallback<List<FriendInfo>>() {
             @Override
-            public void onSuccess(@Nullable List<UserInfo> param) {
-              ALog.d(
-                  LIB_TAG, TAG, "addFriend,onSuccess:" + (param == null ? "null" : param.size()));
+            public void onSuccess(@Nullable List<FriendInfo> param) {
               List<ContactFriendBean> addList = new ArrayList<>();
-              for (int index = 0; param != null && index < param.size(); index++) {
-                FriendInfo friendInfo = ContactRepo.getFriend(param.get(index).getAccount());
-                if (friendInfo != null) {
-                  friendInfo.setUserInfo(param.get(index));
-                  ContactFriendBean bean = new ContactFriendBean(friendInfo);
-                  bean.viewType = IViewTypeConstant.CONTACT_FRIEND;
-                  contactFriendBeanList.add(bean);
-                  ALog.d(LIB_TAG, TAG, "addFriend,add:" + "id=" + friendInfo.getAccount());
-                  addList.add(bean);
-                }
+              for (FriendInfo friendInfo : param) {
+                ContactFriendBean bean = new ContactFriendBean(friendInfo);
+                bean.viewType = IViewTypeConstant.CONTACT_FRIEND;
+                contactFriendBeanList.add(bean);
+                ALog.d(LIB_TAG, TAG, "addFriend,add:" + "id=" + friendInfo.getAccount());
+                addList.add(bean);
               }
               FetchResult<List<ContactFriendBean>> addResult = new FetchResult<>(type);
               addResult.setData(addList);
@@ -330,6 +353,7 @@ public class ContactViewModel extends BaseViewModel {
   protected void onCleared() {
     super.onCleared();
     ContactRepo.unregisterFriendObserver(friendObserver);
+    ContactRepo.unregisterUserInfoObserver(userInfoObserver);
     ContactRepo.unregisterNotificationUnreadCountObserver(unreadCountObserver);
   }
 }

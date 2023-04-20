@@ -5,6 +5,7 @@
 package com.netease.yunxin.kit.chatkit.ui.view.interfaces;
 
 import android.view.View;
+import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 
 /** Message item click event listener */
@@ -37,7 +38,7 @@ public interface IMessageItemClickListener {
     return false;
   }
 
-  default boolean onReplyMessageClick(View view, int position, String replyUuid) {
+  default boolean onReplyMessageClick(View view, int position, IMMessageInfo messageInfo) {
     return false;
   }
 

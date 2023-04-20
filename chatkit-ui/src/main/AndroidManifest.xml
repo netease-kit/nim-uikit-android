@@ -27,10 +27,10 @@
     <!--用于提高GPS定位速度-->
     <uses-permission android:name="android.permission.ACCESS_LOCATION_EXTRA_COMMANDS"/>
     <!--写入扩展存储，向扩展卡写入数据，用于写入缓存定位数据-->
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-        tools:ignore="ScopedStorage" />
+<!--    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"-->
+<!--        tools:ignore="ScopedStorage" />-->
     <!--读取缓存数据-->
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+<!--    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />-->
     <!--用于读取手机当前的状态-->
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <application>
@@ -86,6 +86,10 @@
 
         <activity
             android:name="com.netease.yunxin.kit.chatkit.ui.page.LocationPageActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize"/>
+        <activity
+            android:name="com.netease.yunxin.kit.chatkit.ui.page.ChatPinActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize"/>
 

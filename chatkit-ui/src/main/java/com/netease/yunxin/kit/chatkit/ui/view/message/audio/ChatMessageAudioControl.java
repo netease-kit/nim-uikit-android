@@ -7,6 +7,7 @@ package com.netease.yunxin.kit.chatkit.ui.view.message.audio;
 import android.media.MediaPlayer;
 import androidx.annotation.Nullable;
 import com.netease.nimlib.sdk.NIMClient;
+import com.netease.nimlib.sdk.media.player.OnPlayListener;
 import com.netease.nimlib.sdk.msg.MsgService;
 import com.netease.nimlib.sdk.msg.attachment.AudioAttachment;
 import com.netease.nimlib.sdk.msg.constant.AttachStatusEnum;
@@ -104,6 +105,17 @@ public class ChatMessageAudioControl extends BaseAudioControl<IMMessageInfo> {
 
     basePlayerListener.setAudioControlListener(audioControlListener);
     currentAudioPlayer.setOnPlayListener(basePlayerListener);
+  }
+
+  @SuppressWarnings("unchecked")
+  public void setAudioControlListenerWhenPlaying(AudioControlListener audioControlListener) {
+    if (!isPlayingAudio()) {
+      return;
+    }
+    OnPlayListener playListener = currentAudioPlayer.getOnPlayListener();
+    if (playListener instanceof BaseAudioControl<?>.BasePlayerListener) {
+      ((BasePlayerListener) playListener).setAudioControlListener(audioControlListener);
+    }
   }
 
   @Override

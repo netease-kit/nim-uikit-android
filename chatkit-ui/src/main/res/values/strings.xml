@@ -7,6 +7,7 @@
 
 <resources>
     <string name="cancel">取消</string>
+    <string name="chat_dialog_sure">确定</string>
     <string name="chat_pressed_to_speak">按住说话</string>
     <string name="chat_record_failed">录音失败，请重试</string>
     <string name="chat_message_send_hint">发送给 %s</string>
@@ -84,7 +85,7 @@
 
     <string name="chat_message_action_revoke_this_message">撤回此消息</string>
     <string name="chat_message_action_delete_this_message">删除此消息</string>
-    <string name="chat_message_removed_tip">该消息已移除</string>
+    <string name="chat_message_removed_tip">该消息已撤回或删除</string>
 
     <string name="chat_message_reply_someone">回复 %s</string>
 
@@ -99,19 +100,19 @@
     <string name="chat_team_admin_invite">管理员邀请</string>
 
     <string name="chat_invite">邀请 </string>
-    <string name="chat_join_team"> 加入群</string>
-    <string name="chat_join_discuss_team"> 加入讨论组</string>
-    <string name="chat_removed_team"> 已被移出群</string>
-    <string name="chat_removed_discuss_team"> 已被移出讨论组</string>
-    <string name="chat_left_team"> 离开了群</string>
-    <string name="chat_left_discuss_team"> 离开了讨论组</string>
-    <string name="chat_dismiss_team"> 解散了群</string>
-    <string name="chat_name_update">名称被更新为</string>
-    <string name="chat_team_extension_update">群扩展字段被更新为 </string>
-    <string name="chat_team_introduce_update">群介绍被更新为</string>
-    <string name="chat_team_notice_update">修改了群公告</string>
+    <string name="chat_join_team"> 加入群聊</string>
+    <string name="chat_join_discuss_team"> 加入群聊</string>
+    <string name="chat_removed_team"> 退出了群聊</string>
+    <string name="chat_removed_discuss_team"> 退出了群聊</string>
+    <string name="chat_left_team">退出了群聊</string>
+    <string name="chat_left_discuss_team">退出了群聊</string>
+    <string name="chat_dismiss_team">解散了群</string>
+    <string name="chat_name_update">更新群名称为\"%s\"</string>
+    <string name="chat_team_extension_update">更新了群扩展字段 </string>
+    <string name="chat_team_introduce_update">更新了群介绍</string>
+    <string name="chat_team_notice_update">更新了群公告</string>
     <string name="chat_team_accept_ones_invent">接受了%s的入群邀请</string>
-    <string name="chat_team_verify_update">群身份验证权限更新为</string>
+    <string name="chat_team_verify_update">更新群身份验证权限为</string>
     <string name="chat_team_manager_pass_ones_application">管理员通过用户%s的入群申请</string>
     <string name="chat_team_remove_to_another">将群转移给</string>
     <string name="chat_team_operate_by_manager">被管理员</string>
@@ -121,34 +122,36 @@
     <string name="chat_team_appoint_manager">%s被任命为管理员</string>
     <string name="chat_team_extension_server_update">群扩展字段(服务器)被更新为</string>
     <string name="chat_you">你</string>
-    <string name="chat_team_avatar_update">群头像已更新</string>
-    <string name="chat_team_invitation_permission_update">群邀请他人权限被更新为</string>
-    <string name="chat_team_invitation_permission_all">所有人都可以邀请</string>
-    <string name="chat_team_invitation_permission_manager">只有管理员可以邀请</string>
-    <string name="chat_team_modify_resource_permission_update">群资料修改权限被更新为</string>
-    <string name="chat_team_modify_permission_all">所有人都可以修改</string>
-    <string name="chat_team_modify_permission_manager">只有管理员可以修改</string>
-    <string name="chat_team_invited_id_verify_permission_update">群被邀请人身份验证权限被更新为</string>
-    <string name="chat_team_invited_permission_need">需要被邀请方同意</string>
-    <string name="chat_team_invited_permission_no">不需要被邀请方同意</string>
-    <string name="chat_team_modify_extension_permission_update">群扩展字段修改权限被更新为</string>
-    <string name="chat_team_cancel_all_mute">取消群全员禁言</string>
-    <string name="chat_team_full_mute">群全员禁言</string>
+    <string name="chat_team_avatar_update">更新了群头像</string>
+    <string name="chat_team_invitation_permission_update">更新了群权限\"邀请他人权\"为</string>
+    <string name="chat_team_invitation_permission_all">\"所有人\"</string>
+    <string name="chat_team_invitation_permission_manager">\"仅群主\"</string>
+    <string name="chat_team_modify_resource_permission_update">更新了群权限\"资料修改权限\"为</string>
+    <string name="chat_team_modify_permission_all">\"所有人\"</string>
+    <string name="chat_team_modify_permission_manager">仅群主"</string>
+    <string name="chat_team_invited_id_verify_permission_update">更新了群权限\"邀请人身份验证权限\"为</string>
+    <string name="chat_team_invited_permission_need">\"需要被邀请方同意\"</string>
+    <string name="chat_team_invited_permission_no">\"不需要被邀请方同意\"</string>
+    <string name="chat_team_modify_extension_permission_update">更新群权限\"扩展字段修改\"为</string>
+    <string name="chat_team_cancel_all_mute">群禁言已关闭</string>
+    <string name="chat_team_full_mute">群禁言已开启</string>
     <string name="chat_team_update">群%s被更新为%s</string>
     <string name="chat_team_unknown_notification">未知通知</string>
     <string name="chat_team_ait_all">所有人</string>
+    <string name="chat_team_be_removed_title">提示</string>
+    <string name="chat_team_be_removed_content">该群聊已被解散</string>
 
-    <string name="chat_reply_message_brief_image">[图片]</string>
+    <string name="chat_reply_message_brief_image">[图片消息]</string>
     <string name="chat_reply_message_brief_audio">[语音消息]</string>
-    <string name="chat_reply_message_brief_video">[视频]</string>
+    <string name="chat_reply_message_brief_video">[视频消息]</string>
     <string name="chat_reply_message_brief_location">[地理位置]</string>
-    <string name="chat_reply_message_brief_file">[文件]</string>
+    <string name="chat_reply_message_brief_file">[文件消息]</string>
     <string name="chat_reply_message_brief_custom">[自定义消息]</string>
     <string name="chat_reply_message_brief_robot">[机器人消息]</string>
     <string name="chat_reply_message_call">[音视频通话]</string>
 
-    <string name="chat_message_signal_tip">%s标记了这条信息，对话内容双方均可见</string>
-    <string name="chat_message_signal_tip_for_team">%s标记了这条信息，所有群成员均可见</string>
+    <string name="chat_message_signal_tip">%s标记了这条信息</string>
+    <string name="chat_message_signal_tip_for_team">%s标记了这条信息</string>
 
     <string name="chat_message_forward_to_team">转发到群组</string>
     <string name="chat_message_forward_to_person">转发到个人</string>
@@ -179,6 +182,7 @@
     <string name="chat_message_file_size_limit_tips">当前文件大小超出%sM发送限制，请重新选择</string>
     <string name="chat_message_type_resource_error">资源不支持读取</string>
     <string name="chat_message_revoke_eidt_error">已超过可编辑时间</string>
+    <string name="chat_message_download_tips">正在下载中...</string>
 
     <!-- location -->
     <string name="chat_location_mine">定位</string>
@@ -187,5 +191,12 @@
     <string name="chat_location_search_empty">未找到你要搜的地址</string>
     <string name="chat_location_empty">暂无位置信息</string>
     <string name="chat_location_disable">无定位信息，请开启定位</string>
+
+    <!-- Pin -->
+    <string name="chat_pin_title">标记</string>
+    <string name="chat_pin_empty_tips">暂无标记消息</string>
+    <string name="chat_remove_pin_error_tips">取消标记失败</string>
+    <string name="chat_network_error_tips">当前网络错误</string>
+    <string name="chat_remove_tips">已取消标记</string>
 
 </resources>

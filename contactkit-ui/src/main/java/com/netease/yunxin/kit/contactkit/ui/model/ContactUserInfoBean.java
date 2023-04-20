@@ -4,6 +4,7 @@
 
 package com.netease.yunxin.kit.contactkit.ui.model;
 
+import android.text.TextUtils;
 import com.netease.yunxin.kit.corekit.im.model.FriendInfo;
 import com.netease.yunxin.kit.corekit.im.model.UserInfo;
 
@@ -17,5 +18,14 @@ public class ContactUserInfoBean {
 
   public ContactUserInfoBean(UserInfo user) {
     this.data = user;
+  }
+
+  public String getName() {
+    String name = data.getUserInfoName();
+    if (friendInfo != null && !TextUtils.isEmpty(friendInfo.getAlias())) {
+      name = friendInfo.getName();
+    }
+
+    return name;
   }
 }

@@ -55,8 +55,11 @@ public class AitContactSelectorDialog extends BottomSheetDialog {
     binding.contactList.setAdapter(adapter);
   }
 
-  public void setData(List<UserInfoWithTeam> data) {
+  public void setData(List<UserInfoWithTeam> data, boolean refresh) {
     adapter.setMembers(data);
+    if (refresh) {
+      adapter.notifyItemRangeChanged(0, adapter.getItemCount());
+    }
   }
 
   public void setOnItemSelectListener(AitContactAdapter.OnItemSelectListener listener) {

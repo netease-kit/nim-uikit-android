@@ -4,6 +4,8 @@
 
 package com.netease.yunxin.kit.chatkit.ui.common;
 
+import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
+
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -12,22 +14,39 @@ import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.text.TextUtils;
 import android.webkit.MimeTypeMap;
+import androidx.activity.result.ActivityResultLauncher;
 import com.netease.nimlib.sdk.msg.attachment.FileAttachment;
+import com.netease.nimlib.sdk.msg.attachment.VideoAttachment;
+import com.netease.nimlib.sdk.msg.constant.AttachStatusEnum;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
+import com.netease.nimlib.sdk.team.constant.TeamTypeEnum;
+import com.netease.nimlib.sdk.team.model.Team;
 import com.netease.yunxin.kit.alog.ALog;
+import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
+import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitClient;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant;
 import com.netease.yunxin.kit.chatkit.ui.R;
+import com.netease.yunxin.kit.chatkit.ui.page.WatchImageActivity;
+import com.netease.yunxin.kit.chatkit.ui.page.WatchVideoActivity;
 import com.netease.yunxin.kit.common.utils.CommonFileProvider;
 import com.netease.yunxin.kit.common.utils.FileUtils;
+import com.netease.yunxin.kit.corekit.im.IMKitClient;
+import com.netease.yunxin.kit.corekit.im.utils.IMKitConstant;
+import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
+import com.netease.yunxin.kit.corekit.route.XKitRouter;
 import java.io.File;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
 public class ChatUtils {
 
+  public static final String TAG = "ChatUtils";
+
+  //使用手机应用打开文件
   public static void openFileWithApp(Context context, IMMessage message) {
     FileAttachment fileAttachment = (FileAttachment) message.getAttachment();
     File openFile = new File(fileAttachment.getPath());
@@ -48,9 +67,20 @@ public class ChatUtils {
     }
   }
 
+  //是否为讨论组
+  public static boolean isTeamGroup(Team teamInfo) {
+    String teamExtension = teamInfo.getExtension();
+    if ((teamExtension != null && teamExtension.contains(IMKitConstant.TEAM_GROUP_TAG))
+        || teamInfo.getType() == TeamTypeEnum.Normal) {
+      return true;
+    }
+
+    return false;
+  }
+
   public static String formatFileSize(long fileS) {
     DecimalFormat df = new DecimalFormat("#.00");
-    String fileSizeString = "";
+    String fileSizeString;
     String wrongSize = "0B";
     if (fileS == 0) {
       return wrongSize;
@@ -85,7 +115,7 @@ public class ChatUtils {
     return limit;
   }
 
-  private static Map<String, Integer> fileRes = getFileTypeMap();
+  private static final Map<String, Integer> fileRes = getFileTypeMap();
 
   public static int getFileIcon(String type) {
     if (!TextUtils.isEmpty(type)) {
@@ -94,7 +124,7 @@ public class ChatUtils {
       return result != null ? result : R.drawable.ic_unknown_file;
     }
     return R.drawable.ic_unknown_file;
-  };
+  }
 
   public static String getUrlFileName(Context context, Uri uri) {
     Cursor resolver = context.getContentResolver().query(uri, null, null, null, null, null);
@@ -170,5 +200,92 @@ public class ChatUtils {
     fileRes.put("unknown", R.drawable.ic_unknown_file);
     fileRes.put("", R.drawable.ic_unknown_file);
     return fileRes;
-  };
+  }
+
+  public static void startTeamList(Context context, ActivityResultLauncher<Intent> launcher) {
+    XKitRouter.withKey(RouterConstant.PATH_MY_TEAM_PAGE)
+        .withParam(RouterConstant.KEY_TEAM_LIST_SELECT, true)
+        .withContext(context)
+        .navigate(launcher);
+  }
+
+  public static void startP2PSelector(
+      Context context, String filterId, ActivityResultLauncher<Intent> launcher) {
+    ArrayList<String> filterList = new ArrayList<>();
+    filterList.add(filterId);
+    XKitRouter.withKey(RouterConstant.PATH_CONTACT_SELECTOR_PAGE)
+        .withParam(RouterConstant.KEY_CONTACT_SELECTOR_MAX_COUNT, 6)
+        .withContext(context)
+        .withParam(RouterConstant.SELECTOR_CONTACT_FILTER_KEY, filterList)
+        .navigate(launcher);
+  }
+
+  public static void startVideoCall(Context context, String sessionId) {
+    XKitRouter.withKey(RouterConstant.PATH_CALL_SINGLE_PAGE)
+        .withContext(context)
+        .withParam(RouterConstant.KEY_CALLER_ACC_ID, IMKitClient.account())
+        .withParam(RouterConstant.KEY_CALLED_ACC_ID, sessionId)
+        .withParam(RouterConstant.KEY_CALL_TYPE, RouterConstant.KEY_CALL_TYPE_VIDEO)
+        .navigate();
+  }
+
+  public static void startAudioCall(Context context, String sessionId) {
+    XKitRouter.withKey(RouterConstant.PATH_CALL_SINGLE_PAGE)
+        .withContext(context)
+        .withParam(RouterConstant.KEY_CALLER_ACC_ID, IMKitClient.account())
+        .withParam(RouterConstant.KEY_CALLED_ACC_ID, sessionId)
+        .withParam(RouterConstant.KEY_CALL_TYPE, RouterConstant.KEY_CALL_TYPE_AUDIO)
+        .navigate();
+  }
+
+  public static void watchImage(
+      Context context, IMMessageInfo messageInfo, ArrayList<IMMessageInfo> imageMessages) {
+    int index = 0;
+    if (messageInfo.getMessage().getAttachStatus() != AttachStatusEnum.transferred
+        && messageInfo.getMessage().getAttachStatus() != AttachStatusEnum.transferring) {
+      ChatRepo.downloadAttachment(messageInfo.getMessage(), false, null);
+    }
+    ArrayList<IMMessage> messages = new ArrayList<>();
+    for (int i = 0; i < imageMessages.size(); ++i) {
+      if (messageInfo.equals(imageMessages.get(i))) {
+        index = i;
+      }
+      messages.add(imageMessages.get(i).getMessage());
+    }
+    WatchImageActivity.launch(context, messages, index);
+  }
+
+  public static boolean watchVideo(Context context, IMMessageInfo messageInfo) {
+    if (messageInfo == null) {
+      return false;
+    }
+    IMMessage message = messageInfo.getMessage();
+    if (message.getAttachStatus() == AttachStatusEnum.transferred
+        && !TextUtils.isEmpty(((VideoAttachment) message.getAttachment()).getPath())) {
+      WatchVideoActivity.launch(context, message);
+      return true;
+    } else if (message.getAttachStatus() != AttachStatusEnum.transferring
+        && message.getAttachment() instanceof FileAttachment) {
+      ALog.d(LIB_TAG, TAG, "downloadMessageAttachment:" + message.getUuid());
+      ChatRepo.downloadAttachment(message, false, null);
+    }
+    return false;
+  }
+
+  public static boolean openFile(Context context, IMMessageInfo messageInfo) {
+    if (messageInfo == null) {
+      return false;
+    }
+    IMMessage message = messageInfo.getMessage();
+    if (message.getAttachStatus() == AttachStatusEnum.transferred
+        && !TextUtils.isEmpty(((FileAttachment) message.getAttachment()).getPath())) {
+      ChatUtils.openFileWithApp(context, message);
+      return true;
+    } else if (message.getAttachStatus() != AttachStatusEnum.transferring
+        && message.getAttachment() instanceof FileAttachment) {
+      ALog.d(LIB_TAG, TAG, "downloadMessageAttachment:" + message.getUuid());
+      ChatRepo.downloadAttachment(message, false, null);
+    }
+    return false;
+  }
 }

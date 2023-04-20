@@ -15,7 +15,10 @@ import com.netease.nimlib.sdk.team.model.Team;
 import com.netease.nimlib.sdk.team.model.TeamMember;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
+import com.netease.yunxin.kit.corekit.event.EventCenter;
 import com.netease.yunxin.kit.corekit.im.IMKitClient;
+import com.netease.yunxin.kit.corekit.im.custom.TeamEvent;
+import com.netease.yunxin.kit.corekit.im.custom.TeamEventAction;
 import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
 import com.netease.yunxin.kit.corekit.model.ErrorMsg;
 import com.netease.yunxin.kit.corekit.model.ResultInfo;
@@ -274,6 +277,7 @@ public class TeamSettingViewModel extends BaseViewModel {
   }
 
   public void quitTeam(String teamId) {
+    EventCenter.notifyEvent(new TeamEvent(teamId, TeamEventAction.ACTION_DISMISS));
     TeamRepo.quitTeam(
         teamId,
         new FetchCallback<Void>() {
@@ -349,6 +353,7 @@ public class TeamSettingViewModel extends BaseViewModel {
 
   public void dismissTeam(String teamId) {
     ALog.d(LIB_TAG, TAG, "dismissTeam:" + teamId);
+    EventCenter.notifyEvent(new TeamEvent(teamId, TeamEventAction.ACTION_DISMISS));
     TeamRepo.dismissTeam(
         teamId,
         new FetchCallback<Void>() {

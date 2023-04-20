@@ -6,6 +6,7 @@
 
 <resources>
     <string name="cancel">Cancel</string>
+    <string name="chat_dialog_sure">Sure</string>
     <string name="chat_pressed_to_speak">Hold to Talk</string> 
     <string name="chat_record_failed">Failed！try it again</string> 
     <string name="chat_message_send_hint">Send to %s</string> 
@@ -105,7 +106,7 @@
     <string name="chat_left_team"> Left Group</string>
     <string name="chat_left_discuss_team"> Left Temporary Group</string>
     <string name="chat_dismiss_team"> Dissolved Group</string> 
-    <string name="chat_name_update">Named as </string>
+    <string name="chat_name_update">Named as "%s"</string>
     <string name="chat_team_extension_update">Group Extension update as </string>
     <string name="chat_team_introduce_update">Group introduction update as</string>
     <string name="chat_team_notice_update">Modified group announcement</string>
@@ -136,6 +137,8 @@
     <string name="chat_team_update">Group%s update as %s</string>
     <string name="chat_team_unknown_notification">Unknown message</string>
     <string name="chat_team_ait_all">everyone</string>
+    <string name="chat_team_be_removed_title">tip</string>
+    <string name="chat_team_be_removed_content">This group is disbanded</string>
 
     <string name="chat_reply_message_brief_image">[Photo]</string>
     <string name="chat_reply_message_brief_audio">[Voice]</string>
@@ -146,8 +149,8 @@
     <string name="chat_reply_message_brief_robot">[Robot Message]</string>
     <string name="chat_reply_message_call">[Audio&amp;Video Call]</string>
 
-    <string name="chat_message_signal_tip">Pined by %s，visible to both of you</string>
-    <string name="chat_message_signal_tip_for_team">Pined by %s，visible to everyone</string>
+    <string name="chat_message_signal_tip">Pined by %s</string>
+    <string name="chat_message_signal_tip_for_team">Pined by %s</string>
 
     <string name="chat_message_forward_to_team">Forward to Group</string>
     <string name="chat_message_forward_to_person">Forward to friend</string> 
@@ -179,6 +182,7 @@
     <string name="chat_message_file_size_limit_tips">Oops！File size limit %sM.</string>
     <string name="chat_message_type_resource_error">Read failed.</string>
     <string name="chat_message_revoke_eidt_error">Time Out</string>
+    <string name="chat_message_download_tips">Downloading</string>
 
 
     <!-- location -->
@@ -188,5 +192,12 @@
     <string name="chat_location_search_empty">Not found</string>
     <string name="chat_location_empty">No location information</string>
     <string name="chat_location_disable">No location information</string>
+
+    <!-- Pin -->
+    <string name="chat_pin_title">Pin</string>
+    <string name="chat_pin_empty_tips">Pin Message Empty</string>
+    <string name="chat_remove_pin_error_tips">Unpin failed</string>
+    <string name="chat_remove_tips">Unpin</string>
+    <string name="chat_network_error_tips">No Internet</string>
 
 </resources>

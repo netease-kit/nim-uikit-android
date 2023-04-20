@@ -4,13 +4,12 @@
 
 package com.netease.yunxin.kit.chatkit.ui.view.message.viewholder;
 
-import android.text.style.ImageSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import androidx.annotation.NonNull;
 import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
 import com.netease.yunxin.kit.chatkit.ui.R;
-import com.netease.yunxin.kit.chatkit.ui.common.MessageUtil;
+import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatBaseMessageViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatMessageTextViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
@@ -42,11 +41,10 @@ public class ChatTextMessageViewHolder extends ChatBaseMessageViewHolder {
       textBinding.messageText.setTextColor(properties.getMessageTextColor());
     }
     if (message.getMessageData().getMessage().getMsgType() == MsgTypeEnum.text) {
-      MessageUtil.identifyFaceExpression(
+      MessageHelper.identifyExpression(
           textBinding.getRoot().getContext(),
           textBinding.messageText,
-          message.getMessageData().getMessage().getContent(),
-          ImageSpan.ALIGN_BOTTOM);
+          message.getMessageData().getMessage());
     } else {
       //文件消息暂不支持所以展示提示信息
       textBinding.messageText.setText(
@@ -58,7 +56,7 @@ public class ChatTextMessageViewHolder extends ChatBaseMessageViewHolder {
   public void onMessageRevokeStatus(ChatMessageBean data) {
     super.onMessageRevokeStatus(data);
     if (revokedViewBinding != null) {
-      if (!MessageUtil.revokeMsgIsEdit(data)) {
+      if (!MessageHelper.revokeMsgIsEdit(data)) {
         revokedViewBinding.tvAction.setVisibility(View.GONE);
       }
     }

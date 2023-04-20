@@ -31,7 +31,8 @@ public class CommentActivity extends BaseActivity {
     String comment = getIntent().getStringExtra(REQUEST_COMMENT_NAME_KEY);
     comment = comment == null ? "" : comment;
     binding.edtComment.setText(comment);
-    binding.edtComment.getBinding().editText.setSelection(comment.length());
+    int textLength = binding.edtComment.getBinding().editText.length();
+    binding.edtComment.getBinding().editText.setSelection(textLength);
     binding.edtComment.getBinding().editText.requestFocus();
     binding
         .title

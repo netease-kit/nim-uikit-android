@@ -179,6 +179,12 @@ public class ConversationView extends FrameLayout {
     }
   }
 
+  public void updateAit(List<String> idList) {
+    if (adapter != null) {
+      adapter.updateAit(idList);
+    }
+  }
+
   public void addStickTop(String id) {
     if (adapter != null) {
       adapter.addStickTop(id);

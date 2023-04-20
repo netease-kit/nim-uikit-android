@@ -7,19 +7,26 @@ package com.netease.yunxin.kit.chatkit.ui.page.viewmodel;
 import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
 
 import android.text.TextUtils;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
 import com.netease.nimlib.sdk.Observer;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
 import com.netease.nimlib.sdk.team.model.Team;
+import com.netease.nimlib.sdk.team.model.TeamMember;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.model.IMTeamMessageReceiptInfo;
 import com.netease.yunxin.kit.chatkit.model.UserInfoWithTeam;
 import com.netease.yunxin.kit.chatkit.repo.ChatObserverRepo;
 import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
+import com.netease.yunxin.kit.chatkit.ui.common.ChatUserCache;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
+import com.netease.yunxin.kit.corekit.event.EventCenter;
+import com.netease.yunxin.kit.corekit.event.EventNotify;
+import com.netease.yunxin.kit.corekit.im.custom.TeamEvent;
+import com.netease.yunxin.kit.corekit.im.custom.TeamEventAction;
 import com.netease.yunxin.kit.corekit.im.model.EventObserver;
 import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
 import com.netease.yunxin.kit.corekit.model.ErrorMsg;
@@ -37,8 +44,11 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
 
   private final MutableLiveData<Team> teamLiveData = new MutableLiveData<>();
   private final MutableLiveData<Team> teamRemoveLiveData = new MutableLiveData<>();
-  private final MutableLiveData<ResultInfo<List<UserInfoWithTeam>>> userInfoData =
+  private final MutableLiveData<ResultInfo<List<UserInfoWithTeam>>> teamMemberData =
       new MutableLiveData<>();
+  private final MutableLiveData<FetchResult<List<String>>> teamMemberChangeData =
+      new MutableLiveData<>();
+  private boolean myDismiss = false;
 
   private final EventObserver<List<IMTeamMessageReceiptInfo>> teamMessageReceiptObserver =
       new EventObserver<List<IMTeamMessageReceiptInfo>>() {
@@ -67,14 +77,77 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
 
   private final Observer<Team> teamRemoveObserver =
       team -> {
+        ALog.d(LIB_TAG, TAG, "teamRemoveObserver");
         if (team != null && TextUtils.equals(team.getId(), mSessionId)) {
           teamRemoveLiveData.setValue(team);
+        }
+      };
+
+  private final Observer<List<TeamMember>> teamMemberUpdateObserver =
+      teamMemberList -> {
+        ALog.d(LIB_TAG, TAG, "teamMemberUpdateObserver:" + teamMemberList.size());
+        ChatRepo.fillTeamMemberList(
+            teamMemberList,
+            new FetchCallback<List<UserInfoWithTeam>>() {
+              @Override
+              public void onSuccess(@Nullable List<UserInfoWithTeam> param) {
+                ChatUserCache.addUserCache(param);
+                ArrayList<String> accountList = new ArrayList<>();
+                for (TeamMember member : teamMemberList) {
+                  accountList.add(member.getAccount());
+                }
+                if (accountList.size() > 0) {
+                  FetchResult<List<String>> result = new FetchResult<>(LoadStatus.Finish);
+                  result.setData(accountList);
+                  result.setType(FetchResult.FetchType.Update);
+                  teamMemberChangeData.setValue(result);
+                }
+              }
+
+              @Override
+              public void onFailed(int code) {
+                ALog.d(LIB_TAG, TAG, "fillTeamMemberList,onFailed:" + code);
+              }
+
+              @Override
+              public void onException(@Nullable Throwable exception) {
+                ALog.d(LIB_TAG, TAG, "fillTeamMemberList,onException");
+              }
+            });
+      };
+
+  //用于记录是否为自己解散的群聊
+  private final EventNotify<TeamEvent> teamDismissNotify =
+      new EventNotify<TeamEvent>() {
+        @Override
+        public void onNotify(@NonNull TeamEvent event) {
+          ALog.d(LIB_TAG, TAG, "teamDismissNotify:" + event.getTeamId() + event.getAction());
+          if (TextUtils.equals(event.getTeamId(), mSessionId)
+              && TextUtils.equals(event.getAction(), TeamEventAction.ACTION_DISMISS)) {
+            myDismiss = true;
+          } else {
+            myDismiss = false;
+          }
+        }
+
+        @NonNull
+        @Override
+        public String getEventType() {
+          return "TeamEvent";
         }
       };
 
   public MutableLiveData<FetchResult<List<IMTeamMessageReceiptInfo>>>
       getTeamMessageReceiptLiveData() {
     return teamMessageReceiptLiveData;
+  }
+
+  public MutableLiveData<FetchResult<List<String>>> getTeamMemberChangeData() {
+    return teamMemberChangeData;
+  }
+
+  public boolean isMyDismiss() {
+    return myDismiss;
   }
 
   public void refreshTeamMessageReceipt(List<ChatMessageBean> messageBeans) {
@@ -99,8 +172,8 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
   }
 
   /** team member info live data */
-  public MutableLiveData<ResultInfo<List<UserInfoWithTeam>>> getUserInfoData() {
-    return userInfoData;
+  public MutableLiveData<ResultInfo<List<UserInfoWithTeam>>> getTeamMemberData() {
+    return teamMemberData;
   }
 
   @Override
@@ -109,6 +182,8 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
     ChatObserverRepo.registerTeamMessageReceiptObserve(teamMessageReceiptObserver);
     ChatObserverRepo.registerTeamUpdateObserver(teamObserver);
     ChatObserverRepo.registerTeamRemoveObserver(teamRemoveObserver);
+    ChatObserverRepo.registerTeamMemberUpdateObserver(teamMemberUpdateObserver);
+    EventCenter.registerEventNotify(teamDismissNotify);
   }
 
   @Override
@@ -117,6 +192,8 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
     ChatObserverRepo.unregisterTeamMessageReceiptObserve(teamMessageReceiptObserver);
     ChatObserverRepo.unregisterTeamUpdateObserver(teamObserver);
     ChatObserverRepo.unregisterTeamRemoveObserver(teamRemoveObserver);
+    ChatObserverRepo.unregisterTeamMemberUpdateObserver(teamMemberUpdateObserver);
+    EventCenter.unregisterEventNotify(teamDismissNotify);
   }
 
   @Override
@@ -159,20 +236,25 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
           @Override
           public void onSuccess(@Nullable List<UserInfoWithTeam> param) {
             ALog.d(LIB_TAG, TAG, "requestTeamMembers,onSuccess:" + (param == null));
-            userInfoData.postValue(new ResultInfo<>(param));
+            ChatUserCache.addUserCache(param);
+            teamMemberData.setValue(new ResultInfo<>(param));
           }
 
           @Override
           public void onFailed(int code) {
             ALog.d(LIB_TAG, TAG, "requestTeamMembers,onFailed:" + code);
-            userInfoData.postValue(new ResultInfo<>(null, false, new ErrorMsg(code)));
+            teamMemberData.setValue(new ResultInfo<>(null, false, new ErrorMsg(code)));
           }
 
           @Override
           public void onException(@Nullable Throwable exception) {
             ALog.d(LIB_TAG, TAG, "requestTeamMembers,onException");
-            userInfoData.postValue(new ResultInfo<>(null, false, new ErrorMsg(-1, "", exception)));
+            teamMemberData.setValue(new ResultInfo<>(null, false, new ErrorMsg(-1, "", exception)));
           }
         });
+  }
+
+  public boolean hasLoadMessage() {
+    return hasLoadMessage;
   }
 }

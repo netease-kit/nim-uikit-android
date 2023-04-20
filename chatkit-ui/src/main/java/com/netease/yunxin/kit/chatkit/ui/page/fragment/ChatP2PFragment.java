@@ -4,23 +4,30 @@
 
 package com.netease.yunxin.kit.chatkit.ui.page.fragment;
 
+import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
+import com.netease.nimlib.sdk.msg.model.IMMessage;
 import com.netease.yunxin.kit.alog.ALog;
+import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.ui.R;
-import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
-import com.netease.yunxin.kit.chatkit.ui.page.ChatSettingActivity;
+import com.netease.yunxin.kit.chatkit.ui.common.ChatUserCache;
+import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.page.viewmodel.ChatP2PViewModel;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
+import com.netease.yunxin.kit.corekit.im.model.FriendInfo;
 import com.netease.yunxin.kit.corekit.im.model.UserInfo;
 import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
+import com.netease.yunxin.kit.corekit.route.XKitRouter;
 
 /** P2P chat page */
 public class ChatP2PFragment extends ChatBaseFragment {
@@ -28,7 +35,11 @@ public class ChatP2PFragment extends ChatBaseFragment {
 
   private static final int TYPE_DELAY_TIME = 3000;
 
-  UserInfo userInfo;
+  public UserInfo userInfo;
+
+  public FriendInfo friendInfo;
+
+  public IMMessage anchorMessage;
 
   private final Handler handler = new Handler();
 
@@ -36,7 +47,7 @@ public class ChatP2PFragment extends ChatBaseFragment {
 
   @Override
   protected void initData(Bundle bundle) {
-    ALog.i(TAG, "initData");
+    ALog.d(LIB_TAG, TAG, "initData");
     sessionType = SessionTypeEnum.P2P;
     userInfo = (UserInfo) bundle.getSerializable(RouterConstant.CHAT_KRY);
     sessionID = (String) bundle.getSerializable(RouterConstant.CHAT_ID_KRY);
@@ -47,6 +58,7 @@ public class ChatP2PFragment extends ChatBaseFragment {
     if (TextUtils.isEmpty(sessionID)) {
       sessionID = userInfo.getAccount();
     }
+    anchorMessage = (IMMessage) bundle.getSerializable(RouterConstant.KEY_MESSAGE);
     binding
         .chatView
         .getTitleBar()
@@ -54,34 +66,40 @@ public class ChatP2PFragment extends ChatBaseFragment {
         .setActionImg(R.drawable.ic_more_point)
         .setActionListener(
             v -> {
-              Intent intent = new Intent();
-              intent.setClass(getActivity(), ChatSettingActivity.class);
-              intent.putExtra(RouterConstant.CHAT_ID_KRY, sessionID);
-              startActivity(intent);
+              binding.chatView.getInputView().hideCurrentInput();
+              XKitRouter.withKey(RouterConstant.PATH_CHAT_SETTING_PAGE)
+                  .withParam(RouterConstant.CHAT_ID_KRY, sessionID)
+                  .withContext(getActivity())
+                  .navigate();
             });
     refreshView();
   }
 
-  private void refreshView() {
-    String name = MessageHelper.getUserNickByAccId(sessionID, userInfo, false);
+  public void refreshView() {
+    String name = sessionID;
+    if (friendInfo != null) {
+      name = friendInfo.getName();
+    } else if (userInfo != null) {
+      name = userInfo.getName();
+    }
     binding.chatView.getTitleBar().setTitle(name);
     binding.chatView.getInputView().updateInputInfo(name);
   }
 
   @Override
   protected void initViewModel() {
-    ALog.i(TAG, "initViewModel");
+    ALog.d(LIB_TAG, TAG, "initViewModel");
     viewModel = new ViewModelProvider(this).get(ChatP2PViewModel.class);
     viewModel.init(sessionID, SessionTypeEnum.P2P);
     //fetch history message
-    viewModel.initFetch(null);
-    ((ChatP2PViewModel) viewModel).getP2pUserInfo(sessionID);
+    ((ChatP2PViewModel) viewModel).getFriendInfo(sessionID);
+    viewModel.initFetch(anchorMessage, false);
   }
 
   @Override
   protected void initDataObserver() {
     super.initDataObserver();
-    ALog.i(TAG, "initDataObserver");
+    ALog.d(LIB_TAG, TAG, "initDataObserver");
     ((ChatP2PViewModel) viewModel)
         .getMessageReceiptLiveData()
         .observe(
@@ -104,12 +122,15 @@ public class ChatP2PFragment extends ChatBaseFragment {
               }
             });
     ((ChatP2PViewModel) viewModel)
-        .getP2pUserInfoLiveData()
+        .getFriendInfoLiveData()
         .observe(
             getViewLifecycleOwner(),
             result -> {
               if (result.getLoadStatus() == LoadStatus.Success) {
-                userInfo = result.getData();
+                friendInfo = result.getData();
+                if (friendInfo != null) {
+                  userInfo = friendInfo.getUserInfo();
+                }
                 refreshView();
               }
             });
@@ -124,5 +145,62 @@ public class ChatP2PFragment extends ChatBaseFragment {
     if (chatConfig != null && chatConfig.messageProperties != null) {
       viewModel.setShowReadStatus(chatConfig.messageProperties.showP2pMessageStatus);
     }
+  }
+
+  @Override
+  public void onNewIntent(Intent intent) {
+    ALog.d(LIB_TAG, TAG, "onNewIntent");
+    anchorMessage = (IMMessage) intent.getSerializableExtra(RouterConstant.KEY_MESSAGE);
+    ChatMessageBean anchorMessageBean =
+        (ChatMessageBean) intent.getSerializableExtra(RouterConstant.KEY_MESSAGE_BEAN);
+    if (anchorMessageBean != null) {
+      anchorMessage = anchorMessageBean.getMessageData().getMessage();
+    } else if (anchorMessage != null) {
+      anchorMessageBean = new ChatMessageBean(new IMMessageInfo(anchorMessage));
+    }
+    if (anchorMessage != null) {
+      int position =
+          binding.chatView.getMessageListView().searchMessagePosition(anchorMessage.getUuid());
+      if (position >= 0) {
+        binding
+            .chatView
+            .getMessageListView()
+            .getViewTreeObserver()
+            .addOnGlobalLayoutListener(
+                new ViewTreeObserver.OnGlobalLayoutListener() {
+                  @Override
+                  public void onGlobalLayout() {
+                    binding
+                        .chatView
+                        .getMessageListView()
+                        .getViewTreeObserver()
+                        .removeOnGlobalLayoutListener(this);
+                    binding.chatView.post(
+                        () -> binding.chatView.getMessageListView().scrollToPosition(position));
+                  }
+                });
+        binding.chatView.getMessageListView().scrollToPosition(position);
+      } else {
+        binding.chatView.clearMessageList();
+        // need to add anchor message to list panel
+        binding.chatView.appendMessage(anchorMessageBean);
+        viewModel.initFetch(anchorMessage, false);
+      }
+    }
+  }
+
+  @Override
+  public void updateCurrentUserInfo() {
+    UserInfo userInfo = ChatUserCache.getUserInfo(sessionID);
+    if (userInfo != null) {
+      this.userInfo = userInfo;
+    }
+
+    FriendInfo friendInfo = ChatUserCache.getFriendInfo(sessionID);
+    if (friendInfo != null) {
+      this.friendInfo = friendInfo;
+    }
+
+    refreshView();
   }
 }

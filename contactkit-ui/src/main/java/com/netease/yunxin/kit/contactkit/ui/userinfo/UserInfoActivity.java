@@ -8,8 +8,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.widget.Toast;
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
@@ -51,17 +49,13 @@ public class UserInfoActivity extends BaseActivity {
     commentLauncher =
         registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
-            new ActivityResultCallback<ActivityResult>() {
-              @Override
-              public void onActivityResult(ActivityResult result) {
-                if (result.getResultCode() == CommentActivity.RESULT_OK
-                    && result.getData() != null) {
-                  String comment =
-                      result.getData().getStringExtra(CommentActivity.REQUEST_COMMENT_NAME_KEY);
-                  userInfoData.friendInfo.setAlias(comment);
-                  binding.contactUser.setData(userInfoData);
-                  viewModel.updateAlias(userInfoData.data.getAccount(), comment);
-                }
+            result -> {
+              if (result.getResultCode() == CommentActivity.RESULT_OK && result.getData() != null) {
+                String comment =
+                    result.getData().getStringExtra(CommentActivity.REQUEST_COMMENT_NAME_KEY);
+                userInfoData.friendInfo.setAlias(comment);
+                binding.contactUser.setData(userInfoData);
+                viewModel.updateAlias(userInfoData.data.getAccount(), comment);
               }
             });
   }
@@ -131,7 +125,7 @@ public class UserInfoActivity extends BaseActivity {
     BottomConfirmDialog bottomConfirmDialog = new BottomConfirmDialog();
     bottomConfirmDialog
         .setTitleStr(
-            String.format(getString(R.string.delete_contact_account), userInfoData.data.getName()))
+            String.format(getString(R.string.delete_contact_account), userInfoData.getName()))
         .setPositiveStr(getString(R.string.delete_friend))
         .setNegativeStr(getString(R.string.cancel))
         .setConfirmListener(
@@ -156,8 +150,9 @@ public class UserInfoActivity extends BaseActivity {
     if (TextUtils.isEmpty(accId)) {
       finish();
     }
+    viewModel.init(accId);
     viewModel
-        .getFetchResult()
+        .getFriendFetchResult()
         .observe(
             this,
             mapFetchResult -> {
@@ -175,10 +170,21 @@ public class UserInfoActivity extends BaseActivity {
                   && userInfoResult.getData() != null) {
                 for (UserInfo userInfo : userInfoResult.getData()) {
                   if (TextUtils.equals(userInfo.getAccount(), accId)) {
-                    userInfoData.data = userInfo;
-                    binding.contactUser.setData(userInfoData);
+                    if (userInfoData != null) {
+                      userInfoData.data = userInfo;
+                      binding.contactUser.setData(userInfoData);
+                    }
                   }
                 }
+              }
+            });
+    viewModel
+        .getFriendChangeLiveData()
+        .observe(
+            this,
+            result -> {
+              if (result.getLoadStatus() == LoadStatus.Finish) {
+                viewModel.fetchData(accId);
               }
             });
     viewModel.fetchData(accId);

@@ -11,18 +11,19 @@ import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.KEY_REQUEST
 import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.KEY_REQUEST_SELECTOR_NAME_ENABLE;
 import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.KEY_SESSION_ID;
 import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.KEY_TEAM_CREATED_TIP;
+import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.KEY_TEAM_ID;
 import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.PATH_ADD_FRIEND_PAGE;
 import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.PATH_CHAT_SEND_TEAM_TIP_ACTION;
 import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.PATH_CHAT_TEAM_PAGE;
 import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.PATH_CONTACT_SELECTOR_PAGE;
 import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.PATH_CREATE_ADVANCED_TEAM_ACTION;
 import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.PATH_CREATE_NORMAL_TEAM_ACTION;
+import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.PATH_TEAM_INVITE_ACTION;
 import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.REQUEST_CONTACT_SELECTOR_KEY;
 
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
-import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -59,7 +60,8 @@ public final class PopItemFactory {
         .build();
   }
 
-  public static ContentListPopView.Item getCreateAdvancedTeamItem(Context context) {
+  public static ContentListPopView.Item getCreateAdvancedTeamItem(
+      Context context, int memberLimit) {
     LinearLayout.LayoutParams params = getParams(context);
     params.setMargins(
         (int) context.getResources().getDimension(R.dimen.pop_text_margin_left),
@@ -71,11 +73,11 @@ public final class PopItemFactory {
         .configView(getView(context, R.string.create_advanced_team, R.drawable.icon_advanced_team))
         .configParams(params)
         .configClickListener(
-            getClickListener(context, requestCode, PATH_CREATE_ADVANCED_TEAM_ACTION))
+            getClickListener(context, requestCode, PATH_CREATE_ADVANCED_TEAM_ACTION, memberLimit))
         .build();
   }
 
-  public static ContentListPopView.Item getCreateGroupTeamItem(Context context) {
+  public static ContentListPopView.Item getCreateGroupTeamItem(Context context, int memberLimit) {
     LinearLayout.LayoutParams params = getParams(context);
     params.setMargins(
         (int) context.getResources().getDimension(R.dimen.pop_text_margin_left),
@@ -86,19 +88,20 @@ public final class PopItemFactory {
     return new ContentListPopView.Item.Builder()
         .configView(getView(context, R.string.create_group_team, R.drawable.icon_group_team))
         .configParams(params)
-        .configClickListener(getClickListener(context, requestCode, PATH_CREATE_NORMAL_TEAM_ACTION))
+        .configClickListener(
+            getClickListener(context, requestCode, PATH_CREATE_NORMAL_TEAM_ACTION, memberLimit))
         .build();
   }
 
   private static View.OnClickListener getClickListener(
-      Context context, int requestCode, String createMethod) {
+      Context context, int requestCode, String createMethod, int memberLimit) {
     return v ->
         TransHelper.launchTask(
             context,
             requestCode,
             (activity, integer) -> {
               XKitRouter.withKey(PATH_CONTACT_SELECTOR_PAGE)
-                  .withParam(KEY_CONTACT_SELECTOR_MAX_COUNT, 199)
+                  .withParam(KEY_CONTACT_SELECTOR_MAX_COUNT, memberLimit)
                   .withParam(KEY_REQUEST_SELECTOR_NAME_ENABLE, true)
                   .withContext(activity)
                   .withRequestCode(integer)
@@ -118,7 +121,6 @@ public final class PopItemFactory {
                 return null;
               }
               XKitRouter.withKey(createMethod)
-                  .withParam(REQUEST_CONTACT_SELECTOR_KEY, list)
                   .withParam(
                       KEY_REQUEST_SELECTOR_NAME,
                       data.getStringArrayListExtra(KEY_REQUEST_SELECTOR_NAME))
@@ -126,20 +128,28 @@ public final class PopItemFactory {
                       res -> {
                         if (res.getSuccess() && res.getValue() instanceof CreateTeamResult) {
                           Team teamInfo = ((CreateTeamResult) res.getValue()).getTeam();
-                          if (TextUtils.equals(createMethod, PATH_CREATE_ADVANCED_TEAM_ACTION)) {
-                            Map<String, Object> map = new HashMap<>(1);
-                            map.put(
-                                KEY_TEAM_CREATED_TIP,
-                                context.getString(R.string.create_advanced_team_success));
-                            XKitRouter.withKey(PATH_CHAT_SEND_TEAM_TIP_ACTION)
-                                .withParam(KEY_SESSION_ID, teamInfo.getId())
-                                .withParam(KEY_REMOTE_EXTENSION, map)
-                                .navigate();
-                          }
+                          Map<String, Object> map = new HashMap<>(1);
+                          map.put(
+                              KEY_TEAM_CREATED_TIP,
+                              context.getString(R.string.create_advanced_team_success));
+                          // 发送创建成功群里提示信息
+                          XKitRouter.withKey(PATH_CHAT_SEND_TEAM_TIP_ACTION)
+                              .withParam(KEY_SESSION_ID, teamInfo.getId())
+                              .withParam(KEY_REMOTE_EXTENSION, map)
+                              .navigate();
+
+                          // 邀请加入群，处理邀请通知早于创建成功同志
+                          XKitRouter.withKey(PATH_TEAM_INVITE_ACTION)
+                              .withParam(KEY_TEAM_ID, teamInfo.getId())
+                              .withParam(REQUEST_CONTACT_SELECTOR_KEY, list)
+                              .navigate();
+
+                          //跳转到会话页面
                           XKitRouter.withKey(PATH_CHAT_TEAM_PAGE)
                               .withContext(context)
                               .withParam(CHAT_KRY, teamInfo)
                               .navigate();
+
                         } else {
                           ALog.e(TAG, "create team failed.");
                         }

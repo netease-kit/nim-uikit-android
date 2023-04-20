@@ -21,6 +21,7 @@
 
     <string name="conversation_network_error_tip">No Internet</string>
     <string name="conversation_empty_tip">No Chat</string>
+    <string name="conversation_ait_tip">[You were mentioned]</string>
 
     <!-- message type-->
     <string name="msg_type_location">[Location Message]</string>

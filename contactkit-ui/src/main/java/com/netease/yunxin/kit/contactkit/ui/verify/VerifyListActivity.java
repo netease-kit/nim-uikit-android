@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
+import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.contactkit.ui.ILoadListener;
@@ -22,11 +23,17 @@ import com.netease.yunxin.kit.contactkit.ui.view.viewholder.VerifyInfoViewHolder
 import com.netease.yunxin.kit.corekit.im.model.SystemMessageInfoStatus;
 import com.netease.yunxin.kit.corekit.im.model.SystemMessageInfoType;
 import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
+import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
+import com.netease.yunxin.kit.corekit.route.XKitRouter;
 import java.util.List;
 
 public class VerifyListActivity extends BaseListActivity implements ILoadListener {
 
   private VerifyViewModel viewModel;
+  private boolean hasInit = false;
+  private int seriesPageCount = 0;
+  private final int seriesPageLimit = 20;
+  private final int error_duplicate = 509;
 
   @Override
   protected void initView() {
@@ -34,10 +41,7 @@ public class VerifyListActivity extends BaseListActivity implements ILoadListene
         .title
         .setTitle(R.string.verify_msg)
         .setActionText(R.string.clear_all)
-        .setActionListener(
-            v -> {
-              viewModel.clearNotify();
-            });
+        .setActionListener(v -> viewModel.clearNotify());
     binding.contactListView.setViewHolderFactory(
         new ContactViewHolderFactory() {
           @Override
@@ -53,20 +57,36 @@ public class VerifyListActivity extends BaseListActivity implements ILoadListene
                           new FetchCallback<Void>() {
                             @Override
                             public void onSuccess(@Nullable Void param) {
-                              viewModel.setVerifyStatus(
-                                  bean.data.getId(), SystemMessageInfoStatus.Passed);
-                              bean.data.setInfoStatus(SystemMessageInfoStatus.Passed);
+                              viewModel.setVerifyStatus(bean, SystemMessageInfoStatus.Passed);
                               binding.contactListView.updateContactData(bean);
+                              if (bean.data.getInfoType() == SystemMessageInfoType.AddFriend) {
+                                XKitRouter.withKey(RouterConstant.PATH_CHAT_SEND_TEXT_ACTION)
+                                    .withContext(VerifyListActivity.this)
+                                    .withParam(
+                                        RouterConstant.KEY_SESSION_ID, bean.data.getFromAccount())
+                                    .withParam(
+                                        RouterConstant.KEY_SESSION_TYPE,
+                                        SessionTypeEnum.P2P.getValue())
+                                    .withParam(
+                                        RouterConstant.KEY_MESSAGE_CONTENT,
+                                        getResources()
+                                            .getString(R.string.verify_agree_message_text))
+                                    .navigate();
+                              }
                             }
 
                             @Override
                             public void onFailed(int code) {
-                              toastResult(true, bean.data.getInfoType());
+                              if (code == error_duplicate) {
+                                viewModel.setVerifyStatus(bean, SystemMessageInfoStatus.Passed);
+                                binding.contactListView.updateContactData(bean);
+                              }
+                              toastResult(true, bean.data.getInfoType(), code);
                             }
 
                             @Override
                             public void onException(@Nullable Throwable exception) {
-                              toastResult(true, bean.data.getInfoType());
+                              toastResult(true, bean.data.getInfoType(), 0);
                             }
                           });
                     }
@@ -78,20 +98,22 @@ public class VerifyListActivity extends BaseListActivity implements ILoadListene
                           new FetchCallback<Void>() {
                             @Override
                             public void onSuccess(@Nullable Void param) {
-                              viewModel.setVerifyStatus(
-                                  bean.data.getId(), SystemMessageInfoStatus.Declined);
-                              bean.data.setInfoStatus(SystemMessageInfoStatus.Declined);
+                              viewModel.setVerifyStatus(bean, SystemMessageInfoStatus.Declined);
                               binding.contactListView.updateContactData(bean);
                             }
 
                             @Override
                             public void onFailed(int code) {
-                              toastResult(false, bean.data.getInfoType());
+                              if (code == error_duplicate) {
+                                viewModel.setVerifyStatus(bean, SystemMessageInfoStatus.Passed);
+                                binding.contactListView.updateContactData(bean);
+                              }
+                              toastResult(false, bean.data.getInfoType(), code);
                             }
 
                             @Override
                             public void onException(@Nullable Throwable exception) {
-                              toastResult(false, bean.data.getInfoType());
+                              toastResult(false, bean.data.getInfoType(), 0);
                             }
                           });
                     }
@@ -108,8 +130,14 @@ public class VerifyListActivity extends BaseListActivity implements ILoadListene
   @Override
   protected void onResume() {
     super.onResume();
-    viewModel.resetUnreadCount();
     updateView();
+  }
+
+  @Override
+  protected void onStop() {
+    super.onStop();
+    viewModel.resetUnreadCount();
+    binding.contactListView.getAdapter().notifyDataSetChanged();
   }
 
   @Override
@@ -122,14 +150,28 @@ public class VerifyListActivity extends BaseListActivity implements ILoadListene
             result -> {
               if (result.getLoadStatus() == LoadStatus.Success) {
                 binding.contactListView.addContactData(result.getData());
+                if (result.getData() == null
+                    || (result.getData() != null && result.getData().size() < 10)) {
+                  if (viewModel.hasMore() && seriesPageCount < seriesPageLimit) {
+                    seriesPageCount += result.getData() != null ? result.getData().size() : 0;
+                    viewModel.fetchVerifyList(true);
+                  }
+                  seriesPageCount = 0;
+                }
+                seriesPageCount = 0;
+
               } else if (result.getLoadStatus() == LoadStatus.Finish) {
                 if (result.getType() == FetchResult.FetchType.Remove) {
                   binding.contactListView.removeContactData(result.getData());
                 } else if (result.getType() == FetchResult.FetchType.Add) {
                   addNotifyData(result.getData());
-                  viewModel.resetUnreadCount();
+                } else if (result.getType() == FetchResult.FetchType.Update) {
+                  for (ContactVerifyInfoBean bean : result.getData()) {
+                    binding.contactListView.updateContactDataAndSort(bean);
+                  }
                 }
               }
+              hasInit = true;
               updateView();
             });
 
@@ -137,16 +179,19 @@ public class VerifyListActivity extends BaseListActivity implements ILoadListene
   }
 
   private void updateView() {
-    if (binding.contactListView.getItemCount() > 0) {
-      binding.contactListView.setEmptyViewVisible(View.GONE);
+    if (binding.contactListView.getItemCount() > 0 || !hasInit) {
+      binding.contactListView.setEmptyViewVisible(View.GONE, null);
     } else {
-      binding.contactListView.setEmptyViewVisible(View.VISIBLE);
+      binding.contactListView.setEmptyViewVisible(
+          View.VISIBLE, getString(R.string.verify_empty_text));
     }
   }
 
-  private void toastResult(boolean agree, SystemMessageInfoType type) {
+  private void toastResult(boolean agree, SystemMessageInfoType type, int errorCode) {
     String content = null;
-    if (type == SystemMessageInfoType.AddFriend) {
+    if (errorCode == error_duplicate) {
+      content = getResources().getString(R.string.verify_duplicate_fail);
+    } else if (type == SystemMessageInfoType.AddFriend) {
       content =
           agree
               ? getResources().getString(R.string.agree_add_friend_fail)

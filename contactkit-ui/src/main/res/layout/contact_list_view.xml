@@ -42,6 +42,12 @@
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="@dimen/dimen_150_dp"/>
 
+        <TextView android:id="@+id/contact_empty_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="250dp"
+            android:layout_gravity="center_horizontal"/>
+
     </FrameLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

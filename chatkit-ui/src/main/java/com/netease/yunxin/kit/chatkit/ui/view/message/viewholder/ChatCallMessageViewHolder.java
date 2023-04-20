@@ -12,7 +12,7 @@ import com.netease.nimlib.sdk.msg.attachment.NetCallAttachment;
 import com.netease.nimlib.sdk.msg.constant.MsgDirectionEnum;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
 import com.netease.yunxin.kit.chatkit.ui.R;
-import com.netease.yunxin.kit.chatkit.ui.common.MessageUtil;
+import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatBaseMessageViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatMessageCallViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
@@ -106,7 +106,7 @@ public class ChatCallMessageViewHolder extends ChatBaseMessageViewHolder {
                   .getResources()
                   .getString(R.string.chat_message_call_completed);
           callBinding.chatMessageCallText.setText(
-              String.format(resStr, MessageUtil.formatCallTime(seconds)));
+              String.format(resStr, MessageHelper.formatCallTime(seconds)));
           break;
         case NrtcCallStatusCanceled:
           // 主叫用户取消

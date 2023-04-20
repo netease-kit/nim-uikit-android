@@ -19,7 +19,7 @@ import java.util.Map;
 /** view holder for Text message */
 public class ChatTipsMessageViewHolder extends ChatBaseMessageViewHolder {
 
-  private static final String LOG_TAG = "ChatTipsMessageViewHolder";
+  private static final String TAG = "ChatTipsMessageViewHolder";
 
   ChatMessageTextViewHolderBinding textBinding;
 
@@ -50,6 +50,9 @@ public class ChatTipsMessageViewHolder extends ChatBaseMessageViewHolder {
           IMKitClient.getApplicationContext().getResources().getColor(R.color.color_999999));
       textBinding.messageText.setTextSize(12);
       textBinding.messageText.setText(content);
+      if (lastMessage == null) {
+        setTime(message, null);
+      }
     } else {
       baseViewBinding.baseRoot.setVisibility(View.GONE);
     }

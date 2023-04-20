@@ -36,6 +36,7 @@ public class VerifyViewModel extends BaseViewModel {
   private final FetchResult<List<ContactVerifyInfoBean>> fetchResult =
       new FetchResult<>(LoadStatus.Finish);
   private final List<ContactVerifyInfoBean> verifyBeanList = new ArrayList<>();
+  private final List<ContactVerifyInfoBean> updateList = new ArrayList<>();
   private final SystemMessageInfoObserver infoObserver;
 
   public MutableLiveData<FetchResult<List<ContactVerifyInfoBean>>> getFetchResult() {
@@ -60,16 +61,22 @@ public class VerifyViewModel extends BaseViewModel {
                     List<ContactVerifyInfoBean> add = new ArrayList<>();
                     if (param != null && !param.isEmpty()) {
                       resetMessageStatus(param);
-                      for (SystemMessageInfo msg : param) {
-                        ContactVerifyInfoBean friendBean = new ContactVerifyInfoBean(msg);
-                        verifyBeanList.add(0, friendBean);
-                        add.add(friendBean);
+                      add = mergeSystemMessageList(param);
+                      // 如果有新的消息合并，需要更新原有消息
+                      if (updateList.size() > 0) {
+                        List<ContactVerifyInfoBean> update = new ArrayList<>(updateList);
+                        updateList.clear();
+                        fetchResult.setData(update);
+                        fetchResult.setFetchType(FetchResult.FetchType.Update);
+                        resultLiveData.setValue(fetchResult);
                       }
                     }
                     //update
-                    fetchResult.setData(add);
-                    fetchResult.setFetchType(FetchResult.FetchType.Add);
-                    resultLiveData.setValue(fetchResult);
+                    if (add.size() > 0) {
+                      fetchResult.setData(add);
+                      fetchResult.setFetchType(FetchResult.FetchType.Add);
+                      resultLiveData.setValue(fetchResult);
+                    }
                   }
 
                   @Override
@@ -92,6 +99,7 @@ public class VerifyViewModel extends BaseViewModel {
   }
 
   public void fetchVerifyList(boolean nextPage) {
+    ALog.d(LIB_TAG, TAG, "fetchVerifyList,nextPage:" + nextPage);
     fetchResult.setStatus(LoadStatus.Loading);
     resultLiveData.postValue(fetchResult);
     if (nextPage) {
@@ -112,20 +120,14 @@ public class VerifyViewModel extends BaseViewModel {
                 LIB_TAG,
                 TAG,
                 "fetchVerifyList,onSuccess:" + (param == null ? "null" : param.size()));
+            fetchResult.setStatus(LoadStatus.Success);
+            hasMore = (param != null && param.size() == PAGE_LIMIT);
             if (param != null && param.size() > 0) {
-              fetchResult.setStatus(LoadStatus.Success);
               resetMessageStatus(param);
-              List<ContactVerifyInfoBean> add = new ArrayList<>();
-              for (SystemMessageInfo contactInfo : param) {
-                ContactVerifyInfoBean friendBean = new ContactVerifyInfoBean(contactInfo);
-                add.add(friendBean);
-                verifyBeanList.add(friendBean);
-              }
-              hasMore = (param.size() == PAGE_LIMIT);
+              List<ContactVerifyInfoBean> add = mergeSystemMessageList(param);
               fetchResult.setData(add);
             } else {
               fetchResult.setData(null);
-              fetchResult.setStatus(LoadStatus.Success);
             }
             resultLiveData.setValue(fetchResult);
           }
@@ -178,6 +180,9 @@ public class VerifyViewModel extends BaseViewModel {
 
   public void disagree(ContactVerifyInfoBean bean, FetchCallback<Void> callback) {
     ALog.d(LIB_TAG, TAG, "disagree:" + (bean == null ? "null" : bean.data.getId()));
+    if (bean == null || bean.data == null) {
+      return;
+    }
     SystemMessageInfo info = bean.data;
     SystemMessageInfoType type = info.getInfoType();
     SystemMessageInfoStatus status = info.getInfoStatus();
@@ -197,14 +202,23 @@ public class VerifyViewModel extends BaseViewModel {
     }
   }
 
-  public void setVerifyStatus(Long id, SystemMessageInfoStatus status) {
-    ALog.d(LIB_TAG, TAG, "setVerifyStatus:" + id + (status == null ? "null" : status.name()));
-    ContactRepo.setNotificationStatus(id, status);
+  public void setVerifyStatus(ContactVerifyInfoBean bean, SystemMessageInfoStatus status) {
+    if (bean == null || status == null) {
+      return;
+    }
+    ALog.d(LIB_TAG, TAG, "setVerifyStatus:" + (status == null ? "null" : status.name()));
+    for (SystemMessageInfo messageInfo : bean.messageList) {
+      ContactRepo.setNotificationStatus(messageInfo.getId(), status);
+    }
+    bean.updateStatus(status);
   }
 
   public void resetUnreadCount() {
     ALog.d(LIB_TAG, TAG, "resetUnreadCount");
     ContactRepo.clearNotificationUnreadCount();
+    for (ContactVerifyInfoBean verifyInfoBean : verifyBeanList) {
+      verifyInfoBean.clearUnreadCount();
+    }
   }
 
   private void resetMessageStatus(List<SystemMessageInfo> infoList) {
@@ -217,6 +231,29 @@ public class VerifyViewModel extends BaseViewModel {
         }
       }
     }
+  }
+
+  private List<ContactVerifyInfoBean> mergeSystemMessageList(List<SystemMessageInfo> infoList) {
+    List<ContactVerifyInfoBean> add = new ArrayList<>();
+    updateList.clear();
+    if (infoList != null) {
+      for (int index = 0; index < infoList.size(); index++) {
+        boolean hasInsert = false;
+        for (ContactVerifyInfoBean bean : verifyBeanList) {
+          if (bean.pushMessageIfSame(infoList.get(index))) {
+            hasInsert = true;
+            updateList.add(bean);
+            break;
+          }
+        }
+        if (!hasInsert) {
+          ContactVerifyInfoBean infoBean = new ContactVerifyInfoBean(infoList.get(index));
+          verifyBeanList.add(infoBean);
+          add.add(infoBean);
+        }
+      }
+    }
+    return add;
   }
 
   @Override

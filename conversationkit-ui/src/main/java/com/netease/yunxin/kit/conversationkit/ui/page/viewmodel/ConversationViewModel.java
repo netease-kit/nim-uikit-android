@@ -4,6 +4,7 @@
 
 package com.netease.yunxin.kit.conversationkit.ui.page.viewmodel;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
 import com.netease.nimlib.sdk.Observer;
@@ -22,6 +23,10 @@ import com.netease.yunxin.kit.conversationkit.ui.IConversationFactory;
 import com.netease.yunxin.kit.conversationkit.ui.common.ConversationUtils;
 import com.netease.yunxin.kit.conversationkit.ui.model.ConversationBean;
 import com.netease.yunxin.kit.conversationkit.ui.page.DefaultViewHolderFactory;
+import com.netease.yunxin.kit.corekit.event.EventCenter;
+import com.netease.yunxin.kit.corekit.event.EventNotify;
+import com.netease.yunxin.kit.corekit.im.custom.AitEvent;
+import com.netease.yunxin.kit.corekit.im.custom.AitInfo;
 import com.netease.yunxin.kit.corekit.im.model.EventObserver;
 import com.netease.yunxin.kit.corekit.im.model.FriendInfo;
 import com.netease.yunxin.kit.corekit.im.model.UserInfo;
@@ -29,6 +34,8 @@ import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
 import com.netease.yunxin.kit.corekit.im.provider.FriendChangeType;
 import com.netease.yunxin.kit.corekit.im.provider.FriendObserver;
 import com.netease.yunxin.kit.corekit.im.provider.UserInfoObserver;
+import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
+import com.netease.yunxin.kit.corekit.route.XKitRouter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -38,6 +45,8 @@ public class ConversationViewModel extends BaseViewModel {
 
   private final String TAG = "ConversationViewModel";
   private final String LIB_TAG = "ConversationKit-UI";
+
+  private final MutableLiveData<FetchResult<Integer>> unreadCountLiveData = new MutableLiveData<>();
   private final MutableLiveData<FetchResult<List<ConversationBean>>> queryLiveData =
       new MutableLiveData<>();
   private final MutableLiveData<FetchResult<List<ConversationBean>>> changeLiveData =
@@ -53,11 +62,13 @@ public class ConversationViewModel extends BaseViewModel {
   private final MutableLiveData<FetchResult<List<Team>>> teamInfoLiveData = new MutableLiveData<>();
   private final MutableLiveData<FetchResult<MuteListChangedNotify>> muteInfoLiveData =
       new MutableLiveData<>();
+  private final MutableLiveData<FetchResult<List<String>>> aitLiveData = new MutableLiveData<>();
 
   private Comparator<ConversationInfo> comparator;
   private IConversationFactory conversationFactory = new DefaultViewHolderFactory();
   private static final int PAGE_LIMIT = 50;
   private boolean hasMore = true;
+  private boolean hasStart = false;
 
   public ConversationViewModel() {
     //register observer
@@ -69,6 +80,36 @@ public class ConversationViewModel extends BaseViewModel {
     ConversationRepo.registerFriendMuteObserver(muteObserver);
     ConversationRepo.registerAddStickTopObserver(addStickObserver);
     ConversationRepo.registerRemoveStickTopObserver(removeStickObserver);
+    ConversationRepo.registerSyncStickTopObserver(syncStickObserver);
+    EventNotify<AitEvent> aitNotify =
+        new EventNotify<AitEvent>() {
+          @Override
+          public void onNotify(@NonNull AitEvent message) {
+            AitEvent aitEvent = (AitEvent) message;
+            FetchResult<List<String>> result = new FetchResult<>(LoadStatus.Finish);
+            ALog.d(LIB_TAG, TAG, "aitNotify，onSuccess:" + aitEvent.getEventType().name());
+            if (aitEvent.getEventType() == AitEvent.AitEventType.Arrive
+                || aitEvent.getEventType() == AitEvent.AitEventType.Load) {
+              result.setFetchType(FetchResult.FetchType.Add);
+            } else {
+              result.setFetchType(FetchResult.FetchType.Remove);
+            }
+            List<AitInfo> aitInfoList = aitEvent.getAitInfoList();
+            List<String> sessionIdList = new ArrayList<>();
+            for (AitInfo info : aitInfoList) {
+              sessionIdList.add(info.getSessionId());
+            }
+            result.setData(sessionIdList);
+            aitLiveData.setValue(result);
+          }
+
+          @NonNull
+          @Override
+          public String getEventType() {
+            return "AitEvent";
+          }
+        };
+    EventCenter.registerEventNotify(aitNotify);
   }
 
   /** comparator to sort conversation list */
@@ -79,6 +120,11 @@ public class ConversationViewModel extends BaseViewModel {
   /** comparator to sort conversation list */
   public void setConversationFactory(IConversationFactory factory) {
     this.conversationFactory = factory;
+  }
+
+  /** query unread count live data */
+  public MutableLiveData<FetchResult<Integer>> getUnreadCountLiveData() {
+    return unreadCountLiveData;
   }
 
   /** query conversation live data */
@@ -121,11 +167,36 @@ public class ConversationViewModel extends BaseViewModel {
     return muteInfoLiveData;
   }
 
-  public int getUnreadCount() {
-    return ConversationRepo.getMsgUnreadCount();
+  /** conversation @ info */
+  public MutableLiveData<FetchResult<List<String>>> getAitLiveData() {
+    return aitLiveData;
+  }
+
+  public void getUnreadCount() {
+    ConversationRepo.getMsgUnreadCountAsync(
+        new FetchCallback<Integer>() {
+          @Override
+          public void onSuccess(@Nullable Integer param) {
+            FetchResult<Integer> fetchResult = new FetchResult<>(LoadStatus.Success);
+            fetchResult.setData(param);
+            unreadCountLiveData.setValue(fetchResult);
+          }
+
+          @Override
+          public void onFailed(int code) {
+            ALog.d(LIB_TAG, TAG, "getUnreadCount,onFailed" + code);
+            ToastX.showShortToast(String.valueOf(code));
+          }
+
+          @Override
+          public void onException(@Nullable Throwable exception) {
+            ALog.d(LIB_TAG, TAG, "getUnreadCount,onException");
+          }
+        });
   }
 
   public void fetchConversation() {
+    XKitRouter.withKey(RouterConstant.PATH_CHAT_AIT_NOTIFY_ACTION).navigate();
     queryConversation(null);
   }
 
@@ -138,6 +209,11 @@ public class ConversationViewModel extends BaseViewModel {
 
   private void queryConversation(ConversationInfo data) {
     ALog.d(LIB_TAG, TAG, "queryConversation:" + (data == null));
+    if (hasStart) {
+      ALog.d(LIB_TAG, TAG, "queryConversation,has Started return");
+      return;
+    }
+    hasStart = true;
     ConversationRepo.getSessionList(
         data,
         PAGE_LIMIT,
@@ -156,22 +232,24 @@ public class ConversationViewModel extends BaseViewModel {
             List<ConversationBean> resultData = new ArrayList<>();
             for (int index = 0; param != null && index < param.size(); index++) {
               resultData.add(conversationFactory.CreateBean(param.get(index)));
-              ALog.d(LIB_TAG, TAG, "queryConversation,onSuccess" + param.get(index).getContactId());
             }
             hasMore = param != null && param.size() == PAGE_LIMIT;
             result.setData(resultData);
             queryLiveData.setValue(result);
+            hasStart = false;
           }
 
           @Override
           public void onFailed(int code) {
             ALog.d(LIB_TAG, TAG, "queryConversation,onFailed" + code);
             ToastX.showShortToast(String.valueOf(code));
+            hasStart = false;
           }
 
           @Override
           public void onException(@Nullable Throwable exception) {
             ALog.d(LIB_TAG, TAG, "queryConversation,onException");
+            hasStart = false;
           }
         });
   }
@@ -272,6 +350,12 @@ public class ConversationViewModel extends BaseViewModel {
         addRemoveStickLiveData.setValue(result);
       };
 
+  private final Observer<List<StickTopSessionInfo>> syncStickObserver =
+      param -> {
+        ALog.d(LIB_TAG, TAG, "syncStickObserver,onSuccess:" + param.size());
+        queryConversation(null);
+      };
+
   private final Observer<StickTopSessionInfo> removeStickObserver =
       param -> {
         ALog.d(LIB_TAG, TAG, "removeStickObserver,onSuccess:" + param.getSessionId());
@@ -293,7 +377,9 @@ public class ConversationViewModel extends BaseViewModel {
               if (ConversationUtils.isMineLeave(conversationInfo)) {
                 deleteConversation(conversationFactory.CreateBean(param.get(index)));
                 ALog.d(
-                    TAG, "changeObserver,DismissTeam,onSuccess:", param.get(index).getContactId());
+                    LIB_TAG,
+                    TAG,
+                    "changeObserver,DismissTeam,onSuccess:" + param.get(index).getContactId());
                 continue;
               } else {
                 resultData.add(conversationFactory.CreateBean(param.get(index)));
@@ -337,8 +423,39 @@ public class ConversationViewModel extends BaseViewModel {
       (friendChangeType, accountList) -> {
         ALog.d(LIB_TAG, TAG, "friendObserver,userList:" + accountList.size());
         if (friendChangeType == FriendChangeType.Update) {
+          ConversationRepo.getFriendInfo(
+              accountList,
+              new FetchCallback<List<FriendInfo>>() {
+                @Override
+                public void onSuccess(@Nullable List<FriendInfo> param) {
+                  ALog.d(
+                      LIB_TAG, TAG, "friendObserver,getFriendInfo,onSuccess:" + accountList.size());
+                  FetchResult<List<FriendInfo>> result = new FetchResult<>(LoadStatus.Success);
+                  result.setData(param);
+                  friendInfoLiveData.setValue(result);
+                }
+
+                @Override
+                public void onFailed(int code) {
+                  ALog.d(LIB_TAG, TAG, "friendObserver,getFriendInfo,onFailed:" + code);
+                }
+
+                @Override
+                public void onException(@Nullable Throwable exception) {
+                  ALog.d(
+                      LIB_TAG,
+                      TAG,
+                      "friendObserver,getFriendInfo,onException"
+                          + (exception != null ? exception.getMessage() : "null"));
+                }
+              });
+        } else if (friendChangeType == FriendChangeType.Delete) {
           FetchResult<List<FriendInfo>> result = new FetchResult<>(LoadStatus.Success);
-          result.setData(ConversationRepo.getFriendList(accountList));
+          List<FriendInfo> friendList = new ArrayList<>();
+          for (String account : accountList) {
+            friendList.add(new FriendInfo(account, null, null));
+          }
+          result.setData(friendList);
           friendInfoLiveData.setValue(result);
         }
       };
@@ -377,6 +494,7 @@ public class ConversationViewModel extends BaseViewModel {
     ConversationRepo.unregisterTeamUpdateObserver(teamUpdateObserver);
     ConversationRepo.unregisterFriendMuteObserver(muteObserver);
     ConversationRepo.unregisterAddStickTopObserver(addStickObserver);
+    ConversationRepo.unregisterSyncStickTopObserver(syncStickObserver);
     ConversationRepo.unregisterRemoveStickTopObserver(removeStickObserver);
   }
 }

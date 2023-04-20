@@ -4,6 +4,8 @@
 
 package com.netease.yunxin.kit.chatkit.ui.view.popmenu;
 
+import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
+
 import android.annotation.SuppressLint;
 import android.graphics.drawable.Drawable;
 import android.view.Gravity;
@@ -30,7 +32,7 @@ import java.util.List;
 /** message long click popup menu */
 public class ChatPopMenu {
 
-  private static final String LOG_TAG = "ChatPopMenu";
+  private static final String TAG = "ChatPopMenu";
 
   private static final int DEFAULT_COLUMN_NUM = 5;
 
@@ -68,7 +70,7 @@ public class ChatPopMenu {
   }
 
   public void show(View anchorView, ChatMessageBean message, int minY) {
-    ALog.i(LOG_TAG, "show");
+    ALog.d(LIB_TAG, TAG, "show");
     adapter.setMessageInfo(message);
     initDefaultAction(message);
     if (chatPopMenuActionList.size() < 1) {

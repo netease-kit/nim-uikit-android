@@ -10,6 +10,8 @@ import android.text.TextUtils;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
 import com.netease.nimlib.sdk.Observer;
+import com.netease.nimlib.sdk.friend.model.Friend;
+import com.netease.nimlib.sdk.friend.model.FriendChangedNotify;
 import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.msg.model.CustomNotification;
 import com.netease.nimlib.sdk.msg.model.CustomNotificationConfig;
@@ -18,11 +20,13 @@ import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.model.IMMessageReceiptInfo;
 import com.netease.yunxin.kit.chatkit.repo.ChatObserverRepo;
 import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
+import com.netease.yunxin.kit.chatkit.ui.common.ChatUserCache;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.corekit.im.model.EventObserver;
-import com.netease.yunxin.kit.corekit.im.model.UserInfo;
+import com.netease.yunxin.kit.corekit.im.model.FriendInfo;
 import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
+import java.util.ArrayList;
 import java.util.List;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -40,10 +44,11 @@ public class ChatP2PViewModel extends ChatBaseViewModel {
   private final MutableLiveData<Boolean> typeStateLiveData = new MutableLiveData<>();
 
   //用户信息数据
-  private final MutableLiveData<FetchResult<UserInfo>> p2pUserInfoLiveData =
+  private final MutableLiveData<FetchResult<FriendInfo>> friendInfoLiveData =
       new MutableLiveData<>();
 
-  private final FetchResult<UserInfo> p2pUserInfoFetchResult = new FetchResult<>(LoadStatus.Finish);
+  private final FetchResult<FriendInfo> friendInfoFetchResult =
+      new FetchResult<>(LoadStatus.Finish);
 
   private final EventObserver<List<IMMessageReceiptInfo>> messageReceiptObserver =
       new EventObserver<List<IMMessageReceiptInfo>>() {
@@ -100,20 +105,23 @@ public class ChatP2PViewModel extends ChatBaseViewModel {
     return typeStateLiveData;
   }
 
-  public MutableLiveData<FetchResult<UserInfo>> getP2pUserInfoLiveData() {
-    return p2pUserInfoLiveData;
+  public MutableLiveData<FetchResult<FriendInfo>> getFriendInfoLiveData() {
+    return friendInfoLiveData;
   }
 
-  public void getP2pUserInfo(String accId) {
-    ALog.d(LIB_TAG, TAG, "getP2pUserInfo:" + accId);
-    ChatRepo.fetchUserInfo(
+  public void getFriendInfo(String accId) {
+    ALog.d(LIB_TAG, TAG, "getFriendInfo:" + accId);
+    ChatRepo.getFriendInfo(
         accId,
-        new FetchCallback<UserInfo>() {
+        new FetchCallback<FriendInfo>() {
           @Override
-          public void onSuccess(@Nullable UserInfo param) {
-            p2pUserInfoFetchResult.setData(param);
-            p2pUserInfoFetchResult.setLoadStatus(LoadStatus.Success);
-            p2pUserInfoLiveData.setValue(p2pUserInfoFetchResult);
+          public void onSuccess(@Nullable FriendInfo param) {
+            List<FriendInfo> userInfoList = new ArrayList<>();
+            userInfoList.add(param);
+            ChatUserCache.addFriendInfo(userInfoList);
+            friendInfoFetchResult.setData(param);
+            friendInfoFetchResult.setLoadStatus(LoadStatus.Success);
+            friendInfoLiveData.setValue(friendInfoFetchResult);
           }
 
           @Override
@@ -146,6 +154,30 @@ public class ChatP2PViewModel extends ChatBaseViewModel {
         "sendReceipt:" + (message == null ? "null" : message.getUuid() + message.needMsgAck()));
     if (message != null && message.needMsgAck() && showRead) {
       ChatRepo.markP2PMessageRead(mSessionId, message);
+    }
+  }
+
+  @Override
+  public void notifyFriendChange(FriendChangedNotify friendChangedNotify) {
+    if (friendChangedNotify != null) {
+      boolean hasChange = false;
+      for (String account : friendChangedNotify.getDeletedFriends()) {
+        if (TextUtils.equals(account, mSessionId)) {
+          hasChange = true;
+          break;
+        }
+      }
+      if (!hasChange) {
+        for (Friend friend : friendChangedNotify.getAddedOrUpdatedFriends()) {
+          if (TextUtils.equals(friend.getAccount(), mSessionId)) {
+            hasChange = true;
+            break;
+          }
+        }
+      }
+      if (hasChange) {
+        getFriendInfo(mSessionId);
+      }
     }
   }
 

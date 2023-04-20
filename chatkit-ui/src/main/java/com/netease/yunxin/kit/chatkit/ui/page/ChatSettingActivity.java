@@ -15,6 +15,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
+import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.msg.model.StickTopSessionInfo;
 import com.netease.nimlib.sdk.team.model.CreateTeamResult;
 import com.netease.nimlib.sdk.team.model.Team;
@@ -160,6 +161,14 @@ public class ChatSettingActivity extends BaseActivity {
                 });
           }
         });
+
+    binding.rlyPin.setOnClickListener(
+        v ->
+            XKitRouter.withKey(RouterConstant.PATH_CHAT_PIN_PAGE)
+                .withParam(RouterConstant.KEY_SESSION_TYPE, SessionTypeEnum.P2P.getValue())
+                .withParam(RouterConstant.KEY_SESSION_ID, accId)
+                .withContext(ChatSettingActivity.this)
+                .navigate());
 
     binding.scMessageNotice.setChecked(ChatRepo.isNeedNotify(accId));
     binding.rlyMessageNotice.setOnClickListener(

@@ -6,6 +6,7 @@
   -->
 
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/root_view"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -22,11 +23,27 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent" />
 
-    <TextView
-        android:id="@+id/tv_name"
+    <TextView android:id="@+id/unread_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/dimen_12_dp"
+        android:background="@drawable/bg_shape_red_dot"
+        android:paddingStart="@dimen/dimen_4_dp"
+        android:paddingEnd="@dimen/dimen_4_dp"
+        android:textColor="@color/color_white"
+        android:textSize="@dimen/text_size_12"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="@dimen/dimen_12_dp"
+        android:layout_marginStart="@dimen/dimen_42_dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        tools:ignore="MissingConstraints" />
+
+    <TextView
+        android:id="@+id/tv_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintHorizontal_weight="1"
+        android:layout_marginStart="@dimen/dimen_16_dp"
         android:textSize="@dimen/text_size_14"
         android:textColor="@color/color_14131b"
         android:maxLines="1"
@@ -34,21 +51,24 @@
         android:maxWidth="@dimen/verify_name_max_len"
         app:layout_constrainedWidth="true"
         android:ellipsize="end"
+        android:gravity="start"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintLeft_toRightOf="@+id/avatar_view"/>
+        app:layout_constraintEnd_toStartOf="@id/lly_operate"
+        app:layout_constraintStart_toEndOf="@+id/avatar_view"/>
 
     <TextView
         android:id="@+id/tv_action"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:layout_constraintHorizontal_weight="1"
         android:textSize="@dimen/text_size_14"
         android:ellipsize="end"
-        android:maxLines="1"
-        android:maxWidth="@dimen/verify_action_max_len"
+        android:maxLines="2"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="@+id/tv_name"
+        app:layout_constraintStart_toStartOf="@+id/tv_name"
         app:layout_constraintTop_toBottomOf="@+id/tv_name"
+        app:layout_constraintEnd_toStartOf="@id/lly_operate"
+        android:gravity="start"
         android:layout_marginBottom="@dimen/dimen_3_dp"/>
 
     <LinearLayout android:id="@+id/lly_operate"
@@ -67,15 +87,27 @@
             android:orientation="horizontal">
 
             <TextView
+                android:id="@+id/tv_reject"
+                android:layout_width="@dimen/dimen_60_dp"
+                android:layout_height="@dimen/dimen_32_dp"
+                android:layout_marginEnd="@dimen/dimen_8_dp"
+                android:background="@drawable/negative_btn_bg"
+                android:gravity="center"
+                android:text="@string/contact_verify_reject"
+                android:textColor="@color/title_color"
+                android:textSize="@dimen/text_size_14" />
+
+            <TextView
                 android:id="@+id/tv_accept"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="@dimen/dimen_60_dp"
+                android:layout_height="@dimen/dimen_32_dp"
                 android:background="@drawable/positive_btn_bg"
-                android:paddingHorizontal="@dimen/dimen_16_dp"
-                android:paddingVertical="@dimen/dimen_8_dp"
                 android:text="@string/contact_verify_agree"
                 android:textColor="@color/color_337eff"
+                android:gravity="center"
                 android:textSize="@dimen/text_size_14" />
+
+
         </LinearLayout>
 
         <LinearLayout

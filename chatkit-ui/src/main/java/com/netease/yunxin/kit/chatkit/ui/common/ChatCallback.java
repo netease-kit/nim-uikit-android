@@ -29,7 +29,7 @@ public class ChatCallback<T> implements FetchCallback<T> {
 
   @Override
   public void onFailed(int code) {
-    ToastX.showErrorToast(code);
+    ToastX.showShortToast(R.string.chat_server_request_fail);
   }
 
   @Override

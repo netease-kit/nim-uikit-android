@@ -4,6 +4,8 @@
 
 package com.netease.yunxin.kit.chatkit.ui.view.emoji;
 
+import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
+
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -91,7 +93,7 @@ public class EmojiPickerView extends LinearLayout implements IEmojiCategoryChang
     if (listener != null) {
       this.listener = listener;
     } else {
-      ALog.i("sticker", "listener is null");
+      ALog.d(LIB_TAG, "sticker", "listener is null");
     }
   }
 
@@ -215,7 +217,7 @@ public class EmojiPickerView extends LinearLayout implements IEmojiCategoryChang
 
   private void show() {
     if (listener == null) {
-      ALog.i("sticker", "show picker view when listener is null");
+      ALog.d(LIB_TAG, "sticker", "show picker view when listener is null");
     }
     //        if (!withSticker) {
     //            showEmojiView();

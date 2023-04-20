@@ -182,9 +182,16 @@ public class ChatMessageListView extends RecyclerView implements IMessageData {
 
   @Override
   public void appendMessageList(List<ChatMessageBean> messageList) {
+    appendMessageList(messageList, true);
+  }
+
+  @Override
+  public void appendMessageList(List<ChatMessageBean> messageList, boolean needToScrollEnd) {
     if (messageAdapter != null) {
       messageAdapter.appendMessages(messageList);
-      scrollToEnd();
+      if (needToScrollEnd) {
+        scrollToEnd();
+      }
       markMessageRead(messageList);
     }
   }
@@ -252,6 +259,12 @@ public class ChatMessageListView extends RecyclerView implements IMessageData {
   public void updateUserInfo(List<UserInfo> userInfoList) {
     if (messageAdapter != null) {
       messageAdapter.updateUserInfo(userInfoList);
+    }
+  }
+
+  public void notifyUserInfoChange(List<String> userInfoList) {
+    if (messageAdapter != null) {
+      messageAdapter.notifyUserInfoChange(userInfoList);
     }
   }
 

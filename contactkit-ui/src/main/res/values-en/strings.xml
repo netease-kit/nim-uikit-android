@@ -25,12 +25,14 @@
     <string name="contact_verify_expired"> Expired</string>
     <string name="friend_apply">Friend Apply</string> 
     <string name="invited_to_join_group">invite you to groups&#160;%s</string> 
-    <string name="apply_to_join_group">pply to join group%s</string> 
+    <string name="apply_to_join_group">Apply to join group%s</string>
     <string name="accept_your_friend_apply">Approved your apply</string>
     <string name="direct_add_your_friend_apply">add your contact</string>
     <string name="reject_your_friend_apply">reject your apply</string>
     <string name="verify_msg">Verifications</string>  
     <string name="verify_max_count_text">99+</string>
+    <string name="verify_agree_message_text">Nice to meet you，let\'s chat</string>
+    <string name="verify_empty_text">Verifications Empty</string>
 
     <!-- my team page -->
     <string name="my_team">My Groups</string> 
@@ -72,7 +74,8 @@
     <string name="agree_invite_team_fail">Failed</string> 
     <string name="disagree_invite_team_fail">Failed</string>
 
-    <string name="remove_black_fail">Failed to remove blacklist</string> 
+    <string name="remove_black_fail">Failed to remove blacklist</string>
+    <string name="verify_duplicate_fail">Already done on other devices</string>
 
     <!--    selector-->
     <string name="select">Select</string>
