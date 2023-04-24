@@ -94,8 +94,9 @@ public class AitService {
 
                             @Override
                             public List<AitInfo> runIO() {
-                              AitDBHelper.getInstance(context).openRead();
-                              return AitDBHelper.getInstance(context).queryAll();
+                              AitDBHelper.getInstance(context).openWrite();
+                              List<AitInfo> result = AitDBHelper.getInstance(context).queryAll();
+                              return result;
                             }
                           });
                     }
@@ -263,6 +264,7 @@ public class AitService {
   }
 
   private void deleteAit() {
+    AitDBHelper.getInstance(mContext).openWrite();
     List<String> sessionList = new ArrayList<>();
     for (AitInfo info : deleteList) {
       sessionList.add(info.getSessionId());
