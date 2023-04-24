@@ -183,7 +183,7 @@ public class AitDBHelper extends SQLiteOpenHelper {
 
   @SuppressLint("Range")
   public List<AitInfo> queryAll() {
-    return query(DB_COLUMN_USER_ID + "=" + IMKitClient.account());
+    return query(DB_COLUMN_USER_ID + "='" + IMKitClient.account() + "'");
   }
 
   @SuppressLint("Range")
