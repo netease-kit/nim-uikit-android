@@ -76,6 +76,8 @@ public class TeamUIService extends ChatService {
   @NonNull
   @Override
   public ChatService create(@NonNull Context context) {
+
+      //normal
     XKitRouter.registerRouter(PATH_TEAM_SETTING_PAGE, TeamSettingActivity.class);
     registerCreateNormalTeamRouter(
         context, PATH_CREATE_NORMAL_TEAM_ACTION, () -> TeamIconUtils.getDefaultRandomIconUrl(true));
@@ -83,6 +85,8 @@ public class TeamUIService extends ChatService {
         context,
         PATH_CREATE_ADVANCED_TEAM_ACTION,
         () -> TeamIconUtils.getDefaultRandomIconUrl(true));
+
+    //fun
     XKitRouter.registerRouter(PATH_FUN_TEAM_SETTING_PAGE, FunTeamSettingActivity.class);
     registerCreateAdvanceTeamRouter(
         context,

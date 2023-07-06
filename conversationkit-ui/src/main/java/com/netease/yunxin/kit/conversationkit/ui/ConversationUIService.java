@@ -29,7 +29,10 @@ public class ConversationUIService extends ChatService {
   @NonNull
   @Override
   public ChatService create(@NonNull Context context) {
+    //normal
     XKitRouter.registerRouter(RouterConstant.PATH_CONVERSATION_PAGE, ConversationActivity.class);
+
+    //fun
     XKitRouter.registerRouter(
         RouterConstant.PATH_FUN_CONVERSATION_PAGE, FunConversationActivity.class);
     return this;

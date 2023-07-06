@@ -45,6 +45,7 @@ public class ContactUIService extends ChatService {
   @NonNull
   @Override
   public ChatService create(@NonNull Context context) {
+    //normal
     XKitRouter.registerRouter(
         RouterConstant.PATH_CONTACT_SELECTOR_PAGE, ContactSelectorActivity.class);
     XKitRouter.registerRouter(RouterConstant.PATH_ADD_FRIEND_PAGE, AddFriendActivity.class);
@@ -55,6 +56,7 @@ public class ContactUIService extends ChatService {
     XKitRouter.registerRouter(RouterConstant.PATH_CONTACT_PAGE, ContactActivity.class);
     XKitRouter.registerRouter(RouterConstant.PATH_GLOBAL_SEARCH_PAGE, GlobalSearchActivity.class);
 
+    //fun
     XKitRouter.registerRouter(
         RouterConstant.PATH_FUN_CONTACT_SELECTOR_PAGE, FunContactSelectorActivity.class);
     XKitRouter.registerRouter(RouterConstant.PATH_FUN_ADD_FRIEND_PAGE, FunAddFriendActivity.class);
