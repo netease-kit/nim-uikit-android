@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2022 NetEase, Inc. All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be
+  ~ found in the LICENSE file.
+  -->
+
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/dimen_75_dp"
+    android:paddingTop="10dp"
+    android:background="@color/fun_chat_search_item_bg_color"
+    android:paddingBottom="10dp">
+
+    <com.netease.yunxin.kit.common.ui.widgets.ContactAvatarView
+        android:id="@+id/avatarView"
+        android:layout_width="42dp"
+        android:layout_height="42dp"
+        android:layout_marginStart="16dp"
+        app:avatarCorner="@dimen/dimen_4_dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="12dp"
+        app:layout_constraintStart_toEndOf="@id/avatarView"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constrainedWidth="true"
+        android:gravity="center_vertical"
+        tools:ignore="MissingConstraints">
+        <TextView
+            android:id="@+id/nameTv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:maxWidth="@dimen/dimen_188_dp"
+            android:gravity="center_vertical|start"
+            android:singleLine="true"
+            android:textColor="@color/fun_chat_search_name_color"
+            android:textSize="@dimen/text_size_12"
+            tools:ignore="SpUsage" />
+
+        <TextView
+            android:id="@+id/messageTv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="20dp"
+            android:paddingTop="4dp"
+            android:textColor="@color/fun_chat_search_message_color"
+            android:textSize="@dimen/text_size_16"
+            tools:ignore="SpUsage"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:visibility="visible"/>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/timeTv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/dimen_12_dp"
+        android:paddingTop="4dp"
+        android:textColor="@color/fun_chat_search_time_color"
+        android:textSize="@dimen/text_size_12"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/avatarView"
+        app:layout_goneMarginEnd="@dimen/dimen_20_dp"
+        tools:ignore="MissingConstraints,SpUsage"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

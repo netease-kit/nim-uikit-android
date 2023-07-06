@@ -4,8 +4,8 @@
 
 package com.netease.yunxin.kit.conversationkit.ui.model;
 
+import com.netease.yunxin.kit.chatkit.model.ConversationInfo;
 import com.netease.yunxin.kit.common.ui.viewholder.BaseBean;
-import com.netease.yunxin.kit.conversationkit.model.ConversationInfo;
 import java.util.Objects;
 
 public class ConversationBean extends BaseBean {

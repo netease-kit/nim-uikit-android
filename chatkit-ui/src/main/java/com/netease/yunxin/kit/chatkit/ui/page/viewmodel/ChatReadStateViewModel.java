@@ -12,8 +12,11 @@ import com.netease.nimlib.sdk.msg.model.IMMessage;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.model.IMTeamMsgAckInfo;
 import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
-import com.netease.yunxin.kit.chatkit.ui.common.ChatCallback;
+import com.netease.yunxin.kit.chatkit.ui.R;
+import com.netease.yunxin.kit.common.ui.utils.ToastX;
 import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
+import com.netease.yunxin.kit.common.utils.NetworkUtils;
+import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
 
 /** chat read state info vide model fetch team read state info to read state page */
 public class ChatReadStateViewModel extends BaseViewModel {
@@ -25,10 +28,28 @@ public class ChatReadStateViewModel extends BaseViewModel {
     ALog.d(LIB_TAG, TAG, "fetchTeamAckInfo:" + (message == null ? "null" : message.getUuid()));
     ChatRepo.fetchTeamMessageReceiptDetail(
         message,
-        new ChatCallback<IMTeamMsgAckInfo>() {
+        new FetchCallback<IMTeamMsgAckInfo>() {
           @Override
           public void onSuccess(@Nullable IMTeamMsgAckInfo param) {
             teamAckInfo.postValue(param);
+          }
+
+          @Override
+          public void onFailed(int code) {
+            if (!NetworkUtils.isConnected()) {
+              ToastX.showShortToast(R.string.chat_network_error_tip);
+            } else {
+              ToastX.showShortToast(R.string.chat_server_request_fail);
+            }
+          }
+
+          @Override
+          public void onException(@Nullable Throwable exception) {
+            if (!NetworkUtils.isConnected()) {
+              ToastX.showShortToast(R.string.chat_network_error_tip);
+            } else {
+              ToastX.showShortToast(R.string.chat_server_request_fail);
+            }
           }
         });
   }

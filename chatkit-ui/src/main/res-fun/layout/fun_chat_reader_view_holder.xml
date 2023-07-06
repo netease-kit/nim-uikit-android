@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2022 NetEase, Inc. All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be
+  ~ found in the LICENSE file.
+  -->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="64dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="horizontal">
+
+    <com.netease.yunxin.kit.common.ui.widgets.ContactAvatarView
+        android:id="@+id/avatar"
+        android:layout_width="@dimen/dimen_42_dp"
+        android:layout_height="@dimen/dimen_42_dp"
+        android:layout_marginEnd="@dimen/dimen_12_dp"
+        app:avatarCorner="@dimen/dimen_4_dp"
+        android:layout_gravity="center_vertical" />
+
+    <TextView
+        android:id="@+id/nickname"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:textColor="@color/fun_chat_read_name_color"
+        android:textSize="@dimen/text_size_16"
+        android:layout_gravity="center_vertical"
+        android:layout_marginEnd="@dimen/dimen_20_dp" />
+
+</LinearLayout>

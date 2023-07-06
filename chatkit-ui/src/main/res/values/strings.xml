@@ -14,10 +14,12 @@
     <string name="chat_message_send_error">消息发送失败</string>
     <string name="chat_message_fetch_error">消息获取失败，请重试</string>
     <string name="chat_message_revoke_error">撤回失败</string>
+    <string name="chat_message_delete_error">删除失败</string>
     <string name="chat_message_audio_to_short">录制时间过短</string>
     <string name="chat_message_revoke_content">此消息已撤回</string>
     <string name="chat_message_revoke_over_time">已超过时间无法撤回</string>
     <string name="chat_message_revoked">此消息已撤回</string>
+    <string name="chat_message_revoked_fun">%s撤回了一条消息</string>
     <string name="chat_message_re_edit">重新编辑 </string>
     <string name="chat_message_voice_in">松开发送，按住滑到空白区域取消</string>
     <string name="chat_message_signal">标记</string>
@@ -63,13 +65,13 @@
     <string name="chat_message_audio_call_action">语音通话</string>
 
     <string name="chat_message_call_canceled">已取消</string>
-    <string name="chat_message_in_call_canceled">对方已取消</string>
+    <string name="chat_message_in_call_canceled">已取消</string>
     <string name="chat_message_in_call_canceled_self">已取消</string>
-    <string name="chat_message_call_refused">对方已拒绝</string>
+    <string name="chat_message_call_refused">已拒绝</string>
     <string name="chat_message_call_refused_self">已拒绝</string>
-    <string name="chat_message_call_timeout">对方未接听</string>
-    <string name="chat_message_call_busy">对方忙碌</string>
-    <string name="chat_message_call_busy_self">忙碌未接听</string>
+    <string name="chat_message_call_timeout">未接听</string>
+    <string name="chat_message_call_busy">忙线未接听</string>
+    <string name="chat_message_call_busy_self">忙线未接听</string>
     <string name="chat_message_call_completed">通话时长 &#8195; %s</string>
 
     <string name="chat_message_action_copy">复制</string>
@@ -128,7 +130,7 @@
     <string name="chat_team_invitation_permission_manager">\"仅群主\"</string>
     <string name="chat_team_modify_resource_permission_update">更新了群权限\"资料修改权限\"为</string>
     <string name="chat_team_modify_permission_all">\"所有人\"</string>
-    <string name="chat_team_modify_permission_manager">仅群主"</string>
+    <string name="chat_team_modify_permission_manager">\"仅群主"</string>
     <string name="chat_team_invited_id_verify_permission_update">更新了群权限\"邀请人身份验证权限\"为</string>
     <string name="chat_team_invited_permission_need">\"需要被邀请方同意\"</string>
     <string name="chat_team_invited_permission_no">\"不需要被邀请方同意\"</string>
@@ -157,6 +159,7 @@
     <string name="chat_message_forward_to_person">转发到个人</string>
     <string name="chat_message_forward_to">发送给</string>
     <string name="chat_message_is_typing">正在输入中...</string>
+    <string name="chat_message_is_typing_fun">对方正在输入中...</string>
 
     <!-- search -->
     <string name="message_search_title">历史记录</string>
@@ -183,6 +186,7 @@
     <string name="chat_message_type_resource_error">资源不支持读取</string>
     <string name="chat_message_revoke_eidt_error">已超过可编辑时间</string>
     <string name="chat_message_download_tips">正在下载中...</string>
+    <string name="chat_message_send_message_when_in_black">"%s把你拉黑，发送消息失败"</string>
 
     <!-- location -->
     <string name="chat_location_mine">定位</string>
@@ -191,6 +195,7 @@
     <string name="chat_location_search_empty">未找到你要搜的地址</string>
     <string name="chat_location_empty">暂无位置信息</string>
     <string name="chat_location_disable">无定位信息，请开启定位</string>
+    <string name="chat_location_send_empty">请选择你要发送的位置信息</string>
 
     <!-- Pin -->
     <string name="chat_pin_title">标记</string>
@@ -198,5 +203,12 @@
     <string name="chat_remove_pin_error_tips">取消标记失败</string>
     <string name="chat_network_error_tips">当前网络错误</string>
     <string name="chat_remove_tips">已取消标记</string>
+
+    <string name="chat_send_null_message_tips">发送内容不能为空</string>
+
+
+    <!-- fun -->
+    <string name="chat_input_more_album_title">相册</string>
+    <string name="chat_input_audio_record_title">按住 说话</string>
 
 </resources>

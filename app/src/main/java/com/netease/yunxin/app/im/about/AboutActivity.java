@@ -23,10 +23,10 @@ public class AboutActivity extends AppCompatActivity {
     viewBinding = ActivityAboutBinding.inflate(getLayoutInflater());
     setContentView(viewBinding.getRoot());
     viewBinding.flProduct.setOnClickListener(
-        v -> {
-          BrowseActivity.Companion.launch(
-              AboutActivity.this, getString(R.string.mine_about), productUrl);
-        });
+        v ->
+            BrowseActivity.Companion.launch(
+                AboutActivity.this, getString(R.string.mine_about), productUrl));
     viewBinding.tvVersion.setText(AppUtils.getAppVersionName(this));
+    viewBinding.aboutTitleBar.setOnBackIconClickListener(v -> onBackPressed());
   }
 }

@@ -12,6 +12,10 @@ public class ChatKitUIConstant {
 
   public static final long FILE_LIMIT = 200;
 
+  public static final int CHAT_P2P_INVITER_USER_LIMIT = 199;
+
+  public static final int CHAT_FORWARD_USER_LIMIT = 6;
+
   public static final String REPLY_REMOTE_EXTENSION_KEY = "yxReplyMsg";
   public static final String REPLY_UUID_KEY = "idClient";
   public static final String REPLY_TYPE_KEY = "scene";

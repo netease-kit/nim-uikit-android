@@ -53,6 +53,7 @@
     <string name="setting_friend_delete_mode">删除好友是否同步删除备注</string>
     <string name="setting_message_read_mode">消息已读未读功能</string>
     <string name="setting_complete">完成</string>
+    <string name="setting_skin">外观</string>
 
     <!-- notify setting-->
     <string name="setting_notify_info">新消息通知</string>
@@ -62,7 +63,7 @@
     <string name="setting_notify_mode_shake">震动模式</string>
     <string name="setting_notify_push">推送设置</string>
     <string name="setting_notify_push_sync">PC/Web同步接收推送</string>
-    <string name="setting_notify_push_detail">通知栏不显示消息详情</string>
+    <string name="setting_notify_push_detail">通知栏显示消息详情</string>
 
     <!-- clear cache -->
     <string name="clear_message">清理所有聊天记录</string>
@@ -83,5 +84,9 @@
     <string name="request_fail">操作失败</string>
     <string name="user_fail">用户信息获取失败</string>
     <string name="network_error">当前网络不可用，请检查你当网络设置。</string>
+
+    <!--    skin-->
+    <string name="base_type">基础皮肤</string>
+    <string name="common_skin">通用皮肤</string>
 
 </resources>

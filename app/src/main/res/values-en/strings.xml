@@ -64,6 +64,7 @@
     <string name="setting_notify_push_sync">Multi-terminal</string>
     <string name="setting_notify_push_detail">Message Notification Banner</string>
     <string name="setting_complete">Done</string>
+    <string name="setting_skin">Skin</string>
 
     <!-- clear cache -->
     <string name="clear_message">Clear message history</string>
@@ -84,4 +85,8 @@
     <string name="request_fail">Failed</string>
     <string name="user_fail">Failed</string>
     <string name="network_error">No internet</string>
+
+    <!--    skin-->
+    <string name="base_type">Base Skin</string>
+    <string name="common_skin">Common Skin</string>
 </resources>

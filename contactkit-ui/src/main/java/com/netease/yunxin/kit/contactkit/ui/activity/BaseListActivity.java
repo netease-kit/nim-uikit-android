@@ -23,6 +23,8 @@ public abstract class BaseListActivity extends BaseActivity {
     initData();
   }
 
+  protected void configViewHolderFactory() {}
+
   protected abstract void initView();
 
   protected abstract void initData();

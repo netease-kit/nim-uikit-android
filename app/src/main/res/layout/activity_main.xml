@@ -55,7 +55,7 @@
                 android:layout_alignRight="@+id/conversation"
                 android:layout_marginLeft="@dimen/dimen_10_dp"
                 android:layout_marginTop="@dimen/dimen_7_dp"
-                android:background="@drawable/bg_shape_red_dot"
+                android:background="@drawable/bg_conversation_red_dot"
                 android:visibility="gone"/>
 
         </RelativeLayout>
@@ -105,7 +105,7 @@
                 android:layout_alignEnd="@+id/contact"
                 android:layout_marginTop="@dimen/dimen_7_dp"
                 android:layout_marginEnd="@dimen/dimen_4_dp"
-                android:background="@drawable/bg_shape_red_dot"
+                android:background="@drawable/bg_conversation_red_dot"
                 android:visibility="gone"/>
 
         </RelativeLayout>

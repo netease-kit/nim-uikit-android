@@ -20,5 +20,10 @@
     <color name="color_b3b7bc">#b3b7bc</color>
     <color name="color_999999">#999999</color>
     <color name="color_f2f4f5">#f2f4f5</color>
+    <color name="color_e5e5e5">#e5e5e5</color>
+    <color name="color_58be6b">#58BE6B</color>
+    <color name="color_10_58be6b">#1958BE6B</color>
+    <color name="color_f7f7f7">#f7f7f7</color>
+    <color name="color_ededed">#EDEDED</color>
 
 </resources>

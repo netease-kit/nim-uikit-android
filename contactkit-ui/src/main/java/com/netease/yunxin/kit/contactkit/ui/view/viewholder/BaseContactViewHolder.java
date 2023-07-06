@@ -15,9 +15,9 @@ import com.netease.yunxin.kit.contactkit.ui.view.ContactListViewAttrs;
 
 public abstract class BaseContactViewHolder extends RecyclerView.ViewHolder {
 
-  ContactActions actions;
+  protected ContactActions actions;
 
-  Context context;
+  protected Context context;
 
   public BaseContactViewHolder(@NonNull ViewGroup itemView) {
     super(itemView);

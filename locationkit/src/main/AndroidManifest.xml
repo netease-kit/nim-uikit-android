@@ -9,4 +9,5 @@
     <queries>
         <package android:name="com.autonavi.minimap"/>
     </queries>
+    <application android:allowNativeHeapPointerTagging="false"/>
 </manifest>

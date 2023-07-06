@@ -4,17 +4,17 @@
 
 package com.netease.yunxin.kit.teamkit.ui;
 
-import com.netease.yunxin.kit.teamkit.ITeamCustom;
-import com.netease.yunxin.kit.teamkit.TeamProvider;
+import com.netease.yunxin.kit.chatkit.interfaces.ITeamCustom;
+import com.netease.yunxin.kit.chatkit.interfaces.TeamCustomProvider;
 
 public class TeamKitClient {
   public static final String LIB_TAG = "TeamKit-UI";
 
   public static void setTeamCustom(ITeamCustom custom) {
-    TeamProvider.INSTANCE.setTeamCustom(custom);
+    TeamCustomProvider.INSTANCE.setTeamCustom(custom);
   }
 
   public static ITeamCustom getTeamCustom() {
-    return TeamProvider.INSTANCE.getTeamCustom();
+    return TeamCustomProvider.INSTANCE.getTeamCustom();
   }
 }

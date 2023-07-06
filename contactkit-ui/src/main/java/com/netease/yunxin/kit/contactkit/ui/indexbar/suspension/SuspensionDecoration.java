@@ -19,6 +19,10 @@ import java.util.List;
 /** custom decoration for Suspension */
 public class SuspensionDecoration extends RecyclerView.ItemDecoration {
 
+  private static final int DEFAULT_COLOR_TITLE_BOTTOM_LINE_COLOR_RES = R.color.color_dbe0e8;
+
+  private static final int DEFAULT_INDEX_DECORATION_BG_RES = R.color.color_eff1f4;
+
   private int colorTitleBg;
   private int colorTitleBottomLine;
   private int colorTitleFont;
@@ -32,8 +36,9 @@ public class SuspensionDecoration extends RecyclerView.ItemDecoration {
   private int mHeaderViewCount = 0;
 
   private float paddingLeft;
-  private boolean isFirstTagOffset = true;
+  private boolean showTagOffset = true;
   private boolean isFirstTagDraw = true;
+  private boolean titleAlignBottom = false;
   private final int indexDecorationHeight;
 
   public SuspensionDecoration(Context context, List<? extends ISuspension> datas) {
@@ -42,9 +47,10 @@ public class SuspensionDecoration extends RecyclerView.ItemDecoration {
     mPaint = new Paint();
     mBounds = new Rect();
     colorTitleBg = context.getResources().getColor(R.color.color_ffffff);
-    colorTitleBottomLine = context.getResources().getColor(R.color.color_deb0e8);
+    colorTitleBottomLine =
+        context.getResources().getColor(DEFAULT_COLOR_TITLE_BOTTOM_LINE_COLOR_RES);
     colorTitleFont = context.getResources().getColor(R.color.color_b3b7bc);
-    indexDecorationBg = context.getResources().getColor(R.color.color_eff1f4);
+    indexDecorationBg = context.getResources().getColor(DEFAULT_INDEX_DECORATION_BG_RES);
     mTitleHeight =
         (int)
             TypedValue.applyDimension(
@@ -106,8 +112,18 @@ public class SuspensionDecoration extends RecyclerView.ItemDecoration {
     return this;
   }
 
+  public SuspensionDecoration setTitleAlignBottom(boolean align) {
+    this.titleAlignBottom = align;
+    return this;
+  }
+
   public SuspensionDecoration setData(List<? extends ISuspension> mData) {
     this.mData = mData;
+    return this;
+  }
+
+  public SuspensionDecoration setShowTagOff(boolean show) {
+    this.showTagOffset = show;
     return this;
   }
 
@@ -196,7 +212,7 @@ public class SuspensionDecoration extends RecyclerView.ItemDecoration {
         child.getPaddingLeft() + paddingLeft,
         child.getTop()
             - params.topMargin
-            - ((float) mTitleHeight / 2 - (float) mBounds.height() / 2),
+            - (titleAlignBottom ? 0 : ((float) mTitleHeight / 2 - (float) mBounds.height() / 2)),
         mPaint);
   }
 
@@ -248,7 +264,7 @@ public class SuspensionDecoration extends RecyclerView.ItemDecoration {
         child.getPaddingLeft() + 40,
         parent.getPaddingTop()
             + mTitleHeight
-            - ((float) mTitleHeight / 2 - (float) mBounds.height() / 2),
+            - (titleAlignBottom ? 0 : ((float) mTitleHeight / 2 - (float) mBounds.height() / 2)),
         mPaint);
     if (flag) c.restore();
   }
@@ -269,13 +285,11 @@ public class SuspensionDecoration extends RecyclerView.ItemDecoration {
       ISuspension titleCategoryInterface = mData.get(position);
       if (titleCategoryInterface.isShowDivision()) {
         if (position == 0) {
-          outRect.set(0, mTitleHeight + (isFirstTagOffset ? indexDecorationHeight : 0), 0, 0);
-          isFirstTagOffset = false;
+          outRect.set(0, mTitleHeight + (showTagOffset ? indexDecorationHeight : 0), 0, 0);
         } else {
           if (null != titleCategoryInterface.getTag()
               && !titleCategoryInterface.getTag().equals(mData.get(position - 1).getTag())) {
-            outRect.set(0, mTitleHeight + (isFirstTagOffset ? indexDecorationHeight : 0), 0, 0);
-            isFirstTagOffset = false;
+            outRect.set(0, mTitleHeight + (showTagOffset ? indexDecorationHeight : 0), 0, 0);
           }
         }
       }

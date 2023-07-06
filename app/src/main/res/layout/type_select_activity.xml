@@ -9,6 +9,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/llyRoot"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:background="@color/color_eff1f4">
@@ -19,12 +20,13 @@
         android:layout_height="@dimen/dimen_55_dp"
         tools:ignore="MissingConstraints" />
     <com.netease.yunxin.kit.common.ui.widgets.RoundFrameLayout
+        android:id="@+id/rfLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/color_white"
         app:corner_radius="@dimen/dimen_8_dp"
-        android:layout_marginStart="@dimen/dimen_20_dp"
-        android:layout_marginEnd="@dimen/dimen_20_dp">
+        android:layout_marginLeft="@dimen/dimen_20_dp"
+        android:layout_marginRight="@dimen/dimen_20_dp">
     <RadioGroup android:id="@+id/type_radio_group"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

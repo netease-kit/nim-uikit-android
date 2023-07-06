@@ -6,4 +6,6 @@ package com.netease.yunxin.kit.conversationkit.ui;
 
 public class ConversationUIConstant {
   public static final int MAX_TEAM_MEMBER = 200;
+
+  public static final int ERROR_CODE_NETWORK = 415;
 }

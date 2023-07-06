@@ -12,12 +12,14 @@ import androidx.lifecycle.MutableLiveData;
 import com.netease.nimlib.sdk.Observer;
 import com.netease.nimlib.sdk.team.model.Team;
 import com.netease.yunxin.kit.alog.ALog;
+import com.netease.yunxin.kit.chatkit.repo.TeamObserverRepo;
+import com.netease.yunxin.kit.chatkit.repo.TeamRepo;
 import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
-import com.netease.yunxin.kit.contactkit.repo.ContactRepo;
 import com.netease.yunxin.kit.contactkit.ui.model.ContactTeamBean;
 import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
+import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,23 +33,28 @@ public class TeamListViewModel extends BaseViewModel {
   private final List<ContactTeamBean> teamBeanList = new ArrayList<>();
   private final Observer<List<Team>> teamUpdateObserver;
   private final Observer<Team> teamRemoveObserver;
+  private String defaultRoutePath = RouterConstant.PATH_CHAT_TEAM_PAGE;
+
+  public void configRoutePath(String path) {
+    this.defaultRoutePath = path;
+  }
 
   public MutableLiveData<FetchResult<List<ContactTeamBean>>> getFetchResult() {
     return resultLiveData;
   }
 
   public TeamListViewModel() {
-    teamUpdateObserver = (teamList) -> updateTeamData(teamList);
-    teamRemoveObserver = (team) -> removeTeamData(team);
-    ContactRepo.registerTeamUpdateObserver(teamUpdateObserver);
-    ContactRepo.registerTeamRemoveObserver(teamRemoveObserver);
+    teamUpdateObserver = this::updateTeamData;
+    teamRemoveObserver = this::removeTeamData;
+    TeamObserverRepo.registerTeamUpdateObserver(teamUpdateObserver);
+    TeamObserverRepo.registerTeamRemoveObserver(teamRemoveObserver);
   }
 
   public void fetchTeamList() {
     ALog.d(LIB_TAG, TAG, "fetchTeamList");
     fetchResult.setStatus(LoadStatus.Loading);
     resultLiveData.postValue(fetchResult);
-    ContactRepo.getTeamList(
+    TeamRepo.getTeamList(
         new FetchCallback<List<Team>>() {
           @Override
           public void onSuccess(List<Team> param) {
@@ -58,6 +65,7 @@ public class TeamListViewModel extends BaseViewModel {
               fetchResult.setStatus(LoadStatus.Success);
               for (Team teamInfo : param) {
                 ContactTeamBean teamBean = new ContactTeamBean(teamInfo);
+                teamBean.router = defaultRoutePath;
                 teamBeanList.add(0, teamBean);
               }
               fetchResult.setData(teamBeanList);
@@ -119,6 +127,7 @@ public class TeamListViewModel extends BaseViewModel {
         }
         if (!has) {
           ContactTeamBean teamBean = new ContactTeamBean(teamInfo);
+          teamBean.router = defaultRoutePath;
           add.add(teamBean);
           teamBeanList.add(0, teamBean);
         }
@@ -135,7 +144,7 @@ public class TeamListViewModel extends BaseViewModel {
   @Override
   protected void onCleared() {
     super.onCleared();
-    ContactRepo.unregisterTeamUpdateObserver(teamUpdateObserver);
-    ContactRepo.unregisterTeamRemoveObserver(teamRemoveObserver);
+    TeamObserverRepo.unregisterTeamUpdateObserver(teamUpdateObserver);
+    TeamObserverRepo.unregisterTeamRemoveObserver(teamRemoveObserver);
   }
 }

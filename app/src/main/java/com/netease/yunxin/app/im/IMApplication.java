@@ -11,6 +11,7 @@ import androidx.multidex.MultiDexApplication;
 import com.heytap.msp.push.HeytapPushManager;
 import com.huawei.hms.support.common.ActivityMgr;
 import com.netease.nimlib.sdk.SDKOptions;
+import com.netease.nimlib.sdk.auth.LoginInfo;
 import com.netease.yunxin.app.im.crash.AppCrashHandler;
 import com.netease.yunxin.app.im.main.MainActivity;
 import com.netease.yunxin.app.im.main.mine.MineInfoActivity;
@@ -35,6 +36,8 @@ public class IMApplication extends MultiDexApplication {
   private static final String TAG = "IMApplication";
   private static boolean coldStart = false;
   private static int foregroundActCount = 0;
+  public static final int LOGIN_PARENT_SCOPE = 2;
+  public static final int LOGIN_SCOPE = 7;
 
   @Override
   public void onCreate() {
@@ -57,7 +60,7 @@ public class IMApplication extends MultiDexApplication {
 
     if (IMKitUtils.isMainProcess(this)) {
       ALog.d(Constant.PROJECT_TAG, TAG, "initUIKit:isMainProcess");
-      LocationKitClient.init();
+      LocationKitClient.init(this);
       //huawei push
       ActivityMgr.INST.init(this);
       //oppo push

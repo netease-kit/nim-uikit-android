@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2022 NetEase, Inc. All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be
+  ~ found in the LICENSE file.
+  -->
+
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/root_view"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:background="@drawable/view_normal_selector"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_height="wrap_content">
+            <com.netease.yunxin.kit.common.ui.widgets.ContactAvatarView
+                android:id="@+id/avatar_view"
+                android:layout_width="@dimen/dimen_48_dp"
+                android:layout_height="@dimen/dimen_48_dp"
+                android:layout_marginVertical="@dimen/dimen_14_dp"
+                android:layout_marginStart="@dimen/dimen_18_dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent" />
+            <TextView
+                android:id="@+id/tv_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/dimen_14_dp"
+                android:textColor="@color/color_14131b"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:textSize="@dimen/text_size_16"
+                android:layout_gravity="center_vertical"
+                android:layout_marginEnd="@dimen/dimen_20_dp"/>
+        </LinearLayout>
+    <View
+        android:layout_width="0dp"
+        android:layout_height="@dimen/dimen_1_dp"
+        android:background="@color/color_e5e5e5"
+        android:layout_marginStart="@dimen/dimen_80_dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+

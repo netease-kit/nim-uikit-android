@@ -4,36 +4,24 @@
 
 package com.netease.yunxin.kit.chatkit.ui.page.adapter;
 
-import static com.netease.yunxin.kit.chatkit.ui.ChatMessageType.LOCATION_MESSAGE_VIEW_TYPE;
-import static com.netease.yunxin.kit.chatkit.ui.ChatMessageType.NORMAL_MESSAGE_VIEW_TYPE_AUDIO;
-import static com.netease.yunxin.kit.chatkit.ui.ChatMessageType.NORMAL_MESSAGE_VIEW_TYPE_FILE;
-import static com.netease.yunxin.kit.chatkit.ui.ChatMessageType.NORMAL_MESSAGE_VIEW_TYPE_IMAGE;
-import static com.netease.yunxin.kit.chatkit.ui.ChatMessageType.NORMAL_MESSAGE_VIEW_TYPE_VIDEO;
-
 import android.text.TextUtils;
-import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-import com.netease.yunxin.kit.chatkit.ui.databinding.ChatBasePinViewHolderBinding;
+import com.netease.yunxin.kit.chatkit.ui.interfaces.ChatBaseViewHolder;
+import com.netease.yunxin.kit.chatkit.ui.interfaces.IChatClickListener;
+import com.netease.yunxin.kit.chatkit.ui.interfaces.IChatViewHolderFactory;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
-import com.netease.yunxin.kit.chatkit.ui.view.interfaces.IPinMessageClickListener;
-import com.netease.yunxin.kit.chatkit.ui.view.pin.ChatAudioPinViewHolder;
-import com.netease.yunxin.kit.chatkit.ui.view.pin.ChatBasePinViewHolder;
-import com.netease.yunxin.kit.chatkit.ui.view.pin.ChatFilePinViewHolder;
-import com.netease.yunxin.kit.chatkit.ui.view.pin.ChatImagePinViewHolder;
-import com.netease.yunxin.kit.chatkit.ui.view.pin.ChatLocationPinViewHolder;
-import com.netease.yunxin.kit.chatkit.ui.view.pin.ChatPinTextViewHolder;
-import com.netease.yunxin.kit.chatkit.ui.view.pin.ChatVideoPinViewHolder;
 import java.util.ArrayList;
 import java.util.List;
 
 /** history message search adapter */
-public class PinMessageAdapter extends RecyclerView.Adapter<ChatBasePinViewHolder> {
+public class PinMessageAdapter extends RecyclerView.Adapter<ChatBaseViewHolder> {
 
   private final String TAG = "PinMessageAdapter";
   private final List<ChatMessageBean> dataList = new ArrayList<>();
-  private IPinMessageClickListener clickListener;
+  private IChatClickListener clickListener;
+  private IChatViewHolderFactory viewHolderFactory;
 
   public void setData(List<ChatMessageBean> data) {
     dataList.clear();
@@ -41,6 +29,10 @@ public class PinMessageAdapter extends RecyclerView.Adapter<ChatBasePinViewHolde
       dataList.addAll(data);
       notifyDataSetChanged();
     }
+  }
+
+  public void setViewHolderFactory(IChatViewHolderFactory factory) {
+    this.viewHolderFactory = factory;
   }
 
   public void addForwardData(List<ChatMessageBean> data) {
@@ -57,9 +49,9 @@ public class PinMessageAdapter extends RecyclerView.Adapter<ChatBasePinViewHolde
         long time = messageBean.getMessageData().getMessage().getTime();
         for (int index = 0; index < dataList.size(); index++) {
           if (time > dataList.get(index).getMessageData().getMessage().getTime()) {
-            insertIndex = index;
             break;
           }
+          insertIndex++;
         }
         dataList.add(insertIndex, messageBean);
         notifyItemInserted(insertIndex);
@@ -112,48 +104,48 @@ public class PinMessageAdapter extends RecyclerView.Adapter<ChatBasePinViewHolde
     }
   }
 
-  public void setViewHolderClickListener(IPinMessageClickListener listener) {
+  public void setViewHolderClickListener(IChatClickListener listener) {
     this.clickListener = listener;
+  }
+
+  @Override
+  public void onViewDetachedFromWindow(@NonNull ChatBaseViewHolder holder) {
+    holder.onDetachedFromWindow();
+    super.onViewDetachedFromWindow(holder);
+  }
+
+  @Override
+  public void onViewAttachedToWindow(@NonNull ChatBaseViewHolder holder) {
+    holder.onAttachedToWindow();
+    super.onViewAttachedToWindow(holder);
   }
 
   @NonNull
   @Override
-  public ChatBasePinViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-
-    ChatBasePinViewHolder viewHolder;
-    ChatBasePinViewHolderBinding viewHolderBinding =
-        ChatBasePinViewHolderBinding.inflate(
-            LayoutInflater.from(parent.getContext()), parent, false);
-    if (viewType == NORMAL_MESSAGE_VIEW_TYPE_AUDIO) {
-      viewHolder = new ChatAudioPinViewHolder(viewHolderBinding, viewType);
-    } else if (viewType == NORMAL_MESSAGE_VIEW_TYPE_IMAGE) {
-      viewHolder = new ChatImagePinViewHolder(viewHolderBinding, viewType);
-    } else if (viewType == NORMAL_MESSAGE_VIEW_TYPE_VIDEO) {
-      viewHolder = new ChatVideoPinViewHolder(viewHolderBinding, viewType);
-    } else if (viewType == NORMAL_MESSAGE_VIEW_TYPE_FILE) {
-      viewHolder = new ChatFilePinViewHolder(viewHolderBinding, viewType);
-    } else if (viewType == LOCATION_MESSAGE_VIEW_TYPE) {
-      viewHolder = new ChatLocationPinViewHolder(viewHolderBinding, viewType);
-    } else {
-      //default as text message
-      viewHolder = new ChatPinTextViewHolder(viewHolderBinding, viewType);
+  public ChatBaseViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    ChatBaseViewHolder viewHolder = null;
+    if (viewHolderFactory != null) {
+      viewHolder = viewHolderFactory.createViewHolder(parent, viewType);
+      if (viewHolder != null) {
+        viewHolder.setChatOnClickListener(clickListener);
+      }
     }
-    viewHolder.setItemClickListener(clickListener);
     return viewHolder;
   }
 
   @Override
-  public void onBindViewHolder(@NonNull ChatBasePinViewHolder holder, int position) {
-    holder.bindData(dataList.get(position), position);
+  public void onBindViewHolder(@NonNull ChatBaseViewHolder holder, int position) {
+    holder.onBindData(dataList.get(position), position);
   }
 
   @Override
   public void onBindViewHolder(
-      @NonNull ChatBasePinViewHolder holder, int position, @NonNull List<Object> payloads) {
+      @NonNull ChatBaseViewHolder holder, int position, @NonNull List<Object> payloads) {
+    super.onBindViewHolder(holder, position, payloads);
     if (payloads.isEmpty()) {
       super.onBindViewHolder(holder, position, payloads);
     } else {
-      holder.bindData(dataList.get(position), position, payloads);
+      holder.onBindData(dataList.get(position), position, payloads);
     }
   }
 

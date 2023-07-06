@@ -14,7 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.team.model.Team;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
-import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
+import com.netease.yunxin.kit.chatkit.repo.ContactRepo;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatMessageForwardConfirmLayoutBinding;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatUserSelectedItemLayoutBinding;
@@ -126,7 +126,7 @@ public class ChatMessageForwardConfirmDialog extends BaseDialog {
     @Override
     public void bind(String item) {
       if (forwardType == SessionTypeEnum.P2P.getValue()) {
-        ChatRepo.fetchUserInfo(
+        ContactRepo.fetchUserInfo(
             item,
             new FetchCallback<UserInfo>() {
               @Override

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2022 NetEase, Inc. All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be
+  ~ found in the LICENSE file.
+  -->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/fun_chat_secondary_page_bg_color"
+    android:orientation="vertical">
+
+    <com.netease.yunxin.kit.common.ui.widgets.BackTitleBar
+        android:id="@+id/titleBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:titleTextColor="@color/fun_chat_read_title_color"
+        app:titleText="@string/chat_read_status" />
+
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tabLayout"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dimen_40_dp"
+        app:tabSelectedTextColor="@color/fun_chat_read_selected_color"
+        app:tabIndicatorColor="@color/fun_chat_read_selected_color"
+        app:tabIndicatorHeight="@dimen/dimen_2_dp"
+        app:tabRippleColor="@null"
+        app:tabBackground="@null"
+        android:background="@color/fun_chat_secondary_page_bg_color"
+        app:tabTextColor="@color/fun_chat_read_name_color" />
+
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/viewPager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+
+</LinearLayout>

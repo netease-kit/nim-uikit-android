@@ -6,8 +6,8 @@ package com.netease.yunxin.kit.conversationkit.ui;
 
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
+import com.netease.yunxin.kit.chatkit.model.ConversationInfo;
 import com.netease.yunxin.kit.common.ui.viewholder.BaseViewHolder;
-import com.netease.yunxin.kit.conversationkit.model.ConversationInfo;
 import com.netease.yunxin.kit.conversationkit.ui.model.ConversationBean;
 
 public interface IConversationFactory {

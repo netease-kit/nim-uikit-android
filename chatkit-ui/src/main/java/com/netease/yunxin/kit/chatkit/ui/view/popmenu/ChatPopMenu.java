@@ -23,6 +23,7 @@ import com.netease.nimlib.sdk.msg.constant.MsgDirectionEnum;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatPopMenuLayoutBinding;
+import com.netease.yunxin.kit.chatkit.ui.factory.ChatPopActionFactory;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.common.utils.SizeUtils;
 import com.netease.yunxin.kit.corekit.im.IMKitClient;
@@ -126,7 +127,7 @@ public class ChatPopMenu {
   @SuppressLint("NotifyDataSetChanged")
   private void initDefaultAction(ChatMessageBean message) {
     chatPopMenuActionList.clear();
-    chatPopMenuActionList.addAll(ChatActionFactory.getInstance().getNormalActions(message));
+    chatPopMenuActionList.addAll(ChatPopActionFactory.getInstance().getNormalActions(message));
     adapter.notifyDataSetChanged();
   }
 

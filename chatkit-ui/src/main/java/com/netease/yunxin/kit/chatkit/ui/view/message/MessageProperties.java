@@ -13,43 +13,28 @@ import java.util.Map;
 /** message item config */
 public class MessageProperties {
 
-  public static final int INT_NULL = -1;
-
   public Drawable receiveMessageBg;
-
   public Drawable selfMessageBg;
-
-  public int selfMessageRes = INT_NULL;
-
-  public int receiveMessageRes = INT_NULL;
-
-  @ColorInt public int userNickColor = INT_NULL;
-
-  public int userNickTextSize = INT_NULL;
-
-  @ColorInt public int messageTextColor = INT_NULL;
-
-  public int messageTextSize = INT_NULL;
-
-  public float avatarCornerRadius = INT_NULL;
-
-  public int timeTextSize = INT_NULL;
-
-  @ColorInt public int timeTextColor = INT_NULL;
-
-  @ColorInt public int signalBgColor = INT_NULL;
+  public Integer selfMessageRes = null;
+  public Integer receiveMessageRes = null;
+  @ColorInt public Integer userNickColor = null;
+  public Integer userNickTextSize = null;
+  @ColorInt public Integer messageTextColor = null;
+  public Integer messageTextSize = null;
+  public Float avatarCornerRadius = null;
+  public Integer timeTextSize = null;
+  @ColorInt public Integer timeTextColor = null;
+  @ColorInt public Integer signalBgColor = null;
 
   public boolean showStickerMessage = false;
-
   public boolean showP2pMessageStatus = true;
-
   public boolean showTeamMessageStatus = true;
 
   public boolean showTitleBar = true;
 
   public boolean showTitleBarRightIcon = true;
 
-  public int titleBarRightRes = INT_NULL;
+  public Integer titleBarRightRes = null;
 
   public View.OnClickListener titleBarRightClick;
 
@@ -83,7 +68,7 @@ public class MessageProperties {
   }
 
   @ColorInt
-  public int getUserNickColor() {
+  public Integer getUserNickColor() {
     return userNickColor;
   }
 
@@ -91,7 +76,7 @@ public class MessageProperties {
     this.userNickTextSize = textSize;
   }
 
-  public int getUserNickTextSize() {
+  public Integer getUserNickTextSize() {
     return userNickTextSize;
   }
 
@@ -99,12 +84,12 @@ public class MessageProperties {
     this.messageTextSize = messageTextSize;
   }
 
-  public int getMessageTextSize() {
+  public Integer getMessageTextSize() {
     return messageTextSize;
   }
 
   @ColorInt
-  public int getMessageTextColor() {
+  public Integer getMessageTextColor() {
     return messageTextColor;
   }
 
@@ -116,7 +101,7 @@ public class MessageProperties {
     this.avatarCornerRadius = radius;
   }
 
-  public float getAvatarCornerRadius() {
+  public Float getAvatarCornerRadius() {
     return avatarCornerRadius;
   }
 
@@ -124,7 +109,7 @@ public class MessageProperties {
     this.timeTextSize = textSize;
   }
 
-  public int getTimeTextSize() {
+  public Integer getTimeTextSize() {
     return this.timeTextSize;
   }
 
@@ -133,7 +118,7 @@ public class MessageProperties {
   }
 
   @ColorInt
-  public int getTimeTextColor() {
+  public Integer getTimeTextColor() {
     return this.timeTextColor;
   }
 
@@ -142,7 +127,7 @@ public class MessageProperties {
   }
 
   @ColorInt
-  public int getSignalBgColor() {
+  public Integer getSignalBgColor() {
     return this.signalBgColor;
   }
 

@@ -24,6 +24,9 @@ import org.json.JSONObject;
 
 /** Team member @ manager */
 public class AitManager implements TextWatcher {
+
+  public static final int STYLE_NORMAL = 0;
+  public static final int STYLE_FUN = 1;
   private final Context mContext;
   private final String tid;
   private final AitContactsModel aitContactsModel;
@@ -39,6 +42,8 @@ public class AitManager implements TextWatcher {
   private boolean delete;
   private boolean fetchNewInfo;
 
+  private int uiStyle = STYLE_NORMAL;
+
   public AitManager(Context context, String teamId) {
     this(context, teamId, true);
   }
@@ -48,6 +53,10 @@ public class AitManager implements TextWatcher {
     this.tid = teamId;
     aitContactsModel = new AitContactsModel();
     this.fetchNewInfo = fetchNewInfo;
+  }
+
+  public void setUIStyle(int style) {
+    uiStyle = style;
   }
 
   public void setTeamMembers(List<UserInfoWithTeam> userInfoWithTeams) {
@@ -134,6 +143,7 @@ public class AitManager implements TextWatcher {
       if (s.toString().equals("@") && !TextUtils.isEmpty(tid)) {
 
         AitContactSelectorDialog dialog = new AitContactSelectorDialog(mContext);
+        dialog.setUIStyle(uiStyle);
         dialog.setData(teamMemberList, false);
         dialog.setOnItemSelectListener(
             item -> {

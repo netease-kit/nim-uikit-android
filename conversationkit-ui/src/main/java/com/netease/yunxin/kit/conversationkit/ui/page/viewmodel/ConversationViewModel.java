@@ -13,13 +13,19 @@ import com.netease.nimlib.sdk.msg.constant.DeleteTypeEnum;
 import com.netease.nimlib.sdk.msg.model.StickTopSessionInfo;
 import com.netease.nimlib.sdk.team.model.Team;
 import com.netease.yunxin.kit.alog.ALog;
+import com.netease.yunxin.kit.chatkit.model.ConversationInfo;
+import com.netease.yunxin.kit.chatkit.repo.ContactObserverRepo;
+import com.netease.yunxin.kit.chatkit.repo.ContactRepo;
+import com.netease.yunxin.kit.chatkit.repo.ConversationObserverRepo;
+import com.netease.yunxin.kit.chatkit.repo.ConversationRepo;
+import com.netease.yunxin.kit.chatkit.repo.TeamObserverRepo;
 import com.netease.yunxin.kit.common.ui.utils.ToastX;
 import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
-import com.netease.yunxin.kit.conversationkit.model.ConversationInfo;
-import com.netease.yunxin.kit.conversationkit.repo.ConversationRepo;
+import com.netease.yunxin.kit.conversationkit.ui.ConversationUIConstant;
 import com.netease.yunxin.kit.conversationkit.ui.IConversationFactory;
+import com.netease.yunxin.kit.conversationkit.ui.R;
 import com.netease.yunxin.kit.conversationkit.ui.common.ConversationUtils;
 import com.netease.yunxin.kit.conversationkit.ui.model.ConversationBean;
 import com.netease.yunxin.kit.conversationkit.ui.page.DefaultViewHolderFactory;
@@ -72,15 +78,15 @@ public class ConversationViewModel extends BaseViewModel {
 
   public ConversationViewModel() {
     //register observer
-    ConversationRepo.registerSessionChangedObserver(changeObserver);
-    ConversationRepo.registerSessionDeleteObserver(deleteObserver);
-    ConversationRepo.registerUserInfoObserver(userInfoObserver);
-    ConversationRepo.registerFriendObserver(friendObserver);
-    ConversationRepo.registerTeamUpdateObserver(teamUpdateObserver);
-    ConversationRepo.registerFriendMuteObserver(muteObserver);
-    ConversationRepo.registerAddStickTopObserver(addStickObserver);
-    ConversationRepo.registerRemoveStickTopObserver(removeStickObserver);
-    ConversationRepo.registerSyncStickTopObserver(syncStickObserver);
+    ConversationObserverRepo.registerSessionChangedObserver(changeObserver);
+    ConversationObserverRepo.registerSessionDeleteObserver(deleteObserver);
+    ContactObserverRepo.registerUserInfoObserver(userInfoObserver);
+    ContactObserverRepo.registerFriendObserver(friendObserver);
+    TeamObserverRepo.registerTeamUpdateObserver(teamUpdateObserver);
+    ConversationObserverRepo.registerNotifyChangeObserver(muteObserver);
+    ConversationObserverRepo.registerAddStickTopObserver(addStickObserver);
+    ConversationObserverRepo.registerRemoveStickTopObserver(removeStickObserver);
+    ConversationObserverRepo.registerSyncStickTopObserver(syncStickObserver);
     EventNotify<AitEvent> aitNotify =
         new EventNotify<AitEvent>() {
           @Override
@@ -214,10 +220,10 @@ public class ConversationViewModel extends BaseViewModel {
       return;
     }
     hasStart = true;
-    ConversationRepo.getSessionList(
-        data,
-        PAGE_LIMIT,
-        comparator,
+    ConversationRepo.getAllSessionList(
+        //        data,
+        //        PAGE_LIMIT,
+        //        comparator,
         new FetchCallback<List<ConversationInfo>>() {
           @Override
           public void onSuccess(@Nullable List<ConversationInfo> param) {
@@ -233,7 +239,7 @@ public class ConversationViewModel extends BaseViewModel {
             for (int index = 0; param != null && index < param.size(); index++) {
               resultData.add(conversationFactory.CreateBean(param.get(index)));
             }
-            hasMore = param != null && param.size() == PAGE_LIMIT;
+            hasMore = false; //param != null && param.size() == PAGE_LIMIT;
             result.setData(resultData);
             queryLiveData.setValue(result);
             hasStart = false;
@@ -306,7 +312,11 @@ public class ConversationViewModel extends BaseViewModel {
           @Override
           public void onFailed(int code) {
             ALog.d(LIB_TAG, TAG, "addStickTop,onFailed:" + code);
-            ToastX.showShortToast(String.valueOf(code));
+            if (code == ConversationUIConstant.ERROR_CODE_NETWORK) {
+              ToastX.showShortToast(R.string.conversation_network_error_tip);
+            } else {
+              ToastX.showShortToast(String.valueOf(code));
+            }
           }
 
           @Override
@@ -333,7 +343,12 @@ public class ConversationViewModel extends BaseViewModel {
 
           @Override
           public void onFailed(int code) {
-            ToastX.showShortToast(String.valueOf(code));
+            ALog.d(LIB_TAG, TAG, "addStickTop,onFailed:" + code);
+            if (code == ConversationUIConstant.ERROR_CODE_NETWORK) {
+              ToastX.showShortToast(R.string.conversation_network_error_tip);
+            } else {
+              ToastX.showShortToast(String.valueOf(code));
+            }
           }
 
           @Override
@@ -423,7 +438,7 @@ public class ConversationViewModel extends BaseViewModel {
       (friendChangeType, accountList) -> {
         ALog.d(LIB_TAG, TAG, "friendObserver,userList:" + accountList.size());
         if (friendChangeType == FriendChangeType.Update) {
-          ConversationRepo.getFriendInfo(
+          ContactRepo.getFriendList(
               accountList,
               new FetchCallback<List<FriendInfo>>() {
                 @Override
@@ -487,14 +502,14 @@ public class ConversationViewModel extends BaseViewModel {
   @Override
   protected void onCleared() {
     super.onCleared();
-    ConversationRepo.unregisterSessionDeleteObserver(deleteObserver);
-    ConversationRepo.unregisterSessionChangedObserver(changeObserver);
-    ConversationRepo.unregisterUserInfoObserver(userInfoObserver);
-    ConversationRepo.unregisterFriendObserver(friendObserver);
-    ConversationRepo.unregisterTeamUpdateObserver(teamUpdateObserver);
-    ConversationRepo.unregisterFriendMuteObserver(muteObserver);
-    ConversationRepo.unregisterAddStickTopObserver(addStickObserver);
-    ConversationRepo.unregisterSyncStickTopObserver(syncStickObserver);
-    ConversationRepo.unregisterRemoveStickTopObserver(removeStickObserver);
+    ConversationObserverRepo.unregisterSessionDeleteObserver(deleteObserver);
+    ConversationObserverRepo.unregisterSessionChangedObserver(changeObserver);
+    ContactObserverRepo.unregisterUserInfoObserver(userInfoObserver);
+    ContactObserverRepo.unregisterFriendObserver(friendObserver);
+    TeamObserverRepo.unregisterTeamUpdateObserver(teamUpdateObserver);
+    ConversationObserverRepo.unregisterNotifyChangeObserver(muteObserver);
+    ConversationObserverRepo.unregisterAddStickTopObserver(addStickObserver);
+    ConversationObserverRepo.unregisterSyncStickTopObserver(syncStickObserver);
+    ConversationObserverRepo.unregisterRemoveStickTopObserver(removeStickObserver);
   }
 }

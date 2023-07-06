@@ -10,10 +10,12 @@ import android.text.TextUtils;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
 import com.netease.yunxin.kit.alog.ALog;
+import com.netease.yunxin.kit.chatkit.repo.ContactObserverRepo;
+import com.netease.yunxin.kit.chatkit.repo.ContactRepo;
+import com.netease.yunxin.kit.chatkit.repo.TeamRepo;
 import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
-import com.netease.yunxin.kit.contactkit.repo.ContactRepo;
 import com.netease.yunxin.kit.contactkit.ui.model.ContactVerifyInfoBean;
 import com.netease.yunxin.kit.corekit.im.model.SystemMessageInfo;
 import com.netease.yunxin.kit.corekit.im.model.SystemMessageInfoStatus;
@@ -49,7 +51,7 @@ public class VerifyViewModel extends BaseViewModel {
           if (info.getId() > 0) {
             List<SystemMessageInfo> msgInfo = new ArrayList<>();
             msgInfo.add(info);
-            ContactRepo.fillNotification(
+            ContactRepo.fillNotificationWithUserAndTeam(
                 msgInfo,
                 new FetchCallback<List<SystemMessageInfo>>() {
                   @Override
@@ -95,7 +97,7 @@ public class VerifyViewModel extends BaseViewModel {
                 });
           }
         };
-    ContactRepo.registerNotificationObserver(infoObserver);
+    ContactObserverRepo.registerNotificationObserver(infoObserver);
   }
 
   public void fetchVerifyList(boolean nextPage) {
@@ -171,9 +173,9 @@ public class VerifyViewModel extends BaseViewModel {
       if (type == SystemMessageInfoType.AddFriend) {
         ContactRepo.acceptAddFriend(account, true, callback);
       } else if (type == SystemMessageInfoType.ApplyJoinTeam) {
-        ContactRepo.agreeTeamApply(info.getTargetId(), account, callback);
+        TeamRepo.agreeTeamApply(info.getTargetId(), account, callback);
       } else if (type == SystemMessageInfoType.TeamInvite) {
-        ContactRepo.acceptTeamInvite(info.getTargetId(), account, callback);
+        TeamRepo.acceptTeamInvite(info.getTargetId(), account, callback);
       }
     }
   }
@@ -193,11 +195,11 @@ public class VerifyViewModel extends BaseViewModel {
 
       } else if (type == SystemMessageInfoType.ApplyJoinTeam
           && !TextUtils.isEmpty(info.getTargetId())) {
-        ContactRepo.rejectTeamApply(info.getTargetId(), account, "", callback);
+        TeamRepo.rejectTeamApply(info.getTargetId(), account, "", callback);
 
       } else if (type == SystemMessageInfoType.TeamInvite
           && !TextUtils.isEmpty(info.getTargetId())) {
-        ContactRepo.rejectTeamInvite(info.getTargetId(), account, "", callback);
+        TeamRepo.rejectTeamInvite(info.getTargetId(), account, "", callback);
       }
     }
   }
@@ -259,6 +261,6 @@ public class VerifyViewModel extends BaseViewModel {
   @Override
   protected void onCleared() {
     super.onCleared();
-    ContactRepo.unregisterNotificationObserver(infoObserver);
+    ContactObserverRepo.unregisterNotificationObserver(infoObserver);
   }
 }

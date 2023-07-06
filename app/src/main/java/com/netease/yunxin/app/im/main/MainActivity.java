@@ -9,16 +9,16 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-
-import com.netease.lava.nertc.reporter.channel.LoginEvent;
 import com.netease.lava.nertc.sdk.NERtcOption;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.Observer;
 import com.netease.nimlib.sdk.StatusCode;
-import com.netease.nimlib.sdk.auth.AuthService;
 import com.netease.nimlib.sdk.auth.AuthServiceObserver;
 import com.netease.nimlib.sdk.avsignalling.constant.ChannelType;
+import com.netease.yunxin.app.im.AppSkinConfig;
 import com.netease.yunxin.app.im.CustomConfig;
 import com.netease.yunxin.app.im.R;
 import com.netease.yunxin.app.im.databinding.ActivityMainBinding;
@@ -27,19 +27,23 @@ import com.netease.yunxin.app.im.utils.Constant;
 import com.netease.yunxin.app.im.utils.DataUtils;
 import com.netease.yunxin.app.im.welcome.WelcomeActivity;
 import com.netease.yunxin.kit.alog.ALog;
-import com.netease.yunxin.kit.alog.ParameterMap;
-import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
+import com.netease.yunxin.kit.chatkit.repo.ContactRepo;
+import com.netease.yunxin.kit.chatkit.ui.custom.ChatConfigManager;
 import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
-import com.netease.yunxin.kit.common.utils.NetworkUtils;
-import com.netease.yunxin.kit.contactkit.ui.contact.ContactFragment;
-import com.netease.yunxin.kit.conversationkit.ui.page.ConversationFragment;
+import com.netease.yunxin.kit.contactkit.ui.contact.BaseContactFragment;
+import com.netease.yunxin.kit.contactkit.ui.fun.contact.FunContactFragment;
+import com.netease.yunxin.kit.contactkit.ui.normal.contact.ContactFragment;
+import com.netease.yunxin.kit.conversationkit.ui.fun.page.FunConversationFragment;
+import com.netease.yunxin.kit.conversationkit.ui.normal.page.ConversationFragment;
+import com.netease.yunxin.kit.conversationkit.ui.page.ConversationBaseFragment;
+import com.netease.yunxin.kit.corekit.event.BaseEvent;
+import com.netease.yunxin.kit.corekit.event.EventCenter;
+import com.netease.yunxin.kit.corekit.event.EventNotify;
 import com.netease.yunxin.kit.corekit.im.IMKitClient;
 import com.netease.yunxin.kit.corekit.im.model.UserInfo;
+import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
+import com.netease.yunxin.kit.corekit.im.repo.SettingRepo;
 import com.netease.yunxin.nertc.nertcvideocall.model.NERTCVideoCall;
-import com.netease.yunxin.nertc.nertcvideocall.model.impl.DefaultCallOrderImpl;
-import com.netease.yunxin.nertc.nertcvideocall.model.impl.state.CallState;
-import com.netease.yunxin.nertc.nertcvideocall.utils.CallOrderHelper;
-import com.netease.yunxin.nertc.nertcvideocall.utils.NrtcCallStatus;
 import com.netease.yunxin.nertc.ui.CallKitNotificationConfig;
 import com.netease.yunxin.nertc.ui.CallKitUI;
 import com.netease.yunxin.nertc.ui.CallKitUIOptions;
@@ -52,8 +56,26 @@ public class MainActivity extends BaseActivity {
   private ActivityMainBinding activityMainBinding;
   private static final int START_INDEX = 0;
   private View mCurrentTab;
-  private ContactFragment mContactFragment;
-  private ConversationFragment mConversationFragment;
+  private BaseContactFragment mContactFragment;
+  private ConversationBaseFragment mConversationFragment;
+
+  //皮肤变更事件
+  EventNotify<SkinEvent> skinNotify =
+      new EventNotify<SkinEvent>() {
+        @Override
+        public void onNotify(@NonNull SkinEvent message) {
+          Intent intent = getIntent();
+          finish();
+          intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+          startActivity(intent);
+        }
+
+        @NonNull
+        @Override
+        public String getEventType() {
+          return "skinEvent";
+        }
+      };
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +90,24 @@ public class MainActivity extends BaseActivity {
     activityMainBinding = ActivityMainBinding.inflate(getLayoutInflater());
     setContentView(activityMainBinding.getRoot());
     initView();
+    initData();
+    EventCenter.registerEventNotify(skinNotify);
+  }
+
+  private void initData() {
+    SettingRepo.getShowReadStatus(
+        new FetchCallback<Boolean>() {
+          @Override
+          public void onSuccess(@Nullable Boolean param) {
+            ChatConfigManager.showReadStatus = param;
+          }
+
+          @Override
+          public void onFailed(int code) {}
+
+          @Override
+          public void onException(@Nullable Throwable exception) {}
+        });
   }
 
   @Override
@@ -80,14 +120,24 @@ public class MainActivity extends BaseActivity {
   }
 
   private void initView() {
+    boolean isCommonSkin =
+        AppSkinConfig.getInstance().getAppSkinStyle() == AppSkinConfig.AppSkin.commonSkin;
     ALog.d(Constant.PROJECT_TAG, "MainActivity:initView");
     //    loadConfig();
     List<Fragment> fragments = new ArrayList<>();
-    mConversationFragment = new ConversationFragment();
-    fragments.add(mConversationFragment);
 
-    //Contact
-    mContactFragment = new ContactFragment();
+    if (isCommonSkin) {
+      changeStatusBarColor(R.color.fun_page_bg_color);
+      mConversationFragment = new FunConversationFragment();
+      mContactFragment = new FunContactFragment();
+
+    } else {
+      changeStatusBarColor(R.color.normal_page_bg_color);
+      mConversationFragment = new ConversationFragment();
+      mContactFragment = new ContactFragment();
+    }
+
+    fragments.add(mConversationFragment);
     fragments.add(mContactFragment);
 
     fragments.add(new MineFragment());
@@ -100,6 +150,7 @@ public class MainActivity extends BaseActivity {
     activityMainBinding.viewPager.setOffscreenPageLimit(fragments.size());
     mCurrentTab = activityMainBinding.conversationBtnGroup;
     changeStatusBarColor(R.color.color_white);
+    resetTabSkin(isCommonSkin);
   }
 
   @Override
@@ -107,6 +158,13 @@ public class MainActivity extends BaseActivity {
     super.onResume();
     initContactFragment(mContactFragment);
     initConversationFragment(mConversationFragment);
+  }
+
+  @Override
+  protected void onDestroy() {
+    ALog.d(Constant.PROJECT_TAG, "MainActivity:onDestroy");
+    EventCenter.unregisterEventNotify(skinNotify);
+    super.onDestroy();
   }
 
   @SuppressLint("UseCompatLoadingForDrawables")
@@ -117,29 +175,58 @@ public class MainActivity extends BaseActivity {
     }
     resetTabStyle();
     mCurrentTab = view;
+    resetTabSkin(AppSkinConfig.getInstance().getAppSkinStyle() == AppSkinConfig.AppSkin.commonSkin);
+  }
+
+  @SuppressLint("UseCompatLoadingForDrawables")
+  private void resetTabSkin(boolean isCommonSkin) {
     if (mCurrentTab == activityMainBinding.contactBtnGroup) {
       activityMainBinding.viewPager.setCurrentItem(1, false);
-      activityMainBinding.contact.setTextColor(getResources().getColor(R.color.tab_checked_color));
-      activityMainBinding.contact.setCompoundDrawablesWithIntrinsicBounds(
-          null, getResources().getDrawable(R.mipmap.ic_contact_tab_checked), null, null);
-      changeStatusBarColor(R.color.color_white);
+      if (isCommonSkin) {
+        activityMainBinding.contact.setTextColor(
+            getResources().getColor(R.color.fun_tab_checked_color));
+        activityMainBinding.contact.setCompoundDrawablesWithIntrinsicBounds(
+            null, getResources().getDrawable(R.mipmap.ic_contact_tab_checked_fun), null, null);
+        changeStatusBarColor(R.color.fun_page_bg_color);
+      } else {
+        activityMainBinding.contact.setTextColor(
+            getResources().getColor(R.color.tab_checked_color));
+        activityMainBinding.contact.setCompoundDrawablesWithIntrinsicBounds(
+            null, getResources().getDrawable(R.mipmap.ic_contact_tab_checked), null, null);
+        changeStatusBarColor(R.color.color_white);
+      }
     } else if (mCurrentTab == activityMainBinding.myselfBtnGroup) {
       activityMainBinding.viewPager.setCurrentItem(2, false);
-      activityMainBinding.mine.setTextColor(getResources().getColor(R.color.tab_checked_color));
-      activityMainBinding.mine.setCompoundDrawablesWithIntrinsicBounds(
-          null, getResources().getDrawable(R.mipmap.ic_mine_tab_checked), null, null);
+      if (isCommonSkin) {
+        activityMainBinding.mine.setTextColor(
+            getResources().getColor(R.color.fun_tab_checked_color));
+        activityMainBinding.mine.setCompoundDrawablesWithIntrinsicBounds(
+            null, getResources().getDrawable(R.mipmap.ic_mine_tab_checked_fun), null, null);
+      } else {
+        activityMainBinding.mine.setTextColor(getResources().getColor(R.color.tab_checked_color));
+        activityMainBinding.mine.setCompoundDrawablesWithIntrinsicBounds(
+            null, getResources().getDrawable(R.mipmap.ic_mine_tab_checked), null, null);
+      }
       changeStatusBarColor(R.color.color_white);
     } else if (mCurrentTab == activityMainBinding.conversationBtnGroup) {
       activityMainBinding.viewPager.setCurrentItem(0, false);
-      activityMainBinding.conversation.setTextColor(
-          getResources().getColor(R.color.tab_checked_color));
-      activityMainBinding.conversation.setCompoundDrawablesWithIntrinsicBounds(
-          null, getResources().getDrawable(R.mipmap.ic_conversation_tab_checked), null, null);
-      changeStatusBarColor(R.color.color_white);
+      if (isCommonSkin) {
+        activityMainBinding.conversation.setTextColor(
+            getResources().getColor(R.color.fun_tab_checked_color));
+        activityMainBinding.conversation.setCompoundDrawablesWithIntrinsicBounds(
+            null, getResources().getDrawable(R.mipmap.ic_conversation_tab_checked_fun), null, null);
+        changeStatusBarColor(R.color.fun_page_bg_color);
+      } else {
+        activityMainBinding.conversation.setTextColor(
+            getResources().getColor(R.color.tab_checked_color));
+        activityMainBinding.conversation.setCompoundDrawablesWithIntrinsicBounds(
+            null, getResources().getDrawable(R.mipmap.ic_conversation_tab_checked), null, null);
+        changeStatusBarColor(R.color.color_white);
+      }
     }
   }
 
-  private void initConversationFragment(ConversationFragment conversationFragment) {
+  private void initConversationFragment(ConversationBaseFragment conversationFragment) {
     if (conversationFragment != null) {
       conversationFragment.setConversationCallback(
           count -> {
@@ -152,7 +239,7 @@ public class MainActivity extends BaseActivity {
     }
   }
 
-  private void initContactFragment(ContactFragment contactFragment) {
+  private void initContactFragment(BaseContactFragment contactFragment) {
     if (contactFragment != null) {
       contactFragment.setContactCallback(
           count -> {
@@ -195,7 +282,7 @@ public class MainActivity extends BaseActivity {
             // 此处为 收到来电时展示的 notification 相关配置，如图标，提示语等。
             .notificationConfigFetcher(
                 invitedInfo -> {
-                  UserInfo info = ChatRepo.getUserInfo(invitedInfo.invitor);
+                  UserInfo info = ContactRepo.getUserInfo(invitedInfo.invitor);
                   String content =
                       (info != null ? info.getUserInfoName() : invitedInfo.invitor)
                           + (invitedInfo.channelType == ChannelType.AUDIO.getValue()
@@ -214,34 +301,8 @@ public class MainActivity extends BaseActivity {
             // 全局初始化有助于更快进入首帧页面，当结合其他组件使用时存在rtc初始化冲突可设置false
             .rtcInitScope(false)
             .build();
-    NERTCVideoCall.sharedInstance()
-        .setCallOrderListener(
-            new DefaultCallOrderImpl() {
-              @Override
-              public void onTimeout(ChannelType channelType, String accountId, int callType) {
-                ALog.dApi(
-                    "CallOrderImpl",
-                    new ParameterMap("onTimeout")
-                        .append("channelType", channelType)
-                        .append("callType", callType)
-                        .append("accountId", accountId)
-                        .append("enableOrder", isEnable())
-                        .toValue());
-                if (!isEnable()) {
-                  return;
-                }
-                if (NERTCVideoCall.sharedInstance().getCurrentState() == CallState.STATE_INVITED) {
-                  return;
-                }
-                if (NetworkUtils.isConnected()) {
-                  CallOrderHelper.sendOrder(
-                      channelType, accountId, NrtcCallStatus.NrtcCallStatusTimeout, callType);
-                } else {
-                  CallOrderHelper.sendOrder(
-                      channelType, accountId, NrtcCallStatus.NrtcCallStatusCanceled, callType);
-                }
-              }
-            });
+    // 设置自定义话单消息发送
+    NERTCVideoCall.sharedInstance().setCallOrderListener(new CustomCallOrderHelper());
     // 若重复初始化会销毁之前的初始化实例，重新初始化
     CallKitUI.init(getApplicationContext(), options);
     NIMClient.getService(AuthServiceObserver.class).observeOnlineStatus(new Observer<StatusCode>() {
@@ -258,5 +319,14 @@ public class MainActivity extends BaseActivity {
     CustomConfig.configContactKit(this);
     CustomConfig.configConversation(this);
     CustomConfig.configChatKit(this);
+  }
+
+  //皮肤变更事件
+  public static class SkinEvent extends BaseEvent {
+    @NonNull
+    @Override
+    public String getType() {
+      return "skinEvent";
+    }
   }
 }

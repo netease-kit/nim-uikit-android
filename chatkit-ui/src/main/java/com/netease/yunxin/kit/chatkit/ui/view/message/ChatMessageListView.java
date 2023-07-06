@@ -4,6 +4,8 @@
 
 package com.netease.yunxin.kit.chatkit.ui.view.message;
 
+import static com.netease.yunxin.kit.chatkit.ui.ChatUIConstants.KEY_MAP_FOR_MESSAGE;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.AttributeSet;
@@ -13,31 +15,32 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import com.netease.nimlib.sdk.msg.constant.MsgDirectionEnum;
-import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.msg.model.AttachmentProgress;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
 import com.netease.nimlib.sdk.msg.model.MsgPinOption;
 import com.netease.nimlib.sdk.team.model.Team;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
+import com.netease.yunxin.kit.chatkit.ui.ChatKitClient;
 import com.netease.yunxin.kit.chatkit.ui.IChatFactory;
+import com.netease.yunxin.kit.chatkit.ui.factory.ChatPopActionFactory;
+import com.netease.yunxin.kit.chatkit.ui.interfaces.IMessageData;
+import com.netease.yunxin.kit.chatkit.ui.interfaces.IMessageItemClickListener;
+import com.netease.yunxin.kit.chatkit.ui.interfaces.IMessageLoadHandler;
+import com.netease.yunxin.kit.chatkit.ui.interfaces.IMessageReader;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
-import com.netease.yunxin.kit.chatkit.ui.view.interfaces.IMessageData;
-import com.netease.yunxin.kit.chatkit.ui.view.interfaces.IMessageItemClickListener;
-import com.netease.yunxin.kit.chatkit.ui.view.interfaces.IMessageLoadHandler;
-import com.netease.yunxin.kit.chatkit.ui.view.interfaces.IMessageReader;
 import com.netease.yunxin.kit.chatkit.ui.view.message.adapter.ChatMessageAdapter;
-import com.netease.yunxin.kit.chatkit.ui.view.popmenu.ChatActionFactory;
 import com.netease.yunxin.kit.chatkit.ui.view.popmenu.IChatPopMenu;
 import com.netease.yunxin.kit.chatkit.ui.view.popmenu.IChatPopMenuClickListener;
 import com.netease.yunxin.kit.common.utils.BarUtils;
 import com.netease.yunxin.kit.corekit.im.model.UserInfo;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /** recycler view for show message */
 public class ChatMessageListView extends RecyclerView implements IMessageData {
 
+  private final String TAG = "ChatMessageListView";
   private IMessageItemClickListener itemClickListener;
 
   private ChatMessageAdapter messageAdapter;
@@ -143,11 +146,11 @@ public class ChatMessageListView extends RecyclerView implements IMessageData {
   }
 
   public void setPopActionListener(IChatPopMenuClickListener listener) {
-    ChatActionFactory.getInstance().setActionListener(listener);
+    ChatPopActionFactory.getInstance().setActionListener(listener);
   }
 
   public void setChatPopMenu(IChatPopMenu popAction) {
-    ChatActionFactory.getInstance().setChatPopMenu(popAction);
+    ChatPopActionFactory.getInstance().setChatPopMenu(popAction);
   }
 
   public void setMessageReader(IMessageReader messageReader) {
@@ -170,7 +173,6 @@ public class ChatMessageListView extends RecyclerView implements IMessageData {
   public void addMessageListForward(List<ChatMessageBean> messageList) {
     if (messageAdapter != null) {
       messageAdapter.forwardMessages(messageList);
-      markMessageRead(messageList);
     }
   }
 
@@ -192,22 +194,6 @@ public class ChatMessageListView extends RecyclerView implements IMessageData {
       if (needToScrollEnd) {
         scrollToEnd();
       }
-      markMessageRead(messageList);
-    }
-  }
-
-  private void markMessageRead(List<ChatMessageBean> messageList) {
-    if (messageReader != null
-        && !messageList.isEmpty()
-        && messageList.get(0).getMessageData().getMessage().getSessionType()
-            == SessionTypeEnum.P2P) {
-      for (int index = messageList.size() - 1; index >= 0; index--) {
-        IMMessageInfo messageInfo = messageList.get(index).getMessageData();
-        if (messageInfo != null && messageInfo.getMessage().needMsgAck()) {
-          messageReader.messageRead(messageInfo);
-          break;
-        }
-      }
     }
   }
 
@@ -216,26 +202,13 @@ public class ChatMessageListView extends RecyclerView implements IMessageData {
     if (messageAdapter != null) {
       messageAdapter.appendMessage(message);
       scrollToEnd();
-      if (messageReader != null
-          && message != null
-          && message.getMessageData().getMessage().getDirect() == MsgDirectionEnum.In
-          && message.getMessageData().getMessage().getSessionType() == SessionTypeEnum.P2P
-          && message.getMessageData().getMessage().needMsgAck()) {
-        messageReader.messageRead(message.getMessageData());
-      }
     }
   }
 
   @Override
   public void updateMessageStatus(ChatMessageBean message) {
     if (messageAdapter != null) {
-      messageAdapter.updateMessageStatus(
-          message,
-          data -> {
-            if (data) {
-              scrollToEnd();
-            }
-          });
+      messageAdapter.updateMessageStatus(message);
     }
   }
 
@@ -279,6 +252,12 @@ public class ChatMessageListView extends RecyclerView implements IMessageData {
   public void addPinMessage(String uuid, MsgPinOption pinOption) {
     if (messageAdapter != null) {
       messageAdapter.pinMsg(uuid, pinOption);
+    }
+  }
+
+  public void updateMessagePin(Map<String, MsgPinOption> pinOptionMap) {
+    if (messageAdapter != null) {
+      messageAdapter.updateMessagePin(pinOptionMap);
     }
   }
 
@@ -407,6 +386,14 @@ public class ChatMessageListView extends RecyclerView implements IMessageData {
     if (layoutManager != null && loadHandler != null) {
       int firstVisible = layoutManager.findFirstVisibleItemPosition();
       int lastVisible = layoutManager.findLastVisibleItemPosition();
+      if (messageAdapter.getMessageList() == null || messageAdapter.getMessageList().isEmpty()) {
+        return;
+      }
+      if (firstVisible < 0
+          || lastVisible + 1 > messageAdapter.getMessageList().size()
+          || firstVisible > lastVisible + 1) {
+        return;
+      }
       loadHandler.onVisibleItemChange(
           messageAdapter.getMessageList().subList(firstVisible, lastVisible + 1));
     }
@@ -419,6 +406,10 @@ public class ChatMessageListView extends RecyclerView implements IMessageData {
         smoothScrollToPosition(index);
       }
     }
+  }
+
+  public void release() {
+    ChatKitClient.getMessageMapProvider().releaseAllChatMap(KEY_MAP_FOR_MESSAGE);
   }
 
   private boolean needScrollToBottom() {

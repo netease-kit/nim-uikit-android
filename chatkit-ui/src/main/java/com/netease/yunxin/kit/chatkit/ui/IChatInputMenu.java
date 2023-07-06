@@ -22,4 +22,8 @@ public interface IChatInputMenu {
   public default boolean onCustomInputClick(Context context, View view, String action) {
     return false;
   }
+
+  public default boolean onInputClick(Context context, View view, String action) {
+    return false;
+  }
 }

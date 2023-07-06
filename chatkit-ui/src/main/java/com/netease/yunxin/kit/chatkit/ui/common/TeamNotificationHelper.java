@@ -18,6 +18,7 @@ import com.netease.nimlib.sdk.team.model.Team;
 import com.netease.nimlib.sdk.team.model.UpdateTeamAttachment;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
+import com.netease.yunxin.kit.chatkit.repo.TeamRepo;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.corekit.im.IMKitClient;
 import com.netease.yunxin.kit.corekit.im.model.UserInfo;
@@ -158,7 +159,7 @@ public class TeamNotificationHelper {
   private static Team getTeam(String teamId) {
     Team team = ChatRepo.getCurrentTeam();
     if (team == null || !TextUtils.equals(teamId, team.getId())) {
-      team = ChatRepo.getTeamInfo(teamId);
+      team = TeamRepo.getTeamInfo(teamId);
     }
     return team;
   }

@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2022 NetEase, Inc. All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be
+  ~ found in the LICENSE file.
+  -->
+
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/color_ededed">
+
+    <TextView
+        android:id="@+id/tvTitle"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:gravity="center"
+        android:text="@string/team_info_title"
+        android:textColor="@color/color_333333"
+        android:textSize="17dp"
+        android:textStyle="bold"
+        android:background="@color/color_white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="SpUsage" />
+
+    <ImageView
+        android:id="@+id/ivBack"
+        android:layout_width="26dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="20dp"
+        android:src="@drawable/ic_arrow_left"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <View
+        android:id="@+id/infoBg"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="0.5dp"
+        android:layout_marginBottom="-2dp"
+        android:background="@color/color_white"
+        app:layout_constraintBottom_toBottomOf="@id/tvIntroduce"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvTitle" />
+
+    <TextView
+        android:id="@+id/tvIcon"
+        android:layout_width="0dp"
+        android:layout_height="74dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:gravity="center_vertical|start"
+        android:text="@string/team_icon_title"
+        android:textColor="@color/color_333333"
+        android:textSize="16dp"
+        app:drawableEndCompat="@drawable/ic_right_arrow"
+        app:layout_constraintEnd_toEndOf="@id/infoBg"
+        app:layout_constraintStart_toStartOf="@id/infoBg"
+        app:layout_constraintTop_toTopOf="@id/infoBg"
+        tools:ignore="SpUsage" />
+
+    <com.netease.yunxin.kit.common.ui.widgets.ContactAvatarView
+        android:id="@+id/ivIcon"
+        android:layout_width="42dp"
+        android:layout_height="42dp"
+        app:avatarCorner="@dimen/dimen_4_dp"
+        android:layout_marginEnd="44dp"
+        app:layout_constraintBottom_toBottomOf="@id/tvIcon"
+        app:layout_constraintEnd_toEndOf="@id/infoBg"
+        app:layout_constraintTop_toTopOf="@id/tvIcon" />
+
+    <View
+        android:id="@+id/line1"
+        android:layout_width="0dp"
+        android:layout_height="0.5dp"
+        android:layout_marginStart="16dp"
+        android:background="@color/color_e5e5e5"
+        app:layout_constraintEnd_toEndOf="@id/infoBg"
+        app:layout_constraintStart_toStartOf="@id/infoBg"
+        app:layout_constraintTop_toBottomOf="@id/tvIcon" />
+
+    <TextView
+        android:id="@+id/tvName"
+        android:layout_width="0dp"
+        android:layout_height="56dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:gravity="center_vertical|start"
+        android:text="@string/team_name_title"
+        android:textColor="@color/color_333333"
+        android:textSize="16dp"
+        app:drawableEndCompat="@drawable/ic_right_arrow"
+        app:layout_constraintEnd_toEndOf="@id/infoBg"
+        app:layout_constraintStart_toStartOf="@id/infoBg"
+        app:layout_constraintTop_toBottomOf="@id/tvIcon"
+        tools:ignore="SpUsage" />
+
+    <View
+        android:id="@+id/line2"
+        android:layout_width="0dp"
+        android:layout_height="0.5dp"
+        android:layout_marginStart="16dp"
+        android:background="@color/color_e5e5e5"
+        app:layout_constraintEnd_toEndOf="@id/infoBg"
+        app:layout_constraintStart_toStartOf="@id/infoBg"
+        app:layout_constraintTop_toBottomOf="@id/tvName" />
+
+    <TextView
+        android:id="@+id/tvIntroduce"
+        android:layout_width="0dp"
+        android:layout_height="56dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:gravity="center_vertical|start"
+        android:text="@string/team_introduce_title"
+        android:textColor="@color/color_333333"
+        android:textSize="16dp"
+        android:visibility="visible"
+        app:drawableEndCompat="@drawable/ic_right_arrow"
+        app:layout_constraintEnd_toEndOf="@id/infoBg"
+        app:layout_constraintStart_toStartOf="@id/infoBg"
+        app:layout_constraintTop_toBottomOf="@id/tvName"
+        tools:ignore="SpUsage" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

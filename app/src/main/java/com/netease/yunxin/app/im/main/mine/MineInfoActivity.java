@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
@@ -17,12 +18,14 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import com.netease.nimlib.sdk.uinfo.constant.GenderEnum;
+import com.netease.yunxin.app.im.AppSkinConfig;
 import com.netease.yunxin.app.im.R;
 import com.netease.yunxin.app.im.databinding.ActivityMineInfoBinding;
 import com.netease.yunxin.app.im.utils.Constant;
+import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
+import com.netease.yunxin.kit.common.ui.photo.BasePhotoChoiceDialog;
 import com.netease.yunxin.kit.common.ui.photo.PhotoChoiceDialog;
 import com.netease.yunxin.kit.common.ui.utils.AvatarColor;
 import com.netease.yunxin.kit.common.ui.utils.CommonCallback;
@@ -30,17 +33,19 @@ import com.netease.yunxin.kit.common.ui.utils.ToastX;
 import com.netease.yunxin.kit.common.ui.widgets.datepicker.CustomDatePicker;
 import com.netease.yunxin.kit.common.ui.widgets.datepicker.DateFormatUtils;
 import com.netease.yunxin.kit.common.utils.NetworkUtils;
+import com.netease.yunxin.kit.common.utils.SizeUtils;
 import com.netease.yunxin.kit.corekit.im.IMKitClient;
 import com.netease.yunxin.kit.corekit.im.model.UserField;
 import com.netease.yunxin.kit.corekit.im.model.UserInfo;
 import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
 import com.netease.yunxin.kit.corekit.im.repo.CommonRepo;
+import com.netease.yunxin.kit.teamkit.ui.fun.dialog.FunPhotoChoiceDialog;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MineInfoActivity extends AppCompatActivity {
+public class MineInfoActivity extends BaseActivity {
   private ActivityMineInfoBinding binding;
   private ActivityResultLauncher<Intent> launcher;
   private UserInfo userInfo;
@@ -65,7 +70,7 @@ public class MineInfoActivity extends AppCompatActivity {
                       result.getData().getStringExtra(Constant.EDIT_TYPE), Constant.EDIT_SEXUAL)) {
                 int select = result.getData().getIntExtra(Constant.SELECTED_INDEX, -1);
                 if (select >= 0) {
-                  updateUserInfo(UserField.Gender, select);
+                  updateUserInfo(UserField.Gender, select + 1);
                 }
 
               } else if (result.getResultCode() == RESULT_OK) {
@@ -100,14 +105,13 @@ public class MineInfoActivity extends AppCompatActivity {
     binding.flSexual.setOnClickListener(
         v -> {
           ArrayList<String> content = new ArrayList<>();
-          content.add(getResources().getString(R.string.sexual_unknown));
           content.add(getResources().getString(R.string.sexual_male));
           content.add(getResources().getString(R.string.sexual_female));
-          int selectIndex = 0;
+          int selectIndex = -1;
           if (userInfo.getGenderEnum() == GenderEnum.MALE) {
-            selectIndex = 1;
+            selectIndex = 0;
           } else if (userInfo.getGenderEnum() == GenderEnum.FEMALE) {
-            selectIndex = 2;
+            selectIndex = 1;
           }
           TypeSelectActivity.launch(
               MineInfoActivity.this,
@@ -116,6 +120,30 @@ public class MineInfoActivity extends AppCompatActivity {
               selectIndex,
               launcher);
         });
+    if (AppSkinConfig.getInstance().getAppSkinStyle() == AppSkinConfig.AppSkin.commonSkin) {
+      setCommonSkin();
+    }
+  }
+
+  private void setCommonSkin() {
+    int cornerRadius = SizeUtils.dp2px(4);
+    binding.cavAvatar.setCornerRadius(cornerRadius);
+
+    changeStatusBarColor(R.color.fun_page_bg_color);
+
+    binding.clRoot.setBackgroundResource(R.color.fun_page_bg_color);
+
+    binding.llUserInfo.setBackgroundResource(R.color.color_white);
+    ViewGroup.MarginLayoutParams layoutParamsN =
+        (ViewGroup.MarginLayoutParams) binding.llUserInfo.getLayoutParams();
+    layoutParamsN.setMargins(0, SizeUtils.dp2px(4), 0, 0);
+    binding.llUserInfo.setLayoutParams(layoutParamsN);
+
+    binding.flSign.setBackgroundResource(R.color.color_white);
+    ViewGroup.MarginLayoutParams layoutParamsS =
+        (ViewGroup.MarginLayoutParams) binding.flSign.getLayoutParams();
+    layoutParamsS.setMargins(0, SizeUtils.dp2px(6), 0, 0);
+    binding.flSign.setLayoutParams(layoutParamsS);
   }
 
   private void loadData(String account) {
@@ -154,93 +182,94 @@ public class MineInfoActivity extends AppCompatActivity {
   }
 
   private void choicePhoto() {
-    new PhotoChoiceDialog(MineInfoActivity.this)
-        .show(
-            new CommonCallback<File>() {
-              @Override
-              public void onSuccess(@Nullable File param) {
-                if (NetworkUtils.isConnected()) {
-                  CommonRepo.uploadImage(
-                      param,
-                      new FetchCallback<String>() {
-                        @Override
-                        public void onSuccess(@Nullable String urlParam) {
-                          Map<UserField, Object> map = new HashMap<>(1);
-                          map.put(UserField.Avatar, urlParam);
-                          CommonRepo.updateUserInfo(
-                              map,
-                              new FetchCallback<Void>() {
-                                @Override
-                                public void onSuccess(@Nullable Void param) {
-                                  resultCode = RESULT_OK;
-                                  loadData(IMKitClient.account());
-                                }
+    BasePhotoChoiceDialog choiceDialog;
+    if (AppSkinConfig.getInstance().getAppSkinStyle() == AppSkinConfig.AppSkin.commonSkin) {
+      choiceDialog = new FunPhotoChoiceDialog(this);
+    } else {
+      choiceDialog = new PhotoChoiceDialog(this);
+    }
+    choiceDialog.show(
+        new CommonCallback<File>() {
+          @Override
+          public void onSuccess(@Nullable File param) {
+            if (NetworkUtils.isConnected()) {
+              CommonRepo.uploadImage(
+                  param,
+                  new FetchCallback<String>() {
+                    @Override
+                    public void onSuccess(@Nullable String urlParam) {
+                      Map<UserField, Object> map = new HashMap<>(1);
+                      map.put(UserField.Avatar, urlParam);
+                      CommonRepo.updateUserInfo(
+                          map,
+                          new FetchCallback<Void>() {
+                            @Override
+                            public void onSuccess(@Nullable Void param) {
+                              resultCode = RESULT_OK;
+                              loadData(IMKitClient.account());
+                            }
 
-                                @Override
-                                public void onFailed(int code) {
-                                  Toast.makeText(
-                                          getApplicationContext(),
-                                          getString(R.string.request_fail),
-                                          Toast.LENGTH_SHORT)
-                                      .show();
-                                }
+                            @Override
+                            public void onFailed(int code) {
+                              Toast.makeText(
+                                      getApplicationContext(),
+                                      getString(R.string.request_fail),
+                                      Toast.LENGTH_SHORT)
+                                  .show();
+                            }
 
-                                @Override
-                                public void onException(@Nullable Throwable exception) {
-                                  Toast.makeText(
-                                          getApplicationContext(),
-                                          getString(R.string.request_fail),
-                                          Toast.LENGTH_SHORT)
-                                      .show();
-                                }
-                              });
-                        }
+                            @Override
+                            public void onException(@Nullable Throwable exception) {
+                              Toast.makeText(
+                                      getApplicationContext(),
+                                      getString(R.string.request_fail),
+                                      Toast.LENGTH_SHORT)
+                                  .show();
+                            }
+                          });
+                    }
 
-                        @Override
-                        public void onFailed(int code) {
-                          Toast.makeText(
-                                  getApplicationContext(),
-                                  getString(R.string.request_fail),
-                                  Toast.LENGTH_SHORT)
-                              .show();
-                        }
+                    @Override
+                    public void onFailed(int code) {
+                      Toast.makeText(
+                              getApplicationContext(),
+                              getString(R.string.request_fail),
+                              Toast.LENGTH_SHORT)
+                          .show();
+                    }
 
-                        @Override
-                        public void onException(@Nullable Throwable exception) {
-                          Toast.makeText(
-                                  getApplicationContext(),
-                                  getString(R.string.request_fail),
-                                  Toast.LENGTH_SHORT)
-                              .show();
-                        }
-                      });
-                } else {
-                  Toast.makeText(
-                          getApplicationContext(),
-                          getString(R.string.network_error),
-                          Toast.LENGTH_SHORT)
-                      .show();
-                }
-              }
+                    @Override
+                    public void onException(@Nullable Throwable exception) {
+                      Toast.makeText(
+                              getApplicationContext(),
+                              getString(R.string.request_fail),
+                              Toast.LENGTH_SHORT)
+                          .show();
+                    }
+                  });
+            } else {
+              Toast.makeText(
+                      getApplicationContext(),
+                      getString(R.string.network_error),
+                      Toast.LENGTH_SHORT)
+                  .show();
+            }
+          }
 
-              @Override
-              public void onFailed(int code) {
-                Toast.makeText(
-                        getApplicationContext(),
-                        getString(R.string.request_fail),
-                        Toast.LENGTH_SHORT)
-                    .show();
-              }
+          @Override
+          public void onFailed(int code) {
+            Toast.makeText(
+                    getApplicationContext(), getString(R.string.request_fail), Toast.LENGTH_SHORT)
+                .show();
+          }
 
-              @Override
-              public void onException(@Nullable Throwable exception) {
-                Toast.makeText(
-                        getApplicationContext(),
-                        getString(R.string.request_fail),
-                        Toast.LENGTH_SHORT)
-                    .show();
-              }
-            });
+          @Override
+          public void onException(@Nullable Throwable exception) {
+            Toast.makeText(
+                    getApplicationContext(), getString(R.string.request_fail), Toast.LENGTH_SHORT)
+                .show();
+          }
+        });
   }
 
   private void refreshUserInfo(UserInfo userInfo) {
@@ -312,9 +341,17 @@ public class MineInfoActivity extends AppCompatActivity {
 
           @Override
           public void onFailed(int code) {
-            Toast.makeText(
-                    getApplicationContext(), getString(R.string.request_fail), Toast.LENGTH_SHORT)
-                .show();
+            if (code == Constant.NETWORK_ERROR_CODE) {
+              Toast.makeText(
+                      getApplicationContext(),
+                      getString(R.string.network_error),
+                      Toast.LENGTH_SHORT)
+                  .show();
+            } else {
+              Toast.makeText(
+                      getApplicationContext(), getString(R.string.request_fail), Toast.LENGTH_SHORT)
+                  .show();
+            }
           }
 
           @Override

@@ -9,6 +9,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/clyRoot"
     android:background="@color/color_e9eff5"
     tools:context=".main.mine.EditUserInfoActivity">
 
@@ -55,8 +56,8 @@
         android:layout_height="40dp"
         android:layout_marginTop="22dp"
         android:background="@drawable/app_white_round_bg"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
         android:gravity="center_vertical"
         android:paddingStart="17dp"
         android:textColor="@color/color_333333"

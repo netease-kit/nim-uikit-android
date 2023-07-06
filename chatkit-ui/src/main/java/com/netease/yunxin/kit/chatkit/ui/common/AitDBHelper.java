@@ -17,6 +17,7 @@ import com.netease.yunxin.kit.corekit.im.IMKitClient;
 import com.netease.yunxin.kit.corekit.im.custom.AitInfo;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class AitDBHelper extends SQLiteOpenHelper {
@@ -112,10 +113,16 @@ public class AitDBHelper extends SQLiteOpenHelper {
     if (sessionId == null) {
       return -1;
     }
-    return aitDatabase.delete(TABLE_NAME, DB_COLUMN_SESSION + "=?", sessionId);
+    return aitDatabase.delete(
+        TABLE_NAME,
+        DB_COLUMN_SESSION
+            + " IN ("
+            + TextUtils.join(",", Collections.nCopies(sessionId.length, "?"))
+            + ")",
+        sessionId);
   }
 
-  //删除该表所有记录
+  // 删除该表所有记录
   public int deleteAll() {
     // 执行删除记录动作，该语句返回删除记录的数目
     return aitDatabase.delete(TABLE_NAME, "1=1", null);
@@ -147,8 +154,8 @@ public class AitDBHelper extends SQLiteOpenHelper {
         cv.put(DB_COLUMN_MSG_ID, aitInfo.getMsgUidString());
         cv.put(DB_COLUMN_USER_ID, aitInfo.getAccountId());
         // 执行插入记录动作，该语句返回插入记录的行号
-        //参数二：参数未设置为NULL,参数提供可空列名称的名称，以便在 cv 为空的情况下显式插入 NULL。
-        //参数三：values 此映射包含行的初始列值。键应该是列名，值应该是列值
+        // 参数二：参数未设置为NULL,参数提供可空列名称的名称，以便在 cv 为空的情况下显式插入 NULL。
+        // 参数三：values 此映射包含行的初始列值。键应该是列名，值应该是列值
         result = aitDatabase.insert(TABLE_NAME, "", cv);
       }
       // 添加成功则返回行号，添加失败则返回-1
@@ -160,7 +167,7 @@ public class AitDBHelper extends SQLiteOpenHelper {
     return result;
   }
 
-  //根据条件更新指定的表记录
+  // 根据条件更新指定的表记录
   public int update(AitInfo aitInfo, String condition) {
     ALog.d(ChatKitUIConstant.LIB_TAG, TAG, "update:" + condition);
     if (aitInfo == null
@@ -214,13 +221,13 @@ public class AitDBHelper extends SQLiteOpenHelper {
       String accountID = cursor.getString(cursor.getColumnIndex(DB_COLUMN_USER_ID));
       if (!TextUtils.isEmpty(msgId)) {
         String[] idStrings = msgId.split(",");
-        aitInfo.setMsgUidList(Arrays.asList(idStrings));
+        aitInfo.addMsgUid(Arrays.asList(idStrings));
       }
       aitInfo.setAccountId(accountID);
       ALog.d(ChatKitUIConstant.LIB_TAG, TAG, "query AitInfo:" + aitInfo.getSessionId());
       infoList.add(aitInfo);
     }
-    //查询完毕，关闭数据库游标
+    // 查询完毕，关闭数据库游标
     cursor.close();
     ALog.d(ChatKitUIConstant.LIB_TAG, TAG, "query result:" + infoList.size());
     return infoList;

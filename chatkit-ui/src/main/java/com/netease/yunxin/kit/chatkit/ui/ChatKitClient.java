@@ -5,9 +5,11 @@
 package com.netease.yunxin.kit.chatkit.ui;
 
 import android.content.Context;
+import androidx.annotation.LayoutRes;
 import com.netease.yunxin.kit.chatkit.map.IMessageMapProvider;
 import com.netease.yunxin.kit.chatkit.map.IPageMapProvider;
 import com.netease.yunxin.kit.chatkit.ui.view.message.viewholder.ChatBaseMessageViewHolder;
+import com.netease.yunxin.kit.chatkit.ui.view.message.viewholder.CommonBaseMessageViewHolder;
 import com.netease.yunxin.kit.corekit.im.custom.CustomAttachParser;
 import com.netease.yunxin.kit.corekit.im.custom.CustomAttachment;
 
@@ -54,10 +56,22 @@ public class ChatKitClient {
 
   public static void addCustomViewHolder(
       int type, Class<? extends ChatBaseMessageViewHolder> attachmentClass) {
-    ChatDefaultFactory.getInstance().addCustomViewHolder(type, attachmentClass);
+    ChatViewHolderDefaultFactory.getInstance().addCustomViewHolder(type, attachmentClass);
   }
 
   public static void removeCustomViewHolder(int type) {
-    ChatDefaultFactory.getInstance().removeCustomViewHolder(type);
+    ChatViewHolderDefaultFactory.getInstance().removeCustomViewHolder(type);
+  }
+
+  public static void addCommonCustomViewHolder(
+      int type,
+      Class<? extends CommonBaseMessageViewHolder> holderClass,
+      @LayoutRes int layoutRes) {
+    ChatViewHolderDefaultFactory.getInstance()
+        .addCommonCustomViewHolder(type, holderClass, layoutRes);
+  }
+
+  public static void removeCommonCustomViewHolder(int type) {
+    ChatViewHolderDefaultFactory.getInstance().removeCommonCustomViewHolder(type);
   }
 }

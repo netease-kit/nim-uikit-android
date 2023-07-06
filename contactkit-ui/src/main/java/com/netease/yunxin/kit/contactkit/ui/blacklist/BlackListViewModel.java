@@ -10,10 +10,11 @@ import android.text.TextUtils;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
 import com.netease.yunxin.kit.alog.ALog;
+import com.netease.yunxin.kit.chatkit.repo.ContactObserverRepo;
+import com.netease.yunxin.kit.chatkit.repo.ContactRepo;
 import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
-import com.netease.yunxin.kit.contactkit.repo.ContactRepo;
 import com.netease.yunxin.kit.contactkit.ui.model.ContactBlackListBean;
 import com.netease.yunxin.kit.corekit.im.model.UserInfo;
 import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
@@ -46,7 +47,7 @@ public class BlackListViewModel extends BaseViewModel {
             addBlackData(accountList);
           }
         };
-    ContactRepo.registerFriendObserver(friendObserver);
+    ContactObserverRepo.registerFriendObserver(friendObserver);
   }
 
   public void fetchBlackList() {
@@ -174,6 +175,6 @@ public class BlackListViewModel extends BaseViewModel {
   @Override
   protected void onCleared() {
     super.onCleared();
-    ContactRepo.unregisterFriendObserver(friendObserver);
+    ContactObserverRepo.unregisterFriendObserver(friendObserver);
   }
 }

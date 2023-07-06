@@ -13,7 +13,7 @@ public abstract class ChatFragmentBuilder<T extends ChatBaseFragment> {
 
   protected ChatUIConfig chatConfig;
 
-  abstract T getFragment();
+  public abstract T getFragment();
 
   public T build() {
     T fragment = getFragment();

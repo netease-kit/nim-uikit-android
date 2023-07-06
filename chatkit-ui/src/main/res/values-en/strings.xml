@@ -13,10 +13,12 @@
     <string name="chat_message_send_error">Failed to send message</string> 
     <string name="chat_message_fetch_error">Failed to get message</string> 
     <string name="chat_message_revoke_error">Recall Failed</string>
+    <string name="chat_message_delete_error">Delete Failed</string>
     <string name="chat_message_audio_to_short">Message too short</string>
     <string name="chat_message_revoke_content">Revoke Message</string>
     <string name="chat_message_revoke_over_time">Too late to recall</string>
-    <string name="chat_message_revoked">Message Recalled</string> 
+    <string name="chat_message_revoked">Message Recalled</string>
+    <string name="chat_message_revoked_fun">%s recalled the message</string>
     <string name="chat_message_re_edit">Edit</string> 
     <string name="chat_message_voice_in"> Release to send</string>
     <string name="chat_message_signal">Pin</string> 
@@ -62,9 +64,9 @@
     <string name="chat_message_audio_call_action">Voice Call</string>
 
     <string name="chat_message_call_canceled">Canceled</string>
-    <string name="chat_message_in_call_canceled">Canceled by other</string>
+    <string name="chat_message_in_call_canceled">Canceled</string>
     <string name="chat_message_in_call_canceled_self">Canceled</string>
-    <string name="chat_message_call_refused">Refused by other</string>
+    <string name="chat_message_call_refused">Refused</string>
     <string name="chat_message_call_refused_self">Refused</string>
     <string name="chat_message_call_timeout">Time Out</string>
     <string name="chat_message_call_busy">Busy</string>
@@ -156,6 +158,7 @@
     <string name="chat_message_forward_to_person">Forward to friend</string> 
     <string name="chat_message_forward_to">Send to</string>
     <string name="chat_message_is_typing">Typing...</string> 
+    <string name="chat_message_is_typing_fun">Typing...</string>
 
 
     <!-- search -->
@@ -183,6 +186,7 @@
     <string name="chat_message_type_resource_error">Read failed.</string>
     <string name="chat_message_revoke_eidt_error">Time Out</string>
     <string name="chat_message_download_tips">Downloading</string>
+    <string name="chat_message_send_message_when_in_black">"%s had blocked you, sent message failed!"</string>
 
 
     <!-- location -->
@@ -199,5 +203,11 @@
     <string name="chat_remove_pin_error_tips">Unpin failed</string>
     <string name="chat_remove_tips">Unpin</string>
     <string name="chat_network_error_tips">No Internet</string>
+
+    <string name="chat_send_null_message_tips">Message cannot be empty</string>
+
+    <!-- fun -->
+    <string name="chat_input_more_album_title">Album</string>
+    <string name="chat_input_audio_record_title">Hold to Talk</string>
 
 </resources>

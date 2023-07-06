@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="fun_add_pop_item_height">50dp</dimen>
+    <dimen name="fun_add_pop_item_width">126dp</dimen>
+    <dimen name="fun_add_pop_item_margin_right_top">16dp</dimen>
+    <dimen name="fun_add_pop_item_padding">8dp</dimen>
+
+</resources>

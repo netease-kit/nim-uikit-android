@@ -13,5 +13,5 @@
         path="TempPictures" />
     <cache-path
         name="cachePath"
-        path="."/>
+        path="/cache"/>
 </paths>

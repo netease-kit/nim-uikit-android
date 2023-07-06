@@ -10,10 +10,11 @@ import android.text.TextUtils;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
 import com.netease.yunxin.kit.alog.ALog;
+import com.netease.yunxin.kit.chatkit.repo.ContactObserverRepo;
+import com.netease.yunxin.kit.chatkit.repo.ContactRepo;
 import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
-import com.netease.yunxin.kit.contactkit.repo.ContactRepo;
 import com.netease.yunxin.kit.contactkit.ui.model.ContactUserInfoBean;
 import com.netease.yunxin.kit.corekit.im.model.FriendInfo;
 import com.netease.yunxin.kit.corekit.im.model.FriendVerifyType;
@@ -77,8 +78,8 @@ public class UserInfoViewModel extends BaseViewModel {
       };
 
   public void registerObserver() {
-    ContactRepo.registerUserInfoObserver(userInfoObserver);
-    ContactRepo.registerFriendObserver(friendObserver);
+    ContactObserverRepo.registerUserInfoObserver(userInfoObserver);
+    ContactObserverRepo.registerFriendObserver(friendObserver);
   }
 
   public MutableLiveData<FetchResult<ContactUserInfoBean>> getFriendFetchResult() {
@@ -271,7 +272,7 @@ public class UserInfoViewModel extends BaseViewModel {
   @Override
   protected void onCleared() {
     super.onCleared();
-    ContactRepo.unregisterUserInfoObserver(userInfoObserver);
-    ContactRepo.unregisterFriendObserver(friendObserver);
+    ContactObserverRepo.unregisterUserInfoObserver(userInfoObserver);
+    ContactObserverRepo.unregisterFriendObserver(friendObserver);
   }
 }

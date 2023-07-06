@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="fun_chat_audio_record_send_tips">松开 发送</string>
+    <string name="fun_chat_audio_record_cancel_tips">松开 取消</string>
+    <string name="fun_chat_audio_record_max_time_tips">%d \" 后将停止录音</string>
+    <string name="fun_chat_input_hint_tips">请输入您想说的…</string>
+</resources>
