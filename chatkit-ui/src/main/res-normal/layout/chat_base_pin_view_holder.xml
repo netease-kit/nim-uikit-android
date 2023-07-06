@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2022 NetEase, Inc. All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be
+  ~ found in the LICENSE file.
+  -->
+
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/file_baseRoot"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_shape_corner"
+    tools:ignore="MissingDefaultResource">
+
+    <com.netease.yunxin.kit.common.ui.widgets.ContactAvatarView
+        android:id="@+id/message_avatar"
+        android:layout_width="@dimen/dimen_32_dp"
+        android:layout_height="@dimen/dimen_32_dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginStart="@dimen/dimen_16_dp"
+        android:layout_marginTop="@dimen/dimen_16_dp"
+        tools:ignore="MissingConstraints" />
+
+    <TextView
+        android:id="@+id/otherUsername"
+        android:layout_width="@dimen/chat_name_max_length"
+        android:layout_height="wrap_content"
+        android:maxLines="1"
+        android:ellipsize="end"
+        app:layout_constraintTop_toTopOf="@id/message_avatar"
+        app:layout_constraintLeft_toRightOf="@id/message_avatar"
+        android:layout_marginStart="@dimen/dimen_6_dp"
+        android:textSize="@dimen/text_size_14"
+        android:textColor="@color/color_333333" />
+
+    <TextView
+        android:id="@+id/tvTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingBottom="@dimen/dimen_4_dp"
+        android:textColor="@color/color_999999"
+        android:textSize="@dimen/text_size_12"
+        android:layout_marginStart="@dimen/dimen_6_dp"
+        app:layout_constraintLeft_toRightOf="@id/message_avatar"
+        app:layout_constraintTop_toBottomOf="@id/otherUsername"/>
+
+    <ImageView android:id="@+id/iv_more_action"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_more_point"
+        tools:ignore="MissingConstraints"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginEnd="@dimen/dimen_16_dp"
+        android:layout_marginTop="@dimen/dimen_16_dp"/>
+
+    <View android:id="@+id/divider_line"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dimen_1_dp"
+        android:background="@color/color_e4e9f2"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginStart="@dimen/dimen_16_dp"
+        android:layout_marginEnd="@dimen/dimen_16_dp"
+        app:layout_constraintTop_toBottomOf="@id/message_avatar"
+        android:layout_marginTop="@dimen/dimen_12_dp"/>
+
+    <LinearLayout
+        android:id="@+id/messageBody"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="@id/message_avatar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/divider_line"
+        android:layout_marginTop="@dimen/dimen_12_dp"
+        android:orientation="horizontal">
+
+            <com.netease.yunxin.kit.common.ui.widgets.LongClickableFrameLayout
+                android:id="@+id/messageContainer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+            </com.netease.yunxin.kit.common.ui.widgets.LongClickableFrameLayout>
+
+    </LinearLayout>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

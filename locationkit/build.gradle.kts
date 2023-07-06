@@ -17,7 +17,7 @@ android {
         targetSdk = 30
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
-        buildConfigField("String", "versionName", "\"9.5.3\"")
+        buildConfigField("String", "versionName", "\"9.6.0\"")
     }
 
     buildTypes {
@@ -36,7 +36,7 @@ android {
 dependencies {
 
     implementation(project(":chatkit-ui"))
-    api("com.netease.yunxin.kit.common:common-ui:1.1.17")
+    api("com.netease.yunxin.kit.common:common-ui:1.2.0")
     api("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.21")
     implementation("androidx.appcompat:appcompat:1.4.2")
     implementation("com.google.android.material:material:1.5.0")
@@ -48,7 +48,6 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
 
-    api("com.amap.api:map2d:6.0.0")
-    api("com.amap.api:search:9.4.5")
-    api("com.amap.api:location:6.2.0")
+    api("com.amap.api:3dmap:9.6.2")
+    api("com.amap.api:search:9.5.0")
 }

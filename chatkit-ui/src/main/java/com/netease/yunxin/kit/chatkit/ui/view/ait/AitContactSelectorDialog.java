@@ -16,6 +16,7 @@ import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatMessageAitSelectorDialogBinding;
 import com.netease.yunxin.kit.chatkit.ui.page.adapter.AitContactAdapter;
 import com.netease.yunxin.kit.common.utils.ScreenUtils;
+import com.netease.yunxin.kit.common.utils.SizeUtils;
 import java.util.List;
 
 /** Team member @ Dialog */
@@ -23,6 +24,9 @@ public class AitContactSelectorDialog extends BottomSheetDialog {
   private final ChatMessageAitSelectorDialogBinding binding;
   private AitContactAdapter adapter;
   private AitContactAdapter.OnItemSelectListener listener;
+
+  //展示风格，0:办公风格 1:新版本
+  private int uiStyle = 0;
 
   public AitContactSelectorDialog(@NonNull Context context) {
     this(context, R.style.TransBottomSheetTheme);
@@ -41,6 +45,11 @@ public class AitContactSelectorDialog extends BottomSheetDialog {
     initViews();
   }
 
+  public void setUIStyle(int style) {
+    uiStyle = style;
+    switchStyle();
+  }
+
   private void initViews() {
     binding.contactArrowIcon.setOnClickListener(v -> dismiss());
     binding.contactList.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -53,6 +62,24 @@ public class AitContactSelectorDialog extends BottomSheetDialog {
           dismiss();
         });
     binding.contactList.setAdapter(adapter);
+  }
+
+  private void switchStyle() {
+    if (uiStyle == 0) {
+      binding.getRoot().setBackgroundResource(R.color.color_white);
+      adapter.setAitContactConfig(
+          new AitContactAdapter.AitContactConfig(
+              SizeUtils.dp2px(30),
+              getContext().getResources().getColor(R.color.color_333333),
+              R.drawable.ic_team_all));
+    } else {
+      binding.getRoot().setBackgroundResource(R.color.color_ededed);
+      adapter.setAitContactConfig(
+          new AitContactAdapter.AitContactConfig(
+              SizeUtils.dp2px(4),
+              getContext().getResources().getColor(R.color.color_222222),
+              R.drawable.ic_chat_at_all_avatar));
+    }
   }
 
   public void setData(List<UserInfoWithTeam> data, boolean refresh) {

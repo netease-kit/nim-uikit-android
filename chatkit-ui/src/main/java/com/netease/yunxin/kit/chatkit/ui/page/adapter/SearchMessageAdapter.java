@@ -4,13 +4,12 @@
 
 package com.netease.yunxin.kit.chatkit.ui.page.adapter;
 
-import android.view.LayoutInflater;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-import com.netease.yunxin.kit.chatkit.ui.databinding.ChatSearchItemLayoutBinding;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatSearchBean;
-import com.netease.yunxin.kit.chatkit.ui.view.message.viewholder.SearchMessageViewHolder;
+import com.netease.yunxin.kit.chatkit.ui.view.message.viewholder.SearchMessageEmptyViewHolder;
 import com.netease.yunxin.kit.common.ui.viewholder.BaseViewHolder;
 import com.netease.yunxin.kit.common.ui.viewholder.IViewHolderFactory;
 import com.netease.yunxin.kit.common.ui.viewholder.ViewHolderClickListener;
@@ -79,9 +78,15 @@ public class SearchMessageAdapter extends RecyclerView.Adapter<BaseViewHolder> {
   @NonNull
   @Override
   public BaseViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-    return new SearchMessageViewHolder(
-        ChatSearchItemLayoutBinding.inflate(
-            LayoutInflater.from(parent.getContext()), parent, false));
+    BaseViewHolder baseViewHolder = null;
+    if (viewHolderFactory != null) {
+      baseViewHolder = viewHolderFactory.createViewHolder(parent, viewType);
+    }
+    if (baseViewHolder == null) {
+      TextView emptyTv = new TextView(parent.getContext());
+      baseViewHolder = new SearchMessageEmptyViewHolder(emptyTv);
+    }
+    return baseViewHolder;
   }
 
   @Override
@@ -89,11 +94,6 @@ public class SearchMessageAdapter extends RecyclerView.Adapter<BaseViewHolder> {
     holder.onBindData(dataList.get(position), position);
     holder.setItemOnClickListener(clickListener);
   }
-
-  //    @Override
-  //    public int getItemViewType(int position) {
-  //        return dataList.get(position).viewType;
-  //    }
 
   @Override
   public int getItemCount() {

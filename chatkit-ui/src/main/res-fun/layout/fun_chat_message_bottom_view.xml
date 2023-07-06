@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (c) 2022 NetEase, Inc. All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be
+  ~ found in the LICENSE file.
+  -->
+
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/chat_message_input_root"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/fun_chat_input_bg_color">
+
+    <LinearLayout
+        android:id="@+id/inputBarLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:paddingTop="@dimen/dimen_7_dp"
+        android:paddingBottom="@dimen/dimen_20_dp">
+
+        <FrameLayout
+            android:id="@+id/inputLeftLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginStart="@dimen/dimen_10_dp"
+            android:layout_marginEnd="@dimen/dimen_10_dp"
+            android:layout_marginBottom="@dimen/dimen_4_dp">
+
+            <RadioButton
+                android:id="@+id/inputAudioRb"
+                android:layout_width="@dimen/dimen_32_dp"
+                android:layout_height="@dimen/dimen_32_dp"
+                android:layout_gravity="bottom"
+                android:background="@drawable/fun_ic_chat_input_audio_selector"
+                android:button="@null"
+                android:checked="false"
+                android:clickable="false" />
+        </FrameLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <com.netease.yunxin.kit.common.ui.widgets.RoundFrameLayout
+                android:id="@+id/inputLayout"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dimen_40_dp"
+                android:background="@color/color_white"
+                app:corner_radius="@dimen/dimen_4_dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/replyLayout">
+
+                <EditText
+                    android:id="@+id/inputEt"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@null"
+                    android:ellipsize="end"
+                    android:imeOptions="actionSend"
+                    android:inputType="text"
+                    android:maxLength="2000"
+                    android:paddingStart="@dimen/dimen_12_dp"
+                    android:paddingEnd="@dimen/dimen_12_dp"
+                    android:singleLine="true"
+                    android:hint="@string/fun_chat_input_hint_tips"
+                    android:textColorHint="@color/color_b3b7bc"
+                    android:textCursorDrawable="@null"
+                    android:textSize="@dimen/text_size_16"
+                    tools:ignore="LabelFor" />
+
+                <TextView android:id="@+id/inputAudioTv"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:textSize="@dimen/text_size_16"
+                    android:gravity="center"
+                    android:text="@string/chat_input_audio_record_title"
+                    android:textColor="@color/fun_chat_input_send_audio_color"
+                    android:visibility="gone"
+                    android:textStyle="bold"
+                    android:background="@color/color_white"
+                    android:clickable="true"
+                    android:focusable="true" />
+
+                <TextView android:id="@+id/inputMuteTv"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="@string/chat_team_all_mute"
+                    android:gravity="center_vertical"
+                    android:paddingStart="@dimen/dimen_12_dp"
+                    android:background="@color/color_e3e4e4"
+                    android:visibility="gone"/>
+
+
+            </com.netease.yunxin.kit.common.ui.widgets.RoundFrameLayout>
+            <com.netease.yunxin.kit.common.ui.widgets.RoundFrameLayout
+                android:id="@+id/replyLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/fun_chat_input_reply_bg_color"
+                android:gravity="center_vertical"
+                android:visibility="gone"
+                android:layout_marginTop="@dimen/dimen_7_dp"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:corner_radius="@dimen/dimen_2_dp"
+                android:layout_marginBottom="@dimen/dimen_4_dp"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <TextView
+                    android:id="@+id/replyContentTv"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="2"
+                    android:textColor="@color/fun_chat_input_reply_text_color"
+                    android:textSize="@dimen/text_size_12"
+                    android:padding="@dimen/dimen_8_dp"
+                    android:layout_marginEnd="@dimen/dimen_20_dp"/>
+
+                <ImageView
+                    android:id="@+id/replyCloseIv"
+                    android:layout_width="@dimen/dimen_16_dp"
+                    android:layout_height="@dimen/dimen_16_dp"
+                    android:src="@drawable/fun_ic_chat_input_reply_close"
+                    android:layout_marginEnd="@dimen/dimen_7_dp"
+                    android:layout_gravity="end|center_vertical"/>
+
+            </com.netease.yunxin.kit.common.ui.widgets.RoundFrameLayout>
+
+
+        </LinearLayout>
+
+        <FrameLayout
+            android:id="@+id/inputRightLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginStart="@dimen/dimen_10_dp"
+            android:layout_marginEnd="@dimen/dimen_10_dp"
+            android:layout_marginBottom="@dimen/dimen_4_dp">
+
+            <RadioButton
+                android:id="@+id/inputEmojiRb"
+                android:layout_width="@dimen/dimen_32_dp"
+                android:layout_height="@dimen/dimen_32_dp"
+                android:layout_gravity="bottom"
+                android:background="@drawable/fun_ic_chat_input_emoji_selector"
+                android:button="@null"
+                android:checked="false"
+                android:clickable="false" />
+
+            <RadioButton
+                android:id="@+id/inputMoreRb"
+                android:layout_width="@dimen/dimen_32_dp"
+                android:layout_height="@dimen/dimen_32_dp"
+                android:layout_gravity="bottom"
+                android:layout_marginStart="@dimen/dimen_46_dp"
+                android:background="@drawable/fun_ic_chat_input_more_selector"
+                android:button="@null"
+                android:checked="false"
+                android:clickable="false" />
+
+        </FrameLayout>
+    </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/inputMoreLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/inputBarLayout">
+
+        <com.netease.yunxin.kit.chatkit.ui.view.emoji.EmojiPickerView
+            android:id="@+id/emojiPickerView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone" />
+
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/actionsPanelVp"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dimen_188_dp"
+            android:visibility="gone" />
+    </FrameLayout>
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/chat_message_edit_input"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:constraint_referenced_ids="inputBarLayout" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

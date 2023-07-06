@@ -28,6 +28,7 @@ import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.corekit.event.EventCenter;
+import com.netease.yunxin.kit.corekit.im.IMKitClient;
 import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
 import com.netease.yunxin.kit.corekit.im.repo.SettingRepo;
 import java.util.ArrayList;
@@ -117,9 +118,10 @@ public class ChatPinViewModel extends BaseViewModel {
           public void onFailed(int code) {
             if (code == ChatKitUIConstant.ERROR_CODE_NETWORK) {
               ToastX.showShortToast(R.string.chat_network_error_tips);
-            } else {
-              ToastX.showShortToast(R.string.chat_remove_pin_error_tips);
             }
+            //            else {
+            //              ToastX.showShortToast(R.string.chat_remove_pin_error_tips);
+            //            }
           }
 
           @Override
@@ -144,7 +146,11 @@ public class ChatPinViewModel extends BaseViewModel {
       return null;
     }
     Collections.sort(
-        messageList, (o1, o2) -> (int) (o2.getMessage().getTime() - o1.getMessage().getTime()));
+        messageList,
+        (o1, o2) -> {
+          long time = o1.getMessage().getTime() - o2.getMessage().getTime();
+          return time == 0L ? 0 : (time > 0 ? -1 : 1);
+        });
     ArrayList<ChatMessageBean> result = new ArrayList<>(messageList.size());
     for (IMMessageInfo message : messageList) {
       result.add(new ChatMessageBean(message));
@@ -156,7 +162,14 @@ public class ChatPinViewModel extends BaseViewModel {
 
   private final Observer<MsgPinSyncResponseOption> removePinObserver =
       msgPinOption -> {
-        if (msgPinOption != null) {
+        if (msgPinOption != null && inSameSession(msgPinOption)) {
+          ALog.d(
+              LIB_TAG,
+              TAG,
+              "removePinObserver:"
+                  + msgPinOption.getKey().getToAccount()
+                  + "sessionID:"
+                  + mSessionId);
           String uuid = msgPinOption.getKey().getUuid();
           if (!TextUtils.isEmpty(uuid)) {
             removePinResult.setData(uuid);
@@ -166,23 +179,42 @@ public class ChatPinViewModel extends BaseViewModel {
       };
 
   private void fillPinMessage(MsgPinSyncResponseOption option) {
-    List<MsgPinSyncResponseOption> pinList = new ArrayList<>();
-    pinList.add(option);
-    ChatRepo.fillPinMessage(
-        pinList,
-        new FetchCallback<List<IMMessageInfo>>() {
-          @Override
-          public void onSuccess(@Nullable List<IMMessageInfo> param) {
-            addFetchResult.setLoadStatus(LoadStatus.Success);
-            addFetchResult.setData(convert(param));
-            addLiveData.setValue(addFetchResult);
-          }
+    if (option != null && inSameSession(option)) {
+      List<MsgPinSyncResponseOption> pinList = new ArrayList<>();
+      pinList.add(option);
+      ChatRepo.fillPinMessage(
+          pinList,
+          new FetchCallback<List<IMMessageInfo>>() {
+            @Override
+            public void onSuccess(@Nullable List<IMMessageInfo> param) {
+              addFetchResult.setLoadStatus(LoadStatus.Success);
+              addFetchResult.setData(convert(param));
+              addLiveData.setValue(addFetchResult);
+            }
 
-          @Override
-          public void onFailed(int code) {}
+            @Override
+            public void onFailed(int code) {}
 
-          @Override
-          public void onException(@Nullable Throwable exception) {}
-        });
+            @Override
+            public void onException(@Nullable Throwable exception) {}
+          });
+    }
+  }
+
+  private boolean inSameSession(MsgPinSyncResponseOption option) {
+    if (option == null
+        || mSessionType == null
+        || TextUtils.isEmpty(mSessionId)
+        || mSessionType != option.getKey().getSessionType()) {
+      return false;
+    }
+    return (SessionTypeEnum.P2P == option.getKey().getSessionType()
+            && TextUtils.equals(mSessionId, option.getKey().getFromAccount())
+            && TextUtils.equals(IMKitClient.account(), option.getKey().getToAccount()))
+        || (SessionTypeEnum.P2P == option.getKey().getSessionType()
+            && TextUtils.equals(mSessionId, option.getKey().getToAccount())
+            && TextUtils.equals(IMKitClient.account(), option.getKey().getFromAccount()))
+        || (SessionTypeEnum.Team == option.getKey().getSessionType()
+            && TextUtils.equals(mSessionId, option.getKey().getToAccount()));
   }
 }

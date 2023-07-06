@@ -12,18 +12,21 @@ import android.text.InputFilter;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import com.netease.yunxin.app.im.AppSkinConfig;
 import com.netease.yunxin.app.im.R;
 import com.netease.yunxin.app.im.databinding.ActivityEditNicknameBinding;
 import com.netease.yunxin.app.im.utils.Constant;
+import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
 import com.netease.yunxin.kit.common.ui.utils.ToastX;
+import com.netease.yunxin.kit.common.utils.SizeUtils;
 import com.netease.yunxin.kit.corekit.im.IMKitClient;
 import com.netease.yunxin.kit.corekit.im.model.UserField;
 import com.netease.yunxin.kit.corekit.im.model.UserInfo;
@@ -32,7 +35,7 @@ import com.netease.yunxin.kit.corekit.im.repo.CommonRepo;
 import java.util.HashMap;
 import java.util.Map;
 
-public class EditUserInfoActivity extends AppCompatActivity {
+public class EditUserInfoActivity extends BaseActivity {
   private ActivityEditNicknameBinding binding;
   private String editType = Constant.EDIT_NAME;
   private UserField userField = UserField.Name;
@@ -74,11 +77,19 @@ public class EditUserInfoActivity extends AppCompatActivity {
 
                 @Override
                 public void onFailed(int code) {
-                  Toast.makeText(
-                          getApplicationContext(),
-                          getString(R.string.request_fail) + code,
-                          Toast.LENGTH_SHORT)
-                      .show();
+                  if (code == Constant.NETWORK_ERROR_CODE) {
+                    Toast.makeText(
+                            getApplicationContext(),
+                            getString(R.string.network_error),
+                            Toast.LENGTH_SHORT)
+                        .show();
+                  } else {
+                    Toast.makeText(
+                            getApplicationContext(),
+                            getString(R.string.request_fail) + code,
+                            Toast.LENGTH_SHORT)
+                        .show();
+                  }
                 }
 
                 @Override
@@ -92,9 +103,46 @@ public class EditUserInfoActivity extends AppCompatActivity {
               });
         });
 
+    binding.etNickname.addTextChangedListener(
+        new TextWatcher() {
+          @Override
+          public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+          @Override
+          public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+          @Override
+          public void afterTextChanged(Editable s) {
+            //            if (TextUtils.isEmpty(String.valueOf(s))) {
+            //              binding.ivClear.setVisibility(View.GONE);
+            //              binding.tvDone.setEnabled(false);
+            //              binding.tvDone.setAlpha(0.5f);
+            //            } else {
+            //              binding.ivClear.setVisibility(View.VISIBLE);
+            //              binding.tvDone.setEnabled(true);
+            //              binding.tvDone.setAlpha(1f);
+            //            }
+          }
+        });
+
     binding.etNickname.requestFocus();
 
     binding.ivClear.setOnClickListener(v -> binding.etNickname.setText(null));
+    if (AppSkinConfig.getInstance().getAppSkinStyle() == AppSkinConfig.AppSkin.commonSkin) {
+      setCommonSkin();
+    }
+  }
+
+  private void setCommonSkin() {
+    changeStatusBarColor(R.color.color_ededed);
+    binding.clyRoot.setBackgroundResource(R.color.color_ededed);
+    binding.tvDone.setTextColor(getResources().getColor(R.color.color_58be6b));
+
+    binding.etNickname.setBackgroundResource(R.color.color_white);
+    ViewGroup.MarginLayoutParams layoutParamsS =
+        (ViewGroup.MarginLayoutParams) binding.etNickname.getLayoutParams();
+    layoutParamsS.setMargins(0, SizeUtils.dp2px(6), 0, 0);
+    binding.etNickname.setLayoutParams(layoutParamsS);
   }
 
   private void loadData() {
@@ -131,7 +179,7 @@ public class EditUserInfoActivity extends AppCompatActivity {
     if (TextUtils.equals(Constant.EDIT_NAME, editType)) {
       remoteInfo = userInfo.getName();
       userField = UserField.Name;
-      binding.etNickname.setFilters(new InputFilter[] {new InputFilter.LengthFilter(30)});
+      binding.etNickname.setFilters(new InputFilter[] {new InputFilter.LengthFilter(15)});
       binding.tvTitle.setText(R.string.user_info_nickname);
     } else if (TextUtils.equals(Constant.EDIT_SIGN, editType)) {
       remoteInfo = userInfo.getSignature();

@@ -42,12 +42,14 @@ import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.model.MessageDynamicallyResult;
 import com.netease.yunxin.kit.chatkit.repo.ChatObserverRepo;
 import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
+import com.netease.yunxin.kit.chatkit.repo.ContactObserverRepo;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatCallback;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatUserCache;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatUtils;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
+import com.netease.yunxin.kit.chatkit.ui.custom.ChatConfigManager;
 import com.netease.yunxin.kit.chatkit.ui.model.AnchorScrollInfo;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.model.PinEvent;
@@ -80,12 +82,13 @@ import java.util.Map;
 /** chat info view model fetch and send messages for chat page */
 public abstract class ChatBaseViewModel extends BaseViewModel {
   public static final String TAG = "ChatViewModel";
-  //拉取历史消息
+  private static final int RES_IN_BLACK_LIST = 7101;
+  // 拉取历史消息
   private final MutableLiveData<FetchResult<List<ChatMessageBean>>> messageLiveData =
       new MutableLiveData<>();
   private final FetchResult<List<ChatMessageBean>> messageFetchResult =
       new FetchResult<>(LoadStatus.Finish);
-  //接受消息
+  // 接受消息
   private final MutableLiveData<FetchResult<List<ChatMessageBean>>> messageRecLiveData =
       new MutableLiveData<>();
   private final FetchResult<List<ChatMessageBean>> messageRecFetchResult =
@@ -105,6 +108,8 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
   private final MutableLiveData<FetchResult<AttachmentProgress>> attachmentProgressMutableLiveData =
       new MutableLiveData<>();
   private final MutableLiveData<FetchResult<ChatMessageBean>> revokeMessageLiveData =
+      new MutableLiveData<>();
+  private final MutableLiveData<FetchResult<ChatMessageBean>> deleteMessageLiveData =
       new MutableLiveData<>();
 
   protected String mSessionId;
@@ -177,15 +182,44 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
         attachmentProgressMutableLiveData.setValue(result);
       };
 
-  //他人撤回消息底层会收到通知进行处理，并保存到本地。当前账号的撤回需要自行处理
+  private final EventObserver<IMMessageInfo> deleteMsgObserver =
+      new EventObserver<IMMessageInfo>() {
+        @Override
+        public void onEvent(@Nullable IMMessageInfo event) {
+          ALog.d(
+              LIB_TAG,
+              TAG,
+              "msg delete -->> " + (event == null ? "null" : event.getMessage().getUuid()));
+          if (event != null && TextUtils.equals(event.getMessage().getSessionId(), mSessionId)) {
+            ChatMessageBean messageBean =
+                new ChatMessageBean(new IMMessageInfo(event.getMessage()));
+            FetchResult<ChatMessageBean> result = new FetchResult<>(LoadStatus.Success);
+            result.setData(messageBean);
+            result.setType(FetchResult.FetchType.Remove);
+            result.setTypeIndex(-1);
+            deleteMessageLiveData.setValue(result);
+          }
+        }
+      };
+
+  // 他人撤回消息底层会收到通知进行处理，并保存到本地。当前账号的撤回需要自行处理
   private final Observer<RevokeMsgNotification> revokeMsgObserver =
       revokeMsgNotification -> {
         ALog.d(LIB_TAG, TAG, "revokeMsgObserver");
         ChatMessageBean messageBean =
             new ChatMessageBean(new IMMessageInfo(revokeMsgNotification.getMessage()));
-        FetchResult<ChatMessageBean> fetchResult = new FetchResult<>(LoadStatus.Success);
-        fetchResult.setData(messageBean);
-        revokeMessageLiveData.setValue(fetchResult);
+        if (ChatConfigManager.enableInsertLocalMsgWhenRevoke) {
+          messageBean.revokeMsgEdit = false;
+          FetchResult<ChatMessageBean> fetchResult = new FetchResult<>(LoadStatus.Success);
+          fetchResult.setData(messageBean);
+          revokeMessageLiveData.setValue(fetchResult);
+        } else {
+          FetchResult<ChatMessageBean> result = new FetchResult<>(LoadStatus.Success);
+          result.setData(messageBean);
+          result.setType(FetchResult.FetchType.Remove);
+          result.setTypeIndex(-1);
+          deleteMessageLiveData.setValue(result);
+        }
       };
 
   private final UserInfoObserver userInfoObserver =
@@ -272,8 +306,58 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
     return msgPinLiveData;
   }
 
-  public void deleteMessage(IMMessageInfo messageInfo) {
-    ChatRepo.deleteMessage(messageInfo);
+  public MutableLiveData<FetchResult<ChatMessageBean>> getDeleteMessageLiveData() {
+    return deleteMessageLiveData;
+  }
+
+  public void deleteMessage(ChatMessageBean messageBean) {
+    ChatRepo.deleteMessage(
+        messageBean.getMessageData(),
+        null,
+        new FetchCallbackImpl<Long>() {
+          @Override
+          public void onSuccess(@Nullable Long param) {
+            doActionAfterDelete(messageBean);
+          }
+
+          @Override
+          public void onFailed(int code) {
+            if (messageBean.getMessageData().getMessage().getServerId() == 0L) {
+              ChatRepo.deleteMessageLocal(messageBean.getMessageData());
+              doActionAfterDelete(messageBean);
+            } else {
+              FetchResult<ChatMessageBean> fetchResult = new FetchResult<>(LoadStatus.Error);
+              fetchResult.setError(-1, R.string.chat_message_delete_error);
+              deleteMessageLiveData.setValue(fetchResult);
+              ALog.d(LIB_TAG, TAG, "deleteMessage,onFailed:" + code);
+            }
+          }
+
+          @Override
+          public void onException(@Nullable Throwable exception) {
+            if (messageBean.getMessageData().getMessage().getServerId() == 0L) {
+              ChatRepo.deleteMessageLocal(messageBean.getMessageData());
+              doActionAfterDelete(messageBean);
+            } else {
+              FetchResult<ChatMessageBean> fetchResult = new FetchResult<>(LoadStatus.Error);
+              fetchResult.setError(-1, R.string.chat_message_delete_error);
+              deleteMessageLiveData.setValue(fetchResult);
+              ALog.e(LIB_TAG, TAG, "deleteMessage,onException");
+            }
+          }
+        });
+  }
+
+  private void doActionAfterDelete(ChatMessageBean messageBean) {
+    if (!TextUtils.isEmpty(messageBean.getPinAccid())) {
+      ChatRepo.removeMessagePin(messageBean.getMessageData().getMessage(), null);
+    }
+    FetchResult<ChatMessageBean> result = new FetchResult<>(LoadStatus.Success);
+    result.setData(messageBean);
+    result.setType(FetchResult.FetchType.Remove);
+    result.setTypeIndex(-1);
+    deleteMessageLiveData.setValue(result);
+    ALog.d(LIB_TAG, TAG, "deleteMessage, onSuccess");
   }
 
   public void notifyFriendChange(FriendChangedNotify friendChangedNotify) {}
@@ -289,11 +373,22 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
               if (!TextUtils.isEmpty(messageBean.getPinAccid())) {
                 ChatRepo.removeMessagePin(messageBean.getMessageData().getMessage(), null);
               }
-              FetchResult<ChatMessageBean> fetchResult = new FetchResult<>(LoadStatus.Success);
-              fetchResult.setData(messageBean);
-              revokeMessageLiveData.setValue(fetchResult);
-              //他人撤回消息底层会收到通知进行处理，并保存到本地。当前账号的撤回需要自行处理
-              MessageHelper.saveLocalRevokeMessage(messageBean.getMessageData().getMessage());
+
+              if (ChatConfigManager.enableInsertLocalMsgWhenRevoke) {
+                FetchResult<ChatMessageBean> fetchResult = new FetchResult<>(LoadStatus.Success);
+                fetchResult.setData(messageBean);
+                //他人撤回消息底层会收到通知进行处理，并保存到本地。当前账号的撤回需要自行处理
+                MessageHelper.saveLocalRevokeMessage(
+                    messageBean.getMessageData().getMessage(), true);
+                revokeMessageLiveData.setValue(fetchResult);
+              } else {
+                FetchResult<ChatMessageBean> result = new FetchResult<>(LoadStatus.Success);
+                result.setData(messageBean);
+                result.setType(FetchResult.FetchType.Remove);
+                result.setTypeIndex(-1);
+                deleteMessageLiveData.setValue(result);
+              }
+
               ALog.d(LIB_TAG, TAG, "revokeMessage, onSuccess");
             }
 
@@ -372,10 +467,11 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
     ChatObserverRepo.registerAttachmentProgressObserve(attachmentProgressObserver);
     ChatObserverRepo.registerMessageSendingObserve(mSessionId, msgSendingObserver);
     ChatObserverRepo.registerRevokeMessageObserve(revokeMsgObserver);
-    ChatRepo.registerUserInfoObserver(userInfoObserver);
+    ContactObserverRepo.registerUserInfoObserver(userInfoObserver);
     ChatObserverRepo.registerAddMessagePinObserve(msgPinAddObserver);
     ChatObserverRepo.registerRemoveMessagePinObserve(msgPinRemoveObserver);
-    ChatObserverRepo.registerFriendInfoUpdateObserver(friendChangedObserver);
+    ContactObserverRepo.registerFriendInfoUpdateObserver(friendChangedObserver);
+    ChatObserverRepo.registerDeleteMsgSelfObserve(deleteMsgObserver);
     EventCenter.registerEventNotify(localPin);
   }
 
@@ -390,7 +486,8 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
     ChatRepo.unregisterUserInfoObserver(userInfoObserver);
     ChatObserverRepo.unregisterAddMessagePinObserve(msgPinAddObserver);
     ChatObserverRepo.unregisterRemoveMessagePinObserve(msgPinRemoveObserver);
-    ChatObserverRepo.unregisterFriendInfoUpdateObserver(friendChangedObserver);
+    ContactObserverRepo.unregisterFriendInfoUpdateObserver(friendChangedObserver);
+    ChatObserverRepo.unregisterDeleteMsgSelfObserve(deleteMsgObserver);
     EventCenter.unregisterEventNotify(localPin);
   }
 
@@ -519,7 +616,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
       }
     }
     if (ImageUtil.isValidPictureFile(mimeType)) {
-      SendMediaHelper.handleImage(uri, false, this::sendImageMessage);
+      SendMediaHelper.handleImage(uri, true, this::sendImageMessage);
     } else if (ImageUtil.isValidVideoFile(mimeType)) {
       SendMediaHelper.handleVideo(
           uri,
@@ -594,7 +691,18 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
       if (needACK && showRead) {
         message.setMsgAck();
       }
-      ChatRepo.sendMessage(message, resend, null);
+      ChatRepo.sendMessage(
+          message,
+          resend,
+          new FetchCallbackImpl<Void>() {
+
+            @Override
+            public void onFailed(int code) {
+              if (code == RES_IN_BLACK_LIST) {
+                MessageHelper.saveLocalBlackTipMessageAndNotify(message);
+              }
+            }
+          });
     }
   }
 
@@ -665,14 +773,13 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
               Map<String, MsgPinOption> pinInfoMap = new HashMap<>();
               for (MsgPinSyncResponseOption option : param.getMsgPinInfoList()) {
                 pinInfoMap.put(option.getKey().getUuid(), option.getPinOption());
+                ALog.d(LIB_TAG, TAG, "initFetch:fetchPinInfo:onSuccess");
               }
 
-              if (pinInfoMap.size() > 0) {
-                msgPinFetchResult.setLoadStatus(LoadStatus.Finish);
-                msgPinFetchResult.setFetchType(FetchResult.FetchType.Update);
-                msgPinFetchResult.setData(pinInfoMap);
-                msgPinLiveData.setValue(msgPinFetchResult);
-              }
+              msgPinFetchResult.setLoadStatus(LoadStatus.Finish);
+              msgPinFetchResult.setFetchType(FetchResult.FetchType.Update);
+              msgPinFetchResult.setData(pinInfoMap);
+              msgPinLiveData.setValue(msgPinFetchResult);
             }
           }
 
@@ -803,7 +910,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
     return result;
   }
 
-  //**********reply message**************
+  // **********reply message**************
   public void replyMessage(IMMessage message, IMMessage replyMsg, boolean resend) {
     ALog.d(LIB_TAG, TAG, "replyMessage,message" + (message == null ? "null" : message.getUuid()));
     if (message == null) {
@@ -830,7 +937,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
     replyMessage(textMsg, message, false);
   }
 
-  //**********Message Pin****************
+  // **********Message Pin****************
 
   private void appendTeamMemberPush(IMMessage message, List<String> pushList) {
     ALog.d(
@@ -853,7 +960,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
     }
   }
 
-  //********************Message Pin********************
+  // ********************Message Pin********************
 
   private final MutableLiveData<Pair<String, MsgPinOption>> addPinMessageLiveData =
       new MutableLiveData<>();

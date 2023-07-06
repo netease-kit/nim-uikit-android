@@ -19,6 +19,8 @@ import com.netease.yunxin.kit.chatkit.model.IMTeamMessageReceiptInfo;
 import com.netease.yunxin.kit.chatkit.model.UserInfoWithTeam;
 import com.netease.yunxin.kit.chatkit.repo.ChatObserverRepo;
 import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
+import com.netease.yunxin.kit.chatkit.repo.TeamObserverRepo;
+import com.netease.yunxin.kit.chatkit.repo.TeamRepo;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatUserCache;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
@@ -86,7 +88,7 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
   private final Observer<List<TeamMember>> teamMemberUpdateObserver =
       teamMemberList -> {
         ALog.d(LIB_TAG, TAG, "teamMemberUpdateObserver:" + teamMemberList.size());
-        ChatRepo.fillTeamMemberList(
+        TeamRepo.fillTeamMemberList(
             teamMemberList,
             new FetchCallback<List<UserInfoWithTeam>>() {
               @Override
@@ -180,9 +182,9 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
   public void registerObservers() {
     super.registerObservers();
     ChatObserverRepo.registerTeamMessageReceiptObserve(teamMessageReceiptObserver);
-    ChatObserverRepo.registerTeamUpdateObserver(teamObserver);
-    ChatObserverRepo.registerTeamRemoveObserver(teamRemoveObserver);
-    ChatObserverRepo.registerTeamMemberUpdateObserver(teamMemberUpdateObserver);
+    TeamObserverRepo.registerTeamUpdateObserver(teamObserver);
+    TeamObserverRepo.registerTeamRemoveObserver(teamRemoveObserver);
+    TeamObserverRepo.registerTeamMemberUpdateObserver(teamMemberUpdateObserver);
     EventCenter.registerEventNotify(teamDismissNotify);
   }
 
@@ -190,9 +192,9 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
   public void unregisterObservers() {
     super.unregisterObservers();
     ChatObserverRepo.unregisterTeamMessageReceiptObserve(teamMessageReceiptObserver);
-    ChatObserverRepo.unregisterTeamUpdateObserver(teamObserver);
-    ChatObserverRepo.unregisterTeamRemoveObserver(teamRemoveObserver);
-    ChatObserverRepo.unregisterTeamMemberUpdateObserver(teamMemberUpdateObserver);
+    TeamObserverRepo.unregisterTeamUpdateObserver(teamObserver);
+    TeamObserverRepo.unregisterTeamRemoveObserver(teamRemoveObserver);
+    TeamObserverRepo.unregisterTeamMemberUpdateObserver(teamMemberUpdateObserver);
     EventCenter.unregisterEventNotify(teamDismissNotify);
   }
 
@@ -206,7 +208,7 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
 
   public void requestTeamInfo(String teamId) {
     ALog.d(LIB_TAG, TAG, "requestTeamInfo:" + teamId);
-    ChatRepo.fetchTeamInfo(
+    TeamRepo.getTeamInfo(
         teamId,
         new FetchCallback<Team>() {
           @Override
@@ -230,7 +232,7 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
 
   public void requestTeamMembers(String teamId) {
     ALog.d(LIB_TAG, TAG, "requestTeamMembers:" + teamId);
-    ChatRepo.queryTeamMemberList(
+    TeamRepo.queryTeamMemberListWithUserInfo(
         teamId,
         new FetchCallback<List<UserInfoWithTeam>>() {
           @Override

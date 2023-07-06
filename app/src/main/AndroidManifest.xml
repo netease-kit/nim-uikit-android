@@ -53,17 +53,18 @@
         android:roundIcon="@mipmap/ic_logo"
         android:supportsRtl="true"
         android:requestLegacyExternalStorage="true"
+        android:allowNativeHeapPointerTagging="false"
         android:networkSecurityConfig="@xml/network_security_config"
         android:theme="@style/Theme.Xkit">
         <meta-data
             android:name="com.netease.nim.appKey"
-            android:value="appKey" />
+            android:value="your appKey" />
         <meta-data
             android:name="com.netease.nim.oversea.appKey"
-            android:value="appKey" />
+            android:value="your appKey" />
         <meta-data
             android:name="com.amap.api.v2.apikey"
-            android:value="apikey" />
+            android:value="your apikey" />
 
         <activity android:name=".welcome.WelcomeActivity"
             android:screenOrientation="portrait"
@@ -108,6 +109,11 @@
 
         <activity
             android:name=".main.mine.setting.SettingActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+
+        <activity
+            android:name=".main.mine.setting.SkinActivity"
             android:screenOrientation="portrait"
             android:exported="false" />
 
@@ -222,7 +228,8 @@
             android:resource="@color/color_blue_3a9efb"/>
 
         <!--魅族推送配置项-->
-        <receiver android:name="com.netease.nimlib.mixpush.mz.MZPushReceiver">
+        <receiver android:name="com.netease.nimlib.mixpush.mz.MZPushReceiver"
+            android:exported="true">
             <intent-filter android:priority="0x7fffffff">
                 <!-- 接收 push 消息 -->
                 <action android:name="com.meizu.flyme.push.intent.MESSAGE" />

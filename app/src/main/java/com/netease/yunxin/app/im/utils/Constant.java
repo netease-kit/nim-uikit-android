@@ -26,4 +26,6 @@ public class Constant {
   public static final String SERVER_CONFIG_FILE = "imkit_config_info";
   public static final int CHINA_CONFIG = 0;
   public static final int OVERSEA_CONFIG = 1;
+
+  public static final int NETWORK_ERROR_CODE = 415;
 }

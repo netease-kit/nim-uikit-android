@@ -4,11 +4,11 @@
   ~ found in the LICENSE file.
   -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.netease.yunxin.kit.common.ui.widgets.RoundFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/bg_ait_dialog"
+    android:background="@color/color_white"
     android:orientation="vertical">
 
     <FrameLayout
@@ -36,7 +36,8 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/contact_list"
+        android:layout_marginTop="@dimen/dimen_48_dp"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-</LinearLayout>
+</com.netease.yunxin.kit.common.ui.widgets.RoundFrameLayout>

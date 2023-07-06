@@ -4,8 +4,8 @@
 
 package com.netease.yunxin.kit.conversationkit.ui;
 
-import com.netease.yunxin.kit.conversationkit.ui.view.ConversationLayout;
+import com.netease.yunxin.kit.conversationkit.ui.page.ConversationBaseFragment;
 
 public interface IConversationViewLayout {
-  void customizeConversationLayout(final ConversationLayout layout);
+  void customizeConversationLayout(final ConversationBaseFragment fragment);
 }

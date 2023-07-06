@@ -14,6 +14,8 @@
     <dimen name="dimen_74_dp">74dp</dimen>
     <dimen name="dimen_100_dp">100dp</dimen>
     <dimen name="dimen_18_dp">18dp</dimen>
+    <dimen name="dimen_8_dp">8dp</dimen>
+    <dimen name="dimen_14_dp">14dp</dimen>
 
     <dimen name="text_size_12">12sp</dimen>
 </resources>

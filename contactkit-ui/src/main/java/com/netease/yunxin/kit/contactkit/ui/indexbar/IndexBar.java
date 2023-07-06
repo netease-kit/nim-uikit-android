@@ -179,6 +179,10 @@ public class IndexBar extends View {
     mDataHelper = new IndexBarDataHelperImpl();
   }
 
+  public void configIndexTextBGColor(int color) {
+    backgroundPaint.setColor(color);
+  }
+
   @Override
   protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
     //get Mode and Size

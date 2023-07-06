@@ -6,43 +6,42 @@ package com.netease.yunxin.kit.conversationkit.ui;
 
 import android.graphics.drawable.Drawable;
 import android.view.View;
-import com.netease.yunxin.kit.conversationkit.model.ConversationInfo;
+import com.netease.yunxin.kit.chatkit.model.ConversationInfo;
 import java.util.Comparator;
 
 public class ConversationUIConfig {
 
-  public static int INT_DEFAULT_NULL = -1;
-
-  public int teamMemberLimit = INT_DEFAULT_NULL;
+  public static Integer INT_DEFAULT_NULL = 0;
   public boolean showTitleBar = true;
   public boolean showTitleBarLeftIcon = true;
   public boolean showTitleBarRightIcon = true;
   public boolean showTitleBarRight2Icon = true;
 
-  public int titleBarLeftRes = INT_DEFAULT_NULL;
-  public int titleBarRightRes = INT_DEFAULT_NULL;
-  public int titleBarRight2Res = INT_DEFAULT_NULL;
+  public Integer titleBarLeftRes = null;
+  public Integer titleBarRightRes = null;
+  public Integer titleBarRight2Res = null;
 
   public String titleBarTitle;
-  public int titleBarTitleColor = INT_DEFAULT_NULL;
+  public Integer titleBarTitleColor = null;
 
-  public int itemTitleColor = INT_DEFAULT_NULL;
-  public int itemTitleSize = INT_DEFAULT_NULL;
-  public int itemContentColor = INT_DEFAULT_NULL;
-  public int itemContentSize = INT_DEFAULT_NULL;
-  public int itemDateColor = INT_DEFAULT_NULL;
-  public int itemDateSize = INT_DEFAULT_NULL;
+  public Integer itemTitleColor = null;
+  public Integer itemTitleSize = null;
+  public Integer itemContentColor = null;
+  public Integer itemContentSize = null;
+  public Integer itemDateColor = null;
+  public Integer itemDateSize = null;
 
   public View.OnClickListener titleBarRightClick;
+
   public View.OnClickListener titleBarRight2Click;
+
   public View.OnClickListener titleBarLeftClick;
   public ItemClickListener itemClickListener;
   public Comparator<ConversationInfo> conversationComparator;
   public IConversationFactory conversationFactory;
-  public float avatarCornerRadius = INT_DEFAULT_NULL;
+  public Float avatarCornerRadius = null;
   public Drawable itemStickTopBackground;
   public Drawable itemBackground;
   public ConversationCustom conversationCustom;
-
   public IConversationViewLayout customLayout;
 }

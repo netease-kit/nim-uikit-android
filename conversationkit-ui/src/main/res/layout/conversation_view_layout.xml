@@ -78,7 +78,7 @@
                     android:layout_width="@dimen/dimen_118_dp"
                     android:layout_height="@dimen/dimen_96_dp"
                     android:layout_gravity="center_horizontal"
-                    android:src="@drawable/ic_empty"/>
+                    android:src="@drawable/ic_conversation_empty"/>
 
                 <TextView android:id="@+id/empty_tv"
                     android:layout_width="wrap_content"

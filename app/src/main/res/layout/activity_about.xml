@@ -12,6 +12,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:ignore="MissingDefaultResource">
 
+    <com.netease.yunxin.kit.common.ui.widgets.BackTitleBar
+        android:id="@+id/about_title_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:ignore="MissingConstraints" />
+
     <ImageView android:id="@+id/about_logo_iv"
         android:layout_width="@dimen/dimen_46_dp"
         android:layout_height="@dimen/dimen_46_dp"

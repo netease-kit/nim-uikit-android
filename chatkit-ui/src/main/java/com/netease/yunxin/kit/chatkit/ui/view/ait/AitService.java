@@ -190,9 +190,6 @@ public class AitService {
               aitInfo.setSessionId(sessionId);
               aitInfo.setAccountId(IMKitClient.account());
             }
-            if (aitInfo.getMsgUidList() == null) {
-              aitInfo.setMsgUidList(new ArrayList<>());
-            }
             aitInfo.getMsgUidList().add(uuid);
             aitInfoMap.put(sessionId, aitInfo);
           }
@@ -211,7 +208,7 @@ public class AitService {
       if (aitInfoMapCache.containsKey(sessionId)) {
         AitInfo cacheAitInfo = aitInfoMapCache.get(sessionId);
         if (cacheAitInfo != null) {
-          cacheAitInfo.updateMsgUid(newAitInfo.getMsgUidList());
+          cacheAitInfo.addMsgUid(newAitInfo.getMsgUidList());
           updateList.add(cacheAitInfo);
           ALog.d(
               ChatKitUIConstant.LIB_TAG,

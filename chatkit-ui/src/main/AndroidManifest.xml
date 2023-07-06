@@ -45,31 +45,31 @@
         </provider>
 
         <activity
-            android:name="com.netease.yunxin.kit.chatkit.ui.page.ChatP2PActivity"
+            android:name="com.netease.yunxin.kit.chatkit.ui.normal.page.ChatP2PActivity"
             android:screenOrientation="portrait"
             android:launchMode="singleTask"
             />
 
         <activity
-            android:name="com.netease.yunxin.kit.chatkit.ui.page.ChatTeamActivity"
+            android:name="com.netease.yunxin.kit.chatkit.ui.normal.page.ChatTeamActivity"
             android:screenOrientation="portrait"
             android:launchMode="singleTask"
             />
 
         <activity
-            android:name="com.netease.yunxin.kit.chatkit.ui.page.ChatSettingActivity"
+            android:name="com.netease.yunxin.kit.chatkit.ui.normal.page.ChatSettingActivity"
             android:screenOrientation="portrait"
             android:launchMode="singleTop"
             />
 
         <activity
-            android:name="com.netease.yunxin.kit.chatkit.ui.page.ChatMessageAckActivity"
+            android:name="com.netease.yunxin.kit.chatkit.ui.normal.page.ChatReaderActivity"
             android:screenOrientation="portrait"
             android:launchMode="singleTop"
             />
 
         <activity
-            android:name="com.netease.yunxin.kit.chatkit.ui.page.ChatSearchActivity"
+            android:name="com.netease.yunxin.kit.chatkit.ui.normal.page.ChatSearchActivity"
             android:screenOrientation="portrait"
             android:launchMode="singleTop"
             />
@@ -87,11 +87,43 @@
         <activity
             android:name="com.netease.yunxin.kit.chatkit.ui.page.LocationPageActivity"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustResize"/>
+            android:windowSoftInputMode="adjustResize"
+            android:finishOnTaskLaunch="true"/>
         <activity
-            android:name="com.netease.yunxin.kit.chatkit.ui.page.ChatPinActivity"
+            android:name="com.netease.yunxin.kit.chatkit.ui.normal.page.ChatPinActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize"/>
+
+
+        <!-- Fun -->
+        <activity android:name=".fun.page.FunChatP2PActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize"
+            android:launchMode="singleTask"/>
+
+        <activity android:name=".fun.page.FunChatTeamActivity"
+            android:screenOrientation="portrait"
+            android:launchMode="singleTask"
+            android:windowSoftInputMode="adjustResize"/>
+
+        <activity android:name=".fun.page.FunChatPinActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize"/>
+
+        <activity android:name=".fun.page.FunChatSettingActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize"/>
+
+        <activity
+            android:name="com.netease.yunxin.kit.chatkit.ui.fun.page.FunChatSearchActivity"
+            android:screenOrientation="portrait"
+            android:launchMode="singleTop"
+            />
+        <activity
+            android:name="com.netease.yunxin.kit.chatkit.ui.fun.page.FunChatReaderActivity"
+            android:screenOrientation="portrait"
+            android:launchMode="singleTop"
+            />
 
         <provider
             android:name="com.netease.yunxin.kit.common.utils.CommonFileProvider"

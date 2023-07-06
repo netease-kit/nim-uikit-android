@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="fun_chat_audio_record_animator_max_width">315</dimen>
+</resources>

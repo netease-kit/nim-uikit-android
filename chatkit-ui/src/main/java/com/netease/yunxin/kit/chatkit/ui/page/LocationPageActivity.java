@@ -114,12 +114,11 @@ public class LocationPageActivity extends BaseActivity {
     binding.mapLocation.setVisibility(View.GONE);
     binding.mapDetail.setVisibility(View.GONE);
     binding.mapViewEmpty.setVisibility(View.VISIBLE);
-    binding.mapViewSendLayer.setVisibility(View.VISIBLE);
+    binding.mapViewSend.setBackgroundResource(R.drawable.bg_corner_button_unclick);
   }
 
   private void initView(Bundle savedInstanceState) {
     binding.mapViewEmpty.setVisibility(View.GONE);
-    binding.mapViewSendLayer.setVisibility(View.GONE);
     if (launchType == LAUNCH_SEND) {
       renderForSend(savedInstanceState);
     } else {
@@ -192,6 +191,13 @@ public class LocationPageActivity extends BaseActivity {
     binding.mapViewCancel.setOnClickListener(v -> finish());
     binding.mapViewSend.setOnClickListener(
         v -> {
+          if (!NetworkUtils.isConnected()) {
+            return;
+          }
+          if (mSelectLoc == null) {
+            Toast.makeText(this, R.string.chat_location_send_empty, Toast.LENGTH_LONG).show();
+            return;
+          }
           ALog.d(LIB_TAG, TAG, "send location message:" + mSelectLoc);
           Intent result = new Intent();
           result.putExtra(SEND_LOCATION_RESULT, mSelectLoc);
@@ -254,7 +260,7 @@ public class LocationPageActivity extends BaseActivity {
           if (binding == null) {
             return;
           }
-          binding.mapViewSendLayer.setVisibility(View.GONE);
+          binding.mapViewSend.setBackgroundResource(R.drawable.bg_corner_button);
         }
 
         @Override
@@ -262,7 +268,7 @@ public class LocationPageActivity extends BaseActivity {
           if (binding == null) {
             return;
           }
-          binding.mapViewSendLayer.setVisibility(View.VISIBLE);
+          binding.mapViewSend.setBackgroundResource(R.drawable.bg_corner_button_unclick);
         }
       };
 
@@ -270,6 +276,11 @@ public class LocationPageActivity extends BaseActivity {
   protected void onResume() {
     super.onResume();
     pageMapProvider.getChatMap().onResume();
+    if (NetworkUtils.isConnected()) {
+      binding.mapViewSend.setBackgroundResource(R.drawable.bg_corner_button);
+    } else {
+      binding.mapViewSend.setBackgroundResource(R.drawable.bg_corner_button_unclick);
+    }
   }
 
   @Override
@@ -281,7 +292,8 @@ public class LocationPageActivity extends BaseActivity {
   @Override
   protected void onSaveInstanceState(@NonNull Bundle outState) {
     super.onSaveInstanceState(outState);
-    pageMapProvider.getChatMap().onSaveInstanceState(outState);
+    //    pageMapProvider.getChatMap().onSaveInstanceState(outState);
+    finish();
   }
 
   @Override

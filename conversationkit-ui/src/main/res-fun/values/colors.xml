@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="fun_conversation_page_bg_color">#ededed</color>
+    <color name="fun_conversation_secondary_page_bg_color">#ededed</color>
+    <color name="fun_conversation_search_text_color">#4d000000</color>
+    <color name="fun_conversation_item_bg_color">#ffffff</color>
+    <color name="fun_conversation_item_title_text_color">#333333</color>
+    <color name="fun_conversation_item_sub_title_text_color">#999999</color>
+    <color name="fun_conversation_item_time_text_color">#cccccc</color>
+    <color name="fun_conversation_item_divide_line_color">#d8d8d8</color>
+
+    <!-- 置顶会话背景色 -->
+    <color name="fun_conversation_item_stick_bg_color">#ededef</color>
+
+    <!-- 创建群聊和添加好友PopupWindow 字体颜色 -->
+    <color name="fun_conversation_add_pop_text_color">#ffffff</color>
+    <color name="fun_conversation_add_pop_bg_color">#4c4c4c</color>
+
+</resources>

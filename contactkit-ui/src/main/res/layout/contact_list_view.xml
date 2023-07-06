@@ -36,6 +36,7 @@
         android:visibility="gone" >
 
         <ImageView
+            android:id="@+id/emptyStateIv"
             android:layout_width="@dimen/dimen_120_dp"
             android:layout_height="@dimen/dimen_92_dp"
             android:src="@drawable/ic_contact_empty"

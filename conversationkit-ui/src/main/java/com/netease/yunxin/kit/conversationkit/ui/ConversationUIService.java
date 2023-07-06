@@ -6,12 +6,13 @@ package com.netease.yunxin.kit.conversationkit.ui;
 
 import android.content.Context;
 import androidx.annotation.NonNull;
-import com.netease.yunxin.kit.conversationkit.ConversationService;
-import com.netease.yunxin.kit.conversationkit.ui.page.ConversationActivity;
+import com.netease.yunxin.kit.chatkit.ChatService;
+import com.netease.yunxin.kit.conversationkit.ui.fun.page.FunConversationActivity;
+import com.netease.yunxin.kit.conversationkit.ui.normal.page.ConversationActivity;
 import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 
-public class ConversationUIService extends ConversationService {
+public class ConversationUIService extends ChatService {
 
   @NonNull
   @Override
@@ -27,8 +28,10 @@ public class ConversationUIService extends ConversationService {
 
   @NonNull
   @Override
-  public ConversationService create(@NonNull Context context) {
+  public ChatService create(@NonNull Context context) {
     XKitRouter.registerRouter(RouterConstant.PATH_CONVERSATION_PAGE, ConversationActivity.class);
+    XKitRouter.registerRouter(
+        RouterConstant.PATH_FUN_CONVERSATION_PAGE, FunConversationActivity.class);
     return this;
   }
 }

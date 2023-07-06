@@ -22,12 +22,18 @@ public class AitContactAdapter extends RecyclerView.Adapter<AitContactAdapter.Ai
   private List<UserInfoWithTeam> members;
   private OnItemSelectListener listener;
 
+  private AitContactConfig contactConfig;
+
   public void setMembers(List<UserInfoWithTeam> userInfoWithTeams) {
     this.members = userInfoWithTeams;
   }
 
   public void setOnItemSelectListener(OnItemSelectListener listener) {
     this.listener = listener;
+  }
+
+  public void setAitContactConfig(AitContactConfig config) {
+    contactConfig = config;
   }
 
   @NonNull
@@ -40,9 +46,20 @@ public class AitContactAdapter extends RecyclerView.Adapter<AitContactAdapter.Ai
 
   @Override
   public void onBindViewHolder(@NonNull AitContactHolder holder, int position) {
+
+    if (contactConfig != null) {
+      if (contactConfig.avatarCorner >= 0) {
+        holder.binding.contactHeader.setCornerRadius(contactConfig.avatarCorner);
+      }
+
+      if (contactConfig.nameColor != 0) {
+        holder.binding.contactName.setTextColor(contactConfig.nameColor);
+      }
+    }
+
     if (position == 0) {
       holder.binding.contactName.setText(R.string.chat_team_ait_all);
-      holder.binding.contactHeader.setCertainAvatar(R.drawable.ic_team_all);
+      holder.binding.contactHeader.setCertainAvatar(contactConfig.defaultAvatarRes);
       holder
           .binding
           .getRoot()
@@ -82,7 +99,7 @@ public class AitContactAdapter extends RecyclerView.Adapter<AitContactAdapter.Ai
     return (members == null ? 0 : members.size()) + 1;
   }
 
-  static class AitContactHolder extends RecyclerView.ViewHolder {
+  public static class AitContactHolder extends RecyclerView.ViewHolder {
     ChatMessageAitContactViewHolderBinding binding;
 
     public AitContactHolder(@NonNull ChatMessageAitContactViewHolderBinding binding) {
@@ -94,5 +111,18 @@ public class AitContactAdapter extends RecyclerView.Adapter<AitContactAdapter.Ai
   public interface OnItemSelectListener {
     /** @param item null: @All */
     void onSelect(UserInfoWithTeam item);
+  }
+
+  public static class AitContactConfig {
+    float avatarCorner;
+    int nameColor;
+
+    int defaultAvatarRes;
+
+    public AitContactConfig(float corner, int color, int avatarRes) {
+      avatarCorner = corner;
+      nameColor = color;
+      defaultAvatarRes = avatarRes;
+    }
   }
 }

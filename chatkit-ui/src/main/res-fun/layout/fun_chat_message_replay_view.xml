@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (c) 2022 NetEase, Inc. All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be
+  ~ found in the LICENSE file.
+  -->
+
+
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/tv_reply"
+    android:layout_width="wrap_content"
+    android:layout_gravity="end"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="@dimen/dimen_5_dp"
+    android:ellipsize="end"
+    android:maxLines="2"
+    android:layout_marginStart="@dimen/dimen_12_dp"
+    android:layout_marginEnd="@dimen/dimen_12_dp"
+    android:padding="@dimen/dimen_10_dp"
+    android:textColor="@color/color_666666"
+    android:background="@drawable/fun_message_replay_bg"
+    android:textSize="@dimen/text_size_13" />

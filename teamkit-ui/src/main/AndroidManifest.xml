@@ -20,31 +20,59 @@
         </provider>
 
         <activity
-            android:name=".activity.TeamSettingActivity"
+            android:name=".normal.activity.TeamSettingActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name=".activity.TeamInfoActivity"
+            android:name=".normal.activity.TeamInfoActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name=".activity.TeamUpdateNicknameActivity"
+            android:name=".normal.activity.TeamUpdateNicknameActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name=".activity.TeamMemberListActivity"
+            android:name=".normal.activity.TeamMemberListActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name=".activity.TeamUpdateIconActivity"
+            android:name=".normal.activity.TeamUpdateIconActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name=".activity.TeamUpdateNameActivity"
+            android:name=".normal.activity.TeamUpdateNameActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name=".activity.TeamUpdateIntroduceActivity"
+            android:name=".normal.activity.TeamUpdateIntroduceActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".fun.activity.FunTeamSettingActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".fun.activity.FunTeamInfoActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".fun.activity.FunTeamUpdateNicknameActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".fun.activity.FunTeamMemberListActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".fun.activity.FunTeamUpdateIconActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".fun.activity.FunTeamUpdateNameActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".fun.activity.FunTeamUpdateIntroduceActivity"
             android:screenOrientation="portrait" />
 
     </application>

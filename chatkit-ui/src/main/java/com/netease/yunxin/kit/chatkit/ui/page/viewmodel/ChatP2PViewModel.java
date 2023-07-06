@@ -20,6 +20,7 @@ import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.model.IMMessageReceiptInfo;
 import com.netease.yunxin.kit.chatkit.repo.ChatObserverRepo;
 import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
+import com.netease.yunxin.kit.chatkit.repo.ContactRepo;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatUserCache;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
@@ -37,6 +38,8 @@ public class ChatP2PViewModel extends ChatBaseViewModel {
   private static final String TAG = "ChatP2PViewModel";
 
   private static final String TYPE_STATE = "typing";
+
+  private long receiptTime = 0L;
 
   private final MutableLiveData<IMMessageReceiptInfo> messageReceiptLiveData =
       new MutableLiveData<>();
@@ -111,7 +114,7 @@ public class ChatP2PViewModel extends ChatBaseViewModel {
 
   public void getFriendInfo(String accId) {
     ALog.d(LIB_TAG, TAG, "getFriendInfo:" + accId);
-    ChatRepo.getFriendInfo(
+    ContactRepo.getFriendWithUserInfo(
         accId,
         new FetchCallback<FriendInfo>() {
           @Override
@@ -152,7 +155,8 @@ public class ChatP2PViewModel extends ChatBaseViewModel {
         LIB_TAG,
         TAG,
         "sendReceipt:" + (message == null ? "null" : message.getUuid() + message.needMsgAck()));
-    if (message != null && message.needMsgAck() && showRead) {
+    if (message != null && message.needMsgAck() && showRead && message.getTime() > receiptTime) {
+      receiptTime = message.getTime();
       ChatRepo.markP2PMessageRead(mSessionId, message);
     }
   }

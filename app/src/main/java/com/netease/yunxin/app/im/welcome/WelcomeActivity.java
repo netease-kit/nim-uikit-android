@@ -4,27 +4,30 @@
 
 package com.netease.yunxin.app.im.welcome;
 
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-
+import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.auth.LoginInfo;
+import com.netease.yunxin.app.im.BuildConfig;
 import com.netease.yunxin.app.im.IMApplication;
 import com.netease.yunxin.app.im.R;
 import com.netease.yunxin.app.im.databinding.ActivityWelcomeBinding;
 import com.netease.yunxin.app.im.main.MainActivity;
 import com.netease.yunxin.app.im.utils.Constant;
+import com.netease.yunxin.app.im.utils.DataUtils;
 import com.netease.yunxin.kit.alog.ALog;
+import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
 import com.netease.yunxin.kit.common.ui.utils.ToastX;
 import com.netease.yunxin.kit.corekit.im.IMKitClient;
 import com.netease.yunxin.kit.corekit.im.login.LoginCallback;
 
 /** Welcome Page is launch page */
-public class WelcomeActivity extends AppCompatActivity {
+public class WelcomeActivity extends BaseActivity {
 
   private static final String TAG = "WelcomeActivity";
   private ActivityWelcomeBinding activityWelcomeBinding;
@@ -36,7 +39,11 @@ public class WelcomeActivity extends AppCompatActivity {
     IMApplication.setColdStart(true);
     activityWelcomeBinding = ActivityWelcomeBinding.inflate(getLayoutInflater());
     setContentView(activityWelcomeBinding.getRoot());
-    startLogin();
+    if (TextUtils.isEmpty(NIMClient.getCurrentAccount())) {
+      startLogin();
+    } else {
+      showMainActivityAndFinish();
+    }
   }
 
   private void showMainActivityAndFinish() {
@@ -55,28 +62,54 @@ public class WelcomeActivity extends AppCompatActivity {
       //填入你的 account and token
       String account = "";
       String token = "";
-      LoginInfo loginInfo = LoginInfo.LoginInfoBuilder.loginInfoDefault(account,token).build();
 
       if (!TextUtils.isEmpty(account) && !TextUtils.isEmpty(token)) {
-          loginIM(loginInfo);
-      } else {
-          activityWelcomeBinding.appDesc.setVisibility(View.GONE);
-          activityWelcomeBinding.loginButton.setVisibility(View.VISIBLE);
-          activityWelcomeBinding.loginButton.setOnClickListener(view -> launchLoginPage());
-      }
+          loginIM(account,token);
+    } else {
+      showLoginView();
+    }
+  }
 
+  private void showLoginView() {
+    ALog.d(Constant.PROJECT_TAG, TAG, "showLoginView");
+    activityWelcomeBinding.appDesc.setVisibility(View.GONE);
+    activityWelcomeBinding.loginButton.setVisibility(View.VISIBLE);
+    activityWelcomeBinding.appBottomIcon.setVisibility(View.GONE);
+    activityWelcomeBinding.appBottomName.setVisibility(View.GONE);
+    activityWelcomeBinding.tvEmailLogin.setVisibility(View.VISIBLE);
+    activityWelcomeBinding.tvServerConfig.setVisibility(View.VISIBLE);
+    activityWelcomeBinding.vEmailLine.setVisibility(View.VISIBLE);
+    activityWelcomeBinding.loginButton.setOnClickListener(
+        view -> {
+
+          launchLoginPage();
+        });
+    activityWelcomeBinding.tvEmailLogin.setOnClickListener(
+        view -> {
+
+          launchLoginPage();
+        });
+    activityWelcomeBinding.tvServerConfig.setOnClickListener(
+        view -> {
+          Intent intent = new Intent(WelcomeActivity.this, ServerActivity.class);
+          startActivity(intent);
+        });
   }
 
   /** launch login activity */
   private void launchLoginPage() {
     ALog.d(Constant.PROJECT_TAG, TAG, "launchLoginPage");
-    ToastX.showShortToast("请在WelcomeActivity类startLogin方法添加账号信息即可进入");
+
   }
 
   /** when your own page login success, you should login IM SDK */
-  private void loginIM(LoginInfo loginInfo) {
+  private void loginIM(String account, String token) {
     ALog.d(Constant.PROJECT_TAG, TAG, "loginIM");
     activityWelcomeBinding.getRoot().setVisibility(View.GONE);
+    LoginInfo loginInfo =
+        LoginInfo.LoginInfoBuilder.loginInfoDefault(account, token)
+            .withAppKey(DataUtils.readAppKey(this))
+            .build();
     IMKitClient.loginIM(
         loginInfo,
         new LoginCallback<LoginInfo>() {

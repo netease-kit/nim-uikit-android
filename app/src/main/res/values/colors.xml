@@ -20,5 +20,12 @@
     <color name="color_eef1f4">#EEF1F4</color>
     <color name="color_eff1f4">#EFF1F4</color>
     <color name="transparent">#00000000</color>
+    <color name="fun_tab_checked_color">#58BE6B</color>
+
+    <color name="fun_page_bg_color">#ededed</color>
+    <color name="normal_page_bg_color">#FFFFFF</color>
+    <color name="color_101113">#101113</color>
+    <color name="color_ededed">#ededed</color>
+    <color name="color_58be6b">#58be6b</color>
 
 </resources>

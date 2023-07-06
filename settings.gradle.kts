@@ -34,7 +34,6 @@ dependencyResolutionManagement {
 
 rootProject.name = "im-uikit"
 include(":app")
-include(":searchkit-ui")
 include(":conversationkit-ui")
 include(":teamkit-ui")
 include(":contactkit-ui")

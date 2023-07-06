@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2022 NetEase, Inc. All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be
+  ~ found in the LICENSE file.
+  -->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/fun_chat_secondary_page_bg_color"
+    android:orientation="vertical">
+
+    <com.netease.yunxin.kit.common.ui.widgets.BackTitleBar
+        android:id="@+id/titleBarView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/color_white"/>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingVertical="@dimen/dimen_16_dp"
+        android:paddingHorizontal="@dimen/dimen_22_dp"
+        android:layout_marginTop="@dimen/dimen_1_dp"
+        android:background="@color/color_white">
+
+        <com.netease.yunxin.kit.common.ui.widgets.ContactAvatarView
+            android:id="@+id/avatarView"
+            android:layout_width="@dimen/dimen_50_dp"
+            android:layout_height="@dimen/dimen_50_dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:avatarCorner="@dimen/dimen_4_dp"
+            android:layout_marginTop="@dimen/dimen_6_dp"/>
+
+        <TextView
+            android:id="@+id/nameTv"
+            android:layout_width="@dimen/dimen_50_dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dimen_6_dp"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:gravity="center_horizontal"
+            android:textSize="@dimen/text_size_12"
+            android:textColor="@color/color_666666"
+            app:layout_constraintTop_toBottomOf="@id/avatarView"
+            app:layout_constraintLeft_toLeftOf="@id/avatarView"
+            app:layout_constraintRight_toRightOf="@id/avatarView" />
+
+        <ImageView
+            android:id="@+id/addIv"
+            android:layout_width="@dimen/dimen_50_dp"
+            android:layout_height="@dimen/dimen_50_dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintLeft_toRightOf="@id/avatarView"
+            android:src="@drawable/fun_ic_chat_setting_add"
+            android:layout_marginTop="@dimen/dimen_6_dp"
+            android:layout_marginStart="@dimen/dimen_16_dp" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="@dimen/dimen_16_dp"
+        android:background="@color/color_white"
+        android:layout_marginTop="@dimen/dimen_8_dp"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:id="@+id/pinLayout"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dimen_50_dp"
+            android:visibility="visible">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/chat_message_signal"
+                android:textColor="@color/color_666666"
+                android:textSize="@dimen/text_size_12"
+                android:layout_centerVertical="true" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:src="@drawable/ic_right_arrow"
+                android:layout_centerVertical="true" />
+        </RelativeLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dimen_1_dp"
+            android:background="@color/color_f5f8fc" />
+
+        <RelativeLayout
+            android:id="@+id/notifyLayout"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dimen_50_dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:text="@string/chat_message_open_message_notice"
+                android:textColor="@color/color_666666"
+                android:textSize="@dimen/text_size_12" />
+
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/notifySC"
+                android:layout_width="@dimen/dimen_60_dp"
+                android:layout_height="@dimen/dimen_20_dp"
+                android:clickable="false"
+                android:enabled="false"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:thumb="@drawable/fun_bg_switch_thumb_selector"
+                app:track="@drawable/fun_bg_switch_track_selector" />
+        </RelativeLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dimen_1_dp"
+            android:background="@color/color_f5f8fc" />
+
+        <RelativeLayout
+            android:id="@+id/stickTopLayout"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dimen_50_dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:text="@string/chat_message_set_top"
+                android:textColor="@color/color_666666"
+                android:textSize="@dimen/text_size_12" />
+
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/stickTopSC"
+                android:layout_width="@dimen/dimen_60_dp"
+                android:layout_height="@dimen/dimen_20_dp"
+                android:clickable="false"
+                android:enabled="false"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:thumb="@drawable/fun_bg_switch_thumb_selector"
+                app:track="@drawable/fun_bg_switch_track_selector" />
+        </RelativeLayout>
+
+
+    </LinearLayout>
+
+</LinearLayout>

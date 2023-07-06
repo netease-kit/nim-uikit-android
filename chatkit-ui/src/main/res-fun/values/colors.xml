@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="fun_chat_page_bg_color">#ededed</color>
+    <color name="fun_chat_secondary_page_bg_color">#ededed</color>
+
+    <!-- 会话页面 -->
+    <color name="fun_chat_input_bg_color">#f5f5f5</color>
+    <color name="fun_chat_input_reply_bg_color">#e1e1e1</color>
+    <color name="fun_chat_input_reply_text_color">#666666</color>
+    <color name="fun_chat_input_send_audio_color">#222222</color>
+    <color name="fun_chat_input_audio_record_bg_color">#D9D9D9</color>
+    <color name="fun_chat_input_audio_record_cancel_bg_color">#222222</color>
+    <color name="fun_chat_input_audio_record_tips_color">#aaaaaa</color>
+    <color name="fun_chat_message_revoked_tip_text_color">#AAAAAA</color>
+    <color name="fun_chat_message_revoked_action_btn_text_color">#1861DF</color>
+    <color name="fun_chat_message_replay_text_color">#E1E1E1</color>
+    <color name="fun_chat_message_black_tip_text_color">#AAAAAA</color>
+
+    <!-- PIN页面 -->
+    <color name="fun_chat_message_pin_bg_color">#FFF5DD</color>
+    <color name="fun_chat_message_pin_view_holder_bg_color">#FFFFFF</color>
+
+    <!-- 历史记录搜索页面 -->
+    <color name="fun_chat_search_empty_text_color">#AAAAAA</color>
+    <color name="fun_chat_search_name_color">#737373</color>
+    <color name="fun_chat_search_message_color">#333333</color>
+    <color name="fun_chat_search_message_hit_color">#58BE6B</color>
+    <color name="fun_chat_search_time_color">#cccccc</color>
+    <color name="fun_chat_search_item_bg_color">#FFFFFF</color>
+
+    <!-- 消息阅读状态页面 -->
+    <color name="fun_chat_read_title_color">#222222</color>
+    <color name="fun_chat_read_name_color">#333333</color>
+    <color name="fun_chat_read_selected_color">#58BE6B</color>
+</resources>

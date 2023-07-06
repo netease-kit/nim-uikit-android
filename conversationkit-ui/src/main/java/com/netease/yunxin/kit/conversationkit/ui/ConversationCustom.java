@@ -7,7 +7,7 @@ package com.netease.yunxin.kit.conversationkit.ui;
 import android.content.Context;
 import com.netease.nimlib.sdk.msg.attachment.NetCallAttachment;
 import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
-import com.netease.yunxin.kit.conversationkit.model.ConversationInfo;
+import com.netease.yunxin.kit.chatkit.model.ConversationInfo;
 import com.netease.yunxin.kit.corekit.im.model.AttachmentContent;
 
 public class ConversationCustom {

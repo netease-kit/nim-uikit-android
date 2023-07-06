@@ -6,9 +6,13 @@ package com.netease.yunxin.kit.teamkit.ui;
 
 import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.KEY_REQUEST_SELECTOR_NAME;
 import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.KEY_TEAM_FIELDS;
+import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.KEY_TEAM_ICON;
 import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.KEY_TEAM_NAME;
 import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.PATH_CREATE_ADVANCED_TEAM_ACTION;
 import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.PATH_CREATE_NORMAL_TEAM_ACTION;
+import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.PATH_FUN_CREATE_ADVANCED_TEAM_ACTION;
+import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.PATH_FUN_CREATE_NORMAL_TEAM_ACTION;
+import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.PATH_FUN_TEAM_SETTING_PAGE;
 import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.PATH_TEAM_INVITE_ACTION;
 import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.PATH_TEAM_SETTING_PAGE;
 import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.REQUEST_CONTACT_SELECTOR_KEY;
@@ -25,7 +29,8 @@ import com.netease.nimlib.sdk.team.constant.TeamUpdateModeEnum;
 import com.netease.nimlib.sdk.team.constant.VerifyTypeEnum;
 import com.netease.nimlib.sdk.team.model.CreateTeamResult;
 import com.netease.yunxin.kit.alog.ALog;
-import com.netease.yunxin.kit.corekit.XKitService;
+import com.netease.yunxin.kit.chatkit.ChatService;
+import com.netease.yunxin.kit.chatkit.repo.TeamRepo;
 import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
 import com.netease.yunxin.kit.corekit.im.utils.IMKitConstant;
 import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
@@ -33,9 +38,8 @@ import com.netease.yunxin.kit.corekit.model.ErrorMsg;
 import com.netease.yunxin.kit.corekit.model.ResultInfo;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 import com.netease.yunxin.kit.corekit.startup.Initializer;
-import com.netease.yunxin.kit.teamkit.TeamService;
-import com.netease.yunxin.kit.teamkit.repo.TeamRepo;
-import com.netease.yunxin.kit.teamkit.ui.activity.TeamSettingActivity;
+import com.netease.yunxin.kit.teamkit.ui.fun.activity.FunTeamSettingActivity;
+import com.netease.yunxin.kit.teamkit.ui.normal.activity.TeamSettingActivity;
 import com.netease.yunxin.kit.teamkit.ui.utils.TeamIconUtils;
 import com.netease.yunxin.kit.teamkit.ui.utils.TeamUtils;
 import java.io.Serializable;
@@ -47,7 +51,7 @@ import java.util.Map;
 
 /** launch service when app start the TeamUIService will be created it need to config in manifest */
 @Keep
-public class TeamUIService extends TeamService {
+public class TeamUIService extends ChatService {
 
   private static final String TAG = "TeamUIService";
 
@@ -71,10 +75,23 @@ public class TeamUIService extends TeamService {
 
   @NonNull
   @Override
-  public XKitService create(@NonNull Context context) {
+  public ChatService create(@NonNull Context context) {
     XKitRouter.registerRouter(PATH_TEAM_SETTING_PAGE, TeamSettingActivity.class);
-    registerCreateNormalTeamRouter(context);
-    registerCreateAdvanceTeamRouter(context);
+    registerCreateNormalTeamRouter(
+        context, PATH_CREATE_NORMAL_TEAM_ACTION, () -> TeamIconUtils.getDefaultRandomIconUrl(true));
+    registerCreateAdvanceTeamRouter(
+        context,
+        PATH_CREATE_ADVANCED_TEAM_ACTION,
+        () -> TeamIconUtils.getDefaultRandomIconUrl(true));
+    XKitRouter.registerRouter(PATH_FUN_TEAM_SETTING_PAGE, FunTeamSettingActivity.class);
+    registerCreateAdvanceTeamRouter(
+        context,
+        PATH_FUN_CREATE_ADVANCED_TEAM_ACTION,
+        () -> TeamIconUtils.getDefaultRandomIconUrl(false));
+    registerCreateNormalTeamRouter(
+        context,
+        PATH_FUN_CREATE_NORMAL_TEAM_ACTION,
+        () -> TeamIconUtils.getDefaultRandomIconUrl(false));
     registerInviteUser();
     return this;
   }
@@ -87,11 +104,12 @@ public class TeamUIService extends TeamService {
 
   //将创建讨论组注册到路由器，可通过路由触发
   @SuppressWarnings("unchecked")
-  public void registerCreateNormalTeamRouter(Context context) {
+  public void registerCreateNormalTeamRouter(
+      Context context, String path, RandomUrlProvider provider) {
     XKitRouter.registerRouter(
-        PATH_CREATE_NORMAL_TEAM_ACTION,
+        path,
         new XKitRouter.RouterValue(
-            PATH_CREATE_NORMAL_TEAM_ACTION,
+            path,
             (value, params, observer) -> {
               Map<String, Object> customParam = params;
               if (TeamKitClient.getTeamCustom() != null) {
@@ -114,9 +132,13 @@ public class TeamUIService extends TeamService {
                         : new HashMap<>();
                 String teamName =
                     customParam.get(KEY_TEAM_NAME) != null
-                        ? customParam.get(KEY_TEAM_NAME).toString()
+                        ? String.valueOf(customParam.get(KEY_TEAM_NAME))
                         : TeamUtils.generateNameFromAccIdList(
                             nameList, context.getString(R.string.group_team));
+                String iconUrl =
+                    customParam.get(KEY_TEAM_ICON) != null
+                        ? String.valueOf(customParam.get(KEY_TEAM_ICON))
+                        : provider.getRandomUrl();
 
                 if (fieldMap == null) {
                   fieldMap = new HashMap<>();
@@ -144,7 +166,7 @@ public class TeamUIService extends TeamService {
 
                 TeamRepo.createAdvanceTeam(
                     teamName,
-                    TeamIconUtils.getDefaultRandomIconUrl(),
+                    iconUrl,
                     accIdList,
                     fieldMap,
                     new FetchCallback<CreateTeamResult>() {
@@ -187,12 +209,13 @@ public class TeamUIService extends TeamService {
 
   //将创建高级群注册到路由器，可通过路由触发
   @SuppressWarnings("unchecked")
-  public void registerCreateAdvanceTeamRouter(Context context) {
+  public void registerCreateAdvanceTeamRouter(
+      Context context, String path, RandomUrlProvider provider) {
 
     XKitRouter.registerRouter(
-        PATH_CREATE_ADVANCED_TEAM_ACTION,
+        path,
         new XKitRouter.RouterValue(
-            PATH_CREATE_ADVANCED_TEAM_ACTION,
+            path,
             (value, params, observer) -> {
               Map<String, Object> customParam = params;
               if (TeamKitClient.getTeamCustom() != null) {
@@ -213,16 +236,21 @@ public class TeamUIService extends TeamService {
                       : new HashMap<>();
               String teamName =
                   customParam.get(KEY_TEAM_NAME) != null
-                      ? customParam.get(KEY_TEAM_NAME).toString()
+                      ? String.valueOf(customParam.get(KEY_TEAM_NAME))
                       : TeamUtils.generateNameFromAccIdList(
                           nameList, context.getString(R.string.advanced_team));
+              String iconUrl =
+                  customParam.get(KEY_TEAM_ICON) != null
+                      ? String.valueOf(customParam.get(KEY_TEAM_ICON))
+                      : provider.getRandomUrl();
+
               if (fieldMap != null && !fieldMap.containsKey(TeamFieldEnum.BeInviteMode)) {
                 fieldMap.put(TeamFieldEnum.BeInviteMode, TeamBeInviteModeEnum.NoAuth);
               }
 
               TeamRepo.createAdvanceTeam(
                   teamName,
-                  TeamIconUtils.getDefaultRandomIconUrl(),
+                  iconUrl,
                   accIdList,
                   fieldMap,
                   new FetchCallback<CreateTeamResult>() {
@@ -277,5 +305,9 @@ public class TeamUIService extends TeamService {
 
               return false;
             }));
+  }
+
+  interface RandomUrlProvider {
+    String getRandomUrl();
   }
 }

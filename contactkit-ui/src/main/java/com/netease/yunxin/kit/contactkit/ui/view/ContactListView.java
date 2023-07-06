@@ -191,6 +191,10 @@ public class ContactListView extends FrameLayout
     }
   }
 
+  public void scrollToPosition(int index) {
+    binding.contactList.scrollToPosition(index);
+  }
+
   @Override
   public void addFriendData(List<ContactFriendBean> friend) {
     if (contactAdapter != null && friend != null) {
@@ -206,7 +210,7 @@ public class ContactListView extends FrameLayout
 
       for (ContactFriendBean friendBean : friend) {
         if (friendBean != null && friendBean.data != null) {
-          if (!friendMap.containsKey(friendBean.data.getAccount())) {
+          if (friendMap.containsKey(friendBean.data.getAccount())) {
             contactAdapter.getFriendList().remove(friendMap.get(friendBean.data.getAccount()));
           }
           contactAdapter.getFriendList().add(friendBean);
@@ -337,5 +341,17 @@ public class ContactListView extends FrameLayout
   public void setEmptyViewVisible(int visible, String text) {
     binding.contactEmptyView.setVisibility(visible);
     binding.contactEmptyTv.setText(text);
+  }
+
+  public void configEmptyViewRes(int res) {
+    binding.emptyStateIv.setImageResource(res);
+  }
+
+  public void configIndexTextBGColor(int color) {
+    binding.indexBar.configIndexTextBGColor(color);
+  }
+
+  public SuspensionDecoration getDecoration() {
+    return decoration;
   }
 }

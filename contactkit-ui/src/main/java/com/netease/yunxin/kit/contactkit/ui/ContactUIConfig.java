@@ -9,7 +9,6 @@ import android.view.View;
 import com.netease.yunxin.kit.contactkit.ui.interfaces.IContactClickListener;
 import com.netease.yunxin.kit.contactkit.ui.interfaces.IContactSelectorListener;
 import com.netease.yunxin.kit.contactkit.ui.model.ContactEntranceBean;
-import com.netease.yunxin.kit.contactkit.ui.model.MenuBean;
 import com.netease.yunxin.kit.contactkit.ui.view.ContactListViewAttrs;
 import java.util.List;
 
@@ -19,16 +18,14 @@ public class ContactUIConfig {
 
   //title config
   public String title;
-  public int titleColor = INT_DEFAULT_NULL;
+  public Integer titleColor;
   public boolean showTitleBar = true;
   public boolean showTitleBarRight2Icon = true;
-  public int titleBarRight2Res = INT_DEFAULT_NULL;
+  public Integer titleBarRight2Res;
   public View.OnClickListener titleBarRight2Click;
   public boolean showTitleBarRightIcon = true;
-  public int titleBarRightRes = INT_DEFAULT_NULL;
+  public Integer titleBarRightRes;
   public View.OnClickListener titleBarRightClick;
-  public List<MenuBean> titleBarRightMenu;
-
   //page
   public boolean showHeader = true;
   public List<ContactEntranceBean> headerData;

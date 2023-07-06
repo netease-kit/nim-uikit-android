@@ -17,6 +17,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityOptionsCompat;
+import com.netease.yunxin.app.im.AppSkinConfig;
 import com.netease.yunxin.app.im.R;
 import com.netease.yunxin.app.im.about.AboutActivity;
 import com.netease.yunxin.app.im.databinding.FragmentMineBinding;
@@ -26,6 +27,7 @@ import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.common.ui.fragments.BaseFragment;
 import com.netease.yunxin.kit.common.ui.utils.AvatarColor;
 import com.netease.yunxin.kit.common.ui.utils.ToastX;
+import com.netease.yunxin.kit.common.utils.SizeUtils;
 import com.netease.yunxin.kit.corekit.im.IMKitClient;
 import com.netease.yunxin.kit.corekit.im.model.UserInfo;
 import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
@@ -96,6 +98,10 @@ public class MineFragment extends BaseFragment {
   }
 
   private void refreshUserInfo(String account) {
+    if (AppSkinConfig.getInstance().getAppSkinStyle() == AppSkinConfig.AppSkin.commonSkin) {
+      int cornerRadius = SizeUtils.dp2px(4);
+      binding.cavIcon.setCornerRadius(cornerRadius);
+    }
     List<String> userInfoList = new ArrayList<>();
     userInfoList.add(account);
     CommonRepo.getUserInfo(

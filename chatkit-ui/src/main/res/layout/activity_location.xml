@@ -55,19 +55,7 @@
         android:textSize="@dimen/text_size_16"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-    <View
-        android:id="@+id/map_view_send_layer"
-        android:layout_width="64dp"
-        android:layout_height="@dimen/dimen_32_dp"
-        android:layout_marginTop="@dimen/dimen_60_dp"
-        android:layout_marginEnd="@dimen/dimen_16_dp"
-        android:background="@drawable/bg_corner_button_unclick"
-        android:gravity="center"
-        android:textSize="@dimen/text_size_16"
-        app:layout_constraintRight_toRightOf="parent"
-        android:alpha="0.5"
-        app:layout_constraintTop_toTopOf="parent"
-        android:clickable="true"/>
+
     <ImageView
         android:id="@+id/location_button"
         android:layout_width="@dimen/dimen_38_dp"

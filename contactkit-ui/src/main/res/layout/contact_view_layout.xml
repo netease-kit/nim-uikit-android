@@ -24,6 +24,7 @@
             app:head_title_color="@color/title_color"/>
 
         <View
+            android:id="@+id/divide_line_top_for_title"
             android:layout_width="match_parent"
             android:layout_height="@dimen/dimen_1_dp"
             android:background="@color/color_e9eff5"

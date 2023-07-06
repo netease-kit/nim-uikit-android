@@ -12,7 +12,6 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.netease.yunxin.kit.contactkit.ui.IContactFactory;
 import com.netease.yunxin.kit.contactkit.ui.R;
-import com.netease.yunxin.kit.contactkit.ui.contact.ContactDefaultFactory;
 import com.netease.yunxin.kit.contactkit.ui.interfaces.ContactActions;
 import com.netease.yunxin.kit.contactkit.ui.model.BaseContactBean;
 import com.netease.yunxin.kit.contactkit.ui.model.ContactFriendBean;
@@ -36,7 +35,6 @@ public class ContactAdapter extends RecyclerView.Adapter<BaseContactViewHolder> 
     dataList = new ArrayList<>();
     friendList = new LinkedList<>();
     contactListViewAttrs = new ContactListViewAttrs();
-    viewHolderFactory = new ContactDefaultFactory();
   }
 
   private IContactFactory viewHolderFactory;

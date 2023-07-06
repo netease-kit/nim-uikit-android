@@ -9,7 +9,7 @@ import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
 import com.netease.yunxin.kit.alog.ALog;
-import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
+import com.netease.yunxin.kit.chatkit.repo.ContactRepo;
 import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
@@ -27,7 +27,7 @@ public class ChatSettingViewModel extends BaseViewModel {
 
   public void getUserInfo(String accId) {
     ALog.d(LIB_TAG, TAG, "getP2pUserInfo:" + accId);
-    ChatRepo.fetchUserInfo(
+    ContactRepo.fetchUserInfo(
         accId,
         new FetchCallback<UserInfo>() {
           @Override

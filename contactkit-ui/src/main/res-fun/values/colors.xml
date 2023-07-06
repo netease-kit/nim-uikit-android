@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="fun_contact_page_bg_color">#ededed</color>
+    <!-- search page-->
+    <color name="fun_contact_search_hit_text_color">#58BE6B</color>
+    <color name="fun_contact_search_edit_bg_color">#FFFFFF</color>
+    <color name="fun_contact_search_item_bg_color">#FFFFFF</color>
+    <color name="fun_contact_search_item_title_color">#737373</color>
+    <color name="fun_contact_search_item_nick_color">#333333</color>
+    <color name="fun_contact_search_item_name_color">#666666</color>
+</resources>

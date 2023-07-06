@@ -62,13 +62,14 @@
 
             <LinearLayout android:id="@+id/pin_empty_view"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/dimen_188_dp"
-                android:layout_marginTop="@dimen/dimen_150_dp"
-                android:visibility="gone"
+                android:layout_height="match_parent"
+                android:background="@color/color_white"
+                android:visibility="visible"
                 android:orientation="vertical">
 
-                <ImageView
+                <ImageView android:id="@+id/empty_iv"
                     android:layout_width="@dimen/dimen_118_dp"
+                    android:layout_marginTop="@dimen/dimen_150_dp"
                     android:layout_height="@dimen/dimen_96_dp"
                     android:layout_gravity="center_horizontal"
                     android:src="@drawable/ic_chat_empty"/>
@@ -77,6 +78,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="@dimen/dimen_16_dp"
                     android:text="@string/chat_pin_empty_tips"/>
 
             </LinearLayout>

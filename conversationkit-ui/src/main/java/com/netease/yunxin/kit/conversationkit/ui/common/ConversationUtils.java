@@ -10,7 +10,7 @@ import android.content.Context;
 import com.netease.nimlib.sdk.msg.attachment.NotificationAttachment;
 import com.netease.nimlib.sdk.msg.constant.NotificationType;
 import com.netease.yunxin.kit.alog.ALog;
-import com.netease.yunxin.kit.conversationkit.model.ConversationInfo;
+import com.netease.yunxin.kit.chatkit.model.ConversationInfo;
 import com.netease.yunxin.kit.conversationkit.ui.ConversationCustom;
 import com.netease.yunxin.kit.conversationkit.ui.ConversationKitClient;
 

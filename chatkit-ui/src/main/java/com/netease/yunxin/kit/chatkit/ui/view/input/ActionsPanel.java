@@ -21,4 +21,8 @@ public class ActionsPanel {
     this.adapter.setOnActionItemClick(listener);
     this.viewPager2.setAdapter(adapter);
   }
+
+  public boolean hasInit() {
+    return adapter != null;
+  }
 }

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2022 NetEase, Inc. All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be
+  ~ found in the LICENSE file.
+  -->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+
+    <TextView
+        android:id="@+id/messageText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/text_size_14"
+        android:paddingHorizontal="@dimen/dimen_8_dp"
+        android:paddingVertical="@dimen/dimen_12_dp"
+        android:textColor="@color/fun_chat_message_revoked_tip_text_color"
+        android:text="@string/chat_message_revoked"
+        android:gravity="center"
+        tools:text="@tools:sample/lorem" />
+
+    <TextView
+        android:id="@+id/tv_action"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/text_size_14"
+        android:paddingEnd="@dimen/dimen_16_dp"
+        android:paddingVertical="@dimen/dimen_12_dp"
+        android:text="@string/chat_message_re_edit"
+        android:textColor="@color/fun_chat_message_revoked_action_btn_text_color"
+        android:visibility="gone" />
+
+</LinearLayout>

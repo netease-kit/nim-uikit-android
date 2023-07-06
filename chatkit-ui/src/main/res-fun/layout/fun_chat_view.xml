@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (c) 2022 NetEase, Inc. All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be
+  ~ found in the LICENSE file.
+  -->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <FrameLayout android:id="@+id/titleLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.netease.yunxin.kit.common.ui.widgets.BackTitleBar
+            android:id="@+id/titleBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/inputTip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@color/color_ededed"
+            android:layout_gravity="center_horizontal|bottom"
+            android:textColor="@color/color_333333"
+            android:textSize="@dimen/dimen_9_dp"
+            android:layout_marginBottom="2dp"
+            android:visibility="gone"
+            android:text="@string/chat_message_is_typing"
+            tools:ignore="SpUsage" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.25dp"
+            android:layout_gravity="bottom"
+            android:background="@color/color_d5d5d5" />
+
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/bodyTopLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <FrameLayout
+        android:id="@+id/bodyLayout"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <com.netease.yunxin.kit.chatkit.ui.view.message.ChatMessageListView
+            android:id="@+id/messageView"
+            android:layout_width="match_parent"
+            android:overScrollMode="never"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/notificationTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/color_white"
+            android:gravity="center"
+            android:paddingTop="@dimen/dimen_10_dp"
+            android:paddingBottom="@dimen/dimen_10_dp"
+            android:paddingStart="@dimen/dimen_35_dp"
+            android:paddingEnd="@dimen/dimen_5_dp"
+            android:textColor="@color/color_333333"
+            android:textSize="@dimen/text_size_10"
+            android:visibility="gone"
+            app:drawableStartCompat="@drawable/ic_error" />
+
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/bodyBottomLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <FrameLayout
+        android:id="@+id/bottomLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.netease.yunxin.kit.chatkit.ui.fun.view.MessageBottomLayout
+            android:id="@+id/inputView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </FrameLayout>
+</LinearLayout>

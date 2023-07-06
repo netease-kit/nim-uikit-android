@@ -4,6 +4,7 @@
 
 package com.netease.yunxin.kit.chatkit.ui.common;
 
+import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.CHAT_FORWARD_USER_LIMIT;
 import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
 
 import android.content.Context;
@@ -85,14 +86,14 @@ public class ChatUtils {
     if (fileS == 0) {
       return wrongSize;
     }
-    if (fileS < 1024) {
+    if (fileS < 1000) {
       fileSizeString = df.format((double) fileS) + "B";
-    } else if (fileS < 1048576) {
-      fileSizeString = df.format((double) fileS / 1024) + "KB";
-    } else if (fileS < 1073741824) {
-      fileSizeString = df.format((double) fileS / 1048576) + "MB";
+    } else if (fileS < 1000000) {
+      fileSizeString = df.format((double) fileS / 1000) + "KB";
+    } else if (fileS < 1000000000) {
+      fileSizeString = df.format((double) fileS / 1000000) + "MB";
     } else {
-      fileSizeString = df.format((double) fileS / 1073741824) + "GB";
+      fileSizeString = df.format((double) fileS / 1000000000) + "GB";
     }
     return fileSizeString;
   }
@@ -102,7 +103,7 @@ public class ChatUtils {
     if (limit < 0) {
       return false;
     }
-    long limitSize = limit * 1048576L;
+    long limitSize = limit * 1000000L;
     return fileS > limitSize;
   }
 
@@ -202,19 +203,20 @@ public class ChatUtils {
     return fileRes;
   }
 
-  public static void startTeamList(Context context, ActivityResultLauncher<Intent> launcher) {
-    XKitRouter.withKey(RouterConstant.PATH_MY_TEAM_PAGE)
+  public static void startTeamList(
+      Context context, String pagePath, ActivityResultLauncher<Intent> launcher) {
+    XKitRouter.withKey(pagePath)
         .withParam(RouterConstant.KEY_TEAM_LIST_SELECT, true)
         .withContext(context)
         .navigate(launcher);
   }
 
   public static void startP2PSelector(
-      Context context, String filterId, ActivityResultLauncher<Intent> launcher) {
+      Context context, String pagePath, String filterId, ActivityResultLauncher<Intent> launcher) {
     ArrayList<String> filterList = new ArrayList<>();
     filterList.add(filterId);
-    XKitRouter.withKey(RouterConstant.PATH_CONTACT_SELECTOR_PAGE)
-        .withParam(RouterConstant.KEY_CONTACT_SELECTOR_MAX_COUNT, 6)
+    XKitRouter.withKey(pagePath)
+        .withParam(RouterConstant.KEY_CONTACT_SELECTOR_MAX_COUNT, CHAT_FORWARD_USER_LIMIT)
         .withContext(context)
         .withParam(RouterConstant.SELECTOR_CONTACT_FILTER_KEY, filterList)
         .navigate(launcher);

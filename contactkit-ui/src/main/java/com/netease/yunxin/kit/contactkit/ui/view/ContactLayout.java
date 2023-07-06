@@ -7,6 +7,7 @@ package com.netease.yunxin.kit.contactkit.ui.view;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import androidx.annotation.NonNull;
@@ -66,5 +67,9 @@ public class ContactLayout extends LinearLayout {
 
   public FrameLayout getBodyTopLayout() {
     return viewBinding.contactBodyTopLayout;
+  }
+
+  public View getDivideLineForTitle() {
+    return viewBinding.divideLineTopForTitle;
   }
 }

@@ -19,13 +19,13 @@ import com.netease.nimlib.sdk.msg.model.AttachmentProgress;
 import com.netease.nimlib.sdk.msg.model.MsgPinOption;
 import com.netease.nimlib.sdk.team.model.Team;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
-import com.netease.yunxin.kit.chatkit.ui.ChatDefaultFactory;
+import com.netease.yunxin.kit.chatkit.ui.ChatViewHolderDefaultFactory;
 import com.netease.yunxin.kit.chatkit.ui.IChatFactory;
+import com.netease.yunxin.kit.chatkit.ui.interfaces.IMessageItemClickListener;
+import com.netease.yunxin.kit.chatkit.ui.interfaces.IMessageReader;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
-import com.netease.yunxin.kit.chatkit.ui.view.interfaces.IMessageItemClickListener;
-import com.netease.yunxin.kit.chatkit.ui.view.interfaces.IMessageReader;
 import com.netease.yunxin.kit.chatkit.ui.view.message.MessageProperties;
-import com.netease.yunxin.kit.chatkit.ui.view.message.viewholder.ChatBaseMessageViewHolder;
+import com.netease.yunxin.kit.chatkit.ui.view.message.viewholder.CommonBaseMessageViewHolder;
 import com.netease.yunxin.kit.corekit.im.model.UserInfo;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,7 +35,7 @@ import java.util.Map;
 import java.util.Set;
 
 /** chat message adapter for message list */
-public class ChatMessageAdapter extends RecyclerView.Adapter<ChatBaseMessageViewHolder> {
+public class ChatMessageAdapter extends RecyclerView.Adapter<CommonBaseMessageViewHolder> {
 
   IChatFactory viewHolderFactory;
 
@@ -50,7 +50,7 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatBaseMessageView
   private MessageProperties messageProperties;
 
   public ChatMessageAdapter() {
-    viewHolderFactory = ChatDefaultFactory.getInstance();
+    viewHolderFactory = ChatViewHolderDefaultFactory.getInstance();
   }
 
   private final List<ChatMessageBean> messageList = new ArrayList<>();
@@ -61,13 +61,13 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatBaseMessageView
 
   @NonNull
   @Override
-  public ChatBaseMessageViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+  public CommonBaseMessageViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
     return viewHolderFactory.createViewHolder(parent, viewType);
   }
 
   @Override
   public void onBindViewHolder(
-      @NonNull ChatBaseMessageViewHolder holder, int position, @NonNull List<Object> payloads) {
+      @NonNull CommonBaseMessageViewHolder holder, int position, @NonNull List<Object> payloads) {
     if (payloads.isEmpty()) {
       super.onBindViewHolder(holder, position, payloads);
     } else {
@@ -79,7 +79,7 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatBaseMessageView
   }
 
   @Override
-  public void onBindViewHolder(@NonNull ChatBaseMessageViewHolder holder, int position) {
+  public void onBindViewHolder(@NonNull CommonBaseMessageViewHolder holder, int position) {
     ChatMessageBean data = messageList.get(position);
     ChatMessageBean lastMessage = null;
     if (position - 1 >= 0) {
@@ -121,13 +121,13 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatBaseMessageView
   }
 
   @Override
-  public void onViewAttachedToWindow(@NonNull ChatBaseMessageViewHolder holder) {
+  public void onViewAttachedToWindow(@NonNull CommonBaseMessageViewHolder holder) {
     holder.onAttachedToWindow();
     super.onViewAttachedToWindow(holder);
   }
 
   @Override
-  public void onViewDetachedFromWindow(@NonNull ChatBaseMessageViewHolder holder) {
+  public void onViewDetachedFromWindow(@NonNull CommonBaseMessageViewHolder holder) {
     holder.onDetachedFromWindow();
     super.onViewDetachedFromWindow(holder);
   }
@@ -193,26 +193,12 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatBaseMessageView
     }
   }
 
-  public void updateMessageStatus(
-      ChatMessageBean message, AdapterProcessCallback<Boolean> callback) {
-    boolean process;
+  public void updateMessageStatus(ChatMessageBean message) {
     int index = getMessageIndex(message);
     if (index >= 0 && index < messageList.size()) {
       ChatMessageBean origin = messageList.get(index);
-      origin
-          .getMessageData()
-          .getMessage()
-          .setStatus(message.getMessageData().getMessage().getStatus());
+      origin.getMessageData().setMessage(message.getMessageData().getMessage());
       updateMessage(origin, PAYLOAD_STATUS);
-      process = false;
-    } else {
-      //音视频消息，服务端消息抄送下发到发送方，
-      // 通过msgStatusObserver所以在状态变更也需要把不存在的消息添加到列表中
-      appendMessage(message);
-      process = true;
-    }
-    if (callback != null) {
-      callback.onProcess(process);
     }
   }
 
@@ -277,6 +263,21 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatBaseMessageView
     if (index != -1) {
       messageList.get(index).setPinAccid(pinOption);
       updateMessage(messageList.get(index), PAYLOAD_SIGNAL);
+    }
+  }
+
+  public void updateMessagePin(Map<String, MsgPinOption> pinOptionMap) {
+    for (int i = 0; i < messageList.size(); i++) {
+      IMMessageInfo messageInfo = messageList.get(i).getMessageData();
+      String uuId = messageInfo.getMessage().getUuid();
+      if (pinOptionMap != null && pinOptionMap.containsKey(uuId)) {
+        messageInfo.setPinOption(pinOptionMap.get(uuId));
+        notifyItemChanged(i, PAYLOAD_SIGNAL);
+      } else if (messageInfo.getPinOption() != null
+          && (pinOptionMap == null || !pinOptionMap.containsKey(uuId))) {
+        messageInfo.setPinOption(null);
+        notifyItemChanged(i, PAYLOAD_SIGNAL);
+      }
     }
   }
 

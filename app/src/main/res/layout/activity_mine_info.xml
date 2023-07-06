@@ -9,6 +9,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/cl_root"
     android:background="@color/color_e9eff5"
     tools:context=".main.mine.MineInfoActivity">
 
@@ -348,7 +349,8 @@
             android:layout_height="46dp"
             android:layout_marginEnd="64dp"
             android:gravity="end|center_vertical"
-            android:singleLine="true"
+            android:maxLines="2"
+            android:ellipsize="end"
             android:textColor="@color/color_a6adb6"
             android:textSize="12sp"
             android:layout_marginStart="@dimen/dimen_80_dp"

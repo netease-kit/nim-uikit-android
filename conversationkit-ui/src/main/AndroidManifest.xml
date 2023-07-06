@@ -20,9 +20,12 @@
                 android:name="com.netease.yunxin.kit.conversationkit.ui.ConversationUIService"
                 android:value="xkit.startup" />
         </provider>
-        <activity android:name=".page.ConversationSelectActivity"
+        <activity android:name=".normal.page.ConversationSelectActivity"
             android:screenOrientation="portrait" android:exported="false"/>
-        <activity android:name=".page.ConversationActivity"
+        <activity android:name=".normal.page.ConversationActivity"
+            android:screenOrientation="portrait"
+            android:exported="false"/>
+        <activity android:name=".fun.page.FunConversationActivity"
             android:screenOrientation="portrait"
             android:exported="false"/>
     </application>

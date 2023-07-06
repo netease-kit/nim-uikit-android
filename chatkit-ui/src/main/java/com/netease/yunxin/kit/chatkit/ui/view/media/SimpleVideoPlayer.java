@@ -135,6 +135,9 @@ public class SimpleVideoPlayer extends ConstraintLayout {
   }
 
   public void handlePlay(IMMessage message) {
+    if (message == null || message.getAttachment() == null) {
+      return;
+    }
     VideoAttachment videoAttachment = (VideoAttachment) message.getAttachment();
     videoFilePath = videoAttachment.getPath();
     binding.videoProgress.setIndeterminate(false);

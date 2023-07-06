@@ -9,8 +9,10 @@ import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.widget.FrameLayout;
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import com.netease.yunxin.kit.common.utils.NetworkUtils;
 import com.netease.yunxin.kit.contactkit.ui.R;
 import com.netease.yunxin.kit.contactkit.ui.databinding.UserInfoLayoutBinding;
 import com.netease.yunxin.kit.contactkit.ui.model.ContactUserInfoBean;
@@ -90,6 +92,11 @@ public class ContactInfoView extends FrameLayout {
 
     binding.scBlackList.setOnCheckedChangeListener(
         (buttonView, isChecked) -> {
+          if (!NetworkUtils.isConnected()) {
+            Toast.makeText(getContext(), R.string.contact_network_error_tip, Toast.LENGTH_SHORT).show();
+            binding.scBlackList.toggle();
+            return;
+          }
           if (userCallback != null) {
             userCallback.addBlackList(isChecked);
           }
@@ -129,6 +136,33 @@ public class ContactInfoView extends FrameLayout {
           });
       binding.tvDelete.setVisibility(GONE);
     }
+  }
+
+  public void configSCBlackSwitch(int trackRes, int thumbRes) {
+    binding.scBlackList.setTrackResource(trackRes);
+    binding.scBlackList.setThumbResource(thumbRes);
+  }
+
+  public void configAvatarCorner(int cornerSize) {
+    binding.avatarView.setCornerRadius(cornerSize);
+  }
+
+  public void configChatBtnColor(int color) {
+    binding.tvChat.setTextColor(color);
+  }
+
+  public void configDivideLineColor(int color) {
+    binding.divideLine1.setBackgroundColor(color);
+    binding.divideLine2.setBackgroundColor(color);
+    binding.divideLine3.setBackgroundColor(color);
+  }
+
+  public void configRootBgColor(int color) {
+    binding.getRoot().setBackgroundColor(color);
+  }
+
+  public void configSignatureMaxLines(int lines) {
+    binding.tvSignature.setMaxLines(lines);
   }
 
   public interface IUserCallback {

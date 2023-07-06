@@ -5,7 +5,8 @@
 package com.netease.yunxin.kit.chatkit.ui;
 
 import com.netease.yunxin.kit.chatkit.ui.builder.IChatViewCustom;
-import com.netease.yunxin.kit.chatkit.ui.view.interfaces.IMessageItemClickListener;
+import com.netease.yunxin.kit.chatkit.ui.interfaces.IMessageItemClickListener;
+import com.netease.yunxin.kit.chatkit.ui.view.input.InputProperties;
 import com.netease.yunxin.kit.chatkit.ui.view.message.MessageProperties;
 import com.netease.yunxin.kit.chatkit.ui.view.popmenu.IChatPopMenu;
 import com.netease.yunxin.kit.chatkit.ui.view.popmenu.IChatPopMenuClickListener;
@@ -38,5 +39,9 @@ public class ChatUIConfig {
   //个性化定制内容
   public ChatCustom chatCustom;
 
+  //进入会话监听，每次进入新的会话回调
   public IChatListener chatListener;
+
+  //输入框定制
+  public InputProperties inputProperties;
 }

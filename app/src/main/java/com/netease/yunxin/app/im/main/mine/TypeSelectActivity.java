@@ -15,11 +15,13 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.content.res.AppCompatResources;
+import com.netease.yunxin.app.im.AppSkinConfig;
 import com.netease.yunxin.app.im.R;
 import com.netease.yunxin.app.im.databinding.TypeSelectActivityBinding;
 import com.netease.yunxin.app.im.utils.Constant;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
+import com.netease.yunxin.kit.common.utils.SizeUtils;
 import java.util.ArrayList;
 
 /** channel type select page choice list should be transfer by intent */
@@ -40,7 +42,7 @@ public class TypeSelectActivity extends BaseActivity {
 
   private void initView() {
     String title = getIntent().getStringExtra(Constant.TITLE);
-    int selected = getIntent().getIntExtra(Constant.SELECTED_INDEX, 0);
+    int selected = getIntent().getIntExtra(Constant.SELECTED_INDEX, -1);
     ArrayList<String> groupList = getIntent().getStringArrayListExtra(Constant.CHOICE_LIST);
     viewBinding.typeSelectTitleBar.setTitle(title);
     if (groupList != null && groupList.size() > 0) {
@@ -62,6 +64,21 @@ public class TypeSelectActivity extends BaseActivity {
         view -> {
           back();
         });
+
+    if (AppSkinConfig.getInstance().getAppSkinStyle() == AppSkinConfig.AppSkin.commonSkin) {
+      setCommonSkin();
+    }
+  }
+
+  private void setCommonSkin() {
+    changeStatusBarColor(R.color.color_ededed);
+    viewBinding.llyRoot.setBackgroundResource(R.color.color_ededed);
+
+    viewBinding.rfLayout.setBackgroundResource(R.color.color_white);
+    ViewGroup.MarginLayoutParams layoutParamsS =
+        (ViewGroup.MarginLayoutParams) viewBinding.rfLayout.getLayoutParams();
+    layoutParamsS.setMargins(0, SizeUtils.dp2px(6), 0, 0);
+    viewBinding.rfLayout.setLayoutParams(layoutParamsS);
   }
 
   @Override

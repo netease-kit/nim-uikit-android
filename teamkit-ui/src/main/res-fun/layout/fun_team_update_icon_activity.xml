@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2022 NetEase, Inc. All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be
+  ~ found in the LICENSE file.
+  -->
+
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/color_ededed">
+
+    <TextView
+        android:id="@+id/tvTitle"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:gravity="center"
+        android:text="@string/team_update_icon"
+        android:textColor="@color/color_333333"
+        android:textSize="17dp"
+        android:background="@color/color_white"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="SpUsage" />
+
+    <ImageView
+        android:id="@+id/ivCancel"
+        android:layout_width="26dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="20dp"
+        android:gravity="center_vertical"
+        android:src="@drawable/ic_arrow_left"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tvSave"
+        android:layout_width="wrap_content"
+        android:layout_height="48dp"
+        android:layout_marginEnd="20dp"
+        android:gravity="center_vertical"
+        android:text="@string/team_save"
+        android:textColor="@color/color_58be6b"
+        android:textSize="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="SpUsage" />
+
+    <View
+        android:id="@+id/bg1"
+        android:layout_width="0dp"
+        android:layout_height="128dp"
+        android:layout_marginTop="0.5dp"
+        android:background="@color/color_white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvTitle" />
+
+    <com.netease.yunxin.kit.common.ui.widgets.ContactAvatarView
+        android:id="@+id/ivIcon"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        app:avatarCorner="@dimen/dimen_4_dp"
+        app:avatarTextSize="16dp"
+        app:layout_constraintBottom_toBottomOf="@id/bg1"
+        app:layout_constraintEnd_toEndOf="@id/bg1"
+        app:layout_constraintStart_toStartOf="@id/bg1"
+        app:layout_constraintTop_toTopOf="@id/bg1" />
+
+    <View
+        android:id="@+id/spacer"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="22dp"
+        android:layout_marginEnd="12dp"
+        app:layout_constraintBottom_toBottomOf="@id/ivIcon"
+        app:layout_constraintEnd_toEndOf="@id/ivIcon" />
+
+    <ImageView
+        android:id="@+id/ivCamera"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:src="@drawable/ic_team_camera"
+        app:layout_constraintTop_toBottomOf="@id/spacer"
+        app:layout_constraintStart_toEndOf="@id/spacer" />
+
+    <View
+        android:id="@+id/bg2"
+        android:layout_width="0dp"
+        android:layout_height="122dp"
+        android:layout_marginTop="8dp"
+        android:background="@color/color_white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/bg1" />
+
+    <TextView
+        android:id="@+id/tvDefaultIconTip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:text="@string/team_default_icon"
+        android:textColor="@color/color_333333"
+        android:textSize="16dp"
+        app:layout_constraintStart_toStartOf="@id/bg2"
+        app:layout_constraintTop_toTopOf="@id/bg2"
+        tools:ignore="SpUsage" />
+
+    <ImageView
+        android:id="@+id/ivDefault1"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:layout_marginTop="16dp"
+        android:padding="8dp"
+        android:src="@drawable/fun_ic_team_default_1"
+        app:layout_constraintEnd_toStartOf="@id/ivDefault2"
+        app:layout_constraintStart_toStartOf="@id/bg1"
+        app:layout_constraintTop_toBottomOf="@id/tvDefaultIconTip" />
+
+    <ImageView
+        android:id="@+id/ivDefault2"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:layout_marginTop="16dp"
+        android:padding="8dp"
+        android:src="@drawable/fun_ic_team_default_2"
+        app:layout_constraintEnd_toStartOf="@id/ivDefault3"
+        app:layout_constraintStart_toEndOf="@id/ivDefault1"
+        app:layout_constraintTop_toBottomOf="@id/tvDefaultIconTip" />
+
+    <ImageView
+        android:id="@+id/ivDefault3"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:layout_marginTop="16dp"
+        android:padding="8dp"
+        android:src="@drawable/fun_ic_team_default_3"
+        app:layout_constraintEnd_toStartOf="@id/ivDefault4"
+        app:layout_constraintStart_toEndOf="@id/ivDefault2"
+        app:layout_constraintTop_toBottomOf="@id/tvDefaultIconTip" />
+
+    <ImageView
+        android:id="@+id/ivDefault4"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:layout_marginTop="16dp"
+        android:padding="8dp"
+        android:src="@drawable/fun_ic_team_default_4"
+        app:layout_constraintEnd_toStartOf="@id/ivDefault5"
+        app:layout_constraintStart_toEndOf="@id/ivDefault3"
+        app:layout_constraintTop_toBottomOf="@id/tvDefaultIconTip" />
+
+    <ImageView
+        android:id="@+id/ivDefault5"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:layout_marginTop="16dp"
+        android:padding="8dp"
+        android:src="@drawable/fun_ic_team_default_5"
+        app:layout_constraintEnd_toEndOf="@id/bg2"
+        app:layout_constraintStart_toEndOf="@id/ivDefault4"
+        app:layout_constraintTop_toBottomOf="@id/tvDefaultIconTip" />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/groupPrivilege"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="visible"
+        app:constraint_referenced_ids="tvSave,ivCamera,bg2,tvDefaultIconTip,ivDefault1,ivDefault2,ivDefault3,ivDefault4,ivDefault5" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (c) 2022 NetEase, Inc. All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be
+  ~ found in the LICENSE file.
+  -->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/fun_bg_shape_top_radius"
+    android:orientation="vertical">
+
+
+    <TextView
+        android:id="@+id/teamTv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:paddingVertical="@dimen/dimen_12_dp"
+        android:text="@string/chat_message_forward_to_team"
+        android:textColor="@color/color_333333"
+        android:textSize="@dimen/text_size_14" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dimen_1_dp"
+        android:background="@color/color_f5f8fc" />
+
+    <TextView
+        android:id="@+id/p2pTv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:paddingVertical="@dimen/dimen_12_dp"
+        android:text="@string/chat_message_forward_to_person"
+        android:textColor="@color/color_333333"
+        android:textSize="@dimen/text_size_14" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dimen_6_dp"
+        android:background="@color/fun_chat_secondary_page_bg_color" />
+
+    <TextView
+        android:id="@+id/cancelTv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:paddingVertical="@dimen/dimen_12_dp"
+        android:text="@string/cancel"
+        android:textColor="@color/color_333333"
+        android:paddingBottom="@dimen/dimen_30_dp"
+        android:textSize="@dimen/text_size_14" />
+
+
+</LinearLayout>

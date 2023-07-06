@@ -8,4 +8,11 @@ public class ContactConstant {
 
   public static final String LIB_TAG = "ContactKit-UI";
   public static final String USER_INFO_KEY = "UserInfo";
+
+  public static class SearchViewType {
+    public static final int USER = 1;
+    public static final int TEAM = 2;
+    public static final int GROUP = 3;
+    public static final int TITLE = 4;
+  }
 }

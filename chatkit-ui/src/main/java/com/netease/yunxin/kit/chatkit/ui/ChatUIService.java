@@ -19,11 +19,18 @@ import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.ChatService;
 import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
-import com.netease.yunxin.kit.chatkit.ui.page.ChatP2PActivity;
-import com.netease.yunxin.kit.chatkit.ui.page.ChatPinActivity;
-import com.netease.yunxin.kit.chatkit.ui.page.ChatSearchActivity;
-import com.netease.yunxin.kit.chatkit.ui.page.ChatSettingActivity;
-import com.netease.yunxin.kit.chatkit.ui.page.ChatTeamActivity;
+import com.netease.yunxin.kit.chatkit.ui.fun.page.FunChatP2PActivity;
+import com.netease.yunxin.kit.chatkit.ui.fun.page.FunChatPinActivity;
+import com.netease.yunxin.kit.chatkit.ui.fun.page.FunChatReaderActivity;
+import com.netease.yunxin.kit.chatkit.ui.fun.page.FunChatSearchActivity;
+import com.netease.yunxin.kit.chatkit.ui.fun.page.FunChatSettingActivity;
+import com.netease.yunxin.kit.chatkit.ui.fun.page.FunChatTeamActivity;
+import com.netease.yunxin.kit.chatkit.ui.normal.page.ChatP2PActivity;
+import com.netease.yunxin.kit.chatkit.ui.normal.page.ChatPinActivity;
+import com.netease.yunxin.kit.chatkit.ui.normal.page.ChatReaderActivity;
+import com.netease.yunxin.kit.chatkit.ui.normal.page.ChatSearchActivity;
+import com.netease.yunxin.kit.chatkit.ui.normal.page.ChatSettingActivity;
+import com.netease.yunxin.kit.chatkit.ui.normal.page.ChatTeamActivity;
 import com.netease.yunxin.kit.chatkit.ui.page.LocationPageActivity;
 import com.netease.yunxin.kit.chatkit.ui.view.ait.AitService;
 import com.netease.yunxin.kit.chatkit.ui.view.emoji.EmojiManager;
@@ -56,12 +63,27 @@ public class ChatUIService extends ChatService {
   @NonNull
   @Override
   public ChatService create(@NonNull Context context) {
+    // normal
     XKitRouter.registerRouter(RouterConstant.PATH_CHAT_P2P_PAGE, ChatP2PActivity.class);
     XKitRouter.registerRouter(RouterConstant.PATH_CHAT_TEAM_PAGE, ChatTeamActivity.class);
     XKitRouter.registerRouter(RouterConstant.PATH_CHAT_SEARCH_PAGE, ChatSearchActivity.class);
     XKitRouter.registerRouter(RouterConstant.PATH_CHAT_LOCATION_PAGE, LocationPageActivity.class);
     XKitRouter.registerRouter(RouterConstant.PATH_CHAT_PIN_PAGE, ChatPinActivity.class);
     XKitRouter.registerRouter(RouterConstant.PATH_CHAT_SETTING_PAGE, ChatSettingActivity.class);
+    XKitRouter.registerRouter(RouterConstant.PATH_CHAT_ACK_PAGE, ChatReaderActivity.class);
+
+    // fun
+    XKitRouter.registerRouter(RouterConstant.PATH_FUN_CHAT_P2P_PAGE, FunChatP2PActivity.class);
+    XKitRouter.registerRouter(RouterConstant.PATH_FUN_CHAT_TEAM_PAGE, FunChatTeamActivity.class);
+    XKitRouter.registerRouter(
+        RouterConstant.PATH_FUN_CHAT_SEARCH_PAGE, FunChatSearchActivity.class);
+    XKitRouter.registerRouter(RouterConstant.PATH_CHAT_LOCATION_PAGE, LocationPageActivity.class);
+    XKitRouter.registerRouter(RouterConstant.PATH_FUN_CHAT_PIN_PAGE, FunChatPinActivity.class);
+    XKitRouter.registerRouter(
+        RouterConstant.PATH_FUN_CHAT_READER_PAGE, FunChatReaderActivity.class);
+    XKitRouter.registerRouter(
+        RouterConstant.PATH_FUN_CHAT_SETTING_PAGE, FunChatSettingActivity.class);
+
     chatKitInit(context);
     registerSendTeamTips();
     registerAitNotifyTrigger();
@@ -74,7 +96,7 @@ public class ChatUIService extends ChatService {
     EmojiManager.init(context);
   }
 
-  //将发送创建群成功Tips注册到路由器，可通过路由触发
+  // 将发送创建群成功Tips注册到路由器，可通过路由触发
   private void registerSendTeamTips() {
     XKitRouter.registerRouter(
         PATH_CHAT_SEND_TEAM_TIP_ACTION,

@@ -25,9 +25,15 @@ public class MessageDialog extends BaseDialog {
   private IMMessageInfo messageInfo;
   private float curEventX;
   private float curEventY;
+  private final Integer rootBgRes;
+
+  public MessageDialog(Integer rootBgRes) {
+    super();
+    this.rootBgRes = rootBgRes;
+  }
 
   public MessageDialog() {
-    super();
+    this(null);
   }
 
   public void setMessageInfo(IMMessageInfo message) {
@@ -38,6 +44,9 @@ public class MessageDialog extends BaseDialog {
   @Override
   protected View getRootView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container) {
     viewBinding = ChatMessageDialogLayoutBinding.inflate(inflater, container, false);
+    if (rootBgRes != null) {
+      viewBinding.getRoot().setBackgroundResource(rootBgRes);
+    }
     viewBinding.message.setOnLongClickListener(
         v -> {
           MessageHelper.copyTextMessage(messageInfo, true);
@@ -87,6 +96,14 @@ public class MessageDialog extends BaseDialog {
   public static MessageDialog launchDialog(
       FragmentManager manager, String tag, IMMessageInfo messageInfo) {
     MessageDialog messageDialog = new MessageDialog();
+    messageDialog.show(manager, tag);
+    messageDialog.setMessageInfo(messageInfo);
+    return messageDialog;
+  }
+
+  public static MessageDialog launchDialog(
+      FragmentManager manager, String tag, IMMessageInfo messageInfo, Integer rootBgRes) {
+    MessageDialog messageDialog = new MessageDialog(rootBgRes);
     messageDialog.show(manager, tag);
     messageDialog.setMessageInfo(messageInfo);
     return messageDialog;

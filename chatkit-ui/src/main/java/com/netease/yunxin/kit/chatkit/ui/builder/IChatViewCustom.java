@@ -4,8 +4,8 @@
 
 package com.netease.yunxin.kit.chatkit.ui.builder;
 
-import com.netease.yunxin.kit.chatkit.ui.view.ChatView;
+import com.netease.yunxin.kit.chatkit.ui.interfaces.IChatView;
 
 public interface IChatViewCustom {
-  void customizeChatLayout(final ChatView layout);
+  void customizeChatLayout(final IChatView layout);
 }

@@ -7,7 +7,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/root_view"
     android:layout_width="match_parent"
-    android:background="@drawable/view_normal_selector"
+    android:background="@drawable/conversation_common_view_holder_selector"
     android:orientation="horizontal"
     android:layout_height="@dimen/dimen_62_dp">
 
@@ -17,7 +17,7 @@
         android:layout_height="@dimen/dimen_18_dp"
         android:layout_marginStart="@dimen/dimen_20_dp"
         android:layout_gravity="center_vertical"
-        style="@style/SelectorRadioBtn"
+        style="@style/ConversationSelectorRadioBtn"
         android:clickable="false"/>
 
     <FrameLayout
@@ -37,7 +37,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="top|end"
             android:layout_marginEnd="@dimen/dimen_5_dp"
-            android:background="@drawable/bg_shape_red_dot"
+            android:background="@drawable/bg_conversation_red_dot"
             android:gravity="center"
             android:paddingStart="@dimen/dimen_5_dp"
             android:paddingEnd="@dimen/dimen_5_dp"

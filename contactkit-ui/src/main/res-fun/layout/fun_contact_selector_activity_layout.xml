@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2022 NetEase, Inc. All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be
+  ~ found in the LICENSE file.
+  -->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/color_ededed"
+    android:orientation="vertical">
+
+    <com.netease.yunxin.kit.common.ui.widgets.BackTitleBar
+        android:id="@+id/title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_selected"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/dimen_8_dp"
+        android:layout_marginEnd="@dimen/dimen_8_dp"
+        android:layout_marginBottom="@dimen/dimen_6_dp"
+        android:background="@drawable/fun_selected_user_bg"
+        android:paddingHorizontal="@dimen/dimen_20_dp" />
+
+    <com.netease.yunxin.kit.contactkit.ui.view.ContactListView
+        android:id="@+id/contact_listView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:showSelector="true" />
+
+    <LinearLayout android:id="@+id/empty_layout"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dimen_188_dp"
+        android:layout_marginTop="@dimen/dimen_150_dp"
+        android:visibility="gone"
+        android:orientation="vertical">
+
+        <ImageView
+            android:layout_width="@dimen/dimen_118_dp"
+            android:layout_height="@dimen/dimen_96_dp"
+            android:layout_gravity="center_horizontal"
+            android:src="@drawable/fun_ic_contact_empty"/>
+
+        <TextView android:id="@+id/empty_tv"
+            android:layout_width="@dimen/dimen_118_dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:gravity="center"
+            android:text="@string/selector_friend_empty"/>
+
+    </LinearLayout>
+
+</LinearLayout>

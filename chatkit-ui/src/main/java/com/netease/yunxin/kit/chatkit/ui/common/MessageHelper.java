@@ -142,6 +142,15 @@ public class MessageHelper {
     return name;
   }
 
+  public static String getChatMessageUserNameByAccount(String account) {
+    String name = ChatUserCache.getName(null, account);
+    if (TextUtils.equals(account, IMKitClient.account()) && TextUtils.equals(name, account)) {
+      UserInfo userInfo = IMKitClient.getUserInfo();
+      name = userInfo != null ? userInfo.getName() : account;
+    }
+    return name;
+  }
+
   public static String getChatCacheAvatar(String account) {
     UserInfo userInfo = ChatUserCache.getUserInfo(account);
     if (userInfo != null && !TextUtils.isEmpty(userInfo.getAvatar())) {
@@ -219,17 +228,28 @@ public class MessageHelper {
     identifyFaceExpression(context, textView, value, align, DEF_SCALE);
   }
 
+  public static void identifyExpression(
+      Context context, View textView, int color, IMMessage message) {
+    if (message != null && textView != null) {
+      SpannableString spannableString =
+          replaceEmoticons(context, message.getContent(), DEF_SCALE, ImageSpan.ALIGN_BOTTOM);
+      identifyAitExpression(context, spannableString, color, message);
+      viewSetText(textView, spannableString);
+    }
+  }
+
   public static void identifyExpression(Context context, View textView, IMMessage message) {
     if (message != null && textView != null) {
       SpannableString spannableString =
           replaceEmoticons(context, message.getContent(), DEF_SCALE, ImageSpan.ALIGN_BOTTOM);
-      identifyAitExpression(context, spannableString, message);
+      int color = context.getResources().getColor(R.color.color_007aff);
+      identifyAitExpression(context, spannableString, color, message);
       viewSetText(textView, spannableString);
     }
   }
 
   public static void identifyAitExpression(
-      Context context, SpannableString spannableString, IMMessage message) {
+      Context context, SpannableString spannableString, int color, IMMessage message) {
     AitContactsModel aitContactsModel = getAitBlock(message);
     if (aitContactsModel != null) {
       List<AitBlock> blockList = aitContactsModel.getAitBlockList();
@@ -237,8 +257,7 @@ public class MessageHelper {
       for (AitBlock block : blockList) {
         for (AitBlock.AitSegment segment : block.segments) {
           if (segment.start >= 0 && segment.end > segment.start && segment.end < text.length()) {
-            ForegroundColorSpan colorSpan =
-                new ForegroundColorSpan(context.getResources().getColor(R.color.color_007aff));
+            ForegroundColorSpan colorSpan = new ForegroundColorSpan(color);
             spannableString.setSpan(
                 colorSpan, segment.start, segment.end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
           }
@@ -269,15 +288,22 @@ public class MessageHelper {
   }
 
   public static boolean revokeMsgIsEdit(ChatMessageBean data) {
+    IMMessage message = data.getMessageData().getMessage();
     return !isReceivedMessage(data)
-        && data.getMessageData().getMessage().getMsgType() == MsgTypeEnum.text
-        && (System.currentTimeMillis() - data.getMessageData().getMessage().getTime()
-            < REVOKE_TIME_INTERVAL)
+        && message.getMsgType() == MsgTypeEnum.text
+        && (System.currentTimeMillis() - message.getTime() < REVOKE_TIME_INTERVAL)
         && data.revokeMsgEdit;
   }
 
   public static boolean isReceivedMessage(ChatMessageBean message) {
     return message.getMessageData().getMessage().getDirect() == MsgDirectionEnum.In;
+  }
+
+  public static boolean isThreadReplayInfo(ChatMessageBean message) {
+    return message != null
+        && message.getMessageData().getMessage().getThreadOption() != null
+        && !TextUtils.isEmpty(
+            message.getMessageData().getMessage().getThreadOption().getReplyMsgIdClient());
   }
 
   public static void identifyFaceExpression(
@@ -316,6 +342,27 @@ public class MessageHelper {
       return String.format(Locale.CHINA, "%02d:%02d", minute, second);
     }
     return String.format(Locale.CHINA, "%02d:%02d:%02d", hour, minute, second);
+  }
+
+  public static boolean replaceEmoticons(
+      Context context, SpannableString spannableString, int start, int count) {
+    if (count <= 0 || spannableString.length() < start + count) return false;
+
+    boolean result = false;
+    CharSequence s = spannableString.subSequence(start, start + count);
+    Matcher matcher = EmojiManager.getPattern().matcher(s);
+    while (matcher.find()) {
+      int from = start + matcher.start();
+      int to = start + matcher.end();
+      String emot = spannableString.subSequence(from, to).toString();
+      Drawable d = getEmotDrawable(context, emot, SMALL_SCALE);
+      if (d != null) {
+        ImageSpan span = new ImageSpan(d, ImageSpan.ALIGN_CENTER);
+        spannableString.setSpan(span, from, to, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        result = true;
+      }
+    }
+    return result;
   }
 
   public static void replaceEmoticons(Context context, Editable editable, int start, int count) {
@@ -390,17 +437,7 @@ public class MessageHelper {
     }
   }
 
-  public static void saveLocalRevokeMessage(IMMessage message) {
-    Map<String, Object> map = new HashMap<>(2);
-    map.put(KEY_REVOKE_TAG, true);
-    map.put(KEY_REVOKE_TIME_TAG, SystemClock.elapsedRealtime());
-    map.put(KEY_REVOKE_CONTENT_TAG, message.getContent());
-    if (message.getMsgType() != MsgTypeEnum.text) {
-      map.put(RouterConstant.KEY_REVOKE_EDIT_TAG, false);
-    } else {
-      map.put(RouterConstant.KEY_REVOKE_EDIT_TAG, true);
-    }
-
+  public static void saveLocalRevokeMessage(IMMessage message, boolean canRevokeEdit) {
     IMMessage revokeMsg =
         MessageBuilder.createTextMessage(
             message.getSessionId(),
@@ -411,12 +448,40 @@ public class MessageHelper {
     revokeMsg.setStatus(MsgStatusEnum.success);
     revokeMsg.setDirect(message.getDirect());
     revokeMsg.setFromAccount(message.getFromAccount());
-    revokeMsg.setLocalExtension(map);
     revokeMsg.setRemoteExtension(message.getRemoteExtension());
     CustomMessageConfig config = new CustomMessageConfig();
     config.enableUnreadCount = false;
     revokeMsg.setConfig(config);
+    Map<String, Object> map = new HashMap<>(4);
+    map.put(KEY_REVOKE_TAG, true);
+    map.put(KEY_REVOKE_TIME_TAG, SystemClock.elapsedRealtime());
+    map.put(KEY_REVOKE_CONTENT_TAG, message.getContent());
+    if (message.getMsgType() != MsgTypeEnum.text || !canRevokeEdit) {
+      map.put(RouterConstant.KEY_REVOKE_EDIT_TAG, false);
+    } else {
+      map.put(RouterConstant.KEY_REVOKE_EDIT_TAG, true);
+    }
+    revokeMsg.setLocalExtension(map);
     ChatRepo.saveLocalMessageExt(revokeMsg, message.getTime());
     ALog.d(LIB_TAG, TAG, "saveLocalRevokeMessage:" + message.getTime());
+  }
+
+  public static void saveLocalBlackTipMessageAndNotify(IMMessage message) {
+    IMMessage tipMsg =
+        MessageBuilder.createTipMessage(message.getSessionId(), message.getSessionType());
+    tipMsg.setStatus(MsgStatusEnum.success);
+    tipMsg.setDirect(message.getDirect());
+    tipMsg.setFromAccount(message.getFromAccount());
+    String content =
+        IMKitClient.getApplicationContext()
+            .getString(
+                R.string.chat_message_send_message_when_in_black,
+                getChatMessageUserNameByAccount(message.getSessionId()));
+    tipMsg.setContent(content);
+    CustomMessageConfig config = new CustomMessageConfig();
+    config.enableUnreadCount = false;
+    tipMsg.setConfig(config);
+    ChatRepo.saveLocalMessageExt(tipMsg, tipMsg.getTime(), true);
+    ALog.d(LIB_TAG, TAG, "saveLocalBlackTipMessage:" + tipMsg.getTime());
   }
 }

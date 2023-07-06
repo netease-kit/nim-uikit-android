@@ -10,6 +10,7 @@ import android.text.TextUtils;
 import com.netease.nimlib.sdk.team.model.TeamMember;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.model.UserInfoWithTeam;
+import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
 import com.netease.yunxin.kit.corekit.im.model.FriendInfo;
 import com.netease.yunxin.kit.corekit.im.model.UserInfo;
 import java.util.HashMap;
@@ -93,22 +94,32 @@ public class ChatUserCache {
       if (friendInfo == null) {
         friendInfo = withTeam.getFriendInfo();
       }
+      if (friendInfo == null) {
+        friendInfo = ChatRepo.getFriendInfo(account);
+        friendInfoMap.put(account, friendInfo);
+      }
       if (friendInfo != null && !TextUtils.isEmpty(friendInfo.getAlias())) {
         return friendInfo.getAlias();
       }
-
       TeamMember teamMember = teamMemberMap.get(account);
       if (teamMember == null) {
         teamMember = withTeam.getTeamInfo();
       }
-
-      if (!TextUtils.isEmpty(teamMember.getTeamNick())) {
+      String tid = withTeam.getTeamInfo().getTid();
+      if (!TextUtils.isEmpty(teamMember.getTeamNick()) && TextUtils.isEmpty(tid)) {
+        teamMember = ChatRepo.getTeamMember(tid, account);
+        teamMemberMap.put(account, teamMember);
+      }
+      if (teamMember != null && !TextUtils.isEmpty(teamMember.getTeamNick())) {
         return teamMember.getTeamNick();
       }
-
       UserInfo userInfo = userInfoMap.get(account);
       if (userInfo == null) {
         userInfo = withTeam.getUserInfo();
+      }
+      if (userInfo == null) {
+        userInfo = ChatRepo.getUserInfo(account);
+        userInfoMap.put(account, userInfo);
       }
       if (userInfo != null && !TextUtils.isEmpty(userInfo.getName())) {
         return userInfo.getName();
@@ -126,12 +137,20 @@ public class ChatUserCache {
 
     if (!TextUtils.isEmpty(account)) {
       FriendInfo friendInfo = friendInfoMap.get(account);
+      if (friendInfo == null) {
+        friendInfo = ChatRepo.getFriendInfo(account);
+        friendInfoMap.put(account, friendInfo);
+      }
       if (friendInfo != null && !TextUtils.isEmpty(friendInfo.getAlias())) {
         return friendInfo.getAlias();
       }
 
       if (!TextUtils.isEmpty(teamId)) {
         TeamMember teamMember = teamMemberMap.get(account);
+        if (teamMember == null) {
+          teamMember = ChatRepo.getTeamMember(teamId, account);
+          teamMemberMap.put(account, teamMember);
+        }
         if (teamMember != null
             && !TextUtils.isEmpty(teamMember.getTeamNick())
             && TextUtils.equals(teamId, teamMember.getTid())) {
@@ -140,6 +159,10 @@ public class ChatUserCache {
       }
 
       UserInfo userInfo = userInfoMap.get(account);
+      if (userInfo == null) {
+        userInfo = ChatRepo.getUserInfo(account);
+        userInfoMap.put(account, userInfo);
+      }
       if (userInfo != null && !TextUtils.isEmpty(userInfo.getName())) {
         return userInfo.getName();
       }
@@ -158,14 +181,21 @@ public class ChatUserCache {
       if (teamMember == null) {
         teamMember = withTeam.getTeamInfo();
       }
-
-      if (!TextUtils.isEmpty(teamMember.getTeamNick())) {
+      String tid = withTeam.getTeamInfo().getTid();
+      if (!TextUtils.isEmpty(teamMember.getTeamNick()) && TextUtils.isEmpty(tid)) {
+        teamMember = ChatRepo.getTeamMember(tid, account);
+        teamMemberMap.put(account, teamMember);
+      }
+      if (teamMember != null && !TextUtils.isEmpty(teamMember.getTeamNick())) {
         return teamMember.getTeamNick();
       }
-
       UserInfo userInfo = userInfoMap.get(account);
       if (userInfo == null) {
         userInfo = withTeam.getUserInfo();
+      }
+      if (userInfo == null) {
+        userInfo = ChatRepo.getUserInfo(account);
+        userInfoMap.put(account, userInfo);
       }
       if (userInfo != null && !TextUtils.isEmpty(userInfo.getName())) {
         return userInfo.getName();
@@ -179,6 +209,10 @@ public class ChatUserCache {
     if (!TextUtils.isEmpty(account)) {
       if (!TextUtils.isEmpty(tid)) {
         TeamMember teamMember = teamMemberMap.get(account);
+        if (teamMember == null) {
+          teamMember = ChatRepo.getTeamMember(tid, account);
+          teamMemberMap.put(account, teamMember);
+        }
         if (teamMember != null
             && !TextUtils.isEmpty(teamMember.getTeamNick())
             && TextUtils.equals(tid, teamMember.getTid())) {
@@ -186,6 +220,10 @@ public class ChatUserCache {
         }
       }
       UserInfo userInfo = userInfoMap.get(account);
+      if (userInfo == null) {
+        userInfo = ChatRepo.getUserInfo(account);
+        userInfoMap.put(account, userInfo);
+      }
       if (userInfo != null && !TextUtils.isEmpty(userInfo.getName())) {
         return userInfo.getName();
       }
@@ -201,6 +239,10 @@ public class ChatUserCache {
     String account = withTeam.getUserInfo().getAccount();
     if (!TextUtils.isEmpty(account)) {
       UserInfo userInfo = userInfoMap.get(account);
+      if (userInfo == null) {
+        userInfo = ChatRepo.getUserInfo(account);
+        userInfoMap.put(account, userInfo);
+      }
       if (userInfo == null) {
         userInfo = withTeam.getUserInfo();
       }

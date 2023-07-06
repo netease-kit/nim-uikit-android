@@ -12,11 +12,12 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import com.netease.yunxin.kit.alog.ALog;
+import com.netease.yunxin.kit.chatkit.repo.ContactObserverRepo;
+import com.netease.yunxin.kit.chatkit.repo.ContactRepo;
 import com.netease.yunxin.kit.common.ui.utils.ToastX;
 import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
-import com.netease.yunxin.kit.contactkit.repo.ContactRepo;
 import com.netease.yunxin.kit.contactkit.ui.R;
 import com.netease.yunxin.kit.contactkit.ui.model.ContactEntranceBean;
 import com.netease.yunxin.kit.contactkit.ui.model.ContactFriendBean;
@@ -124,10 +125,10 @@ public class ContactViewModel extends BaseViewModel {
   }
 
   private void registerObserver() {
-    ContactRepo.registerFriendObserver(friendObserver);
-    ContactRepo.registerUserInfoObserver(userInfoObserver);
-    ContactRepo.registerNotificationUnreadCountObserver(unreadCountObserver);
-    ContactRepo.registerLoginSyncObserver(loginSyncObserver);
+    ContactObserverRepo.registerFriendObserver(friendObserver);
+    ContactObserverRepo.registerUserInfoObserver(userInfoObserver);
+    ContactObserverRepo.registerNotificationUnreadCountObserver(unreadCountObserver);
+    ContactObserverRepo.registerLoginSyncObserver(loginSyncObserver);
   }
 
   private final UserInfoObserver userInfoObserver =
@@ -177,7 +178,7 @@ public class ContactViewModel extends BaseViewModel {
           addFriendList.addAll(accountList);
         }
         // fetch friend info and update to view
-        addFriend(addFriendList, FetchResult.FetchType.Add);
+        addFriend(addFriendList);
       };
 
   private final SystemUnreadCountObserver unreadCountObserver =
@@ -242,29 +243,16 @@ public class ContactViewModel extends BaseViewModel {
     }
   }
 
-  private void addFriend(List<String> accountList, FetchResult.FetchType type) {
-    ALog.d(
-        LIB_TAG,
-        TAG,
-        "addFriend:" + type.name() + (accountList == null ? "null" : accountList.size()));
+  private void addFriend(List<String> accountList) {
+    ALog.d(LIB_TAG, TAG, "addFriend:" + (accountList == null ? "null" : accountList.size()));
     assert accountList != null;
     if (!accountList.isEmpty() && accountList.size() > 0) {
-      ContactRepo.getFriendWithUserInfo(
+      ContactRepo.getFriendListWithUserInfo(
           accountList,
           new FetchCallback<List<FriendInfo>>() {
             @Override
             public void onSuccess(@Nullable List<FriendInfo> param) {
-              List<ContactFriendBean> addList = new ArrayList<>();
-              for (FriendInfo friendInfo : param) {
-                ContactFriendBean bean = new ContactFriendBean(friendInfo);
-                bean.viewType = IViewTypeConstant.CONTACT_FRIEND;
-                contactFriendBeanList.add(bean);
-                ALog.d(LIB_TAG, TAG, "addFriend,add:" + "id=" + friendInfo.getAccount());
-                addList.add(bean);
-              }
-              FetchResult<List<ContactFriendBean>> addResult = new FetchResult<>(type);
-              addResult.setData(addList);
-              contactLiveData.setValue(addResult);
+              setAddLivieData(param);
             }
 
             @Override
@@ -281,33 +269,37 @@ public class ContactViewModel extends BaseViewModel {
     }
   }
 
+  private void setAddLivieData(List<FriendInfo> addFriendList) {
+    List<ContactFriendBean> addList = new ArrayList<>();
+    for (FriendInfo friendInfo : addFriendList) {
+      ContactFriendBean bean = new ContactFriendBean(friendInfo);
+      bean.viewType = IViewTypeConstant.CONTACT_FRIEND;
+      if (contactFriendBeanList.contains(bean)) {
+        continue;
+      }
+      contactFriendBeanList.add(bean);
+      ALog.d(LIB_TAG, TAG, "addFriend,add:" + "id=" + friendInfo.getAccount());
+      addList.add(bean);
+    }
+    FetchResult<List<ContactFriendBean>> addResult = new FetchResult<>(FetchResult.FetchType.Add);
+    addResult.setData(addList);
+    contactLiveData.setValue(addResult);
+  }
+
   private void updateFriend(List<String> accountList) {
     ALog.d(LIB_TAG, TAG, "updateFriend:" + (accountList == null ? "null" : accountList.size()));
-    List<ContactFriendBean> updateBean = new ArrayList<>();
-    ContactRepo.getFriendList(
+    ContactRepo.getFriendListWithUserInfo(
         accountList,
         new FetchCallback<List<FriendInfo>>() {
           @Override
           public void onSuccess(@Nullable List<FriendInfo> param) {
             ALog.d(
                 LIB_TAG, TAG, "updateFriend,onSuccess:" + (param == null ? "null" : param.size()));
-            for (FriendInfo friendInfo : param) {
-              if (friendInfo == null) {
-                continue;
-              }
-              for (ContactFriendBean bean : contactFriendBeanList) {
-                if (TextUtils.equals(friendInfo.getAccount(), bean.data.getAccount())) {
-                  bean.data = friendInfo;
-                  updateBean.add(bean);
-                  break;
-                }
-              }
-            }
-            if (updateBean.size() > 0) {
-              FetchResult<List<ContactFriendBean>> updateResult =
-                  new FetchResult<>(FetchResult.FetchType.Update);
-              updateResult.setData(updateBean);
-              contactLiveData.setValue(updateResult);
+            boolean result = setUpdateLiveData(param);
+            //IM SDK 设备登录切换两个账号，都添加统一账号好友并同意，第二个账号收到的是更新好友通知不是添加
+            //更新的时候，发现如果好友不存在，则走添加的逻辑
+            if (!result) {
+              setAddLivieData(param);
             }
           }
 
@@ -324,7 +316,38 @@ public class ContactViewModel extends BaseViewModel {
         });
   }
 
-  public List<ContactEntranceBean> getContactEntranceList(Context context) {
+  private boolean setUpdateLiveData(List<FriendInfo> updateList) {
+    List<ContactFriendBean> updateBean = new ArrayList<>();
+    for (FriendInfo friendInfo : updateList) {
+      if (friendInfo == null) {
+        continue;
+      }
+      for (ContactFriendBean bean : contactFriendBeanList) {
+        if (TextUtils.equals(friendInfo.getAccount(), bean.data.getAccount())) {
+          bean.data = friendInfo;
+          updateBean.add(bean);
+          break;
+        }
+      }
+    }
+    if (updateBean.size() > 0) {
+      FetchResult<List<ContactFriendBean>> updateResult =
+          new FetchResult<>(FetchResult.FetchType.Update);
+      updateResult.setData(updateBean);
+      contactLiveData.setValue(updateResult);
+      return true;
+    }
+    return false;
+  }
+
+  void configVerifyBean(ContactEntranceBean verifyBean) {
+    this.verifyBean = verifyBean;
+    if (this.verifyBean != null) {
+      this.verifyBean.number = unreadCount;
+    }
+  }
+
+  private List<ContactEntranceBean> getContactEntranceList(Context context) {
     List<ContactEntranceBean> contactDataList = new ArrayList<>();
     //verify message
     verifyBean =
@@ -352,8 +375,8 @@ public class ContactViewModel extends BaseViewModel {
   @Override
   protected void onCleared() {
     super.onCleared();
-    ContactRepo.unregisterFriendObserver(friendObserver);
-    ContactRepo.unregisterUserInfoObserver(userInfoObserver);
-    ContactRepo.unregisterNotificationUnreadCountObserver(unreadCountObserver);
+    ContactObserverRepo.unregisterFriendObserver(friendObserver);
+    ContactObserverRepo.unregisterUserInfoObserver(userInfoObserver);
+    ContactObserverRepo.unregisterNotificationUnreadCountObserver(unreadCountObserver);
   }
 }
