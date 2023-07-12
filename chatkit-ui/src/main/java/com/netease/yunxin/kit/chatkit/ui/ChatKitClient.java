@@ -6,6 +6,7 @@ package com.netease.yunxin.kit.chatkit.ui;
 
 import android.content.Context;
 import androidx.annotation.LayoutRes;
+import androidx.annotation.Nullable;
 import com.netease.yunxin.kit.chatkit.map.IMessageMapProvider;
 import com.netease.yunxin.kit.chatkit.map.IPageMapProvider;
 import com.netease.yunxin.kit.chatkit.ui.view.message.viewholder.ChatBaseMessageViewHolder;
@@ -42,7 +43,7 @@ public class ChatKitClient {
     return pageMapProvider;
   }
 
-  public static IMessageMapProvider getMessageMapProvider() {
+  public static @Nullable IMessageMapProvider getMessageMapProvider() {
     return messageMapProvider;
   }
 

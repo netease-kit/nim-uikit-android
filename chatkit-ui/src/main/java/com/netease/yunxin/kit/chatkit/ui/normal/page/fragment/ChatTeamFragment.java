@@ -29,6 +29,7 @@ import com.netease.yunxin.kit.chatkit.model.IMTeamMessageReceiptInfo;
 import com.netease.yunxin.kit.chatkit.model.UserInfoWithTeam;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
+import com.netease.yunxin.kit.chatkit.ui.normal.view.MessageBottomLayout;
 import com.netease.yunxin.kit.chatkit.ui.page.viewmodel.ChatTeamViewModel;
 import com.netease.yunxin.kit.chatkit.ui.view.ait.AitManager;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
@@ -129,6 +130,10 @@ public class ChatTeamFragment extends NormalChatFragment {
     if (showDeleteDialog) {
       showDialogToFinish();
     }
+  }
+
+  public MessageBottomLayout getMessageBottomLayout() {
+    return viewBinding.chatView.getInputView();
   }
 
   @Override

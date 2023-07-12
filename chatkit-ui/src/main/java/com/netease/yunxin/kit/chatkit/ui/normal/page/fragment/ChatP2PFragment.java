@@ -198,8 +198,7 @@ public class ChatP2PFragment extends NormalChatFragment {
   }
 
   public MessageBottomLayout getMessageBottomLayout() {
-    //    return chatView.getInputView();
-    return null;
+    return viewBinding.chatView.getInputView();
   }
 
   @Override

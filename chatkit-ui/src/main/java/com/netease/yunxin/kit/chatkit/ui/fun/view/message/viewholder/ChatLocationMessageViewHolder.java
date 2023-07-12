@@ -82,7 +82,9 @@ public class ChatLocationMessageViewHolder extends FunChatBaseMessageViewHolder 
   public void onDetachedFromWindow() {
     super.onDetachedFromWindow();
     renderHandler.removeCallbacks(renderAction);
-    ChatKitClient.getMessageMapProvider().destroyChatMap(KEY_MAP_FOR_MESSAGE, chatMap);
+    if (ChatKitClient.getMessageMapProvider() != null) {
+      ChatKitClient.getMessageMapProvider().destroyChatMap(KEY_MAP_FOR_MESSAGE, chatMap);
+    }
     chatMap = null;
     binding.locationItemMapView.removeAllViews();
   }

@@ -170,9 +170,9 @@ public abstract class ChatBaseFragment extends BaseFragment {
 
   protected IMessageItemClickListener delegateListener;
 
-  protected IChatView chatView;
+  public IChatView chatView;
 
-  protected View rootView;
+  public View rootView;
 
   @Nullable
   @Override
