@@ -196,8 +196,7 @@ public class FunChatP2PFragment extends FunChatFragment {
   }
 
   public MessageBottomLayout getMessageBottomLayout() {
-    //        return chatView.getInputView();
-    return null;
+    return viewBinding.chatView.getInputView();
   }
 
   @Override

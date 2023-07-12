@@ -79,7 +79,9 @@ public class ChatLocationPinViewHolder extends ChatBasePinViewHolder {
   public void onDetachedFromWindow() {
     super.onDetachedFromWindow();
     renderHandler.removeCallbacks(renderAction);
-    ChatKitClient.getMessageMapProvider().destroyChatMap(KEY_MAP_FOR_PIN, chatMap);
+    if (ChatKitClient.getMessageMapProvider() != null) {
+      ChatKitClient.getMessageMapProvider().destroyChatMap(KEY_MAP_FOR_PIN, chatMap);
+    }
     chatMap = null;
     binding.locationItemMapView.removeAllViews();
   }

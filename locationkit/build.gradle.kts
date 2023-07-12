@@ -17,7 +17,7 @@ android {
         targetSdk = 30
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
-        buildConfigField("String", "versionName", "\"9.6.0\"")
+        buildConfigField("String", "versionName", "\"9.6.2\"")
     }
 
     buildTypes {

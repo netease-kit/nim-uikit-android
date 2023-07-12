@@ -74,7 +74,9 @@ public abstract class ChatPinBaseActivity extends BaseActivity {
   @Override
   protected void onDestroy() {
     super.onDestroy();
-    ChatKitClient.getMessageMapProvider().releaseAllChatMap(KEY_MAP_FOR_PIN);
+    if (ChatKitClient.getMessageMapProvider() != null) {
+      ChatKitClient.getMessageMapProvider().releaseAllChatMap(KEY_MAP_FOR_PIN);
+    }
   }
 
   protected void initView() {

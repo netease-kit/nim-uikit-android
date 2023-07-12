@@ -28,6 +28,7 @@ import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.model.IMTeamMessageReceiptInfo;
 import com.netease.yunxin.kit.chatkit.model.UserInfoWithTeam;
 import com.netease.yunxin.kit.chatkit.ui.R;
+import com.netease.yunxin.kit.chatkit.ui.fun.view.MessageBottomLayout;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.page.viewmodel.ChatTeamViewModel;
 import com.netease.yunxin.kit.chatkit.ui.view.ait.AitManager;
@@ -297,6 +298,10 @@ public class FunChatTeamFragment extends FunChatFragment {
         viewModel.initFetch(anchorMessage, false);
       }
     }
+  }
+
+  public MessageBottomLayout getMessageBottomLayout() {
+    return viewBinding.chatView.getInputView();
   }
 
   @Override

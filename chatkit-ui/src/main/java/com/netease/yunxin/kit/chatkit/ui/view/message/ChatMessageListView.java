@@ -409,7 +409,9 @@ public class ChatMessageListView extends RecyclerView implements IMessageData {
   }
 
   public void release() {
-    ChatKitClient.getMessageMapProvider().releaseAllChatMap(KEY_MAP_FOR_MESSAGE);
+    if (ChatKitClient.getMessageMapProvider() != null) {
+      ChatKitClient.getMessageMapProvider().releaseAllChatMap(KEY_MAP_FOR_MESSAGE);
+    }
   }
 
   private boolean needScrollToBottom() {

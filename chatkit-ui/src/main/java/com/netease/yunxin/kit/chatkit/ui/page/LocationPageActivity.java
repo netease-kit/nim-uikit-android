@@ -275,7 +275,9 @@ public class LocationPageActivity extends BaseActivity {
   @Override
   protected void onResume() {
     super.onResume();
-    pageMapProvider.getChatMap().onResume();
+      if (pageMapProvider != null) {
+          pageMapProvider.getChatMap().onResume();
+      }
     if (NetworkUtils.isConnected()) {
       binding.mapViewSend.setBackgroundResource(R.drawable.bg_corner_button);
     } else {
@@ -286,7 +288,9 @@ public class LocationPageActivity extends BaseActivity {
   @Override
   protected void onPause() {
     super.onPause();
-    pageMapProvider.getChatMap().onPause();
+      if (pageMapProvider != null) {
+          pageMapProvider.getChatMap().onPause();
+      }
   }
 
   @Override
@@ -300,7 +304,9 @@ public class LocationPageActivity extends BaseActivity {
   protected void onDestroy() {
     super.onDestroy();
     NetworkUtils.unregisterNetworkStatusChangedListener(networkStateListener);
-    pageMapProvider.getChatMap().onDestroy();
-    pageMapProvider.onDestroy();
+      if (pageMapProvider != null) {
+          pageMapProvider.getChatMap().onDestroy();
+          pageMapProvider.onDestroy();
+      }
   }
 }
