@@ -8,6 +8,7 @@ import static com.netease.yunxin.kit.conversationkit.ui.common.ConversationConst
 
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -72,6 +73,12 @@ public abstract class ConversationBaseFragment extends BaseFragment implements I
   protected View networkErrorView;
 
   protected View emptyView;
+
+  private long msgUnreadCountTime = 0;
+
+  public final long MSG_UNREAD_COUNT_INTERVAL = 1000;
+
+  private Handler conversationHandler = new Handler();
 
   public abstract View initViewAndGetRootView(
       @NonNull LayoutInflater inflater,
@@ -463,10 +470,30 @@ public abstract class ConversationBaseFragment extends BaseFragment implements I
   }
 
   private void doCallback() {
-    if (viewModel != null) {
+    long currentTime = System.currentTimeMillis();
+    ALog.d(LIB_TAG, TAG, "doCallback");
+    if (viewModel != null && currentTime - msgUnreadCountTime > MSG_UNREAD_COUNT_INTERVAL) {
+      msgUnreadCountTime = currentTime;
+      conversationHandler.removeCallbacks(msgUnreadCountRunnable);
       viewModel.getUnreadCount();
+      ALog.d(LIB_TAG, TAG, "doCallback:getUnreadCount");
+    } else if (viewModel != null && conversationHandler != null) {
+      ALog.d(LIB_TAG, TAG, "doCallback:conversationHandler");
+      conversationHandler.removeCallbacks(msgUnreadCountRunnable);
+      conversationHandler.postDelayed(msgUnreadCountRunnable, MSG_UNREAD_COUNT_INTERVAL);
     }
   }
+
+  private Runnable msgUnreadCountRunnable =
+          new Runnable() {
+            @Override
+            public void run() {
+              if (viewModel != null) {
+                viewModel.getUnreadCount();
+                ALog.d(LIB_TAG, TAG, "msgUnreadCountRunnable:getUnreadCount");
+              }
+            }
+          };
 
   @Override
   public void onDestroyView() {
