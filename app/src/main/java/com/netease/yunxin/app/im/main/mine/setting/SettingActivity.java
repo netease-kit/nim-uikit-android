@@ -80,8 +80,23 @@ public class SettingActivity extends BaseActivity {
 
       viewBinding.tvCheckAccount.setText("切换登录"+target_account);
       viewBinding.tvCheckAccount.setOnClickListener(v -> {
+          IMKitClient.logoutIM(
+                  new com.netease.yunxin.kit.corekit.im.login.LoginCallback<Void>() {
+                      @Override
+                      public void onError(int errorCode, @NonNull String errorMsg) {
+                          Toast.makeText(
+                                          SettingActivity.this,
+                                          "error code is " + errorCode + ", message is " + errorMsg,
+                                          Toast.LENGTH_SHORT)
+                                  .show();
+                      }
 
-          loginIM(target_account,target_token);
+                      @Override
+                      public void onSuccess(@Nullable Void data) {
+                          loginIM(target_account,target_token);
+                      }
+                  });
+
       });
     // show read and unread status
     viewBinding.messageReadSc.setChecked(viewModel.getShowReadStatus());
