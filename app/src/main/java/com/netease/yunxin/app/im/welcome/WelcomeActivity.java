@@ -60,8 +60,8 @@ public class WelcomeActivity extends BaseActivity {
     ALog.d(Constant.PROJECT_TAG, TAG, "startLogin");
 
       //填入你的 account and token
-      String account = "";
-      String token = "";
+      String account = "desk_test1";
+      String token = "123456";
 
       if (!TextUtils.isEmpty(account) && !TextUtils.isEmpty(token)) {
           loginIM(account,token);

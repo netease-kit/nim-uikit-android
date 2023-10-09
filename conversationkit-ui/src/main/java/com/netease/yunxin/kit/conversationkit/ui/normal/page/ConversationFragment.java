@@ -43,6 +43,11 @@ public class ConversationFragment extends ConversationBaseFragment {
     return viewBinding.getRoot();
   }
 
+  @Override
+  public void onResume() {
+    super.onResume();
+    viewModel.fetchConversation();
+  }
   public void initView() {
     conversationView = viewBinding.conversationView;
     titleBarView = viewBinding.titleBar;

@@ -6,21 +6,31 @@ package com.netease.yunxin.app.im.main.mine.setting;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
+
+import com.netease.nimlib.sdk.NIMClient;
+import com.netease.nimlib.sdk.auth.LoginInfo;
 import com.netease.yunxin.app.im.AppSkinConfig;
 import com.netease.yunxin.app.im.IMApplication;
 import com.netease.yunxin.app.im.R;
 import com.netease.yunxin.app.im.databinding.ActivityMineSettingBinding;
+import com.netease.yunxin.app.im.main.MainActivity;
+import com.netease.yunxin.app.im.utils.Constant;
+import com.netease.yunxin.app.im.utils.DataUtils;
 import com.netease.yunxin.app.im.welcome.WelcomeActivity;
+import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.ui.custom.ChatConfigManager;
 import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
+import com.netease.yunxin.kit.common.ui.utils.ToastX;
 import com.netease.yunxin.kit.common.utils.SizeUtils;
 import com.netease.yunxin.kit.corekit.im.IMKitClient;
+import com.netease.yunxin.kit.corekit.im.login.LoginCallback;
 
 public class SettingActivity extends BaseActivity {
 
@@ -36,10 +46,43 @@ public class SettingActivity extends BaseActivity {
     setContentView(viewBinding.getRoot());
     initView();
   }
+    private void loginIM(String account, String token) {
 
+        LoginInfo loginInfo =
+                LoginInfo.LoginInfoBuilder.loginInfoDefault(account, token)
+                        .withAppKey(DataUtils.readAppKey(this))
+                        .build();
+        IMKitClient.loginIM(
+                loginInfo,
+                new LoginCallback<LoginInfo>() {
+                    @Override
+                    public void onError(int errorCode, @NonNull String errorMsg) {
+                        ToastX.showShortToast(
+                                String.format(getResources().getString(R.string.login_fail), errorCode));
+
+                    }
+
+                    @Override
+                    public void onSuccess(@Nullable LoginInfo data) {
+                        Intent intent = new Intent();
+                        intent.setClass(SettingActivity.this, MainActivity.class);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                       SettingActivity.this.startActivity(intent);
+                        finish();
+                    }
+                });
+    }
   private void initView() {
     // delete alias
 
+      String target_account = NIMClient.getCurrentAccount().equals("desk_test1")?"desk_test2":"desk_test1";
+      String target_token = "123456";
+
+      viewBinding.tvCheckAccount.setText("切换登录"+target_account);
+      viewBinding.tvCheckAccount.setOnClickListener(v -> {
+
+          loginIM(target_account,target_token);
+      });
     // show read and unread status
     viewBinding.messageReadSc.setChecked(viewModel.getShowReadStatus());
     viewBinding.messageReadSc.setOnClickListener(

@@ -102,6 +102,7 @@ public class MineFragment extends BaseFragment {
       int cornerRadius = SizeUtils.dp2px(4);
       binding.cavIcon.setCornerRadius(cornerRadius);
     }
+
     List<String> userInfoList = new ArrayList<>();
     userInfoList.add(account);
     CommonRepo.getUserInfo(
@@ -134,6 +135,7 @@ public class MineFragment extends BaseFragment {
     binding.cavIcon.setData(
         userInfo.getAvatar(), name, AvatarColor.avatarColor(IMKitClient.account()));
     binding.tvName.setText(name);
+      binding.tvAccount.setText(getString(R.string.tab_mine_account, IMKitClient.account()));
   }
 
   @Override

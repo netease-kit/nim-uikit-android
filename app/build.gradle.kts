@@ -50,13 +50,13 @@ dependencies {
     implementation("androidx.multidex:multidex:2.0.1")
     //local module code
 //    implementation(project(":contactkit-ui"))
-//    implementation(project(":conversationkit-ui"))
+    implementation(project(":conversationkit-ui"))
 //    implementation(project(":teamkit-ui"))
 //    implementation(project(":chatkit-ui"))
 //    implementation(project(":locationkit"))
 
-    implementation("com.netease.yunxin.kit.contact:contactkit-ui:9.6.2")
-    implementation("com.netease.yunxin.kit.conversation:conversationkit-ui:9.6.2")
+      implementation("com.netease.yunxin.kit.contact:contactkit-ui:9.6.2")
+    //implementation("com.netease.yunxin.kit.conversation:conversationkit-ui:9.6.2")
     implementation("com.netease.yunxin.kit.team:teamkit-ui:9.6.2")
     implementation("com.netease.yunxin.kit.chat:chatkit-ui:9.6.2")
     implementation("com.netease.yunxin.kit.locationkit:locationkit:9.6.2")
