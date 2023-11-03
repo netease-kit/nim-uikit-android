@@ -119,4 +119,9 @@ public class ChatVideoMessageViewHolder extends ChatThumbBaseViewHolder {
     float corner = SizeUtils.dp2px(4);
     return new float[] {corner, corner, corner, corner};
   }
+
+  @Override
+  protected void onMessageBackgroundConfig(ChatMessageBean messageBean) {
+    baseViewBinding.messageContainer.setBackgroundResource(R.color.title_transfer);
+  }
 }

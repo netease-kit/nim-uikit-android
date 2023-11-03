@@ -27,6 +27,7 @@ import com.netease.yunxin.kit.corekit.im.custom.TeamEventAction;
 import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
 import com.netease.yunxin.kit.corekit.model.ErrorMsg;
 import com.netease.yunxin.kit.corekit.model.ResultInfo;
+import com.netease.yunxin.kit.teamkit.ui.utils.TeamUIKitConstant;
 import java.util.List;
 import java.util.Objects;
 
@@ -219,66 +220,76 @@ public class TeamSettingViewModel extends BaseViewModel {
     ALog.d(LIB_TAG, TAG, "quitTeam:" + team.getId());
     if (team.getType() == TeamTypeEnum.Advanced
         && TextUtils.equals(team.getCreator(), IMKitClient.account())) {
-      TeamRepo.getMemberList(
-          team.getId(),
-          new FetchCallback<List<UserInfoWithTeam>>() {
-            @Override
-            public void onSuccess(@Nullable List<UserInfoWithTeam> param) {
-              String account = IMKitClient.account();
-              if (param == null || param.size() <= 1) {
-                dismissTeam(team.getId());
-                return;
-              }
-              for (UserInfoWithTeam user : param) {
-                if (!TextUtils.equals(account, user.getTeamInfo().getAccount())) {
-                  account = user.getTeamInfo().getAccount();
-                  break;
-                }
-              }
-              TeamRepo.transferTeam(
-                  team.getId(),
-                  account,
-                  true,
-                  new FetchCallback<List<TeamMember>>() {
-                    @Override
-                    public void onSuccess(@Nullable List<TeamMember> param) {
-                      quitTeam(team.getId());
-                    }
-
-                    @Override
-                    public void onFailed(int code) {
-                      ALog.d(LIB_TAG, TAG, "quitTeam transferTeam,onFailed:" + code);
-                      quitTeamData.postValue(new ResultInfo<>(null, false, new ErrorMsg(code)));
-                    }
-
-                    @Override
-                    public void onException(@Nullable Throwable exception) {
-                      ALog.d(LIB_TAG, TAG, "quitTeam transferTeam,onException");
-                      quitTeamData.postValue(
-                          new ResultInfo<>(null, false, new ErrorMsg(-1, "", exception)));
-                    }
-                  });
-            }
-
-            @Override
-            public void onFailed(int code) {
-              ALog.d(LIB_TAG, TAG, "quitTeam  getMemberList,onFailed:" + code);
-              quitTeamData.postValue(new ResultInfo<>(null, false, new ErrorMsg(code)));
-            }
-
-            @Override
-            public void onException(@Nullable Throwable exception) {
-              ALog.d(LIB_TAG, TAG, "quitTeam getMemberList,onException");
-              quitTeamData.postValue(
-                  new ResultInfo<>(null, false, new ErrorMsg(-1, "", exception)));
-            }
-          });
+      creatorQuitTeam(team.getId());
     } else {
       quitTeam(team.getId());
     }
   }
 
+  public void creatorQuitTeam(String teamId) {
+    ALog.d(LIB_TAG, TAG, "creatorQuitTeam:" + teamId);
+    if (TextUtils.isEmpty(teamId)) {
+      return;
+    }
+
+    TeamRepo.getMemberList(
+        teamId,
+        new FetchCallback<List<UserInfoWithTeam>>() {
+          @Override
+          public void onSuccess(@Nullable List<UserInfoWithTeam> param) {
+            String account = IMKitClient.account();
+            if (param == null || param.size() <= 1) {
+              dismissTeam(teamId);
+              return;
+            }
+            for (UserInfoWithTeam user : param) {
+              if (!TextUtils.equals(account, user.getTeamInfo().getAccount())) {
+                account = user.getTeamInfo().getAccount();
+                break;
+              }
+            }
+            TeamRepo.transferTeam(
+                teamId,
+                account,
+                true,
+                new FetchCallback<List<TeamMember>>() {
+                  @Override
+                  public void onSuccess(@Nullable List<TeamMember> param) {
+                    ALog.d(LIB_TAG, TAG, "creatorQuitTeam transferTeam,onSuccess");
+                    quitTeam(teamId);
+                  }
+
+                  @Override
+                  public void onFailed(int code) {
+                    ALog.d(LIB_TAG, TAG, "creatorQuitTeam transferTeam,onFailed:" + code);
+                    quitTeamData.postValue(new ResultInfo<>(null, false, new ErrorMsg(code)));
+                  }
+
+                  @Override
+                  public void onException(@Nullable Throwable exception) {
+                    ALog.d(LIB_TAG, TAG, "creatorQuitTeam transferTeam,onException");
+                    quitTeamData.postValue(
+                        new ResultInfo<>(null, false, new ErrorMsg(-1, "", exception)));
+                  }
+                });
+          }
+
+          @Override
+          public void onFailed(int code) {
+            ALog.d(LIB_TAG, TAG, "quitTeam  getMemberList,onFailed:" + code);
+            quitTeamData.postValue(new ResultInfo<>(null, false, new ErrorMsg(code)));
+          }
+
+          @Override
+          public void onException(@Nullable Throwable exception) {
+            ALog.d(LIB_TAG, TAG, "quitTeam getMemberList,onException");
+            quitTeamData.postValue(new ResultInfo<>(null, false, new ErrorMsg(-1, "", exception)));
+          }
+        });
+  }
+
   public void quitTeam(String teamId) {
+    ALog.d(LIB_TAG, TAG, "quitTeam,teamId:" + teamId);
     EventCenter.notifyEvent(new TeamEvent(teamId, TeamEventAction.ACTION_DISMISS));
     TeamRepo.quitTeam(
         teamId,
@@ -294,6 +305,10 @@ public class TeamSettingViewModel extends BaseViewModel {
           @Override
           public void onFailed(int code) {
             ALog.d(LIB_TAG, TAG, "quitTeam,onFailed:" + code);
+            if (code == TeamUIKitConstant.QUIT_TEAM_ERROR_CODE_NO_MEMBER) {
+              dismissTeam(teamId);
+              return;
+            }
             quitTeamData.postValue(new ResultInfo<>(null, false, new ErrorMsg(code)));
           }
 

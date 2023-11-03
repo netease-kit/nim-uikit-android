@@ -4,6 +4,8 @@
 
 package com.netease.yunxin.kit.conversationkit.ui.page.viewmodel;
 
+import static com.netease.yunxin.kit.conversationkit.ui.common.ConversationConstant.LIB_TAG;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
@@ -179,10 +181,12 @@ public class ConversationViewModel extends BaseViewModel {
   }
 
   public void getUnreadCount() {
+    ALog.d(LIB_TAG, TAG, "getUnreadCount");
     ConversationRepo.getMsgUnreadCountAsync(
         new FetchCallback<Integer>() {
           @Override
           public void onSuccess(@Nullable Integer param) {
+            ALog.d(LIB_TAG, TAG, "getUnreadCount,onSuccess");
             FetchResult<Integer> fetchResult = new FetchResult<>(LoadStatus.Success);
             fetchResult.setData(param);
             unreadCountLiveData.setValue(fetchResult);
@@ -190,13 +194,13 @@ public class ConversationViewModel extends BaseViewModel {
 
           @Override
           public void onFailed(int code) {
-            ALog.d(LIB_TAG, TAG, "getUnreadCount,onFailed" + code);
+            ALog.e(LIB_TAG, TAG, "getUnreadCount,onFailed" + code);
             ToastX.showShortToast(String.valueOf(code));
           }
 
           @Override
           public void onException(@Nullable Throwable exception) {
-            ALog.d(LIB_TAG, TAG, "getUnreadCount,onException");
+            ALog.e(LIB_TAG, TAG, "getUnreadCount,onException");
           }
         });
   }

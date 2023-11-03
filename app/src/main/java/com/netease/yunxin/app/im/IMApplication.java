@@ -36,8 +36,6 @@ public class IMApplication extends MultiDexApplication {
   private static final String TAG = "IMApplication";
   private static boolean coldStart = false;
   private static int foregroundActCount = 0;
-  public static final int LOGIN_PARENT_SCOPE = 2;
-  public static final int LOGIN_SCOPE = 7;
 
   @Override
   public void onCreate() {

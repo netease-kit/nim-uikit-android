@@ -16,7 +16,7 @@ android {
         minSdk = 21
         targetSdk = 30
         consumerProguardFiles("consumer-rules.pro")
-        buildConfigField("String", "versionName", "\"9.6.2\"")
+        buildConfigField("String", "versionName", "\"9.6.3\"")
     }
 
     buildTypes {
@@ -35,7 +35,7 @@ android {
 dependencies {
 
     implementation(project(":chatkit-ui"))
-    api("com.netease.yunxin.kit.common:common-ui:1.2.0")
+    api("com.netease.yunxin.kit.common:common-ui:1.3.1")
     api("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.21")
     implementation("androidx.appcompat:appcompat:1.4.2")
     implementation("com.google.android.material:material:1.5.0")

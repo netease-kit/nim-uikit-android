@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import androidx.annotation.Nullable;
 import com.netease.yunxin.kit.alog.ALog;
+import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatSearchItemLayoutBinding;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatSearchMessageActivityBinding;
 import com.netease.yunxin.kit.chatkit.ui.normal.viewholder.SearchMessageViewHolder;
@@ -25,6 +26,12 @@ public class ChatSearchActivity extends ChatSearchBaseActivity {
   private final String TAG = "ChatSearchActivity";
 
   protected ChatSearchMessageActivityBinding viewBinding;
+
+  @Override
+  protected void onCreate(@Nullable Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    changeStatusBarColor(R.color.color_white);
+  }
 
   @Override
   protected void initViewAndSetContentView(@Nullable Bundle savedInstanceState) {

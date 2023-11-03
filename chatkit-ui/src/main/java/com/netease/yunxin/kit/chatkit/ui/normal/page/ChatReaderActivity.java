@@ -6,6 +6,7 @@ package com.netease.yunxin.kit.chatkit.ui.normal.page;
 
 import android.os.Bundle;
 import androidx.annotation.Nullable;
+import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatReadStateLayoutBinding;
 import com.netease.yunxin.kit.chatkit.ui.normal.page.fragment.ChatReaderFragment;
 import com.netease.yunxin.kit.chatkit.ui.page.ChatReaderBaseActivity;
@@ -28,6 +29,7 @@ public class ChatReaderActivity extends ChatReaderBaseActivity {
 
   @Override
   public void initViewAndSetContentView(@Nullable Bundle savedInstanceState) {
+    changeStatusBarColor(R.color.color_white);
     binding = ChatReadStateLayoutBinding.inflate(getLayoutInflater());
     setContentView(binding.getRoot());
     titleBarView = binding.title;

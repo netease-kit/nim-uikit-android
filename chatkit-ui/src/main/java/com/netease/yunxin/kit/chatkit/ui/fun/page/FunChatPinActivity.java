@@ -15,6 +15,7 @@ import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatUtils;
 import com.netease.yunxin.kit.chatkit.ui.dialog.ChatBaseForwardSelectDialog;
 import com.netease.yunxin.kit.chatkit.ui.fun.FunChatForwardSelectDialog;
+import com.netease.yunxin.kit.chatkit.ui.fun.FunChatMessageForwardConfirmDialog;
 import com.netease.yunxin.kit.chatkit.ui.fun.FunChoiceDialog;
 import com.netease.yunxin.kit.chatkit.ui.fun.factory.FunPinViewHolderFactory;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
@@ -23,6 +24,7 @@ import com.netease.yunxin.kit.common.ui.dialog.BaseBottomChoiceDialog;
 import com.netease.yunxin.kit.common.utils.SizeUtils;
 import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
+import java.util.ArrayList;
 
 public class FunChatPinActivity extends ChatPinBaseActivity {
 
@@ -92,10 +94,27 @@ public class FunChatPinActivity extends ChatPinBaseActivity {
             ChatUtils.startP2PSelector(
                 FunChatPinActivity.this,
                 RouterConstant.PATH_FUN_CONTACT_SELECTOR_PAGE,
-                mSessionId,
+                null,
                 forwardP2PLauncher);
           }
         });
     return dialog;
+  }
+
+  @Override
+  protected void showForwardConfirmDialog(SessionTypeEnum type, ArrayList<String> sessionIds) {
+    FunChatMessageForwardConfirmDialog confirmDialog =
+        FunChatMessageForwardConfirmDialog.createForwardConfirmDialog(
+            type, sessionIds, forwardMessage.getMessageData());
+    confirmDialog.setCallback(
+        () -> {
+          if (forwardMessage != null) {
+            for (String accId : sessionIds) {
+              viewModel.sendForwardMessage(
+                  forwardMessage.getMessageData().getMessage(), accId, type);
+            }
+          }
+        });
+    confirmDialog.show(getSupportFragmentManager(), TAG);
   }
 }

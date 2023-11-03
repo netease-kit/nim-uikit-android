@@ -106,6 +106,9 @@ public class AitService {
   }
 
   public void clearAitInfo(String sessionId) {
+    if (mContext == null) {
+      return;
+    }
     ALog.d(ChatKitUIConstant.LIB_TAG, TAG, "clearAitInfo:" + sessionId);
     AitInfo aitInfo = aitInfoMapCache.remove(sessionId);
     if (aitInfo == null) {
@@ -120,11 +123,14 @@ public class AitService {
   }
 
   public void sendLocalAitEvent() {
+    if (mContext == null) {
+      return;
+    }
     sendAitEvent(new ArrayList<>(aitInfoMapCache.values()), AitEvent.AitEventType.Load);
   }
 
   public void sendAitEvent(List<AitInfo> aitInfoList, AitEvent.AitEventType type) {
-    if (aitInfoList == null) {
+    if (aitInfoList == null || mContext == null) {
       return;
     }
     ALog.d(ChatKitUIConstant.LIB_TAG, TAG, "sendAitEvent:" + type.name() + aitInfoList.size());
@@ -139,7 +145,7 @@ public class AitService {
         new EventObserver<List<IMMessageInfo>>() {
           @Override
           public void onEvent(@Nullable List<IMMessageInfo> msgList) {
-            if (msgList != null) {
+            if (msgList != null && mContext != null) {
               ALog.d(
                   ChatKitUIConstant.LIB_TAG, TAG, "ReceiveMessageObserve,onEvent" + msgList.size());
               Map<String, AitInfo> aitInfoMap = parseMessage(msgList);
@@ -154,7 +160,7 @@ public class AitService {
     ChatObserverRepo.registerRevokeMessageObserve(
         (Observer<RevokeMsgNotification>)
             revokeMsgNotification -> {
-              if (revokeMsgNotification.getMessage() != null) {
+              if (revokeMsgNotification.getMessage() != null && mContext != null) {
                 List<IMMessageInfo> msgList = new ArrayList<>();
                 msgList.add(new IMMessageInfo(revokeMsgNotification.getMessage()));
                 removeAitInfo(parseMessage(msgList));
@@ -200,6 +206,10 @@ public class AitService {
   }
 
   public void updateAitInfo(Map<String, AitInfo> aitInfoMap) {
+    if (mContext == null) {
+      return;
+    }
+
     for (String sessionId : aitInfoMap.keySet()) {
       AitInfo newAitInfo = aitInfoMap.get(sessionId);
       if (newAitInfo == null) {
@@ -226,6 +236,10 @@ public class AitService {
   }
 
   public void removeAitInfo(Map<String, AitInfo> aitInfoMap) {
+    if (mContext == null) {
+      return;
+    }
+
     List<AitInfo> notifyDelete = new ArrayList<>();
     for (String sessionId : aitInfoMap.keySet()) {
       AitInfo newAitInfo = aitInfoMap.get(sessionId);
@@ -261,6 +275,10 @@ public class AitService {
   }
 
   private void deleteAit() {
+    if (mContext == null) {
+      return;
+    }
+
     AitDBHelper.getInstance(mContext).openWrite();
     List<String> sessionList = new ArrayList<>();
     for (AitInfo info : deleteList) {

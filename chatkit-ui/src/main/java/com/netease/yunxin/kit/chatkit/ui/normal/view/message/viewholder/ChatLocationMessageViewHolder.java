@@ -19,6 +19,7 @@ import com.netease.yunxin.kit.chatkit.map.IChatMap;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitClient;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant;
 import com.netease.yunxin.kit.chatkit.ui.R;
+import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatBaseMessageViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.databinding.NormalChatMessageLocationViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
@@ -94,6 +95,20 @@ public class ChatLocationMessageViewHolder extends NormalChatBaseMessageViewHold
   public void onAttachedToWindow() {
     super.onAttachedToWindow();
     renderHandler.postDelayed(renderAction, INTERVAL);
+  }
+
+  @Override
+  protected void onMessageBackgroundConfig(ChatMessageBean messageBean) {
+    if (!messageBean.isRevoked()) {
+      boolean isReceivedMsg = MessageHelper.isReceivedMessage(messageBean);
+      if (isReceivedMsg) {
+        baseViewBinding.contentWithTopLayer.setBackgroundResource(
+            R.drawable.chat_message_stroke_other_bg);
+      } else {
+        baseViewBinding.contentWithTopLayer.setBackgroundResource(
+            R.drawable.chat_message_stoke_self_bg);
+      }
+    }
   }
 
   private void addMapViewToGroup(ViewGroup group) {

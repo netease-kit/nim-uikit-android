@@ -57,6 +57,11 @@ public class ChatNotificationMessageViewHolder extends NormalChatBaseMessageView
   }
 
   @Override
+  protected void onMessageBackgroundConfig(ChatMessageBean messageBean) {
+    baseViewBinding.contentWithTopLayer.setBackgroundResource(R.color.title_transfer);
+  }
+
+  @Override
   protected void onLayoutConfig(ChatMessageBean messageBean) {
     ConstraintLayout.LayoutParams messageContainerLayoutParams =
         (ConstraintLayout.LayoutParams) baseViewBinding.messageContainer.getLayoutParams();
@@ -71,8 +76,11 @@ public class ChatNotificationMessageViewHolder extends NormalChatBaseMessageView
 
   @Override
   protected void onCommonViewVisibleConfig(ChatMessageBean messageBean) {
-    super.onCommonViewVisibleConfig(messageBean);
     baseViewBinding.otherUsername.setVisibility(View.GONE);
+    baseViewBinding.otherUserAvatar.setVisibility(View.GONE);
+    baseViewBinding.myAvatar.setVisibility(View.GONE);
+    baseViewBinding.myName.setVisibility(View.GONE);
+    baseViewBinding.messageStatus.setVisibility(View.GONE);
   }
 
   private void loadData(ChatMessageBean message, ChatMessageBean lastMessage, boolean refreshTime) {
@@ -88,12 +96,22 @@ public class ChatNotificationMessageViewHolder extends NormalChatBaseMessageView
         baseViewBinding.baseRoot.setVisibility(View.GONE);
       } else {
         baseViewBinding.baseRoot.setVisibility(View.VISIBLE);
-        if (lastMessage == null && refreshTime) {
-          setTime(message, null);
-        }
       }
     } else {
       baseViewBinding.baseRoot.setVisibility(View.GONE);
     }
+  }
+
+  @Override
+  protected boolean needMessageClickAndExtra() {
+    baseViewBinding.otherUserAvatar.setVisibility(View.GONE);
+    baseViewBinding.myAvatar.setVisibility(View.GONE);
+    baseViewBinding.messageStatus.setVisibility(View.GONE);
+    return false;
+  }
+
+  @Override
+  protected boolean needShowTimeView(ChatMessageBean message, ChatMessageBean lastMessage) {
+    return lastMessage == null;
   }
 }

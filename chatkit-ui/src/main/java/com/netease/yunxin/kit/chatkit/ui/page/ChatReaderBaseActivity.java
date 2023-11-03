@@ -73,7 +73,9 @@ public abstract class ChatReaderBaseActivity extends BaseActivity {
 
     if (tabLayout != null) {
       tabRead = tabLayout.newTab();
+      tabRead.setId(R.id.tabHasRead);
       tabUnread = tabLayout.newTab();
+      tabUnread.setId(R.id.tabUnread);
       tabLayout.addTab(tabUnread);
       tabLayout.addTab(tabRead);
     }

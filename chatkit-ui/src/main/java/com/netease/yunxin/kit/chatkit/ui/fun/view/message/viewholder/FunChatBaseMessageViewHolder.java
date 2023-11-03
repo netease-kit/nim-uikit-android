@@ -116,6 +116,10 @@ class FunChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
   @Override
   protected void onMessageBackgroundConfig(ChatMessageBean messageBean) {
     super.onMessageBackgroundConfig(messageBean);
+    if (messageBean.isRevoked()) {
+      baseViewBinding.messageContainer.setBackgroundResource(R.color.title_transfer);
+      return;
+    }
     boolean isReceivedMsg = MessageHelper.isReceivedMessage(messageBean);
     CommonUIOption commonUIOption = uiOptions.commonUIOption;
     boolean isCustomBgValid = true;
@@ -146,15 +150,6 @@ class FunChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
       }
     }
     if (isCustomBgValid) {
-      return;
-    }
-    if (type == ChatMessageType.NOTICE_MESSAGE_VIEW_TYPE
-        || type == ChatMessageType.TIP_MESSAGE_VIEW_TYPE
-        || type == ChatMessageType.NORMAL_MESSAGE_VIEW_TYPE_VIDEO
-        || type == ChatMessageType.NORMAL_MESSAGE_VIEW_TYPE_IMAGE
-        || type == ChatMessageType.NORMAL_MESSAGE_VIEW_TYPE_FILE
-        || messageBean.isRevoked()) {
-      baseViewBinding.messageContainer.setBackgroundResource(R.color.title_transfer);
       return;
     }
     if (baseViewBinding.messageContainer.getChildCount() <= 0) {
@@ -252,7 +247,7 @@ class FunChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
     if (messageBean == null || messageBean.getMessageData() == null) {
       return;
     }
-    baseViewBinding.messageTopGroup.removeAllViews();
+    baseViewBinding.messageBottomGroup.removeAllViews();
     ALog.w(TAG, TAG, "setReplyInfo, uuid=" + messageBean.getMessageData().getMessage().getUuid());
     if (messageBean.hasReply()) {
       //自定义回复实现

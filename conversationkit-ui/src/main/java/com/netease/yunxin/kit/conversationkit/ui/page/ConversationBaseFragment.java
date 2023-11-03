@@ -6,7 +6,6 @@ package com.netease.yunxin.kit.conversationkit.ui.page;
 
 import static com.netease.yunxin.kit.conversationkit.ui.common.ConversationConstant.LIB_TAG;
 
-import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
@@ -485,15 +484,15 @@ public abstract class ConversationBaseFragment extends BaseFragment implements I
   }
 
   private Runnable msgUnreadCountRunnable =
-          new Runnable() {
-            @Override
-            public void run() {
-              if (viewModel != null) {
-                viewModel.getUnreadCount();
-                ALog.d(LIB_TAG, TAG, "msgUnreadCountRunnable:getUnreadCount");
-              }
-            }
-          };
+      new Runnable() {
+        @Override
+        public void run() {
+          if (viewModel != null) {
+            viewModel.getUnreadCount();
+            ALog.d(LIB_TAG, TAG, "msgUnreadCountRunnable:getUnreadCount");
+          }
+        }
+      };
 
   @Override
   public void onDestroyView() {
@@ -506,8 +505,9 @@ public abstract class ConversationBaseFragment extends BaseFragment implements I
 
   private final NetworkUtils.NetworkStateListener networkStateListener =
       new NetworkUtils.NetworkStateListener() {
+
         @Override
-        public void onAvailable(NetworkInfo network) {
+        public void onConnected(NetworkUtils.NetworkType networkType) {
           if (networkErrorView == null) {
             return;
           }
@@ -515,7 +515,7 @@ public abstract class ConversationBaseFragment extends BaseFragment implements I
         }
 
         @Override
-        public void onLost(NetworkInfo network) {
+        public void onDisconnected() {
           if (networkErrorView == null) {
             return;
           }

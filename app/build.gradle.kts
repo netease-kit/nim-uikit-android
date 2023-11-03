@@ -15,7 +15,7 @@ android {
         minSdk = 21
         targetSdk = 30
         versionCode = 1
-        versionName = "9.6.2"
+        versionName = "9.6.3"
         multiDexEnabled = true
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -55,14 +55,12 @@ dependencies {
 //    implementation(project(":chatkit-ui"))
 //    implementation(project(":locationkit"))
 
-    implementation("com.netease.yunxin.kit.contact:contactkit-ui:9.6.2")
-    implementation("com.netease.yunxin.kit.conversation:conversationkit-ui:9.6.2")
-    implementation("com.netease.yunxin.kit.team:teamkit-ui:9.6.2")
-    implementation("com.netease.yunxin.kit.chat:chatkit-ui:9.6.2")
-    implementation("com.netease.yunxin.kit.locationkit:locationkit:9.6.2")
-    implementation("com.netease.yunxin.kit.call:call-ui:1.8.2") //呼叫组件 UI 包
-    api("com.netease.nimlib:avsignalling:9.11.0") //呼叫组件 依赖信令包
-    api("com.netease.nimlib:basesdk:9.11.0") //IM SDK
+    implementation("com.netease.yunxin.kit.contact:contactkit-ui:9.6.3")
+    implementation("com.netease.yunxin.kit.conversation:conversationkit-ui:9.6.3")
+    implementation("com.netease.yunxin.kit.team:teamkit-ui:9.6.3")
+    implementation("com.netease.yunxin.kit.chat:chatkit-ui:9.6.3")
+    implementation("com.netease.yunxin.kit.locationkit:locationkit:9.6.3")
+    implementation("com.netease.yunxin.kit.call:call-ui:2.2.0") //呼叫组件 UI 包
     implementation("com.airbnb.android:lottie:5.0.3")
     implementation("com.github.bumptech.glide:glide:4.13.1")
     implementation("com.squareup.retrofit2:retrofit:2.9.0")

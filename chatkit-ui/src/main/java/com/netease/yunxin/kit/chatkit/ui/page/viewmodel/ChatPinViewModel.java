@@ -29,6 +29,7 @@ import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.corekit.event.EventCenter;
 import com.netease.yunxin.kit.corekit.im.IMKitClient;
+import com.netease.yunxin.kit.corekit.im.model.EventObserver;
 import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
 import com.netease.yunxin.kit.corekit.im.repo.SettingRepo;
 import java.util.ArrayList;
@@ -40,7 +41,7 @@ public class ChatPinViewModel extends BaseViewModel {
   public static final String TAG = "ChatPinViewModel";
   protected String mSessionId;
   private SessionTypeEnum mSessionType;
-  protected boolean needACK = false;
+  protected boolean needACK = true;
   protected boolean showRead = true;
 
   private final MutableLiveData<FetchResult<List<ChatMessageBean>>> messageLiveData =
@@ -56,12 +57,16 @@ public class ChatPinViewModel extends BaseViewModel {
   private final FetchResult<List<ChatMessageBean>> addFetchResult =
       new FetchResult<>(LoadStatus.Finish);
 
+  private final MutableLiveData<FetchResult<ChatMessageBean>> deleteMessageLiveData =
+      new MutableLiveData<>();
+
   public void init(String sessionId, SessionTypeEnum sessionType) {
     this.mSessionId = sessionId;
     this.mSessionType = sessionType;
     this.needACK = SettingRepo.getShowReadStatus();
     ChatObserverRepo.registerAddMessagePinObserve(addPinObserver);
     ChatObserverRepo.registerRemoveMessagePinObserve(removePinObserver);
+    ChatObserverRepo.registerDeleteMsgSelfObserve(deleteMsgObserver);
   }
 
   public void setShowRead(boolean showRead) {
@@ -78,6 +83,10 @@ public class ChatPinViewModel extends BaseViewModel {
 
   public MutableLiveData<FetchResult<List<ChatMessageBean>>> getAddPinLiveData() {
     return addLiveData;
+  }
+
+  public MutableLiveData<FetchResult<ChatMessageBean>> getDeleteMessageLiveData() {
+    return deleteMessageLiveData;
   }
 
   public void fetchPinMsg() {
@@ -134,10 +143,10 @@ public class ChatPinViewModel extends BaseViewModel {
   public void sendForwardMessage(IMMessage message, String sessionId, SessionTypeEnum sessionType) {
     ALog.d(LIB_TAG, TAG, "sendForwardMessage:" + sessionId);
     IMMessage forwardMessage = MessageBuilder.createForwardMessage(message, sessionId, sessionType);
-    if (needACK && showRead) {
-      message.setMsgAck();
-    }
     MessageHelper.clearAitAndReplyInfo(forwardMessage);
+    if (needACK && showRead) {
+      forwardMessage.setMsgAck();
+    }
     ChatRepo.sendMessage(forwardMessage, true, null);
   }
 
@@ -174,6 +183,26 @@ public class ChatPinViewModel extends BaseViewModel {
           if (!TextUtils.isEmpty(uuid)) {
             removePinResult.setData(uuid);
             removePinLiveData.setValue(removePinResult);
+          }
+        }
+      };
+
+  private final EventObserver<IMMessageInfo> deleteMsgObserver =
+      new EventObserver<IMMessageInfo>() {
+        @Override
+        public void onEvent(@Nullable IMMessageInfo event) {
+          ALog.d(
+              LIB_TAG,
+              TAG,
+              "msg delete -->> " + (event == null ? "null" : event.getMessage().getUuid()));
+          if (event != null && TextUtils.equals(event.getMessage().getSessionId(), mSessionId)) {
+            ChatMessageBean messageBean =
+                new ChatMessageBean(new IMMessageInfo(event.getMessage()));
+            FetchResult<ChatMessageBean> result = new FetchResult<>(LoadStatus.Success);
+            result.setData(messageBean);
+            result.setType(FetchResult.FetchType.Remove);
+            result.setTypeIndex(-1);
+            deleteMessageLiveData.setValue(result);
           }
         }
       };

@@ -63,6 +63,14 @@ public class ChatTeamFragment extends NormalChatFragment {
       sessionID = teamInfo.getId();
     }
     anchorMessage = (IMMessage) bundle.getSerializable(RouterConstant.KEY_MESSAGE);
+    aitManager = new AitManager(getContext(), sessionID);
+    chatView.setAitManager(aitManager);
+    refreshView();
+  }
+
+  @Override
+  protected void initView() {
+    super.initView();
     chatView
         .getTitleBar()
         .setOnBackIconClickListener(v -> requireActivity().onBackPressed())
@@ -76,10 +84,6 @@ public class ChatTeamFragment extends NormalChatFragment {
                   .withParam(KEY_TEAM_ID, sessionID)
                   .navigate();
             });
-
-    aitManager = new AitManager(getContext(), sessionID);
-    chatView.setAitManager(aitManager);
-    refreshView();
   }
 
   private void refreshView() {

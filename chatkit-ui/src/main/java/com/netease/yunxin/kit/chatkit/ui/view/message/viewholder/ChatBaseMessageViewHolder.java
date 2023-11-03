@@ -18,7 +18,6 @@ import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.repo.ContactRepo;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant;
-import com.netease.yunxin.kit.chatkit.ui.ChatMessageType;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.chatkit.ui.custom.ChatConfigManager;
@@ -134,34 +133,32 @@ public abstract class ChatBaseMessageViewHolder extends CommonBaseMessageViewHol
     // 用于子类添加消息布局
     addViewToMessageContainer();
     // 若消息为通知/提示消息，则不进行后续内容设置，和 uikit 中默认逻辑有关
-    if (type == ChatMessageType.NOTICE_MESSAGE_VIEW_TYPE
-        || type == ChatMessageType.TIP_MESSAGE_VIEW_TYPE) {
-      baseViewBinding.otherUserAvatar.setVisibility(View.GONE);
-      baseViewBinding.myAvatar.setVisibility(View.GONE);
-      baseViewBinding.messageStatus.setVisibility(View.GONE);
-      baseViewBinding.tvTime.setVisibility(View.GONE);
-      return;
+    if (needMessageClickAndExtra()) {
+      // 设置消息点击回调集合
+      setStatusCallback();
+      // 渲染回复消息展示
+      setReplyInfo(message);
+      // 设置消息中的用户个人信息内容
+      setUserInfo(message);
+      // 设置消息状态展示
+      setStatus(message);
+      // 渲染标记消息布局
+      onMessageSignal(message);
+      // 渲染撤回消息布局
+      onMessageRevoked(message);
     }
-    // 设置消息点击回调集合
-    setStatusCallback();
-    // 渲染回复消息展示
-    setReplyInfo(message);
-    // 设置消息中的用户个人信息内容
-    setUserInfo(message);
-    // 设置消息状态展示
-    setStatus(message);
     // 设置消息时间展示
     setTime(message, lastMessage);
-    // 渲染标记消息布局
-    onMessageSignal(message);
-    // 渲染撤回消息布局
-    onMessageRevoked(message);
     // 更新控件可见性
     onCommonViewVisibleConfig(message);
     // 设置消息背景
     onMessageBackgroundConfig(message);
     // 控制消息布局
     onLayoutConfig(message);
+  }
+
+  protected boolean needMessageClickAndExtra() {
+    return true;
   }
 
   /**
@@ -462,46 +459,57 @@ public abstract class ChatBaseMessageViewHolder extends CommonBaseMessageViewHol
   protected void setTime(ChatMessageBean message, ChatMessageBean lastMessage) {
     // 通用自定义设置
     CommonUIOption commonUIOption = uiOptions.commonUIOption;
-    // 获取待展示消息时间戳，若为 0 则设置为当前系统时间
-    long createTime =
-        message.getMessageData().getMessage().getTime() == 0
-            ? System.currentTimeMillis()
-            : message.getMessageData().getMessage().getTime();
-    // 自定义设置时间格式，用户可以通过此设置修改时间戳的 format 格式
-    if (commonUIOption.timeFormat != null) {
-      baseViewBinding.tvTime.setText(String.format(commonUIOption.timeFormat, createTime));
-    } else {
-      baseViewBinding.tvTime.setText(
-          TimeFormatUtils.formatMillisecond(itemView.getContext(), createTime));
-    }
-    // 自定义设置时间文本颜色
-    if (commonUIOption.timeColor != null) {
-      baseViewBinding.tvTime.setTextColor(commonUIOption.timeColor);
-    } else if (properties.getTimeTextColor() != null) {
-      baseViewBinding.tvTime.setTextColor(properties.getTimeTextColor());
-    }
-    // 自定义设置时间文本大小
-    if (commonUIOption.timeSize != null) {
-      baseViewBinding.tvTime.setTextSize(commonUIOption.timeSize);
-    } else if (properties.getTimeTextSize() != null) {
-      baseViewBinding.tvTime.setTextSize(properties.getTimeTextSize());
-    }
-    // 获取和上一条消息最小的时间间隔，在此间隔下消息之间不展示时间内容，否则展示
-    // 用户可以通过 CommonUIOption#messageTimeIntervalMillisecond 完成修改，默认 5 分钟
-    long intervalTime =
-        commonUIOption.messageTimeIntervalMillisecond != null
-            ? commonUIOption.messageTimeIntervalMillisecond
-            : CommonUIOption.DEFAULT_MESSAGE_TIME_INTERVAL_MILLISECOND;
-    if (lastMessage != null
-        && createTime - lastMessage.getMessageData().getMessage().getTime() < intervalTime) {
-      baseViewBinding.tvTime.setVisibility(View.GONE);
-    } else {
+    if (needShowTimeView(message, lastMessage)) {
       baseViewBinding.tvTime.setVisibility(View.VISIBLE);
+    } else {
+      baseViewBinding.tvTime.setVisibility(View.GONE);
     }
     // 自定义设置时间内容是否展示
     if (commonUIOption.timeVisible != null) {
       baseViewBinding.tvTime.setVisibility(commonUIOption.timeVisible ? View.VISIBLE : View.GONE);
     }
+
+    if (baseViewBinding.tvTime.getVisibility() == View.VISIBLE) {
+      // 获取待展示消息时间戳，若为 0 则设置为当前系统时间
+      long createTime =
+          message.getMessageData().getMessage().getTime() == 0
+              ? System.currentTimeMillis()
+              : message.getMessageData().getMessage().getTime();
+      // 自定义设置时间格式，用户可以通过此设置修改时间戳的 format 格式
+      if (commonUIOption.timeFormat != null) {
+        baseViewBinding.tvTime.setText(String.format(commonUIOption.timeFormat, createTime));
+      } else {
+        baseViewBinding.tvTime.setText(
+            TimeFormatUtils.formatMillisecond(itemView.getContext(), createTime));
+      }
+      // 自定义设置时间文本颜色
+      if (commonUIOption.timeColor != null) {
+        baseViewBinding.tvTime.setTextColor(commonUIOption.timeColor);
+      } else if (properties.getTimeTextColor() != null) {
+        baseViewBinding.tvTime.setTextColor(properties.getTimeTextColor());
+      }
+      // 自定义设置时间文本大小
+      if (commonUIOption.timeSize != null) {
+        baseViewBinding.tvTime.setTextSize(commonUIOption.timeSize);
+      } else if (properties.getTimeTextSize() != null) {
+        baseViewBinding.tvTime.setTextSize(properties.getTimeTextSize());
+      }
+    }
+  }
+
+  protected boolean needShowTimeView(ChatMessageBean message, ChatMessageBean lastMessage) {
+    CommonUIOption commonUIOption = uiOptions.commonUIOption;
+    long createTime =
+        message.getMessageData().getMessage().getTime() == 0
+            ? System.currentTimeMillis()
+            : message.getMessageData().getMessage().getTime();
+    // 用户可以通过 CommonUIOption#messageTimeIntervalMillisecond 完成修改，默认 5 分钟
+    long intervalTime =
+        commonUIOption.messageTimeIntervalMillisecond != null
+            ? commonUIOption.messageTimeIntervalMillisecond
+            : CommonUIOption.DEFAULT_MESSAGE_TIME_INTERVAL_MILLISECOND;
+    return lastMessage == null
+        || createTime - lastMessage.getMessageData().getMessage().getTime() > intervalTime;
   }
 
   /**
@@ -704,14 +712,6 @@ public abstract class ChatBaseMessageViewHolder extends CommonBaseMessageViewHol
       // 发送消息当前用户头像显示，对方用户头像隐藏
       baseViewBinding.myAvatar.setVisibility(View.VISIBLE);
       baseViewBinding.otherUserAvatar.setVisibility(View.GONE);
-    }
-    // 当消息为通知/提示消息时则双方头像、消息状态、时间等都不尽行展示
-    if (type == ChatMessageType.NOTICE_MESSAGE_VIEW_TYPE
-        || type == ChatMessageType.TIP_MESSAGE_VIEW_TYPE) {
-      baseViewBinding.otherUserAvatar.setVisibility(View.GONE);
-      baseViewBinding.myAvatar.setVisibility(View.GONE);
-      baseViewBinding.messageStatus.setVisibility(View.GONE);
-      baseViewBinding.tvTime.setVisibility(View.GONE);
     }
     // 撤回消息消息状态隐藏
     if (messageBean.isRevoked()) {

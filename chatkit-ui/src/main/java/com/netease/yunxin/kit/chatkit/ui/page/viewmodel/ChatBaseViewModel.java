@@ -349,9 +349,6 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
   }
 
   private void doActionAfterDelete(ChatMessageBean messageBean) {
-    if (!TextUtils.isEmpty(messageBean.getPinAccid())) {
-      ChatRepo.removeMessagePin(messageBean.getMessageData().getMessage(), null);
-    }
     FetchResult<ChatMessageBean> result = new FetchResult<>(LoadStatus.Success);
     result.setData(messageBean);
     result.setType(FetchResult.FetchType.Remove);
@@ -634,7 +631,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
                 width = height;
                 height = local;
               }
-              ALog.e(
+              ALog.d(
                   LIB_TAG,
                   TAG,
                   "width:" + width + "height" + height + "orientation:" + orientation);
@@ -652,7 +649,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
           });
     } else {
       ToastX.showShortToast(R.string.chat_message_type_not_support_tips);
-      ALog.e(LIB_TAG, TAG, "invalid file type");
+      ALog.d(LIB_TAG, TAG, "invalid file type");
     }
   }
 
@@ -687,7 +684,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
 
   public void sendMessage(IMMessage message, boolean resend, boolean needSendMessage) {
     if (message != null) {
-      ALog.d(LIB_TAG, TAG, "sendMessage:" + message.getUuid());
+      ALog.d(LIB_TAG, TAG, "sendMessage:" + message.getUuid() + "needACK:" + needACK);
       if (needACK && showRead) {
         message.setMsgAck();
       }

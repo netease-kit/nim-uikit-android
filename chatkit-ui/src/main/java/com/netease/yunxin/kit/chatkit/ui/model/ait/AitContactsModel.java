@@ -133,7 +133,7 @@ public class AitContactsModel {
     AitContactsModel model = new AitContactsModel();
     try {
       JSONArray jsonArray = jsonObject.names();
-      for (int index = 0; index < jsonArray.length(); index++) {
+      for (int index = 0; jsonArray != null && index < jsonArray.length(); index++) {
         String name = jsonArray.getString(index);
         JSONObject block = jsonObject.getJSONObject(name);
         model.aitBlocks.put(name, AitBlock.parseFromJson(block));

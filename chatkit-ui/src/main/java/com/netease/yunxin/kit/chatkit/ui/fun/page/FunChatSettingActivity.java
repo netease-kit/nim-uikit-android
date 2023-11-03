@@ -6,21 +6,14 @@ package com.netease.yunxin.kit.chatkit.ui.fun.page;
 
 import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.CHAT_P2P_INVITER_USER_LIMIT;
 import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
-import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.KEY_REQUEST_SELECTOR_NAME;
-import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.REQUEST_CONTACT_SELECTOR_KEY;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.msg.model.StickTopSessionInfo;
-import com.netease.nimlib.sdk.team.model.CreateTeamResult;
-import com.netease.nimlib.sdk.team.model.Team;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.repo.ConversationRepo;
 import com.netease.yunxin.kit.chatkit.ui.R;
@@ -63,8 +56,6 @@ public class FunChatSettingActivity extends BaseActivity {
         }
       };
 
-  private ActivityResultLauncher<Intent> launcher;
-
   @Override
   protected void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -93,40 +84,6 @@ public class FunChatSettingActivity extends BaseActivity {
     }
     refreshView();
     binding.addIv.setOnClickListener(v -> selectUsersCreateGroup());
-    String finalAccId = accId;
-    launcher =
-        registerForActivityResult(
-            new ActivityResultContracts.StartActivityForResult(),
-            result -> {
-              if (result.getResultCode() != RESULT_OK) {
-                return;
-              }
-              ALog.d(LIB_TAG, TAG, "contact selector result");
-              Intent data = result.getData();
-              if (data != null) {
-                ArrayList<String> friends =
-                    data.getStringArrayListExtra(REQUEST_CONTACT_SELECTOR_KEY);
-                if (friends != null && !friends.isEmpty()) {
-                  friends.add(finalAccId);
-                  XKitRouter.withKey(RouterConstant.PATH_FUN_CREATE_NORMAL_TEAM_ACTION)
-                      .withParam(REQUEST_CONTACT_SELECTOR_KEY, friends)
-                      .withParam(
-                          KEY_REQUEST_SELECTOR_NAME,
-                          data.getStringArrayListExtra(KEY_REQUEST_SELECTOR_NAME))
-                      .navigate(
-                          res -> {
-                            if (res.getSuccess() && res.getValue() instanceof CreateTeamResult) {
-                              Team teamInfo = ((CreateTeamResult) res.getValue()).getTeam();
-                              XKitRouter.withKey(RouterConstant.PATH_FUN_CHAT_TEAM_PAGE)
-                                  .withParam(RouterConstant.CHAT_KRY, teamInfo)
-                                  .withContext(FunChatSettingActivity.this)
-                                  .navigate();
-                              finish();
-                            }
-                          });
-                }
-              }
-            });
   }
 
   private void refreshView() {
@@ -136,7 +93,7 @@ public class FunChatSettingActivity extends BaseActivity {
     } else {
       String name =
           TextUtils.isEmpty(userInfo.getComment()) ? userInfo.getName() : userInfo.getComment();
-      if (name == null) {
+      if (TextUtils.isEmpty(name)) {
         name = userInfo.getAccount();
       }
       ALog.d(LIB_TAG, TAG, "initView name -->> " + name);
@@ -215,11 +172,12 @@ public class FunChatSettingActivity extends BaseActivity {
   private void selectUsersCreateGroup() {
     ArrayList<String> filterList = new ArrayList<>();
     filterList.add(accId);
-    XKitRouter.withKey(RouterConstant.PATH_FUN_CONTACT_SELECTOR_PAGE)
-        .withParam(RouterConstant.KEY_CONTACT_SELECTOR_MAX_COUNT, CHAT_P2P_INVITER_USER_LIMIT)
+    XKitRouter.withKey(RouterConstant.PATH_FUN_SELECT_CREATE_TEAM_PAGE)
+        .withParam(RouterConstant.KEY_CONTACT_SELECTOR_MAX_COUNT, CHAT_P2P_INVITER_USER_LIMIT - 1)
         .withParam(RouterConstant.KEY_REQUEST_SELECTOR_NAME_ENABLE, true)
         .withContext(this)
         .withParam(RouterConstant.SELECTOR_CONTACT_FILTER_KEY, filterList)
-        .navigate(launcher);
+        .withParam(RouterConstant.REQUEST_CONTACT_SELECTOR_KEY, filterList)
+        .navigate();
   }
 }

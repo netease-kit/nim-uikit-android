@@ -50,11 +50,17 @@ public class WatchImageActivity extends WatchBaseActivity {
   public void initData(Intent intent) {
     if (intent != null) {
       messages = (List<IMMessage>) intent.getSerializableExtra(EXT_MESSAGE_LIST_KEY);
+      if (messages == null || messages.size() < 1) {
+        finish();
+        return;
+      }
       firstDisplayImageIndex = intent.getIntExtra(EXT_FIRST_DISPLAY_INDEX_KEY, messages.size() - 1);
       ALog.d(
           LIB_TAG,
           TAG,
           "initData message size: " + messages.size() + " firstIndex:" + firstDisplayImageIndex);
+    } else {
+      finish();
     }
   }
 

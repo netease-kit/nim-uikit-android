@@ -30,7 +30,6 @@ import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.chatkit.ui.common.WatchTextMessageDialog;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatPinActivityBinding;
 import com.netease.yunxin.kit.chatkit.ui.dialog.ChatBaseForwardSelectDialog;
-import com.netease.yunxin.kit.chatkit.ui.dialog.ChatMessageForwardConfirmDialog;
 import com.netease.yunxin.kit.chatkit.ui.interfaces.IChatClickListener;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.page.adapter.PinMessageAdapter;
@@ -52,7 +51,7 @@ public abstract class ChatPinBaseActivity extends BaseActivity {
   protected String mSessionId;
   protected SessionTypeEnum mSessionType;
   protected PinMessageAdapter pinAdapter;
-  ChatMessageBean forwardMessage;
+  protected ChatMessageBean forwardMessage;
 
   protected ActivityResultLauncher<Intent> forwardP2PLauncher;
   protected ActivityResultLauncher<Intent> forwardTeamLauncher;
@@ -121,6 +120,14 @@ public abstract class ChatPinBaseActivity extends BaseActivity {
             this,
             result -> {
               pinAdapter.addData(result.getData());
+              showEmptyView(pinAdapter.getItemCount() < 1);
+            });
+    viewModel
+        .getDeleteMessageLiveData()
+        .observe(
+            this,
+            result -> {
+              pinAdapter.removeData(result.getData());
               showEmptyView(pinAdapter.getItemCount() < 1);
             });
 
@@ -298,19 +305,5 @@ public abstract class ChatPinBaseActivity extends BaseActivity {
     }
   }
 
-  protected void showForwardConfirmDialog(SessionTypeEnum type, ArrayList<String> sessionIds) {
-    ChatMessageForwardConfirmDialog confirmDialog =
-        ChatMessageForwardConfirmDialog.createForwardConfirmDialog(
-            type, sessionIds, forwardMessage.getMessageData());
-    confirmDialog.setCallback(
-        () -> {
-          if (forwardMessage != null) {
-            for (String accId : sessionIds) {
-              viewModel.sendForwardMessage(
-                  forwardMessage.getMessageData().getMessage(), accId, type);
-            }
-          }
-        });
-    confirmDialog.show(getSupportFragmentManager(), TAG);
-  }
+  protected void showForwardConfirmDialog(SessionTypeEnum type, ArrayList<String> sessionIds) {}
 }
