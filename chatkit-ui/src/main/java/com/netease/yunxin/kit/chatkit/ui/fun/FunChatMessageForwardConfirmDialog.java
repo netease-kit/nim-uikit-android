@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT license that can be
 // found in the LICENSE file.
 
-package com.netease.yunxin.kit.chatkit.ui.dialog;
+package com.netease.yunxin.kit.chatkit.ui.fun;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -17,17 +17,17 @@ import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.repo.ContactRepo;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatMessageForwardConfirmLayoutBinding;
-import com.netease.yunxin.kit.chatkit.ui.databinding.ChatUserSelectedItemLayoutBinding;
+import com.netease.yunxin.kit.chatkit.ui.databinding.FunChatUserSelectedItemLayoutBinding;
 import com.netease.yunxin.kit.common.ui.activities.adapter.CommonMoreAdapter;
 import com.netease.yunxin.kit.common.ui.activities.viewholder.BaseMoreViewHolder;
 import com.netease.yunxin.kit.common.ui.dialog.BaseDialog;
 import com.netease.yunxin.kit.common.ui.utils.AvatarColor;
-import com.netease.yunxin.kit.corekit.im.model.UserInfo;
+import com.netease.yunxin.kit.corekit.im.model.FriendInfo;
 import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
 import com.netease.yunxin.kit.corekit.im.provider.TeamProvider;
 import java.util.ArrayList;
 
-public class ChatMessageForwardConfirmDialog extends BaseDialog {
+public class FunChatMessageForwardConfirmDialog extends BaseDialog {
 
   public static final String TAG = "ChatMessageForwardConfirmDialog";
 
@@ -87,7 +87,7 @@ public class ChatMessageForwardConfirmDialog extends BaseDialog {
   }
 
   public static class UserAdapter
-      extends CommonMoreAdapter<String, ChatUserSelectedItemLayoutBinding> {
+      extends CommonMoreAdapter<String, FunChatUserSelectedItemLayoutBinding> {
 
     int forwardType;
 
@@ -97,23 +97,23 @@ public class ChatMessageForwardConfirmDialog extends BaseDialog {
 
     @NonNull
     @Override
-    public BaseMoreViewHolder<String, ChatUserSelectedItemLayoutBinding> getViewHolder(
+    public BaseMoreViewHolder<String, FunChatUserSelectedItemLayoutBinding> getViewHolder(
         @NonNull ViewGroup parent, int viewType) {
-      ChatUserSelectedItemLayoutBinding viewBinding =
-          ChatUserSelectedItemLayoutBinding.inflate(
+      FunChatUserSelectedItemLayoutBinding viewBinding =
+          FunChatUserSelectedItemLayoutBinding.inflate(
               LayoutInflater.from(parent.getContext()), parent, false);
       return new UserItemViewHolder(viewBinding).setData(getDataList().size() < 2, forwardType);
     }
   }
 
   public static class UserItemViewHolder
-      extends BaseMoreViewHolder<String, ChatUserSelectedItemLayoutBinding> {
+      extends BaseMoreViewHolder<String, FunChatUserSelectedItemLayoutBinding> {
 
     boolean showNickname;
 
     int forwardType;
 
-    public UserItemViewHolder(@NonNull ChatUserSelectedItemLayoutBinding binding) {
+    public UserItemViewHolder(@NonNull FunChatUserSelectedItemLayoutBinding binding) {
       super(binding);
     }
 
@@ -126,22 +126,22 @@ public class ChatMessageForwardConfirmDialog extends BaseDialog {
     @Override
     public void bind(String item) {
       if (forwardType == SessionTypeEnum.P2P.getValue()) {
-        ContactRepo.fetchUserInfo(
+        ContactRepo.fetchFriend(
             item,
-            new FetchCallback<UserInfo>() {
+            new FetchCallback<FriendInfo>() {
               @Override
-              public void onSuccess(@Nullable UserInfo userInfo) {
-                setUserInfo(userInfo, item);
+              public void onSuccess(@Nullable FriendInfo userInfo) {
+                setFriendInfo(userInfo, item);
               }
 
               @Override
               public void onFailed(int code) {
-                setUserInfo(null, item);
+                setFriendInfo(null, item);
               }
 
               @Override
               public void onException(@Nullable Throwable exception) {
-                setUserInfo(null, item);
+                setFriendInfo(null, item);
               }
             });
 
@@ -152,13 +152,20 @@ public class ChatMessageForwardConfirmDialog extends BaseDialog {
         avatar = team == null ? null : team.getIcon();
         nickname = team == null ? item : team.getName();
         getBinding().avatar.setData(avatar, nickname, AvatarColor.avatarColor(item));
+        if (showNickname) {
+          getBinding().nickname.setVisibility(View.VISIBLE);
+          getBinding().nickname.setText(nickname);
+        } else {
+          getBinding().nickname.setVisibility(View.GONE);
+        }
       }
     }
 
-    private void setUserInfo(UserInfo userInfo, String item) {
+    private void setFriendInfo(FriendInfo userInfo, String item) {
       String avatar = userInfo == null ? null : userInfo.getAvatar();
       String nickname = userInfo == null ? item : userInfo.getName();
-      getBinding().avatar.setData(avatar, nickname, AvatarColor.avatarColor(item));
+      String avatarName = userInfo == null ? item : userInfo.getAvatarName();
+      getBinding().avatar.setData(avatar, avatarName, AvatarColor.avatarColor(item));
       if (showNickname) {
         getBinding().nickname.setVisibility(View.VISIBLE);
         getBinding().nickname.setText(nickname);
@@ -168,17 +175,17 @@ public class ChatMessageForwardConfirmDialog extends BaseDialog {
     }
   }
 
-  public static ChatMessageForwardConfirmDialog createForwardConfirmDialog(
+  public static FunChatMessageForwardConfirmDialog createForwardConfirmDialog(
       SessionTypeEnum type, ArrayList<String> sessionIds, IMMessageInfo messageInfo) {
-    ChatMessageForwardConfirmDialog confirmDialog = new ChatMessageForwardConfirmDialog();
+    FunChatMessageForwardConfirmDialog confirmDialog = new FunChatMessageForwardConfirmDialog();
     Bundle bundle = new Bundle();
-    bundle.putInt(ChatMessageForwardConfirmDialog.FORWARD_TYPE, type.getValue());
-    bundle.putStringArrayList(ChatMessageForwardConfirmDialog.FORWARD_SESSION_LIST, sessionIds);
+    bundle.putInt(FunChatMessageForwardConfirmDialog.FORWARD_TYPE, type.getValue());
+    bundle.putStringArrayList(FunChatMessageForwardConfirmDialog.FORWARD_SESSION_LIST, sessionIds);
     String sendName =
         messageInfo.getFromUser() == null
             ? messageInfo.getMessage().getFromAccount()
             : messageInfo.getFromUser().getName();
-    bundle.putString(ChatMessageForwardConfirmDialog.FORWARD_MESSAGE_SEND, sendName);
+    bundle.putString(FunChatMessageForwardConfirmDialog.FORWARD_MESSAGE_SEND, sendName);
     confirmDialog.setArguments(bundle);
 
     return confirmDialog;

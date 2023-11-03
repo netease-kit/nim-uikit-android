@@ -95,6 +95,12 @@ public class ChatLocationMessageViewHolder extends FunChatBaseMessageViewHolder 
     renderHandler.postDelayed(renderAction, INTERVAL);
   }
 
+  @Override
+  protected void onMessageBackgroundConfig(ChatMessageBean messageBean) {
+    View firstChild = baseViewBinding.messageContainer.getChildAt(0);
+    firstChild.setBackgroundResource(R.drawable.fun_message_location_bg);
+  }
+
   private void addMapViewToGroup(ViewGroup group) {
     if (ChatKitClient.getMessageMapProvider() == null || attachment == null) {
       return;

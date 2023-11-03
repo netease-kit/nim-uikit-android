@@ -217,8 +217,7 @@ public class FunChatView extends LinearLayout implements IChatView {
   }
 
   public MessageBottomLayout getInputView() {
-    //    return binding.inputView;
-    return null;
+    return binding.inputView;
   }
 
   public FrameLayout getChatBodyLayout() {

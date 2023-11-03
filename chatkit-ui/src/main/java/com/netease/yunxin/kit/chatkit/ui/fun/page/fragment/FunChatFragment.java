@@ -9,13 +9,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatUtils;
 import com.netease.yunxin.kit.chatkit.ui.databinding.FunChatFragmentBinding;
 import com.netease.yunxin.kit.chatkit.ui.dialog.ChatBaseForwardSelectDialog;
 import com.netease.yunxin.kit.chatkit.ui.fun.FunChatForwardSelectDialog;
+import com.netease.yunxin.kit.chatkit.ui.fun.FunChatMessageForwardConfirmDialog;
+import com.netease.yunxin.kit.chatkit.ui.normal.ChatMessageForwardConfirmDialog;
 import com.netease.yunxin.kit.chatkit.ui.page.fragment.ChatBaseFragment;
 import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
+import java.util.ArrayList;
 
 public abstract class FunChatFragment extends ChatBaseFragment {
 
@@ -54,10 +58,27 @@ public abstract class FunChatFragment extends ChatBaseFragment {
             ChatUtils.startP2PSelector(
                 getContext(),
                 RouterConstant.PATH_FUN_CONTACT_SELECTOR_PAGE,
-                sessionID,
+                null,
                 forwardP2PLauncher);
           }
         });
     return dialog;
+  }
+
+  @Override
+  public void showForwardConfirmDialog(SessionTypeEnum type, ArrayList<String> sessionIds) {
+    FunChatMessageForwardConfirmDialog confirmDialog =
+        FunChatMessageForwardConfirmDialog.createForwardConfirmDialog(
+            type, sessionIds, forwardMessage.getMessageData());
+    confirmDialog.setCallback(
+        () -> {
+          if (forwardMessage != null) {
+            for (String accId : sessionIds) {
+              viewModel.sendForwardMessage(
+                  forwardMessage.getMessageData().getMessage(), accId, type);
+            }
+          }
+        });
+    confirmDialog.show(getParentFragmentManager(), ChatMessageForwardConfirmDialog.TAG);
   }
 }

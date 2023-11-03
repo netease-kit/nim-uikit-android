@@ -104,6 +104,10 @@ public class ChatUIService extends ChatService {
             PATH_CHAT_SEND_TEAM_TIP_ACTION,
             (value, params, observer) -> {
               String sessionId = params.get(KEY_SESSION_ID).toString();
+              long messageTime = System.currentTimeMillis() - timeGap;
+              if (params.containsKey(RouterConstant.KEY_MESSAGE_TIME)) {
+                messageTime = (long) params.get(RouterConstant.KEY_MESSAGE_TIME);
+              }
               Map<String, Object> extension = null;
               if (params.containsKey(KEY_REMOTE_EXTENSION)) {
                 extension = (Map<String, Object>) params.get(KEY_REMOTE_EXTENSION);
@@ -112,7 +116,7 @@ public class ChatUIService extends ChatService {
                   sessionId,
                   extension,
                   false,
-                  timeGap,
+                  messageTime,
                   new FetchCallback<Void>() {
                     @Override
                     public void onSuccess(@Nullable Void param) {

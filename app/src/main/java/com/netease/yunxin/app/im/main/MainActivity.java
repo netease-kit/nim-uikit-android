@@ -27,6 +27,8 @@ import com.netease.yunxin.app.im.utils.Constant;
 import com.netease.yunxin.app.im.utils.DataUtils;
 import com.netease.yunxin.app.im.welcome.WelcomeActivity;
 import com.netease.yunxin.kit.alog.ALog;
+import com.netease.yunxin.kit.call.p2p.NECallEngine;
+import com.netease.yunxin.kit.call.p2p.model.NECallInitRtcMode;
 import com.netease.yunxin.kit.chatkit.repo.ContactRepo;
 import com.netease.yunxin.kit.chatkit.ui.custom.ChatConfigManager;
 import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
@@ -272,47 +274,48 @@ public class MainActivity extends BaseActivity {
   private void configCallKit() {
 
     CallKitUIOptions options =
-        new CallKitUIOptions.Builder()
-            // 必要：音视频通话 sdk appKey，用于通话中使用
-            .rtcAppKey(DataUtils.readAppKey(this))
-            // 必要：当前用户 AccId
-            .currentUserAccId(IMKitClient.account())
-            // 通话接听成功的超时时间单位 毫秒，默认30s
-            .timeOutMillisecond(30 * 1000L)
-            // 此处为 收到来电时展示的 notification 相关配置，如图标，提示语等。
-            .notificationConfigFetcher(
-                invitedInfo -> {
-                  UserInfo info = ContactRepo.getUserInfo(invitedInfo.invitor);
-                  String content =
-                      (info != null ? info.getUserInfoName() : invitedInfo.invitor)
-                          + (invitedInfo.channelType == ChannelType.AUDIO.getValue()
-                              ? getString(R.string.incoming_call_notify_audio)
-                              : getString(R.string.incoming_call_notify_video));
-                  ALog.e("=======" + content);
-                  return new CallKitNotificationConfig(R.mipmap.ic_logo, null, null, content);
-                })
-            // 收到被叫时若 app 在后台，在恢复到前台时是否自动唤起被叫页面，默认为 true
-            .resumeBGInvitation(true)
-            // 请求 rtc token 服务，若非安全模式则不需设置(V1.8.0版本之前需要配置，V1.8.0及之后版本无需配置)
-            //.rtcTokenService((uid, callback) -> requestRtcToken(appKey, uid, callback)) // 自己实现的 token 请求方法
-            // 设置初始化 rtc sdk 相关配置，按照所需进行配置
-            .rtcSdkOption(new NERtcOption())
-            // 呼叫组件初始化 rtc 范围，true-全局初始化，false-每次通话进行初始化以及销毁
-            // 全局初始化有助于更快进入首帧页面，当结合其他组件使用时存在rtc初始化冲突可设置false
-            .rtcInitScope(false)
-            .build();
+            new CallKitUIOptions.Builder()
+                    // 必要：音视频通话 sdk appKey，用于通话中使用
+                    .rtcAppKey(DataUtils.readAppKey(this))
+                    // 必要：当前用户 AccId
+                    .currentUserAccId(IMKitClient.account())
+                    // 通话接听成功的超时时间单位 毫秒，默认30s
+                    .timeOutMillisecond(30 * 1000L)
+                    // 此处为 收到来电时展示的 notification 相关配置，如图标，提示语等。
+                    .notificationConfigFetcher(
+                            invitedInfo -> {
+                              UserInfo info = ContactRepo.getUserInfoFromLocal(invitedInfo.callerAccId);
+                              String content =
+                                      (info != null ? info.getUserInfoName() : invitedInfo.callerAccId)
+                                              + (invitedInfo.callType == ChannelType.AUDIO.getValue()
+                                              ? getString(R.string.incoming_call_notify_audio)
+                                              : getString(R.string.incoming_call_notify_video));
+                              ALog.d("=======" + content);
+                              return new CallKitNotificationConfig(R.mipmap.ic_logo, null, null, content);
+                            })
+                    // 收到被叫时若 app 在后台，在恢复到前台时是否自动唤起被叫页面，默认为 true
+                    .resumeBGInvitation(true)
+                    // 请求 rtc token 服务，若非安全模式则不需设置(V1.8.0版本之前需要配置，V1.8.0及之后版本无需配置)
+                    //.rtcTokenService((uid, callback) -> requestRtcToken(appKey, uid, callback)) // 自己实现的 token 请求方法
+                    // 设置初始化 rtc sdk 相关配置，按照所需进行配置
+                    .rtcSdkOption(new NERtcOption())
+                    // 呼叫组件初始化 rtc 范围，NECallInitRtcMode.GLOBAL-全局初始化，
+                    // NECallInitRtcMode.IN_NEED-每次通话进行初始化以及销毁，全局初始化有助于更快进入首帧页面，
+                    // 当结合其他组件使用时存在rtc初始化冲突可设置NECallInitRtcMode.IN_NEED
+                    // 或当结合其他组件使用时存在rtc初始化冲突可设置NECallInitRtcMode.IN_NEED_DELAY_TO_ACCEPT
+                    .initRtcMode(NECallInitRtcMode.GLOBAL)
+                    .build();
     // 设置自定义话单消息发送
-    NERTCVideoCall.sharedInstance().setCallOrderListener(new CustomCallOrderHelper());
+    NECallEngine.sharedInstance().setCallRecordProvider(new CustomCallOrderProvider());
     // 若重复初始化会销毁之前的初始化实例，重新初始化
     CallKitUI.init(getApplicationContext(), options);
-    NIMClient.getService(AuthServiceObserver.class).observeOnlineStatus(new Observer<StatusCode>() {
-      @Override
-      public void onEvent(StatusCode statusCode) {
-        if (statusCode == StatusCode.LOGOUT){
-          CallKitUI.destroy();
-        }
-      }
-    },true);
+    IMKitClient.getAuthServiceObserver().observeOnlineStatus(
+            (Observer<StatusCode>) statusCode -> {
+              if (statusCode == StatusCode.LOGOUT) {
+                CallKitUI.destroy();
+              }
+            },
+            true);
   }
 
   private void loadConfig() {

@@ -10,12 +10,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatUtils;
 import com.netease.yunxin.kit.chatkit.ui.databinding.NormalChatFragmentBinding;
 import com.netease.yunxin.kit.chatkit.ui.dialog.ChatBaseForwardSelectDialog;
+import com.netease.yunxin.kit.chatkit.ui.normal.ChatMessageForwardConfirmDialog;
 import com.netease.yunxin.kit.chatkit.ui.normal.ChatMessageForwardSelectDialog;
 import com.netease.yunxin.kit.chatkit.ui.page.fragment.ChatBaseFragment;
 import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
+import java.util.ArrayList;
 
 public abstract class NormalChatFragment extends ChatBaseFragment {
   NormalChatFragmentBinding viewBinding;
@@ -45,13 +48,27 @@ public abstract class NormalChatFragment extends ChatBaseFragment {
           @Override
           public void onP2PSelected() {
             ChatUtils.startP2PSelector(
-                getContext(),
-                RouterConstant.PATH_CONTACT_SELECTOR_PAGE,
-                sessionID,
-                forwardP2PLauncher);
+                getContext(), RouterConstant.PATH_CONTACT_SELECTOR_PAGE, null, forwardP2PLauncher);
           }
         });
     return dialog;
+  }
+
+  @Override
+  public void showForwardConfirmDialog(SessionTypeEnum type, ArrayList<String> sessionIds) {
+    ChatMessageForwardConfirmDialog confirmDialog =
+        ChatMessageForwardConfirmDialog.createForwardConfirmDialog(
+            type, sessionIds, forwardMessage.getMessageData());
+    confirmDialog.setCallback(
+        () -> {
+          if (forwardMessage != null) {
+            for (String accId : sessionIds) {
+              viewModel.sendForwardMessage(
+                  forwardMessage.getMessageData().getMessage(), accId, type);
+            }
+          }
+        });
+    confirmDialog.show(getParentFragmentManager(), ChatMessageForwardConfirmDialog.TAG);
   }
 
   @Override

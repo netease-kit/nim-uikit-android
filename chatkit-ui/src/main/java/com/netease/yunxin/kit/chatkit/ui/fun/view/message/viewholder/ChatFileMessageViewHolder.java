@@ -14,6 +14,7 @@ import androidx.annotation.NonNull;
 import com.netease.nimlib.sdk.msg.attachment.FileAttachment;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
 import com.netease.yunxin.kit.alog.ALog;
+import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatUtils;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatBaseMessageViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.databinding.FunChatMessageFileViewHolderBinding;
@@ -109,6 +110,11 @@ public class ChatFileMessageViewHolder extends FunChatBaseMessageViewHolder {
       binding.progressBarInsideIcon.setVisibility(View.VISIBLE);
       binding.progressBar.setProgress(progress);
     }
+  }
+
+  @Override
+  protected void onMessageBackgroundConfig(ChatMessageBean messageBean) {
+    baseViewBinding.messageContainer.setBackgroundResource(R.color.title_transfer);
   }
 
   @Override

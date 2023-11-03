@@ -37,6 +37,11 @@ public class ChatTipsMessageViewHolder extends FunChatBaseMessageViewHolder {
   }
 
   @Override
+  protected void onMessageBackgroundConfig(ChatMessageBean messageBean) {
+    baseViewBinding.messageContainer.setBackgroundResource(R.color.title_transfer);
+  }
+
+  @Override
   protected void onLayoutConfig(ChatMessageBean messageBean) {
     ConstraintLayout.LayoutParams messageContainerLayoutParams =
         (ConstraintLayout.LayoutParams) baseViewBinding.messageContainer.getLayoutParams();
@@ -51,8 +56,16 @@ public class ChatTipsMessageViewHolder extends FunChatBaseMessageViewHolder {
 
   @Override
   protected void onCommonViewVisibleConfig(ChatMessageBean messageBean) {
-    super.onCommonViewVisibleConfig(messageBean);
     baseViewBinding.otherUsername.setVisibility(View.GONE);
+    baseViewBinding.otherUserAvatar.setVisibility(View.GONE);
+    baseViewBinding.myAvatar.setVisibility(View.GONE);
+    baseViewBinding.myName.setVisibility(View.GONE);
+    baseViewBinding.messageStatus.setVisibility(View.GONE);
+  }
+
+  @Override
+  protected boolean needShowTimeView(ChatMessageBean message, ChatMessageBean lastMessage) {
+    return lastMessage == null;
   }
 
   @Override
@@ -72,9 +85,6 @@ public class ChatTipsMessageViewHolder extends FunChatBaseMessageViewHolder {
           IMKitClient.getApplicationContext().getResources().getColor(R.color.color_999999));
       textBinding.messageTipText.setTextSize(12);
       textBinding.messageTipText.setText(content);
-      if (lastMessage == null) {
-        setTime(message, null);
-      }
     } else {
       baseViewBinding.baseRoot.setVisibility(View.GONE);
     }

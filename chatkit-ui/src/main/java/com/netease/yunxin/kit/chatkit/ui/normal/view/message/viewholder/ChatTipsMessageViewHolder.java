@@ -37,6 +37,11 @@ public class ChatTipsMessageViewHolder extends NormalChatBaseMessageViewHolder {
   }
 
   @Override
+  protected void onMessageBackgroundConfig(ChatMessageBean messageBean) {
+    baseViewBinding.contentWithTopLayer.setBackgroundResource(R.color.title_transfer);
+  }
+
+  @Override
   protected void onLayoutConfig(ChatMessageBean messageBean) {
     ConstraintLayout.LayoutParams messageContainerLayoutParams =
         (ConstraintLayout.LayoutParams) baseViewBinding.messageContainer.getLayoutParams();
@@ -51,13 +56,20 @@ public class ChatTipsMessageViewHolder extends NormalChatBaseMessageViewHolder {
 
   @Override
   protected void onCommonViewVisibleConfig(ChatMessageBean messageBean) {
-    super.onCommonViewVisibleConfig(messageBean);
     baseViewBinding.otherUsername.setVisibility(View.GONE);
+    baseViewBinding.otherUserAvatar.setVisibility(View.GONE);
+    baseViewBinding.myAvatar.setVisibility(View.GONE);
+    baseViewBinding.myName.setVisibility(View.GONE);
+    baseViewBinding.messageStatus.setVisibility(View.GONE);
   }
 
   @Override
   public void bindData(ChatMessageBean message, ChatMessageBean lastMessage) {
     super.bindData(message, lastMessage);
+    loadData(message, lastMessage, true);
+  }
+
+  private void loadData(ChatMessageBean message, ChatMessageBean lastMessage, boolean refreshTime) {
     String content = message.getMessageData().getMessage().getContent();
     if (content == null || content.isEmpty()) {
       // create team tip
@@ -72,11 +84,21 @@ public class ChatTipsMessageViewHolder extends NormalChatBaseMessageViewHolder {
           IMKitClient.getApplicationContext().getResources().getColor(R.color.color_999999));
       textBinding.messageTipText.setTextSize(12);
       textBinding.messageTipText.setText(content);
-      if (lastMessage == null) {
-        setTime(message, null);
-      }
     } else {
       baseViewBinding.baseRoot.setVisibility(View.GONE);
     }
+  }
+
+  @Override
+  protected boolean needMessageClickAndExtra() {
+    baseViewBinding.otherUserAvatar.setVisibility(View.GONE);
+    baseViewBinding.myAvatar.setVisibility(View.GONE);
+    baseViewBinding.messageStatus.setVisibility(View.GONE);
+    return false;
+  }
+
+  @Override
+  protected boolean needShowTimeView(ChatMessageBean message, ChatMessageBean lastMessage) {
+    return lastMessage == null;
   }
 }

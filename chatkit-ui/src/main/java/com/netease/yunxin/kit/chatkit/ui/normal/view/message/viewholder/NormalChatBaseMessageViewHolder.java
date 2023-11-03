@@ -14,7 +14,6 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import com.netease.nimlib.sdk.msg.model.MsgThreadOption;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
-import com.netease.yunxin.kit.chatkit.ui.ChatMessageType;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatBaseMessageViewHolderBinding;
@@ -77,24 +76,6 @@ public class NormalChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
       }
     }
     if (isCustomBgValid) {
-      return;
-    }
-
-    if (!messageBean.isRevoked()
-        && (type == ChatMessageType.NOTICE_MESSAGE_VIEW_TYPE
-            || type == ChatMessageType.TIP_MESSAGE_VIEW_TYPE
-            || type == ChatMessageType.NORMAL_MESSAGE_VIEW_TYPE_FILE)) {
-      baseViewBinding.contentWithTopLayer.setBackgroundResource(R.color.title_transfer);
-      return;
-    }
-    if (!messageBean.isRevoked() && type == ChatMessageType.LOCATION_MESSAGE_VIEW_TYPE) {
-      if (isReceivedMsg) {
-        baseViewBinding.contentWithTopLayer.setBackgroundResource(
-            R.drawable.chat_message_stroke_other_bg);
-      } else {
-        baseViewBinding.contentWithTopLayer.setBackgroundResource(
-            R.drawable.chat_message_stoke_self_bg);
-      }
       return;
     }
     if (isReceivedMsg) {

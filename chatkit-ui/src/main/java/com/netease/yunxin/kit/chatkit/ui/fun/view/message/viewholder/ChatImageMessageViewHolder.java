@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 import com.netease.nimlib.sdk.msg.attachment.ImageAttachment;
 import com.netease.nimlib.sdk.msg.constant.AttachStatusEnum;
 import com.netease.nimlib.sdk.msg.constant.MsgStatusEnum;
+import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatBaseMessageViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.common.utils.ImageUtils;
@@ -65,5 +66,10 @@ public class ChatImageMessageViewHolder extends ChatThumbBaseViewHolder {
   protected float[] getCorners() {
     int corner = SizeUtils.dp2px(4);
     return new float[] {corner, corner, corner, corner};
+  }
+
+  @Override
+  protected void onMessageBackgroundConfig(ChatMessageBean messageBean) {
+    baseViewBinding.messageContainer.setBackgroundResource(R.color.title_transfer);
   }
 }

@@ -81,6 +81,21 @@ public abstract class BaseTeamMemberListActivity extends BaseActivity {
     configViewModel();
   }
 
+  @Override
+  protected void onResume() {
+    super.onResume();
+    if (NetworkUtils.isConnected()) {
+      if (ivClear.getVisibility() == View.GONE) {
+        model.requestTeamMembers(teamId);
+      }
+    } else {
+      dismissLoading();
+      Toast.makeText(
+              getApplicationContext(), getString(R.string.team_network_error), Toast.LENGTH_SHORT)
+          .show();
+    }
+  }
+
   protected abstract View initViewAndGetRootView(Bundle savedInstanceState);
 
   protected void checkViews() {
@@ -127,6 +142,7 @@ public abstract class BaseTeamMemberListActivity extends BaseActivity {
 
             if (TextUtils.isEmpty(String.valueOf(s))) {
               ivClear.setVisibility(View.GONE);
+              model.requestTeamMembers(teamId);
             } else {
               ivClear.setVisibility(View.VISIBLE);
             }
@@ -135,15 +151,6 @@ public abstract class BaseTeamMemberListActivity extends BaseActivity {
   }
 
   private void configViewModel() {
-    showLoading();
-    if (NetworkUtils.isConnected()) {
-      model.requestTeamMembers(teamId);
-    } else {
-      dismissLoading();
-      Toast.makeText(
-              getApplicationContext(), getString(R.string.team_network_error), Toast.LENGTH_SHORT)
-          .show();
-    }
     model
         .getUserInfoData()
         .observe(

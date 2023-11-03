@@ -12,7 +12,6 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -57,7 +56,6 @@ import com.netease.yunxin.kit.chatkit.ui.common.ChatUtils;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.chatkit.ui.common.WatchTextMessageDialog;
 import com.netease.yunxin.kit.chatkit.ui.dialog.ChatBaseForwardSelectDialog;
-import com.netease.yunxin.kit.chatkit.ui.dialog.ChatMessageForwardConfirmDialog;
 import com.netease.yunxin.kit.chatkit.ui.interfaces.IChatView;
 import com.netease.yunxin.kit.chatkit.ui.interfaces.IMessageItemClickListener;
 import com.netease.yunxin.kit.chatkit.ui.interfaces.IMessageLoadHandler;
@@ -1080,21 +1078,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
             new ActivityResultContracts.StartActivityForResult(), this::onSelectLocation);
   }
 
-  private void showForwardConfirmDialog(SessionTypeEnum type, ArrayList<String> sessionIds) {
-    ChatMessageForwardConfirmDialog confirmDialog =
-        ChatMessageForwardConfirmDialog.createForwardConfirmDialog(
-            type, sessionIds, forwardMessage.getMessageData());
-    confirmDialog.setCallback(
-        () -> {
-          if (forwardMessage != null) {
-            for (String accId : sessionIds) {
-              viewModel.sendForwardMessage(
-                  forwardMessage.getMessageData().getMessage(), accId, type);
-            }
-          }
-        });
-    confirmDialog.show(getParentFragmentManager(), ChatMessageForwardConfirmDialog.TAG);
-  }
+  public void showForwardConfirmDialog(SessionTypeEnum type, ArrayList<String> sessionIds) {}
 
   protected void onLoadMessage(FetchResult<List<ChatMessageBean>> listFetchResult) {
     if (listFetchResult == null) {
@@ -1305,15 +1289,16 @@ public abstract class ChatBaseFragment extends BaseFragment {
 
   private final NetworkUtils.NetworkStateListener networkStateListener =
       new NetworkUtils.NetworkStateListener() {
+
         @Override
-        public void onAvailable(NetworkInfo network) {
+        public void onConnected(NetworkUtils.NetworkType networkType) {
           ALog.d(LIB_TAG, LOG_TAG, "onNewIntent");
           chatView.setNetWorkState(true);
           refreshTeamMessageReceiptForNetBroken();
         }
 
         @Override
-        public void onLost(NetworkInfo network) {
+        public void onDisconnected() {
           chatView.setNetWorkState(false);
         }
       };

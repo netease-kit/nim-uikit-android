@@ -8,7 +8,6 @@ import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
 
 import android.content.Context;
 import android.content.Intent;
-import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.Editable;
@@ -255,8 +254,9 @@ public class LocationPageActivity extends BaseActivity {
 
   private final NetworkUtils.NetworkStateListener networkStateListener =
       new NetworkUtils.NetworkStateListener() {
+
         @Override
-        public void onAvailable(NetworkInfo network) {
+        public void onConnected(NetworkUtils.NetworkType networkType) {
           if (binding == null) {
             return;
           }
@@ -264,7 +264,7 @@ public class LocationPageActivity extends BaseActivity {
         }
 
         @Override
-        public void onLost(NetworkInfo network) {
+        public void onDisconnected() {
           if (binding == null) {
             return;
           }
@@ -275,9 +275,9 @@ public class LocationPageActivity extends BaseActivity {
   @Override
   protected void onResume() {
     super.onResume();
-      if (pageMapProvider != null) {
-          pageMapProvider.getChatMap().onResume();
-      }
+    if (pageMapProvider != null) {
+      pageMapProvider.getChatMap().onResume();
+    }
     if (NetworkUtils.isConnected()) {
       binding.mapViewSend.setBackgroundResource(R.drawable.bg_corner_button);
     } else {
@@ -288,9 +288,9 @@ public class LocationPageActivity extends BaseActivity {
   @Override
   protected void onPause() {
     super.onPause();
-      if (pageMapProvider != null) {
-          pageMapProvider.getChatMap().onPause();
-      }
+    if (pageMapProvider != null) {
+      pageMapProvider.getChatMap().onPause();
+    }
   }
 
   @Override
@@ -304,9 +304,9 @@ public class LocationPageActivity extends BaseActivity {
   protected void onDestroy() {
     super.onDestroy();
     NetworkUtils.unregisterNetworkStatusChangedListener(networkStateListener);
-      if (pageMapProvider != null) {
-          pageMapProvider.getChatMap().onDestroy();
-          pageMapProvider.onDestroy();
-      }
+    if (pageMapProvider != null) {
+      pageMapProvider.getChatMap().onDestroy();
+      pageMapProvider.onDestroy();
+    }
   }
 }
