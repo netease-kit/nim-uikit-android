@@ -41,7 +41,7 @@ android {
 
 dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
-    api("com.netease.yunxin.kit.chat:chatkit:9.6.3")
+    api("com.netease.yunxin.kit.chat:chatkit:9.6.4")
     api("com.netease.yunxin.kit.common:common-ui:1.3.1")
     api("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.21") 
     implementation("androidx.appcompat:appcompat:1.4.2")
