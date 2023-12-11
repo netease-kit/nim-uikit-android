@@ -28,6 +28,7 @@ import com.netease.yunxin.kit.conversationkit.ui.databinding.FunConversationFrag
 import com.netease.yunxin.kit.conversationkit.ui.fun.FunPopItemFactory;
 import com.netease.yunxin.kit.conversationkit.ui.fun.FunViewHolderFactory;
 import com.netease.yunxin.kit.conversationkit.ui.page.ConversationBaseFragment;
+import com.netease.yunxin.kit.corekit.im.IMKitClient;
 import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 
@@ -61,20 +62,26 @@ public class FunConversationFragment extends ConversationBaseFragment {
             ConversationKitClient.getConversationUIConfig().titleBarRightClick.onClick(v);
             return;
           }
-          Context context = getContext();
-          int memberLimit = ConversationUIConstant.MAX_TEAM_MEMBER;
-          ContentListPopView contentListPopView =
-              new ContentListPopView.Builder(context)
-                  .addItem(FunPopItemFactory.getAddFriendItem(context))
-                  .addItem(FunPopItemFactory.getDivideLineItem(context))
-                  .addItem(FunPopItemFactory.getCreateGroupTeamItem(context, memberLimit))
-                  .addItem(FunPopItemFactory.getDivideLineItem(context))
-                  .addItem(FunPopItemFactory.getCreateAdvancedTeamItem(context, memberLimit))
-                  .enableShadow(false)
-                  .backgroundRes(R.drawable.fun_conversation_view_pop_bg)
-                  .build();
-          contentListPopView.showAsDropDown(
-              v, (int) requireContext().getResources().getDimension(R.dimen.pop_margin_right), 0);
+          if (IMKitClient.getConfigCenter().getTeamEnable()) {
+            Context context = getContext();
+            int memberLimit = ConversationUIConstant.MAX_TEAM_MEMBER;
+            ContentListPopView contentListPopView =
+                new ContentListPopView.Builder(context)
+                    .addItem(FunPopItemFactory.getAddFriendItem(context))
+                    .addItem(FunPopItemFactory.getDivideLineItem(context))
+                    .addItem(FunPopItemFactory.getCreateGroupTeamItem(context, memberLimit))
+                    .addItem(FunPopItemFactory.getDivideLineItem(context))
+                    .addItem(FunPopItemFactory.getCreateAdvancedTeamItem(context, memberLimit))
+                    .enableShadow(false)
+                    .backgroundRes(R.drawable.fun_conversation_view_pop_bg)
+                    .build();
+            contentListPopView.showAsDropDown(
+                v, (int) requireContext().getResources().getDimension(R.dimen.pop_margin_right), 0);
+          } else {
+            XKitRouter.withKey(RouterConstant.PATH_FUN_ADD_FRIEND_PAGE)
+                .withContext(requireContext())
+                .navigate();
+          }
         });
 
     viewBinding.searchLayout.setOnClickListener(

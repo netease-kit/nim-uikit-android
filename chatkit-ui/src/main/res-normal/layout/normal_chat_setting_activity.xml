@@ -41,6 +41,8 @@
             android:maxLines="1"
             android:ellipsize="end"
             android:gravity="center_horizontal"
+            android:textSize="@dimen/text_size_12"
+            android:textColor="@color/color_666666"
             app:layout_constraintTop_toBottomOf="@id/avatarView"
             app:layout_constraintLeft_toLeftOf="@id/avatarView"
             app:layout_constraintRight_toRightOf="@id/avatarView" />
@@ -53,6 +55,19 @@
             app:layout_constraintLeft_toRightOf="@id/avatarView"
             android:src="@drawable/ic_chat_setting_add_member"
             android:layout_marginStart="@dimen/dimen_16_dp" />
+        <TextView
+            android:id="@+id/noTeamNameTv"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/dimen_42_dp"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:gravity="center_vertical"
+            android:textSize="@dimen/text_size_12"
+            android:textColor="@color/color_666666"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintLeft_toRightOf="@id/avatarView"
+            android:layout_marginStart="@dimen/dimen_16_dp"
+            android:visibility="gone"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

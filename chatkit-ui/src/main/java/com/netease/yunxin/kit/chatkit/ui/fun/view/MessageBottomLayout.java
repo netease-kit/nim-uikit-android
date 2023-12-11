@@ -614,6 +614,13 @@ public class MessageBottomLayout extends FrameLayout
     switchInput();
   }
 
+  public void setInputText(String msgContent) {
+    mBinding.inputEt.setText(msgContent);
+    mBinding.inputEt.requestFocus();
+    mBinding.inputEt.setSelection(mBinding.inputEt.getText().length());
+    switchInput();
+  }
+
   private void clearReplyMsg() {
     replyMessage = null;
     mBinding.replyLayout.setVisibility(GONE);

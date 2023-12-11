@@ -39,6 +39,7 @@ import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
 import com.netease.yunxin.kit.common.ui.dialog.BaseBottomChoiceDialog;
 import com.netease.yunxin.kit.common.ui.dialog.BottomChoiceDialog;
 import com.netease.yunxin.kit.common.utils.NetworkUtils;
+import com.netease.yunxin.kit.corekit.im.IMKitClient;
 import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 import java.util.ArrayList;
@@ -297,11 +298,19 @@ public abstract class ChatPinBaseActivity extends BaseActivity {
 
   protected abstract ChatBaseForwardSelectDialog getForwardSelectDialog();
 
+  protected abstract void toP2PSelected();
+
+  protected abstract void toTeamSelected();
+
   protected void onTransmit(ChatMessageBean messageBean) {
     forwardMessage = messageBean;
-    ChatBaseForwardSelectDialog dialog = getForwardSelectDialog();
-    if (dialog != null) {
-      dialog.show(getSupportFragmentManager(), TAG);
+    if (IMKitClient.getConfigCenter().getTeamEnable()) {
+      ChatBaseForwardSelectDialog dialog = getForwardSelectDialog();
+      if (dialog != null) {
+        dialog.show(getSupportFragmentManager(), TAG);
+      }
+    } else {
+      toP2PSelected();
     }
   }
 

@@ -50,6 +50,12 @@ public class ContactViewModel extends BaseViewModel {
   private ContactEntranceBean verifyBean;
   private int unreadCount = 0;
 
+  private boolean isSelectorPage = false;
+
+  public void setSelectorPage(boolean selectorPage) {
+    isSelectorPage = selectorPage;
+  }
+
   public ContactViewModel() {
     registerObserver();
   }
@@ -205,6 +211,9 @@ public class ContactViewModel extends BaseViewModel {
 
   private final LoginSyncObserver loginSyncObserver =
       (syncStatus) -> {
+        if (isSelectorPage) {
+          return;
+        }
         ALog.d(LIB_TAG, TAG, "loginSyncObserver:" + syncStatus.name());
         if (syncStatus == SyncStatus.Complete) {
           fetchContactList();

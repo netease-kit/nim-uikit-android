@@ -13,6 +13,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.MediaStore;
@@ -239,7 +240,8 @@ public abstract class ChatBaseFragment extends BaseFragment {
                         startCaptureVideo();
                       }
                     } else if (TextUtils.equals(
-                        permission, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                            permission, Manifest.permission.READ_EXTERNAL_STORAGE)
+                        || TextUtils.equals(permission, Manifest.permission.READ_MEDIA_IMAGES)) {
                       if (currentRequest == REQUEST_READ_EXTERNAL_STORAGE_PERMISSION_ALBUM) {
                         startPickMedia();
                       } else if (currentRequest == REQUEST_READ_EXTERNAL_STORAGE_PERMISSION_FILE) {
@@ -376,13 +378,18 @@ public abstract class ChatBaseFragment extends BaseFragment {
 
         @Override
         public void pickMedia() {
-          if (PermissionUtils.hasPermissions(
-              ChatBaseFragment.this.getContext(), Manifest.permission.READ_EXTERNAL_STORAGE)) {
+          String[] permission = new String[] {Manifest.permission.READ_EXTERNAL_STORAGE};
+          //根据系统版本判断，如果是Android13则采用Manifest.permission.READ_MEDIA_IMAGES
+          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            permission =
+                new String[] {
+                  Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_MEDIA_VIDEO
+                };
+          }
+          if (PermissionUtils.hasPermissions(ChatBaseFragment.this.getContext(), permission)) {
             startPickMedia();
           } else {
-            requestCameraPermission(
-                Manifest.permission.READ_EXTERNAL_STORAGE,
-                REQUEST_READ_EXTERNAL_STORAGE_PERMISSION_ALBUM);
+            requestCameraPermission(permission, REQUEST_READ_EXTERNAL_STORAGE_PERMISSION_ALBUM);
           }
         }
 
@@ -408,13 +415,18 @@ public abstract class ChatBaseFragment extends BaseFragment {
 
         @Override
         public boolean sendFile() {
-          if (PermissionUtils.hasPermissions(
-              ChatBaseFragment.this.getContext(), Manifest.permission.READ_EXTERNAL_STORAGE)) {
+          String[] permission = new String[] {Manifest.permission.READ_EXTERNAL_STORAGE};
+          //根据系统版本判断，如果是Android13则采用Manifest.permission.READ_MEDIA_IMAGES
+          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            permission =
+                new String[] {
+                  Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_MEDIA_VIDEO
+                };
+          }
+          if (PermissionUtils.hasPermissions(ChatBaseFragment.this.getContext(), permission)) {
             startPickFile();
           } else {
-            requestCameraPermission(
-                Manifest.permission.READ_EXTERNAL_STORAGE,
-                REQUEST_READ_EXTERNAL_STORAGE_PERMISSION_FILE);
+            requestCameraPermission(permission, REQUEST_READ_EXTERNAL_STORAGE_PERMISSION_FILE);
           }
           return true;
         }
@@ -502,6 +514,11 @@ public abstract class ChatBaseFragment extends BaseFragment {
   private void requestCameraPermission(String permission, int request) {
     currentRequest = request;
     permissionLauncher.launch(new String[] {permission});
+  }
+
+  private void requestCameraPermission(String[] permission, int request) {
+    currentRequest = request;
+    permissionLauncher.launch(permission);
   }
 
   public String getPermissionText(String permission) {
@@ -884,8 +901,25 @@ public abstract class ChatBaseFragment extends BaseFragment {
             return true;
           }
           forwardMessage = messageBean;
-          ChatBaseForwardSelectDialog dialog = getForwardSelectDialog();
-          dialog.show(getParentFragmentManager(), ChatBaseForwardSelectDialog.TAG);
+          if (IMKitClient.getConfigCenter().getTeamEnable()) {
+            ChatBaseForwardSelectDialog dialog = getForwardSelectDialog();
+            dialog.setSelectedCallback(
+                new ChatBaseForwardSelectDialog.ForwardTypeSelectedCallback() {
+                  @Override
+                  public void onTeamSelected() {
+                    forwardTeam();
+                  }
+
+                  @Override
+                  public void onP2PSelected() {
+                    forwardP2P();
+                  }
+                });
+            dialog.show(getParentFragmentManager(), ChatBaseForwardSelectDialog.TAG);
+          } else {
+            forwardP2P();
+          }
+
           return true;
         }
 
@@ -1001,6 +1035,10 @@ public abstract class ChatBaseFragment extends BaseFragment {
   protected abstract ChatBaseForwardSelectDialog getForwardSelectDialog();
 
   protected abstract void initToFetchData();
+
+  protected abstract void forwardP2P();
+
+  protected abstract void forwardTeam();
 
   protected void initDataObserver() {
     ALog.d(LIB_TAG, LOG_TAG, "initDataObserver");

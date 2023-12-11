@@ -30,7 +30,7 @@ import org.xmlpull.v1.XmlPullParserException;
 
 public class EmojiManager {
 
-  private static final String EMOJI_DIR = "emoji/";
+  private static final String EMOJI_DIR = "chatkit/emoji/";
 
   // max cache size
   private static final int CACHE_MAX_SIZE = 1024;
@@ -154,7 +154,7 @@ public class EmojiManager {
 
     void load(Context context) {
       try {
-        XmlResourceParser xmlParser = context.getResources().getXml(R.xml.emoji);
+        XmlResourceParser xmlParser = context.getResources().getXml(R.xml.chat_emoji);
         //
         try {
           int event = xmlParser.getEventType(); //先获取当前解析器光标在哪
