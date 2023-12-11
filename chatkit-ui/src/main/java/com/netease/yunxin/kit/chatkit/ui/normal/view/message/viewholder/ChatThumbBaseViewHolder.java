@@ -85,9 +85,13 @@ public abstract class ChatThumbBaseViewHolder extends NormalChatBaseMessageViewH
       h = bounds[0] != 0 ? w * bounds[1] / bounds[0] : 0;
     }
     int thumbMaxEdge = getImageThumbMaxEdge();
+    int thumbMaxHeight = (int) (0.45 * ScreenUtils.getDisplayHeight());
     if (w > thumbMaxEdge) {
       w = thumbMaxEdge;
       h = w * bounds[1] / bounds[0];
+    }
+    if (h > thumbMaxHeight) {
+      h = thumbMaxHeight;
     }
 
     loadThumbnailInternal(path, w, h);
@@ -136,11 +140,11 @@ public abstract class ChatThumbBaseViewHolder extends NormalChatBaseMessageViewH
   }
 
   private int getImageThumbMinEdge() {
-    return (int) (111.0 / 375.0 * ScreenUtils.getDisplayWidth());
+    return (int) (0.25 * ScreenUtils.getDisplayWidth());
   }
 
   private int getImageThumbMaxEdge() {
-    return (int) (222.0 / 375.0 * ScreenUtils.getDisplayWidth());
+    return (int) (0.45 * ScreenUtils.getDisplayWidth());
   }
 
   protected abstract String thumbFromSourceFile(String path);

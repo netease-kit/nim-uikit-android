@@ -59,6 +59,21 @@
             android:layout_marginTop="@dimen/dimen_6_dp"
             android:layout_marginStart="@dimen/dimen_16_dp" />
 
+        <TextView
+            android:id="@+id/noTeamNameTv"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/dimen_50_dp"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:gravity="center_vertical"
+            android:textSize="@dimen/text_size_12"
+            android:textColor="@color/color_666666"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintLeft_toRightOf="@id/avatarView"
+            android:layout_marginTop="@dimen/dimen_6_dp"
+            android:layout_marginStart="@dimen/dimen_16_dp"
+            android:visibility="gone"/>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <LinearLayout

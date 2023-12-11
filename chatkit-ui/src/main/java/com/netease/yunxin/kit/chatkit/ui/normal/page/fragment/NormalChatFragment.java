@@ -36,22 +36,18 @@ public abstract class NormalChatFragment extends ChatBaseFragment {
 
   @Override
   protected ChatBaseForwardSelectDialog getForwardSelectDialog() {
-    ChatMessageForwardSelectDialog dialog = new ChatMessageForwardSelectDialog();
-    dialog.setSelectedCallback(
-        new ChatMessageForwardSelectDialog.ForwardTypeSelectedCallback() {
-          @Override
-          public void onTeamSelected() {
-            ChatUtils.startTeamList(
-                getContext(), RouterConstant.PATH_MY_TEAM_PAGE, forwardTeamLauncher);
-          }
+    return new ChatMessageForwardSelectDialog();
+  }
 
-          @Override
-          public void onP2PSelected() {
-            ChatUtils.startP2PSelector(
-                getContext(), RouterConstant.PATH_CONTACT_SELECTOR_PAGE, null, forwardP2PLauncher);
-          }
-        });
-    return dialog;
+  @Override
+  protected void forwardP2P() {
+    ChatUtils.startP2PSelector(
+        getContext(), RouterConstant.PATH_CONTACT_SELECTOR_PAGE, null, forwardP2PLauncher);
+  }
+
+  @Override
+  protected void forwardTeam() {
+    ChatUtils.startTeamList(getContext(), RouterConstant.PATH_MY_TEAM_PAGE, forwardTeamLauncher);
   }
 
   @Override

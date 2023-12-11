@@ -136,11 +136,11 @@ public abstract class ChatThumbBaseViewHolder extends FunChatBaseMessageViewHold
   }
 
   private int getImageThumbMinEdge() {
-    return (int) (111.0 / 375.0 * ScreenUtils.getDisplayWidth());
+    return (int) (0.25 * ScreenUtils.getDisplayWidth());
   }
 
   private int getImageThumbMaxEdge() {
-    return (int) (222.0 / 375.0 * ScreenUtils.getDisplayWidth());
+    return (int) (0.48 * ScreenUtils.getDisplayWidth());
   }
 
   protected abstract String thumbFromSourceFile(String path);

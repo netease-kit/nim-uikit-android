@@ -10,14 +10,14 @@ plugins {
 }
 
 android {
-    compileSdk = 31
+    compileSdk = 33
 
     defaultConfig {
         minSdk = 21
-        targetSdk = 30
+        targetSdk = 33
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
-        buildConfigField("String", "versionName", "\"9.6.2\"")
+        buildConfigField("String", "versionName", "\"9.6.5\"")
     }
 
     buildTypes {
@@ -41,8 +41,8 @@ android {
 
 dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
-    api("com.netease.yunxin.kit.chat:chatkit:9.6.4")
-    api("com.netease.yunxin.kit.common:common-ui:1.3.1")
+    api("com.netease.yunxin.kit.chat:chatkit:9.6.5")
+    api("com.netease.yunxin.kit.common:common-ui:1.3.2")
     api("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.21")
     implementation("androidx.appcompat:appcompat:1.4.2") 
     implementation("com.google.android.material:material:1.5.0") 

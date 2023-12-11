@@ -16,6 +16,7 @@ import com.netease.yunxin.kit.contactkit.ui.R;
 import com.netease.yunxin.kit.contactkit.ui.contact.BaseContactFragment;
 import com.netease.yunxin.kit.contactkit.ui.databinding.ContactFragmentBinding;
 import com.netease.yunxin.kit.contactkit.ui.model.ContactEntranceBean;
+import com.netease.yunxin.kit.corekit.im.IMKitClient;
 import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 import java.util.ArrayList;
@@ -124,15 +125,18 @@ public class ContactFragment extends BaseContactFragment {
         new ContactEntranceBean(
             R.mipmap.ic_contact_black_list, context.getString(R.string.contact_list_black_list));
     blackBean.router = RouterConstant.PATH_MY_BLACK_PAGE;
-    //my group
-    ContactEntranceBean groupBean =
-        new ContactEntranceBean(
-            R.mipmap.ic_contact_my_group, context.getString(R.string.contact_list_my_group));
-    groupBean.router = RouterConstant.PATH_MY_TEAM_PAGE;
 
     contactDataList.add(verifyBean);
     contactDataList.add(blackBean);
-    contactDataList.add(groupBean);
+    // my group
+    if (IMKitClient.getConfigCenter().getTeamEnable()) {
+      ContactEntranceBean groupBean =
+          new ContactEntranceBean(
+              R.mipmap.ic_contact_my_group, context.getString(R.string.contact_list_my_group));
+      groupBean.router = RouterConstant.PATH_MY_TEAM_PAGE;
+      contactDataList.add(groupBean);
+    }
+
     return contactDataList;
   }
 

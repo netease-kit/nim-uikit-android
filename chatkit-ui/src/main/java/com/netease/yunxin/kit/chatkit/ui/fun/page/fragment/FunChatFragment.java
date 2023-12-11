@@ -44,25 +44,19 @@ public abstract class FunChatFragment extends ChatBaseFragment {
   }
 
   protected ChatBaseForwardSelectDialog getForwardSelectDialog() {
-    ChatBaseForwardSelectDialog dialog = new FunChatForwardSelectDialog();
-    dialog.setSelectedCallback(
-        new ChatBaseForwardSelectDialog.ForwardTypeSelectedCallback() {
-          @Override
-          public void onTeamSelected() {
-            ChatUtils.startTeamList(
-                getContext(), RouterConstant.PATH_FUN_MY_TEAM_PAGE, forwardTeamLauncher);
-          }
+    return new FunChatForwardSelectDialog();
+  }
 
-          @Override
-          public void onP2PSelected() {
-            ChatUtils.startP2PSelector(
-                getContext(),
-                RouterConstant.PATH_FUN_CONTACT_SELECTOR_PAGE,
-                null,
-                forwardP2PLauncher);
-          }
-        });
-    return dialog;
+  @Override
+  protected void forwardP2P() {
+    ChatUtils.startP2PSelector(
+        getContext(), RouterConstant.PATH_FUN_CONTACT_SELECTOR_PAGE, null, forwardP2PLauncher);
+  }
+
+  @Override
+  protected void forwardTeam() {
+    ChatUtils.startTeamList(
+        getContext(), RouterConstant.PATH_FUN_MY_TEAM_PAGE, forwardTeamLauncher);
   }
 
   @Override

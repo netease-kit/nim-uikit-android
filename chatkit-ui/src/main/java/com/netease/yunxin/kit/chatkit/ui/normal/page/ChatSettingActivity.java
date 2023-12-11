@@ -9,6 +9,7 @@ import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
 
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
@@ -26,6 +27,7 @@ import com.netease.yunxin.kit.common.ui.utils.AvatarColor;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.corekit.event.EventCenter;
 import com.netease.yunxin.kit.corekit.event.EventNotify;
+import com.netease.yunxin.kit.corekit.im.IMKitClient;
 import com.netease.yunxin.kit.corekit.im.model.UserInfo;
 import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
@@ -83,13 +85,23 @@ public class ChatSettingActivity extends BaseActivity {
       accId = userInfo.getAccount();
     }
     refreshView();
-    binding.addIv.setOnClickListener(v -> selectUsersCreateGroup());
+    if (IMKitClient.getConfigCenter().getTeamEnable()) {
+      binding.addIv.setVisibility(View.VISIBLE);
+      binding.noTeamNameTv.setVisibility(View.GONE);
+      binding.nameTv.setVisibility(View.VISIBLE);
+      binding.addIv.setOnClickListener(v -> selectUsersCreateGroup());
+    } else {
+      binding.addIv.setVisibility(View.GONE);
+      binding.nameTv.setVisibility(View.GONE);
+      binding.noTeamNameTv.setVisibility(View.VISIBLE);
+    }
   }
 
   private void refreshView() {
     if (userInfo == null) {
       binding.avatarView.setData(null, accId, AvatarColor.avatarColor(accId));
       binding.nameTv.setText(accId);
+      binding.noTeamNameTv.setText(accId);
     } else {
       String name =
           TextUtils.isEmpty(userInfo.getComment()) ? userInfo.getName() : userInfo.getComment();
@@ -100,6 +112,7 @@ public class ChatSettingActivity extends BaseActivity {
       binding.avatarView.setData(
           userInfo.getAvatar(), name, AvatarColor.avatarColor(userInfo.getAccount()));
       binding.nameTv.setText(name);
+      binding.noTeamNameTv.setText(name);
     }
   }
 

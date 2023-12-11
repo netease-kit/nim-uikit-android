@@ -20,6 +20,7 @@ import com.netease.yunxin.kit.contactkit.ui.interfaces.ContactActions;
 import com.netease.yunxin.kit.contactkit.ui.model.ContactEntranceBean;
 import com.netease.yunxin.kit.contactkit.ui.model.ContactFriendBean;
 import com.netease.yunxin.kit.contactkit.ui.model.IViewTypeConstant;
+import com.netease.yunxin.kit.corekit.im.IMKitClient;
 import com.netease.yunxin.kit.corekit.im.model.FriendInfo;
 import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
@@ -170,16 +171,18 @@ public class FunContactFragment extends BaseContactFragment {
             context.getString(R.string.contact_list_black_list));
     blackBean.router = RouterConstant.PATH_FUN_MY_BLACK_PAGE;
     blackBean.showRightArrow = false;
-    //my group
-    ContactEntranceBean groupBean =
-        new ContactEntranceBean(
-            R.mipmap.fun_ic_contact_my_group, context.getString(R.string.contact_list_my_group));
-    groupBean.router = RouterConstant.PATH_FUN_MY_TEAM_PAGE;
-    groupBean.showRightArrow = false;
 
     contactDataList.add(verifyBean);
     contactDataList.add(blackBean);
-    contactDataList.add(groupBean);
+    // my group
+    if (IMKitClient.getConfigCenter().getTeamEnable()) {
+      ContactEntranceBean groupBean =
+          new ContactEntranceBean(
+              R.mipmap.fun_ic_contact_my_group, context.getString(R.string.contact_list_my_group));
+      groupBean.router = RouterConstant.PATH_FUN_MY_TEAM_PAGE;
+      groupBean.showRightArrow = false;
+      contactDataList.add(groupBean);
+    }
     return contactDataList;
   }
 

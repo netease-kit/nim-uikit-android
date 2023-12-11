@@ -4,8 +4,6 @@
 
 package com.netease.yunxin.kit.conversationkit.ui.page.viewmodel;
 
-import static com.netease.yunxin.kit.conversationkit.ui.common.ConversationConstant.LIB_TAG;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
@@ -79,7 +77,7 @@ public class ConversationViewModel extends BaseViewModel {
   private boolean hasStart = false;
 
   public ConversationViewModel() {
-    //register observer
+    // register observer
     ConversationObserverRepo.registerSessionChangedObserver(changeObserver);
     ConversationObserverRepo.registerSessionDeleteObserver(deleteObserver);
     ContactObserverRepo.registerUserInfoObserver(userInfoObserver);
@@ -225,9 +223,7 @@ public class ConversationViewModel extends BaseViewModel {
     }
     hasStart = true;
     ConversationRepo.getAllSessionList(
-        //        data,
-        //        PAGE_LIMIT,
-        //        comparator,
+        comparator,
         new FetchCallback<List<ConversationInfo>>() {
           @Override
           public void onSuccess(@Nullable List<ConversationInfo> param) {
@@ -243,7 +239,7 @@ public class ConversationViewModel extends BaseViewModel {
             for (int index = 0; param != null && index < param.size(); index++) {
               resultData.add(conversationFactory.CreateBean(param.get(index)));
             }
-            hasMore = false; //param != null && param.size() == PAGE_LIMIT;
+            hasMore = false; // param != null && param.size() == PAGE_LIMIT;
             result.setData(resultData);
             queryLiveData.setValue(result);
             hasStart = false;

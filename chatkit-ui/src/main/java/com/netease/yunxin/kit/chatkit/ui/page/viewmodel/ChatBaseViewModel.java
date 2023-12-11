@@ -73,6 +73,7 @@ import com.netease.yunxin.kit.corekit.im.provider.FetchCallbackImpl;
 import com.netease.yunxin.kit.corekit.im.provider.UserInfoObserver;
 import com.netease.yunxin.kit.corekit.im.repo.SettingRepo;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -644,7 +645,11 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
             } catch (Exception e) {
               e.printStackTrace();
             } finally {
-              mmr.release();
+              try {
+                mmr.release();
+              } catch (IOException e) {
+                e.printStackTrace();
+              }
             }
           });
     } else {

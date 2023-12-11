@@ -550,6 +550,13 @@ public class MessageBottomLayout extends FrameLayout
     switchInput();
   }
 
+  public void setInputText(String msgContent) {
+    mBinding.chatMessageInputEt.setText(msgContent);
+    mBinding.chatMessageInputEt.requestFocus();
+    mBinding.chatMessageInputEt.setSelection(mBinding.chatMessageInputEt.getText().length());
+    switchInput();
+  }
+
   private void clearReplyMsg() {
     replyMessage = null;
     mBinding.llyReply.setVisibility(GONE);

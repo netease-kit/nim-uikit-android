@@ -37,7 +37,6 @@ public class SuspensionDecoration extends RecyclerView.ItemDecoration {
 
   private float paddingLeft;
   private boolean showTagOffset = true;
-  private boolean isFirstTagDraw = true;
   private boolean titleAlignBottom = false;
   private final int indexDecorationHeight;
 
@@ -143,7 +142,6 @@ public class SuspensionDecoration extends RecyclerView.ItemDecoration {
     final int left = parent.getPaddingLeft();
     final int right = parent.getWidth() - parent.getPaddingRight();
     final int childCount = parent.getChildCount();
-    isFirstTagDraw = true;
     for (int i = 0; i < childCount; i++) {
       final View child = parent.getChildAt(i);
       final RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) child.getLayoutParams();
@@ -177,7 +175,20 @@ public class SuspensionDecoration extends RecyclerView.ItemDecoration {
       View child,
       RecyclerView.LayoutParams params,
       int position) { //最先调用，绘制在最下层
-    if (isFirstTagDraw) {
+    int lastPosition = position - 1;
+    // 找到当前渲染数据的上一条内容
+    ISuspension lastItem =
+        (mData != null && mData.size() > lastPosition && lastPosition >= 0)
+            ? mData.get(lastPosition)
+            : null;
+    // 获取当前渲染数据内容
+    ISuspension currentItem =
+        (mData != null && mData.size() > position && position >= 0) ? mData.get(position) : null;
+    // 只有在通讯录入口数据和好友数据中间才进行添加 indexDecorationBg 的分割线
+    if (lastItem != null
+        && !lastItem.isShowDivision()
+        && currentItem != null
+        && currentItem.isShowDivision()) {
       mPaint.setColor(indexDecorationBg);
       c.drawRect(
           left,
@@ -186,7 +197,6 @@ public class SuspensionDecoration extends RecyclerView.ItemDecoration {
           child.getTop() - params.topMargin - mTitleHeight,
           mPaint);
     }
-    isFirstTagDraw = false;
 
     mPaint.setColor(colorTitleBg);
     c.drawRect(

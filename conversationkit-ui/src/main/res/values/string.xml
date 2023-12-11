@@ -20,7 +20,7 @@
     <string name="sure_title">确定</string>
     <string name="sure_count_title">确定(%d)</string>
 
-    <string name="conversation_network_error_tip">当前网络不可用，请检查你当网络设置。</string>
+    <string name="conversation_network_error_tip">当前网络不可用，请检查你的网络设置。</string>
     <string name="conversation_empty_tip">暂无会话</string>
     <string name="conversation_ait_tip">[有人@我]</string>
 

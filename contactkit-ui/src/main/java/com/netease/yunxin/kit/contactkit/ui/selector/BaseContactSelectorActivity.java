@@ -68,6 +68,7 @@ public abstract class BaseContactSelectorActivity extends BaseActivity {
     checkViews();
     setContentView(rootView);
     viewModel = new ViewModelProvider(this).get(ContactViewModel.class);
+    viewModel.setSelectorPage(true);
     initView();
     initData();
   }

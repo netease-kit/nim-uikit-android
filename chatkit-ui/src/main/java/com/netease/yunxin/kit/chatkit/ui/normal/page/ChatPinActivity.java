@@ -71,23 +71,30 @@ public class ChatPinActivity extends ChatPinBaseActivity {
   }
 
   @Override
+  protected void toP2PSelected() {
+    ChatUtils.startP2PSelector(
+        ChatPinActivity.this, RouterConstant.PATH_CONTACT_SELECTOR_PAGE, null, forwardP2PLauncher);
+  }
+
+  @Override
+  protected void toTeamSelected() {
+    ChatUtils.startTeamList(
+        ChatPinActivity.this, RouterConstant.PATH_MY_TEAM_PAGE, forwardTeamLauncher);
+  }
+
+  @Override
   protected ChatBaseForwardSelectDialog getForwardSelectDialog() {
     ChatMessageForwardSelectDialog dialog = new ChatMessageForwardSelectDialog();
     dialog.setSelectedCallback(
         new ChatMessageForwardSelectDialog.ForwardTypeSelectedCallback() {
           @Override
           public void onTeamSelected() {
-            ChatUtils.startTeamList(
-                ChatPinActivity.this, RouterConstant.PATH_MY_TEAM_PAGE, forwardTeamLauncher);
+            toTeamSelected();
           }
 
           @Override
           public void onP2PSelected() {
-            ChatUtils.startP2PSelector(
-                ChatPinActivity.this,
-                RouterConstant.PATH_CONTACT_SELECTOR_PAGE,
-                null,
-                forwardP2PLauncher);
+            toP2PSelected();
           }
         });
     return dialog;
