@@ -33,7 +33,7 @@ import com.netease.yunxin.kit.corekit.im.repo.CommonRepo;
 import com.netease.yunxin.kit.teamkit.ui.R;
 import com.netease.yunxin.kit.teamkit.ui.utils.ColorUtils;
 import com.netease.yunxin.kit.teamkit.ui.utils.TeamIconUtils;
-import com.netease.yunxin.kit.teamkit.ui.utils.viewmodel.TeamSettingViewModel;
+import com.netease.yunxin.kit.teamkit.ui.viewmodel.TeamSettingViewModel;
 import java.io.File;
 import java.util.Objects;
 

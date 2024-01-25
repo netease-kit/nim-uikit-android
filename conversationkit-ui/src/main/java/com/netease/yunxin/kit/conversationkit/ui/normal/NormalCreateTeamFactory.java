@@ -78,16 +78,18 @@ public class NormalCreateTeamFactory {
                   res -> {
                     if (res.getSuccess() && res.getValue() instanceof CreateTeamResult) {
                       Team teamInfo = ((CreateTeamResult) res.getValue()).getTeam();
-                      Map<String, Object> map = new HashMap<>(1);
-                      map.put(
-                          KEY_TEAM_CREATED_TIP,
-                          context.getString(R.string.create_advanced_team_success));
-                      // 发送创建成功群里提示信息
-                      XKitRouter.withKey(PATH_CHAT_SEND_TEAM_TIP_ACTION)
-                          .withParam(KEY_SESSION_ID, teamInfo.getId())
-                          .withParam(RouterConstant.KEY_MESSAGE_TIME, teamInfo.getCreateTime())
-                          .withParam(KEY_REMOTE_EXTENSION, map)
-                          .navigate();
+                      if (RouterConstant.PATH_CREATE_ADVANCED_TEAM_ACTION.equals(createMethod)) {
+                        Map<String, Object> map = new HashMap<>(1);
+                        map.put(
+                            KEY_TEAM_CREATED_TIP,
+                            context.getString(R.string.create_advanced_team_success));
+                        // 发送创建成功群里提示信息
+                        XKitRouter.withKey(PATH_CHAT_SEND_TEAM_TIP_ACTION)
+                            .withParam(KEY_SESSION_ID, teamInfo.getId())
+                            .withParam(RouterConstant.KEY_MESSAGE_TIME, teamInfo.getCreateTime())
+                            .withParam(KEY_REMOTE_EXTENSION, map)
+                            .navigate();
+                      }
 
                       // 邀请加入群，处理邀请通知早于创建成功同志
                       XKitRouter.withKey(PATH_TEAM_INVITE_ACTION)

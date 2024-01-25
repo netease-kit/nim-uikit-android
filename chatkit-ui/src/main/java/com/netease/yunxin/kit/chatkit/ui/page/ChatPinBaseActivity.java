@@ -4,8 +4,9 @@
 
 package com.netease.yunxin.kit.chatkit.ui.page;
 
+import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.KEY_MAP_FOR_PIN;
 import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
-import static com.netease.yunxin.kit.chatkit.ui.ChatUIConstants.KEY_MAP_FOR_PIN;
+import static com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants.PAYLOAD_REFRESH_AUDIO_ANIM;
 import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.REQUEST_CONTACT_SELECTOR_KEY;
 
 import android.app.Activity;
@@ -23,9 +24,12 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
 import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
+import com.netease.nimlib.sdk.msg.model.AttachmentProgress;
 import com.netease.yunxin.kit.alog.ALog;
+import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitClient;
 import com.netease.yunxin.kit.chatkit.ui.R;
+import com.netease.yunxin.kit.chatkit.ui.common.ChatUtils;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.chatkit.ui.common.WatchTextMessageDialog;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatPinActivityBinding;
@@ -34,10 +38,12 @@ import com.netease.yunxin.kit.chatkit.ui.interfaces.IChatClickListener;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.page.adapter.PinMessageAdapter;
 import com.netease.yunxin.kit.chatkit.ui.page.viewmodel.ChatPinViewModel;
+import com.netease.yunxin.kit.chatkit.ui.view.message.audio.ChatMessageAudioControl;
 import com.netease.yunxin.kit.common.ui.action.ActionItem;
 import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
 import com.netease.yunxin.kit.common.ui.dialog.BaseBottomChoiceDialog;
 import com.netease.yunxin.kit.common.ui.dialog.BottomChoiceDialog;
+import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.utils.NetworkUtils;
 import com.netease.yunxin.kit.corekit.im.IMKitClient;
 import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
@@ -50,6 +56,7 @@ public abstract class ChatPinBaseActivity extends BaseActivity {
   protected ChatPinActivityBinding viewBinding;
   protected ChatPinViewModel viewModel;
   protected String mSessionId;
+  protected String mSessionName;
   protected SessionTypeEnum mSessionType;
   protected PinMessageAdapter pinAdapter;
   protected ChatMessageBean forwardMessage;
@@ -79,6 +86,12 @@ public abstract class ChatPinBaseActivity extends BaseActivity {
     }
   }
 
+  @Override
+  protected void onStop() {
+    super.onStop();
+    ChatMessageAudioControl.getInstance().stopAudio();
+  }
+
   protected void initView() {
     viewBinding.pinTitleBar.setOnBackIconClickListener(view -> finish());
     LinearLayoutManager layoutManager = new LinearLayoutManager(this);
@@ -95,6 +108,7 @@ public abstract class ChatPinBaseActivity extends BaseActivity {
   protected void initData() {
     viewModel = new ViewModelProvider(this).get(ChatPinViewModel.class);
     mSessionId = getIntent().getStringExtra(RouterConstant.KEY_SESSION_ID);
+    mSessionName = getIntent().getStringExtra(RouterConstant.KEY_SESSION_NAME);
     mSessionType =
         SessionTypeEnum.typeOfValue(getIntent().getIntExtra(RouterConstant.KEY_SESSION_TYPE, -1));
 
@@ -112,6 +126,15 @@ public abstract class ChatPinBaseActivity extends BaseActivity {
         .observe(
             this,
             result -> {
+              if (ChatMessageAudioControl.getInstance().isPlayingAudio()
+                  && TextUtils.equals(
+                      result.getData(),
+                      ChatMessageAudioControl.getInstance()
+                          .getPlayingAudio()
+                          .getMessage()
+                          .getUuid())) {
+                ChatMessageAudioControl.getInstance().stopAudio();
+              }
               pinAdapter.removeDataWithUuId(result.getData());
               showEmptyView(pinAdapter.getItemCount() < 1);
             });
@@ -169,8 +192,13 @@ public abstract class ChatPinBaseActivity extends BaseActivity {
               }
             });
 
+    viewModel
+        .getAttachmentProgressMutableLiveData()
+        .observeForever(this::onAttachmentUpdateProgress);
+
     if (TextUtils.isEmpty(mSessionId) || mSessionType == SessionTypeEnum.None) {
       showEmptyView(true);
+      finish();
     } else {
       showEmptyView(false);
       viewModel.init(mSessionId, mSessionType);
@@ -184,6 +212,10 @@ public abstract class ChatPinBaseActivity extends BaseActivity {
     } else {
       viewBinding.pinEmptyView.setVisibility(View.GONE);
     }
+  }
+
+  protected void onAttachmentUpdateProgress(FetchResult<AttachmentProgress> fetchResult) {
+    pinAdapter.updateMessageProgress(fetchResult.getData());
   }
 
   public RecyclerView.ItemDecoration getItemDecoration() {
@@ -202,15 +234,38 @@ public abstract class ChatPinBaseActivity extends BaseActivity {
         public boolean onViewClick(View view, int position, ChatMessageBean messageInfo) {
           if (view.getId() == R.id.iv_more_action) {
             showMoreActionDialog(messageInfo);
-          } else if (view.getId() == R.id.messageText) {
-            WatchTextMessageDialog.launchDialog(
-                getSupportFragmentManager(), TAG, messageInfo.getMessageData());
           } else {
-            jumpToChat(messageInfo);
+            clickMsg(messageInfo);
           }
           return true;
         }
       };
+
+  private void clickMsg(ChatMessageBean messageInfo) {
+
+    if (messageInfo.getMessageData().getMessage().getMsgType() == MsgTypeEnum.text
+        || MessageHelper.isRichText(messageInfo.getMessageData())) {
+      WatchTextMessageDialog.launchDialog(
+          getSupportFragmentManager(), TAG, messageInfo.getMessageData(), getPageBackgroundColor());
+    } else if (messageInfo.getMessageData().getMessage().getMsgType() == MsgTypeEnum.image) {
+      ArrayList<IMMessageInfo> messageList = new ArrayList<>();
+      messageList.add(messageInfo.getMessageData());
+      ChatUtils.watchImage(ChatPinBaseActivity.this, messageInfo.getMessageData(), messageList);
+    } else if (messageInfo.getMessageData().getMessage().getMsgType() == MsgTypeEnum.video) {
+      ChatUtils.watchVideo(ChatPinBaseActivity.this, messageInfo.getMessageData());
+    } else if (messageInfo.getMessageData().getMessage().getMsgType() == MsgTypeEnum.file) {
+      ChatUtils.openFile(ChatPinBaseActivity.this, messageInfo.getMessageData());
+    } else if (messageInfo.getMessageData().getMessage().getMsgType() == MsgTypeEnum.location) {
+      LocationPageActivity.launch(
+          ChatPinBaseActivity.this,
+          LocationPageActivity.LAUNCH_DETAIL,
+          messageInfo.getMessageData().getMessage());
+    } else if (messageInfo.getMessageData().getMessage().getMsgType() == MsgTypeEnum.audio) {
+      pinAdapter.updateMessage(messageInfo, PAYLOAD_REFRESH_AUDIO_ANIM);
+    } else {
+      clickCustomMessage(messageInfo);
+    }
+  }
 
   public void jumpToChat(ChatMessageBean messageInfo) {
     String router = RouterConstant.PATH_CHAT_TEAM_PAGE;
@@ -302,6 +357,8 @@ public abstract class ChatPinBaseActivity extends BaseActivity {
 
   protected abstract void toTeamSelected();
 
+  protected void clickCustomMessage(ChatMessageBean messageBean) {}
+
   protected void onTransmit(ChatMessageBean messageBean) {
     forwardMessage = messageBean;
     if (IMKitClient.getConfigCenter().getTeamEnable()) {
@@ -312,6 +369,10 @@ public abstract class ChatPinBaseActivity extends BaseActivity {
     } else {
       toP2PSelected();
     }
+  }
+
+  protected int getPageBackgroundColor() {
+    return R.color.color_eef1f4;
   }
 
   protected void showForwardConfirmDialog(SessionTypeEnum type, ArrayList<String> sessionIds) {}

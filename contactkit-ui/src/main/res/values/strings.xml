@@ -76,7 +76,9 @@
     <string name="disagree_invite_team_fail">拒绝入群邀请失败</string>
     <string name="remove_black_fail">黑名单移除失败</string>
     <string name="verify_duplicate_fail">该验证消息已在其他端处理</string>
-
+    <string name="contact_error_tips">信息获取失败</string>
+    <string name="contact_team_be_removed_title">提示</string>
+    <string name="contact_team_be_removed_content">您已被移除群聊或该群聊已被解散</string>
     <!--    selector-->
     <string name="select">选择</string>
     <string name="selector_sure">确定(%d)</string>

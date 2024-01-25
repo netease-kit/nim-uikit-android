@@ -19,7 +19,7 @@ import com.netease.yunxin.kit.chatkit.ui.page.ChatBaseActivity;
 import com.netease.yunxin.kit.corekit.im.model.UserInfo;
 import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
 
-/** P2P chat page */
+/** 标准皮肤，单聊会话页面。 */
 public class ChatP2PActivity extends ChatBaseActivity {
 
   private static final String TAG = "ChatP2PActivity";

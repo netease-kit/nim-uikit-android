@@ -21,8 +21,11 @@ import com.netease.nimlib.sdk.friend.model.Friend;
 import com.netease.nimlib.sdk.friend.model.FriendChangedNotify;
 import com.netease.nimlib.sdk.msg.MessageBuilder;
 import com.netease.nimlib.sdk.msg.attachment.FileAttachment;
+import com.netease.nimlib.sdk.msg.attachment.ImageAttachment;
 import com.netease.nimlib.sdk.msg.attachment.MsgAttachment;
 import com.netease.nimlib.sdk.msg.attachment.NotificationAttachment;
+import com.netease.nimlib.sdk.msg.constant.MsgStatusEnum;
+import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
 import com.netease.nimlib.sdk.msg.constant.NotificationType;
 import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.msg.model.AttachmentProgress;
@@ -30,7 +33,6 @@ import com.netease.nimlib.sdk.msg.model.CollectInfo;
 import com.netease.nimlib.sdk.msg.model.GetMessageDirectionEnum;
 import com.netease.nimlib.sdk.msg.model.GetMessagesDynamicallyParam;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
-import com.netease.nimlib.sdk.msg.model.MemberPushOption;
 import com.netease.nimlib.sdk.msg.model.MsgPinOption;
 import com.netease.nimlib.sdk.msg.model.MsgPinSyncResponseOption;
 import com.netease.nimlib.sdk.msg.model.MsgPinSyncResponseOptionWrapper;
@@ -50,17 +52,20 @@ import com.netease.yunxin.kit.chatkit.ui.common.ChatUserCache;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatUtils;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.chatkit.ui.custom.ChatConfigManager;
+import com.netease.yunxin.kit.chatkit.ui.custom.MultiForwardAttachment;
+import com.netease.yunxin.kit.chatkit.ui.custom.RichTextAttachment;
 import com.netease.yunxin.kit.chatkit.ui.model.AnchorScrollInfo;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.model.PinEvent;
-import com.netease.yunxin.kit.chatkit.ui.model.ait.AitContactsModel;
 import com.netease.yunxin.kit.chatkit.ui.view.ait.AitService;
 import com.netease.yunxin.kit.chatkit.utils.SendMediaHelper;
 import com.netease.yunxin.kit.common.ui.utils.ToastX;
 import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
+import com.netease.yunxin.kit.common.utils.EncryptUtils;
 import com.netease.yunxin.kit.common.utils.FileUtils;
+import com.netease.yunxin.kit.common.utils.ImageUtils;
 import com.netease.yunxin.kit.common.utils.UriUtils;
 import com.netease.yunxin.kit.corekit.event.EventCenter;
 import com.netease.yunxin.kit.corekit.event.EventNotify;
@@ -71,6 +76,7 @@ import com.netease.yunxin.kit.corekit.im.model.UserInfo;
 import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
 import com.netease.yunxin.kit.corekit.im.provider.FetchCallbackImpl;
 import com.netease.yunxin.kit.corekit.im.provider.UserInfoObserver;
+import com.netease.yunxin.kit.corekit.im.repo.CommonRepo;
 import com.netease.yunxin.kit.corekit.im.repo.SettingRepo;
 import java.io.File;
 import java.io.IOException;
@@ -110,7 +116,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
       new MutableLiveData<>();
   private final MutableLiveData<FetchResult<ChatMessageBean>> revokeMessageLiveData =
       new MutableLiveData<>();
-  private final MutableLiveData<FetchResult<ChatMessageBean>> deleteMessageLiveData =
+  private final MutableLiveData<FetchResult<List<ChatMessageBean>>> deleteMessageLiveData =
       new MutableLiveData<>();
 
   protected String mSessionId;
@@ -194,11 +200,36 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
           if (event != null && TextUtils.equals(event.getMessage().getSessionId(), mSessionId)) {
             ChatMessageBean messageBean =
                 new ChatMessageBean(new IMMessageInfo(event.getMessage()));
-            FetchResult<ChatMessageBean> result = new FetchResult<>(LoadStatus.Success);
-            result.setData(messageBean);
+            FetchResult<List<ChatMessageBean>> result = new FetchResult<>(LoadStatus.Success);
+            result.setData(Collections.singletonList(messageBean));
             result.setType(FetchResult.FetchType.Remove);
             result.setTypeIndex(-1);
             deleteMessageLiveData.setValue(result);
+          }
+        }
+      };
+
+  private final EventObserver<List<IMMessageInfo>> deleteMsgBatchObserver =
+      new EventObserver<List<IMMessageInfo>>() {
+        @Override
+        public void onEvent(@Nullable List<IMMessageInfo> event) {
+          ALog.d(LIB_TAG, TAG, "msg delete batch -->> " + (event == null ? "null" : event.size()));
+          if (event != null) {
+            ArrayList<ChatMessageBean> deleteList = new ArrayList<>();
+            for (IMMessageInfo messageInfo : event) {
+              FetchResult<List<ChatMessageBean>> result = new FetchResult<>(LoadStatus.Success);
+              if (TextUtils.equals(messageInfo.getMessage().getSessionId(), mSessionId)) {
+                ChatMessageBean messageBean =
+                    new ChatMessageBean(new IMMessageInfo(messageInfo.getMessage()));
+                deleteList.add(messageBean);
+              }
+              if (deleteList.size() > 0) {
+                result.setData(deleteList);
+                result.setType(FetchResult.FetchType.Remove);
+                result.setTypeIndex(-1);
+                deleteMessageLiveData.setValue(result);
+              }
+            }
           }
         }
       };
@@ -215,8 +246,8 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
           fetchResult.setData(messageBean);
           revokeMessageLiveData.setValue(fetchResult);
         } else {
-          FetchResult<ChatMessageBean> result = new FetchResult<>(LoadStatus.Success);
-          result.setData(messageBean);
+          FetchResult<List<ChatMessageBean>> result = new FetchResult<>(LoadStatus.Success);
+          result.setData(Collections.singletonList(messageBean));
           result.setType(FetchResult.FetchType.Remove);
           result.setTypeIndex(-1);
           deleteMessageLiveData.setValue(result);
@@ -307,50 +338,65 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
     return msgPinLiveData;
   }
 
-  public MutableLiveData<FetchResult<ChatMessageBean>> getDeleteMessageLiveData() {
+  public MutableLiveData<FetchResult<List<ChatMessageBean>>> getDeleteMessageLiveData() {
     return deleteMessageLiveData;
   }
 
   public void deleteMessage(ChatMessageBean messageBean) {
+    deleteMessage(Collections.singletonList(messageBean));
+  }
+
+  public void deleteMessage(List<ChatMessageBean> messageList) {
+    if (messageList == null || messageList.isEmpty()) {
+      return;
+    }
+    List<IMMessageInfo> deleteList = new ArrayList<>();
+    for (ChatMessageBean messageBean : messageList) {
+      if (messageBean.getMessageData().getMessage().getServerId() == 0L
+          || messageBean.getMessageData().getMessage().getStatus() == MsgStatusEnum.fail) {
+        ChatRepo.deleteMessageLocal(messageBean.getMessageData());
+      } else {
+        deleteList.add(messageBean.getMessageData());
+      }
+    }
+    if (deleteList.size() < 1) {
+      doActionAfterDelete(messageList);
+      return;
+    }
     ChatRepo.deleteMessage(
-        messageBean.getMessageData(),
+        deleteList,
         null,
         new FetchCallbackImpl<Long>() {
           @Override
           public void onSuccess(@Nullable Long param) {
-            doActionAfterDelete(messageBean);
+            ALog.d(
+                LIB_TAG,
+                TAG,
+                "deleteMessage,onSuccess:" + String.valueOf(param != null ? param : 0));
+            doActionAfterDelete(messageList);
           }
 
           @Override
           public void onFailed(int code) {
-            if (messageBean.getMessageData().getMessage().getServerId() == 0L) {
-              ChatRepo.deleteMessageLocal(messageBean.getMessageData());
-              doActionAfterDelete(messageBean);
-            } else {
-              FetchResult<ChatMessageBean> fetchResult = new FetchResult<>(LoadStatus.Error);
-              fetchResult.setError(-1, R.string.chat_message_delete_error);
-              deleteMessageLiveData.setValue(fetchResult);
-              ALog.d(LIB_TAG, TAG, "deleteMessage,onFailed:" + code);
-            }
+
+            FetchResult<List<ChatMessageBean>> fetchResult = new FetchResult<>(LoadStatus.Error);
+            fetchResult.setError(-1, R.string.chat_message_delete_error);
+            deleteMessageLiveData.setValue(fetchResult);
+            ALog.d(LIB_TAG, TAG, "deleteMessage,onFailed:" + code);
           }
 
           @Override
           public void onException(@Nullable Throwable exception) {
-            if (messageBean.getMessageData().getMessage().getServerId() == 0L) {
-              ChatRepo.deleteMessageLocal(messageBean.getMessageData());
-              doActionAfterDelete(messageBean);
-            } else {
-              FetchResult<ChatMessageBean> fetchResult = new FetchResult<>(LoadStatus.Error);
-              fetchResult.setError(-1, R.string.chat_message_delete_error);
-              deleteMessageLiveData.setValue(fetchResult);
-              ALog.e(LIB_TAG, TAG, "deleteMessage,onException");
-            }
+            FetchResult<List<ChatMessageBean>> fetchResult = new FetchResult<>(LoadStatus.Error);
+            fetchResult.setError(-1, R.string.chat_message_delete_error);
+            deleteMessageLiveData.setValue(fetchResult);
+            ALog.e(LIB_TAG, TAG, "deleteMessage,onException");
           }
         });
   }
 
-  private void doActionAfterDelete(ChatMessageBean messageBean) {
-    FetchResult<ChatMessageBean> result = new FetchResult<>(LoadStatus.Success);
+  private void doActionAfterDelete(List<ChatMessageBean> messageBean) {
+    FetchResult<List<ChatMessageBean>> result = new FetchResult<>(LoadStatus.Success);
     result.setData(messageBean);
     result.setType(FetchResult.FetchType.Remove);
     result.setTypeIndex(-1);
@@ -375,13 +421,13 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
               if (ChatConfigManager.enableInsertLocalMsgWhenRevoke) {
                 FetchResult<ChatMessageBean> fetchResult = new FetchResult<>(LoadStatus.Success);
                 fetchResult.setData(messageBean);
-                //他人撤回消息底层会收到通知进行处理，并保存到本地。当前账号的撤回需要自行处理
+                // 他人撤回消息底层会收到通知进行处理，并保存到本地。当前账号的撤回需要自行处理
                 MessageHelper.saveLocalRevokeMessage(
                     messageBean.getMessageData().getMessage(), true);
                 revokeMessageLiveData.setValue(fetchResult);
               } else {
-                FetchResult<ChatMessageBean> result = new FetchResult<>(LoadStatus.Success);
-                result.setData(messageBean);
+                FetchResult<List<ChatMessageBean>> result = new FetchResult<>(LoadStatus.Success);
+                result.setData(Collections.singletonList(messageBean));
                 result.setType(FetchResult.FetchType.Remove);
                 result.setTypeIndex(-1);
                 deleteMessageLiveData.setValue(result);
@@ -470,6 +516,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
     ChatObserverRepo.registerRemoveMessagePinObserve(msgPinRemoveObserver);
     ContactObserverRepo.registerFriendInfoUpdateObserver(friendChangedObserver);
     ChatObserverRepo.registerDeleteMsgSelfObserve(deleteMsgObserver);
+    ChatObserverRepo.registerDeleteMsgSelfBatchObserve(deleteMsgBatchObserver);
     EventCenter.registerEventNotify(localPin);
   }
 
@@ -486,6 +533,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
     ChatObserverRepo.unregisterRemoveMessagePinObserve(msgPinRemoveObserver);
     ContactObserverRepo.unregisterFriendInfoUpdateObserver(friendChangedObserver);
     ChatObserverRepo.unregisterDeleteMsgSelfObserve(deleteMsgObserver);
+    ChatObserverRepo.unregisterDeleteMsgSelfBatchObserve(deleteMsgBatchObserver);
     EventCenter.unregisterEventNotify(localPin);
   }
 
@@ -494,11 +542,31 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
     sendTextMessage(content, pushList, null);
   }
 
+  public void sendTextMessage(String content, String session, SessionTypeEnum sessionType) {
+    ALog.d(LIB_TAG, TAG, "sendTextMessage:" + (content != null ? content.length() : "null"));
+    IMMessage textMsg = MessageBuilder.createTextMessage(session, sessionType, content);
+    sendMessage(textMsg, false, true);
+  }
+
+  public void sendRichTextMessage(
+      String title, String content, List<String> pushList, Map<String, Object> remoteExtension) {
+    ALog.d(LIB_TAG, TAG, "sendTextMessage:" + (content != null ? content.length() : "null"));
+    RichTextAttachment attachment = new RichTextAttachment();
+    attachment.body = content;
+    attachment.title = title;
+    IMMessage customMsg = MessageBuilder.createCustomMessage(mSessionId, mSessionType, attachment);
+    MessageHelper.appendTeamMemberPush(customMsg, pushList);
+    if (remoteExtension != null) {
+      customMsg.setRemoteExtension(remoteExtension);
+    }
+    sendMessage(customMsg, false, true);
+  }
+
   public void sendTextMessage(
       String content, List<String> pushList, Map<String, Object> remoteExtension) {
     ALog.d(LIB_TAG, TAG, "sendTextMessage:" + (content != null ? content.length() : "null"));
     IMMessage textMsg = MessageBuilder.createTextMessage(mSessionId, mSessionType, content);
-    appendTeamMemberPush(textMsg, pushList);
+    MessageHelper.appendTeamMemberPush(textMsg, pushList);
     if (remoteExtension != null) {
       textMsg.setRemoteExtension(remoteExtension);
     }
@@ -526,7 +594,11 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
   public void sendImageMessage(File imageFile) {
     if (imageFile != null) {
       ALog.d(LIB_TAG, TAG, "sendImageMessage:" + imageFile.getPath());
+      int[] bounds = ImageUtils.getSize(imageFile);
       IMMessage imageMsg = MessageBuilder.createImageMessage(mSessionId, mSessionType, imageFile);
+      ImageAttachment attachment = (ImageAttachment) imageMsg.getAttachment();
+      attachment.setWidth(bounds[0]);
+      attachment.setHeight(bounds[1]);
       sendMessage(imageMsg, false, true);
     }
   }
@@ -540,11 +612,124 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
     }
   }
 
-  public void sendForwardMessage(IMMessage message, String sessionId, SessionTypeEnum sessionType) {
+  public void sendForwardMessage(
+      ChatMessageBean message, String inputMsg, String sessionId, SessionTypeEnum sessionType) {
     ALog.d(LIB_TAG, TAG, "sendForwardMessage:" + sessionId);
-    IMMessage forwardMessage = MessageBuilder.createForwardMessage(message, sessionId, sessionType);
-    MessageHelper.clearAitAndReplyInfo(forwardMessage);
-    sendMessage(forwardMessage, false, TextUtils.equals(sessionId, mSessionId));
+    if (!message.isRevoked()) {
+      IMMessage forwardMessage =
+          MessageBuilder.createForwardMessage(
+              message.getMessageData().getMessage(), sessionId, sessionType);
+      MessageHelper.clearAitAndReplyInfo(forwardMessage);
+      sendMessage(forwardMessage, false, TextUtils.equals(sessionId, mSessionId));
+    }
+
+    if (!TextUtils.isEmpty(inputMsg) && TextUtils.getTrimmedLength(inputMsg) > 0) {
+      new Handler(Looper.getMainLooper())
+          .postDelayed(() -> sendTextMessage(inputMsg, sessionId, sessionType), 500);
+    }
+  }
+
+  public void sendForwardMessages(
+      String displayName,
+      String inputMsg,
+      List<String> sessionInfo,
+      SessionTypeEnum sessionType,
+      List<ChatMessageBean> messages) {
+    if (sessionInfo == null || sessionInfo.isEmpty() || messages == null || messages.isEmpty()) {
+      return;
+    }
+
+    boolean hasError = false;
+
+    // 合并转发消息需要逆序的，所以获取消息列表是逆序。逐条转发需要正序，所以要倒序遍历
+    for (int index = messages.size() - 1; index >= 0; index--) {
+      ChatMessageBean message = messages.get(index);
+      if (message.isRevoked()) {
+        continue;
+      }
+      if (message.getMessageData().getMessage().getMsgType() == MsgTypeEnum.audio) {
+        hasError = true;
+        continue;
+      }
+      for (String session : sessionInfo) {
+        IMMessage forwardMessage =
+            MessageBuilder.createForwardMessage(
+                message.getMessageData().getMessage(), session, sessionType);
+        MessageHelper.clearAitAndReplyInfo(forwardMessage);
+        sendMessage(forwardMessage, false, TextUtils.equals(session, mSessionId));
+      }
+    }
+    if (hasError) {
+      ToastX.showLongToast(R.string.msg_multi_forward_error_tips);
+    }
+
+    if (!TextUtils.isEmpty(inputMsg) && TextUtils.getTrimmedLength(inputMsg) > 0) {
+      // 保证留言消息在最后，所以延迟发送
+      new Handler(Looper.getMainLooper())
+          .postDelayed(
+              () -> {
+                for (String session : sessionInfo) {
+                  sendTextMessage(inputMsg, session, sessionType);
+                }
+              },
+              500);
+    }
+  }
+
+  public void sendMultiForwardMessage(
+      String displayName,
+      String inputMsg,
+      List<String> sessionInfo,
+      SessionTypeEnum sessionType,
+      List<ChatMessageBean> messages) {
+    ALog.d(LIB_TAG, TAG, "sendMultiForwardMessage");
+    if (sessionInfo == null || sessionInfo.isEmpty() || messages == null || messages.isEmpty()) {
+      return;
+    }
+
+    List<IMMessageInfo> iMessageList = new ArrayList<>();
+    for (ChatMessageBean message : messages) {
+      iMessageList.add(message.getMessageData());
+    }
+
+    String msgInfo = MessageHelper.createMultiForwardMsg(iMessageList);
+    try {
+
+      File localFile = SendMediaHelper.createTextFile();
+      CommonRepo.writeLocalFileAndUploadNOS(
+          localFile,
+          msgInfo,
+          "text",
+          new FetchCallback<String>() {
+            @Override
+            public void onSuccess(@Nullable String param) {
+              if (param != null) {
+                String fileMD5 = EncryptUtils.md5(localFile);
+                MultiForwardAttachment attachment =
+                    MessageHelper.createMultiTransmitAttachment(
+                        displayName, mSessionId, param, iMessageList);
+                attachment.md5 = fileMD5;
+                for (String session : sessionInfo) {
+                  IMMessage textMsg =
+                      MessageBuilder.createCustomMessage(session, sessionType, attachment);
+                  sendMessage(textMsg, false, true);
+                  if (!TextUtils.isEmpty(inputMsg)) {
+                    sendTextMessage(inputMsg, session, sessionType);
+                  }
+                }
+              }
+            }
+
+            @Override
+            public void onFailed(int code) {}
+
+            @Override
+            public void onException(@Nullable Throwable exception) {}
+          });
+
+    } catch (IOException e) {
+
+    }
   }
 
   public void sendLocationMessage(ChatLocationBean locationBean) {
@@ -705,6 +890,12 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
               }
             }
           });
+    }
+  }
+
+  public void sendMessage(IMMessage message) {
+    if (message != null) {
+      sendMessage(message, true, true);
     }
   }
 
@@ -932,34 +1123,11 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
     ALog.d(
         LIB_TAG, TAG, "replyTextMessage,message" + (message == null ? "null" : message.getUuid()));
     IMMessage textMsg = MessageBuilder.createTextMessage(mSessionId, mSessionType, content);
-    appendTeamMemberPush(textMsg, pushList);
+    MessageHelper.appendTeamMemberPush(textMsg, pushList);
     if (remoteExtension != null) {
       textMsg.setRemoteExtension(remoteExtension);
     }
     replyMessage(textMsg, message, false);
-  }
-
-  // **********Message Pin****************
-
-  private void appendTeamMemberPush(IMMessage message, List<String> pushList) {
-    ALog.d(
-        LIB_TAG,
-        TAG,
-        "appendTeamMemberPush,message" + (message == null ? "null" : message.getUuid()));
-    if (message == null) {
-      return;
-    }
-    if (mSessionType == SessionTypeEnum.Team && pushList != null && !pushList.isEmpty()) {
-      MemberPushOption memberPushOption = new MemberPushOption();
-      memberPushOption.setForcePush(true);
-      memberPushOption.setForcePushContent(message.getContent());
-      if (pushList.size() == 1 && pushList.get(0).equals(AitContactsModel.ACCOUNT_ALL)) {
-        memberPushOption.setForcePushList(null);
-      } else {
-        memberPushOption.setForcePushList(pushList);
-      }
-      message.setMemberPushOption(memberPushOption);
-    }
   }
 
   // ********************Message Pin********************

@@ -8,6 +8,7 @@ import android.text.TextUtils;
 import com.netease.nimlib.sdk.msg.constant.MsgDirectionEnum;
 import com.netease.nimlib.sdk.msg.constant.MsgStatusEnum;
 import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
+import com.netease.yunxin.kit.chatkit.ui.ChatMessageType;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants;
@@ -20,6 +21,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
+/** 聊天界面长按弹窗工厂类，根据长按的消息返回对应的弹窗中的内容 */
 public class ChatPopActionFactory {
 
   private static volatile ChatPopActionFactory instance;
@@ -49,6 +51,12 @@ public class ChatPopActionFactory {
     this.customPopMenu = new WeakReference<>(popMenu);
   }
 
+  /**
+   * 获取长按弹窗中的内容
+   *
+   * @param message
+   * @return
+   */
   public List<ChatPopMenuAction> getNormalActions(ChatMessageBean message) {
     List<ChatPopMenuAction> actions = new ArrayList<>();
     if (message.getMessageData() == null) {
@@ -64,28 +72,29 @@ public class ChatPopActionFactory {
           actions.add(getCopyAction(message));
         }
         actions.add(getDeleteAction(message));
+        actions.add(getMultiSelectAction(message));
         return actions;
       }
 
       if (message.getViewType() == MsgTypeEnum.nrtc_netcall.getValue()) {
-        //call
+        // call
         actions.add(getDeleteAction(message));
+        actions.add(getMultiSelectAction(message));
         return actions;
       }
-      if (message.getViewType() == MsgTypeEnum.text.getValue()) {
-        //text
+      // 基础消息类型都在MsgTypeEnum中定义,自定义消息类型都是MsgTypeEnum.custom，
+      // 自定义消息，根据自定义消息的Type区分IMUIKIt内置从101开始，客户定义从1000开始
+      if (message.getViewType() == MsgTypeEnum.text.getValue()
+          || message.getViewType() == ChatMessageType.RICH_TEXT_ATTACHMENT) {
         actions.add(getCopyAction(message));
       }
       actions.add(getReplyAction(message));
       if (message.getViewType() != MsgTypeEnum.audio.getValue()) {
         actions.add(getTransmitAction(message));
       }
-      //      if (message.getViewType() != MsgTypeEnum.location.getValue()) {
       actions.add(getPinAction(message));
-      //      }
-      //    actions.add(getMultiSelectAction(message));
-      //    actions.add(getCollectionAction(message));
       actions.add(getDeleteAction(message));
+      actions.add(getMultiSelectAction(message));
       if (message.getMessageData().getMessage().getDirect() == MsgDirectionEnum.Out) {
         actions.add(getRecallAction(message));
       }

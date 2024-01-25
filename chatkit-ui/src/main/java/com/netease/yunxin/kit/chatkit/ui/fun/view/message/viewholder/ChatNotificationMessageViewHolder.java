@@ -84,6 +84,11 @@ public class ChatNotificationMessageViewHolder extends FunChatBaseMessageViewHol
   }
 
   @Override
+  protected boolean needMessageClickAndExtra() {
+    return false;
+  }
+
+  @Override
   protected boolean needShowTimeView(ChatMessageBean message, ChatMessageBean lastMessage) {
     return lastMessage == null;
   }
@@ -98,12 +103,18 @@ public class ChatNotificationMessageViewHolder extends FunChatBaseMessageViewHol
       String content = TeamNotificationHelper.getTeamNotificationText(message.getMessageData());
       textBinding.messageText.setText(content);
       if (TextUtils.isEmpty(content)) {
-        baseViewBinding.baseRoot.setVisibility(View.GONE);
+        baseViewBinding.contentWithAllLayer.setVisibility(View.GONE);
+        baseViewBinding.msgBgLayout.setVisibility(View.GONE);
+        textBinding.getRoot().setVisibility(View.GONE);
       } else {
-        baseViewBinding.baseRoot.setVisibility(View.VISIBLE);
+        baseViewBinding.contentWithAllLayer.setVisibility(View.VISIBLE);
+        baseViewBinding.msgBgLayout.setVisibility(View.VISIBLE);
+        textBinding.getRoot().setVisibility(View.VISIBLE);
       }
     } else {
-      baseViewBinding.baseRoot.setVisibility(View.GONE);
+      baseViewBinding.contentWithAllLayer.setVisibility(View.GONE);
+      baseViewBinding.msgBgLayout.setVisibility(View.GONE);
+      textBinding.getRoot().setVisibility(View.GONE);
     }
   }
 }

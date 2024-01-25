@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+/** 默认的ViewHolder工厂类 */
 public final class ChatViewHolderDefaultFactory implements IChatDefaultFactory {
   private final Map<Integer, Class<? extends ChatBaseMessageViewHolder>> viewHolderMap =
       new HashMap<>();

@@ -6,6 +6,7 @@ package com.netease.yunxin.kit.chatkit.ui;
 
 import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
 
+/** 消息类型 */
 public interface ChatMessageType {
 
   /** normal message type */
@@ -29,6 +30,15 @@ public interface ChatMessageType {
   int LOCATION_MESSAGE_VIEW_TYPE = MsgTypeEnum.location.getValue();
 
   int CALL_MESSAGE_VIEW_TYPE = MsgTypeEnum.nrtc_netcall.getValue();
+
+  // 会话中的会话消息
+  int CHAT_MESSAGE_MODE = 0;
+  //合并转发详情页的消息
+  int FORWARD_MESSAGE_MODE = 1;
+
+  // 多选消息自定义消息类型
+  int MULTI_FORWARD_ATTACHMENT = 101;
+  int RICH_TEXT_ATTACHMENT = 102;
 
   /** 自定义消息类型从1000开始 */
   int CUSTOM_START = 1000;

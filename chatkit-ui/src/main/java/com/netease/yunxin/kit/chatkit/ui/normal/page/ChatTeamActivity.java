@@ -19,7 +19,7 @@ import com.netease.yunxin.kit.chatkit.ui.normal.page.fragment.ChatTeamFragment;
 import com.netease.yunxin.kit.chatkit.ui.page.ChatBaseActivity;
 import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
 
-/** Team chat page */
+/** 标准皮肤，群聊会话页面。 */
 public class ChatTeamActivity extends ChatBaseActivity {
 
   ChatTeamFragment chatFragment;

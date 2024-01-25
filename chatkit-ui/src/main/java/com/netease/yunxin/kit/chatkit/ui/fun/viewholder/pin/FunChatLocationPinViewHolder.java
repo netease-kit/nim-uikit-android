@@ -4,7 +4,7 @@
 
 package com.netease.yunxin.kit.chatkit.ui.fun.viewholder.pin;
 
-import static com.netease.yunxin.kit.chatkit.ui.ChatUIConstants.KEY_MAP_FOR_PIN;
+import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.KEY_MAP_FOR_PIN;
 
 import android.os.Handler;
 import android.os.Looper;

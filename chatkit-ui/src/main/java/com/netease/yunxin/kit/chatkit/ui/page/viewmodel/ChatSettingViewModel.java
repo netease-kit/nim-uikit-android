@@ -13,25 +13,25 @@ import com.netease.yunxin.kit.chatkit.repo.ContactRepo;
 import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
-import com.netease.yunxin.kit.corekit.im.model.UserInfo;
+import com.netease.yunxin.kit.corekit.im.model.FriendInfo;
 import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
 
 public class ChatSettingViewModel extends BaseViewModel {
   private static final String TAG = "ChatSettingViewModel";
-  private final MutableLiveData<FetchResult<UserInfo>> userInfoLiveData = new MutableLiveData<>();
-  private final FetchResult<UserInfo> userInfoFetchResult = new FetchResult<>(LoadStatus.Finish);
+  private final MutableLiveData<FetchResult<FriendInfo>> userInfoLiveData = new MutableLiveData<>();
+  private final FetchResult<FriendInfo> userInfoFetchResult = new FetchResult<>(LoadStatus.Finish);
 
-  public MutableLiveData<FetchResult<UserInfo>> getUserInfoLiveData() {
+  public MutableLiveData<FetchResult<FriendInfo>> getUserInfoLiveData() {
     return userInfoLiveData;
   }
 
   public void getUserInfo(String accId) {
     ALog.d(LIB_TAG, TAG, "getP2pUserInfo:" + accId);
-    ContactRepo.fetchUserInfo(
+    ContactRepo.getFriendWithUserInfo(
         accId,
-        new FetchCallback<UserInfo>() {
+        new FetchCallback<FriendInfo>() {
           @Override
-          public void onSuccess(@Nullable UserInfo param) {
+          public void onSuccess(@Nullable FriendInfo param) {
             ALog.d(LIB_TAG, TAG, "getP2pUserInfo,onSuccess:" + (param == null));
             userInfoFetchResult.setData(param);
             userInfoFetchResult.setLoadStatus(LoadStatus.Success);

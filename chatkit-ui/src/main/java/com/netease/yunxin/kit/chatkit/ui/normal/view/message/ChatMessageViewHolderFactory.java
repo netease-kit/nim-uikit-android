@@ -6,11 +6,13 @@ package com.netease.yunxin.kit.chatkit.ui.normal.view.message;
 
 import static com.netease.yunxin.kit.chatkit.ui.ChatMessageType.CALL_MESSAGE_VIEW_TYPE;
 import static com.netease.yunxin.kit.chatkit.ui.ChatMessageType.LOCATION_MESSAGE_VIEW_TYPE;
+import static com.netease.yunxin.kit.chatkit.ui.ChatMessageType.MULTI_FORWARD_ATTACHMENT;
 import static com.netease.yunxin.kit.chatkit.ui.ChatMessageType.NORMAL_MESSAGE_VIEW_TYPE_AUDIO;
 import static com.netease.yunxin.kit.chatkit.ui.ChatMessageType.NORMAL_MESSAGE_VIEW_TYPE_FILE;
 import static com.netease.yunxin.kit.chatkit.ui.ChatMessageType.NORMAL_MESSAGE_VIEW_TYPE_IMAGE;
 import static com.netease.yunxin.kit.chatkit.ui.ChatMessageType.NORMAL_MESSAGE_VIEW_TYPE_VIDEO;
 import static com.netease.yunxin.kit.chatkit.ui.ChatMessageType.NOTICE_MESSAGE_VIEW_TYPE;
+import static com.netease.yunxin.kit.chatkit.ui.ChatMessageType.RICH_TEXT_ATTACHMENT;
 import static com.netease.yunxin.kit.chatkit.ui.ChatMessageType.TIP_MESSAGE_VIEW_TYPE;
 
 import android.view.LayoutInflater;
@@ -23,16 +25,18 @@ import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.normal.view.message.viewholder.ChatAudioMessageViewHolder;
 import com.netease.yunxin.kit.chatkit.ui.normal.view.message.viewholder.ChatCallMessageViewHolder;
 import com.netease.yunxin.kit.chatkit.ui.normal.view.message.viewholder.ChatFileMessageViewHolder;
+import com.netease.yunxin.kit.chatkit.ui.normal.view.message.viewholder.ChatForwardMessageViewHolder;
 import com.netease.yunxin.kit.chatkit.ui.normal.view.message.viewholder.ChatImageMessageViewHolder;
 import com.netease.yunxin.kit.chatkit.ui.normal.view.message.viewholder.ChatLocationMessageViewHolder;
 import com.netease.yunxin.kit.chatkit.ui.normal.view.message.viewholder.ChatNotificationMessageViewHolder;
+import com.netease.yunxin.kit.chatkit.ui.normal.view.message.viewholder.ChatRichTextMessageViewHolder;
 import com.netease.yunxin.kit.chatkit.ui.normal.view.message.viewholder.ChatTextMessageViewHolder;
 import com.netease.yunxin.kit.chatkit.ui.normal.view.message.viewholder.ChatTipsMessageViewHolder;
 import com.netease.yunxin.kit.chatkit.ui.normal.view.message.viewholder.ChatVideoMessageViewHolder;
 import com.netease.yunxin.kit.chatkit.ui.view.message.viewholder.ChatBaseMessageViewHolder;
 import com.netease.yunxin.kit.chatkit.ui.view.message.viewholder.CommonBaseMessageViewHolder;
 
-/** product view holder by type */
+/** 标准皮肤，聊天页面消息ViewHolder工厂类。 */
 public abstract class ChatMessageViewHolderFactory implements IChatFactory {
 
   @Override
@@ -48,7 +52,8 @@ public abstract class ChatMessageViewHolderFactory implements IChatFactory {
   public abstract @Nullable CommonBaseMessageViewHolder createViewHolderCustom(
       @NonNull ViewGroup parent, int viewType);
 
-  private ChatBaseMessageViewHolder getViewHolderDefault(@NonNull ViewGroup parent, int viewType) {
+  protected CommonBaseMessageViewHolder getViewHolderDefault(
+      @NonNull ViewGroup parent, int viewType) {
 
     ChatBaseMessageViewHolder viewHolder;
     ChatBaseMessageViewHolderBinding viewHolderBinding =
@@ -70,6 +75,11 @@ public abstract class ChatMessageViewHolderFactory implements IChatFactory {
       viewHolder = new ChatLocationMessageViewHolder(viewHolderBinding, viewType);
     } else if (viewType == CALL_MESSAGE_VIEW_TYPE) {
       viewHolder = new ChatCallMessageViewHolder(viewHolderBinding, viewType);
+    } else if (viewType == MULTI_FORWARD_ATTACHMENT) {
+      //custom message
+      viewHolder = new ChatForwardMessageViewHolder(viewHolderBinding, viewType);
+    } else if (viewType == RICH_TEXT_ATTACHMENT) {
+      viewHolder = new ChatRichTextMessageViewHolder(viewHolderBinding, viewType);
     } else {
       //default as text message
       viewHolder = new ChatTextMessageViewHolder(viewHolderBinding, viewType);

@@ -32,7 +32,9 @@
     <string name="chat_unread_with_num">Unread（%d）</string> 
     <string name="chat_all_user_have_read">All Read</string> 
     <string name="chat_all_user_have_unread">Unread by all members</string>
-    <string name="chat_message_ait_contact_title">Select Notification</string> 
+    <string name="chat_message_ait_contact_title">Select Notification</string>
+    <string name="chat_message_rich_title_hint">Please enter title</string>
+    <string name="chat_message_rich_body_hint">Please enter content</string>
 
     <string name="chat_no_permission"> No Permission</string>
     <string name="chat_server_request_fail">Failed</string> 
@@ -63,6 +65,8 @@
     <string name="chat_message_video_call_action">Video Call</string>
     <string name="chat_message_audio_call_action">Voice Call</string>
 
+    <string name="chat_message_audio_call_text">[Voice Call]</string>
+    <string name="chat_message_video_call_text">[Video Call]</string>
     <string name="chat_message_call_canceled">Canceled</string>
     <string name="chat_message_in_call_canceled">Canceled</string>
     <string name="chat_message_in_call_canceled_self">Canceled</string>
@@ -72,6 +76,9 @@
     <string name="chat_message_call_busy">Busy</string>
     <string name="chat_message_call_busy_self">Busy</string>
     <string name="chat_message_call_completed">Call &#160;&#160; %s</string>
+    <string name="chat_message_multi_record">Message History</string>
+    <string name="chat_message_multi_record_title">From %s message</string>
+    <string name="chat_message_multi_record_content">%s：%s</string>
 
     <string name="chat_message_action_copy">Copy</string>
     <string name="chat_message_action_reply">Reply</string> 
@@ -141,6 +148,7 @@
     <string name="chat_team_ait_all">everyone</string>
     <string name="chat_team_be_removed_title">tip</string>
     <string name="chat_team_be_removed_content">This group is disbanded</string>
+    <string name="chat_team_be_kick_content">You have been removed from the group</string>
 
     <string name="chat_reply_message_brief_image">[Photo]</string>
     <string name="chat_reply_message_brief_audio">[Voice]</string>
@@ -168,6 +176,8 @@
 
     <string name="chat_team_all_mute">Mute</string>
     <string name="chat_message_session_info">[Forward] %s history</string>
+    <string name="chat_message_multi_forward_tips">[Combined forward]%s history</string>
+    <string name="chat_message_single_forward_tips">[Forward one by one]%s history</string>
 
     <string name="permission_deny_tips">Can\'t use this function when you closed</string>
     <string name="permission_default">Please give your permission</string>
@@ -187,6 +197,11 @@
     <string name="chat_message_revoke_eidt_error">Time Out</string>
     <string name="chat_message_download_tips">Downloading</string>
     <string name="chat_message_send_message_when_in_black">"%s had blocked you, sent message failed!"</string>
+    <string name="chat_message_multi_forward_limit_tips">Combined forwarding limits 100
+        messages</string>
+    <string name="chat_message_single_forward_limit_tips">Forward one by one to limit 10
+        message</string>
+    <string name="chat_message_multi_delete_limit_tips">Delete limits 100 messages</string>
 
 
     <!-- location -->
@@ -196,6 +211,8 @@
     <string name="chat_location_search_empty">Not found</string>
     <string name="chat_location_empty">No location information</string>
     <string name="chat_location_disable">No location information</string>
+    <string name="chat_location_send_empty">No location information</string>
+
 
     <!-- Pin -->
     <string name="chat_pin_title">Pin</string>
@@ -205,6 +222,32 @@
     <string name="chat_network_error_tips">No Internet</string>
 
     <string name="chat_send_null_message_tips">Message cannot be empty</string>
+    <string name="chat_send_null_title_tips">Message title cannot be empty</string>
+
+
+    <!-- 合并转发相关文案-->
+    <string name="chat_message_multi_transmit_input_hint">Leave a message</string>
+    <string name="chat_message_multi_transmit">Combined forward</string>
+    <string name="chat_message_single_transmit">Forward one by one</string>
+    <string name="msg_type_multi_tips">[Message history]</string>
+    <string name="msg_multi_detail_title">Message history</string>
+    <string name="msg_multi_forward_error_tips">There are messages cannot be forwarded</string>
+    <string name="msg_multi_forward_download_error_tips">Failed to obtain information</string>
+    <string name="msg_forward_error_dialog_title">Exception description</string>
+    <string name="msg_forward_error_dialog_content">There are messages cannot be forwarded. Can it be removed and sent?</string>
+
+    <!-- message type-->
+    <string name="msg_type_location">[Location Message]</string>
+    <string name="msg_type_rtc_video">[Video Call]</string>
+    <string name="msg_type_rtc_audio">[Audio Call]</string>
+    <string name="msg_type_image">[Photo Message]</string>
+    <string name="msg_type_audio">[Voice Message]</string>
+    <string name="msg_type_video">[Video Message]</string>
+    <string name="msg_type_file">[File Message]</string>
+    <string name="msg_type_notification">[Notification Message]</string>
+    <string name="msg_type_tip">[Tip Message]</string>
+    <string name="msg_type_custom">[Custom Message]</string>
+    <string name="msg_type_no_tips">[Unknown Message]</string>
 
     <!-- fun -->
     <string name="chat_input_more_album_title">Album</string>

@@ -33,6 +33,13 @@ public class ActionConstants {
   // action video call in more action
   public static final String ACTION_TYPE_VIDEO_CALL = "ACTION_TYPE_VIDEO_CALL";
 
+  //多选操作下，合并转发按钮点击事件
+  public static final String ACTION_TYPE_MULTI_FORWARD = "ACTION_TYPE_MULTI_FORWARD";
+  //多选操作下，删除按钮点击事件
+  public static final String ACTION_TYPE_MULTI_DELETE = "ACTION_TYPE_MULTI_DELETE";
+  //多选操作下，逐条按钮点击事件
+  public static final String ACTION_TYPE_SINGLE_FORWARD = "ACTION_TYPE_SINGLE_FORWARD";
+
   //消息长按菜单-回复
   public static final String POP_ACTION_REPLY = "POP_ACTION_REPLY";
   //消息长按菜单-复制
@@ -59,4 +66,6 @@ public class ActionConstants {
   public static final String PAYLOAD_SIGNAL = "messageSignal";
   public static final String PAYLOAD_USERINFO = "userInfo";
   public static final String PAYLOAD_REFRESH_AUDIO_ANIM = "refreshAudioAnim";
+
+  public static final String PAYLOAD_SELECT_STATUS = "messageSelectStatus";
 }

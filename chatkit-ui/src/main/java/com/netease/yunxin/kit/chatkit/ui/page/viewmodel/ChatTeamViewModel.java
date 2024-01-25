@@ -48,7 +48,7 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
   private final MutableLiveData<Team> teamRemoveLiveData = new MutableLiveData<>();
   private final MutableLiveData<ResultInfo<List<UserInfoWithTeam>>> teamMemberData =
       new MutableLiveData<>();
-  private final MutableLiveData<FetchResult<List<String>>> teamMemberChangeData =
+  private final MutableLiveData<FetchResult<List<UserInfoWithTeam>>> teamMemberChangeData =
       new MutableLiveData<>();
   private boolean myDismiss = false;
 
@@ -94,13 +94,9 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
               @Override
               public void onSuccess(@Nullable List<UserInfoWithTeam> param) {
                 ChatUserCache.addUserCache(param);
-                ArrayList<String> accountList = new ArrayList<>();
-                for (TeamMember member : teamMemberList) {
-                  accountList.add(member.getAccount());
-                }
-                if (accountList.size() > 0) {
-                  FetchResult<List<String>> result = new FetchResult<>(LoadStatus.Finish);
-                  result.setData(accountList);
+                if (param != null && param.size() > 0) {
+                  FetchResult<List<UserInfoWithTeam>> result = new FetchResult<>(LoadStatus.Finish);
+                  result.setData(param);
                   result.setType(FetchResult.FetchType.Update);
                   teamMemberChangeData.setValue(result);
                 }
@@ -144,7 +140,7 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
     return teamMessageReceiptLiveData;
   }
 
-  public MutableLiveData<FetchResult<List<String>>> getTeamMemberChangeData() {
+  public MutableLiveData<FetchResult<List<UserInfoWithTeam>>> getTeamMemberChangeData() {
     return teamMemberChangeData;
   }
 

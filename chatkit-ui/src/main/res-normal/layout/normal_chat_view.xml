@@ -10,7 +10,8 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <FrameLayout android:id="@+id/chat_view_title_layout"
+    <FrameLayout
+        android:id="@+id/chat_view_title_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
@@ -23,13 +24,13 @@
             android:id="@+id/tv_input_tip"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@color/color_white"
             android:layout_gravity="center_horizontal|bottom"
+            android:layout_marginBottom="2dp"
+            android:background="@color/color_white"
+            android:text="@string/chat_message_is_typing"
             android:textColor="@color/color_333333"
             android:textSize="@dimen/dimen_9_dp"
-            android:layout_marginBottom="2dp"
             android:visibility="gone"
-            android:text="@string/chat_message_is_typing"
             tools:ignore="SpUsage" />
 
     </FrameLayout>
@@ -48,8 +49,8 @@
         <com.netease.yunxin.kit.chatkit.ui.view.message.ChatMessageListView
             android:id="@+id/messageView"
             android:layout_width="match_parent"
-            android:overScrollMode="never"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:overScrollMode="never" />
 
         <TextView
             android:id="@+id/tv_notification"
@@ -72,11 +73,188 @@
     <FrameLayout
         android:id="@+id/chat_view_bottom"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="@color/color_eef1f4">
 
         <com.netease.yunxin.kit.chatkit.ui.normal.view.MessageBottomLayout
-            android:id="@+id/inputView"
+            android:id="@+id/chatBottomInputLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
+
+        <FrameLayout
+            android:id="@+id/chatRichLayout"
+            android:layout_width="match_parent"
+            android:layout_height="260dp"
+            android:layout_marginTop="@dimen/dimen_6_dp"
+            android:layout_marginBottom="@dimen/dimen_12_dp"
+            android:background="@drawable/bg_corner_white"
+            android:visibility="gone">
+
+            <EditText
+                android:id="@+id/chatRichTitleEt"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dimen_40_dp"
+                android:layout_marginEnd="@dimen/dimen_48_dp"
+                android:background="@null"
+                android:ellipsize="end"
+                android:hint="@string/chat_message_rich_title_hint"
+                android:inputType="text"
+                android:maxLength="20"
+                android:paddingStart="@dimen/dimen_16_dp"
+                android:singleLine="true"
+                android:textStyle="bold"
+                android:textColorHint="@color/color_b3b7bc"
+                android:textCursorDrawable="@null"
+                android:textSize="@dimen/text_size_16"
+                tools:ignore="LabelFor" />
+
+            <EditText
+                android:id="@+id/chatRichContentEt"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="@dimen/dimen_46_dp"
+                android:layout_marginBottom="@dimen/dimen_48_dp"
+                android:background="@null"
+                android:ellipsize="end"
+                android:gravity="top"
+                android:hint="@string/chat_message_rich_body_hint"
+                android:inputType="textMultiLine"
+                android:paddingHorizontal="@dimen/dimen_16_dp"
+                android:singleLine="false"
+                android:textColorHint="@color/color_b3b7bc"
+                android:textCursorDrawable="@null"
+                android:textSize="@dimen/text_size_16"
+                tools:ignore="LabelFor" />
+
+            <FrameLayout
+                android:id="@+id/chatRichSwitchLayout"
+                android:layout_width="@dimen/dimen_48_dp"
+                android:layout_height="@dimen/dimen_40_dp"
+                android:layout_gravity="end">
+
+                <ImageView
+                    android:id="@+id/chatRichSwitch"
+                    android:layout_width="@dimen/dimen_20_dp"
+                    android:layout_height="@dimen/dimen_20_dp"
+                    android:layout_gravity="end"
+                    android:layout_marginTop="@dimen/dimen_10_dp"
+                    android:layout_marginEnd="@dimen/dimen_20_dp"
+                    android:src="@drawable/ic_chat_close_rich_text" />
+            </FrameLayout>
+
+            <FrameLayout
+                android:id="@+id/chatRichSendLayout"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dimen_48_dp"
+                android:layout_gravity="bottom"
+                android:background="@color/color_white">
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="#ececec" />
+
+                <ImageView
+                    android:id="@+id/chatRichSend"
+                    android:layout_width="@dimen/dimen_32_dp"
+                    android:layout_height="@dimen/dimen_32_dp"
+                    android:layout_gravity="end"
+                    android:layout_marginTop="@dimen/dimen_8_dp"
+                    android:layout_marginEnd="@dimen/dimen_16_dp"
+                    android:src="@drawable/ic_send_rich_text" />
+
+            </FrameLayout>
+
+        </FrameLayout>
+
+
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/chatMsgMultiSelectLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/color_eff1f4"
+        android:clickable="true"
+        android:focusable="true"
+        android:paddingBottom="@dimen/dimen_12_dp"
+        android:visibility="gone">
+
+        <FrameLayout
+            android:id="@+id/chatMsgMultiTransmitLayout"
+            android:layout_width="@dimen/dimen_48_dp"
+            android:layout_height="67dp"
+            android:layout_marginStart="@dimen/dimen_62_dp"
+            android:layout_marginTop="@dimen/dimen_13_dp"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/chatMsgMultiTransmitIv"
+                android:layout_width="@dimen/dimen_48_dp"
+                android:layout_height="@dimen/dimen_48_dp"
+                android:src="@drawable/chat_multi_transmit_selector" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="@dimen/dimen_52_dp"
+                android:text="@string/chat_message_multi_transmit"
+                android:textColor="#666666"
+                android:textSize="@dimen/text_size_11" />
+
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/chatMsgSingleTransmitLayout"
+            android:layout_width="@dimen/dimen_48_dp"
+            android:layout_height="67dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="@dimen/dimen_13_dp"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/chatMsgSingleTransmitIv"
+                android:layout_width="@dimen/dimen_48_dp"
+                android:layout_height="@dimen/dimen_48_dp"
+                android:src="@drawable/chat_single_transmit_selector" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="@dimen/dimen_52_dp"
+                android:text="@string/chat_message_single_transmit"
+                android:textColor="#666666"
+                android:textSize="@dimen/text_size_11" />
+
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/chatMsgMultiDeleteLayout"
+            android:layout_width="@dimen/dimen_48_dp"
+            android:layout_height="67dp"
+            android:layout_gravity="end"
+            android:layout_marginTop="@dimen/dimen_13_dp"
+            android:layout_marginEnd="@dimen/dimen_62_dp"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/chatMsgMultiDeleteIv"
+                android:layout_width="@dimen/dimen_48_dp"
+                android:layout_height="@dimen/dimen_48_dp"
+                android:src="@drawable/chat_multi_delete_selector" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="@dimen/dimen_52_dp"
+                android:text="@string/chat_message_action_delete"
+                android:textColor="#666666"
+                android:textSize="@dimen/text_size_11" />
+
+        </FrameLayout>
+
     </FrameLayout>
 </LinearLayout>

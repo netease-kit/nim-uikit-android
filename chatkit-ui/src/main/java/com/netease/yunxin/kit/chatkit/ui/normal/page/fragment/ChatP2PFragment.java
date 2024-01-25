@@ -29,7 +29,7 @@ import com.netease.yunxin.kit.corekit.im.model.UserInfo;
 import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 
-/** P2P chat page */
+/** 标准皮肤，单聊会话页面Fragment。 */
 public class ChatP2PFragment extends NormalChatFragment {
   private static final String TAG = "ChatP2PFragment";
 
@@ -198,7 +198,18 @@ public class ChatP2PFragment extends NormalChatFragment {
   }
 
   public MessageBottomLayout getMessageBottomLayout() {
-    return viewBinding.chatView.getInputView();
+    return viewBinding.chatView.getBottomInputLayout();
+  }
+
+  @Override
+  public String getSessionName() {
+    if (friendInfo != null) {
+      return friendInfo.getName();
+    }
+    if (userInfo != null) {
+      return userInfo.getName();
+    }
+    return super.getSessionName();
   }
 
   @Override

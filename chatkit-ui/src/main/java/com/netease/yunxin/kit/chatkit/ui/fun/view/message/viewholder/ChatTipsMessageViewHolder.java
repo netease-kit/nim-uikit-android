@@ -64,6 +64,11 @@ public class ChatTipsMessageViewHolder extends FunChatBaseMessageViewHolder {
   }
 
   @Override
+  protected boolean needMessageClickAndExtra() {
+    return false;
+  }
+
+  @Override
   protected boolean needShowTimeView(ChatMessageBean message, ChatMessageBean lastMessage) {
     return lastMessage == null;
   }

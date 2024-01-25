@@ -4,7 +4,7 @@
 
 package com.netease.yunxin.kit.chatkit.ui.normal.view.message.viewholder;
 
-import static com.netease.yunxin.kit.chatkit.ui.ChatUIConstants.KEY_MAP_FOR_MESSAGE;
+import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.KEY_MAP_FOR_MESSAGE;
 
 import android.os.Handler;
 import android.os.Looper;
@@ -99,6 +99,7 @@ public class ChatLocationMessageViewHolder extends NormalChatBaseMessageViewHold
 
   @Override
   protected void onMessageBackgroundConfig(ChatMessageBean messageBean) {
+    super.onMessageBackgroundConfig(messageBean);
     if (!messageBean.isRevoked()) {
       boolean isReceivedMsg = MessageHelper.isReceivedMessage(messageBean);
       if (isReceivedMsg) {

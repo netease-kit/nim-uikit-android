@@ -3,6 +3,10 @@
   ~ Use of this source code is governed by a MIT license that can be
   ~ found in the LICENSE file.
   -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
 
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
@@ -16,3 +20,5 @@
     android:textColor="@color/color_333333"
     android:textSize="@dimen/text_size_16"
     tools:text="@tools:sample/lorem" />
+
+</FrameLayout>

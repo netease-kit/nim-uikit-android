@@ -12,18 +12,22 @@
     <string name="team_name_title">群名称</string>
     <string name="team_group_name_title">讨论组名称</string>
     <string name="team_member_title">群成员</string>
+    <string name="team_member_selector_title">人员选择</string>
     <string name="team_group_member_title">讨论组成员</string>
     <string name="team_icon_title">群头像</string>
     <string name="team_group_icon_title">讨论组头像</string>
     <string name="team_introduce_title">群介绍</string>
     <string name="team_my_nickname_title">我在群里的昵称</string>
+    <string name="team_manager">群管理</string>
+    <string name="team_edit_manager">管理管理员</string>
     <string name="team_mark">标记</string>
     <string name="team_history">历史记录</string>
     <string name="team_message_tip">开启消息提醒</string>
     <string name="team_session_pin">聊天置顶</string>
     <string name="team_mute">群禁言</string>
-    <string name="team_invite_other_permission">邀请他人权限</string>
-    <string name="team_update_info_permission">群资料修改权限</string>
+    <string name="team_invite_other_permission">谁可以添加群成员</string>
+    <string name="team_update_info_permission">谁可以编辑群信息</string>
+    <string name="team_notify_all_permission">谁可以@所有人</string>
     <string name="team_need_agreed_when_be_invited_permission">是否需要被邀请者同意</string>
     <string name="team_advanced_dismiss">解散群聊</string>
     <string name="team_advanced_quit">退出群聊</string>
@@ -31,8 +35,12 @@
     <string name="team_default_icon">选择默认图标</string>
     <string name="team_all_member">所有人</string>
     <string name="team_owner">群主</string>
+    <string name="team_type_manager">管理员</string>
+    <string name="team_owner_and_manager">群主和管理员</string>
     <string name="team_update_icon">修改头像</string>
     <string name="team_cancel">取消</string>
+    <string name="team_sure">确定</string>
+    <string name="team_sure_with_count">确定(%s)</string>
     <string name="team_confirm">确认</string>
     <string name="team_quit_advanced_team_query">是否退出群聊？</string>
     <string name="team_quit_group_team_query">是否退出讨论组？</string>
@@ -40,8 +48,26 @@
     <string name="team_save">保存</string>
     <string name="team_search_friend">搜索</string>
     <string name="team_search_result_empty">暂无结果</string>
+    <string name="team_manager_list_empty">暂无群管理人员</string>
     <string name="team_network_error">当前网络不可用，请检查你的网络设置。</string>
     <string name="team_request_fail">操作失败</string>
     <string name="group_team">讨论组</string>
     <string name="advanced_team">高级群</string>
+
+    <string name="team_manager_remove">移除</string>
+    <string name="team_manager_list_title">群管理员</string>
+    <string name="team_add_member">添加成员</string>
+    <string name="team_add_manager">添加管理员</string>
+    <string name="team_remove_member_title">是否移除</string>
+    <string name="team_remove_member_content">移除后该成员将离开当前群聊</string>
+    <string name="team_remove_manager_content">移除后该成员将无管理权限</string>
+    <string name="team_transform_owner">转让群主</string>
+    <string name="team_at_permission_manager_tips">\@所有人权限更新为群主和管理员</string>
+    <string name="team_at_permission_all_tips">\@所有人权限更新为所有人</string>
+
+    <!-- error tips-->
+    <string name="team_network_error_tip">当前网络不可用，请检查你的网络设置。</string>
+    <string name="team_add_manager_empty_tip">请选择成员</string>
+    <string name="team_add_manager_limit_tip">最多只能设置10个管理员</string>
+    <string name="team_operate_no_permission_tip">您暂无操作权限</string>
 </resources>

@@ -18,6 +18,11 @@ public interface IMessageItemClickListener {
     return false;
   }
 
+  default boolean onMessageSelect(
+      View view, int position, ChatMessageBean messageInfo, boolean selected) {
+    return false;
+  }
+
   default boolean onUserIconClick(View view, int position, ChatMessageBean messageInfo) {
     return false;
   }

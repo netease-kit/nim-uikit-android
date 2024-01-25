@@ -71,7 +71,7 @@ public abstract class ChatThumbBaseViewHolder extends FunChatBaseMessageViewHold
       ALog.d(TAG, "load from path");
       loadThumbnailImage(thumbFromSourceFile(path));
     } else {
-      loadThumbnailInternal(null, getImageThumbMinEdge(), getImageThumbMinEdge());
+      loadThumbnailInternal(attachment.getUrl(), getImageThumbMinEdge(), getImageThumbMinEdge());
     }
   }
 

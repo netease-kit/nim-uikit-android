@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2022 NetEase, Inc. All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be
+  ~ found in the LICENSE file.
+  -->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/messageTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/text_size_16"
+        android:paddingTop="@dimen/dimen_12_dp"
+        android:paddingBottom="@dimen/dimen_6_dp"
+        android:ellipsize="middle"
+        android:textColor="@color/color_222222"
+        android:paddingHorizontal="@dimen/dimen_16_dp"
+        tools:text="@tools:sample/lorem"
+        android:textStyle="bold"
+        android:maxLines="2" />
+    <TextView
+        android:id="@+id/messageContent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/text_size_16"
+        android:textColor="@color/color_222222"
+        android:paddingHorizontal="@dimen/dimen_16_dp"
+        android:paddingBottom="@dimen/dimen_4_dp"
+        android:ellipsize="end"
+        tools:text="@tools:sample/lorem" />
+</LinearLayout>

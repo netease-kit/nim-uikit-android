@@ -2,6 +2,7 @@
 <resources>
     <color name="fun_chat_page_bg_color">#ededed</color>
     <color name="fun_chat_secondary_page_bg_color">#ededed</color>
+    <color name="fun_chat_color">#58BE6B</color>
 
     <!-- 会话页面 -->
     <color name="fun_chat_input_bg_color">#f5f5f5</color>

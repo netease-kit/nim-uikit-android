@@ -29,6 +29,10 @@ import com.netease.yunxin.kit.corekit.im.model.UserInfo;
 import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 
+/**
+ * Fun皮肤单聊聊天界面Fragment，继承自FunChatFragment
+ * 单聊和群聊有一些差异，为了方便维护，将差异化的部分抽象到FunChatP2PFragment和FunChatTeamFragment中
+ */
 public class FunChatP2PFragment extends FunChatFragment {
   private static final String TAG = "ChatP2PFunFragment";
 
@@ -196,7 +200,18 @@ public class FunChatP2PFragment extends FunChatFragment {
   }
 
   public MessageBottomLayout getMessageBottomLayout() {
-    return viewBinding.chatView.getInputView();
+    return viewBinding.chatView.getBottomInputLayout();
+  }
+
+  @Override
+  public String getSessionName() {
+    if (friendInfo != null) {
+      return friendInfo.getName();
+    }
+    if (userInfo != null) {
+      return userInfo.getName();
+    }
+    return super.getSessionName();
   }
 
   @Override

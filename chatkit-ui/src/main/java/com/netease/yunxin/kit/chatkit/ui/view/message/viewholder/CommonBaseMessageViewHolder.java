@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.netease.nimlib.sdk.team.model.Team;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant;
+import com.netease.yunxin.kit.chatkit.ui.ChatMessageType;
 import com.netease.yunxin.kit.chatkit.ui.interfaces.IMessageItemClickListener;
 import com.netease.yunxin.kit.chatkit.ui.interfaces.IMessageReader;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
@@ -25,12 +26,16 @@ public abstract class CommonBaseMessageViewHolder extends RecyclerView.ViewHolde
   protected long receiptTime;
   // 群聊场景下群信息
   protected Team teamInfo;
+  // 消息体 多选状态
+  protected boolean isMultiSelect;
   // 当前支持的自定义配置
   protected MessageProperties properties = new MessageProperties();
   // 设置点击监听回调集合
   protected IMessageItemClickListener itemClickListener;
   // 用于已读消息回执发送
   protected IMessageReader messageReader;
+  // 展示模式会话消息-0、转发消息-1
+  protected int mode;
 
   public CommonBaseMessageViewHolder(@NonNull View itemView) {
     super(itemView);
@@ -53,6 +58,22 @@ public abstract class CommonBaseMessageViewHolder extends RecyclerView.ViewHolde
    */
   public void setTeamInfo(Team teamInfo) {
     this.teamInfo = teamInfo;
+  }
+
+  public void setMultiSelect(boolean selectMode) {
+    isMultiSelect = selectMode;
+  }
+
+  public void setMode(int mode) {
+    this.mode = mode;
+  }
+
+  public boolean isChatMsg() {
+    return mode == ChatMessageType.CHAT_MESSAGE_MODE;
+  }
+
+  public boolean isForwardMsg() {
+    return mode == ChatMessageType.FORWARD_MESSAGE_MODE;
   }
 
   /**

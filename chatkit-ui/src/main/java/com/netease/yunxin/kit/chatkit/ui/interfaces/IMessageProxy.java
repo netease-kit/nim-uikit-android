@@ -14,6 +14,8 @@ import java.io.File;
 public interface IMessageProxy {
   boolean sendTextMessage(String msg, ChatMessageBean replyMsg);
 
+  boolean sendRichTextMessage(String title, String content, ChatMessageBean replyMsg);
+
   void pickMedia();
 
   void takePicture();
@@ -33,6 +35,8 @@ public interface IMessageProxy {
   void onCustomAction(View view, String action);
 
   boolean onActionClick(View view, String action);
+
+  boolean onMultiActionClick(View view, String action);
 
   void sendLocationLaunch();
 

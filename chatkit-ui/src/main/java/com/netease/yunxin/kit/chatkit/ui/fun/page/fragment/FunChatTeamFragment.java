@@ -22,12 +22,15 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
+import com.netease.nimlib.sdk.team.constant.TeamMemberType;
 import com.netease.nimlib.sdk.team.model.Team;
+import com.netease.nimlib.sdk.team.model.TeamMember;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.model.IMTeamMessageReceiptInfo;
 import com.netease.yunxin.kit.chatkit.model.UserInfoWithTeam;
 import com.netease.yunxin.kit.chatkit.ui.R;
+import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.chatkit.ui.fun.view.MessageBottomLayout;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.page.viewmodel.ChatTeamViewModel;
@@ -41,9 +44,14 @@ import com.netease.yunxin.kit.corekit.route.XKitRouter;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Fun皮肤群聊聊天界面Fragment，继承自FunChatFragment
+ * 单聊和群聊有一些差异，为了方便维护，将差异化的部分抽象到FunChatP2PFragment和FunChatTeamFragment中
+ */
 public class FunChatTeamFragment extends FunChatFragment {
   private static final String TAG = "ChatTeamFragment";
   Team teamInfo;
+  TeamMember currentMember;
   IMMessage anchorMessage;
   private boolean showDeleteDialog = false;
   Observer<FetchResult<List<IMTeamMessageReceiptInfo>>> teamReceiptObserver;
@@ -68,7 +76,7 @@ public class FunChatTeamFragment extends FunChatFragment {
         .setActionImg(R.drawable.ic_more_point)
         .setActionListener(
             v -> {
-              //go to team setting
+              // go to team setting
               chatView.hideCurrentInput();
               XKitRouter.withKey(PATH_FUN_TEAM_SETTING_PAGE)
                   .withContext(requireContext())
@@ -78,6 +86,7 @@ public class FunChatTeamFragment extends FunChatFragment {
 
     aitManager = new AitManager(getContext(), sessionID);
     aitManager.setUIStyle(AitManager.STYLE_FUN);
+    aitManager.updateTeamInfo(teamInfo);
     chatView.setAitManager(aitManager);
     refreshView();
   }
@@ -85,10 +94,15 @@ public class FunChatTeamFragment extends FunChatFragment {
   private void refreshView() {
     if (teamInfo != null) {
       chatView.getTitleBar().setTitle(teamInfo.getName());
-      if (!TextUtils.equals(teamInfo.getCreator(), IMKitClient.account())) {
-        chatView.setInputMute(teamInfo.isAllMute());
-      }
       chatView.getMessageListView().updateTeamInfo(teamInfo);
+    }
+    if (currentMember != null && teamInfo != null) {
+      if (currentMember.getType() != TeamMemberType.Owner
+          && currentMember.getType() != TeamMemberType.Manager) {
+        chatView.setInputMute(teamInfo.isAllMute());
+      } else {
+        chatView.setInputMute(false);
+      }
     }
   }
 
@@ -106,7 +120,7 @@ public class FunChatTeamFragment extends FunChatFragment {
       ((ChatTeamViewModel) viewModel).requestTeamInfo(sessionID);
       // init team members
       ((ChatTeamViewModel) viewModel).requestTeamMembers(sessionID);
-      //fetch history message
+      // fetch history message
       viewModel.initFetch(anchorMessage, false);
     }
   }
@@ -190,24 +204,8 @@ public class FunChatTeamFragment extends FunChatFragment {
                     && team.getExtension().contains(IMKitConstant.TEAM_GROUP_TAG)) {
                   viewModel.setTeamGroup(true);
                 }
+                aitManager.updateTeamInfo(teamInfo);
                 refreshView();
-              }
-            });
-
-    ((ChatTeamViewModel) viewModel)
-        .getTeamRemoveLiveData()
-        .observeForever(
-            team -> {
-              ALog.d(LIB_TAG, TAG, "TeamRemoveLiveData,observe");
-              if (((ChatTeamViewModel) viewModel).isMyDismiss()) {
-                FunChatTeamFragment.this.requireActivity().finish();
-              } else {
-                if (FunChatTeamFragment.this.isResumed()) {
-                  showDialogToFinish();
-                  showDeleteDialog = false;
-                } else {
-                  showDeleteDialog = true;
-                }
               }
             });
 
@@ -220,7 +218,13 @@ public class FunChatTeamFragment extends FunChatFragment {
 
               if (teamMembers.getSuccess() && teamMembers.getValue() != null) {
                 aitManager.setTeamMembers(teamMembers.getValue());
-
+                for (UserInfoWithTeam user : teamMembers.getValue()) {
+                  if (TextUtils.equals(user.getTeamInfo().getAccount(), IMKitClient.account())) {
+                    currentMember = user.getTeamInfo();
+                    refreshView();
+                    break;
+                  }
+                }
                 if (((ChatTeamViewModel) viewModel).hasLoadMessage()) {
                   List<String> accIdList = new ArrayList<>();
                   for (UserInfoWithTeam user : teamMembers.getValue()) {
@@ -239,10 +243,57 @@ public class FunChatTeamFragment extends FunChatFragment {
             getViewLifecycleOwner(),
             result -> {
               ALog.d(LIB_TAG, TAG, "TeamMemberChangeData,observe");
-              if (result.getLoadStatus() == LoadStatus.Finish) {
-                chatView.getMessageListView().notifyUserInfoChange(result.getData());
+              if (result.getLoadStatus() == LoadStatus.Finish && result.getData() != null) {
+                List<String> accIdList = new ArrayList<>();
+                for (UserInfoWithTeam user : result.getData()) {
+                  if (TextUtils.equals(user.getTeamInfo().getAccount(), IMKitClient.account())) {
+                    currentMember = user.getTeamInfo();
+                    refreshView();
+                  }
+                  accIdList.add(user.getTeamInfo().getAccount());
+                }
+                chatView.getMessageListView().notifyUserInfoChange(accIdList);
               }
             });
+  }
+
+  private void startTeamDismiss() {
+    ALog.d(LIB_TAG, TAG, "startTeamDismiss");
+    if (((ChatTeamViewModel) viewModel).isMyDismiss()) {
+      FunChatTeamFragment.this.requireActivity().finish();
+    } else {
+      if (FunChatTeamFragment.this.isResumed()) {
+        showDialogToFinish();
+        showDeleteDialog = false;
+      } else {
+        showDeleteDialog = true;
+      }
+    }
+  }
+
+  private void startKickDialog() {
+    AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+    LayoutInflater layoutInflater = LayoutInflater.from(requireContext());
+    View dialogView = layoutInflater.inflate(R.layout.chat_alert_dialog_layout, null);
+    TextView title = dialogView.findViewById(R.id.tv_dialog_title);
+    TextView content = dialogView.findViewById(R.id.tv_dialog_content);
+    TextView positiveBut = dialogView.findViewById(R.id.tv_dialog_positive);
+    content.setText(getString(R.string.chat_team_be_kick_content));
+    title.setText(getString(R.string.chat_team_be_removed_title));
+    positiveBut.setText(getString(R.string.chat_dialog_sure));
+    // 设置不可取消
+    builder.setCancelable(false);
+    builder.setView(dialogView);
+    final AlertDialog alertDialog = builder.create();
+    positiveBut.setOnClickListener(
+        v -> {
+          if (alertDialog != null) {
+            alertDialog.dismiss();
+          }
+          requireActivity().finish();
+        });
+
+    alertDialog.show();
   }
 
   private void showDialogToFinish() {
@@ -255,12 +306,19 @@ public class FunChatTeamFragment extends FunChatFragment {
     content.setText(getString(R.string.chat_team_be_removed_content));
     title.setText(getString(R.string.chat_team_be_removed_title));
     positiveBut.setText(getString(R.string.chat_dialog_sure));
+    positiveBut.setTextColor(getResources().getColor(R.color.fun_chat_color));
     // 设置不可取消
     builder.setCancelable(false);
-    positiveBut.setOnClickListener(v -> FunChatTeamFragment.this.requireActivity().finish());
+    builder.setView(dialogView);
     AlertDialog alertDialog = builder.create();
+    positiveBut.setOnClickListener(
+        v -> {
+          if (alertDialog != null) {
+            alertDialog.dismiss();
+          }
+          requireActivity().finish();
+        });
     alertDialog.show();
-    alertDialog.getWindow().setContentView(dialogView);
   }
 
   @Override
@@ -300,8 +358,33 @@ public class FunChatTeamFragment extends FunChatFragment {
     }
   }
 
+  @Override
+  public String getSessionName() {
+    if (teamInfo != null) {
+      return teamInfo.getName();
+    }
+    return super.getSessionName();
+  }
+
   public MessageBottomLayout getMessageBottomLayout() {
-    return viewBinding.chatView.getInputView();
+    return viewBinding.chatView.getBottomInputLayout();
+  }
+
+  @Override
+  protected void onReceiveMessage(FetchResult<List<ChatMessageBean>> listFetchResult) {
+    super.onReceiveMessage(listFetchResult);
+    if (listFetchResult != null && listFetchResult.getData() != null) {
+      List<ChatMessageBean> messageList = listFetchResult.getData();
+      for (ChatMessageBean message : messageList) {
+        if (MessageHelper.isDismissTeamMsg(message.getMessageData())) {
+          startTeamDismiss();
+          return;
+        } else if (MessageHelper.isKickMsg(message.getMessageData())) {
+          startKickDialog();
+          return;
+        }
+      }
+    }
   }
 
   @Override

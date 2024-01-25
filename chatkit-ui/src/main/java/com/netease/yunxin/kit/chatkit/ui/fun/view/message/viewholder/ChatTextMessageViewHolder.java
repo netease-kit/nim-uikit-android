@@ -4,6 +4,7 @@
 
 package com.netease.yunxin.kit.chatkit.ui.fun.view.message.viewholder;
 
+import android.text.style.ImageSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import androidx.annotation.NonNull;
@@ -40,10 +41,19 @@ public class ChatTextMessageViewHolder extends FunChatBaseMessageViewHolder {
       textBinding.messageText.setTextColor(properties.getMessageTextColor());
     }
     if (message.getMessageData().getMessage().getMsgType() == MsgTypeEnum.text) {
-      MessageHelper.identifyExpression(
-          textBinding.getRoot().getContext(),
-          textBinding.messageText,
-          message.getMessageData().getMessage());
+
+      if (isForwardMsg()) {
+        MessageHelper.identifyFaceExpression(
+            textBinding.getRoot().getContext(),
+            textBinding.messageText,
+            message.getMessageData().getMessage().getContent(),
+            ImageSpan.ALIGN_BOTTOM);
+      } else {
+        MessageHelper.identifyExpression(
+            textBinding.getRoot().getContext(),
+            textBinding.messageText,
+            message.getMessageData().getMessage());
+      }
     } else {
       //文件消息暂不支持所以展示提示信息
       textBinding.messageText.setText(

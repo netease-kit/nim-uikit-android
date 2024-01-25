@@ -21,6 +21,8 @@ import com.netease.yunxin.kit.contactkit.ui.model.ContactTeamBean;
 import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
 import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class TeamListViewModel extends BaseViewModel {
@@ -68,6 +70,7 @@ public class TeamListViewModel extends BaseViewModel {
                 teamBean.router = defaultRoutePath;
                 teamBeanList.add(0, teamBean);
               }
+              Collections.sort(teamBeanList, teamComparator);
               fetchResult.setData(teamBeanList);
             } else {
               fetchResult.setData(null);
@@ -140,6 +143,22 @@ public class TeamListViewModel extends BaseViewModel {
       }
     }
   }
+
+  private Comparator<ContactTeamBean> teamComparator =
+      (bean1, bean2) -> {
+        int result;
+        if (bean1 == null) {
+          result = 1;
+        } else if (bean2 == null) {
+          result = -1;
+        } else if (bean1.data.getCreateTime() >= bean2.data.getCreateTime()) {
+          result = -1;
+        } else {
+          result = 1;
+        }
+        ALog.d(LIB_TAG, TAG, "teamComparator, result:" + result);
+        return result;
+      };
 
   @Override
   protected void onCleared() {

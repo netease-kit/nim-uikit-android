@@ -20,6 +20,7 @@ import com.netease.yunxin.kit.chatkit.ui.page.ChatBaseActivity;
 import com.netease.yunxin.kit.corekit.im.model.UserInfo;
 import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
 
+/** Fun皮肤单聊聊天界面Activity，继承自ChatBaseActivity */
 public class FunChatP2PActivity extends ChatBaseActivity {
 
   private static final String TAG = "ChatP2PFunActivity";

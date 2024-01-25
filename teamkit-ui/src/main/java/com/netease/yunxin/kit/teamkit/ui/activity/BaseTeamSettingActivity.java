@@ -31,7 +31,6 @@ import androidx.constraintlayout.widget.Group;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
-import com.netease.nimlib.sdk.team.constant.TeamBeInviteModeEnum;
 import com.netease.nimlib.sdk.team.constant.TeamInviteModeEnum;
 import com.netease.nimlib.sdk.team.constant.TeamMemberType;
 import com.netease.nimlib.sdk.team.constant.TeamMessageNotifyTypeEnum;
@@ -44,6 +43,7 @@ import com.netease.yunxin.kit.chatkit.model.UserInfoWithTeam;
 import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
 import com.netease.yunxin.kit.common.ui.dialog.ChoiceListener;
 import com.netease.yunxin.kit.common.ui.dialog.CommonChoiceDialog;
+import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.common.ui.widgets.ContactAvatarView;
 import com.netease.yunxin.kit.common.utils.SizeUtils;
 import com.netease.yunxin.kit.corekit.event.BaseEvent;
@@ -54,13 +54,11 @@ import com.netease.yunxin.kit.corekit.route.XKitRouter;
 import com.netease.yunxin.kit.teamkit.ui.R;
 import com.netease.yunxin.kit.teamkit.ui.adapter.TeamCommonAdapter;
 import com.netease.yunxin.kit.teamkit.ui.custom.TeamConfigManager;
-import com.netease.yunxin.kit.teamkit.ui.dialog.BaseTeamIdentifyDialog;
 import com.netease.yunxin.kit.teamkit.ui.model.EventDef;
 import com.netease.yunxin.kit.teamkit.ui.utils.ColorUtils;
 import com.netease.yunxin.kit.teamkit.ui.utils.TeamUtils;
-import com.netease.yunxin.kit.teamkit.ui.utils.viewmodel.TeamSettingViewModel;
+import com.netease.yunxin.kit.teamkit.ui.viewmodel.TeamSettingViewModel;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -69,24 +67,18 @@ public abstract class BaseTeamSettingActivity extends BaseActivity {
   protected final TeamSettingViewModel model = new TeamSettingViewModel();
   private View rootView;
   protected View bg3;
-  protected View bg4;
   protected ContactAvatarView ivIcon;
   protected TextView tvName;
-  protected TextView tvInviteOtherValue;
-  protected TextView tvUpdateInfoValue;
   protected TextView tvHistory;
   protected TextView tvMark;
   protected TextView tvCount;
   protected TextView tvMember;
   protected TextView tvQuit;
   protected TextView tvTeamNickname;
-  protected TextView tvUpdateInfoPermission;
-  protected TextView tvInviteOtherPermission;
+  protected TextView tvTeamManager;
   protected Group nicknameGroup;
   protected Group teamMuteGroup;
-  protected Group inviteGroup;
-  protected Group updateGroup;
-  protected SwitchCompat swSessionPin;
+  protected SwitchCompat swStickTop;
   protected SwitchCompat swMessageTip;
   protected SwitchCompat swTeamMute;
   protected ImageView ivBack;
@@ -106,7 +98,6 @@ public abstract class BaseTeamSettingActivity extends BaseActivity {
   protected String myTeamNickname;
   protected String teamIcon;
   protected boolean isStickTop;
-  protected TeamBeInviteModeEnum beInviteModeEnum;
 
   protected List<UserInfoWithTeam> teamMemberInfoList;
 
@@ -193,24 +184,18 @@ public abstract class BaseTeamSettingActivity extends BaseActivity {
   protected void checkViews() {
     Objects.requireNonNull(rootView);
     Objects.requireNonNull(bg3);
-    Objects.requireNonNull(bg4);
     Objects.requireNonNull(ivIcon);
     Objects.requireNonNull(tvName);
-    Objects.requireNonNull(tvInviteOtherValue);
-    Objects.requireNonNull(tvUpdateInfoValue);
     Objects.requireNonNull(tvHistory);
     Objects.requireNonNull(tvMark);
     Objects.requireNonNull(tvCount);
     Objects.requireNonNull(tvMember);
     Objects.requireNonNull(tvQuit);
     Objects.requireNonNull(tvTeamNickname);
-    Objects.requireNonNull(tvUpdateInfoPermission);
-    Objects.requireNonNull(tvInviteOtherPermission);
+    Objects.requireNonNull(tvTeamManager);
     Objects.requireNonNull(nicknameGroup);
     Objects.requireNonNull(teamMuteGroup);
-    Objects.requireNonNull(inviteGroup);
-    Objects.requireNonNull(updateGroup);
-    Objects.requireNonNull(swSessionPin);
+    Objects.requireNonNull(swStickTop);
     Objects.requireNonNull(swMessageTip);
     Objects.requireNonNull(swTeamMute);
     Objects.requireNonNull(ivBack);
@@ -229,10 +214,11 @@ public abstract class BaseTeamSettingActivity extends BaseActivity {
   }
 
   private void configModelObserver() {
+    model.configTeamId(teamId);
+    // 查询群信息和本人群成员信息回调
     model
         .getTeamWithMemberData()
-        .observe(
-            this,
+        .observeForever(
             teamResultInfo -> {
               dismissLoading();
               if (teamResultInfo.getValue() == null || !teamResultInfo.getSuccess()) {
@@ -240,7 +226,6 @@ public abstract class BaseTeamSettingActivity extends BaseActivity {
                 return;
               }
               teamInfo = teamResultInfo.getValue().getTeam();
-              beInviteModeEnum = teamInfo.getTeamBeInviteMode();
               teamName = teamInfo.getName();
               teamIntroduce = teamInfo.getIntroduce();
               teamIcon = teamInfo.getIcon();
@@ -251,6 +236,7 @@ public abstract class BaseTeamSettingActivity extends BaseActivity {
               }
               refreshUI(teamInfo, teamMember);
             });
+    // 查询群成员信息监听
     model
         .getUserInfoData()
         .observe(
@@ -263,6 +249,7 @@ public abstract class BaseTeamSettingActivity extends BaseActivity {
               teamMemberInfoList = userInfoWithTeamResultInfo.getValue();
               refreshMember(teamMemberInfoList);
             });
+    // 退出群聊回调
     model
         .getQuitTeamData()
         .observe(
@@ -274,6 +261,7 @@ public abstract class BaseTeamSettingActivity extends BaseActivity {
               }
               handleNetworkBrokenResult(this, voidResultInfo);
             });
+    // 解散群回调
     model
         .getDismissTeamData()
         .observe(
@@ -285,60 +273,31 @@ public abstract class BaseTeamSettingActivity extends BaseActivity {
               }
               handleNetworkBrokenResult(this, voidResultInfo);
             });
+    // 群成员变更监听
     model
-        .getAddMembersData()
-        .observe(
-            this,
+        .getAddRemoveMembersData()
+        .observeForever(
             listResultInfo -> {
-              if (teamInfo.getType() == TeamTypeEnum.Normal
-                  || beInviteModeEnum == TeamBeInviteModeEnum.NoAuth) {
+              if (listResultInfo.getLoadStatus() == LoadStatus.Success) {
                 model.requestTeamMembers(teamId);
               }
             });
-    model
-        .getUpdateInvitePrivilegeData()
-        .observe(
-            this,
-            integerResultInfo -> {
-              if (!integerResultInfo.getSuccess() || integerResultInfo.getValue() == null) {
-                handleNetworkBrokenResult(this, integerResultInfo);
-                return;
-              }
-              tvInviteOtherValue.setText(
-                  (integerResultInfo.getValue() == TeamInviteModeEnum.All.getValue())
-                      ? R.string.team_all_member
-                      : R.string.team_owner);
-            });
-    model
-        .getUpdateInfoPrivilegeData()
-        .observe(
-            this,
-            integerResultInfo -> {
-              if (!integerResultInfo.getSuccess() || integerResultInfo.getValue() == null) {
-                handleNetworkBrokenResult(this, integerResultInfo);
-                return;
-              }
-              tvUpdateInfoValue.setText(
-                  (integerResultInfo.getValue() == TeamInviteModeEnum.All.getValue())
-                      ? R.string.team_all_member
-                      : R.string.team_owner);
-            });
 
+    // 群置顶开关监听
     model
         .getStickData()
-        .observe(
-            this,
+        .observeForever(
             booleanResultInfo -> {
               if (booleanResultInfo.getSuccess()) {
                 return;
               }
               handleNetworkBrokenResult(this, booleanResultInfo);
-              swSessionPin.toggle();
+              swStickTop.toggle();
             });
+    // 群消息提醒开关监听
     model
-        .getMuteTeamData()
-        .observe(
-            this,
+        .getNotifyData()
+        .observeForever(
             booleanResultInfo -> {
               if (booleanResultInfo.getSuccess()) {
                 return;
@@ -346,10 +305,10 @@ public abstract class BaseTeamSettingActivity extends BaseActivity {
               handleNetworkBrokenResult(this, booleanResultInfo);
               swMessageTip.toggle();
             });
+    // 群禁言开关监听
     model
         .getMuteTeamAllMemberData()
-        .observe(
-            this,
+        .observeForever(
             booleanResultInfo -> {
               if (booleanResultInfo.getSuccess()) {
                 return;
@@ -357,30 +316,39 @@ public abstract class BaseTeamSettingActivity extends BaseActivity {
               handleNetworkBrokenResult(this, booleanResultInfo);
               swTeamMute.toggle();
             });
+    // 监听群成员信息变更，如果当前账号在群众身份发送变化，筛选UI，管理员变更成普通成员
     model
-        .getBeInvitedNeedAgreedData()
-        .observe(
-            this,
-            booleanResultInfo -> {
-              if (booleanResultInfo.getSuccess()) {
-                beInviteModeEnum =
-                    booleanResultInfo.getValue() == Boolean.TRUE
-                        ? TeamBeInviteModeEnum.NeedAuth
-                        : TeamBeInviteModeEnum.NoAuth;
+        .getTeamMemberUpdateData()
+        .observeForever(
+            listResultInfo -> {
+              if (teamMember != null
+                  && listResultInfo.getSuccess()
+                  && listResultInfo.getValue() != null) {
+                for (TeamMember member : Objects.requireNonNull(listResultInfo.getValue())) {
+                  if (member != null
+                      && member.getAccount().equals(teamMember.getAccount())
+                      && member.getType() != teamMember.getType()) {
+                    teamMember = member;
+                    refreshUI(teamInfo, teamMember);
+                    break;
+                  }
+                }
               }
-              //              swInviteAgree.toggle();
             });
   }
 
   private void refreshUI(Team team, TeamMember teamMember) {
     initForCommon(team, teamMember);
     if (TeamUtils.isTeamGroup(team)) {
+      // 讨论组UI设置
       initForNormal();
     } else {
+      // 高级群UI设置
       initForAdvanced(teamMember);
     }
   }
 
+  // 初始化UI 讨论组和高级群公用UI
   private void initForCommon(Team team, TeamMember teamMember) {
     ivBack.setOnClickListener(v -> finish());
     ivIcon.setData(teamIcon, teamName, ColorUtils.avatarColor(teamId));
@@ -421,14 +389,15 @@ public abstract class BaseTeamSettingActivity extends BaseActivity {
           XKitRouter.withKey(getPinRouterPath())
               .withParam(RouterConstant.KEY_SESSION_TYPE, SessionTypeEnum.Team.getValue())
               .withParam(RouterConstant.KEY_SESSION_ID, teamId)
+              .withParam(RouterConstant.KEY_SESSION_NAME, teamName)
               .withContext(BaseTeamSettingActivity.this)
               .navigate();
           otherPageEnterFlag = true;
         });
     swMessageTip.setChecked(team.getMessageNotifyType() == TeamMessageNotifyTypeEnum.All);
-    swMessageTip.setOnClickListener(v -> model.muteTeam(teamId, !swMessageTip.isChecked()));
-    swSessionPin.setChecked(isStickTop);
-    swSessionPin.setOnClickListener(v -> model.configStick(teamId, swSessionPin.isChecked()));
+    swMessageTip.setOnClickListener(v -> model.setTeamNotify(teamId, !swMessageTip.isChecked()));
+    swStickTop.setChecked(isStickTop);
+    swStickTop.setOnClickListener(v -> model.configStick(teamId, swStickTop.isChecked()));
     tvCount.setText(String.valueOf(team.getMemberCount()));
     tvCount.setOnClickListener(
         v -> {
@@ -456,7 +425,7 @@ public abstract class BaseTeamSettingActivity extends BaseActivity {
                     XKitRouter.withKey(getContactSelectorRouterPath())
                         .withParam(
                             RouterConstant.SELECTOR_CONTACT_FILTER_KEY,
-                            getAccIdListFromInfoList(teamMemberInfoList))
+                            TeamUtils.getAccIdListFromInfoList(teamMemberInfoList))
                         // max count of the team is 200， 199 exclude self.
                         .withParam(
                             RouterConstant.KEY_CONTACT_SELECTOR_MAX_COUNT,
@@ -499,6 +468,9 @@ public abstract class BaseTeamSettingActivity extends BaseActivity {
     return null;
   }
 
+  protected void toManagerPage() {}
+
+  // 刷新群成员信息
   private void refreshMember(List<UserInfoWithTeam> list) {
     tvCount.setText(String.valueOf(list.size()));
     rvMemberList.setLayoutManager(
@@ -530,6 +502,7 @@ public abstract class BaseTeamSettingActivity extends BaseActivity {
     return null;
   }
 
+  /** 讨论组UI设置 */
   private void initForNormal() {
     tvMember.setText(R.string.team_group_member_title);
     tvQuit.setText(R.string.team_group_quit);
@@ -556,13 +529,13 @@ public abstract class BaseTeamSettingActivity extends BaseActivity {
 
     nicknameGroup.setVisibility(View.GONE);
     teamMuteGroup.setVisibility(View.GONE);
-    bg3.setVisibility(View.GONE);
-    inviteGroup.setVisibility(View.GONE);
-    updateGroup.setVisibility(View.GONE);
-    //    inviteAgreeGroup.setVisibility(View.GONE);
-    bg4.setVisibility(View.GONE);
   }
 
+  /**
+   * 高级群UI设置
+   *
+   * @param teamMember
+   */
   private void initForAdvanced(TeamMember teamMember) {
     tvMember.setText(R.string.team_member_title);
     nicknameGroup.setVisibility(View.VISIBLE);
@@ -578,37 +551,23 @@ public abstract class BaseTeamSettingActivity extends BaseActivity {
           otherPageEnterFlag = true;
         });
 
-    if (teamMember.getType() == TeamMemberType.Owner) {
+    TeamMemberType type = teamMember.getType();
+    if (type == TeamMemberType.Owner) {
       initForOwner();
+    } else if (type == TeamMemberType.Manager) {
+      initForManager();
     } else {
       initForAllUser();
     }
   }
 
+  /** 群主UI设置 */
   private void initForOwner() {
-    inviteGroup.setVisibility(View.VISIBLE);
-    tvInviteOtherValue.setText(
-        teamInfo.getTeamInviteMode() == TeamInviteModeEnum.All
-            ? R.string.team_all_member
-            : R.string.team_owner);
-    tvInviteOtherPermission.setOnClickListener(
-        v -> getTeamIdentifyDialog().show(type -> model.updateInvitePrivilege(teamId, type)));
-    updateGroup.setVisibility(View.VISIBLE);
-    tvUpdateInfoValue.setText(
-        teamInfo.getTeamUpdateMode() == TeamUpdateModeEnum.All
-            ? R.string.team_all_member
-            : R.string.team_owner);
-    tvUpdateInfoPermission.setOnClickListener(
-        v -> getTeamIdentifyDialog().show(type -> model.updateInfoPrivilege(teamId, type)));
+    tvTeamManager.setVisibility(View.VISIBLE);
+    tvTeamManager.setOnClickListener(v -> toManagerPage());
     teamMuteGroup.setVisibility(View.VISIBLE);
     swTeamMute.setChecked(teamInfo.isAllMute());
     swTeamMute.setOnClickListener(v -> model.muteTeamAllMember(teamId, swTeamMute.isChecked()));
-    //    inviteAgreeGroup.setVisibility(View.VISIBLE);
-    bg4.setVisibility(View.VISIBLE);
-    //    swInviteAgree.setChecked(
-    //        teamInfo.getTeamBeInviteMode() == TeamBeInviteModeEnum.NeedAuth);
-    //    swInviteAgree.setOnClickListener(
-    //        v -> model.updateBeInviteMode(teamId, swInviteAgree.isChecked()));
     tvQuit.setText(R.string.team_advanced_dismiss);
     tvQuit.setOnClickListener(
         v -> {
@@ -632,16 +591,13 @@ public abstract class BaseTeamSettingActivity extends BaseActivity {
         });
   }
 
-  protected BaseTeamIdentifyDialog getTeamIdentifyDialog() {
-    return null;
-  }
-
-  private void initForAllUser() {
+  /** 管理员UI设置 */
+  private void initForManager() {
+    tvTeamManager.setVisibility(View.VISIBLE);
+    tvTeamManager.setOnClickListener(v -> toManagerPage());
     teamMuteGroup.setVisibility(View.GONE);
-    updateGroup.setVisibility(View.GONE);
-    inviteGroup.setVisibility(View.GONE);
-    //    inviteAgreeGroup.setVisibility(View.GONE);
-    bg4.setVisibility(View.GONE);
+    swTeamMute.setChecked(teamInfo.isAllMute());
+    swTeamMute.setOnClickListener(v -> model.muteTeamAllMember(teamId, swTeamMute.isChecked()));
     tvQuit.setText(R.string.team_advanced_quit);
     tvQuit.setOnClickListener(
         v -> {
@@ -665,19 +621,30 @@ public abstract class BaseTeamSettingActivity extends BaseActivity {
         });
   }
 
-  private List<String> getAccIdListFromInfoList(List<UserInfoWithTeam> sourceList) {
-    if (sourceList == null || sourceList.isEmpty()) {
-      return Collections.emptyList();
-    }
-    List<String> result = new ArrayList<>(sourceList.size());
+  /** 普通成员UI设置 */
+  private void initForAllUser() {
+    teamMuteGroup.setVisibility(View.GONE);
+    tvTeamManager.setVisibility(View.GONE);
+    tvQuit.setText(R.string.team_advanced_quit);
+    tvQuit.setOnClickListener(
+        v -> {
+          CommonChoiceDialog dialog = new CommonChoiceDialog();
+          dialog
+              .setTitleStr(getString(R.string.team_advanced_quit))
+              .setContentStr(getString(R.string.team_quit_advanced_team_query))
+              .setNegativeStr(getString(R.string.team_cancel))
+              .setPositiveStr(getString(R.string.team_confirm))
+              .setConfirmListener(
+                  new ChoiceListener() {
+                    @Override
+                    public void onPositive() {
+                      model.quitTeam(teamId);
+                    }
 
-    for (UserInfoWithTeam item : sourceList) {
-      if (item == null || item.getUserInfo() == null) {
-        continue;
-      }
-      result.add(item.getUserInfo().getAccount());
-    }
-
-    return result;
+                    @Override
+                    public void onNegative() {}
+                  })
+              .show(getSupportFragmentManager());
+        });
   }
 }

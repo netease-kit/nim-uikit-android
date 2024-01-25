@@ -13,6 +13,7 @@ import static com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants.PAYLO
 import android.graphics.drawable.AnimationDrawable;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import androidx.annotation.NonNull;
@@ -49,7 +50,7 @@ public class ChatAudioMessageViewHolder extends NormalChatBaseMessageViewHolder 
 
         @Override
         public void updatePlayingProgress(Playable playable, long curPosition) {
-          //do nothing
+          // do nothing
         }
 
         @Override
@@ -132,6 +133,15 @@ public class ChatAudioMessageViewHolder extends NormalChatBaseMessageViewHolder 
   @Override
   public void bindData(ChatMessageBean message, ChatMessageBean lastMessage) {
     super.bindData(message, lastMessage);
+    if (isForwardMsg()) {
+      audioBinding.animation.setVisibility(View.GONE);
+      audioBinding.tvTime.setVisibility(View.GONE);
+      audioBinding.messageText.setVisibility(View.VISIBLE);
+      return;
+    }
+    audioBinding.animation.setVisibility(View.VISIBLE);
+    audioBinding.tvTime.setVisibility(View.VISIBLE);
+    audioBinding.messageText.setVisibility(View.GONE);
     audioControl = ChatMessageAudioControl.getInstance();
     audioBinding.tvTime.setTag(message.getMessageData().getMessage().getUuid());
     currentMessage = message;
@@ -139,10 +149,13 @@ public class ChatAudioMessageViewHolder extends NormalChatBaseMessageViewHolder 
     setAudioLayout(message);
     audioBinding.container.setOnClickListener(
         v -> {
-          initPlayAnim();
-          audioControl.setEarPhoneModeEnable(SettingRepo.getHandsetMode());
-          audioControl.startPlayAudioDelay(
-              CLICK_TO_PLAY_AUDIO_DELAY, message.getMessageData(), onPlayListener);
+          if (isMultiSelect) {
+            clickSelect(v);
+            return;
+          }
+          if (itemClickListener != null) {
+            itemClickListener.onMessageClick(v, position, message);
+          }
         });
     checkAudioPlayAndRefreshAnim();
   }
@@ -151,7 +164,10 @@ public class ChatAudioMessageViewHolder extends NormalChatBaseMessageViewHolder 
   public void bindData(ChatMessageBean message, int position, @NonNull List<?> payload) {
     super.bindData(message, position, payload);
     if (payload.contains(PAYLOAD_REFRESH_AUDIO_ANIM)) {
-      checkAudioPlayAndRefreshAnim();
+      initPlayAnim();
+      audioControl.setEarPhoneModeEnable(SettingRepo.getHandsetMode());
+      audioControl.startPlayAudioDelay(
+          CLICK_TO_PLAY_AUDIO_DELAY, message.getMessageData(), onPlayListener);
     }
   }
 

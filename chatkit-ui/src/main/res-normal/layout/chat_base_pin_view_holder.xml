@@ -75,6 +75,7 @@
         app:layout_constraintStart_toStartOf="@id/message_avatar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/divider_line"
+        android:layout_marginEnd="@dimen/dimen_16_dp"
         android:layout_marginTop="@dimen/dimen_12_dp"
         android:orientation="horizontal">
 

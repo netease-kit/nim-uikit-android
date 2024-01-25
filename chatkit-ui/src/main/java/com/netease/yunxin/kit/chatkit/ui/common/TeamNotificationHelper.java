@@ -26,6 +26,7 @@ import com.netease.yunxin.kit.corekit.im.utils.IMKitUtils;
 import java.util.List;
 import java.util.Map;
 
+/** 群通知消息文案构造类，将通知转换为消息展示文案 */
 public class TeamNotificationHelper {
 
   // TODO DB

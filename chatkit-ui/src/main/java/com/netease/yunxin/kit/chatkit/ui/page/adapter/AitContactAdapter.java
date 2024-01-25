@@ -24,8 +24,14 @@ public class AitContactAdapter extends RecyclerView.Adapter<AitContactAdapter.Ai
 
   private AitContactConfig contactConfig;
 
+  private boolean showAll = true;
+
   public void setMembers(List<UserInfoWithTeam> userInfoWithTeams) {
     this.members = userInfoWithTeams;
+  }
+
+  public void setShowAll(boolean showAll) {
+    this.showAll = showAll;
   }
 
   public void setOnItemSelectListener(OnItemSelectListener listener) {
@@ -57,46 +63,55 @@ public class AitContactAdapter extends RecyclerView.Adapter<AitContactAdapter.Ai
       }
     }
 
-    if (position == 0) {
-      holder.binding.contactName.setText(R.string.chat_team_ait_all);
-      holder.binding.contactHeader.setCertainAvatar(contactConfig.defaultAvatarRes);
-      holder
-          .binding
-          .getRoot()
-          .setOnClickListener(
-              v -> {
-                if (listener != null) {
-                  listener.onSelect(null);
-                }
-              });
-    } else {
-      UserInfoWithTeam member = members.get(position - 1);
-      if (member == null) {
+    int dataPosition = position;
+    if (showAll) {
+      if (position == 0) {
+        holder.binding.contactName.setText(R.string.chat_team_ait_all);
+        holder.binding.contactHeader.setCertainAvatar(contactConfig.defaultAvatarRes);
+        holder
+            .binding
+            .getRoot()
+            .setOnClickListener(
+                v -> {
+                  if (listener != null) {
+                    listener.onSelect(null);
+                  }
+                });
         return;
       }
-      String showName = ChatUserCache.getName(member);
-      holder.binding.contactName.setText(showName);
-      NimUserInfo userInfo = ChatUserCache.getUserInfo(member);
-      if (userInfo != null) {
-        holder.binding.contactHeader.setData(
-            userInfo.getAvatar(), showName, AvatarColor.avatarColor(userInfo.getAccount()));
-      }
-      holder
-          .binding
-          .getRoot()
-          .setOnClickListener(
-              v -> {
-                if (listener != null) {
-                  listener.onSelect(member);
-                }
-              });
+      dataPosition = position - 1;
     }
+
+    UserInfoWithTeam member = members.get(dataPosition);
+    if (member == null) {
+      return;
+    }
+    String showName = ChatUserCache.getName(member);
+    holder.binding.contactName.setText(showName);
+    NimUserInfo userInfo = ChatUserCache.getUserInfo(member);
+    if (userInfo != null) {
+      holder.binding.contactHeader.setData(
+          userInfo.getAvatar(), showName, AvatarColor.avatarColor(userInfo.getAccount()));
+    }
+    holder
+        .binding
+        .getRoot()
+        .setOnClickListener(
+            v -> {
+              if (listener != null) {
+                listener.onSelect(member);
+              }
+            });
   }
 
   @Override
   public int getItemCount() {
     // add ait all
-    return (members == null ? 0 : members.size()) + 1;
+    if (members == null || members.isEmpty()) {
+      return 0;
+    }
+
+    return showAll ? members.size() + 1 : members.size();
   }
 
   public static class AitContactHolder extends RecyclerView.ViewHolder {

@@ -7,7 +7,7 @@ package com.netease.yunxin.kit.chatkit.ui.view.ait;
 public interface AitTextChangeListener {
 
   /** called when @ a team member */
-  void onTextAdd(String content, int start, int length);
+  void onTextAdd(String content, int start, int length, boolean hasAt);
 
   /** called when delete a @ member */
   void onTextDelete(int start, int length);

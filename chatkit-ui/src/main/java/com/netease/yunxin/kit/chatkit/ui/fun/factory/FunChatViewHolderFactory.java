@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+/** Fun皮肤聊天界面消息ViewHolder工厂类，用于创建自定义消息的ViewHolder 根据消息类型返回对应的ViewHolder */
 public class FunChatViewHolderFactory extends ChatMessageViewHolderFactory
     implements IChatDefaultFactory {
   private static final String TAG = "ChatDefaultFactory";

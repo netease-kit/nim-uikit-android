@@ -11,6 +11,11 @@ import androidx.viewbinding.ViewBinding;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import java.util.List;
 
+/**
+ * Pin列表界面的ViewHolder基类
+ *
+ * @param <T> 数据类型
+ */
 public abstract class ChatBaseViewHolder<T> extends RecyclerView.ViewHolder {
 
   public T data;

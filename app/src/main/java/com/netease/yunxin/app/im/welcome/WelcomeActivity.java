@@ -38,7 +38,7 @@ public class WelcomeActivity extends BaseActivity {
     IMApplication.setColdStart(true);
     activityWelcomeBinding = ActivityWelcomeBinding.inflate(getLayoutInflater());
     setContentView(activityWelcomeBinding.getRoot());
-    if (TextUtils.isEmpty(NIMClient.getCurrentAccount())) {
+    if (TextUtils.isEmpty(IMKitClient.account())) {
       startLogin();
     } else {
       showMainActivityAndFinish();

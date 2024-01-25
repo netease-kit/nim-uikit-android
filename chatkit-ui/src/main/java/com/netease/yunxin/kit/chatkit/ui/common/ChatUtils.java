@@ -5,6 +5,7 @@
 package com.netease.yunxin.kit.chatkit.ui.common;
 
 import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.CHAT_FORWARD_USER_LIMIT;
+import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.CHAT_MULTI_FORWARD_DEEP_LIMIT;
 import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
 
 import android.content.Context;
@@ -19,15 +20,21 @@ import androidx.activity.result.ActivityResultLauncher;
 import com.netease.nimlib.sdk.msg.attachment.FileAttachment;
 import com.netease.nimlib.sdk.msg.attachment.VideoAttachment;
 import com.netease.nimlib.sdk.msg.constant.AttachStatusEnum;
+import com.netease.nimlib.sdk.msg.constant.MsgStatusEnum;
+import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
+import com.netease.nimlib.sdk.team.constant.TeamMemberType;
 import com.netease.nimlib.sdk.team.constant.TeamTypeEnum;
 import com.netease.nimlib.sdk.team.model.Team;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
+import com.netease.yunxin.kit.chatkit.model.UserInfoWithTeam;
 import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitClient;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant;
 import com.netease.yunxin.kit.chatkit.ui.R;
+import com.netease.yunxin.kit.chatkit.ui.custom.MultiForwardAttachment;
+import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.page.WatchImageActivity;
 import com.netease.yunxin.kit.chatkit.ui.page.WatchVideoActivity;
 import com.netease.yunxin.kit.common.utils.CommonFileProvider;
@@ -39,15 +46,21 @@ import com.netease.yunxin.kit.corekit.route.XKitRouter;
 import java.io.File;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import org.json.JSONException;
+import org.json.JSONObject;
 
+/** 聊天工具类，提供一些常用的方法 */
 public class ChatUtils {
 
   public static final String TAG = "ChatUtils";
 
-  //使用手机应用打开文件
+  // 使用手机应用打开文件
   public static void openFileWithApp(Context context, IMMessage message) {
     FileAttachment fileAttachment = (FileAttachment) message.getAttachment();
     File openFile = new File(fileAttachment.getPath());
@@ -68,7 +81,7 @@ public class ChatUtils {
     }
   }
 
-  //是否为讨论组
+  // 是否为讨论组
   public static boolean isTeamGroup(Team teamInfo) {
     String teamExtension = teamInfo.getExtension();
     if ((teamExtension != null && teamExtension.contains(IMKitConstant.TEAM_GROUP_TAG))
@@ -259,7 +272,7 @@ public class ChatUtils {
       }
       messages.add(imageMessages.get(i).getMessage());
     }
-    //防止消息数量过多造成传递数据超限，设置消息最多100个
+    // 防止消息数量过多造成传递数据超限，设置消息最多100个
     if (arraySize > maxLimit) {
       int start = 0;
       int end = arraySize;
@@ -285,7 +298,8 @@ public class ChatUtils {
       return false;
     }
     IMMessage message = messageInfo.getMessage();
-    if (message.getAttachStatus() == AttachStatusEnum.transferred
+    if ((message.getAttachStatus() == AttachStatusEnum.transferred
+            || message.getAttachStatus() == AttachStatusEnum.def)
         && !TextUtils.isEmpty(((VideoAttachment) message.getAttachment()).getPath())) {
       WatchVideoActivity.launch(context, message);
       return true;
@@ -302,7 +316,8 @@ public class ChatUtils {
       return false;
     }
     IMMessage message = messageInfo.getMessage();
-    if (message.getAttachStatus() == AttachStatusEnum.transferred
+    if ((message.getAttachStatus() == AttachStatusEnum.transferred
+            || message.getAttachStatus() == AttachStatusEnum.def)
         && !TextUtils.isEmpty(((FileAttachment) message.getAttachment()).getPath())) {
       ChatUtils.openFileWithApp(context, message);
       return true;
@@ -312,5 +327,185 @@ public class ChatUtils {
       ChatRepo.downloadAttachment(message, false, null);
     }
     return false;
+  }
+
+  public static boolean openForwardFile(Context context, IMMessageInfo messageInfo) {
+    if (messageInfo == null) {
+      return false;
+    }
+    IMMessage message = messageInfo.getMessage();
+    if (!TextUtils.isEmpty(((FileAttachment) message.getAttachment()).getPath())) {
+      ChatUtils.openFileWithApp(context, message);
+      return true;
+    } else if (message.getAttachStatus() != AttachStatusEnum.transferring
+        && message.getAttachment() instanceof FileAttachment) {
+      ALog.d(LIB_TAG, TAG, "downloadMessageAttachment:" + message.getUuid());
+      ChatRepo.downloadAttachment(message, false, null);
+    }
+    return false;
+  }
+
+  public static Boolean teamAllowAllMemberAt(Team teamInfo) {
+    if (teamInfo == null || TextUtils.isEmpty(teamInfo.getExtension())) {
+      return true;
+    }
+    String result = ChatKitUIConstant.TYPE_EXTENSION_ALLOW_ALL;
+    try {
+      JSONObject obj = new JSONObject(teamInfo.getExtension());
+      result =
+          obj.optString(
+              ChatKitUIConstant.KEY_EXTENSION_AT_ALL, ChatKitUIConstant.TYPE_EXTENSION_ALLOW_ALL);
+    } catch (JSONException e) {
+      ALog.e(TAG, "getTeamNotifyAllMode", e);
+    }
+    return TextUtils.equals(result, ChatKitUIConstant.TYPE_EXTENSION_ALLOW_ALL);
+  }
+
+  public static String getEllipsizeMiddleNick(String content) {
+    return getEllipsizeMiddleStr(content, 4, 2);
+  }
+
+  public static String getEllipsizeMiddleStr(String content, int maxStartLength, int maxEndLength) {
+    if (TextUtils.isEmpty(content)) {
+      return "";
+    }
+    if (content.length() <= maxStartLength + maxEndLength) {
+      return content;
+    } else {
+      return truncateString(content, maxStartLength) + "..." + subEndString(content, maxEndLength);
+    }
+  }
+
+  // 前向截取字符串，如果包含表情则完整截取，防止不出现因为截取出现乱码
+  public static String truncateString(String input, int maxLength) {
+    if (input.length() <= maxLength) {
+      return input;
+    } else {
+      StringBuilder truncated = new StringBuilder();
+      int currentLength = 0;
+      for (int i = 0; i < input.length(); i++) {
+        char currentChar = input.charAt(i);
+        if (Character.isHighSurrogate(currentChar)) {
+          if (currentLength + 2 > maxLength) {
+            break;
+          }
+          truncated.append(currentChar);
+          truncated.append(input.charAt(i + 1));
+          i++;
+          currentLength += 2;
+        } else {
+          if (currentLength + 1 > maxLength) {
+            break;
+          }
+          truncated.append(currentChar);
+          currentLength += 1;
+        }
+      }
+      return truncated.toString();
+    }
+  }
+
+  // 截取字符串末尾，如果包含表情则完整截取，防止不出现因为截取出现乱码
+  public static String subEndString(String input, int maxLength) {
+    if (input.length() <= maxLength) {
+      return input;
+    } else {
+      int index = input.length() - maxLength;
+      if (index > 1) {
+        char currentChar = input.charAt(index - 1);
+        if (Character.isHighSurrogate(currentChar)) {
+          index++;
+        }
+      }
+      return input.substring(index);
+    }
+  }
+
+  // 按时间排序，最新的在最后
+  public static List<IMMessageInfo> sortMsgByTime(List<IMMessageInfo> msgList) {
+    if (msgList == null || msgList.size() < 2) {
+      return msgList;
+    }
+    Collections.sort(
+        msgList,
+        (o1, o2) -> {
+          if (o1 == null || o2 == null) {
+            return 0;
+          }
+          return (int) (o1.getMessage().getTime() - o2.getMessage().getTime());
+        });
+    return msgList;
+  }
+
+  /**
+   * 检查单条转发消息是否符合条件
+   *
+   * @param msgBeanList
+   * @return
+   */
+  public static List<ChatMessageBean> checkSingleForward(List<ChatMessageBean> msgBeanList) {
+    List<ChatMessageBean> limitList = new ArrayList<>();
+    if (msgBeanList != null && !msgBeanList.isEmpty()) {
+      for (ChatMessageBean bean : msgBeanList) {
+        if (bean.getMessageData().getMessage().getMsgType() == MsgTypeEnum.audio
+            || bean.getMessageData().getMessage().getMsgType() == MsgTypeEnum.nrtc_netcall
+            || bean.getMessageData().getMessage().getStatus() == MsgStatusEnum.fail) {
+          limitList.add(bean);
+        }
+      }
+    }
+    return limitList;
+  }
+
+  /**
+   * 检查合并转发消息是否符合条件
+   *
+   * @param msgBeanList
+   * @return
+   */
+  public static List<ChatMessageBean> checkMultiForward(List<ChatMessageBean> msgBeanList) {
+    List<ChatMessageBean> limitList = new ArrayList<>();
+    if (msgBeanList != null && !msgBeanList.isEmpty()) {
+      for (ChatMessageBean bean : msgBeanList) {
+        if (bean.getMessageData().getMessage().getStatus() == MsgStatusEnum.fail) {
+          limitList.add(bean);
+        } else if (bean.getMessageData().getMessage().getMsgType() == MsgTypeEnum.custom
+            && bean.getMessageData().getMessage().getAttachment()
+                instanceof MultiForwardAttachment) {
+          MultiForwardAttachment attachment =
+              (MultiForwardAttachment) bean.getMessageData().getMessage().getAttachment();
+          if (attachment.depth >= CHAT_MULTI_FORWARD_DEEP_LIMIT) {
+            limitList.add(bean);
+          }
+        }
+      }
+    }
+    return limitList;
+  }
+
+  /**
+   * 群成员类型排序 群主排在第一个 管理员按照加入时间排序，并排在群主之后 普通成员按照加入时间排序，并排在管理员和群主之后
+   *
+   * @return
+   */
+  public static Comparator<UserInfoWithTeam> teamManagerComparator() {
+    return (o1, o2) -> {
+      if (o1 == null || o2 == null) {
+        return 0;
+      }
+      if (o1.getTeamInfo().getType() == TeamMemberType.Owner) {
+        return -1;
+      } else if (o2.getTeamInfo().getType() == TeamMemberType.Owner) {
+        return 1;
+      } else if (o1.getTeamInfo().getType() == o2.getTeamInfo().getType()) {
+        return o1.getTeamInfo().getJoinTime() < o2.getTeamInfo().getJoinTime() ? -1 : 1;
+      } else {
+        if (o1.getTeamInfo().getType() == TeamMemberType.Manager) {
+          return -1;
+        } else {
+          return 1;
+        }
+      }
+    };
   }
 }

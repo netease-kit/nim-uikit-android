@@ -19,6 +19,7 @@ import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.ui.ChatMessageType;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
+import com.netease.yunxin.kit.chatkit.ui.custom.MultiForwardAttachment;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatBaseMessageViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.databinding.FunChatMessageReplayViewBinding;
 import com.netease.yunxin.kit.chatkit.ui.databinding.FunChatMessageRevokedViewBinding;
@@ -102,6 +103,7 @@ class FunChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
       baseViewBinding.otherUserAvatar.setVisibility(View.GONE);
       baseViewBinding.otherUsername.setVisibility(View.GONE);
     }
+    baseViewBinding.chatSelectorCb.setBackgroundResource(R.drawable.fun_chat_radio_button_selector);
   }
 
   @Override
@@ -120,7 +122,7 @@ class FunChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
       baseViewBinding.messageContainer.setBackgroundResource(R.color.title_transfer);
       return;
     }
-    boolean isReceivedMsg = MessageHelper.isReceivedMessage(messageBean);
+    boolean isReceivedMsg = MessageHelper.isReceivedMessage(messageBean) || isForwardMsg();
     CommonUIOption commonUIOption = uiOptions.commonUIOption;
     boolean isCustomBgValid = true;
     if (isReceivedMsg) {
@@ -164,7 +166,12 @@ class FunChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
     if (isReceivedMsg) {
       firstChild.setBackgroundResource(R.drawable.fun_message_receive_bg);
     } else {
-      firstChild.setBackgroundResource(R.drawable.fun_message_send_bg);
+      if (messageBean.getMessageData().getMessage().getAttachment()
+          instanceof MultiForwardAttachment) {
+        firstChild.setBackgroundResource(R.drawable.fun_forward_message_send_bg);
+      } else {
+        firstChild.setBackgroundResource(R.drawable.fun_message_send_bg);
+      }
     }
   }
 
@@ -194,10 +201,10 @@ class FunChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
           context.getString(
               R.string.chat_message_revoked_fun, context.getString(R.string.chat_you)));
     }
-    //reedit
+    // reedit
     revokedViewBinding.tvAction.setOnClickListener(
         v -> {
-          if (itemClickListener != null) {
+          if (itemClickListener != null && !isMultiSelect) {
             itemClickListener.onReEditRevokeMessage(v, position, messageBean);
           }
         });
@@ -226,14 +233,21 @@ class FunChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
     MessageStatusUIOption messageStatusUIOption = uiOptions.messageStatusUIOption;
     if (messageStatusUIOption.readProcessClickListener != null) {
       baseViewBinding.readProcess.setOnClickListener(
-          messageStatusUIOption.readProcessClickListener);
+          v -> {
+            if (!isMultiSelect) {
+              messageStatusUIOption.readProcessClickListener.onClick(v);
+            }
+          });
     } else {
       baseViewBinding.readProcess.setOnClickListener(
-          v ->
+          v -> {
+            if (!isMultiSelect) {
               XKitRouter.withKey(RouterConstant.PATH_FUN_CHAT_READER_PAGE)
                   .withParam(RouterConstant.KEY_MESSAGE, data.getMessageData().getMessage())
                   .withContext(v.getContext())
-                  .navigate());
+                  .navigate();
+            }
+          });
     }
   }
 
@@ -250,7 +264,7 @@ class FunChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
     baseViewBinding.messageBottomGroup.removeAllViews();
     ALog.w(TAG, TAG, "setReplyInfo, uuid=" + messageBean.getMessageData().getMessage().getUuid());
     if (messageBean.hasReply()) {
-      //自定义回复实现
+      // 自定义回复实现
       addReplayViewToBottomGroup();
       String replyUuid = messageBean.getReplyUUid();
       if (!TextUtils.isEmpty(replyUuid)) {
@@ -285,10 +299,14 @@ class FunChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
 
       if (itemClickListener != null) {
         replayBinding.tvReply.setOnClickListener(
-            v -> itemClickListener.onReplyMessageClick(v, position, replyMessage));
+            v -> {
+              if (!isMultiSelect) {
+                itemClickListener.onReplyMessageClick(v, position, replyMessage);
+              }
+            });
       }
     } else if (MessageHelper.isThreadReplayInfo(messageBean)) {
-      //thread 回复
+      // thread 回复
       setThreadReplyInfo(messageBean);
     } else {
       baseViewBinding.messageTopGroup.removeAllViews();
@@ -337,7 +355,11 @@ class FunChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
 
     if (itemClickListener != null) {
       replayBinding.tvReply.setOnClickListener(
-          v -> itemClickListener.onReplyMessageClick(v, position, replyMessage));
+          v -> {
+            if (!isMultiSelect) {
+              itemClickListener.onReplyMessageClick(v, position, replyMessage);
+            }
+          });
     }
   }
 

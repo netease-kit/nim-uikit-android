@@ -9,16 +9,21 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import androidx.annotation.Nullable;
+import com.netease.nimlib.sdk.team.constant.TeamMemberType;
+import com.netease.nimlib.sdk.team.model.Team;
+import com.netease.nimlib.sdk.team.model.TeamMember;
 import com.netease.yunxin.kit.chatkit.model.UserInfoWithTeam;
 import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatUserCache;
+import com.netease.yunxin.kit.chatkit.ui.common.ChatUtils;
 import com.netease.yunxin.kit.chatkit.ui.model.ait.AitBlock;
 import com.netease.yunxin.kit.chatkit.ui.model.ait.AitContactsModel;
 import com.netease.yunxin.kit.corekit.im.IMKitClient;
 import com.netease.yunxin.kit.corekit.im.model.UserInfo;
 import com.netease.yunxin.kit.corekit.im.provider.FetchCallbackImpl;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.json.JSONObject;
 
@@ -41,6 +46,9 @@ public class AitManager implements TextWatcher {
   private int editTextBefore;
   private boolean delete;
   private boolean fetchNewInfo;
+  private Team team;
+  private TeamMember curTeamMember;
+  private boolean showAll = true;
 
   private int uiStyle = STYLE_NORMAL;
 
@@ -64,8 +72,16 @@ public class AitManager implements TextWatcher {
     for (UserInfoWithTeam member : userInfoWithTeams) {
       if (!TextUtils.equals(IMKitClient.account(), member.getTeamInfo().getAccount())) {
         this.teamMemberList.add(member);
+      } else {
+        curTeamMember = member.getTeamInfo();
       }
     }
+    Collections.sort(teamMemberList, ChatUtils.teamManagerComparator());
+  }
+
+  public void updateTeamInfo(Team team) {
+    this.team = team;
+    this.showAll = ChatUtils.teamAllowAllMemberAt(team);
   }
 
   public void setAitTextChangeListener(AitTextChangeListener listener) {
@@ -107,6 +123,10 @@ public class AitManager implements TextWatcher {
     return aitContactsModel.getBlockJson();
   }
 
+  public AitContactsModel getAitContactsModel() {
+    return aitContactsModel;
+  }
+
   @Override
   public void beforeTextChanged(CharSequence s, int start, int count, int after) {
     delete = count > after;
@@ -144,7 +164,7 @@ public class AitManager implements TextWatcher {
 
         AitContactSelectorDialog dialog = new AitContactSelectorDialog(mContext);
         dialog.setUIStyle(uiStyle);
-        dialog.setData(teamMemberList, false);
+        dialog.setData(teamMemberList, false, canAtAll());
         dialog.setOnItemSelectListener(
             item -> {
               if (item == null) {
@@ -192,11 +212,11 @@ public class AitManager implements TextWatcher {
       String account, String name, int start, boolean needInsertAitInText) {
     name = name + " ";
     String content = needInsertAitInText ? "@" + name : name;
+    ignoreTextChange = true;
     if (aitTextChangeListener != null) {
-      ignoreTextChange = true;
-      aitTextChangeListener.onTextAdd(content, start, content.length());
-      ignoreTextChange = false;
+      aitTextChangeListener.onTextAdd(content, start, content.length(), needInsertAitInText);
     }
+    ignoreTextChange = false;
 
     aitContactsModel.onInsertText(start, content);
 
@@ -212,14 +232,24 @@ public class AitManager implements TextWatcher {
     AitBlock.AitSegment segment = aitContactsModel.findAitSegmentByEndPos(start);
     if (segment != null) {
       int length = start - segment.start;
+      ignoreTextChange = true;
       if (aitTextChangeListener != null) {
-        ignoreTextChange = true;
         aitTextChangeListener.onTextDelete(segment.start, length);
-        ignoreTextChange = false;
       }
+      ignoreTextChange = false;
       aitContactsModel.onDeleteText(start, length);
       result = true;
     }
     return result;
+  }
+
+  private boolean canAtAll() {
+    TeamMember teamMember = ChatUserCache.getTeamMember(IMKitClient.account());
+    if (teamMember == null) {
+      teamMember = curTeamMember;
+    }
+    return showAll
+        || teamMember.getType() == TeamMemberType.Owner
+        || teamMember.getType() == TeamMemberType.Manager;
   }
 }

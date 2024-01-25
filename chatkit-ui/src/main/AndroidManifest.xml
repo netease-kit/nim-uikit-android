@@ -97,6 +97,10 @@
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize"/>
 
+        <activity android:name=".normal.page.ChatForwardActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize"
+            android:launchMode="standard"/>
 
         <!-- Fun -->
         <activity android:name=".fun.page.FunChatP2PActivity"
@@ -128,6 +132,11 @@
             android:launchMode="singleTop"
             />
 
+        <activity android:name=".fun.page.FunChatForwardActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize"
+            android:launchMode="standard"/>
+
         <provider
             android:name="com.netease.yunxin.kit.common.utils.CommonFileProvider"
             android:authorities="${applicationId}.IMKitFileProvider"
@@ -138,6 +147,7 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths"
                 tools:replace="android:resource"/>
+
         </provider>
     </application>
 

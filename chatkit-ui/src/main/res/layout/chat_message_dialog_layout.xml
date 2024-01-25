@@ -5,36 +5,57 @@
   -->
 
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/dialog_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/dialog_container"
     android:background="@color/color_white"
     android:paddingTop="@dimen/dimen_32_dp"
     android:paddingBottom="@dimen/dimen_32_dp">
 
-        <ScrollView android:id="@+id/dialog_scrollview"
+    <ScrollView
+        android:id="@+id/dialog_scrollview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fillViewport="true"
+        android:scrollbars="none"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:scrollbars="none"
-            android:fillViewport="true"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent">
+            android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/message"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:paddingLeft="@dimen/dimen_32_dp"
-            android:paddingRight="@dimen/dimen_32_dp"
-            android:textColor="@color/color_333333"
-            android:textSize="@dimen/text_size_20"
-            tools:ignore="MissingConstraints" />
+            <TextView
+                android:id="@+id/messageTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:paddingLeft="@dimen/dimen_32_dp"
+                android:paddingRight="@dimen/dimen_32_dp"
+                android:textColor="@color/color_333333"
+                android:textSize="@dimen/text_size_20"
+                android:textStyle="bold"
+                android:lineSpacingExtra="@dimen/dimen_4_dp"
+                android:layout_marginBottom="@dimen/dimen_6_dp"
+                tools:ignore="MissingConstraints" />
 
-        </ScrollView>
+            <TextView
+                android:id="@+id/message"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:paddingLeft="@dimen/dimen_32_dp"
+                android:paddingRight="@dimen/dimen_32_dp"
+                android:textColor="@color/color_333333"
+                android:lineSpacingExtra="@dimen/dimen_4_dp"
+                android:textSize="@dimen/text_size_20"
+                tools:ignore="MissingConstraints" />
+        </LinearLayout>
+    </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

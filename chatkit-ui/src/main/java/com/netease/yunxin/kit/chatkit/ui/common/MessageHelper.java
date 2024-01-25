@@ -6,6 +6,7 @@ package com.netease.yunxin.kit.chatkit.ui.common;
 
 import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
 import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.KEY_REVOKE_CONTENT_TAG;
+import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.KEY_REVOKE_RICH_CONTENT_TAG;
 import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.KEY_REVOKE_TAG;
 import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.KEY_REVOKE_TIME_TAG;
 
@@ -27,23 +28,32 @@ import com.netease.nimlib.sdk.msg.MessageBuilder;
 import com.netease.nimlib.sdk.msg.constant.MsgDirectionEnum;
 import com.netease.nimlib.sdk.msg.constant.MsgStatusEnum;
 import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
+import com.netease.nimlib.sdk.msg.constant.NotificationType;
 import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.msg.model.CustomMessageConfig;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
+import com.netease.nimlib.sdk.msg.model.MemberPushOption;
+import com.netease.nimlib.sdk.msg.model.NIMMessage;
+import com.netease.nimlib.sdk.team.model.DismissAttachment;
+import com.netease.nimlib.sdk.team.model.MemberChangeAttachment;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.model.IMMessageRecord;
 import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
+import com.netease.yunxin.kit.chatkit.ui.ChatBriefUtils;
 import com.netease.yunxin.kit.chatkit.ui.ChatCustom;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitClient;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant;
 import com.netease.yunxin.kit.chatkit.ui.R;
+import com.netease.yunxin.kit.chatkit.ui.custom.MultiForwardAttachment;
+import com.netease.yunxin.kit.chatkit.ui.custom.RichTextAttachment;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.model.ait.AitBlock;
 import com.netease.yunxin.kit.chatkit.ui.model.ait.AitContactsModel;
 import com.netease.yunxin.kit.chatkit.ui.view.emoji.EmojiManager;
 import com.netease.yunxin.kit.common.ui.utils.ToastX;
 import com.netease.yunxin.kit.corekit.im.IMKitClient;
+import com.netease.yunxin.kit.corekit.im.custom.CustomAttachment;
 import com.netease.yunxin.kit.corekit.im.model.UserInfo;
 import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
 import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
@@ -53,8 +63,10 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
+import org.json.JSONException;
 import org.json.JSONObject;
 
+/** 消息相关工具类，主要用于创建消息，消息内容解析等 */
 public class MessageHelper {
 
   public static final int REVOKE_TIME_INTERVAL = 2 * 60 * 1000;
@@ -62,7 +74,11 @@ public class MessageHelper {
   public static final float DEF_SCALE = 0.6f;
   public static final float SMALL_SCALE = 0.4F;
   private static final String TAG = "MessageUtil";
+
+  // @信息高亮颜色值
+  private static final int AT_HIGHLIGHT = R.color.color_007aff;
   private static final ChatCustom chatCustom = new ChatCustom();
+
   /**
    * get nickName display
    *
@@ -76,7 +92,7 @@ public class MessageHelper {
     return ChatUserCache.getName(tid, account);
   }
 
-  //获取会话中的用户名称
+  // 获取会话中的用户名称
   public static void getChatDisplayNameYou(
       String tid, String account, FetchCallback<String> callback) {
     String nick = null;
@@ -128,17 +144,20 @@ public class MessageHelper {
   }
 
   public static String getChatMessageUserName(IMMessageInfo message) {
-    String account = message.getMessage().getFromAccount();
+    return getChatMessageUserName(message.getMessage());
+  }
+
+  public static String getChatMessageUserName(IMMessage message) {
+    String account = message.getFromAccount();
     String tid = null;
-    if (message.getMessage().getSessionType() == SessionTypeEnum.Team) {
-      tid = message.getMessage().getSessionId();
+    if (message.getSessionType() == SessionTypeEnum.Team) {
+      tid = message.getSessionId();
     }
-    String name = ChatUserCache.getName(tid, message.getMessage().getFromAccount());
+    String name = ChatUserCache.getName(tid, message.getFromAccount());
     if (TextUtils.equals(account, IMKitClient.account()) && TextUtils.equals(name, account)) {
       UserInfo userInfo = IMKitClient.getUserInfo();
       name = userInfo != null ? userInfo.getName() : account;
     }
-
     return name;
   }
 
@@ -213,11 +232,26 @@ public class MessageHelper {
   public static String getMessageRevokeContent(IMMessageInfo messageInfo) {
 
     Map<String, Object> localExtension = messageInfo.getMessage().getLocalExtension();
-    if (localExtension != null
-        && localExtension.containsKey(RouterConstant.KEY_REVOKE_CONTENT_TAG)) {
-      Object content = localExtension.get(RouterConstant.KEY_REVOKE_CONTENT_TAG);
-      if (content instanceof String) {
-        return (String) content;
+    if (localExtension != null) {
+      if (localExtension.containsKey(RouterConstant.KEY_REVOKE_CONTENT_TAG)) {
+        Object content = localExtension.get(RouterConstant.KEY_REVOKE_CONTENT_TAG);
+        if (content instanceof String) {
+          return (String) content;
+        }
+      }
+    }
+    return "";
+  }
+
+  public static Map<String, String> getRichMessageRevokeContent(IMMessageInfo messageInfo) {
+
+    Map<String, Object> localExtension = messageInfo.getMessage().getLocalExtension();
+    if (localExtension != null) {
+      if (localExtension.containsKey(RouterConstant.KEY_REVOKE_RICH_CONTENT_TAG)) {
+        Object content = localExtension.get(RouterConstant.KEY_REVOKE_RICH_CONTENT_TAG);
+        if (content instanceof Map) {
+          return (Map<String, String>) content;
+        }
       }
     }
     return null;
@@ -239,24 +273,37 @@ public class MessageHelper {
   }
 
   public static void identifyExpression(Context context, View textView, IMMessage message) {
+    identifyExpression(context, textView, message.getContent(), message);
+  }
+
+  public static void identifyExpression(
+      Context context, View textView, String content, IMMessage message) {
     if (message != null && textView != null) {
       SpannableString spannableString =
-          replaceEmoticons(context, message.getContent(), DEF_SCALE, ImageSpan.ALIGN_BOTTOM);
-      int color = context.getResources().getColor(R.color.color_007aff);
-      identifyAitExpression(context, spannableString, color, message);
+          replaceEmoticons(context, content, DEF_SCALE, ImageSpan.ALIGN_BOTTOM);
+      int color = context.getResources().getColor(AT_HIGHLIGHT);
+      identifyAitExpression(context, spannableString, color, content, message);
       viewSetText(textView, spannableString);
     }
   }
 
   public static void identifyAitExpression(
       Context context, SpannableString spannableString, int color, IMMessage message) {
+    identifyAitExpression(context, spannableString, color, message.getContent(), message);
+  }
+
+  public static void identifyAitExpression(
+      Context context,
+      SpannableString spannableString,
+      int color,
+      String content,
+      IMMessage message) {
     AitContactsModel aitContactsModel = getAitBlock(message);
-    if (aitContactsModel != null) {
+    if (aitContactsModel != null && !TextUtils.isEmpty(content)) {
       List<AitBlock> blockList = aitContactsModel.getAitBlockList();
-      String text = message.getContent();
       for (AitBlock block : blockList) {
         for (AitBlock.AitSegment segment : block.segments) {
-          if (segment.start >= 0 && segment.end > segment.start && segment.end < text.length()) {
+          if (segment.start >= 0 && segment.end > segment.start && segment.end < content.length()) {
             ForegroundColorSpan colorSpan = new ForegroundColorSpan(color);
             spannableString.setSpan(
                 colorSpan, segment.start, segment.end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -266,10 +313,47 @@ public class MessageHelper {
     }
   }
 
+  public static void identifyExpressionForEditMsg(
+      Context context, View textView, String content, AitContactsModel aitContactsModel) {
+    if (textView != null) {
+      SpannableString spannableString =
+          replaceEmoticons(context, content, DEF_SCALE, ImageSpan.ALIGN_BOTTOM);
+      int color = context.getResources().getColor(AT_HIGHLIGHT);
+      identifyAitExpression(context, spannableString, color, content, aitContactsModel);
+      viewSetText(textView, spannableString);
+    }
+  }
+
+  public static void identifyAitExpression(
+      Context context,
+      SpannableString spannableString,
+      int color,
+      String content,
+      AitContactsModel aitContactsModel) {
+    if (aitContactsModel != null && !TextUtils.isEmpty(content)) {
+      List<AitBlock> blockList = aitContactsModel.getAitBlockList();
+      for (AitBlock block : blockList) {
+        for (AitBlock.AitSegment segment : block.segments) {
+          if (segment.start >= 0 && segment.end > segment.start && segment.end < content.length()) {
+            ForegroundColorSpan colorSpan = new ForegroundColorSpan(color);
+            spannableString.setSpan(
+                colorSpan, segment.start, segment.end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+          }
+        }
+      }
+    }
+  }
+
+  public static SpannableString generateAtSpanString(String content) {
+    SpannableString spannableString = new SpannableString(content);
+    int color = IMKitClient.getApplicationContext().getResources().getColor(AT_HIGHLIGHT);
+    ForegroundColorSpan colorSpan = new ForegroundColorSpan(color);
+    spannableString.setSpan(colorSpan, 0, content.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+    return spannableString;
+  }
+
   public static AitContactsModel getAitBlock(IMMessage message) {
-    if (message != null
-        && message.getMsgType() == MsgTypeEnum.text
-        && message.getRemoteExtension() != null) {
+    if (message != null && message.getRemoteExtension() != null) {
       Map<String, Object> remoteExt = message.getRemoteExtension();
       Object aitData = remoteExt.get(ChatKitUIConstant.AIT_REMOTE_EXTENSION_KEY);
       if (aitData instanceof Map) {
@@ -290,7 +374,7 @@ public class MessageHelper {
   public static boolean revokeMsgIsEdit(ChatMessageBean data) {
     IMMessage message = data.getMessageData().getMessage();
     return !isReceivedMessage(data)
-        && message.getMsgType() == MsgTypeEnum.text
+        && canRevokeEdit(data.getMessageData().getMessage())
         && (System.currentTimeMillis() - message.getTime() < REVOKE_TIME_INTERVAL)
         && data.revokeMsgEdit;
   }
@@ -430,6 +514,15 @@ public class MessageHelper {
     ClipData clipData = null;
     if (messageInfo.getMessage().getMsgType() == MsgTypeEnum.text) {
       clipData = ClipData.newPlainText(null, messageInfo.getMessage().getContent());
+    } else if (messageInfo.getMessage().getMsgType() == MsgTypeEnum.custom) {
+      CustomAttachment attachment = (CustomAttachment) messageInfo.getMessage().getAttachment();
+      if (attachment instanceof RichTextAttachment) {
+        String data = ((RichTextAttachment) attachment).body;
+        if (TextUtils.isEmpty(data)) {
+          data = ((RichTextAttachment) attachment).title;
+        }
+        clipData = ClipData.newPlainText(null, data);
+      }
     }
     cmb.setPrimaryClip(clipData);
     if (showToast) {
@@ -455,8 +548,24 @@ public class MessageHelper {
     Map<String, Object> map = new HashMap<>(4);
     map.put(KEY_REVOKE_TAG, true);
     map.put(KEY_REVOKE_TIME_TAG, SystemClock.elapsedRealtime());
-    map.put(KEY_REVOKE_CONTENT_TAG, message.getContent());
-    if (message.getMsgType() != MsgTypeEnum.text || !canRevokeEdit) {
+    if (message.getMsgType() == MsgTypeEnum.text) {
+      map.put(KEY_REVOKE_CONTENT_TAG, message.getContent());
+    } else if (isRichText(message)) {
+      CustomAttachment attachment = (CustomAttachment) message.getAttachment();
+      if (attachment instanceof RichTextAttachment) {
+        String body = ((RichTextAttachment) attachment).body;
+        String title = ((RichTextAttachment) attachment).title;
+        JSONObject data = new JSONObject();
+        try {
+          data.put("body", body == null ? "" : body);
+          data.put("title", title == null ? "" : title);
+        } catch (JSONException e) {
+          e.printStackTrace();
+        }
+        map.put(KEY_REVOKE_RICH_CONTENT_TAG, data);
+      }
+    }
+    if (!canRevokeEdit(message) || !canRevokeEdit) {
       map.put(RouterConstant.KEY_REVOKE_EDIT_TAG, false);
     } else {
       map.put(RouterConstant.KEY_REVOKE_EDIT_TAG, true);
@@ -483,5 +592,194 @@ public class MessageHelper {
     tipMsg.setConfig(config);
     ChatRepo.saveLocalMessageExt(tipMsg, tipMsg.getTime(), true);
     ALog.d(LIB_TAG, TAG, "saveLocalBlackTipMessage:" + tipMsg.getTime());
+  }
+
+  // 创建合并转发消息体内容
+  public static String createMultiForwardMsg(List<IMMessageInfo> msgList) {
+    if (msgList == null || msgList.isEmpty()) {
+      return "";
+    }
+
+    List<IMMessage> messageList = new ArrayList<>();
+    Map<String, Object> atMap = new HashMap<>();
+    Map<String, Object> replyMap = new HashMap<>();
+    for (int index = 0; index < msgList.size(); index++) {
+      IMMessageInfo info = msgList.get(index);
+      // 去除转发消息中的回复消息 和 @消息
+      Map<String, Object> extension = info.getMessage().getRemoteExtension();
+      if (extension != null) {
+        if (extension.containsKey(ChatKitUIConstant.REPLY_REMOTE_EXTENSION_KEY)) {
+          Object replyContent = extension.remove(ChatKitUIConstant.REPLY_REMOTE_EXTENSION_KEY);
+          replyMap.put(info.getMessage().getUuid(), replyContent);
+        }
+        if (extension.containsKey(ChatKitUIConstant.AIT_REMOTE_EXTENSION_KEY)) {
+          Object atContent = extension.remove(ChatKitUIConstant.AIT_REMOTE_EXTENSION_KEY);
+          atMap.put(info.getMessage().getUuid(), atContent);
+        }
+      } else {
+        extension = new HashMap<>();
+      }
+      extension.put(
+          ChatKitUIConstant.KEY_MERGE_REMOTE_EXTENSION_NICK,
+          info.getFromUser() != null
+              ? info.getFromUser().getName()
+              : info.getMessage().getFromAccount());
+      extension.put(
+          ChatKitUIConstant.KEY_MERGE_REMOTE_EXTENSION_AVATAR,
+          info.getFromUser() != null ? info.getFromUser().getAvatar() : "");
+      info.getMessage().setRemoteExtension(extension);
+      messageList.add(info.getMessage());
+    }
+    String messageListStr = MessageBuilder.createForwardMessageListFileDetail(messageList);
+    for (int index = 0; index < msgList.size(); index++) {
+      IMMessageInfo info = msgList.get(index);
+      // 去除转发消息中的回复消息 和 @消息
+      Map<String, Object> extMap = info.getMessage().getRemoteExtension();
+      if (replyMap.containsKey(info.getMessage().getUuid())) {
+        if (extMap == null) {
+          extMap = new HashMap<>();
+        }
+        extMap.put(
+            ChatKitUIConstant.REPLY_REMOTE_EXTENSION_KEY,
+            replyMap.get(info.getMessage().getUuid()));
+      }
+      if (atMap.containsKey(info.getMessage().getUuid())) {
+        if (extMap == null) {
+          extMap = new HashMap<>();
+        }
+        extMap.put(
+            ChatKitUIConstant.AIT_REMOTE_EXTENSION_KEY, atMap.get(info.getMessage().getUuid()));
+      }
+      if (extMap != null) {
+        extMap.remove(ChatKitUIConstant.KEY_MERGE_REMOTE_EXTENSION_NICK);
+        extMap.remove(ChatKitUIConstant.KEY_MERGE_REMOTE_EXTENSION_AVATAR);
+        info.getMessage().setRemoteExtension(extMap);
+      }
+    }
+
+    return messageListStr;
+  }
+
+  // 创建合并转发消息附件
+  public static MultiForwardAttachment createMultiTransmitAttachment(
+      String displayName, String fromSessionID, String url, List<IMMessageInfo> msgList) {
+    if (msgList == null || msgList.isEmpty() || fromSessionID == null) {
+      return null;
+    }
+    MultiForwardAttachment attachment = new MultiForwardAttachment();
+    attachment.sessionID = fromSessionID;
+    attachment.sessionName = displayName;
+    attachment.url = url;
+    attachment.md5 = "";
+    int depth = 0;
+    List<MultiForwardAttachment.Abstracts> abstractsList = new ArrayList<>();
+    for (int index = 0; index < msgList.size(); index++) {
+      IMMessageInfo info = msgList.get(index);
+      if (info.getMessage().getAttachment() instanceof MultiForwardAttachment) {
+        if (depth < ((MultiForwardAttachment) info.getMessage().getAttachment()).depth) {
+          depth = ((MultiForwardAttachment) info.getMessage().getAttachment()).depth;
+        }
+      }
+      if (abstractsList.size() < ChatKitUIConstant.CHAT_FORWARD_ABSTRACTS_LIMIT) {
+        String nick =
+            info.getFromUser() != null
+                ? info.getFromUser().getName()
+                : info.getMessage().getFromAccount();
+        MultiForwardAttachment.Abstracts abstracts =
+            new MultiForwardAttachment.Abstracts(
+                nick,
+                ChatBriefUtils.customContentText(IMKitClient.getApplicationContext(), info),
+                info.getMessage().getFromAccount());
+        abstractsList.add(abstracts);
+      }
+    }
+    attachment.depth = depth + 1;
+    attachment.abstractsList = abstractsList;
+    return attachment;
+  }
+
+  public static IMMessage createRichTextMessage(
+      String title,
+      String content,
+      String sessionId,
+      SessionTypeEnum sessionType,
+      List<String> pushList,
+      Map<String, Object> remoteExtension) {
+    ALog.d(LIB_TAG, TAG, "createRichTextMessage:" + (content != null ? content.length() : "null"));
+    RichTextAttachment attachment = new RichTextAttachment();
+    attachment.body = content;
+    attachment.title = title;
+    IMMessage customMsg = MessageBuilder.createCustomMessage(sessionId, sessionType, attachment);
+    appendTeamMemberPush(customMsg, pushList);
+    if (remoteExtension != null) {
+      customMsg.setRemoteExtension(remoteExtension);
+    }
+    customMsg.setPushContent(title);
+    return customMsg;
+  }
+
+  public static void appendTeamMemberPush(IMMessage message, List<String> pushList) {
+    ALog.d(
+        LIB_TAG,
+        TAG,
+        "appendTeamMemberPush,message" + (message == null ? "null" : message.getUuid()));
+    if (message == null) {
+      return;
+    }
+    if (message.getSessionType() == SessionTypeEnum.Team
+        && pushList != null
+        && !pushList.isEmpty()) {
+      MemberPushOption memberPushOption = new MemberPushOption();
+      memberPushOption.setForcePush(true);
+      memberPushOption.setForcePushContent(message.getContent());
+      if (pushList.size() == 1 && pushList.get(0).equals(AitContactsModel.ACCOUNT_ALL)) {
+        memberPushOption.setForcePushList(null);
+      } else {
+        memberPushOption.setForcePushList(pushList);
+      }
+      message.setMemberPushOption(memberPushOption);
+    }
+  }
+
+  public static boolean isRichText(IMMessageInfo message) {
+    return message != null && message.getMessage().getAttachment() instanceof RichTextAttachment;
+  }
+
+  public static boolean isRichText(NIMMessage message) {
+    return message != null && message.getAttachment() instanceof RichTextAttachment;
+  }
+
+  public static boolean canRevokeEdit(NIMMessage message) {
+    return message.getMsgType() == MsgTypeEnum.text || isRichText(message);
+  }
+
+  public static boolean isDismissTeamMsg(IMMessageInfo messageInfo) {
+    if (messageInfo != null && messageInfo.getMessage().getMsgType() == MsgTypeEnum.notification) {
+      if (messageInfo.getMessage().getAttachment() instanceof DismissAttachment) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  public static boolean isKickMsg(IMMessageInfo messageInfo) {
+    if (messageInfo != null && messageInfo.getMessage().getMsgType() == MsgTypeEnum.notification) {
+      if (messageInfo.getMessage().getAttachment() instanceof MemberChangeAttachment) {
+        MemberChangeAttachment changeAttachment =
+            (MemberChangeAttachment) messageInfo.getMessage().getAttachment();
+        if (changeAttachment.getType() == NotificationType.KickMember
+            && changeAttachment.getTargets() != null) {
+          return changeAttachment.getTargets().contains(IMKitClient.account());
+        }
+      }
+    }
+    return false;
+  }
+
+  public static boolean isSameMessage(IMMessageInfo messageInfo, IMMessageInfo messageInfo2) {
+    if (messageInfo == null || messageInfo2 == null) {
+      return false;
+    }
+    return messageInfo.getMessage().isTheSame(messageInfo2.getMessage());
   }
 }

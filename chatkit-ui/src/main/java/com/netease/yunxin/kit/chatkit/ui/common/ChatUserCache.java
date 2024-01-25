@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/** 用户信息缓存，主要用于消息列表中显示用户信息、@弹窗展示等 */
 public class ChatUserCache {
 
   private static final Map<String, TeamMember> teamMemberMap = new HashMap<>();

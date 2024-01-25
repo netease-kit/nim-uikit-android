@@ -76,6 +76,7 @@
 
     <string name="remove_black_fail">Failed to remove blacklist</string>
     <string name="verify_duplicate_fail">Already done on other devices</string>
+    <string name="contact_error_tips">Data error</string>
 
     <!--    selector-->
     <string name="select">Select</string>
