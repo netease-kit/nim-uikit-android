@@ -48,6 +48,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.json.JSONObject;
 
 /** launch service when app start the TeamUIService will be created it need to config in manifest */
 @Keep
@@ -102,7 +103,7 @@ public class TeamUIService extends ChatService {
     return Collections.emptyList();
   }
 
-  //将创建讨论组注册到路由器，可通过路由触发
+  // 将创建讨论组注册到路由器，可通过路由触发
   @SuppressWarnings("unchecked")
   public void registerCreateNormalTeamRouter(
       Context context, String path, RandomUrlProvider provider) {
@@ -151,13 +152,33 @@ public class TeamUIService extends ChatService {
                 fieldMap.put(
                     TeamFieldEnum.TeamExtensionUpdateMode, TeamExtensionUpdateModeEnum.All);
                 if (fieldMap.containsKey(TeamFieldEnum.Extension)) {
-                  String extension =
-                      fieldMap.get(TeamFieldEnum.Extension)
-                          + IMKitConstant.TEAM_EXTENSION_SPLIT_TAG
-                          + IMKitConstant.TEAM_GROUP_TAG;
-                  fieldMap.put(TeamFieldEnum.Extension, extension);
+                  Object extension = fieldMap.get(TeamFieldEnum.Extension);
+                  if (extension instanceof Map) {
+                    try {
+                      ((Map<String, Serializable>) extension)
+                          .put(IMKitConstant.TEAM_GROUP_TAG, true);
+                    } catch (Exception e) {
+                      ALog.e(
+                          TeamKitClient.LIB_TAG,
+                          TAG,
+                          "createNormalTeam exception:" + e.getMessage());
+                      JSONObject extJson = new JSONObject();
+                      extJson.put(IMKitConstant.TEAM_GROUP_TAG, true);
+                      fieldMap.put(TeamFieldEnum.Extension, extJson.toString());
+                    }
+
+                  } else {
+                    String extensionStr =
+                        extension
+                            + IMKitConstant.TEAM_EXTENSION_SPLIT_TAG
+                            + IMKitConstant.TEAM_GROUP_TAG;
+                    fieldMap.put(TeamFieldEnum.Extension, extensionStr);
+                  }
+
                 } else {
-                  fieldMap.put(TeamFieldEnum.Extension, IMKitConstant.TEAM_GROUP_TAG);
+                  JSONObject extJson = new JSONObject();
+                  extJson.put(IMKitConstant.TEAM_GROUP_TAG, true);
+                  fieldMap.put(TeamFieldEnum.Extension, extJson.toString());
                 }
 
                 if (accIdList == null) {
@@ -207,7 +228,7 @@ public class TeamUIService extends ChatService {
             }));
   }
 
-  //将创建高级群注册到路由器，可通过路由触发
+  // 将创建高级群注册到路由器，可通过路由触发
   @SuppressWarnings("unchecked")
   public void registerCreateAdvanceTeamRouter(
       Context context, String path, RandomUrlProvider provider) {

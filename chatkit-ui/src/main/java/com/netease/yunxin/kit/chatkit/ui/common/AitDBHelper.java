@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+/** @数据库Helper类，用于会话列表中[有人@我]功能 提供@信息的数据库操作，增删改查 */
 public class AitDBHelper extends SQLiteOpenHelper {
 
   private static final String TAG = "AitDBHelper";
@@ -104,13 +105,19 @@ public class AitDBHelper extends SQLiteOpenHelper {
   public int delete(String condition) {
     // 执行删除记录动作，该语句返回删除记录的数目
     ALog.d(ChatKitUIConstant.LIB_TAG, TAG, "delete:" + condition);
+    if (aitDatabase == null || !aitDatabase.isOpen()) {
+      return -1;
+    }
     return aitDatabase.delete(TABLE_NAME, condition, null);
   }
 
   public int deleteWithSessionId(String[] sessionId) {
     // 执行删除记录动作，该语句返回删除记录的数目
     ALog.d(ChatKitUIConstant.LIB_TAG, TAG, "deleteWithSessionId");
-    if (sessionId == null) {
+    if (sessionId == null
+        || sessionId.length == 0
+        || aitDatabase == null
+        || !aitDatabase.isOpen()) {
       return -1;
     }
     return aitDatabase.delete(
@@ -125,6 +132,9 @@ public class AitDBHelper extends SQLiteOpenHelper {
   // 删除该表所有记录
   public int deleteAll() {
     // 执行删除记录动作，该语句返回删除记录的数目
+    if (aitDatabase == null || !aitDatabase.isOpen()) {
+      return -1;
+    }
     return aitDatabase.delete(TABLE_NAME, "1=1", null);
   }
 
@@ -142,7 +152,10 @@ public class AitDBHelper extends SQLiteOpenHelper {
   // 往该表添加多条记录
   public long insert(List<AitInfo> aitInfoList) {
     long result = -1;
-    if (aitInfoList == null) {
+    if (aitInfoList == null
+        || aitInfoList.isEmpty()
+        || aitDatabase == null
+        || !aitDatabase.isOpen()) {
       return result;
     }
     ALog.d(ChatKitUIConstant.LIB_TAG, TAG, "list insert:" + aitInfoList.size());
@@ -172,7 +185,8 @@ public class AitDBHelper extends SQLiteOpenHelper {
     ALog.d(ChatKitUIConstant.LIB_TAG, TAG, "update:" + condition);
     if (aitInfo == null
         || TextUtils.isEmpty(aitInfo.getSessionId())
-        || aitInfo.getMsgUidList() == null) {
+        || aitDatabase == null
+        || !aitDatabase.isOpen()) {
       return -1;
     }
     ALog.d(ChatKitUIConstant.LIB_TAG, TAG, "update:" + aitInfo.getSessionId());
@@ -211,24 +225,27 @@ public class AitDBHelper extends SQLiteOpenHelper {
             condition);
     List<AitInfo> infoList = new ArrayList<>();
     // 执行记录查询动作，该语句返回结果集的游标
-    Cursor cursor = aitDatabase.rawQuery(sql, null);
-    // 循环取出游标指向的每条记录
-    while (cursor.moveToNext()) {
-      AitInfo aitInfo = new AitInfo();
-      aitInfo.setSessionId(cursor.getString(cursor.getColumnIndex(DB_COLUMN_SESSION)));
-      aitInfo.setRowId(cursor.getInt(cursor.getColumnIndex(DB_COLUMN_ROW_ID)));
-      String msgId = cursor.getString(cursor.getColumnIndex(DB_COLUMN_MSG_ID));
-      String accountID = cursor.getString(cursor.getColumnIndex(DB_COLUMN_USER_ID));
-      if (!TextUtils.isEmpty(msgId)) {
-        String[] idStrings = msgId.split(",");
-        aitInfo.addMsgUid(Arrays.asList(idStrings));
+    if (aitDatabase != null && aitDatabase.isOpen()) {
+
+      Cursor cursor = aitDatabase.rawQuery(sql, null);
+      // 循环取出游标指向的每条记录
+      while (cursor != null && cursor.moveToNext()) {
+        AitInfo aitInfo = new AitInfo();
+        aitInfo.setSessionId(cursor.getString(cursor.getColumnIndex(DB_COLUMN_SESSION)));
+        aitInfo.setRowId(cursor.getInt(cursor.getColumnIndex(DB_COLUMN_ROW_ID)));
+        String msgId = cursor.getString(cursor.getColumnIndex(DB_COLUMN_MSG_ID));
+        String accountID = cursor.getString(cursor.getColumnIndex(DB_COLUMN_USER_ID));
+        if (!TextUtils.isEmpty(msgId)) {
+          String[] idStrings = msgId.split(",");
+          aitInfo.addMsgUid(Arrays.asList(idStrings));
+        }
+        aitInfo.setAccountId(accountID);
+        ALog.d(ChatKitUIConstant.LIB_TAG, TAG, "query AitInfo:" + aitInfo.getSessionId());
+        infoList.add(aitInfo);
       }
-      aitInfo.setAccountId(accountID);
-      ALog.d(ChatKitUIConstant.LIB_TAG, TAG, "query AitInfo:" + aitInfo.getSessionId());
-      infoList.add(aitInfo);
+      // 查询完毕，关闭数据库游标
+      cursor.close();
     }
-    // 查询完毕，关闭数据库游标
-    cursor.close();
     ALog.d(ChatKitUIConstant.LIB_TAG, TAG, "query result:" + infoList.size());
     return infoList;
   }

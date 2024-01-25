@@ -8,10 +8,12 @@ import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
 import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.KEY_REVOKE_EDIT_TAG;
 import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.KEY_REVOKE_TAG;
 
+import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
 import com.netease.nimlib.sdk.msg.model.MsgPinOption;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant;
+import com.netease.yunxin.kit.corekit.im.custom.CustomAttachment;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.Objects;
@@ -119,7 +121,14 @@ public class ChatMessageBean implements Serializable {
 
   public int getViewType() {
     if (messageData != null) {
-      return messageData.getMessage().getMsgType().getValue();
+      if (messageData.getMessage().getMsgType() == MsgTypeEnum.custom) {
+        CustomAttachment attachment = (CustomAttachment) messageData.getMessage().getAttachment();
+        if (attachment != null) {
+          return attachment.getType();
+        }
+      } else {
+        return messageData.getMessage().getMsgType().getValue();
+      }
     }
     return viewType;
   }

@@ -4,7 +4,7 @@
 
 package com.netease.yunxin.kit.chatkit.ui.fun.view.message.viewholder;
 
-import static com.netease.yunxin.kit.chatkit.ui.ChatUIConstants.KEY_MAP_FOR_MESSAGE;
+import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.KEY_MAP_FOR_MESSAGE;
 
 import android.os.Handler;
 import android.os.Looper;
@@ -79,6 +79,16 @@ public class ChatLocationMessageViewHolder extends FunChatBaseMessageViewHolder 
   }
 
   @Override
+  protected void onMessageBackgroundConfig(ChatMessageBean messageBean) {
+    super.onMessageBackgroundConfig(messageBean);
+    if (!messageBean.isRevoked()) {
+      binding.getRoot().setBackgroundResource(R.drawable.fun_message_location_bg);
+    } else {
+      binding.getRoot().setBackgroundResource(R.color.title_transfer);
+    }
+  }
+
+  @Override
   public void onDetachedFromWindow() {
     super.onDetachedFromWindow();
     renderHandler.removeCallbacks(renderAction);
@@ -93,12 +103,6 @@ public class ChatLocationMessageViewHolder extends FunChatBaseMessageViewHolder 
   public void onAttachedToWindow() {
     super.onAttachedToWindow();
     renderHandler.postDelayed(renderAction, INTERVAL);
-  }
-
-  @Override
-  protected void onMessageBackgroundConfig(ChatMessageBean messageBean) {
-    View firstChild = baseViewBinding.messageContainer.getChildAt(0);
-    firstChild.setBackgroundResource(R.drawable.fun_message_location_bg);
   }
 
   private void addMapViewToGroup(ViewGroup group) {

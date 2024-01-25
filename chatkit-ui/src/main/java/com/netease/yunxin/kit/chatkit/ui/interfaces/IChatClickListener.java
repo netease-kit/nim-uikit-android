@@ -7,6 +7,7 @@ package com.netease.yunxin.kit.chatkit.ui.interfaces;
 import android.view.View;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 
+/** Pin列表界面的点击接口 */
 public interface IChatClickListener {
 
   default boolean onMessageClick(View view, int position, ChatMessageBean messageInfo) {

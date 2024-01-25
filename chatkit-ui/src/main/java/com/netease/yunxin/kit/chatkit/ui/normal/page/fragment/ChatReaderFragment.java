@@ -15,7 +15,7 @@ import com.netease.yunxin.kit.chatkit.ui.normal.viewholder.ReadUserViewHolder;
 import com.netease.yunxin.kit.chatkit.ui.page.fragment.ChatReaderBaseFragment;
 import com.netease.yunxin.kit.common.ui.viewholder.IViewHolderFactory;
 
-/** chat message read state page */
+/** 标准皮肤，消息已读未读成员列表页面Fragment。 */
 public class ChatReaderFragment extends ChatReaderBaseFragment {
   ChatUserListLayoutBinding binding;
 

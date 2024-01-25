@@ -18,6 +18,7 @@ import com.netease.yunxin.kit.chatkit.ui.fun.page.fragment.FunChatTeamFragment;
 import com.netease.yunxin.kit.chatkit.ui.page.ChatBaseActivity;
 import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
 
+/** Fun皮肤群聊聊天页面，逻辑在Fragment中实现，该Activity只做Fragment你管理 */
 public class FunChatTeamActivity extends ChatBaseActivity {
 
   FunChatTeamFragment chatFragment;

@@ -7,6 +7,7 @@ package com.netease.yunxin.kit.chatkit.ui.dialog;
 import android.view.View;
 import com.netease.yunxin.kit.common.ui.dialog.BaseBottomDialog;
 
+/** 转发选择弹窗基类，分别在Normal和Fun中有实现 用于选择转发类型，群组或者个人 */
 public abstract class ChatBaseForwardSelectDialog extends BaseBottomDialog {
 
   public static final String TAG = "ChatMessageForwardDialog";

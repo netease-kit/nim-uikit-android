@@ -22,7 +22,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.Nullable;
 import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
 import com.netease.yunxin.kit.teamkit.ui.R;
-import com.netease.yunxin.kit.teamkit.ui.utils.viewmodel.TeamSettingViewModel;
+import com.netease.yunxin.kit.teamkit.ui.viewmodel.TeamSettingViewModel;
 import java.util.Objects;
 
 /** set nick name activity */

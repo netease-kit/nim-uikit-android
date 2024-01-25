@@ -29,8 +29,8 @@ public class SettingActivity extends BaseActivity {
 
   @Override
   protected void onCreate(@Nullable Bundle savedInstanceState) {
-    changeStatusBarColor(R.color.color_e9eff5);
     super.onCreate(savedInstanceState);
+    changeStatusBarColor(R.color.color_e9eff5);
     viewBinding = ActivityMineSettingBinding.inflate(getLayoutInflater());
     viewModel = new ViewModelProvider(this).get(SettingViewModel.class);
     setContentView(viewBinding.getRoot());

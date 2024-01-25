@@ -28,6 +28,8 @@ public interface IMessageData {
 
   void deleteMessage(ChatMessageBean message);
 
+  void deleteMessage(List<ChatMessageBean> message);
+
   void revokeMessage(ChatMessageBean message);
 
   void addPinMessage(String uuid, MsgPinOption pinOption);
@@ -39,6 +41,13 @@ public interface IMessageData {
   void setHasMoreNewerMessages(boolean hasMoreNewerMessages);
 
   void setHasMoreForwardMessages(boolean hasMoreForwardMessages);
+
+  void setMultiSelect(boolean multiSelect);
+
+  void updateMultiSelectMessage(List<ChatMessageBean> message);
+
+  //消息UI复用，需要设置当前展示模式。0代表会话消息，1代表转发消息（合并转发详情页使用）
+  void setMessageMode(int mode);
 
   boolean hasMoreNewerMessages();
 

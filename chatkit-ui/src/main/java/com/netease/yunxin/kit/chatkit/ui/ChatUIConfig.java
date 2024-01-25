@@ -11,6 +11,7 @@ import com.netease.yunxin.kit.chatkit.ui.view.message.MessageProperties;
 import com.netease.yunxin.kit.chatkit.ui.view.popmenu.IChatPopMenu;
 import com.netease.yunxin.kit.chatkit.ui.view.popmenu.IChatPopMenuClickListener;
 
+/** 聊天模块UI配置 */
 public class ChatUIConfig {
 
   //消息点击事件

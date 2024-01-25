@@ -28,12 +28,13 @@ import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.corekit.event.EventCenter;
 import com.netease.yunxin.kit.corekit.event.EventNotify;
 import com.netease.yunxin.kit.corekit.im.IMKitClient;
+import com.netease.yunxin.kit.corekit.im.model.FriendInfo;
 import com.netease.yunxin.kit.corekit.im.model.UserInfo;
 import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 import java.util.ArrayList;
 
-/** Setting page for P2P chat and Team chat page */
+/** 标准皮肤，单聊会话设置页面。 */
 public class ChatSettingActivity extends BaseActivity {
   private static final String TAG = "ChatSettingActivity";
 
@@ -42,6 +43,7 @@ public class ChatSettingActivity extends BaseActivity {
   ChatSettingViewModel viewModel;
 
   UserInfo userInfo;
+  FriendInfo friendInfo;
   String accId;
 
   protected final EventNotify<CloseChatPageEvent> closeEventNotify =
@@ -98,7 +100,14 @@ public class ChatSettingActivity extends BaseActivity {
   }
 
   private void refreshView() {
-    if (userInfo == null) {
+    if (friendInfo != null) {
+      binding.avatarView.setData(
+          friendInfo.getAvatar(),
+          friendInfo.getAvatarName(),
+          AvatarColor.avatarColor(friendInfo.getAccount()));
+      binding.nameTv.setText(friendInfo.getName());
+      binding.noTeamNameTv.setText(friendInfo.getName());
+    } else if (userInfo == null) {
       binding.avatarView.setData(null, accId, AvatarColor.avatarColor(accId));
       binding.nameTv.setText(accId);
       binding.noTeamNameTv.setText(accId);
@@ -124,7 +133,7 @@ public class ChatSettingActivity extends BaseActivity {
             this,
             result -> {
               if (result.getLoadStatus() == LoadStatus.Success) {
-                userInfo = result.getData();
+                friendInfo = result.getData();
                 refreshView();
               }
             });
@@ -164,6 +173,7 @@ public class ChatSettingActivity extends BaseActivity {
             XKitRouter.withKey(RouterConstant.PATH_CHAT_PIN_PAGE)
                 .withParam(RouterConstant.KEY_SESSION_TYPE, SessionTypeEnum.P2P.getValue())
                 .withParam(RouterConstant.KEY_SESSION_ID, accId)
+                .withParam(RouterConstant.KEY_SESSION_NAME, getName())
                 .withContext(ChatSettingActivity.this)
                 .navigate());
 
@@ -192,5 +202,14 @@ public class ChatSettingActivity extends BaseActivity {
         .withParam(RouterConstant.SELECTOR_CONTACT_FILTER_KEY, filterList)
         .withParam(RouterConstant.REQUEST_CONTACT_SELECTOR_KEY, filterList)
         .navigate();
+  }
+
+  private String getName() {
+    if (friendInfo != null) {
+      return friendInfo.getName();
+    } else if (userInfo != null) {
+      return userInfo.getName();
+    }
+    return accId;
   }
 }

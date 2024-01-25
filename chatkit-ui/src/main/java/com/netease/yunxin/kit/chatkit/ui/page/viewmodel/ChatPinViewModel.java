@@ -4,14 +4,17 @@
 
 package com.netease.yunxin.kit.chatkit.ui.page.viewmodel;
 
+import static com.netease.nimlib.sdk.ResponseCode.RES_IN_BLACK_LIST;
 import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
 
+import android.os.Handler;
 import android.text.TextUtils;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
 import com.netease.nimlib.sdk.Observer;
 import com.netease.nimlib.sdk.msg.MessageBuilder;
 import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
+import com.netease.nimlib.sdk.msg.model.AttachmentProgress;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
 import com.netease.nimlib.sdk.msg.model.MsgPinSyncResponseOption;
 import com.netease.yunxin.kit.alog.ALog;
@@ -31,6 +34,7 @@ import com.netease.yunxin.kit.corekit.event.EventCenter;
 import com.netease.yunxin.kit.corekit.im.IMKitClient;
 import com.netease.yunxin.kit.corekit.im.model.EventObserver;
 import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
+import com.netease.yunxin.kit.corekit.im.provider.FetchCallbackImpl;
 import com.netease.yunxin.kit.corekit.im.repo.SettingRepo;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -57,7 +61,12 @@ public class ChatPinViewModel extends BaseViewModel {
   private final FetchResult<List<ChatMessageBean>> addFetchResult =
       new FetchResult<>(LoadStatus.Finish);
 
+  // 删除消息LiveData
   private final MutableLiveData<FetchResult<ChatMessageBean>> deleteMessageLiveData =
+      new MutableLiveData<>();
+
+  // 附件下载进度LiveData
+  private final MutableLiveData<FetchResult<AttachmentProgress>> attachmentProgressMutableLiveData =
       new MutableLiveData<>();
 
   public void init(String sessionId, SessionTypeEnum sessionType) {
@@ -67,6 +76,7 @@ public class ChatPinViewModel extends BaseViewModel {
     ChatObserverRepo.registerAddMessagePinObserve(addPinObserver);
     ChatObserverRepo.registerRemoveMessagePinObserve(removePinObserver);
     ChatObserverRepo.registerDeleteMsgSelfObserve(deleteMsgObserver);
+    ChatObserverRepo.registerAttachmentProgressObserve(attachmentProgressObserver);
   }
 
   public void setShowRead(boolean showRead) {
@@ -87,6 +97,10 @@ public class ChatPinViewModel extends BaseViewModel {
 
   public MutableLiveData<FetchResult<ChatMessageBean>> getDeleteMessageLiveData() {
     return deleteMessageLiveData;
+  }
+
+  public MutableLiveData<FetchResult<AttachmentProgress>> getAttachmentProgressMutableLiveData() {
+    return attachmentProgressMutableLiveData;
   }
 
   public void fetchPinMsg() {
@@ -128,9 +142,6 @@ public class ChatPinViewModel extends BaseViewModel {
             if (code == ChatKitUIConstant.ERROR_CODE_NETWORK) {
               ToastX.showShortToast(R.string.chat_network_error_tips);
             }
-            //            else {
-            //              ToastX.showShortToast(R.string.chat_remove_pin_error_tips);
-            //            }
           }
 
           @Override
@@ -148,6 +159,35 @@ public class ChatPinViewModel extends BaseViewModel {
       forwardMessage.setMsgAck();
     }
     ChatRepo.sendMessage(forwardMessage, true, null);
+  }
+
+  public void sendForwardMessage(
+      IMMessage message, String inputMsg, String sessionId, SessionTypeEnum sessionType) {
+    ALog.d(LIB_TAG, TAG, "sendForwardMessage:" + sessionId);
+    sendForwardMessage(message, sessionId, sessionType);
+    if (!TextUtils.isEmpty(inputMsg) && TextUtils.getTrimmedLength(inputMsg) > 0) {
+      new Handler().postDelayed(() -> sendTextMessage(inputMsg, sessionId, sessionType), 500);
+    }
+  }
+
+  public void sendTextMessage(String content, String session, SessionTypeEnum sessionType) {
+    ALog.d(LIB_TAG, TAG, "sendTextMessage:" + (content != null ? content.length() : "null"));
+    IMMessage textMsg = MessageBuilder.createTextMessage(session, sessionType, content);
+    if (needACK && showRead) {
+      textMsg.setMsgAck();
+    }
+    ChatRepo.sendMessage(
+        textMsg,
+        false,
+        new FetchCallbackImpl<Void>() {
+
+          @Override
+          public void onFailed(int code) {
+            if (code == RES_IN_BLACK_LIST) {
+              MessageHelper.saveLocalBlackTipMessageAndNotify(textMsg);
+            }
+          }
+        });
   }
 
   private List<ChatMessageBean> convert(List<IMMessageInfo> messageList) {
@@ -230,6 +270,22 @@ public class ChatPinViewModel extends BaseViewModel {
     }
   }
 
+  private final Observer<AttachmentProgress> attachmentProgressObserver =
+      attachmentProgress -> {
+        ALog.d(
+            LIB_TAG,
+            TAG,
+            "attachment progress update -->> "
+                + attachmentProgress.getTransferred()
+                + "/"
+                + attachmentProgress.getTotal());
+        FetchResult<AttachmentProgress> result = new FetchResult<>(LoadStatus.Finish);
+        result.setData(attachmentProgress);
+        result.setType(FetchResult.FetchType.Update);
+        result.setTypeIndex(-1);
+        attachmentProgressMutableLiveData.setValue(result);
+      };
+
   private boolean inSameSession(MsgPinSyncResponseOption option) {
     if (option == null
         || mSessionType == null
@@ -245,5 +301,14 @@ public class ChatPinViewModel extends BaseViewModel {
             && TextUtils.equals(IMKitClient.account(), option.getKey().getFromAccount()))
         || (SessionTypeEnum.Team == option.getKey().getSessionType()
             && TextUtils.equals(mSessionId, option.getKey().getToAccount()));
+  }
+
+  @Override
+  protected void onCleared() {
+    super.onCleared();
+    ChatObserverRepo.unregisterAddMessagePinObserve(addPinObserver);
+    ChatObserverRepo.unregisterRemoveMessagePinObserve(removePinObserver);
+    ChatObserverRepo.unregisterDeleteMsgSelfObserve(deleteMsgObserver);
+    ChatObserverRepo.unregisterAttachmentProgressObserve(attachmentProgressObserver);
   }
 }

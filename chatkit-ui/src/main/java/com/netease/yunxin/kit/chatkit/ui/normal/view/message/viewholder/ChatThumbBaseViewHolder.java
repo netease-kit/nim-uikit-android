@@ -47,7 +47,6 @@ public abstract class ChatThumbBaseViewHolder extends NormalChatBaseMessageViewH
   @Override
   public void bindData(ChatMessageBean message, ChatMessageBean lastMessage) {
     super.bindData(message, lastMessage);
-
     load();
   }
 
@@ -71,7 +70,7 @@ public abstract class ChatThumbBaseViewHolder extends NormalChatBaseMessageViewH
       ALog.d(TAG, "load from path");
       loadThumbnailImage(thumbFromSourceFile(path));
     } else {
-      loadThumbnailInternal(null, getImageThumbMinEdge(), getImageThumbMinEdge());
+      loadThumbnailInternal(attachment.getUrl(), getImageThumbMinEdge(), getImageThumbMinEdge());
     }
   }
 

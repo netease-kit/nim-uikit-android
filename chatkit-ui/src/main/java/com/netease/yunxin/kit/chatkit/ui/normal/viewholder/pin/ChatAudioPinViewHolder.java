@@ -8,6 +8,7 @@ import static android.widget.RelativeLayout.ALIGN_PARENT_LEFT;
 import static android.widget.RelativeLayout.ALIGN_PARENT_RIGHT;
 import static android.widget.RelativeLayout.END_OF;
 import static android.widget.RelativeLayout.START_OF;
+import static com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants.PAYLOAD_REFRESH_AUDIO_ANIM;
 
 import android.graphics.drawable.AnimationDrawable;
 import android.text.TextUtils;
@@ -17,13 +18,15 @@ import android.widget.RelativeLayout;
 import androidx.annotation.NonNull;
 import com.netease.nimlib.sdk.msg.attachment.AudioAttachment;
 import com.netease.yunxin.kit.chatkit.ui.R;
-import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatAudioPinViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatBasePinViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.view.message.audio.ChatMessageAudioControl;
 import com.netease.yunxin.kit.common.utils.SizeUtils;
 import com.netease.yunxin.kit.corekit.im.audioplayer.Playable;
+import com.netease.yunxin.kit.corekit.im.repo.SettingRepo;
+import java.util.List;
+import java.util.Objects;
 
 /** view holder for audio message */
 public class ChatAudioPinViewHolder extends ChatBasePinViewHolder {
@@ -45,7 +48,7 @@ public class ChatAudioPinViewHolder extends ChatBasePinViewHolder {
 
         @Override
         public void updatePlayingProgress(Playable playable, long curPosition) {
-          //do nothing
+          // do nothing
         }
 
         @Override
@@ -84,19 +87,11 @@ public class ChatAudioPinViewHolder extends ChatBasePinViewHolder {
   }
 
   private void initPlayAnim() {
-    if (MessageHelper.isReceivedMessage(currentMessage)) {
-      audioBinding.animation.setImageResource(R.drawable.ani_message_audio_from);
-    } else {
-      audioBinding.animation.setImageResource(R.drawable.ani_message_audio_to);
-    }
+    audioBinding.animation.setImageResource(R.drawable.ani_message_audio_from);
   }
 
   private void endPlayAnim() {
-    if (MessageHelper.isReceivedMessage(currentMessage)) {
-      audioBinding.animation.setImageResource(R.drawable.ic_message_from_audio);
-    } else {
-      audioBinding.animation.setImageResource(R.drawable.ic_message_to_audio);
-    }
+    audioBinding.animation.setImageResource(R.drawable.ic_message_from_audio);
   }
 
   private void updateTime(long milliseconds) {
@@ -132,6 +127,33 @@ public class ChatAudioPinViewHolder extends ChatBasePinViewHolder {
     currentMessage = message;
     playControl(message);
     setAudioLayout(message);
+    checkAudioPlayAndRefreshAnim();
+  }
+
+  @Override
+  public void onBindData(ChatMessageBean data, int position, @NonNull List<?> payload) {
+    super.onBindData(data, position, payload);
+    if (payload.contains(PAYLOAD_REFRESH_AUDIO_ANIM)) {
+      initPlayAnim();
+      audioControl.setEarPhoneModeEnable(SettingRepo.getHandsetMode());
+      audioControl.startPlayAudioDelay(
+          CLICK_TO_PLAY_AUDIO_DELAY, data.getMessageData(), onPlayListener);
+    }
+  }
+
+  private void checkAudioPlayAndRefreshAnim() {
+    if (currentMessage == null) {
+      return;
+    }
+    if (audioControl == null) {
+      audioControl = ChatMessageAudioControl.getInstance();
+    }
+    if (!Objects.equals(audioControl.getPlayingAudio(), currentMessage.getMessageData())) {
+      return;
+    }
+    audioControl.setAudioControlListenerWhenPlaying(onPlayListener);
+    initPlayAnim();
+    play();
   }
 
   private void setAudioLayout(ChatMessageBean message) {

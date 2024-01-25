@@ -4,6 +4,7 @@
 
 package com.netease.yunxin.kit.chatkit.ui.normal.view.message.viewholder;
 
+import android.text.style.ImageSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import androidx.annotation.NonNull;
@@ -47,10 +48,20 @@ public class ChatTextMessageViewHolder extends NormalChatBaseMessageViewHolder {
     }
 
     if (message.getMessageData().getMessage().getMsgType() == MsgTypeEnum.text) {
-      MessageHelper.identifyExpression(
-          textBinding.getRoot().getContext(),
-          textBinding.messageText,
-          message.getMessageData().getMessage());
+      //转发消息不需要展示@的高亮
+      if (isForwardMsg()) {
+        MessageHelper.identifyFaceExpression(
+            textBinding.getRoot().getContext(),
+            textBinding.messageText,
+            message.getMessageData().getMessage().getContent(),
+            ImageSpan.ALIGN_BOTTOM);
+      } else {
+        MessageHelper.identifyExpression(
+            textBinding.getRoot().getContext(),
+            textBinding.messageText,
+            message.getMessageData().getMessage());
+      }
+
     } else {
       //文件消息暂不支持所以展示提示信息
       textBinding.messageText.setText(

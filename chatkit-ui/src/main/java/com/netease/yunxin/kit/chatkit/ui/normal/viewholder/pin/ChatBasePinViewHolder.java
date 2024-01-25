@@ -72,6 +72,9 @@ public abstract class ChatBasePinViewHolder extends ChatBaseViewHolder<ChatMessa
           onMessageStatus(data);
         } else if (TextUtils.equals(payloadItem, ActionConstants.PAYLOAD_USERINFO)) {
           setUserInfo(data);
+        } else if (TextUtils.equals(payloadItem, ActionConstants.PAYLOAD_PROGRESS)) {
+          // 消息附件下载进度更新
+          onProgressUpdate(data);
         }
       }
     }

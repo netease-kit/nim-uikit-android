@@ -13,21 +13,24 @@ import static com.netease.yunxin.kit.chatkit.ui.ChatMessageType.NORMAL_MESSAGE_V
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
+import com.netease.yunxin.kit.chatkit.ui.ChatMessageType;
+import com.netease.yunxin.kit.chatkit.ui.common.ChatPinFactory;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatBasePinViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.interfaces.ChatBaseViewHolder;
-import com.netease.yunxin.kit.chatkit.ui.interfaces.IChatViewHolderFactory;
 import com.netease.yunxin.kit.chatkit.ui.normal.viewholder.pin.ChatAudioPinViewHolder;
 import com.netease.yunxin.kit.chatkit.ui.normal.viewholder.pin.ChatFilePinViewHolder;
+import com.netease.yunxin.kit.chatkit.ui.normal.viewholder.pin.ChatForwardPinViewHolder;
 import com.netease.yunxin.kit.chatkit.ui.normal.viewholder.pin.ChatImagePinViewHolder;
 import com.netease.yunxin.kit.chatkit.ui.normal.viewholder.pin.ChatLocationPinViewHolder;
 import com.netease.yunxin.kit.chatkit.ui.normal.viewholder.pin.ChatPinTextViewHolder;
+import com.netease.yunxin.kit.chatkit.ui.normal.viewholder.pin.ChatRichTextPinViewHolder;
 import com.netease.yunxin.kit.chatkit.ui.normal.viewholder.pin.ChatVideoPinViewHolder;
 
-public class PinViewHolderFactory implements IChatViewHolderFactory {
+/** 会话Pin列表页面消息ViewHolder工厂类。 */
+public class PinViewHolderFactory extends ChatPinFactory {
 
   @Override
-  public ChatBaseViewHolder createViewHolder(@NonNull ViewGroup parent, int viewType) {
-
+  public ChatBaseViewHolder createNormalViewHolder(@NonNull ViewGroup parent, int viewType) {
     ChatBaseViewHolder viewHolder;
     ChatBasePinViewHolderBinding viewHolderBinding =
         ChatBasePinViewHolderBinding.inflate(
@@ -43,9 +46,27 @@ public class PinViewHolderFactory implements IChatViewHolderFactory {
     } else if (viewType == LOCATION_MESSAGE_VIEW_TYPE) {
       viewHolder = new ChatLocationPinViewHolder(viewHolderBinding, viewType);
     } else {
-      //default as text message
+      // default as text message
       viewHolder = new ChatPinTextViewHolder(viewHolderBinding, viewType);
     }
     return viewHolder;
+  }
+
+  @Override
+  protected ChatBaseViewHolder createCustomViewHolder(@NonNull ViewGroup parent, int viewType) {
+
+    if (viewType == ChatMessageType.MULTI_FORWARD_ATTACHMENT) {
+      ChatBasePinViewHolderBinding viewHolderBinding =
+          ChatBasePinViewHolderBinding.inflate(
+              LayoutInflater.from(parent.getContext()), parent, false);
+      return new ChatForwardPinViewHolder(viewHolderBinding, viewType);
+    } else if (viewType == ChatMessageType.RICH_TEXT_ATTACHMENT) {
+
+      ChatBasePinViewHolderBinding viewHolderBinding =
+          ChatBasePinViewHolderBinding.inflate(
+              LayoutInflater.from(parent.getContext()), parent, false);
+      return new ChatRichTextPinViewHolder(viewHolderBinding, viewType);
+    }
+    return null;
   }
 }

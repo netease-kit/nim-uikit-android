@@ -41,6 +41,12 @@ public interface IChatView {
 
   void appendMessage(ChatMessageBean message);
 
+  void deleteMessage(List<ChatMessageBean> message);
+
+  List<ChatMessageBean> getMessageList();
+
+  void revokeMessage(ChatMessageBean message);
+
   void updateMessageStatus(ChatMessageBean message);
 
   void updateProgress(AttachmentProgress progress);
@@ -59,9 +65,19 @@ public interface IChatView {
 
   void setMessageBackground(Drawable drawable);
 
+  // 设置撤回消息重新编辑内容到输入框
   void setReeditMessage(String content);
 
+  // 设置富文本撤回消息重新编辑内容到输入框
+  void setReEditRichMessage(String title, String body);
+
   void setReplyMessage(ChatMessageBean messageBean);
+
+  // 展示富文本输入框，并将底部输入框内容设置标题和内容
+  void showRichInputPanel();
+
+  // 隐藏富文本输入框，并设置标题和内容到底部输入框
+  void hideRichInputPanel();
 
   void setMessageBackgroundRes(int res);
 
@@ -74,6 +90,12 @@ public interface IChatView {
   void setMessageViewHolderFactory(IChatFactory viewHolderFactory);
 
   void setLayoutCustom(IChatViewCustom layoutCustom);
+
+  void showMultiSelect(boolean show);
+
+  boolean isMultiSelect();
+
+  void setMultiSelectEnable(boolean enable);
 
   View getRootView();
 }

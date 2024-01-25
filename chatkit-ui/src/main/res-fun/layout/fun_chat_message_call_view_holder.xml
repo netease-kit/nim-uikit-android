@@ -21,7 +21,7 @@
         android:src="@drawable/ic_message_call_audio"
         android:layout_gravity="center_vertical"
         android:visibility="visible"
-        android:layout_marginEnd="@dimen/dimen_8_dp"
+        android:layout_marginStart="@dimen/dimen_8_dp"
         />
 
     <TextView
@@ -33,7 +33,7 @@
         android:textColor="@color/color_333333"
         android:maxLines="1"
         android:ellipsize="end"
-
+        android:layout_marginHorizontal="@dimen/dimen_4_dp"
         tools:text="@string/chat_message_call_canceled" />
 
     <ImageView android:id="@+id/chat_message_call_icon_out"
@@ -42,6 +42,6 @@
         android:visibility="gone"
         android:src="@drawable/ic_message_call_audio"
         android:layout_gravity="center_vertical"
-        android:layout_marginStart="@dimen/dimen_8_dp"
+        android:layout_marginEnd="@dimen/dimen_8_dp"
         />
 </LinearLayout>

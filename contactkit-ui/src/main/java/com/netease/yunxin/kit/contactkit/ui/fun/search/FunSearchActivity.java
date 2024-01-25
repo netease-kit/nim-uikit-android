@@ -8,9 +8,12 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 import com.netease.yunxin.kit.common.utils.SizeUtils;
 import com.netease.yunxin.kit.contactkit.ui.R;
@@ -72,5 +75,32 @@ public class FunSearchActivity extends BaseSearchActivity {
         }
       }
     };
+  }
+
+  @Override
+  protected void showAlertDialog() {
+    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+    LayoutInflater layoutInflater = LayoutInflater.from(this);
+    View dialogView = layoutInflater.inflate(R.layout.contact_alert_dialog_layout, null);
+    TextView title = dialogView.findViewById(R.id.tv_dialog_title);
+    TextView content = dialogView.findViewById(R.id.tv_dialog_content);
+    TextView positiveBut = dialogView.findViewById(R.id.tv_dialog_positive);
+    content.setText(getString(R.string.contact_team_be_removed_content));
+    title.setText(getString(R.string.contact_team_be_removed_title));
+    positiveBut.setText(getString(R.string.selector_sure_without_num));
+    positiveBut.setTextColor(getResources().getColor(R.color.color_58be6b));
+    // 设置不可取消
+    builder.setCancelable(false);
+    builder.setView(dialogView);
+    final AlertDialog alertDialog = builder.create();
+    positiveBut.setOnClickListener(
+        v -> {
+          if (alertDialog != null) {
+            alertDialog.dismiss();
+          }
+          searchAdapter.removeData(queryTeamData);
+        });
+
+    alertDialog.show();
   }
 }

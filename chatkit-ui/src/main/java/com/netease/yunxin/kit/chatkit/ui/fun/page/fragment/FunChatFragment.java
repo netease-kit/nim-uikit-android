@@ -4,23 +4,33 @@
 
 package com.netease.yunxin.kit.chatkit.ui.fun.page.fragment;
 
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
 import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
+import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.ui.R;
+import com.netease.yunxin.kit.chatkit.ui.common.ChatMsgCache;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatUtils;
+import com.netease.yunxin.kit.chatkit.ui.custom.MultiForwardAttachment;
 import com.netease.yunxin.kit.chatkit.ui.databinding.FunChatFragmentBinding;
 import com.netease.yunxin.kit.chatkit.ui.dialog.ChatBaseForwardSelectDialog;
 import com.netease.yunxin.kit.chatkit.ui.fun.FunChatForwardSelectDialog;
 import com.netease.yunxin.kit.chatkit.ui.fun.FunChatMessageForwardConfirmDialog;
-import com.netease.yunxin.kit.chatkit.ui.normal.ChatMessageForwardConfirmDialog;
+import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.page.fragment.ChatBaseFragment;
+import com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants;
+import com.netease.yunxin.kit.common.utils.NetworkUtils;
 import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
+import com.netease.yunxin.kit.corekit.route.XKitRouter;
 import java.util.ArrayList;
 
+/** Fun皮肤聊天界面Fragment，继承自ChatBaseFragment Fun皮肤下的差异化UI在这里实现，基础功能在父类中实现 */
 public abstract class FunChatFragment extends ChatBaseFragment {
 
   FunChatFragmentBinding viewBinding;
@@ -63,16 +73,49 @@ public abstract class FunChatFragment extends ChatBaseFragment {
   public void showForwardConfirmDialog(SessionTypeEnum type, ArrayList<String> sessionIds) {
     FunChatMessageForwardConfirmDialog confirmDialog =
         FunChatMessageForwardConfirmDialog.createForwardConfirmDialog(
-            type, sessionIds, forwardMessage.getMessageData());
+            type, sessionIds, getSessionName(), true, forwardAction);
     confirmDialog.setCallback(
-        () -> {
-          if (forwardMessage != null) {
-            for (String accId : sessionIds) {
-              viewModel.sendForwardMessage(
-                  forwardMessage.getMessageData().getMessage(), accId, type);
+        (inputMsg) -> {
+          if (!NetworkUtils.isConnected()) {
+            Toast.makeText(getContext(), R.string.chat_network_error_tip, Toast.LENGTH_SHORT)
+                .show();
+            return;
+          }
+          if (TextUtils.equals(forwardAction, ActionConstants.POP_ACTION_TRANSMIT)) {
+            ChatMessageBean msg = getForwardMessage();
+            if (msg != null) {
+              for (String accId : sessionIds) {
+                viewModel.sendForwardMessage(msg, inputMsg, accId, type);
+              }
             }
+          } else if (TextUtils.equals(forwardAction, ActionConstants.ACTION_TYPE_MULTI_FORWARD)) {
+            viewModel.sendMultiForwardMessage(
+                getSessionName(), inputMsg, sessionIds, type, ChatMsgCache.getMessageList());
+            clearMessageMultiSelectStatus();
+          } else if (TextUtils.equals(forwardAction, ActionConstants.ACTION_TYPE_SINGLE_FORWARD)) {
+            viewModel.sendForwardMessages(
+                getSessionName(), inputMsg, sessionIds, type, ChatMsgCache.getMessageList());
+            clearMessageMultiSelectStatus();
           }
         });
-    confirmDialog.show(getParentFragmentManager(), ChatMessageForwardConfirmDialog.TAG);
+    confirmDialog.show(getParentFragmentManager(), FunChatMessageForwardConfirmDialog.TAG);
+  }
+
+  public String getSessionName() {
+    return sessionID;
+  }
+
+  @Override
+  protected void clickMessage(IMMessageInfo messageInfo, boolean isReply) {
+    if (messageInfo.getMessage().getMsgType() == MsgTypeEnum.custom) {
+      if (messageInfo.getMessage().getAttachment() instanceof MultiForwardAttachment) {
+        XKitRouter.withKey(RouterConstant.PATH_FUN_CHAT_FORWARD_PAGE)
+            .withContext(getContext())
+            .withParam(RouterConstant.KEY_MESSAGE, messageInfo)
+            .navigate();
+        return;
+      }
+    }
+    super.clickMessage(messageInfo, isReply);
   }
 }

@@ -14,11 +14,11 @@ import com.netease.yunxin.kit.chatkit.ui.databinding.FunChatPinTextViewHolderBin
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 
 /** view holder for Text message */
-public class FunChatPinTextViewHolder extends FunChatBasePinViewHolder {
+public class FunChatTextPinViewHolder extends FunChatBasePinViewHolder {
 
   FunChatPinTextViewHolderBinding textBinding;
 
-  public FunChatPinTextViewHolder(@NonNull FunChatBasePinViewHolderBinding parent, int viewType) {
+  public FunChatTextPinViewHolder(@NonNull FunChatBasePinViewHolderBinding parent, int viewType) {
     super(parent, viewType);
   }
 

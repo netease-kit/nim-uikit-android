@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright (c) 2022 NetEase, Inc. All rights reserved.
   ~ Use of this source code is governed by a MIT license that can be
   ~ found in the LICENSE file.
@@ -154,7 +153,7 @@
                 android:layout_marginTop="12dp"
                 android:layout_marginEnd="20dp"
                 android:background="@drawable/bg_team_setting_block"
-                app:layout_constraintBottom_toBottomOf="@id/tvSessionPin"
+                app:layout_constraintBottom_toBottomOf="@id/tvTeamNickname"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/bg1" />
@@ -268,7 +267,7 @@
                 app:constraint_referenced_ids="tvMessageTip,swMessageTip,messageTipLine" />
 
             <TextView
-                android:id="@+id/tvSessionPin"
+                android:id="@+id/tvStickTop"
                 android:layout_width="0dp"
                 android:layout_height="48dp"
                 android:layout_marginStart="16dp"
@@ -283,29 +282,31 @@
                 tools:ignore="SpUsage" />
 
             <androidx.appcompat.widget.SwitchCompat
-                android:id="@+id/swSessionPin"
+                android:id="@+id/swStickTop"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="20dp"
                 android:thumb="@drawable/switch_thumb_selector"
-                app:layout_constraintBottom_toBottomOf="@id/tvSessionPin"
+                app:layout_constraintBottom_toBottomOf="@id/tvStickTop"
                 app:layout_constraintEnd_toEndOf="@id/bg2"
-                app:layout_constraintTop_toTopOf="@id/tvSessionPin"
+                app:layout_constraintTop_toTopOf="@id/tvStickTop"
                 app:track="@drawable/switch_track_selector" />
 
             <View
-                android:id="@+id/bg3"
+                android:id="@+id/stickTopLine"
+                android:layout_width="0dp"
+                android:layout_height="0.5dp"
+                android:layout_marginStart="16dp"
+                android:background="@color/color_f5f8fc"
+                app:layout_constraintEnd_toEndOf="@id/bg2"
+                app:layout_constraintStart_toStartOf="@id/bg2"
+                app:layout_constraintTop_toBottomOf="@id/tvStickTop" />
+
+            <androidx.constraintlayout.widget.Group
+                android:id="@+id/messageStickTopGroup"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
-                android:layout_marginStart="20dp"
-                android:layout_marginTop="12dp"
-                android:layout_marginEnd="20dp"
-                android:background="@drawable/bg_team_setting_block"
-                android:visibility="gone"
-                app:layout_constraintBottom_toBottomOf="@id/tvTeamMute"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/bg2" />
+                app:constraint_referenced_ids="swStickTop,stickTopLine,tvStickTop" />
 
             <TextView
                 android:id="@+id/tvTeamNickname"
@@ -318,27 +319,31 @@
                 android:textColor="@color/color_333333"
                 android:textSize="16dp"
                 app:drawableEndCompat="@drawable/ic_right_arrow"
-                app:layout_constraintEnd_toEndOf="@id/bg3"
-                app:layout_constraintStart_toStartOf="@id/bg3"
-                app:layout_constraintTop_toTopOf="@id/bg3"
+                app:layout_constraintEnd_toEndOf="@id/bg2"
+                app:layout_constraintStart_toStartOf="@id/bg2"
+                app:layout_constraintTop_toBottomOf="@id/tvStickTop"
                 tools:ignore="SpUsage" />
-
-            <View
-                android:id="@+id/nicknameLine"
-                android:layout_width="0dp"
-                android:layout_height="0.5dp"
-                android:layout_marginStart="16dp"
-                android:background="@color/color_f5f8fc"
-                app:layout_constraintEnd_toEndOf="@id/bg3"
-                app:layout_constraintStart_toStartOf="@id/bg3"
-                app:layout_constraintTop_toBottomOf="@id/tvTeamNickname" />
 
             <androidx.constraintlayout.widget.Group
                 android:id="@+id/nicknameGroup"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:visibility="gone"
-                app:constraint_referenced_ids="tvTeamNickname,nicknameLine" />
+                app:constraint_referenced_ids="tvTeamNickname" />
+
+            <View
+                android:id="@+id/bg3"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="20dp"
+                android:background="@drawable/bg_team_setting_block"
+                app:layout_constraintBottom_toBottomOf="@id/tvManager"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/bg2" />
+
 
             <TextView
                 android:id="@+id/tvTeamMute"
@@ -352,7 +357,7 @@
                 android:textSize="16dp"
                 app:layout_constraintEnd_toEndOf="@id/bg3"
                 app:layout_constraintStart_toStartOf="@id/bg3"
-                app:layout_constraintTop_toBottomOf="@id/tvTeamNickname"
+                app:layout_constraintTop_toTopOf="@id/bg3"
                 tools:ignore="SpUsage" />
 
             <androidx.appcompat.widget.SwitchCompat
@@ -365,158 +370,39 @@
                 app:layout_constraintEnd_toEndOf="@id/bg3"
                 app:layout_constraintTop_toTopOf="@id/tvTeamMute"
                 app:track="@drawable/switch_track_selector" />
+            <View
+                android:id="@+id/teamMuteLine"
+                android:layout_width="0dp"
+                android:layout_height="0.5dp"
+                android:layout_marginStart="16dp"
+                android:background="@color/color_f5f8fc"
+                app:layout_constraintEnd_toEndOf="@id/bg3"
+                app:layout_constraintStart_toStartOf="@id/bg3"
+                app:layout_constraintTop_toBottomOf="@id/tvTeamMute" />
 
             <androidx.constraintlayout.widget.Group
                 android:id="@+id/teamMuteGroup"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:visibility="gone"
-                app:constraint_referenced_ids="tvTeamMute,swTeamMute" />
-
-            <View
-                android:id="@+id/bg4"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_marginStart="20dp"
-                android:layout_marginTop="12dp"
-                android:layout_marginEnd="20dp"
-                android:background="@drawable/bg_team_setting_block"
-                android:visibility="gone"
-                app:layout_constraintBottom_toBottomOf="@id/tvInviteAgree"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/bg3" />
+                app:constraint_referenced_ids="tvTeamMute,teamMuteLine,swTeamMute" />
 
             <TextView
-                android:id="@+id/tvInviteOtherPermission"
-                android:layout_width="0dp"
-                android:layout_height="72dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:paddingTop="16dp"
-                android:text="@string/team_invite_other_permission"
-                android:textColor="@color/color_333333"
-                android:textSize="16dp"
-                app:drawableEndCompat="@drawable/ic_right_arrow"
-                app:layout_constraintEnd_toEndOf="@id/bg4"
-                app:layout_constraintStart_toStartOf="@id/bg4"
-                app:layout_constraintTop_toTopOf="@id/bg4"
-                tools:ignore="SpUsage" />
-
-            <TextView
-                android:id="@+id/tvInviteOtherValue"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="6dp"
-                android:layout_marginEnd="16dp"
-                android:layout_marginBottom="14dp"
-                android:text="@string/team_all_member"
-                android:textColor="@color/color_999999"
-                android:textSize="14dp"
-                app:layout_constraintBottom_toBottomOf="@id/tvInviteOtherPermission"
-                app:layout_constraintEnd_toEndOf="@id/bg4"
-                app:layout_constraintStart_toStartOf="@id/bg4"
-                tools:ignore="SpUsage" />
-
-            <View
-                android:id="@+id/inviteLine"
-                android:layout_width="0dp"
-                android:layout_height="0.5dp"
-                android:layout_marginStart="16dp"
-                android:background="@color/color_f5f8fc"
-                app:layout_constraintEnd_toEndOf="@id/bg4"
-                app:layout_constraintStart_toStartOf="@id/bg4"
-                app:layout_constraintTop_toBottomOf="@id/tvInviteOtherPermission" />
-
-            <androidx.constraintlayout.widget.Group
-                android:id="@+id/inviteGroup"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:visibility="gone"
-                app:constraint_referenced_ids="tvInviteOtherPermission,inviteLine,tvInviteOtherValue" />
-
-            <TextView
-                android:id="@+id/tvUpdateInfoPermission"
-                android:layout_width="0dp"
-                android:layout_height="63dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:paddingTop="14dp"
-                android:text="@string/team_update_info_permission"
-                android:textColor="@color/color_333333"
-                android:textSize="16dp"
-                app:drawableEndCompat="@drawable/ic_right_arrow"
-                app:layout_constraintEnd_toEndOf="@id/bg4"
-                app:layout_constraintStart_toStartOf="@id/bg4"
-                app:layout_constraintTop_toBottomOf="@id/tvInviteOtherPermission"
-                tools:ignore="SpUsage" />
-
-            <TextView
-                android:id="@+id/tvUpdateInfoValue"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="6dp"
-                android:layout_marginEnd="16dp"
-                android:layout_marginBottom="7dp"
-                android:text="@string/team_owner"
-                android:textColor="@color/color_999999"
-                android:textSize="14dp"
-                app:layout_constraintBottom_toBottomOf="@id/tvUpdateInfoPermission"
-                app:layout_constraintEnd_toEndOf="@id/bg4"
-                app:layout_constraintStart_toStartOf="@id/bg4"
-                tools:ignore="SpUsage" />
-
-            <View
-                android:id="@+id/updateLine"
-                android:layout_width="0dp"
-                android:layout_height="0.5dp"
-                android:layout_marginStart="16dp"
-                android:background="@color/color_f5f8fc"
-                app:layout_constraintEnd_toEndOf="@id/bg4"
-                app:layout_constraintStart_toStartOf="@id/bg4"
-                app:layout_constraintTop_toBottomOf="@id/tvUpdateInfoPermission" />
-
-            <androidx.constraintlayout.widget.Group
-                android:id="@+id/updateGroup"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:visibility="gone"
-                app:constraint_referenced_ids="tvUpdateInfoPermission,updateLine,tvUpdateInfoValue" />
-
-            <TextView
-                android:id="@+id/tvInviteAgree"
+                android:id="@+id/tvManager"
                 android:layout_width="0dp"
                 android:layout_height="48dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="16dp"
                 android:gravity="center_vertical|start"
-                android:text="@string/team_need_agreed_when_be_invited_permission"
+                android:text="@string/team_manager"
                 android:textColor="@color/color_333333"
                 android:textSize="16dp"
-                app:layout_constraintEnd_toEndOf="@id/bg4"
-                app:layout_constraintStart_toStartOf="@id/bg4"
-                app:layout_constraintTop_toBottomOf="@id/tvUpdateInfoPermission"
-                tools:ignore="SpUsage" />
-
-            <androidx.appcompat.widget.SwitchCompat
-                android:id="@+id/swInviteAgree"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="20dp"
-                android:thumb="@drawable/switch_thumb_selector"
-                app:layout_constraintBottom_toBottomOf="@id/tvInviteAgree"
-                app:layout_constraintEnd_toEndOf="@id/bg4"
-                app:layout_constraintTop_toTopOf="@id/tvInviteAgree"
-                app:track="@drawable/switch_track_selector" />
-
-            <androidx.constraintlayout.widget.Group
-                android:id="@+id/inviteAgreeGroup"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
                 android:visibility="gone"
-                app:constraint_referenced_ids="tvInviteAgree,swInviteAgree" />
+                app:drawableEndCompat="@drawable/ic_right_arrow"
+                app:layout_constraintEnd_toEndOf="@id/bg3"
+                app:layout_constraintStart_toStartOf="@id/bg3"
+                app:layout_constraintTop_toBottomOf="@id/tvTeamMute"
+                tools:ignore="SpUsage" />
 
             <TextView
                 android:id="@+id/tvQuit"
@@ -532,7 +418,7 @@
                 android:textSize="16dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/bg4"
+                app:layout_constraintTop_toBottomOf="@id/bg3"
                 tools:ignore="SpUsage" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>

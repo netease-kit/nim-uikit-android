@@ -12,6 +12,7 @@ import com.netease.yunxin.kit.common.ui.action.ActionItem;
 import java.util.ArrayList;
 import java.util.List;
 
+/** 标准皮肤，聊天页面底部输入框按钮工厂类。 */
 public class BottomActionFactory {
 
   public static List<ActionItem> assembleDefaultInputActions() {

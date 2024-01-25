@@ -13,20 +13,29 @@ import static com.netease.yunxin.kit.chatkit.ui.ChatMessageType.NORMAL_MESSAGE_V
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
+import com.netease.yunxin.kit.chatkit.ui.ChatMessageType;
+import com.netease.yunxin.kit.chatkit.ui.common.ChatPinFactory;
 import com.netease.yunxin.kit.chatkit.ui.databinding.FunChatBasePinViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.fun.viewholder.pin.FunChatAudioPinViewHolder;
 import com.netease.yunxin.kit.chatkit.ui.fun.viewholder.pin.FunChatFilePinViewHolder;
+import com.netease.yunxin.kit.chatkit.ui.fun.viewholder.pin.FunChatForwardPinViewHolder;
 import com.netease.yunxin.kit.chatkit.ui.fun.viewholder.pin.FunChatImagePinViewHolder;
 import com.netease.yunxin.kit.chatkit.ui.fun.viewholder.pin.FunChatLocationPinViewHolder;
-import com.netease.yunxin.kit.chatkit.ui.fun.viewholder.pin.FunChatPinTextViewHolder;
+import com.netease.yunxin.kit.chatkit.ui.fun.viewholder.pin.FunChatRichTextPinViewHolder;
+import com.netease.yunxin.kit.chatkit.ui.fun.viewholder.pin.FunChatTextPinViewHolder;
 import com.netease.yunxin.kit.chatkit.ui.fun.viewholder.pin.FunChatVideoPinViewHolder;
 import com.netease.yunxin.kit.chatkit.ui.interfaces.ChatBaseViewHolder;
-import com.netease.yunxin.kit.chatkit.ui.interfaces.IChatViewHolderFactory;
 
-public class FunPinViewHolderFactory implements IChatViewHolderFactory {
+/** Fun皮肤聊天界面Pin消息ViewHolder工厂类，用于创建自定义消息的ViewHolder 根据消息类型返回对应的ViewHolder */
+public class FunPinViewHolderFactory extends ChatPinFactory {
 
+  /**
+   * 内置消息类型
+   *
+   * @return FunChatViewHolderFactory
+   */
   @Override
-  public ChatBaseViewHolder createViewHolder(@NonNull ViewGroup parent, int viewType) {
+  public ChatBaseViewHolder createNormalViewHolder(@NonNull ViewGroup parent, int viewType) {
 
     ChatBaseViewHolder viewHolder;
     FunChatBasePinViewHolderBinding viewHolderBinding =
@@ -44,8 +53,30 @@ public class FunPinViewHolderFactory implements IChatViewHolderFactory {
       viewHolder = new FunChatLocationPinViewHolder(viewHolderBinding, viewType);
     } else {
       // default as text message
-      viewHolder = new FunChatPinTextViewHolder(viewHolderBinding, viewType);
+      viewHolder = new FunChatTextPinViewHolder(viewHolderBinding, viewType);
     }
     return viewHolder;
+  }
+
+  /**
+   * 自定义消息类型
+   *
+   * @return FunChatViewHolderFactory
+   */
+  @Override
+  protected ChatBaseViewHolder createCustomViewHolder(@NonNull ViewGroup parent, int viewType) {
+    if (viewType == ChatMessageType.MULTI_FORWARD_ATTACHMENT) {
+      FunChatBasePinViewHolderBinding viewHolderBinding =
+          FunChatBasePinViewHolderBinding.inflate(
+              LayoutInflater.from(parent.getContext()), parent, false);
+      return new FunChatForwardPinViewHolder(viewHolderBinding, viewType);
+    } else if (viewType == ChatMessageType.RICH_TEXT_ATTACHMENT) {
+
+      FunChatBasePinViewHolderBinding viewHolderBinding =
+          FunChatBasePinViewHolderBinding.inflate(
+              LayoutInflater.from(parent.getContext()), parent, false);
+      return new FunChatRichTextPinViewHolder(viewHolderBinding, viewType);
+    }
+    return null;
   }
 }

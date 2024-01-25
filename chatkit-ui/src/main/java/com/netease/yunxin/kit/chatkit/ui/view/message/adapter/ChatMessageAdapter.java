@@ -19,6 +19,7 @@ import com.netease.nimlib.sdk.msg.model.AttachmentProgress;
 import com.netease.nimlib.sdk.msg.model.MsgPinOption;
 import com.netease.nimlib.sdk.team.model.Team;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
+import com.netease.yunxin.kit.chatkit.ui.ChatMessageType;
 import com.netease.yunxin.kit.chatkit.ui.ChatViewHolderDefaultFactory;
 import com.netease.yunxin.kit.chatkit.ui.IChatFactory;
 import com.netease.yunxin.kit.chatkit.ui.interfaces.IMessageItemClickListener;
@@ -49,6 +50,10 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<CommonBaseMessageVi
 
   private MessageProperties messageProperties;
 
+  private boolean multiSelect;
+
+  private int msgModel;
+
   public ChatMessageAdapter() {
     viewHolderFactory = ChatViewHolderDefaultFactory.getInstance();
   }
@@ -57,6 +62,18 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<CommonBaseMessageVi
 
   public void setItemClickListener(IMessageItemClickListener itemClickListener) {
     this.itemClickListener = itemClickListener;
+  }
+
+  public void setMultiSelect(boolean select) {
+    if (multiSelect == select) {
+      return;
+    }
+    multiSelect = select;
+    notifyDataSetChanged();
+  }
+
+  public void setMessageMode(int mode) {
+    this.msgModel = mode;
   }
 
   @NonNull
@@ -72,8 +89,13 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<CommonBaseMessageVi
       super.onBindViewHolder(holder, position, payloads);
     } else {
       ChatMessageBean data = messageList.get(position);
-      holder.setReceiptTime(receiptTime);
-      holder.setTeamInfo(teamInfo);
+      holder.setMode(msgModel);
+      if (msgModel != ChatMessageType.FORWARD_MESSAGE_MODE) {
+        holder.setMode(ChatMessageType.CHAT_MESSAGE_MODE);
+        holder.setReceiptTime(receiptTime);
+        holder.setTeamInfo(teamInfo);
+        holder.setMultiSelect(multiSelect);
+      }
       holder.bindData(data, position, payloads);
     }
   }
@@ -85,9 +107,13 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<CommonBaseMessageVi
     if (position - 1 >= 0) {
       lastMessage = messageList.get(position - 1);
     }
-    holder.setTeamInfo(teamInfo);
+    holder.setMode(msgModel);
+    if (msgModel != ChatMessageType.FORWARD_MESSAGE_MODE) {
+      holder.setTeamInfo(teamInfo);
+      holder.setMessageReader(messageReader);
+      holder.setMultiSelect(multiSelect);
+    }
     holder.setItemClickListener(itemClickListener);
-    holder.setMessageReader(messageReader);
     holder.setProperties(messageProperties);
     holder.bindData(data, lastMessage);
   }
@@ -199,6 +225,15 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<CommonBaseMessageVi
       ChatMessageBean origin = messageList.get(index);
       origin.getMessageData().setMessage(message.getMessageData().getMessage());
       updateMessage(origin, PAYLOAD_STATUS);
+    }
+  }
+
+  public void reloadMessages(List<ChatMessageBean> messageList, Object payload) {
+    for (ChatMessageBean message : messageList) {
+      int index = getMessageIndex(message);
+      if (index >= 0 && index < this.messageList.size()) {
+        notifyItemChanged(index, payload);
+      }
     }
   }
 

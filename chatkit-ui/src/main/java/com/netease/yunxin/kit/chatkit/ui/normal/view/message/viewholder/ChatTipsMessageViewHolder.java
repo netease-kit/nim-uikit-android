@@ -91,9 +91,6 @@ public class ChatTipsMessageViewHolder extends NormalChatBaseMessageViewHolder {
 
   @Override
   protected boolean needMessageClickAndExtra() {
-    baseViewBinding.otherUserAvatar.setVisibility(View.GONE);
-    baseViewBinding.myAvatar.setVisibility(View.GONE);
-    baseViewBinding.messageStatus.setVisibility(View.GONE);
     return false;
   }
 

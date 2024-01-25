@@ -4,6 +4,8 @@
 
 package com.netease.yunxin.kit.chatkit.ui.common;
 
+import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -15,10 +17,12 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentManager;
 import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
+import com.netease.yunxin.kit.chatkit.ui.custom.RichTextAttachment;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatMessageDialogLayoutBinding;
 import com.netease.yunxin.kit.common.ui.dialog.BaseDialog;
 import java.util.Objects;
 
+/** 查看文本消息的弹窗,支持文本消息和富文本消息 PIN页面点击文本消息或者富文本消息，弹出此弹窗 */
 public class WatchTextMessageDialog extends BaseDialog {
 
   private ChatMessageDialogLayoutBinding viewBinding;
@@ -70,10 +74,35 @@ public class WatchTextMessageDialog extends BaseDialog {
 
     viewBinding.dialogScrollview.setOnClickListener(v -> dismiss());
 
-    if (messageInfo != null && messageInfo.getMessage().getMsgType() == MsgTypeEnum.text) {
-
+    String content = "";
+    String title = "";
+    if (messageInfo != null) {
+      if (messageInfo.getMessage().getMsgType() == MsgTypeEnum.text) {
+        content = messageInfo.getMessage().getContent();
+      } else if (MessageHelper.isRichText(messageInfo)) {
+        RichTextAttachment attachment =
+            (RichTextAttachment) messageInfo.getMessage().getAttachment();
+        if (attachment != null) {
+          content = attachment.body;
+          title = attachment.title;
+        }
+      }
+    }
+    if (TextUtils.isEmpty(title)) {
+      viewBinding.messageTitle.setVisibility(View.GONE);
+      viewBinding.message.setGravity(Gravity.CENTER);
+    } else {
+      viewBinding.messageTitle.setVisibility(View.VISIBLE);
+      viewBinding.messageTitle.setText(title);
+      viewBinding.messageTitle.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
+      viewBinding.message.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
+    }
+    if (!TextUtils.isEmpty(content)) {
       MessageHelper.identifyExpression(
-          viewBinding.getRoot().getContext(), viewBinding.message, messageInfo.getMessage());
+          viewBinding.getRoot().getContext(),
+          viewBinding.message,
+          content,
+          messageInfo.getMessage());
     }
     return viewBinding.getRoot();
   }

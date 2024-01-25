@@ -13,7 +13,7 @@ import com.netease.yunxin.kit.chatkit.ui.fun.page.fragment.FunChatReaderFragment
 import com.netease.yunxin.kit.chatkit.ui.page.ChatReaderBaseActivity;
 import com.netease.yunxin.kit.chatkit.ui.page.fragment.ChatReaderBaseFragment;
 
-/** chat message read state page */
+/** Fun皮肤消息已读未读页面，包含已读和未读两个tab Fun皮肤差异化的部分，通用能力集中到ChatReaderBaseActivity中 */
 public class FunChatReaderActivity extends ChatReaderBaseActivity {
 
   FunChatReaderActivityBinding binding;

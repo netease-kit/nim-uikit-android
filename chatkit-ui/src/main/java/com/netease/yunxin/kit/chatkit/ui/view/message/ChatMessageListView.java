@@ -4,7 +4,8 @@
 
 package com.netease.yunxin.kit.chatkit.ui.view.message;
 
-import static com.netease.yunxin.kit.chatkit.ui.ChatUIConstants.KEY_MAP_FOR_MESSAGE;
+import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.KEY_MAP_FOR_MESSAGE;
+import static com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants.PAYLOAD_SELECT_STATUS;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -114,6 +115,14 @@ public class ChatMessageListView extends RecyclerView implements IMessageData {
     setItemAnimator(null);
     messageAdapter = new ChatMessageAdapter();
     setAdapter(messageAdapter);
+  }
+
+  //设置列表RecyclerView的数据加载停靠位置
+  public void setStackFromEnd(boolean stackFromEnd) {
+    LinearLayoutManager layoutManager = (LinearLayoutManager) getLayoutManager();
+    if (layoutManager != null) {
+      layoutManager.setStackFromEnd(stackFromEnd);
+    }
   }
 
   /**
@@ -275,6 +284,15 @@ public class ChatMessageListView extends RecyclerView implements IMessageData {
     }
   }
 
+  @Override
+  public void deleteMessage(List<ChatMessageBean> message) {
+    if (messageAdapter != null && message != null && !message.isEmpty()) {
+      for (ChatMessageBean msg : message) {
+        messageAdapter.removeMessage(msg);
+      }
+    }
+  }
+
   public void updateTeamInfo(Team teamInfo) {
     if (messageAdapter != null) {
       messageAdapter.setTeamInfo(teamInfo);
@@ -369,6 +387,27 @@ public class ChatMessageListView extends RecyclerView implements IMessageData {
   @Override
   public void setHasMoreForwardMessages(boolean hasMoreForwardMessages) {
     this.hasMoreForwardMessages = hasMoreForwardMessages;
+  }
+
+  @Override
+  public void setMultiSelect(boolean multiSelect) {
+    if (messageAdapter != null) {
+      messageAdapter.setMultiSelect(multiSelect);
+    }
+  }
+
+  @Override
+  public void updateMultiSelectMessage(List<ChatMessageBean> messages) {
+    if (messageAdapter != null) {
+      messageAdapter.reloadMessages(messages, PAYLOAD_SELECT_STATUS);
+    }
+  }
+
+  @Override
+  public void setMessageMode(int mode) {
+    if (messageAdapter != null) {
+      messageAdapter.setMessageMode(mode);
+    }
   }
 
   @Override

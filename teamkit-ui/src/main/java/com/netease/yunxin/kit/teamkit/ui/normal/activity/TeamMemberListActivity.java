@@ -24,7 +24,7 @@ public class TeamMemberListActivity extends BaseTeamMemberListActivity {
     ivBack = binding.ivBack;
     ivClear = binding.ivClear;
     rvMemberList = binding.rvMemberList;
-    groupEmtpy = binding.groupEmtpy;
+    groupEmpty = binding.groupEmtpy;
     etSearch = binding.etSearch;
     return binding.getRoot();
   }

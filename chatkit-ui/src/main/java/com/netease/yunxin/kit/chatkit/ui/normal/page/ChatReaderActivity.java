@@ -12,7 +12,7 @@ import com.netease.yunxin.kit.chatkit.ui.normal.page.fragment.ChatReaderFragment
 import com.netease.yunxin.kit.chatkit.ui.page.ChatReaderBaseActivity;
 import com.netease.yunxin.kit.chatkit.ui.page.fragment.ChatReaderBaseFragment;
 
-/** chat message read state page */
+/** 标准皮肤，消息已读未读成员列表页面。 */
 public class ChatReaderActivity extends ChatReaderBaseActivity {
 
   ChatReadStateLayoutBinding binding;

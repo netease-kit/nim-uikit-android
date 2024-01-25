@@ -10,6 +10,7 @@ import androidx.lifecycle.MutableLiveData;
 import com.netease.nimlib.sdk.Observer;
 import com.netease.nimlib.sdk.friend.model.MuteListChangedNotify;
 import com.netease.nimlib.sdk.msg.constant.DeleteTypeEnum;
+import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.msg.model.StickTopSessionInfo;
 import com.netease.nimlib.sdk.team.model.Team;
 import com.netease.yunxin.kit.alog.ALog;
@@ -390,19 +391,22 @@ public class ConversationViewModel extends BaseViewModel {
             for (int index = 0; index < param.size(); index++) {
               ConversationInfo conversationInfo = param.get(index);
               if (ConversationUtils.isMineLeave(conversationInfo)) {
-                deleteConversation(conversationFactory.CreateBean(param.get(index)));
+                deleteConversation(conversationFactory.CreateBean(conversationInfo));
                 ALog.d(
                     LIB_TAG,
                     TAG,
-                    "changeObserver,DismissTeam,onSuccess:" + param.get(index).getContactId());
-                continue;
+                    "changeObserver,DismissTeam,onSuccess:" + conversationInfo.getContactId());
+              } else if (conversationInfo.getSessionType() == SessionTypeEnum.Team
+                  && conversationInfo.getTeamInfo() != null
+                  && !conversationInfo.getTeamInfo().isMyTeam()) {
+                deleteConversation(conversationFactory.CreateBean(conversationInfo));
+                ALog.d(
+                    LIB_TAG,
+                    TAG,
+                    "changeObserver,DismissTeam,onSuccess:" + conversationInfo.getContactId());
               } else {
-                resultData.add(conversationFactory.CreateBean(param.get(index)));
+                resultData.add(conversationFactory.CreateBean(conversationInfo));
               }
-              ALog.d(
-                  LIB_TAG,
-                  TAG,
-                  "changeObserver,update,onSuccess:" + param.get(index).getContactId());
             }
             result.setData(resultData);
             changeLiveData.setValue(result);

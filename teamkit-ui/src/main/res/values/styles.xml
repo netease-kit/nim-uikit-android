@@ -21,4 +21,8 @@
         <item name="android:windowAnimationStyle">@style/BottomDialogAnimation</item>
         <item name="android:windowIsFloating">false</item>
     </style>
+
+    <style name="TeamSelectorRadioBtn" parent="Widget.AppCompat.CompoundButton.RadioButton">
+        <item name="android:button">@drawable/bg_team_radio_button_selector</item>
+    </style>
 </resources>

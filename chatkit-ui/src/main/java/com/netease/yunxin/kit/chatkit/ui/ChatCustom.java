@@ -12,6 +12,12 @@ import com.netease.yunxin.kit.corekit.im.custom.CustomAttachment;
 
 public class ChatCustom {
 
+  /**
+   * 获取消息的简要信息，回复消息是展示的被回复内容
+   *
+   * @param messageInfo
+   * @return
+   */
   public String getReplyMsgBrief(IMMessageInfo messageInfo) {
 
     IMMessage msg = messageInfo.getMessage();

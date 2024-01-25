@@ -46,7 +46,7 @@ public class NormalChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
   @Override
   protected void onMessageBackgroundConfig(ChatMessageBean messageBean) {
     super.onMessageBackgroundConfig(messageBean);
-    boolean isReceivedMsg = MessageHelper.isReceivedMessage(messageBean);
+    boolean isReceivedMsg = MessageHelper.isReceivedMessage(messageBean) || isForwardMsg();
     CommonUIOption commonUIOption = uiOptions.commonUIOption;
     boolean isCustomBgValid = true;
     if (isReceivedMsg) {
@@ -149,7 +149,7 @@ public class NormalChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
     addRevokeViewToMessageContainer();
     revokedViewBinding.tvAction.setOnClickListener(
         v -> {
-          if (itemClickListener != null) {
+          if (itemClickListener != null && !isMultiSelect) {
             itemClickListener.onReEditRevokeMessage(v, position, data);
           }
         });
@@ -219,7 +219,11 @@ public class NormalChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
 
       if (itemClickListener != null) {
         replayBinding.tvReply.setOnClickListener(
-            v -> itemClickListener.onReplyMessageClick(v, position, replyMessage));
+            v -> {
+              if (!isMultiSelect) {
+                itemClickListener.onReplyMessageClick(v, position, replyMessage);
+              }
+            });
       }
     } else if (MessageHelper.isThreadReplayInfo(messageBean)) {
       //thread 回复
@@ -290,7 +294,11 @@ public class NormalChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
 
     if (itemClickListener != null) {
       replayBinding.tvReply.setOnClickListener(
-          v -> itemClickListener.onReplyMessageClick(v, position, replyMessage));
+          v -> {
+            if (!isMultiSelect) {
+              itemClickListener.onReplyMessageClick(v, position, replyMessage);
+            }
+          });
     }
   }
 

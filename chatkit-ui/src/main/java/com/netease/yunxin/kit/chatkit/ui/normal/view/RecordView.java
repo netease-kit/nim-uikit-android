@@ -29,7 +29,7 @@ import com.netease.yunxin.kit.chatkit.ui.databinding.ChatMessageRecordViewBindin
 import com.netease.yunxin.kit.chatkit.ui.view.input.IPermissionRequest;
 import com.netease.yunxin.kit.common.utils.SizeUtils;
 
-/** record panel in input view */
+/** 标准皮肤，录音按钮。 */
 public class RecordView extends FrameLayout {
   public static final String TAG = "RecordView";
   private ChatMessageRecordViewBinding mBinding;

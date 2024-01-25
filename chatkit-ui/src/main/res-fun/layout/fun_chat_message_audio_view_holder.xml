@@ -28,4 +28,14 @@
         android:maxLines="1"
         android:layout_centerVertical="true" />
 
+    <TextView
+        android:id="@+id/messageText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/text_size_16"
+        android:paddingVertical="@dimen/dimen_3_dp"
+        android:text="@string/msg_type_audio"
+        android:visibility="gone"
+        android:textColor="@color/color_333333"/>
+
 </RelativeLayout>

@@ -12,6 +12,7 @@ import androidx.annotation.Nullable;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatMessageForwardLayoutBinding;
 import com.netease.yunxin.kit.chatkit.ui.dialog.ChatBaseForwardSelectDialog;
 
+/** 标准皮肤，转发选择弹窗。 */
 public class ChatMessageForwardSelectDialog extends ChatBaseForwardSelectDialog {
 
   public static final String TAG = "ChatMessageForwardDialog";

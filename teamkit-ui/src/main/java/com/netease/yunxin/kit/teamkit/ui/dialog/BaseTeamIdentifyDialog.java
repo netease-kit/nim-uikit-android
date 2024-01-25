@@ -17,7 +17,7 @@ import java.util.Objects;
 
 public abstract class BaseTeamIdentifyDialog extends Dialog {
   private static final String TAG = "TeamIdentifyDialog";
-  public static final int TYPE_TEAM_OWNER = 0;
+  public static final int TYPE_TEAM_OWNER_AND_MANAGER = 0;
   public static final int TYPE_TEAM_ALL_MEMBER = 1;
 
   protected TeamChoiceListener callback;
@@ -72,7 +72,7 @@ public abstract class BaseTeamIdentifyDialog extends Dialog {
     tvTeamOwner.setOnClickListener(
         v -> {
           if (callback != null) {
-            callback.onTypeChoice(TYPE_TEAM_OWNER);
+            callback.onTypeChoice(TYPE_TEAM_OWNER_AND_MANAGER);
           }
           dismiss();
         });

@@ -9,6 +9,11 @@ import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.common.ui.utils.ToastX;
 import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
 
+/**
+ * 通用的回调
+ *
+ * @param <T>
+ */
 public class ChatCallback<T> implements FetchCallback<T> {
 
   boolean showSuccess;

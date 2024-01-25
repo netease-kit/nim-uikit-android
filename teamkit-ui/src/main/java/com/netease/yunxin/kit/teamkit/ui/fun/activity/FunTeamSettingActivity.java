@@ -4,7 +4,10 @@
 
 package com.netease.yunxin.kit.teamkit.ui.fun.activity;
 
+import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.KEY_TEAM_ID;
+
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import androidx.annotation.Nullable;
@@ -15,9 +18,7 @@ import com.netease.yunxin.kit.teamkit.ui.activity.BaseTeamSettingActivity;
 import com.netease.yunxin.kit.teamkit.ui.adapter.TeamCommonAdapter;
 import com.netease.yunxin.kit.teamkit.ui.databinding.FunTeamSettingActivityBinding;
 import com.netease.yunxin.kit.teamkit.ui.databinding.FunTeamSettingUserItemBinding;
-import com.netease.yunxin.kit.teamkit.ui.dialog.BaseTeamIdentifyDialog;
 import com.netease.yunxin.kit.teamkit.ui.fun.adapter.FunTeamSettingMemberAdapter;
-import com.netease.yunxin.kit.teamkit.ui.fun.dialog.FunTeamIdentifyDialog;
 
 /** team setting activity */
 public class FunTeamSettingActivity extends BaseTeamSettingActivity {
@@ -33,24 +34,18 @@ public class FunTeamSettingActivity extends BaseTeamSettingActivity {
     FunTeamSettingActivityBinding binding =
         FunTeamSettingActivityBinding.inflate(getLayoutInflater());
     bg3 = binding.bg3;
-    bg4 = binding.bg4;
     ivIcon = binding.ivIcon;
     tvName = binding.tvName;
-    tvInviteOtherValue = binding.tvInviteOtherValue;
-    tvUpdateInfoValue = binding.tvUpdateInfoValue;
     tvHistory = binding.tvHistory;
     tvMark = binding.tvMark;
     tvCount = binding.tvCount;
     tvMember = binding.tvMember;
     tvQuit = binding.tvQuit;
     tvTeamNickname = binding.tvTeamNickname;
-    tvUpdateInfoPermission = binding.tvUpdateInfoPermission;
-    tvInviteOtherPermission = binding.tvInviteOtherPermission;
+    tvTeamManager = binding.tvManager;
     nicknameGroup = binding.nicknameGroup;
     teamMuteGroup = binding.teamMuteGroup;
-    inviteGroup = binding.inviteGroup;
-    updateGroup = binding.updateGroup;
-    swSessionPin = binding.swSessionPin;
+    swStickTop = binding.swSessionStick;
     swMessageTip = binding.swMessageTip;
     swTeamMute = binding.swTeamMute;
     ivBack = binding.ivBack;
@@ -88,7 +83,10 @@ public class FunTeamSettingActivity extends BaseTeamSettingActivity {
     return FunTeamInfoActivity.class;
   }
 
-  protected BaseTeamIdentifyDialog getTeamIdentifyDialog() {
-    return new FunTeamIdentifyDialog(this);
+  @Override
+  protected void toManagerPage() {
+    Intent intent = new Intent(this, FunTeamManagerActivity.class);
+    intent.putExtra(KEY_TEAM_ID, teamId);
+    startActivity(intent);
   }
 }

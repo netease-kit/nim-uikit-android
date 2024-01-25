@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 import com.netease.nimlib.sdk.msg.attachment.NetCallAttachment;
 import com.netease.nimlib.sdk.msg.constant.MsgDirectionEnum;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
+import com.netease.yunxin.kit.chatkit.ui.ChatCustom;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatBaseMessageViewHolderBinding;
@@ -55,6 +56,7 @@ public class ChatCallMessageViewHolder extends NormalChatBaseMessageViewHolder {
     if (message == null) {
       return;
     }
+
     // 此处只处理话单消息
     if (message.getAttachment() instanceof NetCallAttachment) {
 
@@ -66,11 +68,35 @@ public class ChatCallMessageViewHolder extends NormalChatBaseMessageViewHolder {
       // 话单类型
       int status = attachment.getStatus();
       int callTypeIconRes;
+
+      if (isForwardMsg()) {
+        String callText = "";
+        if (type == 1) {
+          callText =
+              getMessageContainer().getContext().getString(R.string.chat_message_audio_call_text);
+        } else {
+          callText =
+              getMessageContainer().getContext().getString(R.string.chat_message_video_call_text);
+        }
+        callBinding.chatMessageCallIconIn.setVisibility(View.GONE);
+        callBinding.chatMessageCallIconOut.setVisibility(View.GONE);
+        callBinding.chatMessageCallText.setText(callText);
+        return;
+      }
       if (type == 1) {
         callTypeIconRes = R.drawable.ic_message_call_audio;
       } else {
         callTypeIconRes = R.drawable.ic_message_call_video;
       }
+
+      if (isForwardMsg()) {
+        callBinding.chatMessageCallIconIn.setVisibility(View.GONE);
+        callBinding.chatMessageCallIconOut.setVisibility(View.GONE);
+        String brief = new ChatCustom().getReplyMsgBrief(messageBean.getMessageData());
+        callBinding.chatMessageCallText.setText(brief);
+        return;
+      }
+
       if (direction == MsgDirectionEnum.In) {
         callBinding.chatMessageCallIconIn.setImageResource(callTypeIconRes);
         callBinding.chatMessageCallIconIn.setVisibility(View.VISIBLE);

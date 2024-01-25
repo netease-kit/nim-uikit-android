@@ -14,6 +14,7 @@ import com.netease.yunxin.kit.chatkit.ui.view.message.viewholder.CommonBaseMessa
 import com.netease.yunxin.kit.corekit.im.custom.CustomAttachParser;
 import com.netease.yunxin.kit.corekit.im.custom.CustomAttachment;
 
+/** Chat模块定制能力入口类。 */
 public class ChatKitClient {
 
   private static ChatUIConfig chatConfig;

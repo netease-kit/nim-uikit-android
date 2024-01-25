@@ -6,13 +6,16 @@ package com.netease.yunxin.kit.chatkit.ui.fun.page;
 
 import android.graphics.Rect;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
+import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
 import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatUtils;
+import com.netease.yunxin.kit.chatkit.ui.custom.MultiForwardAttachment;
 import com.netease.yunxin.kit.chatkit.ui.dialog.ChatBaseForwardSelectDialog;
 import com.netease.yunxin.kit.chatkit.ui.fun.FunChatForwardSelectDialog;
 import com.netease.yunxin.kit.chatkit.ui.fun.FunChatMessageForwardConfirmDialog;
@@ -20,12 +23,14 @@ import com.netease.yunxin.kit.chatkit.ui.fun.FunChoiceDialog;
 import com.netease.yunxin.kit.chatkit.ui.fun.factory.FunPinViewHolderFactory;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.page.ChatPinBaseActivity;
+import com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants;
 import com.netease.yunxin.kit.common.ui.dialog.BaseBottomChoiceDialog;
 import com.netease.yunxin.kit.common.utils.SizeUtils;
 import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 import java.util.ArrayList;
 
+/** Fun皮肤Pin列表页面，查看回话所有的Pin消息，继承自ChatPinBaseActivity */
 public class FunChatPinActivity extends ChatPinBaseActivity {
 
   @Override
@@ -64,6 +69,11 @@ public class FunChatPinActivity extends ChatPinBaseActivity {
   }
 
   @Override
+  protected int getPageBackgroundColor() {
+    return R.color.fun_chat_secondary_page_bg_color;
+  }
+
+  @Override
   public void jumpToChat(ChatMessageBean messageInfo) {
     String router = RouterConstant.PATH_FUN_CHAT_TEAM_PAGE;
     if (mSessionType == SessionTypeEnum.P2P) {
@@ -94,6 +104,19 @@ public class FunChatPinActivity extends ChatPinBaseActivity {
   }
 
   @Override
+  protected void clickCustomMessage(ChatMessageBean messageBean) {
+    if (messageBean.getMessageData().getMessage().getMsgType() == MsgTypeEnum.custom) {
+      if (messageBean.getMessageData().getMessage().getAttachment()
+          instanceof MultiForwardAttachment) {
+        XKitRouter.withKey(RouterConstant.PATH_FUN_CHAT_FORWARD_PAGE)
+            .withContext(this)
+            .withParam(RouterConstant.KEY_MESSAGE, messageBean.getMessageData())
+            .navigate();
+      }
+    }
+  }
+
+  @Override
   protected ChatBaseForwardSelectDialog getForwardSelectDialog() {
     ChatBaseForwardSelectDialog dialog = new FunChatForwardSelectDialog();
     dialog.setSelectedCallback(
@@ -113,15 +136,22 @@ public class FunChatPinActivity extends ChatPinBaseActivity {
 
   @Override
   protected void showForwardConfirmDialog(SessionTypeEnum type, ArrayList<String> sessionIds) {
+    if (forwardMessage == null) {
+      return;
+    }
+    String sendName =
+        TextUtils.isEmpty(mSessionName)
+            ? forwardMessage.getMessageData().getMessage().getFromNick()
+            : mSessionName;
     FunChatMessageForwardConfirmDialog confirmDialog =
         FunChatMessageForwardConfirmDialog.createForwardConfirmDialog(
-            type, sessionIds, forwardMessage.getMessageData());
+            type, sessionIds, sendName, true, ActionConstants.POP_ACTION_TRANSMIT);
     confirmDialog.setCallback(
-        () -> {
+        (inputMsg) -> {
           if (forwardMessage != null) {
             for (String accId : sessionIds) {
               viewModel.sendForwardMessage(
-                  forwardMessage.getMessageData().getMessage(), accId, type);
+                  forwardMessage.getMessageData().getMessage(), inputMsg, accId, type);
             }
           }
         });

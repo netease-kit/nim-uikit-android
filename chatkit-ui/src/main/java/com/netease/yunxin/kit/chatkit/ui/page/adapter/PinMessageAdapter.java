@@ -4,10 +4,13 @@
 
 package com.netease.yunxin.kit.chatkit.ui.page.adapter;
 
+import static com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants.PAYLOAD_PROGRESS;
+
 import android.text.TextUtils;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+import com.netease.nimlib.sdk.msg.model.AttachmentProgress;
 import com.netease.yunxin.kit.chatkit.ui.interfaces.ChatBaseViewHolder;
 import com.netease.yunxin.kit.chatkit.ui.interfaces.IChatClickListener;
 import com.netease.yunxin.kit.chatkit.ui.interfaces.IChatViewHolderFactory;
@@ -59,6 +62,22 @@ public class PinMessageAdapter extends RecyclerView.Adapter<ChatBaseViewHolder> 
     }
   }
 
+  public void updateMessage(ChatMessageBean data, Object payload) {
+    int index = getMessageIndex(data);
+    if (index >= 0) {
+      notifyItemChanged(index, payload);
+    }
+  }
+
+  public int getMessageIndex(ChatMessageBean data) {
+    for (int i = 0; i < dataList.size(); i++) {
+      if (dataList.get(i).isSameMessage(data)) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
   public void appendData(List<ChatMessageBean> data) {
     if (data != null) {
       dataList.addAll(data);
@@ -104,6 +123,28 @@ public class PinMessageAdapter extends RecyclerView.Adapter<ChatBaseViewHolder> 
     }
   }
 
+  public void updateMessageProgress(AttachmentProgress progress) {
+    ChatMessageBean messageBean = searchMessage(progress.getUuid());
+    if (messageBean != null) {
+      float pg = progress.getTransferred() * 100f / progress.getTotal();
+      if (progress.getTransferred() == progress.getTotal()) {
+        pg = 100;
+      }
+      messageBean.progress = progress.getTransferred();
+      messageBean.setLoadProgress(pg);
+      updateMessage(messageBean, PAYLOAD_PROGRESS);
+    }
+  }
+
+  public ChatMessageBean searchMessage(String messageId) {
+    for (int i = dataList.size() - 1; i >= 0; i--) {
+      if (TextUtils.equals(messageId, dataList.get(i).getMessageData().getMessage().getUuid())) {
+        return dataList.get(i);
+      }
+    }
+    return null;
+  }
+
   public void setViewHolderClickListener(IChatClickListener listener) {
     this.clickListener = listener;
   }
@@ -141,7 +182,6 @@ public class PinMessageAdapter extends RecyclerView.Adapter<ChatBaseViewHolder> 
   @Override
   public void onBindViewHolder(
       @NonNull ChatBaseViewHolder holder, int position, @NonNull List<Object> payloads) {
-    super.onBindViewHolder(holder, position, payloads);
     if (payloads.isEmpty()) {
       super.onBindViewHolder(holder, position, payloads);
     } else {
@@ -163,9 +203,13 @@ public class PinMessageAdapter extends RecyclerView.Adapter<ChatBaseViewHolder> 
 
   @Override
   public int getItemViewType(int position) {
-    ChatMessageBean messageBean = getData(position);
-    if (messageBean != null) {
-      return messageBean.getViewType();
+    if (viewHolderFactory != null) {
+      return viewHolderFactory.getItemViewType(getData(position));
+    } else {
+      ChatMessageBean messageBean = getData(position);
+      if (messageBean != null) {
+        return messageBean.getViewType();
+      }
     }
     return 0;
   }

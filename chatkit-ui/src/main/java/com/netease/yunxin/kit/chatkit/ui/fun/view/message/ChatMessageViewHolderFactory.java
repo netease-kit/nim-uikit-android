@@ -17,14 +17,17 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import com.netease.yunxin.kit.chatkit.ui.ChatMessageType;
 import com.netease.yunxin.kit.chatkit.ui.IChatFactory;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatBaseMessageViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.fun.view.message.viewholder.ChatAudioMessageViewHolder;
 import com.netease.yunxin.kit.chatkit.ui.fun.view.message.viewholder.ChatCallMessageViewHolder;
 import com.netease.yunxin.kit.chatkit.ui.fun.view.message.viewholder.ChatFileMessageViewHolder;
+import com.netease.yunxin.kit.chatkit.ui.fun.view.message.viewholder.ChatForwardMessageViewHolder;
 import com.netease.yunxin.kit.chatkit.ui.fun.view.message.viewholder.ChatImageMessageViewHolder;
 import com.netease.yunxin.kit.chatkit.ui.fun.view.message.viewholder.ChatLocationMessageViewHolder;
 import com.netease.yunxin.kit.chatkit.ui.fun.view.message.viewholder.ChatNotificationMessageViewHolder;
+import com.netease.yunxin.kit.chatkit.ui.fun.view.message.viewholder.ChatRichTextMessageViewHolder;
 import com.netease.yunxin.kit.chatkit.ui.fun.view.message.viewholder.ChatTextMessageViewHolder;
 import com.netease.yunxin.kit.chatkit.ui.fun.view.message.viewholder.ChatTipsMessageViewHolder;
 import com.netease.yunxin.kit.chatkit.ui.fun.view.message.viewholder.ChatVideoMessageViewHolder;
@@ -70,6 +73,10 @@ public abstract class ChatMessageViewHolderFactory implements IChatFactory {
       viewHolder = new ChatLocationMessageViewHolder(viewHolderBinding, viewType);
     } else if (viewType == CALL_MESSAGE_VIEW_TYPE) {
       viewHolder = new ChatCallMessageViewHolder(viewHolderBinding, viewType);
+    } else if (viewType == ChatMessageType.MULTI_FORWARD_ATTACHMENT) {
+      viewHolder = new ChatForwardMessageViewHolder(viewHolderBinding, viewType);
+    } else if (viewType == ChatMessageType.RICH_TEXT_ATTACHMENT) {
+      viewHolder = new ChatRichTextMessageViewHolder(viewHolderBinding, viewType);
     } else {
       //default as text message
       viewHolder = new ChatTextMessageViewHolder(viewHolderBinding, viewType);

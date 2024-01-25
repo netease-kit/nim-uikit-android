@@ -29,7 +29,14 @@ public final class NetworkUtilsWrapper {
       if (!NetworkUtils.isConnected()) {
         Toast.makeText(context, R.string.team_network_error, Toast.LENGTH_SHORT).show();
       } else {
-        Toast.makeText(context, R.string.team_request_fail, Toast.LENGTH_SHORT).show();
+        if (resultInfo != null
+            && resultInfo.getMsg() != null
+            && resultInfo.getMsg().getCode() == TeamUIKitConstant.QUIT_TEAM_ERROR_CODE_NO_MEMBER) {
+          Toast.makeText(context, R.string.team_operate_no_permission_tip, Toast.LENGTH_SHORT)
+              .show();
+        } else {
+          Toast.makeText(context, R.string.team_request_fail, Toast.LENGTH_SHORT).show();
+        }
       }
       return true;
     }

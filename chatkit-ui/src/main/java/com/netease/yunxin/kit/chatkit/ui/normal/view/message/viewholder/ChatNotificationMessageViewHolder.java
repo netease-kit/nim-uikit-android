@@ -91,22 +91,26 @@ public class ChatNotificationMessageViewHolder extends NormalChatBaseMessageView
           IMKitClient.getApplicationContext().getResources().getColor(R.color.color_999999));
       textBinding.messageText.setTextSize(12);
       String content = TeamNotificationHelper.getTeamNotificationText(message.getMessageData());
-      textBinding.messageText.setText(content);
       if (TextUtils.isEmpty(content)) {
-        baseViewBinding.baseRoot.setVisibility(View.GONE);
+        textBinding.getRoot().setVisibility(View.GONE);
+        baseViewBinding.contentWithAllLayer.setVisibility(View.GONE);
+        baseViewBinding.msgBgLayout.setVisibility(View.GONE);
       } else {
-        baseViewBinding.baseRoot.setVisibility(View.VISIBLE);
+        baseViewBinding.contentWithAllLayer.setVisibility(View.VISIBLE);
+        baseViewBinding.msgBgLayout.setVisibility(View.VISIBLE);
+        textBinding.getRoot().setVisibility(View.VISIBLE);
+        textBinding.messageText.setText(content);
       }
     } else {
+      textBinding.getRoot().setVisibility(View.GONE);
+      baseViewBinding.contentWithAllLayer.setVisibility(View.VISIBLE);
+      baseViewBinding.msgBgLayout.setVisibility(View.VISIBLE);
       baseViewBinding.baseRoot.setVisibility(View.GONE);
     }
   }
 
   @Override
   protected boolean needMessageClickAndExtra() {
-    baseViewBinding.otherUserAvatar.setVisibility(View.GONE);
-    baseViewBinding.myAvatar.setVisibility(View.GONE);
-    baseViewBinding.messageStatus.setVisibility(View.GONE);
     return false;
   }
 

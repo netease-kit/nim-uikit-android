@@ -13,10 +13,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
 import com.netease.yunxin.kit.alog.ALog;
+import com.netease.yunxin.kit.chatkit.ui.ChatMessageType;
 import com.netease.yunxin.kit.chatkit.ui.IChatDefaultFactory;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatBaseMessageViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.normal.view.message.ChatMessageViewHolderFactory;
+import com.netease.yunxin.kit.chatkit.ui.normal.view.message.viewholder.ChatForwardMessageViewHolder;
 import com.netease.yunxin.kit.chatkit.ui.view.message.viewholder.ChatBaseMessageViewHolder;
 import com.netease.yunxin.kit.chatkit.ui.view.message.viewholder.CommonBaseMessageViewHolder;
 import com.netease.yunxin.kit.corekit.im.custom.CustomAttachment;
@@ -24,7 +26,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-public class ChatVieHolderFactory extends ChatMessageViewHolderFactory
+/** 会话页面消息ViewHolder工厂类。 */
+public class ChatViewHolderFactory extends ChatMessageViewHolderFactory
     implements IChatDefaultFactory {
   private static final String TAG = "ChatDefaultFactory";
 
@@ -33,9 +36,9 @@ public class ChatVieHolderFactory extends ChatMessageViewHolderFactory
   private final Map<Integer, Pair<Class<? extends CommonBaseMessageViewHolder>, Integer>>
       commonBaseViewHolderMap = new HashMap<>();
 
-  private ChatVieHolderFactory() {}
+  private ChatViewHolderFactory() {}
 
-  public static ChatVieHolderFactory getInstance() {
+  public static ChatViewHolderFactory getInstance() {
     return ChatDefaultFactoryHolder.instance;
   }
 
@@ -100,11 +103,16 @@ public class ChatVieHolderFactory extends ChatMessageViewHolderFactory
       } catch (Exception exception) {
         ALog.e(TAG, "createViewHolderCustom-CommonBase", exception);
       }
+    } else if (viewType == ChatMessageType.MULTI_FORWARD_ATTACHMENT) {
+      ChatBaseMessageViewHolderBinding viewHolderBinding =
+          ChatBaseMessageViewHolderBinding.inflate(
+              LayoutInflater.from(parent.getContext()), parent, false);
+      viewHolder = new ChatForwardMessageViewHolder(viewHolderBinding, viewType);
     }
     return viewHolder;
   }
 
   private static class ChatDefaultFactoryHolder {
-    private static final ChatVieHolderFactory instance = new ChatVieHolderFactory();
+    private static final ChatViewHolderFactory instance = new ChatViewHolderFactory();
   }
 }

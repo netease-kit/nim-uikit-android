@@ -14,6 +14,7 @@ import com.netease.yunxin.kit.chatkit.ui.custom.ChatConfigManager;
 import com.netease.yunxin.kit.chatkit.ui.view.ait.AitService;
 import com.netease.yunxin.kit.corekit.im.IIMKitInitService;
 
+/** Chat模块初始化服务。在初始化完成之后，会调用{@link #onInit(Context)}方法。 */
 public class ChatUIInitService implements IIMKitInitService {
   @Override
   public void onInit(@NonNull Context context) {

@@ -42,17 +42,20 @@ import com.netease.yunxin.kit.chatkit.ui.fun.view.input.FunBottomActionFactory;
 import com.netease.yunxin.kit.chatkit.ui.interfaces.IMessageProxy;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.view.IItemActionListener;
+import com.netease.yunxin.kit.chatkit.ui.view.ait.AitManager;
 import com.netease.yunxin.kit.chatkit.ui.view.ait.AitTextChangeListener;
 import com.netease.yunxin.kit.chatkit.ui.view.emoji.IEmojiSelectedListener;
 import com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants;
 import com.netease.yunxin.kit.chatkit.ui.view.input.ActionsPanel;
 import com.netease.yunxin.kit.chatkit.ui.view.input.InputProperties;
 import com.netease.yunxin.kit.chatkit.ui.view.input.InputState;
+import com.netease.yunxin.kit.chatkit.ui.view.message.audio.ChatMessageAudioControl;
 import com.netease.yunxin.kit.common.ui.action.ActionItem;
 import com.netease.yunxin.kit.common.ui.dialog.BottomChoiceDialog;
 import com.netease.yunxin.kit.common.ui.utils.Permission;
 import com.netease.yunxin.kit.common.ui.utils.ToastX;
 import com.netease.yunxin.kit.common.utils.KeyboardUtils;
+import com.netease.yunxin.kit.common.utils.NetworkUtils;
 import com.netease.yunxin.kit.common.utils.PermissionUtils;
 import com.netease.yunxin.kit.common.utils.XKitUtils;
 import com.netease.yunxin.kit.corekit.im.IMKitClient;
@@ -72,7 +75,7 @@ public class MessageBottomLayout extends FrameLayout
   ChatMessageBean replyMessage;
 
   private final ActionsPanel mActionsPanel = new ActionsPanel();
-  private TextWatcher aitTextWatcher;
+  private AitManager aitTextWatcher;
 
   private boolean isKeyboardShow = false;
   private InputState mInputState = InputState.none;
@@ -87,6 +90,8 @@ public class MessageBottomLayout extends FrameLayout
   private final int recordMaxDuration = 60;
 
   private boolean canRender = true;
+
+  private boolean keepRichEt = false;
 
   public MessageBottomLayout(@NonNull Context context) {
     this(context, null);
@@ -212,8 +217,12 @@ public class MessageBottomLayout extends FrameLayout
     }
   }
 
-  public void setAitTextWatcher(TextWatcher aitTextWatcher) {
+  public void setAitTextWatcher(AitManager aitTextWatcher) {
     this.aitTextWatcher = aitTextWatcher;
+  }
+
+  public String getInputHit() {
+    return mEdieNormalHint;
   }
 
   public void updateInputHintInfo(String content) {
@@ -279,57 +288,8 @@ public class MessageBottomLayout extends FrameLayout
               }
             });
     // input view
-    mBinding.inputEt.addTextChangedListener(
-        new TextWatcher() {
-          private int start;
-          private int count;
+    mBinding.inputEt.addTextChangedListener(msgInputTextWatcher);
 
-          @Override
-          public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            if (!canRender) {
-              return;
-            }
-            if (aitTextWatcher != null) {
-              aitTextWatcher.beforeTextChanged(s, start, count, after);
-            }
-          }
-
-          @Override
-          public void onTextChanged(CharSequence s, int start, int before, int count) {
-            if (!canRender) {
-              return;
-            }
-            this.start = start;
-            this.count = count;
-            if (aitTextWatcher != null) {
-              aitTextWatcher.onTextChanged(s, start, before, count);
-            }
-            if (mProxy != null) {
-              mProxy.onTypeStateChange(!TextUtils.isEmpty(s));
-            }
-          }
-
-          @Override
-          public void afterTextChanged(Editable s) {
-            if (!canRender) {
-              canRender = true;
-              return;
-            }
-            SpannableString spannableString = new SpannableString(s);
-            if (MessageHelper.replaceEmoticons(getContext(), spannableString, start, count)) {
-              canRender = false;
-              mBinding.inputEt.setText(spannableString);
-              mBinding.inputEt.setSelection(spannableString.length());
-            }
-
-            if (aitTextWatcher != null) {
-              aitTextWatcher.afterTextChanged(s);
-            }
-            if (TextUtils.isEmpty(s.toString())) {
-              mBinding.inputEt.setHint(mEdieNormalHint);
-            }
-          }
-        });
     mBinding.inputEt.setOnTouchListener(
         (v, event) -> {
           if (event.getAction() == MotionEvent.ACTION_DOWN) {
@@ -344,19 +304,131 @@ public class MessageBottomLayout extends FrameLayout
           }
           return true;
         });
+    mBinding.chatRichEt.setOnEditorActionListener(
+        (v, actionId, event) -> {
+          if (actionId == EditorInfo.IME_ACTION_SEND) {
+            sendText(replyMessage);
+          }
+          return true;
+        });
 
     mBinding.emojiPickerView.setWithSticker(true);
+    // 多行消息设置点击事件
+    mBinding.chatRichEt.addTextChangedListener(
+        new TextWatcher() {
+          @Override
+          public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+          @Override
+          public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+          @Override
+          public void afterTextChanged(Editable s) {
+            if (TextUtils.isEmpty(s.toString()) && !keepRichEt) {
+              mBinding.chatRichEt.setVisibility(GONE);
+              mBinding.inputEt.requestFocus();
+            }
+            keepRichEt = false;
+          }
+        });
     loadConfig();
   }
 
+  private TextWatcher msgInputTextWatcher =
+      new TextWatcher() {
+        private int start;
+        private int count;
+
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+          if (!canRender) {
+            return;
+          }
+          if (aitTextWatcher != null) {
+            aitTextWatcher.beforeTextChanged(s, start, count, after);
+          }
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+          if (!canRender) {
+            return;
+          }
+          this.start = start;
+          this.count = count;
+          if (aitTextWatcher != null) {
+            aitTextWatcher.onTextChanged(s, start, before, count);
+          }
+          if (mProxy != null) {
+            mProxy.onTypeStateChange(!TextUtils.isEmpty(s));
+          }
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+          if (!canRender) {
+            canRender = true;
+            return;
+          }
+          SpannableString spannableString = new SpannableString(s);
+          if (MessageHelper.replaceEmoticons(getContext(), spannableString, start, count)) {
+            canRender = false;
+            mBinding.inputEt.setText(spannableString);
+            mBinding.inputEt.setSelection(spannableString.length());
+          }
+
+          if (aitTextWatcher != null) {
+            aitTextWatcher.afterTextChanged(s);
+          }
+          if (TextUtils.isEmpty(s.toString())) {
+            mBinding.inputEt.setHint(mEdieNormalHint);
+          }
+        }
+      };
+
+  public void clearInputEditTextChange() {
+    mBinding.inputEt.removeTextChangedListener(msgInputTextWatcher);
+  }
+
   public void sendText(ChatMessageBean replyMessage) {
+
     String msg = mBinding.inputEt.getEditableText().toString();
-    if (!TextUtils.isEmpty(msg) && mProxy != null) {
-      if (mProxy.sendTextMessage(msg, replyMessage)) {
-        mBinding.inputEt.setText("");
-        clearReplyMsg();
+    String title = mBinding.chatRichEt.getEditableText().toString();
+    if (mProxy != null) {
+      if (!TextUtils.isEmpty(title) && TextUtils.getTrimmedLength(title) > 0) {
+        if (mProxy.sendRichTextMessage(title, msg, replyMessage)) {
+          mBinding.chatRichEt.setText("");
+          mBinding.inputEt.setText("");
+          clearReplyMsg();
+        } else {
+          clearInput();
+        }
+      } else {
+        if (mProxy.sendTextMessage(msg, replyMessage)) {
+          mBinding.inputEt.setText("");
+          clearReplyMsg();
+        } else {
+          clearInput();
+        }
       }
     }
+  }
+
+  public void clearInput() {
+    String msg = mBinding.inputEt.getEditableText().toString();
+    String title = mBinding.chatRichEt.getEditableText().toString();
+    if (TextUtils.getTrimmedLength(msg) < 1) {
+      mBinding.inputEt.setText("");
+    }
+    if (TextUtils.getTrimmedLength(title) < 1) {
+      keepRichEt = true;
+      mBinding.chatRichEt.setText("");
+    }
+  }
+
+  public void hideAndClearRichInput() {
+    mBinding.chatRichEt.setText("");
+    mBinding.chatRichEt.setVisibility(GONE);
   }
 
   public void hideCurrentInput() {
@@ -369,6 +441,43 @@ public class MessageBottomLayout extends FrameLayout
     } else if (mInputState == InputState.more) {
       morePanelShow(false, 0);
     }
+  }
+
+  public void setRichTextSwitchListener(OnClickListener listener) {
+    mBinding.chatMsgInputSwitchLayout.setOnClickListener(listener);
+  }
+
+  // 获取富文本标题
+  public String getRichInputTitle() {
+    return mBinding.chatRichEt.getText().toString();
+  }
+
+  // 获取富文本内容，非富文本状态则返回普通小心文本
+  public String getRichInputContent() {
+    return mBinding.inputEt.getText().toString();
+  }
+
+  public void switchRichInput(boolean titleForces, String title, String content) {
+
+    hideCurrentInput();
+    mInputState = InputState.input;
+    if (!TextUtils.isEmpty(title)) {
+      mBinding.chatRichEt.setVisibility(VISIBLE);
+      MessageHelper.identifyFaceExpression(
+          getContext(), mBinding.chatRichEt, title, ImageSpan.ALIGN_BOTTOM);
+    } else {
+      mBinding.chatRichEt.setText("");
+      mBinding.chatRichEt.setVisibility(GONE);
+    }
+    MessageHelper.identifyExpressionForEditMsg(
+        getContext(),
+        mBinding.inputEt,
+        content,
+        aitTextWatcher != null ? aitTextWatcher.getAitContactsModel() : null);
+    if (!TextUtils.isEmpty(content)) {
+      mBinding.inputEt.setSelection(content.length());
+    }
+    mBinding.inputEt.addTextChangedListener(msgInputTextWatcher);
   }
 
   public void switchInput() {
@@ -391,9 +500,21 @@ public class MessageBottomLayout extends FrameLayout
     updateState(InputState.voice);
   }
 
+  public void richInputShow(boolean show, long delay) {
+    postDelayed(
+        () -> {
+          mBinding.chatRichEt.setVisibility(show ? VISIBLE : GONE);
+          if (show) {
+            mBinding.chatRichEt.requestFocus();
+          }
+        },
+        delay);
+  }
+
   public void recordShow(boolean show, long delay) {
     mBinding.inputAudioTv.setVisibility(show ? VISIBLE : GONE);
     mBinding.inputEt.setVisibility(show ? GONE : VISIBLE);
+    mBinding.chatMsgInputSwitchLayout.setVisibility(show ? GONE : VISIBLE);
   }
 
   public void switchEmoji() {
@@ -502,6 +623,10 @@ public class MessageBottomLayout extends FrameLayout
         new BottomChoiceDialog.OnChoiceListener() {
           @Override
           public void onChoice(@NonNull String type) {
+            if (!NetworkUtils.isConnected()) {
+              ToastX.showShortToast(R.string.chat_network_error_tip);
+              return;
+            }
             if (!XKitUtils.getApplicationContext()
                 .getPackageManager()
                 .hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)) {
@@ -572,6 +697,8 @@ public class MessageBottomLayout extends FrameLayout
       mMute = mute;
       mBinding.inputEt.setEnabled(!mute);
       mBinding.inputMuteTv.setVisibility(mute ? VISIBLE : GONE);
+      mBinding.inputEt.setText("");
+      mBinding.chatRichEt.setText("");
       if (mute) {
         collapse(true);
       }
@@ -583,6 +710,10 @@ public class MessageBottomLayout extends FrameLayout
       mBinding.inputMoreRb.setEnabled(!mute);
       mBinding.inputMoreRb.setAlpha(mute ? 0.5f : 1f);
     }
+  }
+
+  public boolean isMute() {
+    return mMute;
   }
 
   public void collapse(boolean immediately) {
@@ -621,7 +752,7 @@ public class MessageBottomLayout extends FrameLayout
     switchInput();
   }
 
-  private void clearReplyMsg() {
+  public void clearReplyMsg() {
     replyMessage = null;
     mBinding.replyLayout.setVisibility(GONE);
   }
@@ -646,6 +777,7 @@ public class MessageBottomLayout extends FrameLayout
   @Override
   public void onRecordReady() {
     ALog.d(LIB_TAG, TAG, "onRecordReady");
+    ChatMessageAudioControl.getInstance().stopAudio();
   }
 
   @Override
@@ -715,11 +847,12 @@ public class MessageBottomLayout extends FrameLayout
   }
 
   @Override
-  public void onTextAdd(String content, int start, int length) {
+  public void onTextAdd(String content, int start, int length, boolean hasAt) {
     if (mInputState != InputState.input) {
       postDelayed(this::switchInput, SHOW_DELAY_TIME);
     }
-    mBinding.inputEt.getEditableText().insert(start, content);
+    SpannableString spannable = MessageHelper.generateAtSpanString(hasAt ? content : "@" + content);
+    mBinding.inputEt.getEditableText().replace(hasAt ? start : start - 1, start, spannable);
   }
 
   @Override

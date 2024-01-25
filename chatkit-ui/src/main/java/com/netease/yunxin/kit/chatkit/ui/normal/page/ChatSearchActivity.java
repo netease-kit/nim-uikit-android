@@ -21,6 +21,7 @@ import com.netease.yunxin.kit.common.utils.KeyboardUtils;
 import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 
+/** 标准皮肤，群消息搜索消息页面。 */
 public class ChatSearchActivity extends ChatSearchBaseActivity {
 
   private final String TAG = "ChatSearchActivity";

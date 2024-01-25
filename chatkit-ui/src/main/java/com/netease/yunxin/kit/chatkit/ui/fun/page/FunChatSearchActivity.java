@@ -25,6 +25,7 @@ import com.netease.yunxin.kit.common.utils.SizeUtils;
 import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 
+/** Fun皮肤搜索页面，继承自ChatSearchBaseActivity */
 public class FunChatSearchActivity extends ChatSearchBaseActivity {
 
   private final String TAG = "ChatSearchFunActivity";

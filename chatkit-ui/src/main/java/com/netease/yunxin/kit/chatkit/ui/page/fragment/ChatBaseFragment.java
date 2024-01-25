@@ -53,9 +53,11 @@ import com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant;
 import com.netease.yunxin.kit.chatkit.ui.ChatUIConfig;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.builder.IChatViewCustom;
+import com.netease.yunxin.kit.chatkit.ui.common.ChatMsgCache;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatUtils;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.chatkit.ui.common.WatchTextMessageDialog;
+import com.netease.yunxin.kit.chatkit.ui.custom.RichTextAttachment;
 import com.netease.yunxin.kit.chatkit.ui.dialog.ChatBaseForwardSelectDialog;
 import com.netease.yunxin.kit.chatkit.ui.interfaces.IChatView;
 import com.netease.yunxin.kit.chatkit.ui.interfaces.IMessageItemClickListener;
@@ -89,12 +91,12 @@ import com.netease.yunxin.kit.common.utils.storage.StorageUtil;
 import com.netease.yunxin.kit.corekit.im.IMKitClient;
 import com.netease.yunxin.kit.corekit.im.model.UserInfo;
 import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
-import com.netease.yunxin.kit.corekit.im.repo.SettingRepo;
 import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -148,7 +150,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
   private Observer<FetchResult<Map<String, MsgPinOption>>> msgPinLiveDataObserver;
   private Observer<Pair<String, MsgPinOption>> addPinLiveDataObserver;
   private Observer<String> removePinLiveDataObserver;
-  private Observer<FetchResult<ChatMessageBean>> deleteLiveDataObserver;
+  private Observer<FetchResult<List<ChatMessageBean>>> deleteLiveDataObserver;
   private final com.netease.nimlib.sdk.Observer<StatusCode> loginObserver =
       statusCode -> {
         if (statusCode == StatusCode.LOGINED) {
@@ -172,6 +174,8 @@ public abstract class ChatBaseFragment extends BaseFragment {
   public IChatView chatView;
 
   public View rootView;
+
+  public String forwardAction;
 
   @Nullable
   @Override
@@ -224,6 +228,10 @@ public abstract class ChatBaseFragment extends BaseFragment {
     chatView.setLoadHandler(loadHandler);
     chatView.setMessageReader(message -> viewModel.sendReceipt(message.getMessage()));
     chatView.setItemClickListener(itemClickListener);
+    chatView
+        .getTitleBar()
+        .getRightTextView()
+        .setTextColor(getResources().getColor(R.color.color_333333));
     permissionLauncher =
         registerForActivityResult(
             new ActivityResultContracts.RequestMultiplePermissions(),
@@ -334,6 +342,14 @@ public abstract class ChatBaseFragment extends BaseFragment {
     }
   }
 
+  protected void checkMultiSelectView() {
+    if (ChatMsgCache.getMessageList().size() > 0) {
+      chatView.setMultiSelectEnable(true);
+    } else {
+      chatView.setMultiSelectEnable(false);
+    }
+  }
+
   @Override
   public void onStop() {
     super.onStop();
@@ -355,7 +371,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
                     R.string.chat_send_null_message_tips,
                     Toast.LENGTH_SHORT)
                 .show();
-            return true;
+            return false;
           }
           if (aitManager != null && sessionType == SessionTypeEnum.Team) {
             pushList = aitManager.getAitTeamMember();
@@ -377,9 +393,45 @@ public abstract class ChatBaseFragment extends BaseFragment {
         }
 
         @Override
+        public boolean sendRichTextMessage(String title, String content, ChatMessageBean replyMsg) {
+          List<String> pushList = null;
+          Map<String, Object> extension = null;
+          if (TextUtils.isEmpty(title) || TextUtils.getTrimmedLength(title) < 1) {
+            Toast.makeText(
+                    ChatBaseFragment.this.getContext(),
+                    R.string.chat_send_null_title_tips,
+                    Toast.LENGTH_SHORT)
+                .show();
+            return false;
+          }
+          String msgContent = TextUtils.getTrimmedLength(content) < 1 ? null : content;
+          if (aitManager != null && sessionType == SessionTypeEnum.Team) {
+            pushList = aitManager.getAitTeamMember();
+            if (pushList != null && pushList.size() > 0) {
+              extension = new HashMap<>();
+              extension.put(ChatKitUIConstant.AIT_REMOTE_EXTENSION_KEY, aitManager.getAitData());
+            }
+          }
+          //标题中不允许包含回车
+          String replaceTitle = title.replaceAll("\r|\n", "");
+          IMMessage sendMsg =
+              MessageHelper.createRichTextMessage(
+                  replaceTitle, msgContent, sessionID, sessionType, pushList, extension);
+          if (replyMsg == null) {
+            viewModel.sendMessage(sendMsg);
+          } else {
+            viewModel.replyMessage(sendMsg, replyMsg.getMessageData().getMessage(), true);
+          }
+          if (aitManager != null) {
+            aitManager.reset();
+          }
+          return true;
+        }
+
+        @Override
         public void pickMedia() {
           String[] permission = new String[] {Manifest.permission.READ_EXTERNAL_STORAGE};
-          //根据系统版本判断，如果是Android13则采用Manifest.permission.READ_MEDIA_IMAGES
+          // 根据系统版本判断，如果是Android13则采用Manifest.permission.READ_MEDIA_IMAGES
           if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             permission =
                 new String[] {
@@ -416,7 +468,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
         @Override
         public boolean sendFile() {
           String[] permission = new String[] {Manifest.permission.READ_EXTERNAL_STORAGE};
-          //根据系统版本判断，如果是Android13则采用Manifest.permission.READ_MEDIA_IMAGES
+          // 根据系统版本判断，如果是Android13则采用Manifest.permission.READ_MEDIA_IMAGES
           if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             permission =
                 new String[] {
@@ -433,7 +485,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
 
         @Override
         public boolean sendAudio(File audioFile, long audioLength, ChatMessageBean replyMsg) {
-          //audio not support reply
+          // audio not support reply
           if (audioLength < AUDIO_MESSAGE_MIN_LENGTH) {
             ToastX.showShortToast(R.string.chat_message_audio_to_short);
           } else {
@@ -488,6 +540,23 @@ public abstract class ChatBaseFragment extends BaseFragment {
             return chatConfig.chatInputMenu.onInputClick(getContext(), view, action);
           }
           return false;
+        }
+
+        @Override
+        public boolean onMultiActionClick(View view, String action) {
+          if (!NetworkUtils.isConnected()) {
+            Toast.makeText(getContext(), R.string.chat_network_error_tip, Toast.LENGTH_SHORT)
+                .show();
+            return true;
+          }
+          if (TextUtils.equals(action, ActionConstants.ACTION_TYPE_MULTI_FORWARD)) {
+            onMultiForward();
+          } else if (TextUtils.equals(action, ActionConstants.ACTION_TYPE_SINGLE_FORWARD)) {
+            onSingleForward();
+          } else if (TextUtils.equals(action, ActionConstants.ACTION_TYPE_MULTI_DELETE)) {
+            onMultiDelete();
+          }
+          return true;
         }
 
         @Override
@@ -574,6 +643,17 @@ public abstract class ChatBaseFragment extends BaseFragment {
     }
   }
 
+  protected void checkAudioPlayAndStop(ChatMessageBean messageBean) {
+    if (messageBean != null
+        && messageBean.getMessageData().getMessage().getMsgType() == MsgTypeEnum.audio
+        && ChatMessageAudioControl.getInstance().isPlayingAudio()
+        && MessageHelper.isSameMessage(
+            messageBean.getMessageData(),
+            ChatMessageAudioControl.getInstance().getPlayingAudio())) {
+      ChatMessageAudioControl.getInstance().stopAudio();
+    }
+  }
+
   private final IMessageItemClickListener itemClickListener =
       new IMessageItemClickListener() {
         @Override
@@ -583,7 +663,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
             if (messageBean.isRevoked()) {
               return false;
             }
-            //show pop menu
+            // show pop menu
             if (popMenu == null) {
               popMenu = new ChatPopMenu();
             }
@@ -603,6 +683,18 @@ public abstract class ChatBaseFragment extends BaseFragment {
               || !delegateListener.onMessageClick(view, position, messageBean)) {
             clickMessage(messageBean.getMessageData(), false);
           }
+          return true;
+        }
+
+        @Override
+        public boolean onMessageSelect(
+            View view, int position, ChatMessageBean messageInfo, boolean selected) {
+          if (selected) {
+            ChatMsgCache.addMessage(messageInfo);
+          } else {
+            ChatMsgCache.removeMessage(messageInfo.getMessageData().getMessage().getUuid());
+          }
+          checkMultiSelectView();
           return true;
         }
 
@@ -665,21 +757,32 @@ public abstract class ChatBaseFragment extends BaseFragment {
 
         @Override
         public boolean onReEditRevokeMessage(View view, int position, ChatMessageBean messageBean) {
-          //only support text message
+          // only support text message
           if (delegateListener == null
               || !delegateListener.onReEditRevokeMessage(view, position, messageBean)) {
-            if (messageBean != null
-                && MessageHelper.revokeMsgIsEdit(messageBean)
-                && messageBean.getMessageData().getMessage().getMsgType() == MsgTypeEnum.text) {
-              String revokeContent =
-                  MessageHelper.getMessageRevokeContent(messageBean.getMessageData());
-              if (TextUtils.isEmpty(revokeContent)) {
-                revokeContent = messageBean.getMessageData().getMessage().getContent();
+            if (messageBean != null && MessageHelper.revokeMsgIsEdit(messageBean)) {
+              Map<String, String> richMap =
+                  MessageHelper.getRichMessageRevokeContent(messageBean.getMessageData());
+              if (MessageHelper.isRichText(messageBean.getMessageData())) {
+                RichTextAttachment attachment =
+                    (RichTextAttachment) messageBean.getMessageData().getMessage().getAttachment();
+                chatView.setReEditRichMessage(attachment.title, attachment.body);
+
+              } else if (richMap != null) {
+                String title = richMap.get(ChatKitUIConstant.KEY_RICH_TEXT_TITLE);
+                String body = richMap.get(ChatKitUIConstant.KEY_RICH_TEXT_BODY);
+                chatView.setReEditRichMessage(title, body);
+              } else {
+                String revokeContent =
+                    MessageHelper.getMessageRevokeContent(messageBean.getMessageData());
+                if (TextUtils.isEmpty(revokeContent)) {
+                  revokeContent = messageBean.getMessageData().getMessage().getContent();
+                }
+                chatView.setReeditMessage(revokeContent);
               }
               if (messageBean.hasReply()) {
                 loadReplyInfo(messageBean.getReplyUUid(), false);
               }
-              chatView.setReeditMessage(revokeContent);
               AitContactsModel aitModel =
                   MessageHelper.getAitBlock(messageBean.getMessageData().getMessage());
               if (aitModel != null) {
@@ -703,10 +806,12 @@ public abstract class ChatBaseFragment extends BaseFragment {
 
         @Override
         public boolean onReplyMessageClick(View view, int position, IMMessageInfo messageInfo) {
-          //scroll to the message position
+          // scroll to the message position
           if (delegateListener == null
               || !delegateListener.onReplyMessageClick(view, position, messageInfo)) {
-            if (messageInfo != null && messageInfo.getMessage().getMsgType() == MsgTypeEnum.text) {
+            if (messageInfo != null
+                && (messageInfo.getMessage().getMsgType() == MsgTypeEnum.text
+                    || MessageHelper.isRichText(messageInfo))) {
               WatchTextMessageDialog.launchDialog(
                   getParentFragmentManager(),
                   "",
@@ -770,6 +875,9 @@ public abstract class ChatBaseFragment extends BaseFragment {
     if (messageInfo == null) {
       return;
     }
+    if (chatView.isMultiSelect()) {
+      return;
+    }
     if (messageInfo.getMessage().getMsgType() == MsgTypeEnum.image) {
       ArrayList<IMMessageInfo> messageInfoList = new ArrayList<>();
       List<ChatMessageBean> filterList =
@@ -809,9 +917,6 @@ public abstract class ChatBaseFragment extends BaseFragment {
         }
       }
     } else if (messageInfo.getMessage().getMsgType() == MsgTypeEnum.audio) {
-      ChatMessageAudioControl.getInstance().setEarPhoneModeEnable(SettingRepo.getHandsetMode());
-      ChatMessageAudioControl.getInstance().startPlayAudio(messageInfo, null);
-
       ChatMessageListView messageListView = chatView.getMessageListView();
       if (messageListView == null) {
         return;
@@ -822,6 +927,10 @@ public abstract class ChatBaseFragment extends BaseFragment {
         return;
       }
       adapter.notifyItemChanged(position, PAYLOAD_REFRESH_AUDIO_ANIM);
+    } else {
+      if (isReply) {
+        chatView.getMessageListView().scrollToMessage(messageInfo.getMessage().getUuid());
+      }
     }
   }
 
@@ -901,25 +1010,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
             return true;
           }
           forwardMessage = messageBean;
-          if (IMKitClient.getConfigCenter().getTeamEnable()) {
-            ChatBaseForwardSelectDialog dialog = getForwardSelectDialog();
-            dialog.setSelectedCallback(
-                new ChatBaseForwardSelectDialog.ForwardTypeSelectedCallback() {
-                  @Override
-                  public void onTeamSelected() {
-                    forwardTeam();
-                  }
-
-                  @Override
-                  public void onP2PSelected() {
-                    forwardP2P();
-                  }
-                });
-            dialog.show(getParentFragmentManager(), ChatBaseForwardSelectDialog.TAG);
-          } else {
-            forwardP2P();
-          }
-
+          onStartForward(ActionConstants.POP_ACTION_TRANSMIT);
           return true;
         }
 
@@ -940,9 +1031,16 @@ public abstract class ChatBaseFragment extends BaseFragment {
 
         @Override
         public boolean onMultiSelected(ChatMessageBean messageBean) {
-          return chatConfig != null
+          if (chatConfig != null
               && chatConfig.popMenuClickListener != null
-              && chatConfig.popMenuClickListener.onMultiSelected(messageBean);
+              && chatConfig.popMenuClickListener.onMultiSelected(messageBean)) {
+            return true;
+          }
+          chatView.showMultiSelect(true);
+          ChatMsgCache.addMessage(messageBean);
+          chatView.getMessageListView().setMultiSelect(true);
+          checkMultiSelectView();
+          return true;
         }
 
         @Override
@@ -963,7 +1061,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
               && chatConfig.popMenuClickListener.onDelete(message)) {
             return true;
           }
-          showDeleteConfirmDialog(message);
+          showDeleteConfirmDialog(Collections.singletonList(message));
           return true;
         }
 
@@ -986,7 +1084,29 @@ public abstract class ChatBaseFragment extends BaseFragment {
         }
       };
 
-  private void showDeleteConfirmDialog(ChatMessageBean message) {
+  protected void onStartForward(String action) {
+    forwardAction = action;
+    if (IMKitClient.getConfigCenter().getTeamEnable()) {
+      ChatBaseForwardSelectDialog dialog = getForwardSelectDialog();
+      dialog.setSelectedCallback(
+          new ChatBaseForwardSelectDialog.ForwardTypeSelectedCallback() {
+            @Override
+            public void onTeamSelected() {
+              forwardTeam();
+            }
+
+            @Override
+            public void onP2PSelected() {
+              forwardP2P();
+            }
+          });
+      dialog.show(getParentFragmentManager(), ChatBaseForwardSelectDialog.TAG);
+    } else {
+      forwardP2P();
+    }
+  }
+
+  private void showDeleteConfirmDialog(List<ChatMessageBean> message) {
     CommonChoiceDialog dialog = new CommonChoiceDialog();
     dialog
         .setTitleStr(getString(R.string.chat_message_action_delete))
@@ -1002,6 +1122,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
                   return;
                 }
                 viewModel.deleteMessage(message);
+                clearMessageMultiSelectStatus();
               }
 
               @Override
@@ -1030,6 +1151,20 @@ public abstract class ChatBaseFragment extends BaseFragment {
         .show(getParentFragmentManager());
   }
 
+  protected void clearMessageMultiSelectStatus() {
+    chatView.showMultiSelect(false);
+    ChatMsgCache.clear();
+  }
+
+  protected ChatMessageBean getForwardMessage() {
+    if (forwardMessage == null) {
+      return null;
+    }
+    return chatView
+        .getMessageListView()
+        .searchMessage(forwardMessage.getMessageData().getMessage().getUuid());
+  }
+
   protected abstract void initViewModel();
 
   protected abstract ChatBaseForwardSelectDialog getForwardSelectDialog();
@@ -1043,60 +1178,60 @@ public abstract class ChatBaseFragment extends BaseFragment {
   protected void initDataObserver() {
     ALog.d(LIB_TAG, LOG_TAG, "initDataObserver");
 
-    //加载消息数据，首次进入或者加载更多
+    // 加载消息数据，首次进入或者加载更多
     messageLiveDataObserver = this::onLoadMessage;
     viewModel.getQueryMessageLiveData().observeForever(messageLiveDataObserver);
 
-    //接受消息监听
+    // 接受消息监听
     messageRecLiveDataObserver = this::onReceiveMessage;
     viewModel.getRecMessageLiveData().observeForever(messageRecLiveDataObserver);
 
-    //发送消息监听，根据发送状态sending添加到消息列表中
+    // 发送消息监听，根据发送状态sending添加到消息列表中
     sendLiveDataObserver = this::onSentMessage;
     viewModel.getSendMessageLiveData().observeForever(sendLiveDataObserver);
 
-    //附件下载监听，文件消息、视频消息等下载进度更新
+    // 附件下载监听，文件消息、视频消息等下载进度更新
     attachLiveDataObserver = this::onAttachmentUpdateProgress;
     viewModel.getAttachmentProgressMutableLiveData().observeForever(attachLiveDataObserver);
 
-    //消息撤回监听，消息撤回（他人消息撤回或本人撤回成功）
+    // 消息撤回监听，消息撤回（他人消息撤回或本人撤回成功）
     revokeLiveDataObserver = this::onRevokeMessage;
     viewModel.getRevokeMessageLiveData().observeForever(revokeLiveDataObserver);
 
-    //用户信息变化监听，更新相关用户信息。用户信息数据保存在全局静态数据中
+    // 用户信息变化监听，更新相关用户信息。用户信息数据保存在全局静态数据中
     userInfoLiveDataObserver = this::onUserInfoChanged;
     viewModel.getUserInfoLiveData().observeForever(userInfoLiveDataObserver);
 
-    //查询PIN信息结果监听
+    // 查询PIN信息结果监听
     msgPinLiveDataObserver = this::onQueryPinMessage;
     viewModel.getMsgPinLiveData().observeForever(msgPinLiveDataObserver);
 
-    //添加PIN消息监听
+    // 添加PIN消息监听
     addPinLiveDataObserver = this::onAddPin;
     viewModel.getAddPinMessageLiveData().observeForever(addPinLiveDataObserver);
 
-    //移除PIN消息
+    // 移除PIN消息
     removePinLiveDataObserver = this::onRemovePin;
     viewModel.getRemovePinMessageLiveData().observeForever(removePinLiveDataObserver);
 
-    //删除消息监听
+    // 删除消息监听
     deleteLiveDataObserver = this::onDeleteMessage;
     viewModel.getDeleteMessageLiveData().observeForever(deleteLiveDataObserver);
 
-    //系统图片&视频选择器，选择结果处理
+    // 系统图片&视频选择器，选择结果处理
     pickMediaLauncher =
         registerForActivityResult(
             new ActivityResultContracts.GetMultipleContents(), this::onPickMedia);
 
-    //系统文件选择器，选择结果处理
+    // 系统文件选择器，选择结果处理
     pickFileLauncher =
         registerForActivityResult(new ActivityResultContracts.OpenDocument(), this::onPickFile);
 
-    //发送拍摄的图片
+    // 发送拍摄的图片
     takePictureLauncher =
         registerForActivityResult(new ActivityResultContracts.TakePicture(), this::onTakePicture);
 
-    //发送录像的视频
+    // 发送录像的视频
     captureVideoLauncher =
         registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(), this::onCaptureVideo);
@@ -1176,7 +1311,10 @@ public abstract class ChatBaseFragment extends BaseFragment {
 
   protected void onRevokeMessage(FetchResult<ChatMessageBean> fetchResult) {
     if (fetchResult.getLoadStatus() == LoadStatus.Success) {
-      chatView.getMessageListView().revokeMessage(fetchResult.getData());
+      ChatMsgCache.removeMessage(fetchResult.getData().getMessageData().getMessage().getUuid());
+      chatView.revokeMessage(fetchResult.getData());
+      checkMultiSelectView();
+      checkAudioPlayAndStop(fetchResult.getData());
     } else if (fetchResult.getLoadStatus() == LoadStatus.Error) {
       FetchResult.ErrorMsg errorMsg = fetchResult.getError();
       if (errorMsg != null) {
@@ -1185,9 +1323,17 @@ public abstract class ChatBaseFragment extends BaseFragment {
     }
   }
 
-  protected void onDeleteMessage(FetchResult<ChatMessageBean> fetchResult) {
-    if (fetchResult.getLoadStatus() == LoadStatus.Success) {
-      chatView.getMessageListView().deleteMessage(fetchResult.getData());
+  protected void onDeleteMessage(FetchResult<List<ChatMessageBean>> fetchResult) {
+    if (fetchResult.getLoadStatus() == LoadStatus.Success && fetchResult.getData() != null) {
+      chatView.deleteMessage(fetchResult.getData());
+      ChatMsgCache.removeMessages(fetchResult.getData());
+      checkMultiSelectView();
+      for (ChatMessageBean messageBean : fetchResult.getData()) {
+        checkAudioPlayAndStop(messageBean);
+      }
+      if (chatView.getMessageList() == null || chatView.getMessageList().size() < 1) {
+        viewModel.initFetch(null, false);
+      }
     } else if (fetchResult.getLoadStatus() == LoadStatus.Error) {
       FetchResult.ErrorMsg errorMsg = fetchResult.getError();
       if (errorMsg != null) {
@@ -1271,7 +1417,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
   }
 
   protected void onForwardMessage(ActivityResult result, SessionTypeEnum sessionType) {
-    if (result.getResultCode() != Activity.RESULT_OK || forwardMessage == null) {
+    if (result.getResultCode() != Activity.RESULT_OK) {
       return;
     }
     ALog.d(LIB_TAG, LOG_TAG, "forward Team result");
@@ -1323,6 +1469,114 @@ public abstract class ChatBaseFragment extends BaseFragment {
 
   public void onNewIntent(Intent intent) {
     ALog.d(LIB_TAG, LOG_TAG, "onNewIntent");
+  }
+
+  protected void onMultiDelete() {
+    if (ChatMsgCache.getMessageCount() > ChatKitUIConstant.MULTI_DELETE_MSG_LIMIT) {
+      Toast.makeText(
+              ChatBaseFragment.this.getContext(),
+              R.string.chat_message_multi_delete_limit_tips,
+              Toast.LENGTH_SHORT)
+          .show();
+      return;
+    }
+    showDeleteConfirmDialog(ChatMsgCache.getMessageList());
+  }
+
+  protected boolean onSingleForward() {
+    if (ChatMsgCache.getMessageCount() > ChatKitUIConstant.SINGLE_FORWARD_MSG_LIMIT) {
+      Toast.makeText(
+              ChatBaseFragment.this.getContext(),
+              R.string.chat_message_single_forward_limit_tips,
+              Toast.LENGTH_SHORT)
+          .show();
+      return true;
+    }
+
+    // 如果逐条转发中包含不允许转发消息，则Toast提示,并取消选中
+    List<ChatMessageBean> invalidList = ChatUtils.checkSingleForward(ChatMsgCache.getMessageList());
+    if (invalidList.size() > 0) {
+      CommonChoiceDialog dialog = new CommonChoiceDialog();
+      dialog
+          .setTitleStr(getString(R.string.msg_forward_error_dialog_title))
+          .setContentStr(getString(R.string.msg_forward_error_dialog_content))
+          .setPositiveStr(getString(R.string.chat_dialog_sure))
+          .setNegativeStr(getString(R.string.cancel))
+          .setConfirmListener(
+              new ChoiceListener() {
+                @Override
+                public void onPositive() {
+                  ChatMsgCache.removeMessages(invalidList);
+                  chatView.getMessageListView().updateMultiSelectMessage(invalidList);
+                  // 如果逐条转发中所有消息都是不可转发，则不弹出转发选择框
+                  if (ChatMsgCache.getMessageCount() > 0) {
+                    onStartForward(ActionConstants.ACTION_TYPE_SINGLE_FORWARD);
+                  } else {
+                    chatView.setMultiSelectEnable(false);
+                  }
+                }
+
+                @Override
+                public void onNegative() {}
+              })
+          .show(getParentFragmentManager());
+    } else {
+      // 如果逐条转发中所有消息都是不可转发，则不弹出转发选择框
+      if (ChatMsgCache.getMessageCount() > 0) {
+        onStartForward(ActionConstants.ACTION_TYPE_SINGLE_FORWARD);
+      } else {
+        chatView.setMultiSelectEnable(false);
+      }
+    }
+    return true;
+  }
+
+  protected boolean onMultiForward() {
+    if (ChatMsgCache.getMessageCount() > ChatKitUIConstant.MULTI_FORWARD_MSG_LIMIT) {
+      Toast.makeText(
+              ChatBaseFragment.this.getContext(),
+              R.string.chat_message_multi_forward_limit_tips,
+              Toast.LENGTH_SHORT)
+          .show();
+      return true;
+    }
+    // 如果逐条转发中包含不允许转发消息，则Toast提示,并取消选中
+    List<ChatMessageBean> invalidList = ChatUtils.checkMultiForward(ChatMsgCache.getMessageList());
+    if (invalidList.size() > 0) {
+      CommonChoiceDialog dialog = new CommonChoiceDialog();
+      dialog
+          .setTitleStr(getString(R.string.msg_forward_error_dialog_title))
+          .setContentStr(getString(R.string.msg_forward_error_dialog_content))
+          .setPositiveStr(getString(R.string.chat_dialog_sure))
+          .setNegativeStr(getString(R.string.cancel))
+          .setConfirmListener(
+              new ChoiceListener() {
+                @Override
+                public void onPositive() {
+                  ChatMsgCache.removeMessages(invalidList);
+                  chatView.getMessageListView().updateMultiSelectMessage(invalidList);
+                  // 如果逐条转发中所有消息都是不可转发，则不弹出转发选择框
+                  if (ChatMsgCache.getMessageCount() > 0) {
+                    onStartForward(ActionConstants.ACTION_TYPE_MULTI_FORWARD);
+                  } else {
+                    chatView.setMultiSelectEnable(false);
+                  }
+                }
+
+                @Override
+                public void onNegative() {}
+              })
+          .show(getParentFragmentManager());
+    } else {
+      // 如果逐条转发中所有消息都是不可转发，则不弹出转发选择框
+      if (ChatMsgCache.getMessageCount() > 0) {
+        onStartForward(ActionConstants.ACTION_TYPE_MULTI_FORWARD);
+      } else {
+        chatView.setMultiSelectEnable(false);
+      }
+    }
+
+    return true;
   }
 
   private final NetworkUtils.NetworkStateListener networkStateListener =
