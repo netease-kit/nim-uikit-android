@@ -42,7 +42,18 @@
 
         <FrameLayout android:id="@+id/location_item_map_view"
             android:layout_width="match_parent"
-            android:layout_height="88dp" />
+            android:layout_height="88dp" >
+            <ImageView android:id="@+id/locationItemMapIv"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/ic_chat_location_default"
+                android:scaleType="centerCrop"/>
+            <ImageView android:id="@+id/locationMapMarkerIv"
+                android:layout_width="@dimen/dimen_20_dp"
+                android:layout_height="@dimen/dimen_20_dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_chat_location_marker"/>
+        </FrameLayout>
     </LinearLayout>
     <View android:id="@+id/location_click"
         android:layout_width="match_parent"

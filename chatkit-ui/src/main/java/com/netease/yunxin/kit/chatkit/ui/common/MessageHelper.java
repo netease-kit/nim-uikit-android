@@ -33,7 +33,6 @@ import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.msg.model.CustomMessageConfig;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
 import com.netease.nimlib.sdk.msg.model.MemberPushOption;
-import com.netease.nimlib.sdk.msg.model.NIMMessage;
 import com.netease.nimlib.sdk.team.model.DismissAttachment;
 import com.netease.nimlib.sdk.team.model.MemberChangeAttachment;
 import com.netease.yunxin.kit.alog.ALog;
@@ -745,11 +744,11 @@ public class MessageHelper {
     return message != null && message.getMessage().getAttachment() instanceof RichTextAttachment;
   }
 
-  public static boolean isRichText(NIMMessage message) {
+  public static boolean isRichText(IMMessage message) {
     return message != null && message.getAttachment() instanceof RichTextAttachment;
   }
 
-  public static boolean canRevokeEdit(NIMMessage message) {
+  public static boolean canRevokeEdit(IMMessage message) {
     return message.getMsgType() == MsgTypeEnum.text || isRichText(message);
   }
 

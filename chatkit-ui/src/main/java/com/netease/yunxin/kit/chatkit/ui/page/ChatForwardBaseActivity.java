@@ -28,6 +28,7 @@ import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
+import com.netease.yunxin.kit.corekit.route.XKitRouter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -117,8 +118,11 @@ public class ChatForwardBaseActivity extends BaseActivity {
     } else if (messageInfo.getMessage().getMsgType() == MsgTypeEnum.video) {
       ChatUtils.watchVideo(this, messageInfo);
     } else if (messageInfo.getMessage().getMsgType() == MsgTypeEnum.location) {
-      LocationPageActivity.launch(
-          this, LocationPageActivity.LAUNCH_DETAIL, messageInfo.getMessage());
+      XKitRouter.withKey(RouterConstant.PATH_CHAT_LOCATION_PAGE)
+          .withContext(this)
+          .withParam(RouterConstant.KEY_MESSAGE, messageInfo.getMessage())
+          .withParam(RouterConstant.KEY_LOCATION_PAGE_TYPE, RouterConstant.KEY_LOCATION_TYPE_DETAIL)
+          .navigate();
     } else if (messageInfo.getMessage().getMsgType() == MsgTypeEnum.file) {
       ChatUtils.openForwardFile(this, messageInfo);
 

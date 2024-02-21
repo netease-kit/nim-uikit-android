@@ -5,6 +5,7 @@
   -->
 
 <resources>
+    <string name="chat_message_location_distance">%.0fm&#160;|&#160;%s</string>
     <string name="location_amap_nav_title">AutoNavi Maps</string>
     <string name="location_tencent_nav_title">Tencent Maps</string>
 </resources>

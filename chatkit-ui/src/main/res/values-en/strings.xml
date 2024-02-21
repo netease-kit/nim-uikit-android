@@ -60,7 +60,6 @@
     <string name="chat_message_camera_unavailable">camera unavailable</string>
     <string name="chat_message_location">Location</string>
     <string name="chat_message_file">File</string>
-    <string name="chat_message_location_distance">%.0fm内&#160;|&#160;%s</string>
     <string name="chat_message_video_call">Call</string>
     <string name="chat_message_video_call_action">Video Call</string>
     <string name="chat_message_audio_call_action">Voice Call</string>

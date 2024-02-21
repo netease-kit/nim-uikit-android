@@ -91,11 +91,6 @@ public class PushUserInfoProvider implements UserInfoProvider {
     return bm;
   }
 
-  @Override
-  public String getDisplayTitleForMessageNotifier(IMMessage message) {
-    return null;
-  }
-
   public Bitmap getNotificationBitmapFromCache(String url) {
     if (TextUtils.isEmpty(url)) {
       return null;

@@ -66,7 +66,6 @@ import com.netease.yunxin.kit.chatkit.ui.interfaces.IMessageProxy;
 import com.netease.yunxin.kit.chatkit.ui.model.AnchorScrollInfo;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.model.ait.AitContactsModel;
-import com.netease.yunxin.kit.chatkit.ui.page.LocationPageActivity;
 import com.netease.yunxin.kit.chatkit.ui.page.viewmodel.ChatBaseViewModel;
 import com.netease.yunxin.kit.chatkit.ui.page.viewmodel.ChatP2PViewModel;
 import com.netease.yunxin.kit.chatkit.ui.page.viewmodel.ChatTeamViewModel;
@@ -894,8 +893,11 @@ public abstract class ChatBaseFragment extends BaseFragment {
         chatView.getMessageListView().scrollToMessage(messageInfo.getMessage().getUuid());
       }
     } else if (messageInfo.getMessage().getMsgType() == MsgTypeEnum.location) {
-      LocationPageActivity.launch(
-          getContext(), LocationPageActivity.LAUNCH_DETAIL, messageInfo.getMessage());
+      XKitRouter.withKey(RouterConstant.PATH_CHAT_LOCATION_PAGE)
+          .withContext(requireContext())
+          .withParam(RouterConstant.KEY_MESSAGE, messageInfo.getMessage())
+          .withParam(RouterConstant.KEY_LOCATION_PAGE_TYPE, RouterConstant.KEY_LOCATION_TYPE_DETAIL)
+          .navigate();
     } else if (messageInfo.getMessage().getMsgType() == MsgTypeEnum.file) {
       boolean isOpen = ChatUtils.openFile(getContext(), messageInfo);
       if (!isOpen && isReply) {
@@ -1446,7 +1448,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
     Intent data = result.getData();
     if (data != null) {
       ChatLocationBean locationBean =
-          (ChatLocationBean) data.getSerializableExtra(LocationPageActivity.SEND_LOCATION_RESULT);
+          (ChatLocationBean) data.getSerializableExtra(RouterConstant.KEY_LOCATION_SELECT_RESULT);
       if (locationBean != null) {
         viewModel.sendLocationMessage(locationBean);
       }

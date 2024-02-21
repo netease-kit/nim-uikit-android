@@ -591,6 +591,7 @@ public class MessageBottomLayout extends FrameLayout
         new BottomChoiceDialog.OnChoiceListener() {
           @Override
           public void onChoice(@NonNull String type) {
+
             if (!XKitUtils.getApplicationContext()
                 .getPackageManager()
                 .hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)) {

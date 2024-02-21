@@ -256,10 +256,11 @@ public abstract class ChatPinBaseActivity extends BaseActivity {
     } else if (messageInfo.getMessageData().getMessage().getMsgType() == MsgTypeEnum.file) {
       ChatUtils.openFile(ChatPinBaseActivity.this, messageInfo.getMessageData());
     } else if (messageInfo.getMessageData().getMessage().getMsgType() == MsgTypeEnum.location) {
-      LocationPageActivity.launch(
-          ChatPinBaseActivity.this,
-          LocationPageActivity.LAUNCH_DETAIL,
-          messageInfo.getMessageData().getMessage());
+      XKitRouter.withKey(RouterConstant.PATH_CHAT_LOCATION_PAGE)
+          .withContext(this)
+          .withParam(RouterConstant.KEY_MESSAGE, messageInfo.getMessageData().getMessage())
+          .withParam(RouterConstant.KEY_LOCATION_PAGE_TYPE, RouterConstant.KEY_LOCATION_TYPE_DETAIL)
+          .navigate();
     } else if (messageInfo.getMessageData().getMessage().getMsgType() == MsgTypeEnum.audio) {
       pinAdapter.updateMessage(messageInfo, PAYLOAD_REFRESH_AUDIO_ANIM);
     } else {

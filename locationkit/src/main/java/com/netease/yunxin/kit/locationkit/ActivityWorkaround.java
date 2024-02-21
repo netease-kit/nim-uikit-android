@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT license that can be
 // found in the LICENSE file.
 
-package com.netease.yunxin.kit.chatkit.ui;
+package com.netease.yunxin.kit.locationkit;
 
 import android.app.Activity;
 import android.graphics.Rect;

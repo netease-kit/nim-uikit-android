@@ -44,7 +44,6 @@ public class NimSDKOptionConfig {
     options.reducedIM = false;
     options.checkManifestConfig = false;
     options.enableTeamMsgAck = true;
-    options.enableFcs = false;
     options.shouldConsiderRevokedMessageUnreadCount = true;
     // 会话置顶是否漫游
     options.notifyStickTopSession = true;

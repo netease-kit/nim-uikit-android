@@ -25,6 +25,7 @@ import com.netease.yunxin.kit.corekit.im.repo.SettingRepo;
 import com.netease.yunxin.kit.corekit.im.utils.IMKitUtils;
 import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
+import com.netease.yunxin.kit.locationkit.LocationConfig;
 import com.netease.yunxin.kit.locationkit.LocationKitClient;
 import com.vivo.push.PushClient;
 import com.vivo.push.util.VivoPushException;
@@ -58,7 +59,10 @@ public class IMApplication extends MultiDexApplication {
 
     if (IMKitUtils.isMainProcess(this)) {
       ALog.d(Constant.PROJECT_TAG, TAG, "initUIKit:isMainProcess");
-      LocationKitClient.init(this);
+        // 地图组件初始化
+        LocationConfig locationConfig = new LocationConfig();
+        locationConfig.aMapWebServerKey = DataUtils.readAMapAppKey(this);
+      LocationKitClient.init(this, locationConfig);
       //huawei push
       ActivityMgr.INST.init(this);
       //oppo push

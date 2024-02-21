@@ -93,7 +93,8 @@ public class ContactInfoView extends FrameLayout {
     binding.scBlackList.setOnCheckedChangeListener(
         (buttonView, isChecked) -> {
           if (!NetworkUtils.isConnected()) {
-            Toast.makeText(getContext(), R.string.contact_network_error_tip, Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), R.string.contact_network_error_tip, Toast.LENGTH_SHORT)
+                .show();
             binding.scBlackList.toggle();
             return;
           }

@@ -16,9 +16,11 @@ android {
         minSdk = 21
         targetSdk = 33
         consumerProguardFiles("consumer-rules.pro")
-        buildConfigField("String", "versionName", "\"9.7.0\"")
+        buildConfigField("String", "versionName", "\"8.9.0\"")
     }
-
+    buildFeatures {
+        viewBinding = true
+    }
     buildTypes {
         getByName("release") {
             isMinifyEnabled = true
