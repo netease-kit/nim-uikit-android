@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT license that can be
 // found in the LICENSE file.
 
-package com.netease.yunxin.kit.chatkit.ui.page.adapter;
+package com.netease.yunxin.kit.locationkit;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,8 +10,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.netease.yunxin.kit.chatkit.map.ChatLocationBean;
-import com.netease.yunxin.kit.chatkit.ui.R;
-import com.netease.yunxin.kit.chatkit.ui.databinding.SearchLocationViewHolderBinding;
+import com.netease.yunxin.kit.locationkit.databinding.SearchLocationViewHolderBinding;
 import java.util.ArrayList;
 import java.util.List;
 

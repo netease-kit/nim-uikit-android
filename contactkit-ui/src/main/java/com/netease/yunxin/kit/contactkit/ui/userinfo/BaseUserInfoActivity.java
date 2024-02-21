@@ -103,7 +103,9 @@ public abstract class BaseUserInfoActivity extends BaseActivity {
             }
             if (!NetworkUtils.isConnected()) {
               Toast.makeText(
-                      BaseUserInfoActivity.this, R.string.contact_network_error_tip, Toast.LENGTH_SHORT)
+                      BaseUserInfoActivity.this,
+                      R.string.contact_network_error_tip,
+                      Toast.LENGTH_SHORT)
                   .show();
               return;
             }
@@ -119,7 +121,9 @@ public abstract class BaseUserInfoActivity extends BaseActivity {
           public void addBlackList(boolean add) {
             if (!NetworkUtils.isConnected()) {
               Toast.makeText(
-                      BaseUserInfoActivity.this, R.string.contact_network_error_tip, Toast.LENGTH_SHORT)
+                      BaseUserInfoActivity.this,
+                      R.string.contact_network_error_tip,
+                      Toast.LENGTH_SHORT)
                   .show();
               return;
             }
@@ -215,7 +219,8 @@ public abstract class BaseUserInfoActivity extends BaseActivity {
                 contactInfoView.setData(userInfoData);
               } else {
                 if (!NetworkUtils.isConnected()) {
-                  Toast.makeText(this, R.string.contact_network_error_tip, Toast.LENGTH_SHORT).show();
+                  Toast.makeText(this, R.string.contact_network_error_tip, Toast.LENGTH_SHORT)
+                      .show();
                 }
               }
             });
@@ -236,7 +241,8 @@ public abstract class BaseUserInfoActivity extends BaseActivity {
                 }
               } else {
                 if (!NetworkUtils.isConnected()) {
-                  Toast.makeText(this, R.string.contact_network_error_tip, Toast.LENGTH_SHORT).show();
+                  Toast.makeText(this, R.string.contact_network_error_tip, Toast.LENGTH_SHORT)
+                      .show();
                 }
               }
             });

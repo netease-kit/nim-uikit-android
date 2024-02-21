@@ -37,7 +37,7 @@ import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 import java.util.List;
 
-class FunChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
+public class FunChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
   private static final String TAG = "FunChatBaseMessageViewHolder";
 
   protected FunChatMessageReplayViewBinding replayBinding;

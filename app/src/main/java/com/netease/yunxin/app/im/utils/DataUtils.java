@@ -12,6 +12,7 @@ import android.content.pm.PackageManager;
 public class DataUtils {
 
   private static String appKey = null;
+  private static String aMapServerKey = null;
   private static int serverConfig = -1;
 
   /** read appKey from manifest */
@@ -38,6 +39,33 @@ public class DataUtils {
       }
     }
     return appKey;
+  }
+
+  /**
+   * 获取高德地图web server KEY 用于高德地图消息展示获取位置图片
+   *
+   * @param context
+   * @return
+   */
+  public static String readAMapAppKey(Context context) {
+    if (aMapServerKey != null) {
+      return aMapServerKey;
+    }
+    if (context != null) {
+
+      try {
+        ApplicationInfo appInfo =
+                context
+                        .getPackageManager()
+                        .getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
+        if (appInfo != null) {
+          aMapServerKey = appInfo.metaData.getString(Constant.CONFIG_AMAP_SERVER_KEY);
+        }
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
+    return aMapServerKey;
   }
 
   public static int getServerConfigType(Context context) {

@@ -1,12 +1,9 @@
-// Copyright (c) 2022 NetEase, Inc. All rights reserved.
+package com.netease.yunxin.kit.locationkit; // Copyright (c) 2022 NetEase, Inc. All rights reserved.
 // Use of this source code is governed by a MIT license that can be
 // found in the LICENSE file.
 
-package com.netease.yunxin.kit.chatkit.ui.page;
-
 import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -25,28 +22,20 @@ import com.netease.yunxin.kit.chatkit.map.ChatLocationBean;
 import com.netease.yunxin.kit.chatkit.map.ILocationSearchCallback;
 import com.netease.yunxin.kit.chatkit.map.IPageMapProvider;
 import com.netease.yunxin.kit.chatkit.map.MapMode;
-import com.netease.yunxin.kit.chatkit.ui.ActivityWorkaround;
-import com.netease.yunxin.kit.chatkit.ui.ChatKitClient;
 import com.netease.yunxin.kit.chatkit.ui.R;
-import com.netease.yunxin.kit.chatkit.ui.databinding.ActivityLocationBinding;
-import com.netease.yunxin.kit.chatkit.ui.page.adapter.SearchLocationAdapter;
 import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
 import com.netease.yunxin.kit.common.utils.KeyboardUtils;
 import com.netease.yunxin.kit.common.utils.LocationUtils;
 import com.netease.yunxin.kit.common.utils.NetworkUtils;
+import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
+import com.netease.yunxin.kit.locationkit.databinding.ActivityLocationBinding;
 import java.util.List;
 
 public class LocationPageActivity extends BaseActivity {
   private static final String TAG = "LocationPageActivity";
 
-  public static final String SEND_LOCATION_RESULT = "SEND_LOCATION_RESULT";
-  public static final String LAUNCH_TYPE = "LOCATION_LAUNCH_TYPE";
-  public static final String LAUNCH_LOCATION_MESSAGE = "LAUNCH_LOCATION_MESSAGE";
-  public static final int LAUNCH_SEND = 0;
-  public static final int LAUNCH_DETAIL = 1;
-
   ActivityLocationBinding binding;
-  int launchType = LAUNCH_SEND;
+  int launchType = RouterConstant.KEY_LOCATION_TYPE_SEND;
   IMMessage message;
 
   private SearchLocationAdapter adapter;
@@ -54,13 +43,6 @@ public class LocationPageActivity extends BaseActivity {
 
   private IPageMapProvider pageMapProvider;
   private Handler searchHandler;
-
-  public static void launch(Context context, int type, IMMessage message) {
-    Intent intent = new Intent(context, LocationPageActivity.class);
-    intent.putExtra(LAUNCH_TYPE, type);
-    intent.putExtra(LAUNCH_LOCATION_MESSAGE, message);
-    context.startActivity(intent);
-  }
 
   @Override
   protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -70,7 +52,7 @@ public class LocationPageActivity extends BaseActivity {
     setContentView(binding.getRoot());
 
     initData(getIntent());
-    pageMapProvider = ChatKitClient.getPageMapProvider();
+    pageMapProvider = LocationKitClient.getPageMapProvider();
     if (pageMapProvider == null) {
       ALog.e(TAG, "IPageMapProvider not config!");
       emptyPage();
@@ -87,7 +69,7 @@ public class LocationPageActivity extends BaseActivity {
   @Override
   protected void onPostCreate(@Nullable Bundle savedInstanceState) {
     super.onPostCreate(savedInstanceState);
-    if (launchType == LAUNCH_SEND) {
+    if (launchType == RouterConstant.KEY_LOCATION_TYPE_SEND) {
       ActivityWorkaround.assistActivity(this, true)
           .setOnKeyboardStateChangeListener(
               new ActivityWorkaround.OnKeyboardStateChangeListener() {
@@ -105,8 +87,10 @@ public class LocationPageActivity extends BaseActivity {
   }
 
   private void initData(Intent intent) {
-    launchType = intent.getIntExtra(LAUNCH_TYPE, LAUNCH_SEND);
-    message = (IMMessage) intent.getSerializableExtra(LAUNCH_LOCATION_MESSAGE);
+    launchType =
+        intent.getIntExtra(
+            RouterConstant.KEY_LOCATION_PAGE_TYPE, RouterConstant.KEY_LOCATION_TYPE_SEND);
+    message = (IMMessage) intent.getSerializableExtra(RouterConstant.KEY_MESSAGE);
   }
 
   private void emptyPage() {
@@ -118,7 +102,7 @@ public class LocationPageActivity extends BaseActivity {
 
   private void initView(Bundle savedInstanceState) {
     binding.mapViewEmpty.setVisibility(View.GONE);
-    if (launchType == LAUNCH_SEND) {
+    if (launchType == RouterConstant.KEY_LOCATION_TYPE_SEND) {
       renderForSend(savedInstanceState);
     } else {
       renderForDetail(savedInstanceState);
@@ -199,7 +183,7 @@ public class LocationPageActivity extends BaseActivity {
           }
           ALog.d(LIB_TAG, TAG, "send location message:" + mSelectLoc);
           Intent result = new Intent();
-          result.putExtra(SEND_LOCATION_RESULT, mSelectLoc);
+          result.putExtra(RouterConstant.KEY_LOCATION_SELECT_RESULT, mSelectLoc);
           setResult(RESULT_OK, result);
           finish();
         });
@@ -296,7 +280,6 @@ public class LocationPageActivity extends BaseActivity {
   @Override
   protected void onSaveInstanceState(@NonNull Bundle outState) {
     super.onSaveInstanceState(outState);
-    //    pageMapProvider.getChatMap().onSaveInstanceState(outState);
     finish();
   }
 

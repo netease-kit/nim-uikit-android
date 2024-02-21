@@ -6,6 +6,7 @@
   -->
 
 <resources>
+    <string name="chat_message_location_distance">%.0fm内&#160;|&#160;%s</string>
 
     <string name="location_amap_nav_title">高德地图</string>
     <string name="location_tencent_nav_title">腾讯地图</string>

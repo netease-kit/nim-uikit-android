@@ -8,7 +8,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.netease.yunxin.kit.chatkit.ui">
 
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <!--获取运营商信息，用于支持提供运营商信息相关的接口-->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <!--用于访问wifi网络信息，wifi信息会用于进行网络定位-->
@@ -36,6 +35,8 @@
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO"/>
     <!--用于读取手机当前的状态-->
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <!--用于访问手机麦克风权限-->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <application>
         <provider
             android:name="com.netease.yunxin.kit.corekit.startup.InitializationProvider"
@@ -87,11 +88,6 @@
             android:screenOrientation="portrait"
              />
 
-        <activity
-            android:name="com.netease.yunxin.kit.chatkit.ui.page.LocationPageActivity"
-            android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustResize"
-            android:finishOnTaskLaunch="true"/>
         <activity
             android:name="com.netease.yunxin.kit.chatkit.ui.normal.page.ChatPinActivity"
             android:screenOrientation="portrait"

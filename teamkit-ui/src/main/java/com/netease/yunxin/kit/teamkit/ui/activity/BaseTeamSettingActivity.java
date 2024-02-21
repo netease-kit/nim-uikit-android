@@ -356,7 +356,8 @@ public abstract class BaseTeamSettingActivity extends BaseActivity {
 
     boolean hasPrivilegeToUpdateInfo =
         (team.getTeamUpdateMode() == TeamUpdateModeEnum.All)
-            || (teamMember.getType() != TeamMemberType.Normal
+            || (teamMember != null
+                && teamMember.getType() != TeamMemberType.Normal
                 && teamMember.getType() != TeamMemberType.Apply)
             || team.getType() == TeamTypeEnum.Normal;
     tvName.setOnClickListener(
@@ -408,7 +409,8 @@ public abstract class BaseTeamSettingActivity extends BaseActivity {
 
     boolean hasPrivilegeToInvite =
         (team.getTeamInviteMode() == TeamInviteModeEnum.All)
-            || (teamMember.getType() != TeamMemberType.Normal
+            || (teamMember != null
+                && teamMember.getType() != TeamMemberType.Normal
                 && teamMember.getType() != TeamMemberType.Apply)
             || team.getType() == TeamTypeEnum.Normal;
     ConstraintLayout.LayoutParams params =
@@ -551,7 +553,7 @@ public abstract class BaseTeamSettingActivity extends BaseActivity {
           otherPageEnterFlag = true;
         });
 
-    TeamMemberType type = teamMember.getType();
+    TeamMemberType type = teamMember != null ? teamMember.getType() : TeamMemberType.Normal;
     if (type == TeamMemberType.Owner) {
       initForOwner();
     } else if (type == TeamMemberType.Manager) {

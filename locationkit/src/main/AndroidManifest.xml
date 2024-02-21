@@ -4,10 +4,28 @@
 <!-- found in the LICENSE file. -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.netease.yunxin.kit.locationkit">
-
+    <!--获取运营商信息，用于支持提供运营商信息相关的接口-->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <queries>
         <package android:name="com.autonavi.minimap"/>
     </queries>
-    <application android:allowNativeHeapPointerTagging="false"/>
+    <application android:allowNativeHeapPointerTagging="false">
+        <provider
+            android:name="com.netease.yunxin.kit.corekit.startup.InitializationProvider"
+            android:authorities="${applicationId}.xkit-startup"
+            android:exported="false"
+            tools:node="merge">
+            <meta-data
+                android:name="com.netease.yunxin.kit.locationkit.LocationKitService"
+                android:value="xkit.startup" />
+        </provider>
+
+        <activity
+            android:name=".LocationPageActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize"
+            android:finishOnTaskLaunch="true"/>
+    </application>
 </manifest>

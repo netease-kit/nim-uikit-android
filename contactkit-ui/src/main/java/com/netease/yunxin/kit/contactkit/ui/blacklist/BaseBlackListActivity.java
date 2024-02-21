@@ -48,7 +48,8 @@ public class BaseBlackListActivity extends BaseListActivity {
             result -> {
               if (result.getResultCode() == RESULT_OK && result.getData() != null) {
                 if (!NetworkUtils.isConnected()) {
-                  Toast.makeText(this, R.string.contact_network_error_tip, Toast.LENGTH_SHORT).show();
+                  Toast.makeText(this, R.string.contact_network_error_tip, Toast.LENGTH_SHORT)
+                      .show();
                   return;
                 }
                 ArrayList<String> friends =

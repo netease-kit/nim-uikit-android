@@ -8,7 +8,6 @@ import android.content.Context;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.Nullable;
 import com.netease.yunxin.kit.chatkit.map.IMessageMapProvider;
-import com.netease.yunxin.kit.chatkit.map.IPageMapProvider;
 import com.netease.yunxin.kit.chatkit.ui.view.message.viewholder.ChatBaseMessageViewHolder;
 import com.netease.yunxin.kit.chatkit.ui.view.message.viewholder.CommonBaseMessageViewHolder;
 import com.netease.yunxin.kit.corekit.im.custom.CustomAttachParser;
@@ -18,7 +17,6 @@ import com.netease.yunxin.kit.corekit.im.custom.CustomAttachment;
 public class ChatKitClient {
 
   private static ChatUIConfig chatConfig;
-  private static IPageMapProvider pageMapProvider;
   private static IMessageMapProvider messageMapProvider;
 
   @Deprecated
@@ -28,20 +26,12 @@ public class ChatKitClient {
     chatConfig = config;
   }
 
-  public static void setPageMapProvider(IPageMapProvider provider) {
-    pageMapProvider = provider;
-  }
-
   public static void setMessageMapProvider(IMessageMapProvider provider) {
     messageMapProvider = provider;
   }
 
   public static ChatUIConfig getChatUIConfig() {
     return chatConfig;
-  }
-
-  public static IPageMapProvider getPageMapProvider() {
-    return pageMapProvider;
   }
 
   public static @Nullable IMessageMapProvider getMessageMapProvider() {
