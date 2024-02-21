@@ -59,9 +59,11 @@ public class IMApplication extends MultiDexApplication {
 
     if (IMKitUtils.isMainProcess(this)) {
       ALog.d(Constant.PROJECT_TAG, TAG, "initUIKit:isMainProcess");
-        // 地图组件初始化
-        LocationConfig locationConfig = new LocationConfig();
-        locationConfig.aMapWebServerKey = DataUtils.readAMapAppKey(this);
+      // 地图组件初始化
+      // 位置消息展示方案，参考高德静态地图文档，https://lbs.amap.com/api/webservice/guide/api/staticmaps/#limit
+      LocationConfig locationConfig = new LocationConfig();
+      // 高德地图web API KEY，用于位置消息生成图片（高德提供服务，需要用户自己创建web服务，https://lbs.amap.com/api/webservice/create-project-and-key）
+      locationConfig.aMapWebServerKey = DataUtils.readAMapAppKey(this);
       LocationKitClient.init(this, locationConfig);
       //huawei push
       ActivityMgr.INST.init(this);
