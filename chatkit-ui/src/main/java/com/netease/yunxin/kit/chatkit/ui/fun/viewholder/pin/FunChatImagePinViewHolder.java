@@ -6,9 +6,9 @@ package com.netease.yunxin.kit.chatkit.ui.fun.viewholder.pin;
 
 import android.view.View;
 import androidx.annotation.NonNull;
-import com.netease.nimlib.sdk.msg.attachment.ImageAttachment;
-import com.netease.nimlib.sdk.msg.constant.AttachStatusEnum;
-import com.netease.nimlib.sdk.msg.constant.MsgStatusEnum;
+import com.netease.nimlib.sdk.v2.message.attachment.V2NIMMessageImageAttachment;
+import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageAttachmentUploadState;
+import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageSendingState;
 import com.netease.yunxin.kit.chatkit.ui.databinding.FunChatBasePinViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.common.utils.ImageUtils;
@@ -26,8 +26,10 @@ public class FunChatImagePinViewHolder extends FunChatThumbPinViewHolder {
     super.onBindData(message, position);
     binding.progressBarInsideIcon.setVisibility(View.GONE);
     binding.playIcon.setVisibility(View.GONE);
-    if (getMsgInternal().getStatus() == MsgStatusEnum.sending
-        || getMsgInternal().getAttachStatus() == AttachStatusEnum.transferring) {
+    if (getMsgInternal().getSendingState()
+            == V2NIMMessageSendingState.V2NIM_MESSAGE_SENDING_STATE_SENDING
+        || getMsgInternal().getAttachmentUploadState()
+            == V2NIMMessageAttachmentUploadState.V2NIM_MESSAGE_ATTACHMENT_UPLOAD_STATE_UPLOADING) {
       binding.progressBar.setVisibility(View.VISIBLE);
       binding.progressBar.setIndeterminate(true);
     } else {
@@ -53,7 +55,8 @@ public class FunChatImagePinViewHolder extends FunChatThumbPinViewHolder {
       bounds = ImageUtils.getSize(path);
     }
     if (bounds == null || bounds[0] == 0) {
-      ImageAttachment attachment = (ImageAttachment) getMsgInternal().getAttachment();
+      V2NIMMessageImageAttachment attachment =
+          (V2NIMMessageImageAttachment) getMsgInternal().getAttachment();
       bounds = new int[] {attachment.getWidth(), attachment.getHeight()};
     }
     return bounds;

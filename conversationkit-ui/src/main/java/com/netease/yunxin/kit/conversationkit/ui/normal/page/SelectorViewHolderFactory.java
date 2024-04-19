@@ -14,7 +14,7 @@ import com.netease.yunxin.kit.conversationkit.ui.model.ConversationBean;
 import com.netease.yunxin.kit.conversationkit.ui.normal.ViewHolderFactory;
 import com.netease.yunxin.kit.conversationkit.ui.normal.viewholder.SelectorViewHolder;
 
-/** select fragment or activity view holder factory */
+/** 会话选选择器对应的ViewHolder工厂 */
 class SelectorViewHolderFactory extends ViewHolderFactory {
 
   @Override

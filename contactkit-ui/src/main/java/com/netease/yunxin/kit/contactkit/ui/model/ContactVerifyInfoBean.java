@@ -5,10 +5,8 @@
 package com.netease.yunxin.kit.contactkit.ui.model;
 
 import android.text.TextUtils;
-import com.netease.nimlib.sdk.friend.model.AddFriendNotify;
-import com.netease.yunxin.kit.corekit.im.model.SystemMessageInfo;
-import com.netease.yunxin.kit.corekit.im.model.SystemMessageInfoStatus;
-import com.netease.yunxin.kit.corekit.im.model.SystemMessageInfoType;
+import com.netease.nimlib.sdk.v2.friend.enums.V2NIMFriendAddApplicationStatus;
+import com.netease.yunxin.kit.corekit.im2.model.FriendAddApplicationInfo;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -16,17 +14,17 @@ import java.util.Objects;
 /** Contact data for verify data */
 public class ContactVerifyInfoBean extends BaseContactBean {
 
-  public SystemMessageInfo data;
+  public FriendAddApplicationInfo data;
 
-  public List<SystemMessageInfo> messageList = new ArrayList<>();
+  public List<FriendAddApplicationInfo> messageList = new ArrayList<>();
 
-  public ContactVerifyInfoBean(SystemMessageInfo data) {
+  public ContactVerifyInfoBean(FriendAddApplicationInfo data) {
     this.data = data;
     messageList.add(data);
     viewType = IViewTypeConstant.CONTACT_VERIFY_INFO;
   }
 
-  public ContactVerifyInfoBean(SystemMessageInfo data, List<SystemMessageInfo> list) {
+  public ContactVerifyInfoBean(FriendAddApplicationInfo data, List<FriendAddApplicationInfo> list) {
     this.data = data;
     messageList.clear();
     messageList.add(data);
@@ -38,7 +36,7 @@ public class ContactVerifyInfoBean extends BaseContactBean {
 
   public int getUnreadCount() {
     int count = 0;
-    for (SystemMessageInfo messageInfo : messageList) {
+    for (FriendAddApplicationInfo messageInfo : messageList) {
       if (messageInfo.getUnread()) {
         count++;
       }
@@ -47,21 +45,21 @@ public class ContactVerifyInfoBean extends BaseContactBean {
   }
 
   public void clearUnreadCount() {
-    for (SystemMessageInfo messageInfo : messageList) {
+    for (FriendAddApplicationInfo messageInfo : messageList) {
       if (messageInfo.getUnread()) {
         messageInfo.setUnread(false);
       }
     }
   }
 
-  public void updateStatus(SystemMessageInfoStatus status) {
-    for (SystemMessageInfo messageInfo : messageList) {
-      messageInfo.setInfoStatus(status);
+  public void updateStatus(V2NIMFriendAddApplicationStatus status) {
+    for (FriendAddApplicationInfo messageInfo : messageList) {
+      messageInfo.setStatus(status);
       messageInfo.setUnread(false);
     }
   }
 
-  public boolean pushMessageIfSame(SystemMessageInfo messageInfo) {
+  public boolean pushMessageIfSame(FriendAddApplicationInfo messageInfo) {
     if (isSameMessage(messageInfo)) {
       if (data.getTime() < messageInfo.getTime()) {
         data = messageInfo;
@@ -83,42 +81,22 @@ public class ContactVerifyInfoBean extends BaseContactBean {
     return null;
   }
 
-  public boolean isSameMessage(SystemMessageInfo messageInfo) {
+  public boolean isSameMessage(FriendAddApplicationInfo messageInfo) {
     if (messageInfo == null) {
       return false;
     }
-
-    if (data.getInfoType() == messageInfo.getInfoType()
-        && TextUtils.equals(data.getFromAccount(), messageInfo.getFromAccount())
-        && TextUtils.equals(data.getTargetId(), messageInfo.getTargetId())
-        && data.getInfoStatus() == messageInfo.getInfoStatus()) {
-
-      if (messageInfo.getInfoType() == SystemMessageInfoType.AddFriend
-          && messageInfo.getAttachObject() instanceof AddFriendNotify) {
-
-        if (!(data.getAttachObject() instanceof AddFriendNotify)) {
-          return false;
-        }
-        AddFriendNotify notify = (AddFriendNotify) data.getAttachObject();
-        AddFriendNotify notifyInfo = (AddFriendNotify) messageInfo.getAttachObject();
-        if (notify.getEvent() == notifyInfo.getEvent()
-            && TextUtils.equals(notify.getAccount(), notifyInfo.getAccount())) {
-          return true;
-        } else {
-          return false;
-        }
-      }
-      return true;
-    }
-    return false;
+    return TextUtils.equals(data.getApplicantAccountId(), messageInfo.getApplicantAccountId())
+        && TextUtils.equals(data.getRecipientAccountId(), messageInfo.getRecipientAccountId())
+        && data.getStatus() == messageInfo.getStatus();
   }
 
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
-    if (!(o instanceof ContactVerifyInfoBean)) return false;
-    ContactVerifyInfoBean infoBean = (ContactVerifyInfoBean) o;
-    return isSameMessage(infoBean.data);
+    if (!(o instanceof ContactVerifyInfoBean)) {
+      return false;
+    }
+    return isSameMessage(((ContactVerifyInfoBean) o).data);
   }
 
   @Override

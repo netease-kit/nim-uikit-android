@@ -7,22 +7,26 @@ package com.netease.yunxin.kit.teamkit.ui.normal.adapter;
 import android.content.Context;
 import android.text.TextUtils;
 import android.view.View;
-import com.netease.nimlib.sdk.team.constant.TeamMemberType;
-import com.netease.nimlib.sdk.team.constant.TeamTypeEnum;
-import com.netease.yunxin.kit.chatkit.model.UserInfoWithTeam;
-import com.netease.yunxin.kit.corekit.im.IMKitClient;
-import com.netease.yunxin.kit.corekit.im.model.UserInfo;
-import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
+import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamMemberRole;
+import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamType;
+import com.netease.yunxin.kit.chatkit.model.TeamMemberWithUserInfo;
+import com.netease.yunxin.kit.corekit.im2.IMKitClient;
+import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 import com.netease.yunxin.kit.teamkit.ui.R;
 import com.netease.yunxin.kit.teamkit.ui.adapter.BaseTeamMemberListAdapter;
 import com.netease.yunxin.kit.teamkit.ui.databinding.TeamMemberListItemBinding;
 import com.netease.yunxin.kit.teamkit.ui.utils.ColorUtils;
 
+/**
+ * 群成员列表适配器,差异化UI展示
+ *
+ * <p>
+ */
 public class TeamMemberListAdapter extends BaseTeamMemberListAdapter<TeamMemberListItemBinding> {
 
   public TeamMemberListAdapter(
-      Context context, TeamTypeEnum teamTypeEnum, Class<TeamMemberListItemBinding> viewBinding) {
+      Context context, V2NIMTeamType teamTypeEnum, Class<TeamMemberListItemBinding> viewBinding) {
     super(context, teamTypeEnum, viewBinding);
   }
 
@@ -30,16 +34,16 @@ public class TeamMemberListAdapter extends BaseTeamMemberListAdapter<TeamMemberL
   public void onBindViewHolder(
       TeamMemberListItemBinding binding,
       int position,
-      UserInfoWithTeam data,
+      TeamMemberWithUserInfo data,
       int bingingAdapterPosition) {
+
+    if (data == null) {
+      return;
+    }
     binding.tvUserName.setText(data.getName());
     if (showSelect) {
       binding.selectLayout.setVisibility(View.VISIBLE);
-      if (selectData.containsKey(data.getTeamInfo().getAccount())) {
-        binding.selectorCb.setChecked(true);
-      } else {
-        binding.selectorCb.setChecked(false);
-      }
+      binding.selectorCb.setChecked(selectData.containsKey(data.getAccountId()));
       binding.tvIdentify.setVisibility(View.GONE);
       binding
           .getRoot()
@@ -47,9 +51,9 @@ public class TeamMemberListAdapter extends BaseTeamMemberListAdapter<TeamMemberL
               v -> {
                 if (binding.selectorCb.isChecked()) {
                   binding.selectorCb.setChecked(false);
-                  selectData.remove(data.getTeamInfo().getAccount());
+                  selectData.remove(data.getAccountId());
                 } else {
-                  selectData.put(data.getTeamInfo().getAccount(), data);
+                  selectData.put(data.getAccountId(), data);
                   binding.selectorCb.setChecked(true);
                 }
                 if (itemClickListener != null) {
@@ -74,12 +78,12 @@ public class TeamMemberListAdapter extends BaseTeamMemberListAdapter<TeamMemberL
       }
 
       if (showGroupIdentify
-          && (data.getTeamInfo().getType() == TeamMemberType.Owner
-              || data.getTeamInfo().getType() == TeamMemberType.Manager)
-          && teamTypeEnum == TeamTypeEnum.Advanced) {
+          && (data.getMemberRole() == V2NIMTeamMemberRole.V2NIM_TEAM_MEMBER_ROLE_OWNER
+              || data.getMemberRole() == V2NIMTeamMemberRole.V2NIM_TEAM_MEMBER_ROLE_MANAGER)
+          && teamTypeEnum == V2NIMTeamType.V2NIM_TEAM_TYPE_NORMAL) {
         binding.tvIdentify.setVisibility(View.VISIBLE);
         binding.tvIdentify.setText(
-            data.getTeamInfo().getType() == TeamMemberType.Owner
+            data.getMemberRole() == V2NIMTeamMemberRole.V2NIM_TEAM_MEMBER_ROLE_OWNER
                 ? binding.getRoot().getContext().getText(R.string.team_owner)
                 : binding.getRoot().getContext().getText(R.string.team_type_manager));
       } else {
@@ -87,26 +91,23 @@ public class TeamMemberListAdapter extends BaseTeamMemberListAdapter<TeamMemberL
       }
     }
 
-    UserInfo userInfo = data.getUserInfo();
-    if (userInfo != null) {
-      binding.cavUserIcon.setData(
-          userInfo.getAvatar(), data.getName(), ColorUtils.avatarColor(userInfo.getAccount()));
-      if (!showSelect) {
-        View.OnClickListener clickListener =
-            v -> {
-              if (TextUtils.equals(userInfo.getAccount(), IMKitClient.account())) {
-                XKitRouter.withKey(RouterConstant.PATH_MINE_INFO_PAGE)
-                    .withContext(v.getContext())
-                    .navigate();
-              } else {
-                XKitRouter.withKey(RouterConstant.PATH_USER_INFO_PAGE)
-                    .withContext(v.getContext())
-                    .withParam(RouterConstant.KEY_ACCOUNT_ID_KEY, userInfo.getAccount())
-                    .navigate();
-              }
-            };
-        binding.getRoot().setOnClickListener(clickListener);
-      }
+    binding.cavUserIcon.setData(
+        data.getAvatar(), data.getAvatarName(), ColorUtils.avatarColor(data.getAccountId()));
+    if (!showSelect) {
+      View.OnClickListener clickListener =
+          v -> {
+            if (TextUtils.equals(data.getAccountId(), IMKitClient.account())) {
+              XKitRouter.withKey(RouterConstant.PATH_MINE_INFO_PAGE)
+                  .withContext(v.getContext())
+                  .navigate();
+            } else {
+              XKitRouter.withKey(RouterConstant.PATH_USER_INFO_PAGE)
+                  .withContext(v.getContext())
+                  .withParam(RouterConstant.KEY_ACCOUNT_ID_KEY, data.getAccountId())
+                  .navigate();
+            }
+          };
+      binding.getRoot().setOnClickListener(clickListener);
     }
   }
 }

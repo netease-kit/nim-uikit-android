@@ -28,7 +28,7 @@
             android:layout_marginStart="@dimen/dimen_20_dp"
             android:layout_gravity="center_vertical"
             android:clickable="false"
-            style="@style/TeamSelectorRadioBtn"/>
+            style="@style/FunTeamSelectorRadioBtn"/>
     </FrameLayout>
 
     <com.netease.yunxin.kit.common.ui.widgets.ContactAvatarView

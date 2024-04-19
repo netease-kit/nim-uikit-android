@@ -9,8 +9,6 @@ import android.os.Bundle;
 import android.view.View;
 import com.netease.yunxin.kit.contactkit.ui.databinding.UserInfoActivityLayoutBinding;
 import com.netease.yunxin.kit.contactkit.ui.userinfo.BaseUserInfoActivity;
-import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
-import com.netease.yunxin.kit.corekit.route.XKitRouter;
 
 public class UserInfoActivity extends BaseUserInfoActivity {
 
@@ -27,13 +25,5 @@ public class UserInfoActivity extends BaseUserInfoActivity {
   @Override
   protected Class<? extends Activity> getCommentActivity() {
     return CommentActivity.class;
-  }
-
-  protected void goChat() {
-    XKitRouter.withKey(RouterConstant.PATH_CHAT_P2P_PAGE)
-        .withParam(RouterConstant.CHAT_ID_KRY, userInfoData.data.getAccount())
-        .withContext(this)
-        .navigate();
-    finish();
   }
 }

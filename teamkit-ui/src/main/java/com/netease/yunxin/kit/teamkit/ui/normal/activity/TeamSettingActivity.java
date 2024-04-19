@@ -4,21 +4,25 @@
 
 package com.netease.yunxin.kit.teamkit.ui.normal.activity;
 
-import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.KEY_TEAM_ID;
+import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.KEY_TEAM_ID;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import com.netease.yunxin.kit.chatkit.model.UserInfoWithTeam;
-import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
+import com.netease.yunxin.kit.chatkit.model.TeamMemberWithUserInfo;
+import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.teamkit.ui.activity.BaseTeamSettingActivity;
 import com.netease.yunxin.kit.teamkit.ui.adapter.TeamCommonAdapter;
 import com.netease.yunxin.kit.teamkit.ui.databinding.TeamSettingActivityBinding;
 import com.netease.yunxin.kit.teamkit.ui.databinding.TeamSettingUserItemBinding;
 import com.netease.yunxin.kit.teamkit.ui.normal.adapter.TeamSettingMemberAdapter;
 
-/** team setting activity */
+/**
+ * 普通版群设置页面，差异化UI展示
+ *
+ * <p>
+ */
 public class TeamSettingActivity extends BaseTeamSettingActivity {
 
   @Override
@@ -46,7 +50,7 @@ public class TeamSettingActivity extends BaseTeamSettingActivity {
   }
 
   @Override
-  protected TeamCommonAdapter<UserInfoWithTeam, ?> getTeamMemberAdapter() {
+  protected TeamCommonAdapter<TeamMemberWithUserInfo, ?> getTeamMemberAdapter() {
     return new TeamSettingMemberAdapter(this, TeamSettingUserItemBinding.class);
   }
 

@@ -24,7 +24,7 @@ import com.netease.yunxin.kit.contactkit.ui.normal.selector.ContactSelectorActiv
 import com.netease.yunxin.kit.contactkit.ui.normal.team.TeamListActivity;
 import com.netease.yunxin.kit.contactkit.ui.normal.userinfo.UserInfoActivity;
 import com.netease.yunxin.kit.contactkit.ui.normal.verify.VerifyListActivity;
-import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
+import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 
 @Keep

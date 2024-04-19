@@ -15,6 +15,11 @@ import androidx.annotation.NonNull;
 import com.netease.yunxin.kit.alog.ALog;
 import java.util.Objects;
 
+/**
+ * 设置权限时，群身份选择对话框
+ *
+ * <p>
+ */
 public abstract class BaseTeamIdentifyDialog extends Dialog {
   private static final String TAG = "TeamIdentifyDialog";
   public static final int TYPE_TEAM_OWNER_AND_MANAGER = 0;

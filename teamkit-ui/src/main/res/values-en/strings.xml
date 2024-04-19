@@ -62,8 +62,6 @@
     <string name="team_remove_member_content">This member will leave group after remove</string>
     <string name="team_remove_manager_content">No permission after remov</string>
     <string name="team_transform_owner">Transfer group admin</string>
-    <string name="team_at_permission_manager_tips">Everyone can \@all</string>
-    <string name="team_at_permission_all_tips">Only admin and manager can \@all</string>
     <string name="team_manager_list_empty">No manager</string>
 
     <!-- error tips-->

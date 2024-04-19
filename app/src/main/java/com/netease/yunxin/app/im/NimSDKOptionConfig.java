@@ -6,8 +6,6 @@ package com.netease.yunxin.app.im;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.os.Environment;
-import android.text.TextUtils;
 import com.netease.nimlib.sdk.NotificationFoldStyle;
 import com.netease.nimlib.sdk.SDKOptions;
 import com.netease.nimlib.sdk.ServerAddresses;
@@ -20,21 +18,21 @@ import com.netease.yunxin.app.im.utils.Constant;
 import com.netease.yunxin.app.im.utils.DataUtils;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.common.utils.ScreenUtils;
-import java.io.IOException;
 
 /** Nim SDK config info */
 public class NimSDKOptionConfig {
 
+  // 通知音频
   public static final String NOTIFY_SOUND_KEY =
       "android.resource://com.netease.yunxin.app.im/raw/msg";
   public static final int LED_ON_MS = 1000;
   public static final int LED_OFF_MS = 1500;
 
+  // 初始化SDK配置，参数还以可以参考官网 IM SDK接口文档中有详细说明每个字段含义
   static SDKOptions getSDKOptions(Context context, String appKey) {
     SDKOptions options = new SDKOptions();
     options.appKey = appKey;
     initStatusBarNotificationConfig(options);
-    options.sdkStorageRootPath = getAppCacheDir(context);
     options.preloadAttach = true;
     options.thumbnailSize = (int) (222.0 / 375.0 * ScreenUtils.getDisplayWidth());
     options.userInfoProvider = new PushUserInfoProvider(context);
@@ -55,6 +53,7 @@ public class NimSDKOptionConfig {
     return options;
   }
 
+  // 配置海外节点，用户可以参考配置，来进行海外节点配置或者私有化配置
   public static ServerAddresses configServer(Context context) {
 
     if (DataUtils.getServerConfigType(context) == Constant.OVERSEA_CONFIG) {
@@ -100,49 +99,34 @@ public class NimSDKOptionConfig {
     return config;
   }
 
-  /** config app image/voice/file/log directory */
-  static String getAppCacheDir(Context context) {
-    String storageRootPath = null;
-    try {
-      if (context.getExternalCacheDir() != null) {
-        storageRootPath = context.getExternalCacheDir().getCanonicalPath();
-      }
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-    if (TextUtils.isEmpty(storageRootPath)) {
-      storageRootPath = Environment.getExternalStorageDirectory() + "/" + context.getPackageName();
-    }
-    return storageRootPath;
+  // 推送配置，包括小米，华为，魅族，FCM，VIVO，OPPO，参考官网文档说明
+  private static MixPushConfig buildMixPushConfig() {
+    MixPushConfig config = new MixPushConfig();
+    // xiaomi
+//    config.xmAppId = "";
+//    config.xmAppKey = "";
+//    config.xmCertificateName = "";
+
+    // huawei
+//    config.hwAppId = "";
+//    config.hwCertificateName = "";
+
+    // meizu
+//    config.mzAppId = "";
+//    config.mzAppKey = "";
+//    config.mzCertificateName = "";
+
+    // fcm
+    //        config.fcmCertificateName = "";
+
+    // vivo
+//    config.vivoCertificateName = "";
+
+    // oppo
+//    config.oppoAppId = "";
+//    config.oppoAppKey = "";
+//    config.oppoAppSercet = "";
+//    config.oppoCertificateName = "";
+    return null;
   }
-
-    private static MixPushConfig buildMixPushConfig() {
-        MixPushConfig config = new MixPushConfig();
-        // xiaomi
-//        config.xmAppId = "xiao mi push app id"; //apply in xiaomi
-//        config.xmAppKey = "xiao mi push app key";//apply in xiaomi
-//        config.xmCertificateName = "Certificate Name";//config in yunxin platform
-
-        // huawei
-//        config.hwAppId = "huawei app id";//apply in huawei
-//        config.hwCertificateName = "Certificate Name";//config in yunxin platform
-
-        // meizu
-//        config.mzAppId = "meizu push app id";//apply in meizu
-//        config.mzAppKey = "meizu push app key";//apply in meizu
-//        config.mzCertificateName = "Certificate Name";//config in yunxin platform
-
-        // fcm
-//        config.fcmCertificateName = "DEMO_FCM_PUSH";
-
-        // vivo
-//        config.vivoCertificateName = "Certificate Name";//config in yunxin platform
-
-        // oppo
-//        config.oppoAppId = "oppo push app id";//apply in oppo
-//        config.oppoAppKey = "oppo push app key";//apply in oppo
-//        config.oppoAppSercet = "oppo push app secret"; //apply in oppo
-//        config.oppoCertificateName = "Certificate Name";//config in yunxin platform
-        return config;
-    }
 }

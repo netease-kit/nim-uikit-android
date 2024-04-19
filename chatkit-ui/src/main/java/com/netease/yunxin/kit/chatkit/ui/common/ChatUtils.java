@@ -17,18 +17,17 @@ import android.provider.OpenableColumns;
 import android.text.TextUtils;
 import android.webkit.MimeTypeMap;
 import androidx.activity.result.ActivityResultLauncher;
-import com.netease.nimlib.sdk.msg.attachment.FileAttachment;
-import com.netease.nimlib.sdk.msg.attachment.VideoAttachment;
-import com.netease.nimlib.sdk.msg.constant.AttachStatusEnum;
-import com.netease.nimlib.sdk.msg.constant.MsgStatusEnum;
-import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
-import com.netease.nimlib.sdk.msg.model.IMMessage;
-import com.netease.nimlib.sdk.team.constant.TeamMemberType;
 import com.netease.nimlib.sdk.team.constant.TeamTypeEnum;
 import com.netease.nimlib.sdk.team.model.Team;
+import com.netease.nimlib.sdk.v2.message.V2NIMMessage;
+import com.netease.nimlib.sdk.v2.message.attachment.V2NIMMessageFileAttachment;
+import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageSendingState;
+import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
+import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamMemberRole;
+import com.netease.nimlib.sdk.v2.team.model.V2NIMTeam;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
-import com.netease.yunxin.kit.chatkit.model.UserInfoWithTeam;
+import com.netease.yunxin.kit.chatkit.model.TeamMemberWithUserInfo;
 import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitClient;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant;
@@ -39,9 +38,9 @@ import com.netease.yunxin.kit.chatkit.ui.page.WatchImageActivity;
 import com.netease.yunxin.kit.chatkit.ui.page.WatchVideoActivity;
 import com.netease.yunxin.kit.common.utils.CommonFileProvider;
 import com.netease.yunxin.kit.common.utils.FileUtils;
-import com.netease.yunxin.kit.corekit.im.IMKitClient;
-import com.netease.yunxin.kit.corekit.im.utils.IMKitConstant;
-import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
+import com.netease.yunxin.kit.corekit.im2.IMKitClient;
+import com.netease.yunxin.kit.corekit.im2.IMKitConstant;
+import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 import java.io.File;
 import java.text.DecimalFormat;
@@ -61,12 +60,17 @@ public class ChatUtils {
   public static final String TAG = "ChatUtils";
 
   // 使用手机应用打开文件
-  public static void openFileWithApp(Context context, IMMessage message) {
-    FileAttachment fileAttachment = (FileAttachment) message.getAttachment();
-    File openFile = new File(fileAttachment.getPath());
+  public static void openFileWithApp(Context context, V2NIMMessage message) {
+    V2NIMMessageFileAttachment fileAttachment =
+        (V2NIMMessageFileAttachment) message.getAttachment();
+    String filePath = MessageHelper.getMessageAttachPath(message);
+    if (TextUtils.isEmpty(filePath)) {
+      return;
+    }
+    File openFile = new File(filePath);
     if (openFile.exists()) {
       Uri fileUri = CommonFileProvider.Companion.getUriForFile(context, openFile);
-      String fileExtension = fileAttachment.getExtension();
+      String fileExtension = fileAttachment.getExt();
       if (TextUtils.isEmpty(fileExtension)) {
         fileExtension = FileUtils.getFileExtension(openFile.getPath());
       }
@@ -84,12 +88,24 @@ public class ChatUtils {
   // 是否为讨论组
   public static boolean isTeamGroup(Team teamInfo) {
     String teamExtension = teamInfo.getExtension();
-    if ((teamExtension != null && teamExtension.contains(IMKitConstant.TEAM_GROUP_TAG))
-        || teamInfo.getType() == TeamTypeEnum.Normal) {
-      return true;
-    }
+    return (teamExtension != null && teamExtension.contains(IMKitConstant.TEAM_GROUP_TAG))
+        || teamInfo.getType() == TeamTypeEnum.Normal;
+  }
 
-    return false;
+  /**
+   * 将音视频通话时长，转换为时间格式
+   *
+   * @param time 通话时长，单位秒
+   */
+  public static String formatCallTime(int time) {
+
+    int hour = time / 3600;
+    int minute = (time % 3600) / 60;
+    int second = time % 60;
+    if (hour == 0) {
+      return String.format(Locale.CHINA, "%02d:%02d", minute, second);
+    }
+    return String.format(Locale.CHINA, "%02d:%02d:%02d", hour, minute, second);
   }
 
   public static String formatFileSize(long fileS) {
@@ -237,20 +253,20 @@ public class ChatUtils {
         .navigate(launcher);
   }
 
-  public static void startVideoCall(Context context, String sessionId) {
+  public static void startVideoCall(Context context, String accountId) {
     XKitRouter.withKey(RouterConstant.PATH_CALL_SINGLE_PAGE)
         .withContext(context)
         .withParam(RouterConstant.KEY_CALLER_ACC_ID, IMKitClient.account())
-        .withParam(RouterConstant.KEY_CALLED_ACC_ID, sessionId)
+        .withParam(RouterConstant.KEY_CALLED_ACC_ID, accountId)
         .withParam(RouterConstant.KEY_CALL_TYPE, RouterConstant.KEY_CALL_TYPE_VIDEO)
         .navigate();
   }
 
-  public static void startAudioCall(Context context, String sessionId) {
+  public static void startAudioCall(Context context, String accountId) {
     XKitRouter.withKey(RouterConstant.PATH_CALL_SINGLE_PAGE)
         .withContext(context)
         .withParam(RouterConstant.KEY_CALLER_ACC_ID, IMKitClient.account())
-        .withParam(RouterConstant.KEY_CALLED_ACC_ID, sessionId)
+        .withParam(RouterConstant.KEY_CALLED_ACC_ID, accountId)
         .withParam(RouterConstant.KEY_CALL_TYPE, RouterConstant.KEY_CALL_TYPE_AUDIO)
         .navigate();
   }
@@ -258,11 +274,12 @@ public class ChatUtils {
   public static void watchImage(
       Context context, IMMessageInfo messageInfo, ArrayList<IMMessageInfo> imageMessages) {
     int index = 0;
-    if (messageInfo.getMessage().getAttachStatus() != AttachStatusEnum.transferred
-        && messageInfo.getMessage().getAttachStatus() != AttachStatusEnum.transferring) {
-      ChatRepo.downloadAttachment(messageInfo.getMessage(), false, null);
+    //不手动下载了
+    String path = MessageHelper.getMessageAttachPath(messageInfo.getMessage());
+    if (path != null && !FileUtils.isFileExists(path)) {
+      ChatRepo.downloadAttachment(messageInfo.getMessage(), path, null);
     }
-    ArrayList<IMMessage> messages = new ArrayList<>();
+    ArrayList<V2NIMMessage> messages = new ArrayList<>();
     int maxLimit = 100;
     int halfLimit = 50;
     int arraySize = imageMessages.size();
@@ -297,16 +314,18 @@ public class ChatUtils {
     if (messageInfo == null) {
       return false;
     }
-    IMMessage message = messageInfo.getMessage();
-    if ((message.getAttachStatus() == AttachStatusEnum.transferred
-            || message.getAttachStatus() == AttachStatusEnum.def)
-        && !TextUtils.isEmpty(((VideoAttachment) message.getAttachment()).getPath())) {
-      WatchVideoActivity.launch(context, message);
-      return true;
-    } else if (message.getAttachStatus() != AttachStatusEnum.transferring
-        && message.getAttachment() instanceof FileAttachment) {
-      ALog.d(LIB_TAG, TAG, "downloadMessageAttachment:" + message.getUuid());
-      ChatRepo.downloadAttachment(message, false, null);
+    V2NIMMessage message = messageInfo.getMessage();
+    //实现视频下载
+    String filePath = MessageHelper.getMessageAttachPath(message);
+    if (!TextUtils.isEmpty(filePath)) {
+      if (FileUtils.isFileExists(filePath)) {
+        WatchVideoActivity.launch(context, message);
+        return true;
+      } else if (!TextUtils.isEmpty(
+          ((V2NIMMessageFileAttachment) message.getAttachment()).getUrl())) {
+        ALog.d(LIB_TAG, TAG, "downloadMessageAttachment:" + message.getMessageClientId());
+        ChatRepo.downloadAttachment(message, filePath, null);
+      }
     }
     return false;
   }
@@ -315,16 +334,17 @@ public class ChatUtils {
     if (messageInfo == null) {
       return false;
     }
-    IMMessage message = messageInfo.getMessage();
-    if ((message.getAttachStatus() == AttachStatusEnum.transferred
-            || message.getAttachStatus() == AttachStatusEnum.def)
-        && !TextUtils.isEmpty(((FileAttachment) message.getAttachment()).getPath())) {
-      ChatUtils.openFileWithApp(context, message);
-      return true;
-    } else if (message.getAttachStatus() != AttachStatusEnum.transferring
-        && message.getAttachment() instanceof FileAttachment) {
-      ALog.d(LIB_TAG, TAG, "downloadMessageAttachment:" + message.getUuid());
-      ChatRepo.downloadAttachment(message, false, null);
+    V2NIMMessage message = messageInfo.getMessage();
+    String filePath = MessageHelper.getMessageAttachPath(message);
+    if (!TextUtils.isEmpty(filePath)) {
+      if (FileUtils.isFileExists(filePath)) {
+        ChatUtils.openFileWithApp(context, message);
+        return true;
+      } else if (!TextUtils.isEmpty(
+          ((V2NIMMessageFileAttachment) message.getAttachment()).getUrl())) {
+        ALog.d(LIB_TAG, TAG, "downloadMessageAttachment:" + message.getMessageClientId());
+        ChatRepo.downloadAttachment(message, filePath, null);
+      }
     }
     return false;
   }
@@ -333,25 +353,31 @@ public class ChatUtils {
     if (messageInfo == null) {
       return false;
     }
-    IMMessage message = messageInfo.getMessage();
-    if (!TextUtils.isEmpty(((FileAttachment) message.getAttachment()).getPath())) {
+    V2NIMMessage message = messageInfo.getMessage();
+    String path = MessageHelper.getMessageAttachPath(message);
+    if (path == null) {
+      return false;
+    }
+    if (FileUtils.isFileExists(path)) {
       ChatUtils.openFileWithApp(context, message);
       return true;
-    } else if (message.getAttachStatus() != AttachStatusEnum.transferring
-        && message.getAttachment() instanceof FileAttachment) {
-      ALog.d(LIB_TAG, TAG, "downloadMessageAttachment:" + message.getUuid());
-      ChatRepo.downloadAttachment(message, false, null);
+    } else if (message.getSendingState()
+            != V2NIMMessageSendingState.V2NIM_MESSAGE_SENDING_STATE_SENDING
+        && message.getAttachment() instanceof V2NIMMessageFileAttachment) {
+      ALog.d(LIB_TAG, TAG, "downloadMessageAttachment:" + message.getMessageClientId());
+      // 下载文件接口，等待提供
+      ChatRepo.downloadAttachment(message, path, null);
     }
     return false;
   }
 
-  public static Boolean teamAllowAllMemberAt(Team teamInfo) {
-    if (teamInfo == null || TextUtils.isEmpty(teamInfo.getExtension())) {
+  public static Boolean teamAllowAllMemberAt(V2NIMTeam teamInfo) {
+    if (teamInfo == null || TextUtils.isEmpty(teamInfo.getServerExtension())) {
       return true;
     }
     String result = ChatKitUIConstant.TYPE_EXTENSION_ALLOW_ALL;
     try {
-      JSONObject obj = new JSONObject(teamInfo.getExtension());
+      JSONObject obj = new JSONObject(teamInfo.getServerExtension());
       result =
           obj.optString(
               ChatKitUIConstant.KEY_EXTENSION_AT_ALL, ChatKitUIConstant.TYPE_EXTENSION_ALLOW_ALL);
@@ -432,7 +458,7 @@ public class ChatUtils {
           if (o1 == null || o2 == null) {
             return 0;
           }
-          return (int) (o1.getMessage().getTime() - o2.getMessage().getTime());
+          return (int) (o1.getMessage().getCreateTime() - o2.getMessage().getCreateTime());
         });
     return msgList;
   }
@@ -447,9 +473,14 @@ public class ChatUtils {
     List<ChatMessageBean> limitList = new ArrayList<>();
     if (msgBeanList != null && !msgBeanList.isEmpty()) {
       for (ChatMessageBean bean : msgBeanList) {
-        if (bean.getMessageData().getMessage().getMsgType() == MsgTypeEnum.audio
-            || bean.getMessageData().getMessage().getMsgType() == MsgTypeEnum.nrtc_netcall
-            || bean.getMessageData().getMessage().getStatus() == MsgStatusEnum.fail) {
+        if (bean.getMessageData().getMessage().getMessageType()
+                == V2NIMMessageType.V2NIM_MESSAGE_TYPE_AUDIO
+            || bean.getMessageData().getMessage().getMessageType()
+                == V2NIMMessageType.V2NIM_MESSAGE_TYPE_AVCHAT
+            || bean.getMessageData().getMessage().getMessageType()
+                == V2NIMMessageType.V2NIM_MESSAGE_TYPE_CALL
+            || bean.getMessageData().getMessage().getSendingState()
+                == V2NIMMessageSendingState.V2NIM_MESSAGE_SENDING_STATE_FAILED) {
           limitList.add(bean);
         }
       }
@@ -467,13 +498,14 @@ public class ChatUtils {
     List<ChatMessageBean> limitList = new ArrayList<>();
     if (msgBeanList != null && !msgBeanList.isEmpty()) {
       for (ChatMessageBean bean : msgBeanList) {
-        if (bean.getMessageData().getMessage().getStatus() == MsgStatusEnum.fail) {
+        if (bean.getMessageData().getMessage().getSendingState()
+            == V2NIMMessageSendingState.V2NIM_MESSAGE_SENDING_STATE_FAILED) {
           limitList.add(bean);
-        } else if (bean.getMessageData().getMessage().getMsgType() == MsgTypeEnum.custom
-            && bean.getMessageData().getMessage().getAttachment()
-                instanceof MultiForwardAttachment) {
+        } else if (bean.getMessageData().getMessage().getMessageType()
+                == V2NIMMessageType.V2NIM_MESSAGE_TYPE_CUSTOM
+            && bean.getMessageData().getAttachment() instanceof MultiForwardAttachment) {
           MultiForwardAttachment attachment =
-              (MultiForwardAttachment) bean.getMessageData().getMessage().getAttachment();
+              (MultiForwardAttachment) bean.getMessageData().getAttachment();
           if (attachment.depth >= CHAT_MULTI_FORWARD_DEEP_LIMIT) {
             limitList.add(bean);
           }
@@ -483,24 +515,22 @@ public class ChatUtils {
     return limitList;
   }
 
-  /**
-   * 群成员类型排序 群主排在第一个 管理员按照加入时间排序，并排在群主之后 普通成员按照加入时间排序，并排在管理员和群主之后
-   *
-   * @return
-   */
-  public static Comparator<UserInfoWithTeam> teamManagerComparator() {
+  /** 群成员类型排序 群主排在第一个 管理员按照加入时间排序，并排在群主之后 普通成员按照加入时间排序，并排在管理员和群主之后 */
+  public static Comparator<TeamMemberWithUserInfo> teamManagerComparator() {
     return (o1, o2) -> {
       if (o1 == null || o2 == null) {
         return 0;
       }
-      if (o1.getTeamInfo().getType() == TeamMemberType.Owner) {
+      if (o1.getTeamMember().getMemberRole() == V2NIMTeamMemberRole.V2NIM_TEAM_MEMBER_ROLE_OWNER) {
         return -1;
-      } else if (o2.getTeamInfo().getType() == TeamMemberType.Owner) {
+      } else if (o2.getTeamMember().getMemberRole()
+          == V2NIMTeamMemberRole.V2NIM_TEAM_MEMBER_ROLE_OWNER) {
         return 1;
-      } else if (o1.getTeamInfo().getType() == o2.getTeamInfo().getType()) {
-        return o1.getTeamInfo().getJoinTime() < o2.getTeamInfo().getJoinTime() ? -1 : 1;
+      } else if (o1.getTeamMember().getMemberRole() == o2.getTeamMember().getMemberRole()) {
+        return o1.getTeamMember().getJoinTime() < o2.getTeamMember().getJoinTime() ? -1 : 1;
       } else {
-        if (o1.getTeamInfo().getType() == TeamMemberType.Manager) {
+        if (o1.getTeamMember().getMemberRole()
+            == V2NIMTeamMemberRole.V2NIM_TEAM_MEMBER_ROLE_MANAGER) {
           return -1;
         } else {
           return 1;

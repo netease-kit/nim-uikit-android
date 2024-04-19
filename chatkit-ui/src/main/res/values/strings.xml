@@ -19,7 +19,6 @@
     <string name="chat_message_revoke_content">此消息已撤回</string>
     <string name="chat_message_revoke_over_time">已超过时间无法撤回</string>
     <string name="chat_message_revoked">此消息已撤回</string>
-    <string name="chat_message_revoked_fun">%s撤回了一条消息</string>
     <string name="chat_message_re_edit">重新编辑 </string>
     <string name="chat_message_voice_in">松开发送，按住滑到空白区域取消</string>
     <string name="chat_message_signal">标记</string>
@@ -55,13 +54,11 @@
     <string name="chat_message_video_time">%02d:%02d</string>
     <string name="chat_message_send">发送</string>
     <string name="chat_message_video_error">无法播放该视频</string>
-    <string name="chat_message_custom_sticker">贴图消息</string>
 
     <string name="chat_message_more_shoot">拍摄</string>
     <string name="chat_message_camera_unavailable">相机不可用</string>
     <string name="chat_message_location">位置</string>
     <string name="chat_message_file">文件</string>
-    <string name="chat_message_location_distance">%.0fm内&#160;|&#160;%s</string>
     <string name="chat_message_video_call">音视频通话</string>
     <string name="chat_message_video_call_action">视频通话</string>
     <string name="chat_message_audio_call_action">语音通话</string>
@@ -110,8 +107,8 @@
     <string name="chat_invite">邀请 </string>
     <string name="chat_join_team"> 加入群聊</string>
     <string name="chat_join_discuss_team"> 加入群聊</string>
-    <string name="chat_removed_team"> 被移除了群聊</string>
-    <string name="chat_removed_discuss_team"> 被移除了群聊</string>
+    <string name="chat_removed_team"> 被移出了群聊</string>
+    <string name="chat_removed_discuss_team"> 被移出了群聊</string>
     <string name="chat_left_team">退出了群聊</string>
     <string name="chat_left_discuss_team">退出了群聊</string>
     <string name="chat_dismiss_team">解散了群</string>
@@ -144,11 +141,15 @@
     <string name="chat_team_cancel_all_mute">群禁言已关闭</string>
     <string name="chat_team_full_mute">群禁言已开启</string>
     <string name="chat_team_update">群%s被更新为%s</string>
+    <string name="chat_team_at_permission_manager_tips">\@所有人权限更新为群主和管理员</string>
+    <string name="chat_team_at_permission_all_tips">\@所有人权限更新为所有人</string>
     <string name="chat_team_unknown_notification">未知通知</string>
     <string name="chat_team_ait_all">所有人</string>
     <string name="chat_team_be_removed_title">提示</string>
     <string name="chat_team_be_removed_content">该群聊已被解散</string>
-    <string name="chat_team_be_kick_content">您已被移除群聊</string>
+    <string name="chat_team_invalid_content">该群聊已不存在</string>
+    <string name="chat_team_be_kick_content">您已被移出群聊</string>
+    <string name="chat_team_error_tip_content">您已被移出群聊或该群聊已被解散</string>
 
     <string name="chat_reply_message_brief_image">[图片消息]</string>
     <string name="chat_reply_message_brief_audio">[语音消息]</string>
@@ -190,15 +191,16 @@
 
     <!-- tips -->
     <string name="chat_message_not_support_tips">[未知消息体]</string>
+    <string name="chat_message_not_call_tips">[音视频通话]</string>
     <string name="chat_message_type_not_support_tips">暂不支持该格式</string>
     <string name="chat_message_file_size_limit_tips">当前文件大小超出%sM发送限制，请重新选择</string>
     <string name="chat_message_type_resource_error">资源不支持读取</string>
     <string name="chat_message_revoke_eidt_error">已超过可编辑时间</string>
     <string name="chat_message_multi_forward_limit_tips">合并转发限制100条消息</string>
     <string name="chat_message_single_forward_limit_tips">逐条转发限制10条消息</string>
-    <string name="chat_message_multi_delete_limit_tips">批量删除限制100条消息</string>
+    <string name="chat_message_multi_delete_limit_tips">批量删除限制50条消息</string>
     <string name="chat_message_download_tips">正在下载中...</string>
-    <string name="chat_message_send_message_when_in_black">"%s把你拉黑，发送消息失败"</string>
+    <string name="chat_message_send_message_when_in_black">"对方把你拉黑，发送消息失败"</string>
 
     <!-- location -->
     <string name="chat_location_mine">定位</string>
@@ -215,6 +217,7 @@
     <string name="chat_remove_pin_error_tips">取消标记失败</string>
     <string name="chat_network_error_tips">当前网络错误</string>
     <string name="chat_remove_tips">已取消标记</string>
+    <string name="chat_pin_limit_tips">已超出pin数量上限</string>
 
     <string name="chat_send_null_message_tips">发送内容不能为空</string>
     <string name="chat_send_null_title_tips">发送内容标题不能为空</string>
@@ -242,9 +245,5 @@
     <string name="msg_type_tip">[提醒消息]</string>
     <string name="msg_type_custom">[自定义消息]</string>
     <string name="msg_type_no_tips">[未知消息体]</string>
-
-    <!-- fun -->
-    <string name="chat_input_more_album_title">相册</string>
-    <string name="chat_input_audio_record_title">按住 说话</string>
 
 </resources>

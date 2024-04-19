@@ -14,11 +14,12 @@ import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.KEY_MULTI_TRAN
 import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.KEY_MULTI_TRANSMIT_SESSION_NAME;
 import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.KEY_MULTI_TRANSMIT_URL;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import com.netease.yunxin.kit.chatkit.model.CustomAttachment;
 import com.netease.yunxin.kit.chatkit.ui.ChatMessageType;
 import com.netease.yunxin.kit.chatkit.ui.R;
-import com.netease.yunxin.kit.corekit.im.IMKitClient;
-import com.netease.yunxin.kit.corekit.im.custom.CustomAttachment;
+import com.netease.yunxin.kit.corekit.im2.IMKitClient;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -99,6 +100,20 @@ public class MultiForwardAttachment extends CustomAttachment {
     return jsonObject;
   }
 
+  @NonNull
+  @Override
+  public String toJsonStr() {
+    try {
+      JSONObject map = new JSONObject();
+      map.put("type", ChatMessageType.MULTI_FORWARD_ATTACHMENT);
+      map.put("data", packData());
+      return map.toString();
+    } catch (Exception e) {
+      e.printStackTrace();
+      return "";
+    }
+  }
+
   public static class Abstracts implements Serializable {
     public String senderNick;
     public String content;
@@ -123,7 +138,6 @@ public class MultiForwardAttachment extends CustomAttachment {
     }
   }
 
-  @Nullable
   @Override
   public String getContent() {
     return IMKitClient.getApplicationContext().getString(R.string.msg_type_multi_tips);

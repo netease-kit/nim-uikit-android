@@ -6,13 +6,16 @@ package com.netease.yunxin.kit.conversationkit.ui;
 
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
-import com.netease.yunxin.kit.chatkit.model.ConversationInfo;
+import com.netease.nimlib.sdk.v2.conversation.model.V2NIMConversation;
 import com.netease.yunxin.kit.common.ui.viewholder.BaseViewHolder;
 import com.netease.yunxin.kit.conversationkit.ui.model.ConversationBean;
 
+/*
+ * 会话列表数据工厂接口
+ */
 public interface IConversationFactory {
   //根据会话数据，创建ViewHolder中数据类
-  ConversationBean CreateBean(ConversationInfo info);
+  ConversationBean CreateBean(V2NIMConversation info);
 
   //Adapter获取数据对应的ViewType
   int getItemViewType(ConversationBean data);

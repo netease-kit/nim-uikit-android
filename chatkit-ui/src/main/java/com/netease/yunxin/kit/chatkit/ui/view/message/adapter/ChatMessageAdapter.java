@@ -6,7 +6,6 @@ package com.netease.yunxin.kit.chatkit.ui.view.message.adapter;
 
 import static com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants.PAYLOAD_PROGRESS;
 import static com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants.PAYLOAD_REPLY;
-import static com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants.PAYLOAD_REVOKE;
 import static com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants.PAYLOAD_SIGNAL;
 import static com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants.PAYLOAD_STATUS;
 import static com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants.PAYLOAD_USERINFO;
@@ -15,10 +14,12 @@ import android.text.TextUtils;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-import com.netease.nimlib.sdk.msg.model.AttachmentProgress;
-import com.netease.nimlib.sdk.msg.model.MsgPinOption;
-import com.netease.nimlib.sdk.team.model.Team;
+import com.netease.nimlib.sdk.uinfo.model.UserInfo;
+import com.netease.nimlib.sdk.v2.message.V2NIMMessagePin;
+import com.netease.nimlib.sdk.v2.message.V2NIMMessageRefer;
+import com.netease.nimlib.sdk.v2.team.model.V2NIMTeam;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
+import com.netease.yunxin.kit.chatkit.model.MessagePinInfo;
 import com.netease.yunxin.kit.chatkit.ui.ChatMessageType;
 import com.netease.yunxin.kit.chatkit.ui.ChatViewHolderDefaultFactory;
 import com.netease.yunxin.kit.chatkit.ui.IChatFactory;
@@ -27,7 +28,7 @@ import com.netease.yunxin.kit.chatkit.ui.interfaces.IMessageReader;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.view.message.MessageProperties;
 import com.netease.yunxin.kit.chatkit.ui.view.message.viewholder.CommonBaseMessageViewHolder;
-import com.netease.yunxin.kit.corekit.im.model.UserInfo;
+import com.netease.yunxin.kit.corekit.im2.model.IMMessageProgress;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -44,7 +45,7 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<CommonBaseMessageVi
 
   private long receiptTime;
 
-  private Team teamInfo;
+  private V2NIMTeam teamInfo;
 
   private IMessageReader messageReader;
 
@@ -138,7 +139,7 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<CommonBaseMessageVi
     return this.viewHolderFactory.getItemViewType(messageList.get(position));
   }
 
-  public void setTeamInfo(Team teamInfo) {
+  public void setTeamInfo(V2NIMTeam teamInfo) {
     this.teamInfo = teamInfo;
   }
 
@@ -206,14 +207,11 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<CommonBaseMessageVi
     notifyItemRangeRemoved(0, size);
   }
 
-  public void updateMessageProgress(AttachmentProgress progress) {
-    ChatMessageBean messageBean = searchMessage(progress.getUuid());
+  public void updateMessageProgress(IMMessageProgress progress) {
+    ChatMessageBean messageBean = searchMessage(progress.getMessageCid());
     if (messageBean != null) {
-      float pg = progress.getTransferred() * 100f / progress.getTotal();
-      if (progress.getTransferred() == progress.getTotal()) {
-        pg = 100;
-      }
-      messageBean.progress = progress.getTransferred();
+      float pg = progress.getProgress();
+      messageBean.progress = progress.getProgress();
       messageBean.setLoadProgress(pg);
       updateMessage(messageBean, PAYLOAD_PROGRESS);
     }
@@ -237,20 +235,18 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<CommonBaseMessageVi
     }
   }
 
-  public void revokeMessage(ChatMessageBean messageBean) {
-    messageBean.setRevoked(true);
-    updateMessage(messageBean, PAYLOAD_REVOKE);
-    clearReply(messageBean);
+  public void revokeMessage(V2NIMMessageRefer message) {
+    removeMessageByClientId(message.getMessageClientId());
+    clearReply(message.getMessageClientId());
   }
 
-  public void clearReply(ChatMessageBean messageBean) {
-    String uuid = messageBean.getMessageData().getMessage().getUuid();
-    if (TextUtils.isEmpty(uuid)) {
+  public void clearReply(String clientId) {
+    if (TextUtils.isEmpty(clientId)) {
       return;
     }
     for (int i = 0; i < messageList.size(); i++) {
       ChatMessageBean messageInfo = messageList.get(i);
-      if (messageInfo != null && TextUtils.equals(uuid, messageInfo.getReplyUUid())) {
+      if (messageInfo != null && TextUtils.equals(clientId, messageInfo.getReplyUUid())) {
         notifyItemChanged(i, PAYLOAD_REPLY);
       }
     }
@@ -266,8 +262,7 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<CommonBaseMessageVi
     }
     for (int i = 0; i < messageList.size(); i++) {
       IMMessageInfo messageInfo = messageList.get(i).getMessageData();
-      if (messageInfo != null
-          && accountSet.containsKey(messageInfo.getMessage().getFromAccount())) {
+      if (messageInfo != null && accountSet.containsKey(messageInfo.getMessage().getSenderId())) {
         notifyItemChanged(i, PAYLOAD_USERINFO);
       }
     }
@@ -281,16 +276,17 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<CommonBaseMessageVi
 
     for (int i = 0; i < messageList.size(); i++) {
       IMMessageInfo messageInfo = messageList.get(i).getMessageData();
-      if (messageInfo != null && accountSet.contains(messageInfo.getMessage().getFromAccount())) {
+      if (messageInfo != null && accountSet.contains(messageInfo.getMessage().getSenderId())) {
         notifyItemChanged(i, PAYLOAD_USERINFO);
       }
     }
   }
 
-  public void pinMsg(String uuid, MsgPinOption pinOption) {
+  public void pinMsg(String uuid, V2NIMMessagePin pinOption) {
     int index = -1;
     for (int i = 0; i < messageList.size(); i++) {
-      if (TextUtils.equals(messageList.get(i).getMessageData().getMessage().getUuid(), uuid)) {
+      if (TextUtils.equals(
+          messageList.get(i).getMessageData().getMessage().getMessageClientId(), uuid)) {
         index = i;
         break;
       }
@@ -301,12 +297,17 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<CommonBaseMessageVi
     }
   }
 
-  public void updateMessagePin(Map<String, MsgPinOption> pinOptionMap) {
+  public void updateMessagePin(Map<String, V2NIMMessagePin> pinOptionMap) {
     for (int i = 0; i < messageList.size(); i++) {
       IMMessageInfo messageInfo = messageList.get(i).getMessageData();
-      String uuId = messageInfo.getMessage().getUuid();
+      String uuId = messageInfo.getMessage().getMessageClientId();
       if (pinOptionMap != null && pinOptionMap.containsKey(uuId)) {
-        messageInfo.setPinOption(pinOptionMap.get(uuId));
+        V2NIMMessagePin pin = pinOptionMap.get(uuId);
+        if (pin != null) {
+          messageInfo.setPinOption(new MessagePinInfo(pin));
+        } else {
+          messageInfo.setPinOption(null);
+        }
         notifyItemChanged(i, PAYLOAD_SIGNAL);
       } else if (messageInfo.getPinOption() != null
           && (pinOptionMap == null || !pinOptionMap.containsKey(uuId))) {
@@ -319,7 +320,8 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<CommonBaseMessageVi
   public void removeMessagePin(String uuid) {
     int index = -1;
     for (int i = 0; i < messageList.size(); i++) {
-      if (TextUtils.equals(messageList.get(i).getMessageData().getMessage().getUuid(), uuid)) {
+      if (TextUtils.equals(
+          messageList.get(i).getMessageData().getMessage().getMessageClientId(), uuid)) {
         index = i;
         break;
       }
@@ -335,6 +337,58 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<CommonBaseMessageVi
     if (pos >= 0) {
       messageList.set(pos, message);
       notifyItemChanged(pos, payload);
+    }
+  }
+
+  /**
+   * 根据时间排序插入消息
+   *
+   * @param message 消息体
+   * @return 插入的位置
+   */
+  public int insertMessageSortByTime(ChatMessageBean message) {
+    int index = -1;
+    if (message == null) {
+      return index;
+    }
+
+    for (int i = 0; i < messageList.size(); i++) {
+      if (message.getMessageData().getMessage().getCreateTime()
+          < messageList.get(i).getMessageData().getMessage().getCreateTime()) {
+        index = i;
+        break;
+      }
+    }
+    if (index >= 0) {
+      messageList.add(index, message);
+      notifyItemInserted(index);
+    } else {
+      messageList.add(message);
+      notifyItemInserted(messageList.size() - 1);
+    }
+    return index;
+  }
+
+  /**
+   * 通过client id删除消息
+   *
+   * @param clientId client id
+   */
+  public void removeMessageByClientId(String clientId) {
+    if (clientId == null) {
+      return;
+    }
+    int index = -1;
+    for (int i = 0; i < messageList.size(); i++) {
+      if (TextUtils.equals(
+          clientId, messageList.get(i).getMessageData().getMessage().getMessageClientId())) {
+        index = i;
+        break;
+      }
+    }
+    if (index >= 0) {
+      messageList.remove(index);
+      notifyItemRemoved(index);
     }
   }
 
@@ -389,12 +443,13 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<CommonBaseMessageVi
       messageList.remove(message);
       notifyItemRemoved(pos);
     }
-    clearReply(message);
+    clearReply(message.getMsgClientId());
   }
 
   public ChatMessageBean searchMessage(String messageId) {
     for (int i = messageList.size() - 1; i >= 0; i--) {
-      if (TextUtils.equals(messageId, messageList.get(i).getMessageData().getMessage().getUuid())) {
+      if (TextUtils.equals(
+          messageId, messageList.get(i).getMessageData().getMessage().getMessageClientId())) {
         return messageList.get(i);
       }
     }
@@ -403,7 +458,8 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<CommonBaseMessageVi
 
   public int searchMessagePosition(String messageId) {
     for (int i = 0; i < messageList.size(); i++) {
-      if (TextUtils.equals(messageId, messageList.get(i).getMessageData().getMessage().getUuid())) {
+      if (TextUtils.equals(
+          messageId, messageList.get(i).getMessageData().getMessage().getMessageClientId())) {
         return i;
       }
     }

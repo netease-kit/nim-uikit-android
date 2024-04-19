@@ -13,53 +13,51 @@ import com.netease.yunxin.kit.chatkit.repo.ContactRepo;
 import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
-import com.netease.yunxin.kit.corekit.im.model.UserInfo;
-import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
-import java.util.ArrayList;
-import java.util.List;
+import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
+import com.netease.yunxin.kit.corekit.im2.model.UserWithFriend;
 
+/** 添加好友ViewModel 提供根据账号ID的搜索功能 */
 public class AddFriendViewModel extends BaseViewModel {
   private static final String TAG = "AddFriendViewModel";
-  private final MutableLiveData<FetchResult<UserInfo>> resultLiveData = new MutableLiveData<>();
-  private FetchResult<UserInfo> fetchResult = new FetchResult<>(LoadStatus.Finish);
+  private final MutableLiveData<FetchResult<UserWithFriend>> resultLiveData =
+      new MutableLiveData<>();
+  private final FetchResult<UserWithFriend> fetchResult = new FetchResult<>(LoadStatus.Finish);
 
-  public MutableLiveData<FetchResult<UserInfo>> getFetchResult() {
+  // 获取搜索结果LiveData
+  public MutableLiveData<FetchResult<UserWithFriend>> getFetchResult() {
     return resultLiveData;
   }
 
-  public void fetchUser(String account) {
-    ALog.d(LIB_TAG, TAG, "fetchUser:" + account);
-    List<String> accountList = new ArrayList<>();
-    accountList.add(account);
+  /**
+   * 根据账号ID搜索用户
+   *
+   * @param account 账号ID
+   */
+  public void getUser(String account) {
+    ALog.d(LIB_TAG, TAG, "getUser:" + account);
     fetchResult.setStatus(LoadStatus.Loading);
     resultLiveData.postValue(fetchResult);
-    ContactRepo.fetchUserInfo(
-        accountList,
-        new FetchCallback<List<UserInfo>>() {
+    ContactRepo.getFriend(
+        account,
+        false,
+        new FetchCallback<>() {
           @Override
-          public void onSuccess(@Nullable List<UserInfo> param) {
-            ALog.d(LIB_TAG, TAG, "fetchUser,onSuccess:" + (param == null));
-            if (param != null && param.size() > 0) {
+          public void onError(int errorCode, String errorMsg) {
+            ALog.d(LIB_TAG, TAG, "getUser,onError,onFailed:" + errorCode);
+            fetchResult.setError(errorCode, errorMsg);
+            resultLiveData.postValue(fetchResult);
+          }
+
+          @Override
+          public void onSuccess(@Nullable UserWithFriend param) {
+            ALog.d(LIB_TAG, TAG, "getUser,onSuccess:" + (param == null));
+            if (param != null) {
               fetchResult.setStatus(LoadStatus.Success);
-              fetchResult.setData(param.get(0));
+              fetchResult.setData(param);
             } else {
               fetchResult.setData(null);
               fetchResult.setStatus(LoadStatus.Success);
             }
-            resultLiveData.postValue(fetchResult);
-          }
-
-          @Override
-          public void onFailed(int code) {
-            ALog.d(LIB_TAG, TAG, "fetchUser,onFailed:" + code);
-            fetchResult.setError(code, "");
-            resultLiveData.postValue(fetchResult);
-          }
-
-          @Override
-          public void onException(@Nullable Throwable exception) {
-            ALog.d(LIB_TAG, TAG, "fetchUser,onException");
-            fetchResult.setStatus(LoadStatus.Error);
             resultLiveData.postValue(fetchResult);
           }
         });

@@ -4,9 +4,9 @@
 
 package com.netease.yunxin.kit.teamkit.ui.activity;
 
-import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.KEY_TEAM_ICON;
-import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.KEY_TEAM_ID;
-import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.KEY_TEAM_NAME;
+import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.KEY_TEAM_ICON;
+import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.KEY_TEAM_ID;
+import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.KEY_TEAM_NAME;
 import static com.netease.yunxin.kit.teamkit.ui.activity.BaseTeamInfoActivity.KEY_TEAM_UPDATE_INFO_PRIVILEGE;
 import static com.netease.yunxin.kit.teamkit.ui.utils.NetworkUtilsWrapper.handleNetworkBrokenResult;
 
@@ -22,14 +22,14 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.Group;
+import com.netease.yunxin.kit.chatkit.repo.ResourceRepo;
 import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
 import com.netease.yunxin.kit.common.ui.photo.BasePhotoChoiceDialog;
 import com.netease.yunxin.kit.common.ui.photo.PhotoChoiceDialog;
 import com.netease.yunxin.kit.common.ui.utils.CommonCallback;
 import com.netease.yunxin.kit.common.ui.widgets.ContactAvatarView;
 import com.netease.yunxin.kit.common.utils.NetworkUtils;
-import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
-import com.netease.yunxin.kit.corekit.im.repo.CommonRepo;
+import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
 import com.netease.yunxin.kit.teamkit.ui.R;
 import com.netease.yunxin.kit.teamkit.ui.utils.ColorUtils;
 import com.netease.yunxin.kit.teamkit.ui.utils.TeamIconUtils;
@@ -37,7 +37,7 @@ import com.netease.yunxin.kit.teamkit.ui.viewmodel.TeamSettingViewModel;
 import java.io.File;
 import java.util.Objects;
 
-/** set team icon activity */
+/** 群头像修改界面基类 子类需要实现{@link #initViewAndGetRootView(Bundle)}方法，返回界面的根布局 */
 public abstract class BaseTeamUpdateIconActivity extends BaseActivity {
   protected final TeamSettingViewModel model = new TeamSettingViewModel();
 
@@ -128,7 +128,7 @@ public abstract class BaseTeamUpdateIconActivity extends BaseActivity {
             this,
             stringResultInfo -> {
               dismissLoading();
-              if (!stringResultInfo.getSuccess()) {
+              if (!stringResultInfo.isSuccess()) {
                 handleNetworkBrokenResult(this, stringResultInfo);
                 return;
               }
@@ -180,30 +180,21 @@ public abstract class BaseTeamUpdateIconActivity extends BaseActivity {
               @Override
               public void onSuccess(@Nullable File param) {
                 if (NetworkUtils.isConnected() && param != null) {
-                  CommonRepo.uploadImage(
+                  ResourceRepo.uploadFile(
                       param,
                       new FetchCallback<String>() {
                         @Override
+                        public void onError(int errorCode, @Nullable String errorMsg) {
+                          Toast.makeText(
+                                  getApplicationContext(),
+                                  getString(R.string.team_request_fail),
+                                  Toast.LENGTH_SHORT)
+                              .show();
+                        }
+
+                        @Override
                         public void onSuccess(@Nullable String urlParam) {
                           updateFocusBg(null, urlParam);
-                        }
-
-                        @Override
-                        public void onFailed(int code) {
-                          Toast.makeText(
-                                  getApplicationContext(),
-                                  getString(R.string.team_request_fail),
-                                  Toast.LENGTH_SHORT)
-                              .show();
-                        }
-
-                        @Override
-                        public void onException(@Nullable Throwable exception) {
-                          Toast.makeText(
-                                  getApplicationContext(),
-                                  getString(R.string.team_request_fail),
-                                  Toast.LENGTH_SHORT)
-                              .show();
                         }
                       });
                 } else {
@@ -239,6 +230,17 @@ public abstract class BaseTeamUpdateIconActivity extends BaseActivity {
     return new PhotoChoiceDialog(this);
   }
 
+  /**
+   * 启动群头像修改界面
+   *
+   * @param context 上下文
+   * @param activity 群头像修改界面
+   * @param hasUpdatePrivilege 是否有修改权限
+   * @param teamId 群id
+   * @param url 头像地址
+   * @param teamName 群名称
+   * @param launcher 启动器
+   */
   public static void launch(
       Context context,
       Class<? extends Activity> activity,

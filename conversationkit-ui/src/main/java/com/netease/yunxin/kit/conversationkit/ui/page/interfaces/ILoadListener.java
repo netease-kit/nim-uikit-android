@@ -4,7 +4,7 @@
 
 package com.netease.yunxin.kit.conversationkit.ui.page.interfaces;
 
-/** load listener */
+/** 加载更多接口 */
 public interface ILoadListener {
 
   boolean hasMore();

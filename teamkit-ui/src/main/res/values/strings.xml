@@ -62,8 +62,6 @@
     <string name="team_remove_member_content">移除后该成员将离开当前群聊</string>
     <string name="team_remove_manager_content">移除后该成员将无管理权限</string>
     <string name="team_transform_owner">转让群主</string>
-    <string name="team_at_permission_manager_tips">\@所有人权限更新为群主和管理员</string>
-    <string name="team_at_permission_all_tips">\@所有人权限更新为所有人</string>
 
     <!-- error tips-->
     <string name="team_network_error_tip">当前网络不可用，请检查你的网络设置。</string>

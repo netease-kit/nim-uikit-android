@@ -4,17 +4,17 @@
 
 package com.netease.yunxin.kit.contactkit.ui.model;
 
-import com.netease.yunxin.kit.corekit.im.model.FriendInfo;
+import com.netease.yunxin.kit.corekit.im2.model.UserWithFriend;
 import java.util.Objects;
 
 /** data bean for friend */
 public class ContactFriendBean extends BaseContactBean {
 
-  public FriendInfo data;
+  public UserWithFriend data;
 
   public boolean isSelected;
 
-  public ContactFriendBean(FriendInfo data) {
+  public ContactFriendBean(UserWithFriend data) {
     this.data = data;
     weight = ContactBeanWeight.BASE_WEIGHT;
     viewType = IViewTypeConstant.CONTACT_FRIEND;

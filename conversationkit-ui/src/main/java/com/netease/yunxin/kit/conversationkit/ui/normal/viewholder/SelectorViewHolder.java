@@ -11,6 +11,7 @@ import com.netease.yunxin.kit.common.ui.viewholder.BaseViewHolder;
 import com.netease.yunxin.kit.conversationkit.ui.databinding.SelectorViewHolderLayoutBinding;
 import com.netease.yunxin.kit.conversationkit.ui.model.ConversationBean;
 
+/** 选择器ViewHolder 用于选择器模式下的会话列表 */
 public class SelectorViewHolder extends BaseViewHolder<ConversationBean> {
 
   private SelectorViewHolderLayoutBinding viewBinding;
@@ -29,7 +30,7 @@ public class SelectorViewHolder extends BaseViewHolder<ConversationBean> {
     viewBinding.avatarView.setData(
         data.infoData.getAvatar(),
         data.infoData.getName(),
-        AvatarColor.avatarColor(data.infoData.getContactId()));
+        AvatarColor.avatarColor(data.infoData.getConversationId()));
     viewBinding.conversationNameTv.setText(data.infoData.getName());
     viewBinding.rootView.setOnClickListener(
         v -> {

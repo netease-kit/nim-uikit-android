@@ -6,7 +6,8 @@ package com.netease.yunxin.kit.chatkit.ui.interfaces;
 
 import android.graphics.drawable.Drawable;
 import android.view.View;
-import com.netease.nimlib.sdk.msg.model.AttachmentProgress;
+import com.netease.nimlib.sdk.uinfo.model.UserInfo;
+import com.netease.nimlib.sdk.v2.message.V2NIMMessageRefer;
 import com.netease.yunxin.kit.chatkit.ui.ChatUIConfig;
 import com.netease.yunxin.kit.chatkit.ui.IChatFactory;
 import com.netease.yunxin.kit.chatkit.ui.builder.IChatViewCustom;
@@ -14,7 +15,7 @@ import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.view.ait.AitManager;
 import com.netease.yunxin.kit.chatkit.ui.view.message.ChatMessageListView;
 import com.netease.yunxin.kit.common.ui.widgets.BackTitleBar;
-import com.netease.yunxin.kit.corekit.im.model.UserInfo;
+import com.netease.yunxin.kit.corekit.im2.model.IMMessageProgress;
 import java.util.List;
 
 public interface IChatView {
@@ -43,13 +44,22 @@ public interface IChatView {
 
   void deleteMessage(List<ChatMessageBean> message);
 
+  /**
+   * 根据clientId删除消息
+   *
+   * @param clientIds 消息clientId
+   */
+  void deleteMessages(List<String> clientIds);
+
   List<ChatMessageBean> getMessageList();
 
-  void revokeMessage(ChatMessageBean message);
+  void revokeMessage(V2NIMMessageRefer message);
 
   void updateMessageStatus(ChatMessageBean message);
 
-  void updateProgress(AttachmentProgress progress);
+  void notifyUserInfoChanged(List<String> accountIdList);
+
+  void updateProgress(IMMessageProgress progress);
 
   void setTypeState(boolean isTyping);
 

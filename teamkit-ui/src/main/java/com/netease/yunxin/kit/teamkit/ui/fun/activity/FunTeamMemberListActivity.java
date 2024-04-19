@@ -12,7 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewbinding.ViewBinding;
-import com.netease.nimlib.sdk.team.constant.TeamTypeEnum;
+import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamType;
 import com.netease.yunxin.kit.teamkit.ui.R;
 import com.netease.yunxin.kit.teamkit.ui.activity.BaseTeamMemberListActivity;
 import com.netease.yunxin.kit.teamkit.ui.adapter.BaseTeamMemberListAdapter;
@@ -20,7 +20,11 @@ import com.netease.yunxin.kit.teamkit.ui.databinding.FunTeamMemberListActivityBi
 import com.netease.yunxin.kit.teamkit.ui.databinding.FunTeamMemberListItemBinding;
 import com.netease.yunxin.kit.teamkit.ui.fun.adapter.FunTeamMemberListAdapter;
 
-/** team member list activity */
+/**
+ * 娱乐版群成员列表页面，差异化UI展示
+ *
+ * <p>
+ */
 public class FunTeamMemberListActivity extends BaseTeamMemberListActivity {
 
   @Override
@@ -60,7 +64,7 @@ public class FunTeamMemberListActivity extends BaseTeamMemberListActivity {
 
   @Override
   protected BaseTeamMemberListAdapter<? extends ViewBinding> getMemberListAdapter(
-      TeamTypeEnum typeEnum) {
+      V2NIMTeamType typeEnum) {
     return new FunTeamMemberListAdapter(this, typeEnum, FunTeamMemberListItemBinding.class);
   }
 }

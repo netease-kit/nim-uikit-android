@@ -11,7 +11,11 @@ import com.netease.yunxin.kit.teamkit.ui.R;
 import com.netease.yunxin.kit.teamkit.ui.activity.BaseTeamUpdateIntroduceActivity;
 import com.netease.yunxin.kit.teamkit.ui.databinding.FunTeamUpdateIntroduceActivityBinding;
 
-/** set team introduce activity */
+/**
+ * 娱乐版群介绍修改页面，差异化UI展示
+ *
+ * <p>
+ */
 public class FunTeamUpdateIntroduceActivity extends BaseTeamUpdateIntroduceActivity {
 
   @Override

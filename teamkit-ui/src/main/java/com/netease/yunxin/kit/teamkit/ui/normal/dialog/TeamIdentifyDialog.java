@@ -11,6 +11,7 @@ import com.netease.yunxin.kit.teamkit.ui.R;
 import com.netease.yunxin.kit.teamkit.ui.databinding.TeamIdentifyChoiceDialogBinding;
 import com.netease.yunxin.kit.teamkit.ui.dialog.BaseTeamIdentifyDialog;
 
+/** 设置权限时，群身份选择对话框 */
 public class TeamIdentifyDialog extends BaseTeamIdentifyDialog {
 
   public TeamIdentifyDialog(@NonNull Activity activity) {

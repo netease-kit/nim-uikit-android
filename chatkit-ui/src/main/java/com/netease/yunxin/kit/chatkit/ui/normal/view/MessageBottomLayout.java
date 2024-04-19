@@ -32,11 +32,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.netease.nimlib.sdk.media.record.IAudioRecordCallback;
 import com.netease.nimlib.sdk.media.record.RecordType;
-import com.netease.nimlib.sdk.msg.attachment.MsgAttachment;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
-import com.netease.yunxin.kit.chatkit.ui.custom.StickerAttachment;
 import com.netease.yunxin.kit.chatkit.ui.databinding.NormalChatMessageBottomViewBinding;
 import com.netease.yunxin.kit.chatkit.ui.interfaces.IMessageProxy;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
@@ -59,7 +57,7 @@ import com.netease.yunxin.kit.common.utils.KeyboardUtils;
 import com.netease.yunxin.kit.common.utils.NetworkUtils;
 import com.netease.yunxin.kit.common.utils.PermissionUtils;
 import com.netease.yunxin.kit.common.utils.XKitUtils;
-import com.netease.yunxin.kit.corekit.im.IMKitClient;
+import com.netease.yunxin.kit.corekit.im2.IMKitClient;
 import java.io.File;
 import java.util.List;
 
@@ -114,10 +112,7 @@ public class MessageBottomLayout extends FrameLayout
     mBinding.chatMessageRecordView.setRecordCallback(this);
     mBinding.chatMessageRecordView.setPermissionRequest(
         permission -> {
-          if (mProxy.hasPermission(Manifest.permission.RECORD_AUDIO)) {
-            return true;
-          }
-          return false;
+          return mProxy.hasPermission(Manifest.permission.RECORD_AUDIO);
         });
     emojiSelectedListener =
         new IEmojiSelectedListener() {
@@ -133,13 +128,6 @@ public class MessageBottomLayout extends FrameLayout
               start = Math.max(start, 0);
               mEditable.replace(start, end, key);
             }
-          }
-
-          @Override
-          public void onStickerSelected(String categoryName, String stickerName) {
-            MsgAttachment attachment = new StickerAttachment(categoryName, stickerName);
-            mProxy.sendCustomMessage(
-                attachment, getContext().getString(R.string.chat_message_custom_sticker));
           }
 
           @Override
@@ -263,7 +251,6 @@ public class MessageBottomLayout extends FrameLayout
           return true;
         });
 
-    mBinding.chatMessageEmojiView.setWithSticker(true);
     // action
     mBinding.chatMessageActionContainer.setLayoutManager(
         new LinearLayoutManager(getContext(), RecyclerView.HORIZONTAL, false));
@@ -288,7 +275,7 @@ public class MessageBottomLayout extends FrameLayout
     loadConfig();
   }
 
-  private TextWatcher msgInputTextWatcher =
+  private final TextWatcher msgInputTextWatcher =
       new TextWatcher() {
         private int start;
         private int count;
@@ -418,7 +405,7 @@ public class MessageBottomLayout extends FrameLayout
       mBinding.chatRichEt.setText("");
       mBinding.chatRichEt.setVisibility(GONE);
     }
-    MessageHelper.identifyExpressionForEditMsg(
+    MessageHelper.identifyExpressionForRichTextMsg(
         getContext(),
         mBinding.chatMessageInputEt,
         content,
@@ -503,7 +490,7 @@ public class MessageBottomLayout extends FrameLayout
     if (!mActionsPanel.hasInit() && show) {
       mActionsPanel.init(
           mBinding.chatMessageActionsPanel,
-          BottomActionFactory.assembleInputMoreActions(mProxy.getSessionType()),
+          BottomActionFactory.assembleInputMoreActions(mProxy.getConversationType()),
           this);
     }
     postDelayed(() -> mBinding.chatMessageActionsPanel.setVisibility(show ? VISIBLE : GONE), delay);
@@ -731,7 +718,7 @@ public class MessageBottomLayout extends FrameLayout
         TAG,
         "onRecordSuccess -->> file:" + audioFile.getName() + " length:" + audioLength);
     endRecord();
-    mProxy.sendAudio(audioFile, audioLength, replyMessage);
+    mProxy.sendAudio(audioFile, (int) audioLength, replyMessage);
     clearReplyMsg();
   }
 

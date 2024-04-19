@@ -108,7 +108,7 @@
                     android:clickable="true"
                     android:focusable="true"
                     android:gravity="center"
-                    android:text="@string/chat_input_audio_record_title"
+                    android:text="@string/fun_chat_input_audio_record_title"
                     android:textColor="@color/fun_chat_input_send_audio_color"
                     android:textSize="@dimen/text_size_16"
                     android:textStyle="bold"
@@ -129,17 +129,26 @@
                         android:layout_marginEnd="@dimen/dimen_10_dp"
                         android:src="@drawable/ic_chat_open_rich_text" />
                 </FrameLayout>
-
-                <TextView
-                    android:id="@+id/inputMuteTv"
+                <FrameLayout
+                    android:id="@+id/chatinputMuteLayout"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:background="@color/color_e3e4e4"
-                    android:gravity="center_vertical"
-                    android:alpha="0.8"
-                    android:paddingStart="@dimen/dimen_12_dp"
-                    android:text="@string/chat_team_all_mute"
-                    android:visibility="gone" />
+                    android:background="@color/fun_chat_input_bg_color"
+                    android:visibility="gone"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:id="@+id/inputMuteTv"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@color/color_e3e4e4"
+                        android:gravity="center_vertical"
+                        android:alpha="0.8"
+                        android:paddingStart="@dimen/dimen_12_dp"
+                        android:text="@string/chat_team_all_mute"
+                        tools:ignore="RtlSymmetry" />
+                </FrameLayout>
+
 
             </com.netease.yunxin.kit.common.ui.widgets.RoundFrameLayout>
 

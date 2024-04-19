@@ -8,14 +8,14 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewbinding.ViewBinding;
-import com.netease.yunxin.kit.contactkit.ui.model.ContactFriendBean;
-import com.netease.yunxin.kit.corekit.im.model.FriendInfo;
+import com.netease.yunxin.kit.contactkit.ui.v2model.V2ContactFriendBean;
+import com.netease.yunxin.kit.corekit.im2.model.UserWithFriend;
 import java.util.LinkedList;
 
 public abstract class BaseSelectedListAdapter<R extends ViewBinding>
     extends RecyclerView.Adapter<BaseSelectedListAdapter.SelectedViewHolder<R>> {
 
-  protected final LinkedList<ContactFriendBean> selectedFriends;
+  protected final LinkedList<V2ContactFriendBean> selectedFriends;
 
   protected ItemClickListener itemClickListener;
 
@@ -33,16 +33,16 @@ public abstract class BaseSelectedListAdapter<R extends ViewBinding>
 
   @Override
   public final void onBindViewHolder(@NonNull SelectedViewHolder<R> holder, int position) {
-    ContactFriendBean bean = selectedFriends.get(position);
+    V2ContactFriendBean bean = selectedFriends.get(position);
     if (bean == null) {
       return;
     }
-    FriendInfo friendData = bean.data;
+    UserWithFriend friendData = bean.data;
     handleBindViewHolder(holder, bean, friendData);
   }
 
   protected abstract void handleBindViewHolder(
-      SelectedViewHolder<R> holder, ContactFriendBean bean, FriendInfo friendData);
+      SelectedViewHolder<R> holder, V2ContactFriendBean bean, UserWithFriend friendData);
 
   public void setItemClickListener(ItemClickListener itemClickListener) {
     this.itemClickListener = itemClickListener;
@@ -53,17 +53,17 @@ public abstract class BaseSelectedListAdapter<R extends ViewBinding>
     return selectedFriends.size();
   }
 
-  public LinkedList<ContactFriendBean> getSelectedFriends() {
+  public LinkedList<V2ContactFriendBean> getSelectedFriends() {
     return selectedFriends;
   }
 
-  public void addFriend(ContactFriendBean friend) {
+  public void addFriend(V2ContactFriendBean friend) {
     int index = selectedFriends.size();
     selectedFriends.add(friend);
     notifyItemInserted(index);
   }
 
-  public void removeFriend(ContactFriendBean friend) {
+  public void removeFriend(V2ContactFriendBean friend) {
     int pos = selectedFriends.indexOf(friend);
     if (pos >= 0) {
       selectedFriends.remove(friend);
@@ -82,6 +82,6 @@ public abstract class BaseSelectedListAdapter<R extends ViewBinding>
   }
 
   public interface ItemClickListener {
-    void onItemClick(ContactFriendBean item);
+    void onItemClick(V2ContactFriendBean item);
   }
 }

@@ -7,10 +7,16 @@ package com.netease.yunxin.kit.teamkit.ui.utils;
 import android.content.Context;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
+import com.netease.yunxin.kit.chatkit.utils.ErrorUtils;
+import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.utils.NetworkUtils;
-import com.netease.yunxin.kit.corekit.model.ResultInfo;
 import com.netease.yunxin.kit.teamkit.ui.R;
 
+/**
+ * 网络工具类，统一处理网络相关的操作
+ *
+ * <p>
+ */
 public final class NetworkUtilsWrapper {
 
   public static void doActionAndFilterNetworkBroken(Context context, @NonNull Runnable runnable) {
@@ -21,22 +27,25 @@ public final class NetworkUtilsWrapper {
     }
   }
 
-  public static boolean handleNetworkBrokenResult(Context context, ResultInfo<?> resultInfo) {
+  public static boolean checkNetworkAndToast(Context context) {
+    if (!NetworkUtils.isConnected()) {
+      Toast.makeText(context, R.string.team_network_error, Toast.LENGTH_SHORT).show();
+      return false;
+    }
+    return true;
+  }
+
+  // 处理网络错误结果
+  public static boolean handleNetworkBrokenResult(Context context, FetchResult<?> resultInfo) {
     if (resultInfo == null) {
       return false;
     }
-    if (!resultInfo.getSuccess()) {
+    if (!resultInfo.isSuccess()) {
       if (!NetworkUtils.isConnected()) {
         Toast.makeText(context, R.string.team_network_error, Toast.LENGTH_SHORT).show();
       } else {
-        if (resultInfo != null
-            && resultInfo.getMsg() != null
-            && resultInfo.getMsg().getCode() == TeamUIKitConstant.QUIT_TEAM_ERROR_CODE_NO_MEMBER) {
-          Toast.makeText(context, R.string.team_operate_no_permission_tip, Toast.LENGTH_SHORT)
-              .show();
-        } else {
-          Toast.makeText(context, R.string.team_request_fail, Toast.LENGTH_SHORT).show();
-        }
+        int code = resultInfo.getError() != null ? resultInfo.getError().getCode() : -1;
+        ErrorUtils.showErrorCodeToast(context, code);
       }
       return true;
     }

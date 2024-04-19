@@ -7,7 +7,7 @@ package com.netease.yunxin.kit.contactkit.ui.fun.view.viewholder;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
-import com.netease.nimlib.sdk.team.model.Team;
+import com.netease.nimlib.sdk.v2.team.model.V2NIMTeam;
 import com.netease.yunxin.kit.common.utils.SizeUtils;
 import com.netease.yunxin.kit.contactkit.ui.databinding.FunTeamListViewHolderBinding;
 import com.netease.yunxin.kit.contactkit.ui.model.BaseContactBean;
@@ -34,12 +34,12 @@ public class FunTeamListViewHolder extends BaseContactViewHolder {
 
   @Override
   public void onBind(BaseContactBean bean, int position, ContactListViewAttrs attrs) {
-    Team teamInfo = ((ContactTeamBean) bean).data;
+    V2NIMTeam teamInfo = ((ContactTeamBean) bean).data;
     binding.tvName.setText(teamInfo.getName());
 
     binding.avatarView.setCornerRadius(cornerSize);
     binding.avatarView.setData(
-        teamInfo.getIcon(), teamInfo.getName(), ColorUtils.avatarColor(teamInfo.getId()));
+        teamInfo.getAvatar(), teamInfo.getName(), ColorUtils.avatarColor(teamInfo.getTeamId()));
 
     binding.rootView.setOnClickListener(
         v -> {

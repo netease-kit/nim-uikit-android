@@ -18,6 +18,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * 通用适配器
+ *
+ * @param <T> 数据类型
+ * @param <R> ViewBinding
+ */
 public class TeamCommonAdapter<T, R extends ViewBinding>
     extends RecyclerView.Adapter<TeamCommonAdapter.ItemViewHolder<R>> {
   private static final String TAG = "QChatCommonAdapter";

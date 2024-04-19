@@ -8,9 +8,10 @@ import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.KEY_RICH_TEXT_
 import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.KEY_RICH_TEXT_TITLE;
 
 import android.text.TextUtils;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import com.netease.yunxin.kit.chatkit.model.CustomAttachment;
 import com.netease.yunxin.kit.chatkit.ui.ChatMessageType;
-import com.netease.yunxin.kit.corekit.im.custom.CustomAttachment;
 import org.json.JSONObject;
 
 /** 富文本消息自定义类型，102 { "type"：102, "data":{ "title":"我是标题XXX", "body":"我是内容XXX" } } */
@@ -37,6 +38,23 @@ public class RichTextAttachment extends CustomAttachment {
     }
   }
 
+  @NonNull
+  @Override
+  public String toJsonStr() {
+    try {
+      JSONObject map = new JSONObject();
+      JSONObject data = new JSONObject();
+      map.put("type", ChatMessageType.RICH_TEXT_ATTACHMENT);
+      data.put(KEY_RICH_TEXT_TITLE, title);
+      data.put(KEY_RICH_TEXT_BODY, body);
+      map.put("data", data);
+      return map.toString();
+    } catch (Exception e) {
+      e.printStackTrace();
+      return "";
+    }
+  }
+
   @Nullable
   @Override
   protected JSONObject packData() {
@@ -52,7 +70,7 @@ public class RichTextAttachment extends CustomAttachment {
     return jsonObject;
   }
 
-  @Nullable
+  @NonNull
   @Override
   public String getContent() {
     return !TextUtils.isEmpty(title) ? title : body;

@@ -19,7 +19,7 @@ public class SkinActivity extends BaseActivity {
 
   @Override
   protected void onCreate(@Nullable Bundle savedInstanceState) {
-    changeStatusBarColor(R.color.color_ededed);
+    changeStatusBarColor(R.color.fun_page_bg_color);
     super.onCreate(savedInstanceState);
     viewBinding = ActivitySkinSettingBinding.inflate(getLayoutInflater());
     setContentView(viewBinding.getRoot());

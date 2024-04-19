@@ -7,7 +7,7 @@ package com.netease.yunxin.kit.teamkit.ui.normal.activity;
 import android.os.Bundle;
 import android.view.View;
 import androidx.viewbinding.ViewBinding;
-import com.netease.nimlib.sdk.team.constant.TeamTypeEnum;
+import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamType;
 import com.netease.yunxin.kit.teamkit.ui.R;
 import com.netease.yunxin.kit.teamkit.ui.activity.BaseTeamMemberSelectActivity;
 import com.netease.yunxin.kit.teamkit.ui.adapter.BaseTeamMemberListAdapter;
@@ -15,7 +15,11 @@ import com.netease.yunxin.kit.teamkit.ui.databinding.TeamMemberListItemBinding;
 import com.netease.yunxin.kit.teamkit.ui.databinding.TeamMemberSelectActivityBinding;
 import com.netease.yunxin.kit.teamkit.ui.normal.adapter.TeamMemberListAdapter;
 
-/** team member list activity */
+/**
+ * 群成员选择页面,差异化UI展示
+ *
+ * <p>
+ */
 public class TeamMemberSelectActivity extends BaseTeamMemberSelectActivity {
 
   private TeamMemberSelectActivityBinding viewBinding;
@@ -35,7 +39,7 @@ public class TeamMemberSelectActivity extends BaseTeamMemberSelectActivity {
 
   @Override
   protected BaseTeamMemberListAdapter<? extends ViewBinding> getMemberListAdapter(
-      TeamTypeEnum typeEnum) {
+      V2NIMTeamType typeEnum) {
     TeamMemberListAdapter adapter =
         new TeamMemberListAdapter(this, typeEnum, TeamMemberListItemBinding.class);
     adapter.showSelect(true);

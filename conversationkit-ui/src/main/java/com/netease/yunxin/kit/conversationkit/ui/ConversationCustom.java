@@ -5,49 +5,70 @@
 package com.netease.yunxin.kit.conversationkit.ui;
 
 import android.content.Context;
-import com.netease.nimlib.sdk.msg.attachment.NetCallAttachment;
-import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
-import com.netease.yunxin.kit.chatkit.model.ConversationInfo;
-import com.netease.yunxin.kit.corekit.im.model.AttachmentContent;
+import android.text.TextUtils;
+import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMLastMessageState;
+import com.netease.nimlib.sdk.v2.conversation.model.V2NIMConversation;
+import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
+import com.netease.yunxin.kit.chatkit.model.CustomAttachment;
+import com.netease.yunxin.kit.chatkit.repo.ConversationRepo;
+import com.netease.yunxin.kit.conversationkit.ui.common.ConversationUtils;
 
+/** 会话自定义配置 用于外部定制替换 */
 public class ConversationCustom {
 
-  public String customContentText(Context context, ConversationInfo conversationInfo) {
-    if (conversationInfo != null && context != null) {
-      MsgTypeEnum typeEnum = conversationInfo.getMsgType();
+  // 获取会话最近一条消息的内容展示
+  public String customContentText(Context context, V2NIMConversation conversationInfo) {
+    if (conversationInfo != null && context != null && conversationInfo.getLastMessage() != null) {
+      V2NIMMessageType typeEnum = conversationInfo.getLastMessage().getMessageType();
       switch (typeEnum) {
-        case notification:
+        case V2NIM_MESSAGE_TYPE_NOTIFICATION:
           return context.getString(R.string.msg_type_notification);
-        case text:
-          return conversationInfo.getContent();
-        case audio:
+        case V2NIM_MESSAGE_TYPE_TEXT:
+          return conversationInfo.getLastMessage().getText();
+        case V2NIM_MESSAGE_TYPE_AUDIO:
           return context.getString(R.string.msg_type_audio);
-        case video:
+        case V2NIM_MESSAGE_TYPE_VIDEO:
           return context.getString(R.string.msg_type_video);
-        case tip:
+        case V2NIM_MESSAGE_TYPE_TIPS:
           return context.getString(R.string.msg_type_tip);
-        case image:
+        case V2NIM_MESSAGE_TYPE_IMAGE:
           return context.getString(R.string.msg_type_image);
-        case file:
+        case V2NIM_MESSAGE_TYPE_FILE:
           return context.getString(R.string.msg_type_file);
-        case location:
+        case V2NIM_MESSAGE_TYPE_LOCATION:
           return context.getString(R.string.msg_type_location);
-        case nrtc_netcall:
-          NetCallAttachment attachment = (NetCallAttachment) conversationInfo.getAttachment();
-          int type = attachment.getType();
+        case V2NIM_MESSAGE_TYPE_CALL:
+          int type =
+              ConversationUtils.getMessageCallType(
+                  conversationInfo.getLastMessage().getAttachment());
           if (type == 1) {
             return context.getString(R.string.msg_type_rtc_audio);
           } else {
             return context.getString(R.string.msg_type_rtc_video);
           }
-        case custom:
-          String result = conversationInfo.getContent();
-          if (conversationInfo.getAttachment() instanceof AttachmentContent) {
-            result = ((AttachmentContent) conversationInfo.getAttachment()).getContent();
+        case V2NIM_MESSAGE_TYPE_CUSTOM:
+          String result = "";
+          // 自定义消息解析，可以通过ChatKitClient.addCustomAttach添加自定义消息Attachment
+          // 也可以使用，ChatKit-ui 中通过配置ChatKitConfig.customParse实现自定义消息解析
+          CustomAttachment attachment =
+              ConversationRepo.parseLastMsgCustomAttachment(conversationInfo.getLastMessage());
+          if (attachment != null) {
+            result = attachment.getContent();
+          }
+          if (TextUtils.isEmpty(result)) {
+            result = context.getString(R.string.msg_type_no_tips);
           }
           return result;
         default:
-          return context.getString(R.string.msg_type_no_tips);
+          String defaultText = "";
+          if (conversationInfo.getLastMessage().getLastMessageState()
+              == V2NIMLastMessageState.V2NIM_MESSAGE_STATE_REVOKED) {
+            defaultText = context.getString(R.string.msg_type_revoke_tips);
+          }
+          if (TextUtils.isEmpty(defaultText)) {
+            defaultText = context.getString(R.string.msg_type_no_tips);
+          }
+          return defaultText;
       }
     }
     return "";

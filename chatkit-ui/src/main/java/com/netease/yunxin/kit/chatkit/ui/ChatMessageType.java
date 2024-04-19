@@ -4,32 +4,32 @@
 
 package com.netease.yunxin.kit.chatkit.ui;
 
-import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
+import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
 
 /** 消息类型 */
 public interface ChatMessageType {
 
   /** normal message type */
-  int NORMAL_MESSAGE_VIEW_TYPE_TEXT = MsgTypeEnum.text.getValue();
+  int NORMAL_MESSAGE_VIEW_TYPE_TEXT = V2NIMMessageType.V2NIM_MESSAGE_TYPE_TEXT.getValue();
 
-  int NORMAL_MESSAGE_VIEW_TYPE_IMAGE = MsgTypeEnum.image.getValue();
+  int NORMAL_MESSAGE_VIEW_TYPE_IMAGE = V2NIMMessageType.V2NIM_MESSAGE_TYPE_IMAGE.getValue();
 
-  int NORMAL_MESSAGE_VIEW_TYPE_AUDIO = MsgTypeEnum.audio.getValue();
+  int NORMAL_MESSAGE_VIEW_TYPE_AUDIO = V2NIMMessageType.V2NIM_MESSAGE_TYPE_AUDIO.getValue();
 
-  int NORMAL_MESSAGE_VIEW_TYPE_VIDEO = MsgTypeEnum.video.getValue();
+  int NORMAL_MESSAGE_VIEW_TYPE_VIDEO = V2NIMMessageType.V2NIM_MESSAGE_TYPE_VIDEO.getValue();
 
-  int NORMAL_MESSAGE_VIEW_TYPE_FILE = MsgTypeEnum.file.getValue();
+  int NORMAL_MESSAGE_VIEW_TYPE_FILE = V2NIMMessageType.V2NIM_MESSAGE_TYPE_FILE.getValue();
 
   /** notice message type */
-  int NOTICE_MESSAGE_VIEW_TYPE = MsgTypeEnum.notification.getValue();
+  int NOTICE_MESSAGE_VIEW_TYPE = V2NIMMessageType.V2NIM_MESSAGE_TYPE_NOTIFICATION.getValue();
 
   /** tip message type */
-  int TIP_MESSAGE_VIEW_TYPE = MsgTypeEnum.tip.getValue();
+  int TIP_MESSAGE_VIEW_TYPE = V2NIMMessageType.V2NIM_MESSAGE_TYPE_TIPS.getValue();
 
   /** location message type */
-  int LOCATION_MESSAGE_VIEW_TYPE = MsgTypeEnum.location.getValue();
+  int LOCATION_MESSAGE_VIEW_TYPE = V2NIMMessageType.V2NIM_MESSAGE_TYPE_LOCATION.getValue();
 
-  int CALL_MESSAGE_VIEW_TYPE = MsgTypeEnum.nrtc_netcall.getValue();
+  int CALL_MESSAGE_VIEW_TYPE = V2NIMMessageType.V2NIM_MESSAGE_TYPE_CALL.getValue();
 
   // 会话中的会话消息
   int CHAT_MESSAGE_MODE = 0;

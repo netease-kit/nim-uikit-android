@@ -4,48 +4,50 @@
 
 package com.netease.yunxin.kit.chatkit.ui;
 
+import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
+
 import android.content.Context;
-import com.netease.nimlib.sdk.msg.attachment.NetCallAttachment;
-import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
+import android.text.TextUtils;
+import com.netease.nimlib.sdk.v2.message.attachment.V2NIMMessageAttachment;
+import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
+import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
-import com.netease.yunxin.kit.corekit.im.model.AttachmentContent;
+import org.json.JSONObject;
 
 /** 获取消息的简要信息，合并转发中展示的消息内容 */
 public class ChatBriefUtils {
 
   public static String customContentText(Context context, IMMessageInfo messageInfo) {
     if (messageInfo != null && context != null) {
-      MsgTypeEnum typeEnum = messageInfo.getMessage().getMsgType();
+      V2NIMMessageType typeEnum = messageInfo.getMessage().getMessageType();
       switch (typeEnum) {
-        case notification:
+        case V2NIM_MESSAGE_TYPE_NOTIFICATION:
           return context.getString(R.string.msg_type_notification);
-        case text:
-          return messageInfo.getMessage().getContent();
-        case audio:
+        case V2NIM_MESSAGE_TYPE_TEXT:
+          return messageInfo.getMessage().getText();
+        case V2NIM_MESSAGE_TYPE_AUDIO:
           return context.getString(R.string.msg_type_audio);
-        case video:
+        case V2NIM_MESSAGE_TYPE_VIDEO:
           return context.getString(R.string.msg_type_video);
-        case tip:
+        case V2NIM_MESSAGE_TYPE_TIPS:
           return context.getString(R.string.msg_type_tip);
-        case image:
+        case V2NIM_MESSAGE_TYPE_IMAGE:
           return context.getString(R.string.msg_type_image);
-        case file:
+        case V2NIM_MESSAGE_TYPE_FILE:
           return context.getString(R.string.msg_type_file);
-        case location:
+        case V2NIM_MESSAGE_TYPE_LOCATION:
           return context.getString(R.string.msg_type_location);
-        case nrtc_netcall:
-          NetCallAttachment attachment =
-              (NetCallAttachment) messageInfo.getMessage().getAttachment();
-          int type = attachment.getType();
+        case V2NIM_MESSAGE_TYPE_CALL:
+          int type = getMessageCallType(messageInfo.getMessage().getAttachment());
           if (type == 1) {
             return context.getString(R.string.msg_type_rtc_audio);
           } else {
             return context.getString(R.string.msg_type_rtc_video);
           }
-        case custom:
-          String result = messageInfo.getMessage().getContent();
-          if (messageInfo.getMessage().getAttachment() instanceof AttachmentContent) {
-            result = ((AttachmentContent) messageInfo.getMessage().getAttachment()).getContent();
+        case V2NIM_MESSAGE_TYPE_CUSTOM:
+          String result = messageInfo.getMessage().getText();
+          if (messageInfo.getAttachment() != null) {
+            result = messageInfo.getAttachment().getContent();
           }
           return result;
         default:
@@ -53,5 +55,31 @@ public class ChatBriefUtils {
       }
     }
     return "";
+  }
+
+  /**
+   * 获取话单消息的通话类型
+   *
+   * @param attachment 消息附件
+   * @return 通话类型
+   */
+  public static int getMessageCallType(V2NIMMessageAttachment attachment) {
+    // 此处只处理话单消息
+    int callType = 0;
+    if (attachment == null) {
+      return callType;
+    }
+    String attachmentStr = attachment.getRaw();
+    ALog.d(LIB_TAG, "ChatBriefUtils", "getMessageCallType: ");
+    if (!TextUtils.isEmpty(attachmentStr)) {
+      try {
+        JSONObject dataJson = new JSONObject(attachmentStr);
+        // 音频/视频 类型通话
+        callType = dataJson.getInt("type");
+      } catch (Exception e) {
+        ALog.e(LIB_TAG, "ChatBriefUtils", "getMessageCallType: " + callType);
+      }
+    }
+    return callType;
   }
 }

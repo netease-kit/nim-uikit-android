@@ -22,12 +22,13 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewbinding.ViewBinding;
-import com.netease.nimlib.sdk.team.constant.TeamTypeEnum;
 import com.netease.nimlib.sdk.team.model.Team;
-import com.netease.yunxin.kit.chatkit.model.UserInfoWithTeam;
+import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamType;
+import com.netease.nimlib.sdk.v2.team.model.V2NIMTeam;
+import com.netease.yunxin.kit.chatkit.model.TeamMemberWithUserInfo;
 import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
 import com.netease.yunxin.kit.common.utils.NetworkUtils;
-import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
+import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.teamkit.ui.R;
 import com.netease.yunxin.kit.teamkit.ui.adapter.BaseTeamMemberListAdapter;
 import com.netease.yunxin.kit.teamkit.ui.utils.TeamUIKitConstant;
@@ -39,14 +40,14 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-/** team member list activity */
+/** 群成员选择界面基类 子类需要实现{@link #initViewAndGetRootView(Bundle)}方法，返回界面的根布局 */
 public abstract class BaseTeamMemberSelectActivity extends BaseActivity {
 
   protected TeamSettingViewModel viewModel;
   protected String teamId;
-  private Set<String> filterAccounts = new HashSet<>();
+  private final Set<String> filterAccounts = new HashSet<>();
   protected BaseTeamMemberListAdapter<? extends ViewBinding> adapter;
-  protected TeamTypeEnum teamTypeEnum;
+  protected V2NIMTeamType teamTypeEnum;
 
   private View rootView;
   protected View ivBack;
@@ -64,7 +65,7 @@ public abstract class BaseTeamMemberSelectActivity extends BaseActivity {
     checkViews();
     setContentView(rootView);
     changeStatusBarColor(R.color.color_white);
-    Team teamInfo = (Team) getIntent().getSerializableExtra(KEY_TEAM_INFO);
+    V2NIMTeam teamInfo = (V2NIMTeam) getIntent().getSerializableExtra(KEY_TEAM_INFO);
     maxCount =
         getIntent()
             .getIntExtra(
@@ -79,8 +80,8 @@ public abstract class BaseTeamMemberSelectActivity extends BaseActivity {
     if (accoutList != null) {
       filterAccounts.addAll(accoutList);
     }
-    teamId = teamInfo.getId();
-    teamTypeEnum = teamInfo.getType();
+    teamId = teamInfo.getTeamId();
+    teamTypeEnum = teamInfo.getTeamType();
     initUI();
     configViewModel();
   }
@@ -90,7 +91,7 @@ public abstract class BaseTeamMemberSelectActivity extends BaseActivity {
     super.onResume();
     if (NetworkUtils.isConnected()) {
       if (ivClear.getVisibility() == View.GONE) {
-        viewModel.requestTeamMembers(teamId);
+        //        viewModel.requestAllTeamMembers(teamId);
       }
     } else {
       dismissLoading();
@@ -115,7 +116,7 @@ public abstract class BaseTeamMemberSelectActivity extends BaseActivity {
   }
 
   protected BaseTeamMemberListAdapter<? extends ViewBinding> getMemberListAdapter(
-      TeamTypeEnum typeEnum) {
+      V2NIMTeamType typeEnum) {
     return null;
   }
 
@@ -130,7 +131,7 @@ public abstract class BaseTeamMemberSelectActivity extends BaseActivity {
     tvSure.setOnClickListener(
         v -> {
           if (adapter != null) {
-            ArrayList<UserInfoWithTeam> selectedList = adapter.getSelectData();
+            ArrayList<TeamMemberWithUserInfo> selectedList = adapter.getSelectData();
             if (selectedList == null || selectedList.isEmpty()) {
               Toast.makeText(
                       getApplicationContext(),
@@ -181,7 +182,7 @@ public abstract class BaseTeamMemberSelectActivity extends BaseActivity {
 
             if (TextUtils.isEmpty(String.valueOf(s))) {
               ivClear.setVisibility(View.GONE);
-              viewModel.requestTeamMembers(teamId);
+              //              viewModel.requestAllTeamMembers(teamId);
             } else {
               ivClear.setVisibility(View.VISIBLE);
             }
@@ -192,16 +193,17 @@ public abstract class BaseTeamMemberSelectActivity extends BaseActivity {
   private void configViewModel() {
     viewModel = new ViewModelProvider(this).get(TeamSettingViewModel.class);
     viewModel.configTeamId(teamId);
+    // 获取群成员列表
     viewModel
-        .getUserInfoData()
+        .getTeamMemberListWithUserData()
         .observe(
             this,
             listResultInfo -> {
               dismissLoading();
-              if (listResultInfo.getSuccess()) {
-                List<UserInfoWithTeam> memberList =
+              if (listResultInfo.isSuccess()) {
+                List<TeamMemberWithUserInfo> memberList =
                     TeamUtils.filterMemberListFromInfoList(
-                        listResultInfo.getValue(), filterAccounts);
+                        listResultInfo.getData(), filterAccounts);
                 adapter.setDataAndSaveSelect(memberList);
                 if (adapter.getItemCount() > 0) {
                   groupEmpty.setVisibility(View.GONE);
@@ -211,12 +213,14 @@ public abstract class BaseTeamMemberSelectActivity extends BaseActivity {
                 teamMemberUpdate();
               }
             });
+    // 群更新观察着
     viewModel
         .getTeamUpdateData()
         .observeForever(
             teamResultInfo -> {
-              viewModel.requestTeamMembers(teamId);
+              viewModel.requestAllTeamMembers(teamId);
             });
+    viewModel.requestAllTeamMembers(teamId);
   }
 
   @Override
@@ -224,6 +228,13 @@ public abstract class BaseTeamMemberSelectActivity extends BaseActivity {
     super.onDestroy();
   }
 
+  /**
+   * 启动群成员选择界面
+   *
+   * @param context 上下文
+   * @param activity 群成员选择界面
+   * @param team 群信息
+   */
   public static void launch(Context context, Class<? extends Activity> activity, Team team) {
     Intent intent = new Intent(context, activity);
     intent.putExtra(KEY_TEAM_INFO, team);

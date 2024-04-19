@@ -31,11 +31,9 @@ import androidx.annotation.Nullable;
 import com.netease.nimlib.sdk.media.record.AudioRecorder;
 import com.netease.nimlib.sdk.media.record.IAudioRecordCallback;
 import com.netease.nimlib.sdk.media.record.RecordType;
-import com.netease.nimlib.sdk.msg.attachment.MsgAttachment;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
-import com.netease.yunxin.kit.chatkit.ui.custom.StickerAttachment;
 import com.netease.yunxin.kit.chatkit.ui.databinding.FunChatMessageBottomViewBinding;
 import com.netease.yunxin.kit.chatkit.ui.fun.FunAudioRecordDialog;
 import com.netease.yunxin.kit.chatkit.ui.fun.view.input.FunBottomActionFactory;
@@ -58,29 +56,42 @@ import com.netease.yunxin.kit.common.utils.KeyboardUtils;
 import com.netease.yunxin.kit.common.utils.NetworkUtils;
 import com.netease.yunxin.kit.common.utils.PermissionUtils;
 import com.netease.yunxin.kit.common.utils.XKitUtils;
-import com.netease.yunxin.kit.corekit.im.IMKitClient;
+import com.netease.yunxin.kit.corekit.im2.IMKitClient;
 import java.io.File;
 import java.util.List;
 
+/**
+ * 聊天界面底部输入布局
+ *
+ * <p>包含文本输入、语音输入、表情输入、更多输入
+ */
 public class MessageBottomLayout extends FrameLayout
     implements IAudioRecordCallback, AitTextChangeListener, IItemActionListener {
   public static final String TAG = "MessageBottomLayout";
   private static final long SHOW_DELAY_TIME = 200;
   private FunChatMessageBottomViewBinding mBinding;
+  // 消息发送
   private IMessageProxy mProxy;
   private String mEdieNormalHint = "";
+  // 是否禁言
   private boolean mMute = false;
+  // 输入框属性配置
   private InputProperties inputProperties;
-
+  // 被回复消息
   ChatMessageBean replyMessage;
 
   private final ActionsPanel mActionsPanel = new ActionsPanel();
+  // @输入监听
   private AitManager aitTextWatcher;
 
+  // 键盘是否显示
   private boolean isKeyboardShow = false;
+  // 输入状态包括：文本输入、语音输入、表情输入、更多输入
   private InputState mInputState = InputState.none;
+  // 表情选择监听
   private IEmojiSelectedListener emojiSelectedListener;
 
+  // 语音输入对话框
   private FunAudioRecordDialog recordDialog;
 
   private boolean inRecordOpView;
@@ -114,6 +125,7 @@ public class MessageBottomLayout extends FrameLayout
     mBinding.inputMoreRb.setOnClickListener(v -> switchMore());
     mBinding.inputAudioRb.setOnClickListener(v -> switchRecord());
 
+    // 语音输入
     mBinding.inputAudioTv.setOnTouchListener(
         (v, event) -> {
           ALog.d(LIB_TAG, TAG, "inputAudioTv OnTouch, event:" + event.getAction());
@@ -155,13 +167,6 @@ public class MessageBottomLayout extends FrameLayout
               start = Math.max(start, 0);
               mEditable.replace(start, end, key);
             }
-          }
-
-          @Override
-          public void onStickerSelected(String categoryName, String stickerName) {
-            MsgAttachment attachment = new StickerAttachment(categoryName, stickerName);
-            mProxy.sendCustomMessage(
-                attachment, getContext().getString(R.string.chat_message_custom_sticker));
           }
 
           @Override
@@ -312,7 +317,6 @@ public class MessageBottomLayout extends FrameLayout
           return true;
         });
 
-    mBinding.emojiPickerView.setWithSticker(true);
     // 多行消息设置点击事件
     mBinding.chatRichEt.addTextChangedListener(
         new TextWatcher() {
@@ -334,7 +338,7 @@ public class MessageBottomLayout extends FrameLayout
     loadConfig();
   }
 
-  private TextWatcher msgInputTextWatcher =
+  private final TextWatcher msgInputTextWatcher =
       new TextWatcher() {
         private int start;
         private int count;
@@ -469,7 +473,7 @@ public class MessageBottomLayout extends FrameLayout
       mBinding.chatRichEt.setText("");
       mBinding.chatRichEt.setVisibility(GONE);
     }
-    MessageHelper.identifyExpressionForEditMsg(
+    MessageHelper.identifyExpressionForRichTextMsg(
         getContext(),
         mBinding.inputEt,
         content,
@@ -498,17 +502,6 @@ public class MessageBottomLayout extends FrameLayout
     recordShow(true, 0);
     hideCurrentInput();
     updateState(InputState.voice);
-  }
-
-  public void richInputShow(boolean show, long delay) {
-    postDelayed(
-        () -> {
-          mBinding.chatRichEt.setVisibility(show ? VISIBLE : GONE);
-          if (show) {
-            mBinding.chatRichEt.requestFocus();
-          }
-        },
-        delay);
   }
 
   public void recordShow(boolean show, long delay) {
@@ -568,7 +561,7 @@ public class MessageBottomLayout extends FrameLayout
     if (!mActionsPanel.hasInit() && show) {
       mActionsPanel.init(
           mBinding.actionsPanelVp,
-          FunBottomActionFactory.assembleInputMoreActions(mProxy.getSessionType()),
+          FunBottomActionFactory.assembleInputMoreActions(mProxy.getConversationType()),
           this);
     }
     postDelayed(() -> mBinding.actionsPanelVp.setVisibility(show ? VISIBLE : GONE), delay);
@@ -591,6 +584,7 @@ public class MessageBottomLayout extends FrameLayout
         new BottomChoiceDialog.OnChoiceListener() {
           @Override
           public void onChoice(@NonNull String type) {
+
             if (!XKitUtils.getApplicationContext()
                 .getPackageManager()
                 .hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)) {
@@ -696,10 +690,15 @@ public class MessageBottomLayout extends FrameLayout
     if (mute != mMute) {
       mMute = mute;
       mBinding.inputEt.setEnabled(!mute);
-      mBinding.inputMuteTv.setVisibility(mute ? VISIBLE : GONE);
+      mBinding.chatinputMuteLayout.setVisibility(mute ? VISIBLE : GONE);
       mBinding.inputEt.setText("");
       mBinding.chatRichEt.setText("");
       if (mute) {
+        // 禁言时，如果是语音输入状态，切换到文本输入状态
+        if (mInputState == InputState.voice) {
+          recordShow(false, 0);
+          updateState(InputState.input);
+        }
         collapse(true);
       }
       mBinding.inputLayout.setBackgroundResource(mute ? R.color.color_e3e4e4 : R.color.color_white);
@@ -793,7 +792,7 @@ public class MessageBottomLayout extends FrameLayout
         TAG,
         "onRecordSuccess -->> file:" + audioFile.getName() + " length:" + audioLength);
     endRecord();
-    mProxy.sendAudio(audioFile, audioLength, replyMessage);
+    mProxy.sendAudio(audioFile, (int) audioLength, replyMessage);
     clearReplyMsg();
   }
 

@@ -109,6 +109,18 @@ public class EmojiManager {
     return new BitmapDrawable(context.getResources(), cache);
   }
 
+  public static Drawable getEmoteDrawable(Context context, String text, float scale) {
+    Drawable drawable = getDrawable(context, text);
+    // scale
+    if (drawable != null) {
+      int width = (int) (drawable.getIntrinsicWidth() * scale);
+      int height = (int) (drawable.getIntrinsicHeight() * scale);
+      drawable.setBounds(0, 0, width, height);
+    }
+
+    return drawable;
+  }
+
   private static Pattern makePattern() {
     return Pattern.compile(patternOfDefault());
   }

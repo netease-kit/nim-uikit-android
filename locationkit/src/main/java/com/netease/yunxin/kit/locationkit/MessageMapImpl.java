@@ -86,6 +86,12 @@ public class MessageMapImpl implements IMessageMapProvider {
     getKeyFromMap(key).clear();
   }
 
+  @NonNull
+  @Override
+  public String getChatMpaItemImage(double latitude, double longitude) {
+    return ChatMapUtils.generateAMapImageUrl(latitude, longitude);
+  }
+
   private List<IChatMap> getKeyFromMap(String key) {
     List<IChatMap> chatMapList = chatMapInterfaceMap.get(key);
     if (chatMapList == null) {

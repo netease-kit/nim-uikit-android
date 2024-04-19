@@ -32,18 +32,14 @@ public class EmojiView {
   /** emoji page count，keep with Adapter same.last on is delete */
   public static final int EMOJI_PER_PAGE = 20;
 
-  public static final int STICKER_PER_PAGE = 8;
-
   private final Context context;
   private final IEmojiSelectedListener listener;
   private final EmoticonViewPaperAdapter pagerAdapter = new EmoticonViewPaperAdapter();
 
   private int categoryIndex;
   private boolean isDataInitialized = false;
-  private List<StickerCategory> categoryDataList;
   private List<Integer> categoryPageNumberList;
   private final int[] pagerIndexInfo = new int[2];
-  private IEmojiCategoryChanged categoryChangedCallback;
 
   public EmojiView(
       Context context,
@@ -60,15 +56,7 @@ public class EmojiView {
 
           @Override
           public void onPageSelected(int position) {
-            if (categoryDataList != null) {
-              setCurStickerPage(position);
-              if (categoryChangedCallback != null) {
-                int currentCategoryChecked = pagerIndexInfo[0];
-                categoryChangedCallback.onCategoryChanged(currentCategoryChecked);
-              }
-            } else {
-              setCurEmotionPage(position);
-            }
+            setCurEmotionPage(position);
           }
 
           @Override
@@ -102,17 +90,8 @@ public class EmojiView {
     showEmojiGridView();
   }
 
-  private int getCategoryPageCount(StickerCategory category) {
-    if (category == null) {
-      return (int) Math.ceil(EmojiManager.getDisplayCount() / (float) EMOJI_PER_PAGE);
-    } else {
-      if (category.hasStickers()) {
-        List<StickerItem> stickers = category.getStickers();
-        return (int) Math.ceil(stickers.size() / (float) STICKER_PER_PAGE);
-      } else {
-        return 1;
-      }
-    }
+  private int getCategoryPageCount() {
+    return (int) Math.ceil(EmojiManager.getDisplayCount() / (float) EMOJI_PER_PAGE);
   }
 
   private void setCurPage(int page, int pageCount) {
@@ -145,6 +124,7 @@ public class EmojiView {
   }
 
   private void showEmojiGridView() {
+    initData();
     pageCount = (int) Math.ceil(EmojiManager.getDisplayCount() / (float) EMOJI_PER_PAGE);
     pagerAdapter.notifyDataSetChanged();
     resetEmotionPager();
@@ -164,7 +144,7 @@ public class EmojiView {
         public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
           int position = emojiPager.getCurrentItem();
           int pos = position;
-          if (categoryDataList != null && categoryPageNumberList != null) {
+          if (categoryPageNumberList != null) {
             getPagerInfo(position);
             pos = pagerIndexInfo[1];
           }
@@ -206,28 +186,13 @@ public class EmojiView {
       return;
     }
 
-    if (categoryDataList == null) {
-      categoryDataList = new ArrayList<>();
-    }
-
     if (categoryPageNumberList == null) {
       categoryPageNumberList = new ArrayList<>();
     }
 
-    categoryDataList.clear();
     categoryPageNumberList.clear();
 
-    final StickerManager manager = StickerManager.getInstance();
-
-    categoryDataList.add(null);
-    categoryPageNumberList.add(getCategoryPageCount(null));
-
-    List<StickerCategory> categories = manager.getCategories();
-
-    categoryDataList.addAll(categories);
-    for (StickerCategory c : categories) {
-      categoryPageNumberList.add(getCategoryPageCount(c));
-    }
+    categoryPageNumberList.add(getCategoryPageCount());
 
     pageCount = 0;
     for (Integer count : categoryPageNumberList) {
@@ -238,7 +203,7 @@ public class EmojiView {
   }
 
   private int[] getPagerInfo(int position) {
-    if (categoryDataList == null || categoryPageNumberList == null) {
+    if (categoryPageNumberList == null) {
       return pagerIndexInfo;
     }
 
@@ -269,39 +234,6 @@ public class EmojiView {
     setCurPage(pageIndexInCategory, categoryPageCount);
   }
 
-  public void setCategoryChangCheckedCallback(IEmojiCategoryChanged callback) {
-    this.categoryChangedCallback = callback;
-  }
-
-  private final OnItemClickListener stickerListener =
-      new OnItemClickListener() {
-        public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-          int position = emojiPager.getCurrentItem();
-          getPagerInfo(position);
-          int cIndex = pagerIndexInfo[0];
-          int pos = pagerIndexInfo[1];
-          StickerCategory c = categoryDataList.get(cIndex);
-          int index = arg2 + pos * STICKER_PER_PAGE;
-
-          if (index >= c.getStickers().size()) {
-            return;
-          }
-
-          if (listener != null) {
-            StickerManager manager = StickerManager.getInstance();
-            List<StickerItem> stickers = c.getStickers();
-            StickerItem sticker = stickers.get(index);
-            StickerCategory real = manager.getCategory(sticker.getCategory());
-
-            if (real == null) {
-              return;
-            }
-
-            listener.onStickerSelected(sticker.getCategory(), sticker.getName());
-          }
-        }
-      };
-
   private class EmoticonViewPaperAdapter extends PagerAdapter {
     @Override
     public boolean isViewFromObject(@NonNull View view, @NonNull Object object) {
@@ -316,36 +248,23 @@ public class EmojiView {
     @NonNull
     @Override
     public Object instantiateItem(@NonNull ViewGroup container, int position) {
-      StickerCategory category;
       int pos;
-      if (categoryDataList != null
-          && categoryDataList.size() > 0
-          && categoryPageNumberList != null
-          && categoryPageNumberList.size() > 0) {
+      if (categoryPageNumberList != null && categoryPageNumberList.size() > 0) {
         getPagerInfo(position);
-        int cIndex = pagerIndexInfo[0];
-        category = categoryDataList.get(cIndex);
         pos = pagerIndexInfo[1];
       } else {
-        category = null;
         pos = position;
       }
 
       pageNumberLayout.setVisibility(View.VISIBLE);
       GridView gridView = new GridView(context);
-      if (category == null) {
-        gridView.setOnItemClickListener(emojiListener);
-        gridView.setAdapter(new EmojiAdapter(context, pos * EMOJI_PER_PAGE));
-        gridView.setNumColumns(7);
-        gridView.setHorizontalSpacing(5);
-        gridView.setVerticalSpacing(5);
-      } else {
-        gridView.setPadding(10, 0, 10, 0);
-        gridView.setOnItemClickListener(stickerListener);
-        gridView.setAdapter(new StickerAdapter(context, category, pos * STICKER_PER_PAGE));
-        gridView.setNumColumns(4);
-        gridView.setHorizontalSpacing(5);
-      }
+
+      gridView.setOnItemClickListener(emojiListener);
+      gridView.setAdapter(new EmojiAdapter(context, pos * EMOJI_PER_PAGE));
+      gridView.setNumColumns(7);
+      gridView.setHorizontalSpacing(5);
+      gridView.setVerticalSpacing(5);
+
       gridView.setGravity(Gravity.CENTER);
       gridView.setSelector(R.drawable.emoji_item_selector);
       container.addView(gridView);

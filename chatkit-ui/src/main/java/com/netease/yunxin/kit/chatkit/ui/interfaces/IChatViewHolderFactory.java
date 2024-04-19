@@ -12,5 +12,5 @@ public interface IChatViewHolderFactory {
 
   ChatBaseViewHolder createViewHolder(@NonNull ViewGroup parent, int viewType);
 
-  public int getItemViewType(ChatMessageBean messageBean);
+  int getItemViewType(ChatMessageBean messageBean);
 }

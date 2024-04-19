@@ -4,6 +4,8 @@
 
 package com.netease.yunxin.app.im.welcome;
 
+import static com.netease.yunxin.app.im.IMApplication.LOGIN_PARENT_SCOPE;
+import static com.netease.yunxin.app.im.IMApplication.LOGIN_SCOPE;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -12,20 +14,19 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.netease.nimlib.sdk.NIMClient;
-import com.netease.nimlib.sdk.auth.LoginInfo;
+import com.netease.nimlib.sdk.v2.auth.option.V2NIMLoginOption;
 import com.netease.yunxin.app.im.IMApplication;
 import com.netease.yunxin.app.im.R;
 import com.netease.yunxin.app.im.databinding.ActivityWelcomeBinding;
 import com.netease.yunxin.app.im.main.MainActivity;
 import com.netease.yunxin.app.im.utils.Constant;
-import com.netease.yunxin.app.im.utils.DataUtils;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
 import com.netease.yunxin.kit.common.ui.utils.ToastX;
-import com.netease.yunxin.kit.corekit.im.IMKitClient;
-import com.netease.yunxin.kit.corekit.im.login.LoginCallback;
+import com.netease.yunxin.kit.corekit.im2.IMKitClient;
+import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
 
-/** Welcome Page is launch page */
+/** 启动页面 如果没有登录则展示登录按钮，点击登录按钮进入登录页面 如果已经登录则直接进入主页面 */
 public class WelcomeActivity extends BaseActivity {
 
   private static final String TAG = "WelcomeActivity";
@@ -38,13 +39,15 @@ public class WelcomeActivity extends BaseActivity {
     IMApplication.setColdStart(true);
     activityWelcomeBinding = ActivityWelcomeBinding.inflate(getLayoutInflater());
     setContentView(activityWelcomeBinding.getRoot());
-    if (TextUtils.isEmpty(IMKitClient.account())) {
+    // 判断是否已经登录
+    if (TextUtils.isEmpty(NIMClient.getCurrentAccount())) {
       startLogin();
     } else {
       showMainActivityAndFinish();
     }
   }
 
+  // 进入主页面并结束当前页面
   private void showMainActivityAndFinish() {
     ALog.d(Constant.PROJECT_TAG, TAG, "showMainActivityAndFinish");
     Intent intent = new Intent();
@@ -54,7 +57,7 @@ public class WelcomeActivity extends BaseActivity {
     finish();
   }
 
-  /** start login page, you can use to launch your own login */
+  // 开始登录
   private void startLogin() {
     ALog.d(Constant.PROJECT_TAG, TAG, "startLogin");
 
@@ -69,6 +72,7 @@ public class WelcomeActivity extends BaseActivity {
     }
   }
 
+  // 展示登录页面
   private void showLoginView() {
     ALog.d(Constant.PROJECT_TAG, TAG, "showLoginView");
     activityWelcomeBinding.appDesc.setVisibility(View.GONE);
@@ -95,23 +99,22 @@ public class WelcomeActivity extends BaseActivity {
         });
   }
 
-  /** launch login activity */
+  // 启动登录页面
   private void launchLoginPage() {
     ALog.d(Constant.PROJECT_TAG, TAG, "launchLoginPage");
 
   }
 
-  /** when your own page login success, you should login IM SDK */
+  // 登录IM
   private void loginIM(String account, String token) {
     ALog.d(Constant.PROJECT_TAG, TAG, "loginIM");
     activityWelcomeBinding.getRoot().setVisibility(View.GONE);
-    LoginInfo loginInfo =
-        LoginInfo.LoginInfoBuilder.loginInfoDefault(account, token)
-            .withAppKey(DataUtils.readAppKey(this))
-            .build();
-    IMKitClient.loginIM(
-        loginInfo,
-        new LoginCallback<LoginInfo>() {
+    V2NIMLoginOption option = new V2NIMLoginOption();
+    IMKitClient.login(
+        account,
+        token,
+        option,
+        new FetchCallback<Void>() {
           @Override
           public void onError(int errorCode, @NonNull String errorMsg) {
             ToastX.showShortToast(
@@ -120,7 +123,7 @@ public class WelcomeActivity extends BaseActivity {
           }
 
           @Override
-          public void onSuccess(@Nullable LoginInfo data) {
+          public void onSuccess(@Nullable Void data) {
             showMainActivityAndFinish();
           }
         });

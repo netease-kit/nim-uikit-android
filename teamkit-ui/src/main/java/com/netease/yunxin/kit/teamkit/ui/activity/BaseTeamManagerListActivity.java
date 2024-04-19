@@ -4,7 +4,7 @@
 
 package com.netease.yunxin.kit.teamkit.ui.activity;
 
-import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.REQUEST_CONTACT_SELECTOR_KEY;
+import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.REQUEST_CONTACT_SELECTOR_KEY;
 import static com.netease.yunxin.kit.teamkit.ui.utils.NetworkUtilsWrapper.doActionAndFilterNetworkBroken;
 
 import android.content.Intent;
@@ -20,10 +20,10 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewbinding.ViewBinding;
-import com.netease.nimlib.sdk.team.constant.TeamMemberType;
-import com.netease.nimlib.sdk.team.constant.TeamTypeEnum;
-import com.netease.nimlib.sdk.team.model.Team;
-import com.netease.yunxin.kit.chatkit.model.UserInfoWithTeam;
+import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamMemberRole;
+import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamType;
+import com.netease.nimlib.sdk.v2.team.model.V2NIMTeam;
+import com.netease.yunxin.kit.chatkit.model.TeamMemberWithUserInfo;
 import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
 import com.netease.yunxin.kit.common.ui.dialog.ChoiceListener;
 import com.netease.yunxin.kit.common.ui.dialog.CommonChoiceDialog;
@@ -33,27 +33,29 @@ import com.netease.yunxin.kit.common.utils.NetworkUtils;
 import com.netease.yunxin.kit.corekit.event.BaseEvent;
 import com.netease.yunxin.kit.corekit.event.EventCenter;
 import com.netease.yunxin.kit.corekit.event.EventNotify;
-import com.netease.yunxin.kit.corekit.im.IMKitClient;
+import com.netease.yunxin.kit.corekit.im2.IMKitClient;
 import com.netease.yunxin.kit.teamkit.ui.R;
 import com.netease.yunxin.kit.teamkit.ui.adapter.BaseTeamMemberListAdapter;
 import com.netease.yunxin.kit.teamkit.ui.model.EventDef;
 import com.netease.yunxin.kit.teamkit.ui.normal.adapter.TeamMemberListAdapter;
 import com.netease.yunxin.kit.teamkit.ui.utils.TeamUIKitConstant;
-import com.netease.yunxin.kit.teamkit.ui.viewmodel.TeamSettingViewModel;
+import com.netease.yunxin.kit.teamkit.ui.utils.TeamUtils;
+import com.netease.yunxin.kit.teamkit.ui.viewmodel.TeamManagerListViewModel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+/** 群管理员列表页面, 包含添加管理员和删除管理员功能 子类需要实现{@link #initViewAndGetRootView(Bundle)}方法, 并在其中初始化页面布局 */
 public abstract class BaseTeamManagerListActivity extends BaseActivity {
 
-  protected TeamSettingViewModel viewModel;
+  protected TeamManagerListViewModel viewModel;
 
-  protected Team teamInfo;
+  protected V2NIMTeam teamInfo;
 
-  protected List<UserInfoWithTeam> managerList = new ArrayList<>();
+  protected List<TeamMemberWithUserInfo> managerList = new ArrayList<>();
 
   protected BaseTeamMemberListAdapter<? extends ViewBinding> adapter;
-  protected TeamTypeEnum teamTypeEnum;
+  protected V2NIMTeamType teamTypeEnum;
 
   private View rootView;
   protected View ivBack;
@@ -61,6 +63,7 @@ public abstract class BaseTeamManagerListActivity extends BaseActivity {
   protected View groupEmpty;
   protected RecyclerView rvMemberList;
   protected ActivityResultLauncher<Intent> launcher;
+  // 监听关闭页面事件，用于群解散或者被踢出群，相关页面需要关闭
   protected final EventNotify<BaseEvent> closeEventNotify =
       new EventNotify<BaseEvent>() {
         @Override
@@ -78,14 +81,15 @@ public abstract class BaseTeamManagerListActivity extends BaseActivity {
   @Override
   protected void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    // 注册关闭页面事件
     EventCenter.registerEventNotify(closeEventNotify);
     rootView = initViewAndGetRootView(savedInstanceState);
     checkViews();
     setContentView(rootView);
     changeStatusBarColor(R.color.color_white);
-    viewModel = new ViewModelProvider(this).get(TeamSettingViewModel.class);
-    teamInfo = (Team) getIntent().getSerializableExtra(TeamUIKitConstant.KEY_TEAM_INFO);
-    if (teamInfo == null || TextUtils.isEmpty(teamInfo.getId())) {
+    viewModel = new ViewModelProvider(this).get(TeamManagerListViewModel.class);
+    teamInfo = (V2NIMTeam) getIntent().getSerializableExtra(TeamUIKitConstant.KEY_TEAM_INFO);
+    if (teamInfo == null || TextUtils.isEmpty(teamInfo.getTeamId())) {
       finish();
       return;
     }
@@ -96,14 +100,14 @@ public abstract class BaseTeamManagerListActivity extends BaseActivity {
   @Override
   protected void onStart() {
     super.onStart();
-    viewModel.requestTeamMembers(teamInfo.getId());
+    viewModel.requestTeamManagers(teamInfo.getTeamId());
   }
 
   protected abstract View initViewAndGetRootView(Bundle savedInstanceState);
 
   private void initUI() {
     ivBack.setOnClickListener(v -> finish());
-    if (teamInfo != null && TextUtils.equals(teamInfo.getCreator(), IMKitClient.account())) {
+    if (teamInfo != null && TextUtils.equals(teamInfo.getOwnerAccountId(), IMKitClient.account())) {
       tvAddManager.setVisibility(View.VISIBLE);
       tvAddManager.setOnClickListener(
           v -> doActionAndFilterNetworkBroken(this, () -> startTeamMemberSelector(launcher)));
@@ -114,8 +118,8 @@ public abstract class BaseTeamManagerListActivity extends BaseActivity {
     rvMemberList.setLayoutManager(
         new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
     adapter = getMemberListAdapter(teamTypeEnum);
-    if (teamInfo != null && TextUtils.equals(teamInfo.getCreator(), IMKitClient.account())) {
-      adapter.setShowRemoveTagWithMemberType(TeamMemberType.Manager);
+    if (teamInfo != null && TextUtils.equals(teamInfo.getOwnerAccountId(), IMKitClient.account())) {
+      adapter.setShowRemoveTagWithMemberType(V2NIMTeamMemberRole.V2NIM_TEAM_MEMBER_ROLE_MANAGER);
       adapter.setItemClickListener(
           (action, view, data, position) -> {
             if (action.equals(TeamMemberListAdapter.ACTION_REMOVE)) {
@@ -123,7 +127,7 @@ public abstract class BaseTeamManagerListActivity extends BaseActivity {
                   this,
                   () -> {
                     List<String> accounts = new ArrayList<>();
-                    accounts.add(data.getUserInfo().getAccount());
+                    accounts.add(data.getAccountId());
                     showDeleteConfirmDialog(accounts);
                   });
             }
@@ -134,26 +138,26 @@ public abstract class BaseTeamManagerListActivity extends BaseActivity {
   }
 
   protected BaseTeamMemberListAdapter<? extends ViewBinding> getMemberListAdapter(
-      TeamTypeEnum typeEnum) {
+      V2NIMTeamType typeEnum) {
     return null;
   }
 
   private void initData() {
-
+    // 初始化配置ViewModel teamId
+    viewModel.configTeamId(teamInfo.getTeamId());
+    // 获取群成员列表，更加成员身份过滤管理员
     viewModel
-        .getUserInfoData()
+        .getTeamManagerWithUserData()
         .observe(
             this,
             listResultInfo -> {
               dismissLoading();
-              if (listResultInfo.getSuccess()) {
+              if (listResultInfo.isSuccess()) {
                 managerList.clear();
-                for (int i = 0; i < listResultInfo.getValue().size(); i++) {
-                  UserInfoWithTeam teamUser = listResultInfo.getValue().get(i);
-                  if (teamUser.getTeamInfo().getType() == TeamMemberType.Manager) {
-                    managerList.add(teamUser);
-                  }
-                }
+                managerList =
+                    TeamUtils.filterMemberListWithRole(
+                        listResultInfo.getData(),
+                        V2NIMTeamMemberRole.V2NIM_TEAM_MEMBER_ROLE_MANAGER);
                 adapter.addDataList(managerList, true);
                 if (adapter.getItemCount() > 0) {
                   groupEmpty.setVisibility(View.GONE);
@@ -163,22 +167,24 @@ public abstract class BaseTeamManagerListActivity extends BaseActivity {
               }
             });
 
+    // 添加或删除群成员员观察者，收到添加和删除员信息后刷新列表
     viewModel
         .getAddRemoveMembersData()
         .observeForever(
             listResultInfo -> {
               dismissLoading();
               if (listResultInfo.getLoadStatus() == LoadStatus.Success) {
-                viewModel.requestTeamMembers(teamInfo.getId());
+                viewModel.requestTeamManagers(teamInfo.getTeamId());
               }
             });
+    // 添加管理员观察者，收到添加管理员信息后刷新列表
     viewModel
         .getAddRemoveManagerLiveData()
         .observeForever(
             listResultInfo -> {
               dismissLoading();
               if (listResultInfo.getLoadStatus() == LoadStatus.Success) {
-                viewModel.requestTeamMembers(teamInfo.getId());
+                viewModel.requestTeamManagers(teamInfo.getTeamId());
               } else {
                 Toast.makeText(
                         BaseTeamManagerListActivity.this,
@@ -187,6 +193,7 @@ public abstract class BaseTeamManagerListActivity extends BaseActivity {
                     .show();
               }
             });
+    // Activity Launcher 添加管理员页面返回要添加的人员ID
     launcher =
         registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -198,10 +205,9 @@ public abstract class BaseTeamManagerListActivity extends BaseActivity {
               ArrayList<String> memberList =
                   intent.getStringArrayListExtra(REQUEST_CONTACT_SELECTOR_KEY);
               if (memberList != null) {
-                viewModel.addManager(teamInfo.getId(), memberList);
+                viewModel.addManager(teamInfo.getTeamId(), memberList);
               }
             });
-    viewModel.configTeamId(teamInfo.getId());
   }
 
   protected void checkViews() {
@@ -214,6 +220,7 @@ public abstract class BaseTeamManagerListActivity extends BaseActivity {
 
   protected void startTeamMemberSelector(ActivityResultLauncher launcher) {}
 
+  // 显示删除管理员确认对话框
   private void showDeleteConfirmDialog(List<String> accounts) {
     CommonChoiceDialog dialog = new CommonChoiceDialog();
     dialog
@@ -229,7 +236,7 @@ public abstract class BaseTeamManagerListActivity extends BaseActivity {
                   ToastX.showShortToast(R.string.team_network_error_tip);
                   return;
                 }
-                viewModel.removeManager(teamInfo.getId(), accounts);
+                viewModel.removeManager(teamInfo.getTeamId(), accounts);
               }
 
               @Override

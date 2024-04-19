@@ -5,28 +5,33 @@
 package com.netease.yunxin.kit.chatkit.ui.view.message.audio;
 
 import android.media.MediaPlayer;
+import android.text.TextUtils;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.media.player.OnPlayListener;
-import com.netease.nimlib.sdk.msg.MsgService;
-import com.netease.nimlib.sdk.msg.attachment.AudioAttachment;
-import com.netease.nimlib.sdk.msg.constant.AttachStatusEnum;
-import com.netease.nimlib.sdk.msg.constant.MsgDirectionEnum;
-import com.netease.nimlib.sdk.msg.constant.MsgStatusEnum;
-import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
+import com.netease.nimlib.sdk.v2.message.attachment.V2NIMMessageAudioAttachment;
+import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
-import com.netease.yunxin.kit.chatkit.ui.common.ChatCallback;
+import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.view.message.adapter.ChatMessageAdapter;
+import com.netease.yunxin.kit.chatkit.utils.MessageExtensionHelper;
+import com.netease.yunxin.kit.common.utils.FileUtils;
 import com.netease.yunxin.kit.common.utils.storage.StorageUtil;
-import com.netease.yunxin.kit.corekit.im.audioplayer.BaseAudioControl;
-import com.netease.yunxin.kit.corekit.im.audioplayer.Playable;
-import java.io.File;
+import com.netease.yunxin.kit.corekit.im2.audioplayer.BaseAudioControl;
+import com.netease.yunxin.kit.corekit.im2.audioplayer.Playable;
+import com.netease.yunxin.kit.corekit.im2.extend.ProgressFetchCallback;
+import com.netease.yunxin.kit.corekit.im2.provider.V2MessageProvider;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import org.json.JSONObject;
 
 public class ChatMessageAudioControl extends BaseAudioControl<IMMessageInfo> {
   private static ChatMessageAudioControl mChatMessageAudioControl = null;
+
+  private static final String READ_KEY = "audioMessageHaveRead";
 
   private boolean mIsNeedPlayNext = false;
 
@@ -134,25 +139,34 @@ public class ChatMessageAudioControl extends BaseAudioControl<IMMessageInfo> {
       final AudioControlListener audioControlListener,
       final int audioStreamType) {
     // if not exit need download
-    AudioAttachment audioAttachment = (AudioAttachment) message.getMessage().getAttachment();
+    V2NIMMessageAudioAttachment audioAttachment =
+        (V2NIMMessageAudioAttachment) message.getMessage().getAttachment();
     if (audioAttachment == null) {
       return;
     }
-    File file = new File(audioAttachment.getPathForSave());
-    if (!file.exists()) {
-      ChatRepo.downloadAttachment(
-          message.getMessage(),
-          false,
-          new ChatCallback<Void>() {
-            @Override
-            public void onSuccess(@Nullable Void param) {
-              super.onSuccess(param);
-              startPlayAudio(message, audioControlListener, audioStreamType, true, delayMillis);
-            }
-          });
-      return;
+    String path = MessageHelper.getMessageAttachPath(message.getMessage());
+    if (!TextUtils.isEmpty(path)) {
+      if (FileUtils.isFileExists(path)) {
+        startPlayAudio(message, audioControlListener, audioStreamType, true, delayMillis, path);
+      } else {
+        ChatRepo.downloadAttachment(
+            message.getMessage(),
+            path,
+            new ProgressFetchCallback<>() {
+              @Override
+              public void onError(int errorCode, @NonNull String errorMsg) {}
+
+              @Override
+              public void onSuccess(@Nullable String data) {
+                startPlayAudio(
+                    message, audioControlListener, audioStreamType, true, delayMillis, data);
+              }
+
+              @Override
+              public void onProgress(int progress) {}
+            });
+      }
     }
-    startPlayAudio(message, audioControlListener, audioStreamType, true, delayMillis);
   }
 
   //need not resetOrigAudioStreamType while play audio one by one
@@ -161,18 +175,17 @@ public class ChatMessageAudioControl extends BaseAudioControl<IMMessageInfo> {
       AudioControlListener audioControlListener,
       int audioStreamType,
       boolean resetOrigAudioStreamType,
-      long delayMillis) {
+      long delayMillis,
+      String filePath) {
     if (StorageUtil.isExternalStorageExist()) {
       if (startAudio(
-          new ChatMessageAudioPlayable(message),
+          new ChatMessageAudioPlayable(message, filePath),
           audioControlListener,
           audioStreamType,
           resetOrigAudioStreamType,
           delayMillis)) {
-        // remove unread signal and update database
         if (isUnreadAudioMessage(message)) {
-          message.getMessage().setStatus(MsgStatusEnum.read);
-          NIMClient.getService(MsgService.class).updateIMMessageStatus(message.getMessage());
+          setAudioMessageHaveRead(message);
         }
       }
     } else {
@@ -206,21 +219,23 @@ public class ChatMessageAudioControl extends BaseAudioControl<IMMessageInfo> {
       return false;
     }
     IMMessageInfo message = list.get(nextIndex).getMessageData();
-    AudioAttachment attach = (AudioAttachment) message.getMessage().getAttachment();
+    V2NIMMessageAudioAttachment attach =
+        (V2NIMMessageAudioAttachment) message.getMessage().getAttachment();
     if (mChatMessageAudioControl != null && attach != null) {
-      if (message.getMessage().getAttachStatus() != AttachStatusEnum.transferred) {
+      // 判断附件是否存在，如果没又则直接返回
+      if (attach.getPath() == null || !FileUtils.isFileExists(attach.getPath())) {
         cancelPlayNext();
         return false;
       }
-      if (message.getMessage().getStatus() != MsgStatusEnum.read) {
-        message.getMessage().setStatus(MsgStatusEnum.read);
-        NIMClient.getService(MsgService.class).updateIMMessageStatus(message.getMessage());
+      //       更新消息已读状态，V2 可能需要放到localExtension 实现
+      if (!isUnreadAudioMessage(message)) {
+        setAudioMessageHaveRead(message);
       }
       //continuous play 1.go on playingAudioStreamType 2.stop
       //  resetOrigAudioStreamType
-      mChatMessageAudioControl.startPlayAudio(message, null, getCurrentAudioStreamType(), false, 0);
+      mChatMessageAudioControl.startPlayAudio(
+          message, null, getCurrentAudioStreamType(), false, 0, null);
       mItem = list.get(nextIndex).getMessageData();
-      //todo need recheck
       tAdapter.notifyItemChanged(index);
       return true;
     }
@@ -248,9 +263,33 @@ public class ChatMessageAudioControl extends BaseAudioControl<IMMessageInfo> {
   }
 
   public boolean isUnreadAudioMessage(IMMessageInfo message) {
-    return (message.getMessage().getMsgType() == MsgTypeEnum.audio)
-        && message.getMessage().getDirect() == MsgDirectionEnum.In
-        && message.getMessage().getAttachStatus() == AttachStatusEnum.transferred
-        && message.getMessage().getStatus() != MsgStatusEnum.read;
+    if (message.getMessage().getMessageType() != V2NIMMessageType.V2NIM_MESSAGE_TYPE_AUDIO
+        || message.getMessage().isSelf()) {
+      return false;
+    }
+    Map<String, Object> localExtensionMap =
+        MessageExtensionHelper.parseJsonStringToMap(message.getMessage().getLocalExtension());
+    if (localExtensionMap != null) {
+      Object object = localExtensionMap.get(READ_KEY);
+      if (object instanceof Boolean) {
+        return !((Boolean) object);
+      }
+    }
+    return false;
+  }
+
+  public void setAudioMessageHaveRead(IMMessageInfo message) {
+    if (message.getMessage().getMessageType() != V2NIMMessageType.V2NIM_MESSAGE_TYPE_AUDIO
+        || message.getMessage().isSelf()) {
+      return;
+    }
+    Map<String, Object> localExtensionMap =
+        MessageExtensionHelper.parseJsonStringToMap(message.getMessage().getLocalExtension());
+    if (localExtensionMap == null) {
+      localExtensionMap = new HashMap<>();
+    }
+    localExtensionMap.put(READ_KEY, true);
+    V2MessageProvider.updateMessageLocalExtension(
+        message.getMessage(), (new JSONObject(localExtensionMap)).toString(), null);
   }
 }

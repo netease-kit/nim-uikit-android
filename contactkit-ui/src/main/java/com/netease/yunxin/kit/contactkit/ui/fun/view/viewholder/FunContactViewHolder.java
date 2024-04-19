@@ -11,11 +11,11 @@ import androidx.annotation.NonNull;
 import com.netease.yunxin.kit.common.utils.SizeUtils;
 import com.netease.yunxin.kit.contactkit.ui.databinding.FunFriendContactViewHolderBinding;
 import com.netease.yunxin.kit.contactkit.ui.model.BaseContactBean;
-import com.netease.yunxin.kit.contactkit.ui.model.ContactFriendBean;
 import com.netease.yunxin.kit.contactkit.ui.utils.ColorUtils;
+import com.netease.yunxin.kit.contactkit.ui.v2model.V2ContactFriendBean;
 import com.netease.yunxin.kit.contactkit.ui.view.ContactListViewAttrs;
 import com.netease.yunxin.kit.contactkit.ui.view.viewholder.BaseContactViewHolder;
-import com.netease.yunxin.kit.corekit.im.model.FriendInfo;
+import com.netease.yunxin.kit.corekit.im2.model.UserWithFriend;
 
 public class FunContactViewHolder extends BaseContactViewHolder {
 
@@ -33,7 +33,7 @@ public class FunContactViewHolder extends BaseContactViewHolder {
 
   @Override
   public void onBind(BaseContactBean bean, int position, ContactListViewAttrs attrs) {
-    FriendInfo friendInfo = ((ContactFriendBean) bean).data;
+    UserWithFriend friendInfo = ((V2ContactFriendBean) bean).data;
     String nickName = friendInfo.getName();
     String avatarName = friendInfo.getAvatarName();
     binding.tvName.setText(nickName);
@@ -43,12 +43,12 @@ public class FunContactViewHolder extends BaseContactViewHolder {
         friendInfo.getAvatar(), avatarName, ColorUtils.avatarColor(friendInfo.getAccount()));
 
     if (attrs.getShowSelector()) {
-      binding.rbSelector.setChecked(((ContactFriendBean) bean).isSelected());
+      binding.rbSelector.setChecked(((V2ContactFriendBean) bean).isSelected());
       binding.rbSelector.setVisibility(View.VISIBLE);
       binding.rootView.setOnClickListener(
           v -> {
             boolean newStatue = !binding.rbSelector.isChecked();
-            ((ContactFriendBean) bean).setSelected(newStatue);
+            ((V2ContactFriendBean) bean).setSelected(newStatue);
             binding.rbSelector.setChecked(newStatue);
             if (actions != null && actions.getSelectorListener(bean.viewType) != null) {
               actions.getSelectorListener(bean.viewType).onSelector(newStatue, bean);

@@ -4,7 +4,7 @@
 
 package com.netease.yunxin.kit.contactkit.ui.fun.contact;
 
-import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.PATH_FUN_ADD_FRIEND_PAGE;
+import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.PATH_FUN_ADD_FRIEND_PAGE;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -18,11 +18,11 @@ import com.netease.yunxin.kit.contactkit.ui.databinding.FunContactFragmentBindin
 import com.netease.yunxin.kit.contactkit.ui.databinding.FunContactTopSearchViewBinding;
 import com.netease.yunxin.kit.contactkit.ui.interfaces.ContactActions;
 import com.netease.yunxin.kit.contactkit.ui.model.ContactEntranceBean;
-import com.netease.yunxin.kit.contactkit.ui.model.ContactFriendBean;
 import com.netease.yunxin.kit.contactkit.ui.model.IViewTypeConstant;
-import com.netease.yunxin.kit.corekit.im.IMKitClient;
-import com.netease.yunxin.kit.corekit.im.model.FriendInfo;
-import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
+import com.netease.yunxin.kit.contactkit.ui.v2model.V2ContactFriendBean;
+import com.netease.yunxin.kit.corekit.im2.IMKitClient;
+import com.netease.yunxin.kit.corekit.im2.model.UserWithFriend;
+import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 import java.util.ArrayList;
 import java.util.List;
@@ -78,7 +78,7 @@ public class FunContactFragment extends BaseContactFragment {
     actions.addContactListener(
         IViewTypeConstant.CONTACT_FRIEND,
         (position, data) -> {
-          FriendInfo friendInfo = ((ContactFriendBean) data).data;
+          UserWithFriend friendInfo = ((V2ContactFriendBean) data).data;
           XKitRouter.withKey(RouterConstant.PATH_FUN_USER_INFO_PAGE)
               .withContext(requireContext())
               .withParam(RouterConstant.KEY_ACCOUNT_ID_KEY, friendInfo.getAccount())

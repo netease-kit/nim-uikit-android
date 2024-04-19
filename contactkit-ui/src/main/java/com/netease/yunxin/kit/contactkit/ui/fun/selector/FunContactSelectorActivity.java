@@ -4,8 +4,8 @@
 
 package com.netease.yunxin.kit.contactkit.ui.fun.selector;
 
-import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.KEY_REQUEST_SELECTOR_NAME;
-import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.REQUEST_CONTACT_SELECTOR_KEY;
+import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.KEY_REQUEST_SELECTOR_NAME;
+import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.REQUEST_CONTACT_SELECTOR_KEY;
 
 import android.content.Intent;
 import android.graphics.Typeface;

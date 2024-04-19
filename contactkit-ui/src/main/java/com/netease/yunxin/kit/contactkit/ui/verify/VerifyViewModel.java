@@ -7,39 +7,47 @@ package com.netease.yunxin.kit.contactkit.ui.verify;
 import static com.netease.yunxin.kit.contactkit.ui.ContactConstant.LIB_TAG;
 
 import android.text.TextUtils;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
+import com.netease.nimlib.sdk.v2.friend.enums.V2NIMFriendAddApplicationStatus;
 import com.netease.yunxin.kit.alog.ALog;
-import com.netease.yunxin.kit.chatkit.repo.ContactObserverRepo;
 import com.netease.yunxin.kit.chatkit.repo.ContactRepo;
-import com.netease.yunxin.kit.chatkit.repo.TeamRepo;
 import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.contactkit.ui.model.ContactVerifyInfoBean;
-import com.netease.yunxin.kit.corekit.im.model.SystemMessageInfo;
-import com.netease.yunxin.kit.corekit.im.model.SystemMessageInfoStatus;
-import com.netease.yunxin.kit.corekit.im.model.SystemMessageInfoType;
-import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
-import com.netease.yunxin.kit.corekit.im.provider.SystemMessageInfoObserver;
+import com.netease.yunxin.kit.corekit.im2.IMKitClient;
+import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
+import com.netease.yunxin.kit.corekit.im2.listener.ContactListener;
+import com.netease.yunxin.kit.corekit.im2.listener.V2FriendChangeType;
+import com.netease.yunxin.kit.corekit.im2.model.FriendAddApplicationInfo;
+import com.netease.yunxin.kit.corekit.im2.model.FriendAddApplicationResult;
+import com.netease.yunxin.kit.corekit.im2.model.UserWithFriend;
+import com.netease.yunxin.kit.corekit.im2.model.V2UserInfo;
 import java.util.ArrayList;
 import java.util.List;
 
 public class VerifyViewModel extends BaseViewModel {
 
   private final String TAG = "VerifyViewModel";
-  private final int PAGE_LIMIT = 100;
+  private static final int PAGE_LIMIT = 100;
   //7 day expire time
-  private final long expireLimit = 604800000;
-  private int index = 0;
+  private static final long expireLimit = 604800000;
+  private long index = 0;
   private boolean hasMore = true;
+  //自己主动同意的用户ID，在onFriendChange中 add case判断
+  private String agreeUserId;
+  //自己主动拒绝的用户ID
+  private String disagreeUserId;
   private final MutableLiveData<FetchResult<List<ContactVerifyInfoBean>>> resultLiveData =
       new MutableLiveData<>();
   private final FetchResult<List<ContactVerifyInfoBean>> fetchResult =
       new FetchResult<>(LoadStatus.Finish);
   private final List<ContactVerifyInfoBean> verifyBeanList = new ArrayList<>();
   private final List<ContactVerifyInfoBean> updateList = new ArrayList<>();
-  private final SystemMessageInfoObserver infoObserver;
+
+  private final ContactListener infoObserver;
 
   public MutableLiveData<FetchResult<List<ContactVerifyInfoBean>>> getFetchResult() {
     return resultLiveData;
@@ -47,104 +55,149 @@ public class VerifyViewModel extends BaseViewModel {
 
   public VerifyViewModel() {
     infoObserver =
-        info -> {
-          if (info.getId() > 0) {
-            List<SystemMessageInfo> msgInfo = new ArrayList<>();
-            msgInfo.add(info);
-            ContactRepo.fillNotificationWithUserAndTeam(
-                msgInfo,
-                new FetchCallback<List<SystemMessageInfo>>() {
-                  @Override
-                  public void onSuccess(@Nullable List<SystemMessageInfo> param) {
-                    ALog.d(
-                        LIB_TAG,
-                        TAG,
-                        "infoObserver,onSuccess:" + (param == null ? "null" : param.size()));
-                    List<ContactVerifyInfoBean> add = new ArrayList<>();
-                    if (param != null && !param.isEmpty()) {
-                      resetMessageStatus(param);
-                      add = mergeSystemMessageList(param);
-                      // 如果有新的消息合并，需要更新原有消息
-                      if (updateList.size() > 0) {
-                        List<ContactVerifyInfoBean> update = new ArrayList<>(updateList);
-                        updateList.clear();
-                        fetchResult.setData(update);
-                        fetchResult.setFetchType(FetchResult.FetchType.Update);
-                        resultLiveData.setValue(fetchResult);
-                      }
+        new ContactListener() {
+          @Override
+          public void onFriendChange(
+              @NonNull V2FriendChangeType friendChangeType,
+              @NonNull List<? extends UserWithFriend> friendList) {
+            if (friendChangeType == V2FriendChangeType.Add && friendList.size() > 0) {
+              List<ContactVerifyInfoBean> update = new ArrayList<>(updateList);
+              List<UserWithFriend> newFriends = new ArrayList<>(friendList);
+              for (ContactVerifyInfoBean verifyInfoBean : verifyBeanList) {
+                for (UserWithFriend friend : friendList) {
+                  if (TextUtils.equals(friend.getAccount(), agreeUserId)) {
+                    newFriends.remove(friend);
+                  } else if (TextUtils.equals(
+                          verifyInfoBean.data.getApplicantAccountId(), friend.getAccount())
+                      || TextUtils.equals(
+                          verifyInfoBean.data.getRecipientAccountId(), friend.getAccount())) {
+                    //接收者是自己，表明是自己在其他端接受了申请，不更新
+                    if (!TextUtils.equals(
+                        verifyInfoBean.data.getRecipientAccountId(), IMKitClient.account())) {
+                      verifyInfoBean.updateStatus(
+                          V2NIMFriendAddApplicationStatus
+                              .V2NIM_FRIEND_ADD_APPLICATION_STATUS_AGREED);
+                      update.add(verifyInfoBean);
                     }
-                    //update
-                    if (add.size() > 0) {
-                      fetchResult.setData(add);
-                      fetchResult.setFetchType(FetchResult.FetchType.Add);
-                      resultLiveData.setValue(fetchResult);
-                    }
+                    newFriends.remove(friend);
                   }
+                }
+              }
+              //更新状态
+              if (!update.isEmpty()) {
+                fetchResult.setLoadStatus(LoadStatus.Finish);
+                fetchResult.setData(update);
+                fetchResult.setFetchType(FetchResult.FetchType.Update);
+                resultLiveData.setValue(fetchResult);
+              }
+              if (!newFriends.isEmpty()) {
+                List<ContactVerifyInfoBean> addNotify = new ArrayList<>();
+                for (UserWithFriend friend : newFriends) {
+                  FriendAddApplicationInfo info =
+                      new FriendAddApplicationInfo(
+                          friend.getAccount(),
+                          IMKitClient.account(),
+                          friend.getAccount(),
+                          null,
+                          V2NIMFriendAddApplicationStatus
+                              .V2NIM_FRIEND_ADD_APPLICATION_STATUS_AGREED,
+                          System.currentTimeMillis(),
+                          null,
+                          false,
+                          null);
+                  info.setOperatorUserInfo(
+                      new V2UserInfo(friend.getAccount(), friend.getUserInfo()));
+                  info.setApplicantUserInfo(
+                      new V2UserInfo(IMKitClient.account(), IMKitClient.currentUser()));
+                  ContactVerifyInfoBean verifyInfoBean = new ContactVerifyInfoBean(info);
+                  verifyBeanList.add(verifyInfoBean);
+                  addNotify.add(verifyInfoBean);
+                }
+                fetchResult.setLoadStatus(LoadStatus.Finish);
+                fetchResult.setData(addNotify);
+                fetchResult.setFetchType(FetchResult.FetchType.Add);
+                resultLiveData.setValue(fetchResult);
+              }
+            }
+          }
 
-                  @Override
-                  public void onFailed(int code) {
-                    ALog.d(LIB_TAG, TAG, "infoObserver,onFailed:" + code);
-                    fetchResult.setError(code, "");
-                    resultLiveData.setValue(fetchResult);
-                  }
+          @Override
+          public void onFriendAddApplication(@NonNull FriendAddApplicationInfo friendApplication) {
+            List<ContactVerifyInfoBean> add;
 
-                  @Override
-                  public void onException(@Nullable Throwable exception) {
-                    ALog.d(LIB_TAG, TAG, "infoObserver,onException");
-                    fetchResult.setError(-1, "");
-                    resultLiveData.setValue(fetchResult);
-                  }
-                });
+            List<FriendAddApplicationInfo> list = new ArrayList<>();
+            list.add(friendApplication);
+            add = mergeSystemMessageList(list);
+            // 如果有新的消息合并，需要更新原有消息
+            if (updateList.size() > 0) {
+              List<ContactVerifyInfoBean> update = new ArrayList<>(updateList);
+              updateList.clear();
+              fetchResult.setLoadStatus(LoadStatus.Finish);
+              fetchResult.setData(update);
+              fetchResult.setFetchType(FetchResult.FetchType.Update);
+              resultLiveData.setValue(fetchResult);
+            }
+            //update
+            if (add.size() > 0) {
+              fetchResult.setLoadStatus(LoadStatus.Finish);
+              fetchResult.setData(add);
+              fetchResult.setFetchType(FetchResult.FetchType.Add);
+              resultLiveData.setValue(fetchResult);
+            }
+          }
+
+          @Override
+          public void onFriendAddRejected(@NonNull FriendAddApplicationInfo rejectionInfo) {
+            //如果申请者是被自己拒绝的，则不更新
+            if (TextUtils.equals(rejectionInfo.getApplicantAccountId(), disagreeUserId)
+                || TextUtils.equals(rejectionInfo.getRecipientAccountId(), IMKitClient.account())) {
+              return;
+            }
+            List<ContactVerifyInfoBean> update = new ArrayList<>();
+            update.add(new ContactVerifyInfoBean(rejectionInfo));
+            //更新状态
+            fetchResult.setLoadStatus(LoadStatus.Finish);
+            fetchResult.setData(update);
+            fetchResult.setFetchType(FetchResult.FetchType.Add);
+            resultLiveData.setValue(fetchResult);
           }
         };
-    ContactObserverRepo.registerNotificationObserver(infoObserver);
+    ContactRepo.addFriendListener(infoObserver);
   }
 
   public void fetchVerifyList(boolean nextPage) {
     ALog.d(LIB_TAG, TAG, "fetchVerifyList,nextPage:" + nextPage);
     fetchResult.setStatus(LoadStatus.Loading);
     resultLiveData.postValue(fetchResult);
-    if (nextPage) {
-      if (!hasMore) {
-        return;
-      }
-      index += PAGE_LIMIT;
-    } else {
-      index = 0;
+    if (nextPage && !hasMore) {
+      return;
     }
+
     ContactRepo.getNotificationList(
         index,
         PAGE_LIMIT,
-        new FetchCallback<List<SystemMessageInfo>>() {
+        new FetchCallback<>() {
           @Override
-          public void onSuccess(@Nullable List<SystemMessageInfo> param) {
-            ALog.d(
-                LIB_TAG,
-                TAG,
-                "fetchVerifyList,onSuccess:" + (param == null ? "null" : param.size()));
+          public void onError(int errorCode, @Nullable String errorMsg) {
+            ALog.d(LIB_TAG, TAG, "fetchVerifyList,onError:" + errorCode);
+            fetchResult.setError(errorCode, errorMsg);
+            resultLiveData.setValue(fetchResult);
+          }
+
+          @Override
+          public void onSuccess(@Nullable FriendAddApplicationResult data) {
+            ALog.d(LIB_TAG, TAG, "fetchVerifyList,onSuccess:");
             fetchResult.setStatus(LoadStatus.Success);
-            hasMore = (param != null && param.size() == PAGE_LIMIT);
-            if (param != null && param.size() > 0) {
-              resetMessageStatus(param);
-              List<ContactVerifyInfoBean> add = mergeSystemMessageList(param);
+            if (data != null && data.getApplications().size() > 0) {
+              hasMore = !data.getFinished();
+              index = data.getOffset();
+              resetMessageStatus(data.getApplications());
+              List<ContactVerifyInfoBean> add = mergeSystemMessageList(data.getApplications());
               fetchResult.setData(add);
             } else {
+              hasMore = false;
               fetchResult.setData(null);
             }
-            resultLiveData.setValue(fetchResult);
-          }
-
-          @Override
-          public void onFailed(int code) {
-            ALog.d(LIB_TAG, TAG, "fetchVerifyList,onFailed:" + code);
-            fetchResult.setError(code, "");
-            resultLiveData.setValue(fetchResult);
-          }
-
-          @Override
-          public void onException(@Nullable Throwable exception) {
-            ALog.d(LIB_TAG, TAG, "fetchVerifyList,onException");
-            fetchResult.setError(-1, "");
             resultLiveData.setValue(fetchResult);
           }
         });
@@ -157,6 +210,7 @@ public class VerifyViewModel extends BaseViewModel {
   public void clearNotify() {
     ALog.d(LIB_TAG, TAG, "clearNotify");
     ContactRepo.clearNotification();
+    fetchResult.setLoadStatus(LoadStatus.Finish);
     fetchResult.setFetchType(FetchResult.FetchType.Remove);
     fetchResult.setData(new ArrayList<>(verifyBeanList));
     verifyBeanList.clear();
@@ -164,78 +218,70 @@ public class VerifyViewModel extends BaseViewModel {
   }
 
   public void agree(ContactVerifyInfoBean bean, FetchCallback<Void> callback) {
-    ALog.d(LIB_TAG, TAG, "agree:" + (bean == null ? "null" : bean.data.getId()));
-    SystemMessageInfo info = bean.data;
-    SystemMessageInfoType type = info.getInfoType();
-    SystemMessageInfoStatus status = info.getInfoStatus();
-    String account = info.getFromAccount();
-    if (status == SystemMessageInfoStatus.Init && !TextUtils.isEmpty(account)) {
-      if (type == SystemMessageInfoType.AddFriend) {
-        ContactRepo.acceptAddFriend(account, true, callback);
-      } else if (type == SystemMessageInfoType.ApplyJoinTeam) {
-        TeamRepo.agreeTeamApply(info.getTargetId(), account, callback);
-      } else if (type == SystemMessageInfoType.TeamInvite) {
-        TeamRepo.acceptTeamInvite(info.getTargetId(), account, callback);
-      }
+    ALog.d(LIB_TAG, TAG, "agree:");
+    if (bean == null) {
+      return;
+    }
+    agreeUserId = bean.data.getApplicantAccountId();
+    FriendAddApplicationInfo info = bean.data;
+    V2NIMFriendAddApplicationStatus status = info.getStatus();
+    String account = info.getOperatorAccountId();
+    if (status == V2NIMFriendAddApplicationStatus.V2NIM_FRIEND_ADD_APPLICATION_STATUS_INIT
+        && !TextUtils.isEmpty(account)
+        && info.getNimApplication() != null) {
+      ContactRepo.acceptAddFriend(info.getNimApplication(), true, callback);
     }
   }
 
   public void disagree(ContactVerifyInfoBean bean, FetchCallback<Void> callback) {
-    ALog.d(LIB_TAG, TAG, "disagree:" + (bean == null ? "null" : bean.data.getId()));
+    ALog.d(LIB_TAG, TAG, "disagree:");
     if (bean == null || bean.data == null) {
       return;
     }
-    SystemMessageInfo info = bean.data;
-    SystemMessageInfoType type = info.getInfoType();
-    SystemMessageInfoStatus status = info.getInfoStatus();
-    String account = info.getFromAccount();
-    if (status == SystemMessageInfoStatus.Init && !TextUtils.isEmpty(account)) {
-      if (type == SystemMessageInfoType.AddFriend) {
-        ContactRepo.acceptAddFriend(info.getFromAccount(), false, callback);
-
-      } else if (type == SystemMessageInfoType.ApplyJoinTeam
-          && !TextUtils.isEmpty(info.getTargetId())) {
-        TeamRepo.rejectTeamApply(info.getTargetId(), account, "", callback);
-
-      } else if (type == SystemMessageInfoType.TeamInvite
-          && !TextUtils.isEmpty(info.getTargetId())) {
-        TeamRepo.rejectTeamInvite(info.getTargetId(), account, "", callback);
-      }
+    disagreeUserId = bean.data.getApplicantAccountId();
+    FriendAddApplicationInfo info = bean.data;
+    V2NIMFriendAddApplicationStatus status = info.getStatus();
+    String account = info.getOperatorAccountId();
+    if (status == V2NIMFriendAddApplicationStatus.V2NIM_FRIEND_ADD_APPLICATION_STATUS_INIT
+        && !TextUtils.isEmpty(account)
+        && info.getNimApplication() != null) {
+      ContactRepo.acceptAddFriend(info.getNimApplication(), false, callback);
     }
   }
 
-  public void setVerifyStatus(ContactVerifyInfoBean bean, SystemMessageInfoStatus status) {
+  public void setVerifyStatus(ContactVerifyInfoBean bean, V2NIMFriendAddApplicationStatus status) {
     if (bean == null || status == null) {
       return;
     }
-    ALog.d(LIB_TAG, TAG, "setVerifyStatus:" + (status == null ? "null" : status.name()));
-    for (SystemMessageInfo messageInfo : bean.messageList) {
-      ContactRepo.setNotificationStatus(messageInfo.getId(), status);
-    }
+    ALog.d(LIB_TAG, TAG, "setVerifyStatus:" + status.name());
     bean.updateStatus(status);
   }
 
   public void resetUnreadCount() {
     ALog.d(LIB_TAG, TAG, "resetUnreadCount");
-    ContactRepo.clearNotificationUnreadCount();
+    ContactRepo.setAddApplicationRead(null);
     for (ContactVerifyInfoBean verifyInfoBean : verifyBeanList) {
       verifyInfoBean.clearUnreadCount();
     }
   }
 
-  private void resetMessageStatus(List<SystemMessageInfo> infoList) {
+  private void resetMessageStatus(List<FriendAddApplicationInfo> infoList) {
     ALog.d(LIB_TAG, TAG, "resetMessageStatus:" + (infoList == null ? "null" : infoList.size()));
     if (infoList != null && infoList.size() > 0) {
       long lastTime = System.currentTimeMillis() - expireLimit;
-      for (SystemMessageInfo info : infoList) {
-        if (info.getInfoStatus() == SystemMessageInfoStatus.Init && info.getTime() < lastTime) {
-          info.setInfoStatus(SystemMessageInfoStatus.Expired);
+      for (FriendAddApplicationInfo info : infoList) {
+        if (info.getStatus()
+                == V2NIMFriendAddApplicationStatus.V2NIM_FRIEND_ADD_APPLICATION_STATUS_INIT
+            && info.getTime() < lastTime) {
+          info.setStatus(
+              V2NIMFriendAddApplicationStatus.V2NIM_FRIEND_ADD_APPLICATION_STATUS_EXPIRED);
         }
       }
     }
   }
 
-  private List<ContactVerifyInfoBean> mergeSystemMessageList(List<SystemMessageInfo> infoList) {
+  private List<ContactVerifyInfoBean> mergeSystemMessageList(
+      List<FriendAddApplicationInfo> infoList) {
     List<ContactVerifyInfoBean> add = new ArrayList<>();
     updateList.clear();
     if (infoList != null) {
@@ -261,6 +307,6 @@ public class VerifyViewModel extends BaseViewModel {
   @Override
   protected void onCleared() {
     super.onCleared();
-    ContactObserverRepo.unregisterNotificationObserver(infoObserver);
+    ContactRepo.removeFriendListener(infoObserver);
   }
 }

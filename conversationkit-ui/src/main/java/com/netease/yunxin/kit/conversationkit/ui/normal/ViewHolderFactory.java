@@ -7,8 +7,9 @@ package com.netease.yunxin.kit.conversationkit.ui.normal;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
-import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
-import com.netease.yunxin.kit.chatkit.model.ConversationInfo;
+import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
+import com.netease.nimlib.sdk.v2.conversation.model.V2NIMConversation;
+import com.netease.nimlib.sdk.v2.utils.V2NIMConversationIdUtil;
 import com.netease.yunxin.kit.common.ui.viewholder.BaseViewHolder;
 import com.netease.yunxin.kit.conversationkit.ui.IConversationFactory;
 import com.netease.yunxin.kit.conversationkit.ui.common.ConversationConstant;
@@ -16,29 +17,30 @@ import com.netease.yunxin.kit.conversationkit.ui.databinding.ConversationViewHol
 import com.netease.yunxin.kit.conversationkit.ui.model.ConversationBean;
 import com.netease.yunxin.kit.conversationkit.ui.normal.viewholder.ConversationP2PViewHolder;
 import com.netease.yunxin.kit.conversationkit.ui.normal.viewholder.ConversationTeamViewHolder;
-import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
+import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 
-/** conversation view holder factory to create view holder in recyclerview */
+/** ViewHolder工厂 根据会话类型创建对应的ViewHolder */
 public class ViewHolderFactory implements IConversationFactory {
 
+  // 创建会话列表的ViewHolder,用于设定会话列表的点击事件中的参数信息，跳转链接，跳转参数
   @Override
-  public ConversationBean CreateBean(ConversationInfo info) {
+  public ConversationBean CreateBean(V2NIMConversation info) {
     ConversationBean bean = new ConversationBean(info);
-    if (info.getSessionType() == SessionTypeEnum.P2P) {
+    if (info.getType() == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P) {
       return new ConversationBean(
           info,
           RouterConstant.PATH_CHAT_P2P_PAGE,
           ConversationConstant.ViewType.CHAT_VIEW,
           RouterConstant.CHAT_ID_KRY,
-          info.getContactId());
-    } else if (info.getSessionType() == SessionTypeEnum.Team
-        || info.getSessionType() == SessionTypeEnum.SUPER_TEAM) {
+          V2NIMConversationIdUtil.conversationTargetId(info.getConversationId()));
+    } else if (info.getType() == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_TEAM
+        || info.getType() == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_SUPER_TEAM) {
       return new ConversationBean(
           info,
           RouterConstant.PATH_CHAT_TEAM_PAGE,
           ConversationConstant.ViewType.TEAM_VIEW,
           RouterConstant.CHAT_ID_KRY,
-          info.getContactId());
+          V2NIMConversationIdUtil.conversationTargetId(info.getConversationId()));
     }
     return bean;
   }
@@ -48,6 +50,7 @@ public class ViewHolderFactory implements IConversationFactory {
     return data.viewType;
   }
 
+  //创建会话列表的ViewHolder
   @Override
   public BaseViewHolder<ConversationBean> createViewHolder(
       @NonNull ViewGroup parent, int viewType) {

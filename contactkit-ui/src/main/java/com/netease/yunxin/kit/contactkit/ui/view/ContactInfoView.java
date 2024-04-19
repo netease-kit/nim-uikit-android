@@ -15,8 +15,8 @@ import androidx.annotation.Nullable;
 import com.netease.yunxin.kit.common.utils.NetworkUtils;
 import com.netease.yunxin.kit.contactkit.ui.R;
 import com.netease.yunxin.kit.contactkit.ui.databinding.UserInfoLayoutBinding;
-import com.netease.yunxin.kit.contactkit.ui.model.ContactUserInfoBean;
 import com.netease.yunxin.kit.contactkit.ui.utils.ColorUtils;
+import com.netease.yunxin.kit.contactkit.ui.v2model.V2ContactUserInfoBean;
 
 public class ContactInfoView extends FrameLayout {
 
@@ -48,7 +48,7 @@ public class ContactInfoView extends FrameLayout {
     this.userCallback = userCallback;
   }
 
-  public void setData(ContactUserInfoBean userInfo) {
+  public void setData(V2ContactUserInfoBean userInfo) {
     String name = userInfo.data.getUserInfoName();
     String nickName = null;
     if (userInfo.friendInfo != null) {
@@ -56,7 +56,7 @@ public class ContactInfoView extends FrameLayout {
     }
     //avatar
     binding.avatarView.setData(
-        userInfo.data.getAvatar(), name, ColorUtils.avatarColor(userInfo.data.getAccount()));
+        userInfo.data.getAvatar(), name, ColorUtils.avatarColor(userInfo.data.getAccountId()));
 
     //name
     if (TextUtils.isEmpty(nickName)) {
@@ -64,7 +64,7 @@ public class ContactInfoView extends FrameLayout {
       binding.tvAccount.setText(
           String.format(
               getContext().getString(R.string.contact_user_info_account),
-              userInfo.data.getAccount()));
+              userInfo.data.getAccountId()));
       binding.tvCommentName.setVisibility(GONE);
     } else {
       binding.tvName.setText(nickName);
@@ -73,14 +73,14 @@ public class ContactInfoView extends FrameLayout {
       binding.tvCommentName.setText(
           String.format(
               getContext().getString(R.string.contact_user_info_account),
-              userInfo.data.getAccount()));
+              userInfo.data.getAccountId()));
       binding.tvCommentName.setVisibility(VISIBLE);
     }
 
     binding.tvBirthday.setText(userInfo.data.getBirthday());
     binding.tvPhone.setText(userInfo.data.getMobile());
     binding.tvEmail.setText(userInfo.data.getEmail());
-    binding.tvSignature.setText(userInfo.data.getSignature());
+    binding.tvSignature.setText(userInfo.data.getSign());
 
     if (userInfo.isFriend) {
       binding.tvDelete.setText(getResources().getText(R.string.delete_friend));
@@ -93,7 +93,8 @@ public class ContactInfoView extends FrameLayout {
     binding.scBlackList.setOnCheckedChangeListener(
         (buttonView, isChecked) -> {
           if (!NetworkUtils.isConnected()) {
-            Toast.makeText(getContext(), R.string.contact_network_error_tip, Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), R.string.contact_network_error_tip, Toast.LENGTH_SHORT)
+                .show();
             binding.scBlackList.toggle();
             return;
           }

@@ -4,8 +4,8 @@
 
 package com.netease.yunxin.app.im.main.mine.setting;
 
+import com.netease.yunxin.kit.chatkit.repo.SettingRepo;
 import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
-import com.netease.yunxin.kit.corekit.im.repo.SettingRepo;
 
 public class SettingViewModel extends BaseViewModel {
 

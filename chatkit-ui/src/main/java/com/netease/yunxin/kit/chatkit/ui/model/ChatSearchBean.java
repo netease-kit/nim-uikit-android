@@ -7,20 +7,25 @@ package com.netease.yunxin.kit.chatkit.ui.model;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.style.ForegroundColorSpan;
-import com.netease.nimlib.sdk.msg.model.IMMessage;
 import com.netease.nimlib.sdk.search.model.RecordHitInfo;
-import com.netease.yunxin.kit.chatkit.model.IMMessageRecord;
+import com.netease.nimlib.sdk.v2.message.V2NIMMessage;
+import com.netease.yunxin.kit.chatkit.ui.common.ChatUserCache;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.common.ui.viewholder.BaseBean;
-import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
+import com.netease.yunxin.kit.corekit.im2.model.V2UserInfo;
+import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
+import java.util.ArrayList;
 import java.util.List;
 
 /** history message search bean used to locate the message */
 public class ChatSearchBean extends BaseBean {
-  IMMessageRecord msgRecord;
+  V2NIMMessage msgRecord;
 
-  public ChatSearchBean(IMMessageRecord record) {
+  String keyword;
+
+  public ChatSearchBean(V2NIMMessage record, String keyword) {
     this.msgRecord = record;
+    this.keyword = keyword;
     this.paramKey = RouterConstant.KEY_MESSAGE;
     this.param = getMessage();
     this.router = RouterConstant.PATH_CHAT_TEAM_PAGE;
@@ -32,44 +37,46 @@ public class ChatSearchBean extends BaseBean {
 
   public String getAccount() {
     if (msgRecord != null) {
-      return msgRecord.getIndexRecord().getMessage().getFromAccount();
+      return msgRecord.getSenderId();
     }
     return null;
   }
 
   public long getTime() {
     if (msgRecord != null) {
-      return msgRecord.getIndexRecord().getTime();
+      return msgRecord.getCreateTime();
     }
     return 0;
   }
 
   public String getAvatar() {
-    if (msgRecord != null && msgRecord.getFromUser() != null) {
-      return msgRecord.getFromUser().getAvatar();
+    V2UserInfo userInfo = ChatUserCache.getInstance().getUserInfo(msgRecord.getSenderId());
+    if (userInfo != null) {
+      return userInfo.getAvatar();
     }
     return null;
   }
 
-  public IMMessage getMessage() {
-    if (msgRecord != null) {
-      return msgRecord.getIndexRecord().getMessage();
-    }
-    return null;
-  }
-
-  public List<RecordHitInfo> getHitInfo() {
-    if (msgRecord != null) {
-      return msgRecord.getIndexRecord().getHitInfo();
-    }
-    return null;
+  public V2NIMMessage getMessage() {
+    return msgRecord;
   }
 
   public SpannableString getSpannableString(int color) {
     if (msgRecord != null) {
-      SpannableString spannable = new SpannableString(msgRecord.getIndexRecord().getText());
-      List<RecordHitInfo> hitInfoList = msgRecord.getIndexRecord().getHitInfo();
-      if (hitInfoList != null) {
+      String content = msgRecord.getText();
+      SpannableString spannable = new SpannableString(content);
+      List<RecordHitInfo> hitInfoList = new ArrayList<>();
+      int startIndex = 0;
+      while (startIndex < content.length()) {
+        int foundIndex = content.indexOf(keyword, startIndex);
+        if (foundIndex == -1) {
+          break;
+        } else {
+          hitInfoList.add(new RecordHitInfo(foundIndex, foundIndex + keyword.length() - 1));
+          startIndex = foundIndex + 1;
+        }
+      }
+      if (!hitInfoList.isEmpty()) {
         for (RecordHitInfo hitInfo : hitInfoList) {
           spannable.setSpan(
               new ForegroundColorSpan(color),

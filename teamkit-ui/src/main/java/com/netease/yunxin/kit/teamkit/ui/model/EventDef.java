@@ -4,6 +4,7 @@
 
 package com.netease.yunxin.kit.teamkit.ui.model;
 
+/** 自定义事件，关闭聊天页面 */
 public class EventDef {
   public static final String EVENT_TYPE_CLOSE_CHAT_PAGE = "CloseChatPageEvent";
 }

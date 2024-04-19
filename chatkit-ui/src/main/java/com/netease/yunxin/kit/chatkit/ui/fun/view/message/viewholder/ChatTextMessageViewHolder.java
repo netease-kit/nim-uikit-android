@@ -8,7 +8,7 @@ import android.text.style.ImageSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import androidx.annotation.NonNull;
-import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
+import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatBaseMessageViewHolderBinding;
@@ -40,13 +40,14 @@ public class ChatTextMessageViewHolder extends FunChatBaseMessageViewHolder {
     if (properties.getMessageTextColor() != null) {
       textBinding.messageText.setTextColor(properties.getMessageTextColor());
     }
-    if (message.getMessageData().getMessage().getMsgType() == MsgTypeEnum.text) {
+    if (message.getMessageData().getMessage().getMessageType()
+        == V2NIMMessageType.V2NIM_MESSAGE_TYPE_TEXT) {
 
       if (isForwardMsg()) {
         MessageHelper.identifyFaceExpression(
             textBinding.getRoot().getContext(),
             textBinding.messageText,
-            message.getMessageData().getMessage().getContent(),
+            message.getMessageData().getMessage().getText(),
             ImageSpan.ALIGN_BOTTOM);
       } else {
         MessageHelper.identifyExpression(
@@ -55,9 +56,13 @@ public class ChatTextMessageViewHolder extends FunChatBaseMessageViewHolder {
             message.getMessageData().getMessage());
       }
     } else {
-      //文件消息暂不支持所以展示提示信息
-      textBinding.messageText.setText(
-          parent.getContext().getResources().getString(R.string.chat_message_not_support_tips));
+      if (message.getMessageData().getMessage().getText() != null) {
+        textBinding.messageText.setText(message.getMessageData().getMessage().getText());
+      } else {
+        //暂不支持消息展示提示信息
+        textBinding.messageText.setText(
+            parent.getContext().getResources().getString(R.string.chat_message_not_support_tips));
+      }
     }
   }
 

@@ -6,25 +6,25 @@ package com.netease.yunxin.kit.chatkit.ui.model;
 
 import android.text.TextUtils;
 import com.netease.yunxin.kit.common.ui.viewholder.BaseBean;
-import com.netease.yunxin.kit.corekit.im.model.UserInfo;
+import com.netease.yunxin.kit.corekit.im2.model.UserWithFriend;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ChatReadUserBean extends BaseBean {
 
-  public UserInfo userInfo;
+  public UserWithFriend userInfo;
   public String teamId;
 
-  public ChatReadUserBean(UserInfo user, String tid) {
+  public ChatReadUserBean(UserWithFriend user, String tid) {
     userInfo = user;
     teamId = tid;
   }
 
   public static List<ChatReadUserBean> generateChatSearchBean(
-      String teamId, List<UserInfo> userInfoList) {
+      String teamId, List<UserWithFriend> userInfoList) {
     List<ChatReadUserBean> beanList = new ArrayList<>();
     if (userInfoList != null && !TextUtils.isEmpty(teamId)) {
-      for (UserInfo user : userInfoList) {
+      for (UserWithFriend user : userInfoList) {
         beanList.add(new ChatReadUserBean(user, teamId));
       }
     }

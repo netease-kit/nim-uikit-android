@@ -6,10 +6,7 @@ package com.netease.yunxin.kit.chatkit.ui.view.emoji;
 
 import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
 
-import android.annotation.TargetApi;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.os.Build;
 import android.os.Handler;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -21,11 +18,7 @@ import android.widget.LinearLayout;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatEmojiLayoutBinding;
-import com.netease.yunxin.kit.common.utils.ImageUtils;
 import com.netease.yunxin.kit.common.utils.SizeUtils;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
 
 /** emoji picker view */
 public class EmojiPickerView extends LinearLayout implements IEmojiCategoryChanged {
@@ -36,8 +29,6 @@ public class EmojiPickerView extends LinearLayout implements IEmojiCategoryChang
   private IEmojiSelectedListener listener;
 
   private boolean loaded = false;
-
-  private boolean withSticker;
 
   private EmojiView gifView;
 
@@ -55,7 +46,6 @@ public class EmojiPickerView extends LinearLayout implements IEmojiCategoryChang
     init(context);
   }
 
-  @TargetApi(Build.VERSION_CODES.HONEYCOMB)
   public EmojiPickerView(Context context, AttributeSet attrs, int defStyle) {
     super(context, attrs, defStyle);
     init(context);
@@ -111,26 +101,13 @@ public class EmojiPickerView extends LinearLayout implements IEmojiCategoryChang
   OnClickListener tabCheckListener = v -> onEmoticonBtnChecked(v.getId());
 
   private void loadStickers() {
-
-    final StickerManager manager = StickerManager.getInstance();
-
     viewBinding.emojiTabView.removeAllViews();
-
     int index = 0;
 
     // emoji
     CheckedImageButton btn = addEmojiIconTabBtn(index++, tabCheckListener);
-    btn.setNormalImageId(R.drawable.ic_emoji_inactive);
-    btn.setCheckedImageId(R.drawable.ic_emoji);
-
-    //sticker
-    if (withSticker) {
-      List<StickerCategory> categories = manager.getCategories();
-      for (StickerCategory category : categories) {
-        btn = addEmojiIconTabBtn(index++, tabCheckListener);
-        setCheckedButtonImage(btn, category);
-      }
-    }
+    btn.setNormalImageId(R.drawable.ic_chat_emoji_inactive);
+    btn.setCheckedImageId(R.drawable.ic_chat_emoji);
   }
 
   private CheckedImageButton addEmojiIconTabBtn(int index, OnClickListener listener) {
@@ -153,25 +130,6 @@ public class EmojiPickerView extends LinearLayout implements IEmojiCategoryChang
     emojiBtn.setLayoutParams(emojiBtnLayoutParams);
 
     return emojiBtn;
-  }
-
-  private void setCheckedButtonImage(CheckedImageButton btn, StickerCategory category) {
-    try {
-      InputStream is = category.getCoverNormalInputStream(context);
-      if (is != null) {
-        Bitmap bmp = ImageUtils.getBitmap(is);
-        btn.setNormalImage(bmp);
-        is.close();
-      }
-      is = category.getCoverPressedInputStream(context);
-      if (is != null) {
-        Bitmap bmp = ImageUtils.getBitmap(is);
-        btn.setCheckedImage(bmp);
-        is.close();
-      }
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
   }
 
   private void onEmoticonBtnChecked(int index) {
@@ -201,9 +159,7 @@ public class EmojiPickerView extends LinearLayout implements IEmojiCategoryChang
     if (gifView == null) {
       gifView =
           new EmojiView(context, listener, viewBinding.scrPlugin, viewBinding.layoutScrBottom);
-      gifView.setCategoryChangCheckedCallback(this);
     }
-
     gifView.showStickers(index);
   }
 
@@ -219,12 +175,9 @@ public class EmojiPickerView extends LinearLayout implements IEmojiCategoryChang
     if (listener == null) {
       ALog.d(LIB_TAG, "sticker", "show picker view when listener is null");
     }
-    //        if (!withSticker) {
-    //            showEmojiView();
-    //        } else {
+    showEmojiView();
     onEmoticonBtnChecked(0);
     setSelectedVisible(0);
-    //        }
   }
 
   private void setSelectedVisible(final int index) {
@@ -255,12 +208,7 @@ public class EmojiPickerView extends LinearLayout implements IEmojiCategoryChang
     if (categoryIndex == index) {
       return;
     }
-
     categoryIndex = index;
     updateTabButton(index);
-  }
-
-  public void setWithSticker(boolean withSticker) {
-    this.withSticker = withSticker;
   }
 }
