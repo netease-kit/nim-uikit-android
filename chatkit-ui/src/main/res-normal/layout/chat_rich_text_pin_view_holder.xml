@@ -20,7 +20,7 @@
         android:textSize="@dimen/text_size_16"
         android:paddingTop="@dimen/dimen_4_dp"
         android:paddingBottom="@dimen/dimen_6_dp"
-        android:ellipsize="middle"
+        android:ellipsize="end"
         android:textColor="@color/color_222222"
         android:paddingEnd="@dimen/dimen_16_dp"
         tools:text="@tools:sample/lorem"

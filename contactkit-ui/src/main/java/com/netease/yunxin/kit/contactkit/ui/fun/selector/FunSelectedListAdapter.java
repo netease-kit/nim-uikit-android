@@ -9,9 +9,9 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import com.netease.yunxin.kit.common.ui.utils.AvatarColor;
 import com.netease.yunxin.kit.contactkit.ui.databinding.FunFriendSelectedViewHolderBinding;
-import com.netease.yunxin.kit.contactkit.ui.model.ContactFriendBean;
 import com.netease.yunxin.kit.contactkit.ui.selector.BaseSelectedListAdapter;
-import com.netease.yunxin.kit.corekit.im.model.FriendInfo;
+import com.netease.yunxin.kit.contactkit.ui.v2model.V2ContactFriendBean;
+import com.netease.yunxin.kit.corekit.im2.model.UserWithFriend;
 
 public class FunSelectedListAdapter
     extends BaseSelectedListAdapter<FunFriendSelectedViewHolderBinding> {
@@ -26,8 +26,8 @@ public class FunSelectedListAdapter
   @Override
   protected void handleBindViewHolder(
       SelectedViewHolder<FunFriendSelectedViewHolderBinding> holder,
-      ContactFriendBean bean,
-      FriendInfo friendData) {
+      V2ContactFriendBean bean,
+      UserWithFriend friendData) {
     holder.binding.avatarView.setData(
         friendData.getAvatar(),
         friendData.getName(),

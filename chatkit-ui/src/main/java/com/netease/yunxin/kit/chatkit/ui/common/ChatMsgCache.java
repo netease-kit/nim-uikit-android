@@ -17,11 +17,25 @@ public class ChatMsgCache {
   private static final Map<String, ChatMessageBean> msgMap = new HashMap<>();
 
   public static void addMessage(ChatMessageBean message) {
-    msgMap.put(message.getMessageData().getMessage().getUuid(), message);
+    msgMap.put(message.getMessageData().getMessage().getMessageClientId(), message);
   }
 
   public static void removeMessage(String uuid) {
     msgMap.remove(uuid);
+  }
+
+  /**
+   * 根据clientId移除消息
+   *
+   * @param clientIds 消息clientId
+   */
+  public static void removeMessagesByClientId(List<String> clientIds) {
+    if (clientIds == null) {
+      return;
+    }
+    for (String clientId : clientIds) {
+      msgMap.remove(clientId);
+    }
   }
 
   public static void removeMessages(List<ChatMessageBean> messages) {
@@ -29,7 +43,7 @@ public class ChatMsgCache {
       return;
     }
     for (ChatMessageBean message : messages) {
-      msgMap.remove(message.getMessageData().getMessage().getUuid());
+      msgMap.remove(message.getMessageData().getMessage().getMessageClientId());
     }
   }
 
@@ -50,8 +64,8 @@ public class ChatMsgCache {
             return 0;
           }
           return (int)
-              (o1.getMessageData().getMessage().getTime()
-                  - o2.getMessageData().getMessage().getTime());
+              (o1.getMessageData().getMessage().getCreateTime()
+                  - o2.getMessageData().getMessage().getCreateTime());
         });
     return list;
   }

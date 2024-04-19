@@ -4,18 +4,13 @@
 
 package com.netease.yunxin.kit.chatkit.ui.normal.view.message.viewholder;
 
-import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.KEY_MAP_FOR_MESSAGE;
-
-import android.os.Handler;
-import android.os.Looper;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
 import androidx.annotation.NonNull;
-import com.netease.nimlib.sdk.msg.attachment.LocationAttachment;
+import com.bumptech.glide.Glide;
+import com.netease.nimlib.sdk.v2.message.attachment.V2NIMMessageLocationAttachment;
 import com.netease.yunxin.kit.alog.ALog;
-import com.netease.yunxin.kit.chatkit.map.IChatMap;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitClient;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant;
 import com.netease.yunxin.kit.chatkit.ui.R;
@@ -26,20 +21,8 @@ import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 
 public class ChatLocationMessageViewHolder extends NormalChatBaseMessageViewHolder {
   public static final String TAG = "ChatLocationMessageViewHolder";
-  static final long INTERVAL = 500L;
   NormalChatMessageLocationViewHolderBinding binding;
-  IChatMap chatMap;
-  LocationAttachment attachment;
-  Runnable renderAction =
-      new Runnable() {
-        @Override
-        public void run() {
-          if (binding != null) {
-            addMapViewToGroup(binding.locationItemMapView);
-          }
-        }
-      };
-  final Handler renderHandler = new Handler(Looper.getMainLooper());
+  V2NIMMessageLocationAttachment attachment;
 
   public ChatLocationMessageViewHolder(
       @NonNull ChatBaseMessageViewHolderBinding parent, int viewType) {
@@ -58,43 +41,42 @@ public class ChatLocationMessageViewHolder extends NormalChatBaseMessageViewHold
     ALog.d(
         ChatKitUIConstant.LIB_TAG,
         TAG,
-        "bindData" + "title" + message.getMessageData().getMessage().getContent());
+        "bindData" + "title" + message.getMessageData().getMessage().getText());
     super.bindData(message, lastMessage);
-    attachment = (LocationAttachment) message.getMessageData().getMessage().getAttachment();
+    attachment =
+        (V2NIMMessageLocationAttachment) message.getMessageData().getMessage().getAttachment();
     if (attachment == null) {
       return;
     }
-    binding.locationItemTitle.setText(message.getMessageData().getMessage().getContent());
+    binding.locationItemTitle.setText(message.getMessageData().getMessage().getText());
     binding.locationItemAddress.setText(attachment.getAddress());
-    binding.locationItemMapView.removeAllViews();
     if (itemClickListener != null) {
       binding.locationClick.setOnClickListener(
           v -> itemClickListener.onMessageClick(v, position, currentMessage));
     }
 
+    String path = null;
     if (ChatKitClient.getMessageMapProvider() != null) {
-      return;
+      path =
+          ChatKitClient.getMessageMapProvider()
+              .getChatMpaItemImage(attachment.getLatitude(), attachment.getLongitude());
+      if (!TextUtils.isEmpty(path)) {
+        binding.locationMapMarkerIv.setVisibility(View.VISIBLE);
+        Glide.with(binding.locationItemMapView.getContext())
+            .load(path)
+            .into(binding.locationItemMapIv)
+            .onLoadFailed(
+                parent
+                    .getContext()
+                    .getResources()
+                    .getDrawable(R.drawable.ic_chat_location_default));
+      }
     }
-    ImageView emptyImage = new ImageView(parent.getContext());
-    emptyImage.setImageResource(R.drawable.ic_map_empty);
-    binding.locationItemMapView.addView(emptyImage);
-  }
 
-  @Override
-  public void onDetachedFromWindow() {
-    super.onDetachedFromWindow();
-    renderHandler.removeCallbacks(renderAction);
-    if (ChatKitClient.getMessageMapProvider() != null) {
-      ChatKitClient.getMessageMapProvider().destroyChatMap(KEY_MAP_FOR_MESSAGE, chatMap);
+    if (TextUtils.isEmpty(path)) {
+      binding.locationItemMapIv.setImageResource(R.drawable.ic_chat_location_default);
+      binding.locationMapMarkerIv.setVisibility(View.GONE);
     }
-    chatMap = null;
-    binding.locationItemMapView.removeAllViews();
-  }
-
-  @Override
-  public void onAttachedToWindow() {
-    super.onAttachedToWindow();
-    renderHandler.postDelayed(renderAction, INTERVAL);
   }
 
   @Override
@@ -110,18 +92,6 @@ public class ChatLocationMessageViewHolder extends NormalChatBaseMessageViewHold
             R.drawable.chat_message_stoke_self_bg);
       }
     }
-  }
-
-  private void addMapViewToGroup(ViewGroup group) {
-    if (ChatKitClient.getMessageMapProvider() == null || attachment == null) {
-      return;
-    }
-    chatMap =
-        ChatKitClient.getMessageMapProvider()
-            .createChatMap(KEY_MAP_FOR_MESSAGE, parent.getContext(), null);
-    View mapView =
-        ChatKitClient.getMessageMapProvider()
-            .setLocation(chatMap, attachment.getLatitude(), attachment.getLongitude());
-    group.addView(mapView);
+    baseViewBinding.messageContainer.setPadding(0, 0, 0, 0);
   }
 }

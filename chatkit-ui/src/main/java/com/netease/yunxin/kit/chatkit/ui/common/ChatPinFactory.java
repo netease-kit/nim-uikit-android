@@ -6,11 +6,11 @@ package com.netease.yunxin.kit.chatkit.ui.common;
 
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
-import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
+import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
+import com.netease.yunxin.kit.chatkit.model.CustomAttachment;
 import com.netease.yunxin.kit.chatkit.ui.interfaces.ChatBaseViewHolder;
 import com.netease.yunxin.kit.chatkit.ui.interfaces.IChatViewHolderFactory;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
-import com.netease.yunxin.kit.corekit.im.custom.CustomAttachment;
 
 /** PIN页面的ViewHolder工厂类 */
 public class ChatPinFactory implements IChatViewHolderFactory {
@@ -35,9 +35,10 @@ public class ChatPinFactory implements IChatViewHolderFactory {
 
   public int getCustomViewType(ChatMessageBean messageBean) {
     if (messageBean != null) {
-      if (messageBean.getMessageData().getMessage().getMsgType() == MsgTypeEnum.custom) {
+      if (messageBean.getMessageData().getMessage().getMessageType()
+          == V2NIMMessageType.V2NIM_MESSAGE_TYPE_CUSTOM) {
         CustomAttachment attachment =
-            (CustomAttachment) messageBean.getMessageData().getMessage().getAttachment();
+            (CustomAttachment) messageBean.getMessageData().getAttachment();
         if (attachment != null) {
           return attachment.getType();
         }

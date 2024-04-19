@@ -4,54 +4,55 @@
 
 package com.netease.yunxin.kit.chatkit.ui;
 
-import com.netease.nimlib.sdk.msg.model.IMMessage;
+import com.netease.nimlib.sdk.v2.message.V2NIMMessage;
+import com.netease.yunxin.kit.chatkit.model.CustomAttachment;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.ui.common.TeamNotificationHelper;
-import com.netease.yunxin.kit.corekit.im.IMKitClient;
-import com.netease.yunxin.kit.corekit.im.custom.CustomAttachment;
+import com.netease.yunxin.kit.corekit.im2.IMKitClient;
 
 public class ChatCustom {
 
   /**
    * 获取消息的简要信息，回复消息是展示的被回复内容
    *
-   * @param messageInfo
-   * @return
+   * @param messageInfo 消息
+   * @return 会话列表中展示的最近信息内容
    */
   public String getReplyMsgBrief(IMMessageInfo messageInfo) {
 
-    IMMessage msg = messageInfo.getMessage();
-    switch (msg.getMsgType()) {
-      case avchat:
+    V2NIMMessage msg = messageInfo.getMessage();
+    switch (msg.getMessageType()) {
+      case V2NIM_MESSAGE_TYPE_AVCHAT:
         return IMKitClient.getApplicationContext().getString(R.string.chat_reply_message_call);
-      case image:
+      case V2NIM_MESSAGE_TYPE_IMAGE:
         return IMKitClient.getApplicationContext()
             .getString(R.string.chat_reply_message_brief_image);
-      case video:
+      case V2NIM_MESSAGE_TYPE_VIDEO:
         return IMKitClient.getApplicationContext()
             .getString(R.string.chat_reply_message_brief_video);
-      case audio:
+      case V2NIM_MESSAGE_TYPE_AUDIO:
         return IMKitClient.getApplicationContext()
             .getString(R.string.chat_reply_message_brief_audio);
-      case location:
+      case V2NIM_MESSAGE_TYPE_LOCATION:
         return IMKitClient.getApplicationContext()
             .getString(R.string.chat_reply_message_brief_location);
-      case file:
+      case V2NIM_MESSAGE_TYPE_FILE:
         return IMKitClient.getApplicationContext()
             .getString(R.string.chat_reply_message_brief_file);
-      case notification:
+      case V2NIM_MESSAGE_TYPE_NOTIFICATION:
         return TeamNotificationHelper.getTeamNotificationText(messageInfo);
-      case robot:
+      case V2NIM_MESSAGE_TYPE_ROBOT:
         return IMKitClient.getApplicationContext()
             .getString(R.string.chat_reply_message_brief_robot);
-      case custom:
-        if (msg.getAttachment() instanceof CustomAttachment) {
-          return ((CustomAttachment) msg.getAttachment()).getContent();
+      case V2NIM_MESSAGE_TYPE_CUSTOM:
+        messageInfo.parseAttachment();
+        if (messageInfo.getAttachment() != null) {
+          return ((CustomAttachment) messageInfo.getAttachment()).getContent();
         } else {
-          return msg.getContent();
+          return msg.getText();
         }
       default:
-        return msg.getContent();
+        return msg.getText();
     }
   }
 }

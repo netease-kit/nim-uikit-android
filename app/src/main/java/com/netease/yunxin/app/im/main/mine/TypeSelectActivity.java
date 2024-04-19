@@ -30,6 +30,9 @@ public class TypeSelectActivity extends BaseActivity {
   private static final String TAG = "TypeSelectActivity";
   private TypeSelectActivityBinding viewBinding;
 
+  private int[] ids =
+      new int[] {R.id.type_select_rb_0, R.id.type_select_rb_1, R.id.type_select_rb_2};
+
   @Override
   protected void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -52,6 +55,9 @@ public class TypeSelectActivity extends BaseActivity {
               (int) getResources().getDimension(R.dimen.dimen_50_dp));
       for (int index = 0; index < groupList.size(); index++) {
         RadioButton radioButton = createRadioButton(index, groupList.get(index));
+        if (index < ids.length) {
+          radioButton.setId(ids[index]);
+        }
         if (index == selected) {
           radioButton.setChecked(true);
         }
@@ -71,8 +77,8 @@ public class TypeSelectActivity extends BaseActivity {
   }
 
   private void setCommonSkin() {
-    changeStatusBarColor(R.color.color_ededed);
-    viewBinding.llyRoot.setBackgroundResource(R.color.color_ededed);
+    changeStatusBarColor(R.color.fun_page_bg_color);
+    viewBinding.llyRoot.setBackgroundResource(R.color.fun_page_bg_color);
 
     viewBinding.rfLayout.setBackgroundResource(R.color.color_white);
     ViewGroup.MarginLayoutParams layoutParamsS =
@@ -89,11 +95,18 @@ public class TypeSelectActivity extends BaseActivity {
 
   private void back() {
     int checkedId = viewBinding.typeRadioGroup.getCheckedRadioButtonId();
+    int checkIndex = 0;
+    for (int index = 0; index < ids.length; index++) {
+      if (ids[index] == checkedId) {
+        checkIndex = index;
+        break;
+      }
+    }
     Intent intent = new Intent();
     intent.putExtra(Constant.EDIT_TYPE, Constant.EDIT_SEXUAL);
-    intent.putExtra(Constant.SELECTED_INDEX, checkedId);
+    intent.putExtra(Constant.SELECTED_INDEX, checkIndex);
     setResult(RESULT_OK, intent);
-    ALog.d(TAG, "onBackPressed", "page back:" + checkedId);
+    ALog.d(TAG, "onBackPressed", "page back:" + checkIndex);
     finish();
   }
 

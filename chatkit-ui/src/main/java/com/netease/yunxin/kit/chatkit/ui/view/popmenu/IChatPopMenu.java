@@ -12,13 +12,13 @@ public interface IChatPopMenu {
 
   /** custom actions will show first */
   @NonNull
-  public default List<ChatPopMenuAction> customizePopMenu(
+  default List<ChatPopMenuAction> customizePopMenu(
       List<ChatPopMenuAction> menuList, ChatMessageBean messageBean) {
     return menuList;
   }
 
   /** false will show default actions true will show custom actions only */
-  public default boolean showDefaultPopMenu() {
+  default boolean showDefaultPopMenu() {
     return true;
   }
 }

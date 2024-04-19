@@ -44,6 +44,7 @@
     <string name="mine_about">About CommSEase</string>
     <string name="mine_setting">Settings</string>
     <string name="mine_version">Version</string>
+    <string name="mine_im_version">NIM Version</string>
     <string name="mine_product">introduce</string>
 
     <!-- setting -->
@@ -84,6 +85,7 @@
     <string name="login_fail">Login Failed:%d</string>
     <string name="request_fail">Failed</string>
     <string name="user_fail">Failed</string>
+    <string name="imkit_email_fail">The email format is incorrect. Please check.</string>
     <string name="network_error">No internet</string>
 
     <!--    skin-->

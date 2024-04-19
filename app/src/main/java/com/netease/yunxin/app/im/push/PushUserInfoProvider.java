@@ -16,11 +16,9 @@ import com.netease.nimlib.sdk.RequestCallbackWrapper;
 import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
 import com.netease.nimlib.sdk.nos.NosService;
-import com.netease.nimlib.sdk.team.model.Team;
 import com.netease.nimlib.sdk.uinfo.UserInfoProvider;
 import com.netease.nimlib.sdk.uinfo.model.UserInfo;
 import com.netease.yunxin.app.im.R;
-import com.netease.yunxin.kit.corekit.im.provider.TeamProvider;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -34,7 +32,7 @@ public class PushUserInfoProvider implements UserInfoProvider {
 
   @Override
   public UserInfo getUserInfo(String account) {
-    return com.netease.yunxin.kit.corekit.im.provider.UserInfoProvider.getUserInfoLocal(account);
+    return null;
   }
 
   @Override
@@ -55,9 +53,6 @@ public class PushUserInfoProvider implements UserInfoProvider {
     if (SessionTypeEnum.P2P == sessionType) {
       UserInfo user = getUserInfo(sessionId);
       originUrl[0] = user != null ? user.getAvatar() : null;
-    } else if (SessionTypeEnum.Team == sessionType) {
-      Team team = TeamProvider.INSTANCE.getTeamById(sessionId);
-      originUrl[0] = team != null ? team.getIcon() : null;
     }
     NIMClient.getService(NosService.class)
         .getOriginUrlFromShortUrl(originUrl[0])

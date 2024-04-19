@@ -4,16 +4,12 @@
 
 package com.netease.yunxin.kit.chatkit.ui.normal.viewholder.pin;
 
-import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.KEY_MAP_FOR_PIN;
-
-import android.os.Handler;
-import android.os.Looper;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
 import androidx.annotation.NonNull;
-import com.netease.nimlib.sdk.msg.attachment.LocationAttachment;
+import com.bumptech.glide.Glide;
+import com.netease.nimlib.sdk.v2.message.attachment.V2NIMMessageLocationAttachment;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.map.IChatMap;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitClient;
@@ -28,17 +24,7 @@ public class ChatLocationPinViewHolder extends ChatBasePinViewHolder {
   static final long INTERVAL = 500L;
   ChatLocationPinViewHolderBinding binding;
   IChatMap chatMap;
-  LocationAttachment attachment;
-  Runnable renderAction =
-      new Runnable() {
-        @Override
-        public void run() {
-          if (binding != null) {
-            addMapViewToGroup(binding.locationItemMapView);
-          }
-        }
-      };
-  final Handler renderHandler = new Handler(Looper.getMainLooper());
+  V2NIMMessageLocationAttachment attachment;
 
   public ChatLocationPinViewHolder(@NonNull ChatBasePinViewHolderBinding parent, int viewType) {
     super(parent, viewType);
@@ -58,50 +44,35 @@ public class ChatLocationPinViewHolder extends ChatBasePinViewHolder {
     ALog.d(
         ChatKitUIConstant.LIB_TAG,
         TAG,
-        "bindData" + "title" + message.getMessageData().getMessage().getContent());
+        "bindData" + "title" + message.getMessageData().getMessage().getText());
     super.onBindData(message, position);
-    attachment = (LocationAttachment) message.getMessageData().getMessage().getAttachment();
+    attachment =
+        (V2NIMMessageLocationAttachment) message.getMessageData().getMessage().getAttachment();
     if (attachment == null) {
       return;
     }
-    binding.locationItemTitle.setText(message.getMessageData().getMessage().getContent());
+    binding.locationItemTitle.setText(message.getMessageData().getMessage().getText());
     binding.locationItemAddress.setText(attachment.getAddress());
-    binding.locationItemMapView.removeAllViews();
+
+    String url = null;
     if (ChatKitClient.getMessageMapProvider() != null) {
-      return;
+      url =
+          ChatKitClient.getMessageMapProvider()
+              .getChatMpaItemImage(attachment.getLatitude(), attachment.getLongitude());
     }
-    ImageView emptyImage = new ImageView(parent.getContext());
-    emptyImage.setImageResource(R.drawable.ic_map_empty);
-    binding.locationItemMapView.addView(emptyImage);
-  }
-
-  @Override
-  public void onDetachedFromWindow() {
-    super.onDetachedFromWindow();
-    renderHandler.removeCallbacks(renderAction);
-    if (ChatKitClient.getMessageMapProvider() != null) {
-      ChatKitClient.getMessageMapProvider().destroyChatMap(KEY_MAP_FOR_PIN, chatMap);
+    if (!TextUtils.isEmpty(url) && binding.locationItemMapView.getContext() != null) {
+      binding.locationMapMarkerIv.setVisibility(View.VISIBLE);
+      binding.locationItemMapIv.setVisibility(View.VISIBLE);
+      Glide.with(binding.locationItemMapView.getContext())
+          .load(url)
+          .into(binding.locationItemMapIv)
+          .onLoadFailed(
+              parent.getContext().getResources().getDrawable(R.drawable.ic_chat_location_default));
     }
-    chatMap = null;
-    binding.locationItemMapView.removeAllViews();
-  }
 
-  @Override
-  public void onAttachedToWindow() {
-    super.onAttachedToWindow();
-    renderHandler.postDelayed(renderAction, INTERVAL);
-  }
-
-  private void addMapViewToGroup(ViewGroup group) {
-    if (ChatKitClient.getMessageMapProvider() == null || attachment == null) {
-      return;
+    if (TextUtils.isEmpty(url)) {
+      binding.locationItemMapIv.setImageResource(R.drawable.ic_chat_location_default);
+      binding.locationMapMarkerIv.setVisibility(View.GONE);
     }
-    chatMap =
-        ChatKitClient.getMessageMapProvider()
-            .createChatMap(KEY_MAP_FOR_PIN, parent.getContext(), null);
-    View mapView =
-        ChatKitClient.getMessageMapProvider()
-            .setLocation(chatMap, attachment.getLatitude(), attachment.getLongitude());
-    group.addView(mapView);
   }
 }

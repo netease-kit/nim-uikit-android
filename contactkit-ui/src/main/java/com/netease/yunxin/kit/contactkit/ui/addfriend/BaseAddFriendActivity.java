@@ -11,19 +11,24 @@ import android.text.TextWatcher;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
-import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
+import com.netease.yunxin.kit.chatkit.utils.ErrorUtils;
 import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
-import com.netease.yunxin.kit.contactkit.ui.R;
-import com.netease.yunxin.kit.corekit.im.IMKitClient;
-import com.netease.yunxin.kit.corekit.im.model.UserInfo;
-import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
+import com.netease.yunxin.kit.corekit.im2.IMKitClient;
+import com.netease.yunxin.kit.corekit.im2.model.UserWithFriend;
+import com.netease.yunxin.kit.corekit.im2.model.V2UserInfo;
+import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 import java.util.Objects;
 
+/**
+ * 添加好友基类 根据账号ID进行搜到，然后跳转到用户详情页
+ *
+ * <p>
+ */
 public abstract class BaseAddFriendActivity extends BaseActivity {
 
   protected AddFriendViewModel viewModel;
@@ -80,30 +85,29 @@ public abstract class BaseAddFriendActivity extends BaseActivity {
         if (actionId == EditorInfo.IME_ACTION_SEARCH) {
           String accountId = v.getEditableText().toString();
           if (!TextUtils.isEmpty(accountId)) {
-            viewModel.fetchUser(accountId);
+            viewModel.getUser(accountId);
           }
         }
         return false;
       };
 
-  private void loadData(FetchResult<UserInfo> result) {
-    if (result.getLoadStatus() == LoadStatus.Loading) {
-      //todo show loading progress
-    } else if (result.getLoadStatus() == LoadStatus.Success) {
-      if (result.getData() != null) {
+  // 加载搜索结果
+  private void loadData(FetchResult<UserWithFriend> result) {
+    if (result.getLoadStatus() == LoadStatus.Success) {
+      if (result.getData() != null && result.getData().getUserInfo() != null) {
         showEmptyView(false);
-        startProfileActivity(result.getData());
+        startProfileActivity(
+            new V2UserInfo(result.getData().getAccount(), result.getData().getUserInfo()));
       } else {
         showEmptyView(true);
       }
 
-    } else if (result.getLoadStatus() == LoadStatus.Error) {
-      Toast.makeText(
-              this, getResources().getString(R.string.add_friend_search_error), Toast.LENGTH_SHORT)
-          .show();
+    } else if (result.getLoadStatus() == LoadStatus.Error && result.getError() != null) {
+      ErrorUtils.showErrorCodeToast(this, result.getError().getCode());
     }
   }
 
+  // 显示空布局
   private void showEmptyView(boolean show) {
     if (show) {
       addFriendEmptyLayout.setVisibility(View.VISIBLE);
@@ -112,16 +116,17 @@ public abstract class BaseAddFriendActivity extends BaseActivity {
     }
   }
 
-  protected void startProfileActivity(UserInfo userInfo) {
+  // 跳转到用户详情页
+  protected void startProfileActivity(V2UserInfo userInfo) {
     if (userInfo == null) {
       return;
     }
-    if (TextUtils.equals(userInfo.getAccount(), IMKitClient.account())) {
+    if (TextUtils.equals(userInfo.getAccountId(), IMKitClient.account())) {
       XKitRouter.withKey(RouterConstant.PATH_MINE_INFO_PAGE).withContext(this).navigate();
     } else {
       XKitRouter.withKey(RouterConstant.PATH_USER_INFO_PAGE)
           .withContext(this)
-          .withParam(RouterConstant.KEY_ACCOUNT_ID_KEY, userInfo.getAccount())
+          .withParam(RouterConstant.KEY_ACCOUNT_ID_KEY, userInfo.getAccountId())
           .navigate();
     }
   }

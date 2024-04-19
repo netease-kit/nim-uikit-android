@@ -16,6 +16,7 @@ import com.netease.yunxin.kit.conversationkit.ui.common.ConversationUtils;
 import com.netease.yunxin.kit.conversationkit.ui.databinding.FunConversationViewHolderBinding;
 import com.netease.yunxin.kit.conversationkit.ui.model.ConversationBean;
 
+/** 会话列表基础ViewHolder，用于加载通用的UI 置顶、未读、免打扰、头像、会话名称、最后一条消息、时间 */
 public class FunConversationBaseViewHolder extends BaseViewHolder<ConversationBean> {
 
   protected FunConversationViewHolderBinding viewBinding;
@@ -30,13 +31,15 @@ public class FunConversationBaseViewHolder extends BaseViewHolder<ConversationBe
   @Override
   public void onBindData(ConversationBean data, int position) {
     loadUIConfig();
-
-    if (data.infoData.isStickTop()) {
+    // 置顶信息，ConversationBean中保存的是在UI操作结果后的置顶状态，如果没有置顶状态，则使用infoData中的置顶状态
+    boolean isStickTop = data.isStickTop() != null ? data.isStickTop() : data.infoData.isStickTop();
+    if (isStickTop) {
       viewBinding.rootLayout.setBackground(stickTopDrawable);
     } else {
       viewBinding.rootLayout.setBackground(itemDrawable);
     }
-    if (data.infoData.getMute()) {
+    // 消息免打扰
+    if (data.infoData.isMute()) {
       viewBinding.muteIv.setVisibility(View.VISIBLE);
       viewBinding.unreadTv.setVisibility(View.GONE);
     } else {
@@ -55,11 +58,12 @@ public class FunConversationBaseViewHolder extends BaseViewHolder<ConversationBe
         viewBinding.unreadTv.setVisibility(View.GONE);
       }
     }
+    // 最近一条消息
     viewBinding.messageTv.setText(
         ConversationUtils.getConversationText(itemView.getContext(), data.infoData));
     viewBinding.timeTv.setText(
         TimeFormatUtils.formatMillisecond(
-            viewBinding.getRoot().getContext(), data.infoData.getTime()));
+            viewBinding.getRoot().getContext(), data.getLastMsgTime()));
     viewBinding.getRoot().setOnClickListener(v -> itemListener.onClick(v, data, position));
     viewBinding.getRoot().setOnLongClickListener(v -> itemListener.onLongClick(v, data, position));
     viewBinding.avatarLayout.setOnClickListener(v -> itemListener.onAvatarClick(v, data, position));
@@ -67,6 +71,7 @@ public class FunConversationBaseViewHolder extends BaseViewHolder<ConversationBe
         v -> itemListener.onAvatarLongClick(v, data, position));
   }
 
+  /** 加载UI配置，通过{@link ConversationKitClient#getConversationUIConfig()}获取配置信息 */
   private void loadUIConfig() {
     itemDrawable =
         viewBinding

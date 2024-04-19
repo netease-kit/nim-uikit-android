@@ -4,6 +4,9 @@
 
 package com.netease.yunxin.kit.chatkit.ui.normal.view.message.viewholder;
 
+import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
+import android.text.style.ImageSpan;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
@@ -52,10 +55,9 @@ public class ChatForwardMessageViewHolder extends NormalChatBaseMessageViewHolde
     super.bindData(message, lastMessage);
     if (message != null
         && message.getMessageData() != null
-        && message.getMessageData().getMessage().getAttachment()
-            instanceof MultiForwardAttachment) {
+        && message.getMessageData().getAttachment() instanceof MultiForwardAttachment) {
       MultiForwardAttachment attachment =
-          (MultiForwardAttachment) message.getMessageData().getMessage().getAttachment();
+          (MultiForwardAttachment) message.getMessageData().getAttachment();
       String titleText =
           String.format(
               getMessageContainer()
@@ -68,20 +70,22 @@ public class ChatForwardMessageViewHolder extends NormalChatBaseMessageViewHolde
             getMessageContainer()
                 .getContext()
                 .getString(R.string.chat_message_multi_record_content);
-        StringBuilder textBuilder = new StringBuilder();
+        SpannableStringBuilder textBuilder = new SpannableStringBuilder();
         for (int i = 0; i < attachment.abstractsList.size(); i++) {
           String content =
               String.format(
                   contentFormat,
                   ChatUtils.getEllipsizeMiddleNick(attachment.abstractsList.get(i).senderNick),
                   attachment.abstractsList.get(i).content);
-          textBuilder.append(content);
-          textBuilder.append("\n");
+          SpannableString sb =
+              MessageHelper.replaceEmoticons(
+                  parent.getContext(), content, MessageHelper.DEF_SCALE, ImageSpan.ALIGN_BOTTOM);
+          textBuilder.append(sb);
+          if (i < attachment.abstractsList.size() - 1) {
+            textBuilder.append("\n");
+          }
         }
-        if (attachment.abstractsList.size() > 1) {
-          textBuilder.deleteCharAt(textBuilder.length() - 1);
-        }
-        viewBinding.messageText.setText(textBuilder.toString());
+        viewBinding.messageText.setText(textBuilder);
       }
     }
   }

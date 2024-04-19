@@ -12,15 +12,18 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
-import com.netease.nimlib.sdk.msg.attachment.FileAttachment;
-import com.netease.nimlib.sdk.msg.model.IMMessage;
-import com.netease.yunxin.kit.alog.ALog;
+import com.netease.nimlib.sdk.v2.message.V2NIMMessage;
+import com.netease.nimlib.sdk.v2.message.attachment.V2NIMMessageFileAttachment;
+import com.netease.nimlib.sdk.v2.message.attachment.V2NIMMessageImageAttachment;
+import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
 import com.netease.yunxin.kit.chatkit.ui.R;
+import com.netease.yunxin.kit.chatkit.ui.common.ThumbHelper;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatBaseMessageViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.databinding.NormalChatMessageThumbnailViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.view.media.GranularRoundedCornersWithCenterCrop;
 import com.netease.yunxin.kit.common.ui.widgets.ShapeDrawable;
+import com.netease.yunxin.kit.common.utils.FileUtils;
 import com.netease.yunxin.kit.common.utils.ScreenUtils;
 
 /** view holder to show image/video thumb */
@@ -33,7 +36,7 @@ public abstract class ChatThumbBaseViewHolder extends NormalChatBaseMessageViewH
     super(parent, viewType);
   }
 
-  protected IMMessage getMsgInternal() {
+  protected V2NIMMessage getMsgInternal() {
     return currentMessage.getMessageData().getMessage();
   }
 
@@ -57,31 +60,48 @@ public abstract class ChatThumbBaseViewHolder extends NormalChatBaseMessageViewH
   }
 
   private void load() {
-    FileAttachment attachment = (FileAttachment) getMsgInternal().getAttachment();
+    V2NIMMessageFileAttachment attachment =
+        (V2NIMMessageFileAttachment) getMsgInternal().getAttachment();
     if (attachment == null) {
       return;
     }
     String path = attachment.getPath();
-    String thumbPath = attachment.getThumbPath();
-    if (!TextUtils.isEmpty(thumbPath)) {
-      ALog.d(TAG, "load from thumb");
-      loadThumbnailImage(thumbPath);
-    } else if (!TextUtils.isEmpty(path)) {
-      ALog.d(TAG, "load from path");
-      loadThumbnailImage(thumbFromSourceFile(path));
-    } else {
-      loadThumbnailInternal(attachment.getUrl(), getImageThumbMinEdge(), getImageThumbMinEdge());
+    //图片消息优先加载本地
+    if (getMsgInternal().getMessageType() == V2NIMMessageType.V2NIM_MESSAGE_TYPE_IMAGE) {
+      V2NIMMessageImageAttachment imageAttachment = (V2NIMMessageImageAttachment) attachment;
+      if (!TextUtils.isEmpty(path) && FileUtils.isFileExists(path)) {
+        loadThumbnailImage(thumbFromSourceFile(path));
+      } else if (attachment.getUrl() != null) {
+        //              没有本地图片，加载url
+        String thumbUrl =
+            ThumbHelper.makeImageThumbUrl(
+                attachment.getUrl(), imageAttachment.getWidth(), imageAttachment.getHeight());
+        loadThumbnailInternal(thumbUrl, getBounds(null));
+      }
+    } else if (getMsgInternal().getMessageType() == V2NIMMessageType.V2NIM_MESSAGE_TYPE_VIDEO) {
+      if (attachment.getUrl() != null) {
+        //视频消息拼接第一帧
+        String videoUrl = attachment.getUrl();
+        String thumbUrl = ThumbHelper.makeVideoThumbUrl(videoUrl);
+        loadThumbnailImage(thumbUrl);
+      } else {
+        loadThumbnailImage(null);
+      }
     }
   }
 
   private void loadThumbnailImage(String path) {
     int[] bounds = getBounds(path);
+    loadThumbnailInternal(path, bounds);
+  }
+
+  private void loadThumbnailInternal(String path, int[] bounds) {
     int w = bounds[0];
     int h = bounds[1];
     int thumbMinEdge = getImageThumbMinEdge();
     if (w < thumbMinEdge) {
       w = thumbMinEdge;
-      h = bounds[0] != 0 ? w * bounds[1] / bounds[0] : 0;
+      h = bounds[0] != 0 ? w * bounds[1] / bounds[0] : getImageThumbMinEdge();
     }
     int thumbMaxEdge = getImageThumbMaxEdge();
     int thumbMaxHeight = (int) (0.45 * ScreenUtils.getDisplayHeight());
@@ -92,11 +112,13 @@ public abstract class ChatThumbBaseViewHolder extends NormalChatBaseMessageViewH
     if (h > thumbMaxHeight) {
       h = thumbMaxHeight;
     }
-
-    loadThumbnailInternal(path, w, h);
-  }
-
-  private void loadThumbnailInternal(String path, int w, int h) {
+    //避免0的case出现
+    if (w == 0) {
+      w = thumbMinEdge;
+    }
+    if (h == 0) {
+      h = thumbMinEdge;
+    }
     FrameLayout.LayoutParams thumbParams =
         (FrameLayout.LayoutParams) binding.getRoot().getLayoutParams();
     thumbParams.width = w;

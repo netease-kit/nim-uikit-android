@@ -5,8 +5,8 @@
 package com.netease.yunxin.kit.chatkit.ui.fun.page.fragment;
 
 import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
-import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.KEY_TEAM_ID;
-import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.PATH_FUN_TEAM_SETTING_PAGE;
+import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.KEY_TEAM_ID;
+import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.PATH_FUN_TEAM_SETTING_PAGE;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -20,15 +20,16 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
-import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
-import com.netease.nimlib.sdk.msg.model.IMMessage;
-import com.netease.nimlib.sdk.team.constant.TeamMemberType;
-import com.netease.nimlib.sdk.team.model.Team;
-import com.netease.nimlib.sdk.team.model.TeamMember;
+import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
+import com.netease.nimlib.sdk.v2.message.V2NIMMessage;
+import com.netease.nimlib.sdk.v2.message.V2NIMTeamMessageReadReceipt;
+import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamChatBannedMode;
+import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamMemberRole;
+import com.netease.nimlib.sdk.v2.team.model.V2NIMTeam;
+import com.netease.nimlib.sdk.v2.team.model.V2NIMTeamMember;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
-import com.netease.yunxin.kit.chatkit.model.IMTeamMessageReceiptInfo;
-import com.netease.yunxin.kit.chatkit.model.UserInfoWithTeam;
+import com.netease.yunxin.kit.chatkit.model.TeamMemberWithUserInfo;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.chatkit.ui.fun.view.MessageBottomLayout;
@@ -37,9 +38,9 @@ import com.netease.yunxin.kit.chatkit.ui.page.viewmodel.ChatTeamViewModel;
 import com.netease.yunxin.kit.chatkit.ui.view.ait.AitManager;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
-import com.netease.yunxin.kit.corekit.im.IMKitClient;
-import com.netease.yunxin.kit.corekit.im.utils.IMKitConstant;
-import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
+import com.netease.yunxin.kit.corekit.im2.IMKitClient;
+import com.netease.yunxin.kit.corekit.im2.IMKitConstant;
+import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 import java.util.ArrayList;
 import java.util.List;
@@ -50,26 +51,39 @@ import java.util.List;
  */
 public class FunChatTeamFragment extends FunChatFragment {
   private static final String TAG = "ChatTeamFragment";
-  Team teamInfo;
-  TeamMember currentMember;
-  IMMessage anchorMessage;
+  // 群信息
+  V2NIMTeam teamInfo;
+  // 当前用户在群中的群成员信息
+  V2NIMTeamMember currentMember;
+  // 加载群聊需要定位的消息
+  IMMessageInfo anchorMessage;
+  // 是否展示退出群聊弹窗
   private boolean showDeleteDialog = false;
-  Observer<FetchResult<List<IMTeamMessageReceiptInfo>>> teamReceiptObserver;
+  // 群聊消息已读回执观察者
+  Observer<FetchResult<List<V2NIMTeamMessageReadReceipt>>> teamReceiptObserver;
 
   @Override
   protected void initData(Bundle bundle) {
     ALog.d(LIB_TAG, TAG, "initData");
-    sessionType = SessionTypeEnum.Team;
-    teamInfo = (Team) bundle.getSerializable(RouterConstant.CHAT_KRY);
-    sessionID = (String) bundle.getSerializable(RouterConstant.CHAT_ID_KRY);
-    if (teamInfo == null && TextUtils.isEmpty(sessionID)) {
+    conversationType = V2NIMConversationType.V2NIM_CONVERSATION_TYPE_TEAM;
+    teamInfo = (V2NIMTeam) bundle.getSerializable(RouterConstant.CHAT_KRY);
+    accountId = (String) bundle.getSerializable(RouterConstant.CHAT_ID_KRY);
+    // 如果群信息为空，且accountId为空，直接关闭页面
+    if (teamInfo == null && TextUtils.isEmpty(accountId)) {
       getActivity().finish();
       return;
     }
-    if (TextUtils.isEmpty(sessionID)) {
-      sessionID = teamInfo.getId();
+    if (TextUtils.isEmpty(accountId)) {
+      accountId = teamInfo.getTeamId();
     }
-    anchorMessage = (IMMessage) bundle.getSerializable(RouterConstant.KEY_MESSAGE);
+    anchorMessage = (IMMessageInfo) bundle.getSerializable(RouterConstant.KEY_MESSAGE_INFO);
+    if (anchorMessage == null) {
+      V2NIMMessage message = (V2NIMMessage) bundle.getSerializable(RouterConstant.KEY_MESSAGE);
+      if (message != null) {
+        anchorMessage = new IMMessageInfo(message);
+      }
+    }
+    // 设置titleBar上按钮的点击事件
     chatView
         .getTitleBar()
         .setOnBackIconClickListener(v -> requireActivity().onBackPressed())
@@ -80,48 +94,54 @@ public class FunChatTeamFragment extends FunChatFragment {
               chatView.hideCurrentInput();
               XKitRouter.withKey(PATH_FUN_TEAM_SETTING_PAGE)
                   .withContext(requireContext())
-                  .withParam(KEY_TEAM_ID, sessionID)
+                  .withParam(KEY_TEAM_ID, accountId)
                   .navigate();
             });
 
-    aitManager = new AitManager(getContext(), sessionID);
+    // 初始化AitManager 用于@功能
+    aitManager = new AitManager(getContext(), accountId);
     aitManager.setUIStyle(AitManager.STYLE_FUN);
     aitManager.updateTeamInfo(teamInfo);
     chatView.setAitManager(aitManager);
     refreshView();
   }
 
+  // 刷新界面
   private void refreshView() {
     if (teamInfo != null) {
       chatView.getTitleBar().setTitle(teamInfo.getName());
       chatView.getMessageListView().updateTeamInfo(teamInfo);
     }
     if (currentMember != null && teamInfo != null) {
-      if (currentMember.getType() != TeamMemberType.Owner
-          && currentMember.getType() != TeamMemberType.Manager) {
-        chatView.setInputMute(teamInfo.isAllMute());
+      if (currentMember.getMemberRole() != V2NIMTeamMemberRole.V2NIM_TEAM_MEMBER_ROLE_OWNER
+          && currentMember.getMemberRole() != V2NIMTeamMemberRole.V2NIM_TEAM_MEMBER_ROLE_MANAGER) {
+        chatView.setInputMute(
+            teamInfo.getChatBannedMode()
+                != V2NIMTeamChatBannedMode.V2NIM_TEAM_CHAT_BANNED_MODE_UNBAN);
       } else {
         chatView.setInputMute(false);
       }
     }
   }
-
+  // 初始化ViewModel
   @Override
   protected void initViewModel() {
     ALog.d(LIB_TAG, TAG, "initViewModel");
     viewModel = new ViewModelProvider(this).get(ChatTeamViewModel.class);
-    viewModel.init(sessionID, SessionTypeEnum.Team);
+    viewModel.init(accountId, V2NIMConversationType.V2NIM_CONVERSATION_TYPE_TEAM);
   }
 
   @Override
-  protected void initToFetchData() {
+  protected void initData() {
     if (viewModel instanceof ChatTeamViewModel) {
-      // query team info
-      ((ChatTeamViewModel) viewModel).requestTeamInfo(sessionID);
-      // init team members
-      ((ChatTeamViewModel) viewModel).requestTeamMembers(sessionID);
-      // fetch history message
-      viewModel.initFetch(anchorMessage, false);
+      // 请求群信息
+      ((ChatTeamViewModel) viewModel).requestTeamInfo();
+      // 请求消息列表
+      if (anchorMessage != null) {
+        viewModel.getMessageList(anchorMessage.getMessage(), false);
+      } else {
+        viewModel.getMessageList(null, false);
+      }
     }
   }
 
@@ -129,7 +149,7 @@ public class FunChatTeamFragment extends FunChatFragment {
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
     if (chatConfig != null && chatConfig.chatListener != null) {
-      chatConfig.chatListener.onSessionChange(sessionID, sessionType);
+      chatConfig.chatListener.onConversationChange(accountId, conversationType);
     }
     if (chatConfig != null && chatConfig.messageProperties != null) {
       viewModel.setShowReadStatus(chatConfig.messageProperties.showTeamMessageStatus);
@@ -140,8 +160,10 @@ public class FunChatTeamFragment extends FunChatFragment {
   public void onStart() {
     super.onStart();
     ALog.d(LIB_TAG, TAG, "onStart:" + showDeleteDialog);
-    if (showDeleteDialog) {
-      showDialogToFinish();
+    if (((ChatTeamViewModel) viewModel).isMyDismiss()) {
+      requireActivity().finish();
+    } else if (showDeleteDialog) {
+      showDialogToFinish(null);
     }
   }
 
@@ -157,38 +179,39 @@ public class FunChatTeamFragment extends FunChatFragment {
   protected void initDataObserver() {
     super.initDataObserver();
     ALog.d(LIB_TAG, TAG, "initDataObserver");
+    // 群聊消息已读回执观察者,更新消息已读未读状态
     teamReceiptObserver =
         listFetchResult -> {
           ALog.d(LIB_TAG, TAG, "TeamMessageReceiptLiveData,observer");
           if (listFetchResult == null || listFetchResult.getData() == null) return;
-          List<ChatMessageBean> messageList = new ArrayList<>();
-          for (IMTeamMessageReceiptInfo receiptInfo : listFetchResult.getData()) {
-            String msgId = receiptInfo.getTeamMessageReceipt().getMsgId();
-            ChatMessageBean msg = null;
+          List<ChatMessageBean> messageList = chatView.getMessageList();
+          if (messageList == null || messageList.isEmpty()) return;
+          List<ChatMessageBean> updateMessage = new ArrayList<>();
+          for (V2NIMTeamMessageReadReceipt receiptInfo : listFetchResult.getData()) {
+            String msgId = receiptInfo.getMessageClientId();
             for (ChatMessageBean messageBean : messageList) {
               if (messageBean != null
                   && messageBean.getMessageData() != null
-                  && TextUtils.equals(messageBean.getMessageData().getMessage().getUuid(), msgId)) {
-                msg = messageBean;
+                  && TextUtils.equals(
+                      messageBean.getMessageData().getMessage().getMessageClientId(), msgId)) {
+                messageBean.getMessageData().setReadCount(receiptInfo.getReadCount());
+                messageBean.getMessageData().setUnReadCount(receiptInfo.getUnreadCount());
+                updateMessage.add(messageBean);
                 break;
               }
             }
-            if (msg == null) {
-              msg = chatView.getMessageListView().searchMessage(msgId);
-              if (msg != null) {
-                messageList.add(msg);
-              }
-            }
           }
-          ALog.d(LIB_TAG, TAG, "TeamMessageReceiptLiveData,observer,msgList:" + messageList.size());
-          for (ChatMessageBean message : messageList) {
+          ALog.d(LIB_TAG, TAG, "TeamMessageReceiptLiveData,observer");
+          for (ChatMessageBean message : updateMessage) {
             chatView.getMessageListView().updateMessageStatus(message);
           }
         };
+    // 监听群已读未读回执
     ((ChatTeamViewModel) viewModel)
         .getTeamMessageReceiptLiveData()
         .observeForever(teamReceiptObserver);
 
+    // 监听群信息
     ((ChatTeamViewModel) viewModel)
         .getTeamLiveData()
         .observe(
@@ -197,11 +220,12 @@ public class FunChatTeamFragment extends FunChatFragment {
               ALog.d(LIB_TAG, TAG, "TeamLiveData,observe");
               if (team != null) {
                 teamInfo = team;
-                if (!team.isMyTeam()) {
-                  requireActivity().finish();
+                if (!team.isValidTeam()) {
+                  showDialogToFinish(getString(R.string.chat_team_invalid_content));
+                  return;
                 }
-                if (!TextUtils.isEmpty(team.getExtension())
-                    && team.getExtension().contains(IMKitConstant.TEAM_GROUP_TAG)) {
+                if (!TextUtils.isEmpty(team.getServerExtension())
+                    && team.getServerExtension().contains(IMKitConstant.TEAM_GROUP_TAG)) {
                   viewModel.setTeamGroup(true);
                 }
                 aitManager.updateTeamInfo(teamInfo);
@@ -209,34 +233,7 @@ public class FunChatTeamFragment extends FunChatFragment {
               }
             });
 
-    ((ChatTeamViewModel) viewModel)
-        .getTeamMemberData()
-        .observe(
-            getViewLifecycleOwner(),
-            teamMembers -> {
-              ALog.d(LIB_TAG, TAG, "TeamMemberData,observe");
-
-              if (teamMembers.getSuccess() && teamMembers.getValue() != null) {
-                aitManager.setTeamMembers(teamMembers.getValue());
-                for (UserInfoWithTeam user : teamMembers.getValue()) {
-                  if (TextUtils.equals(user.getTeamInfo().getAccount(), IMKitClient.account())) {
-                    currentMember = user.getTeamInfo();
-                    refreshView();
-                    break;
-                  }
-                }
-                if (((ChatTeamViewModel) viewModel).hasLoadMessage()) {
-                  List<String> accIdList = new ArrayList<>();
-                  for (UserInfoWithTeam user : teamMembers.getValue()) {
-                    accIdList.add(user.getTeamInfo().getAccount());
-                  }
-                  if (accIdList.size() > 0) {
-                    chatView.getMessageListView().notifyUserInfoChange(accIdList);
-                  }
-                }
-              }
-            });
-
+    // 监听群成员数量变化
     ((ChatTeamViewModel) viewModel)
         .getTeamMemberChangeData()
         .observe(
@@ -245,65 +242,45 @@ public class FunChatTeamFragment extends FunChatFragment {
               ALog.d(LIB_TAG, TAG, "TeamMemberChangeData,observe");
               if (result.getLoadStatus() == LoadStatus.Finish && result.getData() != null) {
                 List<String> accIdList = new ArrayList<>();
-                for (UserInfoWithTeam user : result.getData()) {
-                  if (TextUtils.equals(user.getTeamInfo().getAccount(), IMKitClient.account())) {
-                    currentMember = user.getTeamInfo();
+                for (TeamMemberWithUserInfo user : result.getData()) {
+                  if (TextUtils.equals(user.getAccountId(), IMKitClient.account())) {
+                    currentMember = user.getTeamMember();
                     refreshView();
                   }
-                  accIdList.add(user.getTeamInfo().getAccount());
+                  accIdList.add(user.getAccountId());
                 }
-                chatView.getMessageListView().notifyUserInfoChange(accIdList);
+                chatView.getMessageListView().notifyUserInfoChanged(accIdList);
               }
             });
   }
 
+  // 收到解散群聊通知，处理逻辑。如果是主动退出则直接关闭页面，否则弹窗提示
   private void startTeamDismiss() {
     ALog.d(LIB_TAG, TAG, "startTeamDismiss");
-    if (((ChatTeamViewModel) viewModel).isMyDismiss()) {
-      FunChatTeamFragment.this.requireActivity().finish();
-    } else {
-      if (FunChatTeamFragment.this.isResumed()) {
-        showDialogToFinish();
-        showDeleteDialog = false;
+    if (FunChatTeamFragment.this.isResumed()) {
+      if (((ChatTeamViewModel) viewModel).isMyDismiss()) {
+        FunChatTeamFragment.this.requireActivity().finish();
       } else {
-        showDeleteDialog = true;
+        showDialogToFinish(null);
+        showDeleteDialog = false;
       }
+    } else {
+      showDeleteDialog = true;
     }
   }
 
-  private void startKickDialog() {
+  // 被踢出群聊、解散群聊、群不存在弹窗提示
+  protected void showDialogToFinish(String contentText) {
     AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
     LayoutInflater layoutInflater = LayoutInflater.from(requireContext());
     View dialogView = layoutInflater.inflate(R.layout.chat_alert_dialog_layout, null);
     TextView title = dialogView.findViewById(R.id.tv_dialog_title);
     TextView content = dialogView.findViewById(R.id.tv_dialog_content);
     TextView positiveBut = dialogView.findViewById(R.id.tv_dialog_positive);
-    content.setText(getString(R.string.chat_team_be_kick_content));
-    title.setText(getString(R.string.chat_team_be_removed_title));
-    positiveBut.setText(getString(R.string.chat_dialog_sure));
-    // 设置不可取消
-    builder.setCancelable(false);
-    builder.setView(dialogView);
-    final AlertDialog alertDialog = builder.create();
-    positiveBut.setOnClickListener(
-        v -> {
-          if (alertDialog != null) {
-            alertDialog.dismiss();
-          }
-          requireActivity().finish();
-        });
-
-    alertDialog.show();
-  }
-
-  private void showDialogToFinish() {
-    AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-    LayoutInflater layoutInflater = LayoutInflater.from(requireContext());
-    View dialogView = layoutInflater.inflate(R.layout.chat_alert_dialog_layout, null);
-    TextView title = dialogView.findViewById(R.id.tv_dialog_title);
-    TextView content = dialogView.findViewById(R.id.tv_dialog_content);
-    TextView positiveBut = dialogView.findViewById(R.id.tv_dialog_positive);
-    content.setText(getString(R.string.chat_team_be_removed_content));
+    if (TextUtils.isEmpty(contentText)) {
+      contentText = getString(R.string.chat_team_be_removed_content);
+    }
+    content.setText(contentText);
     title.setText(getString(R.string.chat_team_be_removed_title));
     positiveBut.setText(getString(R.string.chat_dialog_sure));
     positiveBut.setTextColor(getResources().getColor(R.color.fun_chat_color));
@@ -321,19 +298,26 @@ public class FunChatTeamFragment extends FunChatFragment {
     alertDialog.show();
   }
 
+  // 收到定位消息，需要重新拉取消息并定位到该消息
   @Override
   public void onNewIntent(Intent intent) {
     ALog.d(LIB_TAG, TAG, "onNewIntent");
-    anchorMessage = (IMMessage) intent.getSerializableExtra(RouterConstant.KEY_MESSAGE);
-    ChatMessageBean anchorMessageBean =
-        (ChatMessageBean) intent.getSerializableExtra(RouterConstant.KEY_MESSAGE_BEAN);
-    if (anchorMessageBean != null) {
-      anchorMessage = anchorMessageBean.getMessageData().getMessage();
-    } else if (anchorMessage != null) {
-      anchorMessageBean = new ChatMessageBean(new IMMessageInfo(anchorMessage));
+    anchorMessage = (IMMessageInfo) intent.getSerializableExtra(RouterConstant.KEY_MESSAGE_INFO);
+    if (anchorMessage == null) {
+      V2NIMMessage message = (V2NIMMessage) intent.getSerializableExtra(RouterConstant.KEY_MESSAGE);
+      if (message != null) {
+        anchorMessage = new IMMessageInfo(message);
+      }
+    }
+    ChatMessageBean anchorMessageBean = null;
+    if (anchorMessage != null) {
+      anchorMessageBean = new ChatMessageBean(anchorMessage);
     }
     if (anchorMessage != null) {
-      int position = chatView.getMessageListView().searchMessagePosition(anchorMessage.getUuid());
+      int position =
+          chatView
+              .getMessageListView()
+              .searchMessagePosition(anchorMessage.getMessage().getMessageClientId());
       if (position >= 0) {
         chatView
             .getRootView()
@@ -353,11 +337,12 @@ public class FunChatTeamFragment extends FunChatFragment {
         chatView.clearMessageList();
         // need to add anchor message to list panel
         chatView.appendMessage(anchorMessageBean);
-        viewModel.initFetch(anchorMessage, false);
+        viewModel.getMessageList(anchorMessage.getMessage(), false);
       }
     }
   }
 
+  // 获取会话名称，展示使用
   @Override
   public String getSessionName() {
     if (teamInfo != null) {
@@ -366,10 +351,12 @@ public class FunChatTeamFragment extends FunChatFragment {
     return super.getSessionName();
   }
 
+  // 获取会话底部布局Layout
   public MessageBottomLayout getMessageBottomLayout() {
     return viewBinding.chatView.getBottomInputLayout();
   }
 
+  // 接受消息
   @Override
   protected void onReceiveMessage(FetchResult<List<ChatMessageBean>> listFetchResult) {
     super.onReceiveMessage(listFetchResult);
@@ -380,7 +367,7 @@ public class FunChatTeamFragment extends FunChatFragment {
           startTeamDismiss();
           return;
         } else if (MessageHelper.isKickMsg(message.getMessageData())) {
-          startKickDialog();
+          showDialogToFinish(getString(R.string.chat_team_be_kick_content));
           return;
         }
       }

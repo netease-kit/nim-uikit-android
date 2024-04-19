@@ -4,7 +4,7 @@
 
 package com.netease.yunxin.kit.conversationkit.ui.page.interfaces;
 
-/** conversation callback to observer the unread count change */
+/** 会话Fragment提供给外部回调 用于获取未读数据变化回调，后续根据需求会继续扩展 */
 public interface IConversationCallback {
 
   void updateUnreadCount(int count);

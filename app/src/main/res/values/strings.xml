@@ -43,6 +43,7 @@
     <string name="mine_about">关于云信</string>
     <string name="mine_setting">设置</string>
     <string name="mine_version">版本号</string>
+    <string name="mine_im_version">NIM版本号</string>
     <string name="mine_product">产品介绍</string>
 
     <!-- setting -->
@@ -83,7 +84,8 @@
     <string name="login_fail">登录失败:%d</string>
     <string name="request_fail">操作失败</string>
     <string name="user_fail">用户信息获取失败</string>
-    <string name="network_error">当前网络不可用，请检查你当网络设置。</string>
+    <string name="imkit_email_fail">邮箱格式错误，请检查</string>
+    <string name="network_error">当前网络不可用，请检查你的网络设置。</string>
 
     <!--    skin-->
     <string name="base_type">基础皮肤</string>

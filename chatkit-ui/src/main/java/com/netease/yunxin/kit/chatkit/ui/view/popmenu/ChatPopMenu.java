@@ -19,14 +19,13 @@ import androidx.annotation.NonNull;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import com.netease.nimlib.sdk.msg.constant.MsgDirectionEnum;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatPopMenuLayoutBinding;
 import com.netease.yunxin.kit.chatkit.ui.factory.ChatPopActionFactory;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.common.utils.SizeUtils;
-import com.netease.yunxin.kit.corekit.im.IMKitClient;
+import com.netease.yunxin.kit.corekit.im2.IMKitClient;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,7 +46,7 @@ public class ChatPopMenu {
   private static final float CONTAINER_PADDING = 16f;
 
   private final PopupWindow popupWindow;
-  private ChatPopMenuLayoutBinding layoutBinding;
+  private final ChatPopMenuLayoutBinding layoutBinding;
   private final MenuAdapter adapter;
   private final List<ChatPopMenuAction> chatPopMenuActionList = new ArrayList<>();
 
@@ -101,7 +100,7 @@ public class ChatPopMenu {
       int x = location[0];
       int y = location[1] - popHeight - Y_OFFSET;
       // if this is a send message,show on right
-      if (message.getMessageData().getMessage().getDirect() == MsgDirectionEnum.Out) {
+      if (message.getMessageData().getMessage().isSelf()) {
         x = (int) (location[0] + anchorWidth - popWidth);
       }
       // if is top show pop below anchorView,else show above

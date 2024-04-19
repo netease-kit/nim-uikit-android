@@ -5,7 +5,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:background="@color/color_eef1f4"
     android:orientation="vertical">
 
     <LinearLayout
@@ -47,7 +46,7 @@
             android:gravity="center"
             android:text="@string/chat_network_error_tip"
             android:textColor="@color/color_fc596a"
-            android:textSize="14dp"
+            android:textSize="14sp"
             android:visibility="gone" />
 
         <FrameLayout
@@ -63,7 +62,6 @@
             <LinearLayout android:id="@+id/pin_empty_view"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@color/color_white"
                 android:visibility="visible"
                 android:orientation="vertical">
 

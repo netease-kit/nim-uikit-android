@@ -18,8 +18,7 @@
     <string name="chat_message_revoke_content">Revoke Message</string>
     <string name="chat_message_revoke_over_time">Too late to recall</string>
     <string name="chat_message_revoked">Message Recalled</string>
-    <string name="chat_message_revoked_fun">%s recalled the message</string>
-    <string name="chat_message_re_edit">Edit</string> 
+    <string name="chat_message_re_edit">Edit</string>
     <string name="chat_message_voice_in"> Release to send</string>
     <string name="chat_message_signal">Pin</string> 
     <string name="chat_message_open_message_notice">Notification</string> 
@@ -54,13 +53,11 @@
     <string name="chat_message_video_time">%02d:%02d</string>
     <string name="chat_message_send">Send</string> 
     <string name="chat_message_video_error">Can\'t play video</string>
-    <string name="chat_message_custom_sticker">emoji</string> 
 
     <string name="chat_message_more_shoot">Camera</string> 
     <string name="chat_message_camera_unavailable">camera unavailable</string>
     <string name="chat_message_location">Location</string>
     <string name="chat_message_file">File</string>
-    <string name="chat_message_location_distance">%.0fm内&#160;|&#160;%s</string>
     <string name="chat_message_video_call">Call</string>
     <string name="chat_message_video_call_action">Video Call</string>
     <string name="chat_message_audio_call_action">Voice Call</string>
@@ -144,11 +141,15 @@
     <string name="chat_team_cancel_all_mute">Unmute all</string> 
     <string name="chat_team_full_mute">Mute everyone</string>
     <string name="chat_team_update">Group%s update as %s</string>
+    <string name="chat_team_at_permission_manager_tips">Everyone can \@all</string>
+    <string name="chat_team_at_permission_all_tips">Only admin and manager can \@all</string>
     <string name="chat_team_unknown_notification">Unknown message</string>
     <string name="chat_team_ait_all">everyone</string>
     <string name="chat_team_be_removed_title">tip</string>
     <string name="chat_team_be_removed_content">This group is disbanded</string>
+    <string name="chat_team_invalid_content">This group no longer exists</string>
     <string name="chat_team_be_kick_content">You have been removed from the group</string>
+    <string name="chat_team_error_tip_content">You have been removed from the group chat or the group chat has been dissolved.</string>
 
     <string name="chat_reply_message_brief_image">[Photo]</string>
     <string name="chat_reply_message_brief_audio">[Voice]</string>
@@ -191,17 +192,18 @@
 
     <!-- tips -->
     <string name="chat_message_not_support_tips">[Unknown Message]</string>
+    <string name="chat_message_not_call_tips">[Audio/Video Call]</string>
     <string name="chat_message_type_not_support_tips">Unknown Type</string>
     <string name="chat_message_file_size_limit_tips">Oops！File size limit %sM.</string>
     <string name="chat_message_type_resource_error">Read failed.</string>
     <string name="chat_message_revoke_eidt_error">Time Out</string>
     <string name="chat_message_download_tips">Downloading</string>
-    <string name="chat_message_send_message_when_in_black">"%s had blocked you, sent message failed!"</string>
+    <string name="chat_message_send_message_when_in_black">"He/She had blocked you, sent message failed!"</string>
     <string name="chat_message_multi_forward_limit_tips">Combined forwarding limits 100
         messages</string>
     <string name="chat_message_single_forward_limit_tips">Forward one by one to limit 10
         message</string>
-    <string name="chat_message_multi_delete_limit_tips">Delete limits 100 messages</string>
+    <string name="chat_message_multi_delete_limit_tips">Delete limits 50 messages</string>
 
 
     <!-- location -->
@@ -220,6 +222,7 @@
     <string name="chat_remove_pin_error_tips">Unpin failed</string>
     <string name="chat_remove_tips">Unpin</string>
     <string name="chat_network_error_tips">No Internet</string>
+    <string name="chat_pin_limit_tips">The number of pin has reached the upper limit</string>
 
     <string name="chat_send_null_message_tips">Message cannot be empty</string>
     <string name="chat_send_null_title_tips">Message title cannot be empty</string>
@@ -248,9 +251,5 @@
     <string name="msg_type_tip">[Tip Message]</string>
     <string name="msg_type_custom">[Custom Message]</string>
     <string name="msg_type_no_tips">[Unknown Message]</string>
-
-    <!-- fun -->
-    <string name="chat_input_more_album_title">Album</string>
-    <string name="chat_input_audio_record_title">Hold to Talk</string>
 
 </resources>

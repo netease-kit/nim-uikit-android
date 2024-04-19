@@ -7,16 +7,16 @@ package com.netease.yunxin.kit.conversationkit.ui.page;
 import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
-import com.netease.yunxin.kit.chatkit.model.ConversationInfo;
+import com.netease.nimlib.sdk.v2.conversation.model.V2NIMConversation;
 import com.netease.yunxin.kit.common.ui.viewholder.BaseViewHolder;
 import com.netease.yunxin.kit.conversationkit.ui.IConversationFactory;
 import com.netease.yunxin.kit.conversationkit.ui.model.ConversationBean;
 
-/** conversation view holder factory to create view holder in recyclerview */
+/** 默认的ViewHolder工厂，用于创建会话列表的ViewHolder */
 public class DefaultViewHolderFactory implements IConversationFactory {
 
   @Override
-  public ConversationBean CreateBean(ConversationInfo info) {
+  public ConversationBean CreateBean(V2NIMConversation info) {
     return new ConversationBean(info);
   }
 

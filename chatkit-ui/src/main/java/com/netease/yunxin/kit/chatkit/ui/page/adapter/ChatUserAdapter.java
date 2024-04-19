@@ -12,10 +12,10 @@ import com.netease.yunxin.kit.chatkit.ui.databinding.ChatUserItemLayoutBinding;
 import com.netease.yunxin.kit.common.ui.activities.adapter.CommonMoreAdapter;
 import com.netease.yunxin.kit.common.ui.activities.viewholder.BaseMoreViewHolder;
 import com.netease.yunxin.kit.common.ui.utils.AvatarColor;
-import com.netease.yunxin.kit.corekit.im.model.UserInfo;
+import com.netease.yunxin.kit.corekit.im2.model.UserWithFriend;
 
 /** team message read state adapter */
-public class ChatUserAdapter extends CommonMoreAdapter<UserInfo, ChatUserItemLayoutBinding> {
+public class ChatUserAdapter extends CommonMoreAdapter<UserWithFriend, ChatUserItemLayoutBinding> {
 
   String tid;
 
@@ -32,7 +32,7 @@ public class ChatUserAdapter extends CommonMoreAdapter<UserInfo, ChatUserItemLay
   }
 
   public static class UserItemViewHolder
-      extends BaseMoreViewHolder<UserInfo, ChatUserItemLayoutBinding> {
+      extends BaseMoreViewHolder<UserWithFriend, ChatUserItemLayoutBinding> {
 
     String tid;
 
@@ -46,9 +46,9 @@ public class ChatUserAdapter extends CommonMoreAdapter<UserInfo, ChatUserItemLay
     }
 
     @Override
-    public void bind(UserInfo item) {
+    public void bind(UserWithFriend item) {
       if (item != null) {
-        String name = MessageHelper.getTeamMemberDisplayName(tid, item);
+        String name = MessageHelper.getTeamReaderDisplayName(item.getAccount());
         getBinding()
             .avatar
             .setData(item.getAvatar(), name, AvatarColor.avatarColor(item.getAccount()));

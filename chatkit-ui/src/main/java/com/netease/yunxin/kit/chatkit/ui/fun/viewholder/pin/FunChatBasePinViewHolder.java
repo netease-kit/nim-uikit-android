@@ -9,10 +9,9 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import com.netease.nimlib.sdk.team.model.Team;
-import com.netease.yunxin.kit.chatkit.repo.ContactRepo;
 import com.netease.yunxin.kit.chatkit.ui.ChatMessageType;
+import com.netease.yunxin.kit.chatkit.ui.common.ChatUserCache;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.chatkit.ui.databinding.FunChatBasePinViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.interfaces.ChatBaseViewHolder;
@@ -22,8 +21,6 @@ import com.netease.yunxin.kit.chatkit.ui.view.message.MessageProperties;
 import com.netease.yunxin.kit.common.ui.utils.AvatarColor;
 import com.netease.yunxin.kit.common.ui.utils.TimeFormatUtils;
 import com.netease.yunxin.kit.common.utils.SizeUtils;
-import com.netease.yunxin.kit.corekit.im.model.UserInfo;
-import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
 import java.util.List;
 
 /** base message view holder for chat message item */
@@ -104,36 +101,13 @@ public abstract class FunChatBasePinViewHolder extends ChatBaseViewHolder<ChatMe
       return;
     }
     baseViewBinding.messageBody.setGravity(Gravity.START);
-    //防止UserInfo数据不存在
-    if (message.getMessageData().getFromUser() == null) {
-      ContactRepo.fetchUserInfo(
-          message.getMessageData().getMessage().getFromAccount(),
-          new FetchCallback<UserInfo>() {
-            @Override
-            public void onSuccess(@Nullable UserInfo param) {
-              message.getMessageData().setFromUser(param);
-              loadNickAndAvatar(message);
-            }
-
-            @Override
-            public void onFailed(int code) {
-              loadNickAndAvatar(message);
-            }
-
-            @Override
-            public void onException(@Nullable Throwable exception) {
-              loadNickAndAvatar(message);
-            }
-          });
-    } else {
-      loadNickAndAvatar(message);
-    }
+    loadNickAndAvatar(message);
   }
 
   private void loadNickAndAvatar(ChatMessageBean message) {
 
     //get nick name
-    String name = MessageHelper.getChatMessageUserName(message.getMessageData());
+    String name = MessageHelper.getChatMessageUserNameByAccount(message.getSenderId());
     baseViewBinding.otherUsername.setText(name);
     if (properties.getUserNickColor() != null) {
       baseViewBinding.otherUsername.setTextColor(properties.getUserNickColor());
@@ -141,25 +115,20 @@ public abstract class FunChatBasePinViewHolder extends ChatBaseViewHolder<ChatMe
     if (properties.getUserNickTextSize() != null) {
       baseViewBinding.otherUsername.setTextSize(properties.getUserNickTextSize());
     }
-    String avatar =
-        message.getMessageData().getFromUser() == null
-            ? ""
-            : message.getMessageData().getFromUser().getAvatar();
+    String avatar = ChatUserCache.getInstance().getFriendInfo(message.getSenderId()).getAvatar();
     baseViewBinding.messageAvatar.setVisibility(View.VISIBLE);
     if (properties.getAvatarCornerRadius() != null) {
       baseViewBinding.messageAvatar.setCornerRadius(properties.getAvatarCornerRadius());
     }
     baseViewBinding.messageAvatar.setData(
-        avatar,
-        name,
-        AvatarColor.avatarColor(message.getMessageData().getMessage().getFromAccount()));
+        avatar, name, AvatarColor.avatarColor(message.getMessageData().getMessage().getSenderId()));
   }
 
   private void setTime(ChatMessageBean message) {
     long createTime =
-        message.getMessageData().getMessage().getTime() == 0
+        message.getMessageData().getMessage().getCreateTime() == 0
             ? System.currentTimeMillis()
-            : message.getMessageData().getMessage().getTime();
+            : message.getMessageData().getMessage().getCreateTime();
     baseViewBinding.tvTime.setVisibility(View.VISIBLE);
     if (properties.getTimeTextColor() != null) {
       baseViewBinding.tvTime.setTextColor(properties.getTimeTextColor());

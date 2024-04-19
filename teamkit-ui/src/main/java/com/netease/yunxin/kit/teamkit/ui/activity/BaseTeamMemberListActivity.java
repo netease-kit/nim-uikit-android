@@ -19,17 +19,20 @@ import android.widget.EditText;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewbinding.ViewBinding;
-import com.netease.nimlib.sdk.team.constant.TeamMemberType;
-import com.netease.nimlib.sdk.team.constant.TeamTypeEnum;
-import com.netease.nimlib.sdk.team.model.Team;
+import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamMemberRole;
+import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamType;
+import com.netease.nimlib.sdk.v2.team.model.V2NIMTeam;
+import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.model.TeamWithCurrentMember;
 import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
 import com.netease.yunxin.kit.common.ui.dialog.ChoiceListener;
 import com.netease.yunxin.kit.common.ui.dialog.CommonChoiceDialog;
 import com.netease.yunxin.kit.common.ui.utils.ToastX;
+import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.utils.NetworkUtils;
 import com.netease.yunxin.kit.corekit.event.BaseEvent;
 import com.netease.yunxin.kit.corekit.event.EventCenter;
@@ -39,20 +42,20 @@ import com.netease.yunxin.kit.teamkit.ui.adapter.BaseTeamMemberListAdapter;
 import com.netease.yunxin.kit.teamkit.ui.model.EventDef;
 import com.netease.yunxin.kit.teamkit.ui.normal.adapter.TeamMemberListAdapter;
 import com.netease.yunxin.kit.teamkit.ui.utils.TeamUtils;
-import com.netease.yunxin.kit.teamkit.ui.viewmodel.TeamSettingViewModel;
+import com.netease.yunxin.kit.teamkit.ui.viewmodel.TeamBaseViewModel;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-/** team member list activity */
+/** 群成员列表基类 子类需要实现{@link #initViewAndGetRootView(Bundle)}方法，返回布局的根View */
 public abstract class BaseTeamMemberListActivity extends BaseActivity {
 
-  protected final TeamSettingViewModel model = new TeamSettingViewModel();
+  protected TeamBaseViewModel viewModel;
   protected String teamId;
   protected boolean teamGroup = false;
   protected BaseTeamMemberListAdapter<? extends ViewBinding> adapter;
-  protected TeamTypeEnum teamTypeEnum;
+  protected V2NIMTeamType teamTypeEnum;
   protected TeamWithCurrentMember teamWithCurrentMember;
 
   private View rootView;
@@ -60,8 +63,10 @@ public abstract class BaseTeamMemberListActivity extends BaseActivity {
   protected View ivClear;
   protected View groupEmpty;
   protected RecyclerView rvMemberList;
+  protected LinearLayoutManager layoutManager;
   protected EditText etSearch;
 
+  // 监听关闭页面事件，用于群解散或者被踢出群，相关页面需要关闭
   protected final EventNotify<BaseEvent> closeEventNotify =
       new EventNotify<BaseEvent>() {
         @Override
@@ -79,6 +84,7 @@ public abstract class BaseTeamMemberListActivity extends BaseActivity {
   @Override
   protected void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    // 注册关闭页面事件
     EventCenter.registerEventNotify(closeEventNotify);
     rootView = initViewAndGetRootView(savedInstanceState);
     checkViews();
@@ -86,10 +92,12 @@ public abstract class BaseTeamMemberListActivity extends BaseActivity {
 
     changeStatusBarColor(R.color.color_white);
 
-    Team teamInfo = (Team) getIntent().getSerializableExtra(KEY_TEAM_INFO);
-    teamId = teamInfo.getId();
-    teamTypeEnum = teamInfo.getType();
-    teamGroup = TeamUtils.isTeamGroup(teamInfo);
+    V2NIMTeam teamInfo = (V2NIMTeam) getIntent().getSerializableExtra(KEY_TEAM_INFO);
+    if (teamInfo != null) {
+      teamId = teamInfo.getTeamId();
+      teamTypeEnum = teamInfo.getTeamType();
+      teamGroup = TeamUtils.isTeamGroup(teamInfo);
+    }
     if (TextUtils.isEmpty(teamId)) {
       finish();
       return;
@@ -103,9 +111,9 @@ public abstract class BaseTeamMemberListActivity extends BaseActivity {
     super.onResume();
     if (NetworkUtils.isConnected()) {
       if (ivClear.getVisibility() == View.GONE) {
-        model.requestTeamMembers(teamId);
+        viewModel.requestAllTeamMembers(teamId);
       }
-      model.requestTeamData(teamId);
+      viewModel.requestTeamData(teamId);
     } else {
       dismissLoading();
       Toast.makeText(
@@ -126,14 +134,14 @@ public abstract class BaseTeamMemberListActivity extends BaseActivity {
   }
 
   protected BaseTeamMemberListAdapter<? extends ViewBinding> getMemberListAdapter(
-      TeamTypeEnum typeEnum) {
+      V2NIMTeamType teamType) {
     return null;
   }
 
   private void initUI() {
     ivBack.setOnClickListener(v -> finish());
-    rvMemberList.setLayoutManager(
-        new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+    layoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+    rvMemberList.setLayoutManager(layoutManager);
     adapter = getMemberListAdapter(teamTypeEnum);
     // 讨论组不展示身份标签
     adapter.setGroupIdentify(!teamGroup);
@@ -145,7 +153,7 @@ public abstract class BaseTeamMemberListActivity extends BaseActivity {
                 this,
                 () -> {
                   List<String> accounts = new ArrayList<>();
-                  accounts.add(data.getUserInfo().getAccount());
+                  accounts.add(data.getAccountId());
                   showDeleteConfirmDialog(accounts);
                 });
           }
@@ -173,47 +181,77 @@ public abstract class BaseTeamMemberListActivity extends BaseActivity {
 
             if (TextUtils.isEmpty(String.valueOf(s))) {
               ivClear.setVisibility(View.GONE);
-              model.requestTeamMembers(teamId);
             } else {
               ivClear.setVisibility(View.VISIBLE);
             }
           }
         });
+
+    // 监听滚动，当滚动到底部触发加载更多
+    rvMemberList.addOnScrollListener(
+        new RecyclerView.OnScrollListener() {
+          @Override
+          public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+            super.onScrollStateChanged(recyclerView, newState);
+            ALog.i("BaseTeamMemberListActivity", "onScrollStateChanged newState = " + newState);
+            if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+              int position = layoutManager.findLastVisibleItemPosition();
+              if (viewModel != null
+                  && viewModel.hasMore()
+                  && adapter.getItemCount() < position + 5) {
+                viewModel.requestMoreTeamMember(teamId);
+              }
+            }
+          }
+
+          @Override
+          public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+            super.onScrolled(recyclerView, dx, dy);
+          }
+        });
   }
 
   private void configViewModel() {
-    model
-        .getTeamWithMemberData()
+    viewModel = new ViewModelProvider(this).get(TeamBaseViewModel.class);
+    viewModel.configTeamId(teamId);
+    // 获取群信息和当前用户信息
+    viewModel
+        .getTeamWitheMemberData()
         .observe(
             this,
             listResultInfo -> {
-              if (listResultInfo.getSuccess()) {
-                if (listResultInfo.getValue() == null
-                    || listResultInfo.getValue().getTeamMember() == null) {
+              if (listResultInfo.isSuccess()) {
+                if (listResultInfo.getData() == null
+                    || listResultInfo.getData().getTeamMember() == null) {
                   return;
                 }
-                teamWithCurrentMember = listResultInfo.getValue();
-                TeamMemberType removeTag = null;
-                if (teamWithCurrentMember.getTeamMember().getType() == TeamMemberType.Owner) {
-                  removeTag = TeamMemberType.Manager;
-                } else if (teamWithCurrentMember.getTeamMember().getType()
-                    == TeamMemberType.Manager) {
-                  removeTag = TeamMemberType.Normal;
+                teamWithCurrentMember = listResultInfo.getData();
+                V2NIMTeamMemberRole removeTag = null;
+                if (!teamGroup) {
+                  if (teamWithCurrentMember.getTeamMember().getMemberRole()
+                      == V2NIMTeamMemberRole.V2NIM_TEAM_MEMBER_ROLE_OWNER) {
+                    removeTag = V2NIMTeamMemberRole.V2NIM_TEAM_MEMBER_ROLE_MANAGER;
+                  } else if (teamWithCurrentMember.getTeamMember().getMemberRole()
+                      == V2NIMTeamMemberRole.V2NIM_TEAM_MEMBER_ROLE_MANAGER) {
+                    removeTag = V2NIMTeamMemberRole.V2NIM_TEAM_MEMBER_ROLE_NORMAL;
+                  }
                 }
                 adapter.setShowRemoveTagWithMemberType(removeTag);
               }
             });
-    model
-        .getUserInfoData()
+    // 获取群成员列表观察着
+    viewModel
+        .getTeamMemberListWithUserData()
         .observe(
             this,
             listResultInfo -> {
               dismissLoading();
-              if (listResultInfo.getSuccess()) {
-                if (listResultInfo.getValue() != null && !listResultInfo.getValue().isEmpty()) {
-                  Collections.sort(listResultInfo.getValue(), TeamUtils.teamManagerComparator());
+              if (listResultInfo.isSuccess()) {
+                if (listResultInfo.getData() != null && !listResultInfo.getData().isEmpty()) {
+                  Collections.sort(listResultInfo.getData(), TeamUtils.teamManagerComparator());
                 }
-                adapter.addDataList(listResultInfo.getValue(), true);
+                boolean clearData = listResultInfo.getType() != FetchResult.FetchType.Add;
+                adapter.addDataList(listResultInfo.getData(), clearData);
                 if (adapter.getItemCount() > 0) {
                   groupEmpty.setVisibility(View.GONE);
                 } else {
@@ -221,15 +259,17 @@ public abstract class BaseTeamMemberListActivity extends BaseActivity {
                 }
               }
             });
-    model
+    // 添加或删除群成员观察者
+    viewModel
         .getAddRemoveMembersData()
         .observe(
             this,
             listResultInfo -> {
-              model.requestTeamMembers(teamId);
+              viewModel.requestAllTeamMembers(teamId);
             });
   }
 
+  // 显示删除确认对话框
   private void showDeleteConfirmDialog(List<String> accounts) {
     CommonChoiceDialog dialog = new CommonChoiceDialog();
     dialog
@@ -245,7 +285,7 @@ public abstract class BaseTeamMemberListActivity extends BaseActivity {
                   ToastX.showShortToast(R.string.team_network_error_tip);
                   return;
                 }
-                model.removeMember(teamId, accounts);
+                viewModel.removeMember(teamId, accounts);
               }
 
               @Override
@@ -254,7 +294,7 @@ public abstract class BaseTeamMemberListActivity extends BaseActivity {
         .show(this.getSupportFragmentManager());
   }
 
-  public static void launch(Context context, Class<? extends Activity> activity, Team team) {
+  public static void launch(Context context, Class<? extends Activity> activity, V2NIMTeam team) {
     Intent intent = new Intent(context, activity);
     intent.putExtra(KEY_TEAM_INFO, team);
     if (!(context instanceof Activity)) {

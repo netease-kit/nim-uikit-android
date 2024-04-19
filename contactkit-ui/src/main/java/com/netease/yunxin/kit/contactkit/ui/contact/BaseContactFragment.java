@@ -5,7 +5,7 @@
 package com.netease.yunxin.kit.contactkit.ui.contact;
 
 import static com.netease.yunxin.kit.contactkit.ui.ContactConstant.LIB_TAG;
-import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.PATH_ADD_FRIEND_PAGE;
+import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.PATH_ADD_FRIEND_PAGE;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -26,11 +26,11 @@ import com.netease.yunxin.kit.contactkit.ui.R;
 import com.netease.yunxin.kit.contactkit.ui.interfaces.ContactActions;
 import com.netease.yunxin.kit.contactkit.ui.interfaces.IContactCallback;
 import com.netease.yunxin.kit.contactkit.ui.model.ContactEntranceBean;
-import com.netease.yunxin.kit.contactkit.ui.model.ContactFriendBean;
 import com.netease.yunxin.kit.contactkit.ui.model.IViewTypeConstant;
+import com.netease.yunxin.kit.contactkit.ui.v2model.V2ContactFriendBean;
 import com.netease.yunxin.kit.contactkit.ui.view.ContactLayout;
-import com.netease.yunxin.kit.corekit.im.model.FriendInfo;
-import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
+import com.netease.yunxin.kit.corekit.im2.model.UserWithFriend;
+import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 import java.util.Collections;
 import java.util.List;
@@ -44,8 +44,8 @@ public abstract class BaseContactFragment extends BaseFragment {
   protected ContactLayout contactLayout;
   protected View emptyView;
   protected ContactUIConfig contactConfig;
-  protected Observer<FetchResult<List<ContactFriendBean>>> contactObserver;
-  protected Observer<FetchResult<List<ContactFriendBean>>> userInfoObserver;
+  protected Observer<FetchResult<List<V2ContactFriendBean>>> contactObserver;
+  protected Observer<FetchResult<List<V2ContactFriendBean>>> userInfoObserver;
   protected IContactCallback contactCallback;
   protected int headerCount = 0;
 
@@ -59,6 +59,7 @@ public abstract class BaseContactFragment extends BaseFragment {
     rootView = initViewAndGetRootView(inflater, container, savedInstanceState);
     checkViews();
     viewModel = new ViewModelProvider(this).get(ContactViewModel.class);
+    viewModel.registerObserver();
     if (ContactKitClient.getContactUIConfig() != null && contactConfig == null) {
       contactConfig = ContactKitClient.getContactUIConfig();
     }
@@ -121,7 +122,7 @@ public abstract class BaseContactFragment extends BaseFragment {
     initView();
     viewModel.getContactLiveData().observeForever(contactObserver);
     viewModel.getUserInfoLiveData().observeForever(userInfoObserver);
-    viewModel.fetchContactList();
+    viewModel.fetchContactList(false);
   }
 
   private void initView() {
@@ -179,7 +180,7 @@ public abstract class BaseContactFragment extends BaseFragment {
     actions.addContactListener(
         IViewTypeConstant.CONTACT_FRIEND,
         (position, data) -> {
-          FriendInfo friendInfo = ((ContactFriendBean) data).data;
+          UserWithFriend friendInfo = ((V2ContactFriendBean) data).data;
           XKitRouter.withKey(RouterConstant.PATH_USER_INFO_PAGE)
               .withContext(requireContext())
               .withParam(RouterConstant.KEY_ACCOUNT_ID_KEY, friendInfo.getAccount())

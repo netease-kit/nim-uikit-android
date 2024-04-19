@@ -6,17 +6,21 @@ package com.netease.yunxin.kit.teamkit.ui.normal.adapter;
 
 import android.content.Context;
 import android.text.TextUtils;
-import com.netease.nimlib.sdk.uinfo.model.NimUserInfo;
-import com.netease.yunxin.kit.chatkit.model.UserInfoWithTeam;
-import com.netease.yunxin.kit.corekit.im.IMKitClient;
-import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
+import com.netease.yunxin.kit.chatkit.model.TeamMemberWithUserInfo;
+import com.netease.yunxin.kit.corekit.im2.IMKitClient;
+import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 import com.netease.yunxin.kit.teamkit.ui.adapter.TeamCommonAdapter;
 import com.netease.yunxin.kit.teamkit.ui.databinding.TeamSettingUserItemBinding;
 import com.netease.yunxin.kit.teamkit.ui.utils.ColorUtils;
 
+/**
+ * 群设置成员列表适配器
+ *
+ * <p>
+ */
 public class TeamSettingMemberAdapter
-    extends TeamCommonAdapter<UserInfoWithTeam, TeamSettingUserItemBinding> {
+    extends TeamCommonAdapter<TeamMemberWithUserInfo, TeamSettingUserItemBinding> {
   public TeamSettingMemberAdapter(Context context, Class<TeamSettingUserItemBinding> viewBinding) {
     super(context, viewBinding);
   }
@@ -25,24 +29,21 @@ public class TeamSettingMemberAdapter
   public void onBindViewHolder(
       TeamSettingUserItemBinding binding,
       int position,
-      UserInfoWithTeam data,
+      TeamMemberWithUserInfo data,
       int bingingAdapterPosition) {
-    NimUserInfo userInfo = data.getUserInfo();
-    if (userInfo != null) {
+    if (data != null) {
       binding.cavUserIcon.setData(
-          userInfo.getAvatar(),
-          data.getName(),
-          ColorUtils.avatarColor(data.getUserInfo().getAccount()));
+          data.getAvatar(), data.getAvatarName(), ColorUtils.avatarColor(data.getAccountId()));
       binding.cavUserIcon.setOnClickListener(
           v -> {
-            if (TextUtils.equals(userInfo.getAccount(), IMKitClient.account())) {
+            if (TextUtils.equals(data.getAccountId(), IMKitClient.account())) {
               XKitRouter.withKey(RouterConstant.PATH_MINE_INFO_PAGE)
                   .withContext(v.getContext())
                   .navigate();
             } else {
               XKitRouter.withKey(RouterConstant.PATH_USER_INFO_PAGE)
                   .withContext(v.getContext())
-                  .withParam(RouterConstant.KEY_ACCOUNT_ID_KEY, userInfo.getAccount())
+                  .withParam(RouterConstant.KEY_ACCOUNT_ID_KEY, data.getAccountId())
                   .navigate();
             }
           });

@@ -36,4 +36,5 @@
     <string name="msg_type_tip">[提醒消息]</string>
     <string name="msg_type_custom">[自定义消息]</string>
     <string name="msg_type_no_tips">[未知消息体]</string>
+    <string name="msg_type_revoke_tips">此消息已撤回</string>
 </resources>

@@ -13,7 +13,11 @@ import com.netease.yunxin.kit.teamkit.ui.activity.BaseTeamUpdateIconActivity;
 import com.netease.yunxin.kit.teamkit.ui.databinding.FunTeamUpdateIconActivityBinding;
 import com.netease.yunxin.kit.teamkit.ui.fun.dialog.FunPhotoChoiceDialog;
 
-/** set team icon activity */
+/**
+ * 娱乐版群头像修改页面，差异化UI展示
+ *
+ * <p>
+ */
 public class FunTeamUpdateIconActivity extends BaseTeamUpdateIconActivity {
 
   @Override

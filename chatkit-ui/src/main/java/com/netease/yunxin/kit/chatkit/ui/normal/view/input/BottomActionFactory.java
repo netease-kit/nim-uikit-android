@@ -4,7 +4,7 @@
 
 package com.netease.yunxin.kit.chatkit.ui.normal.view.input;
 
-import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
+import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitClient;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants;
@@ -35,7 +35,7 @@ public class BottomActionFactory {
     return actions;
   }
 
-  public static List<ActionItem> assembleInputMoreActions(SessionTypeEnum sessionType) {
+  public static List<ActionItem> assembleInputMoreActions(V2NIMConversationType conversationType) {
     ArrayList<ActionItem> actions = new ArrayList<>();
     actions.add(
         new ActionItem(
@@ -50,7 +50,7 @@ public class BottomActionFactory {
     actions.add(
         new ActionItem(
             ActionConstants.ACTION_TYPE_FILE, R.drawable.ic_send_file, R.string.chat_message_file));
-    if (sessionType == SessionTypeEnum.P2P) {
+    if (conversationType == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P) {
       actions.add(
           new ActionItem(
               ActionConstants.ACTION_TYPE_VIDEO_CALL,

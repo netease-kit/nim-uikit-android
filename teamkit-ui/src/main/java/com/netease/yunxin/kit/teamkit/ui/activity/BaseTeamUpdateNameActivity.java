@@ -4,8 +4,8 @@
 
 package com.netease.yunxin.kit.teamkit.ui.activity;
 
-import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.KEY_TEAM_ID;
-import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.KEY_TEAM_NAME;
+import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.KEY_TEAM_ID;
+import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.KEY_TEAM_NAME;
 import static com.netease.yunxin.kit.teamkit.ui.activity.BaseTeamInfoActivity.KEY_TEAM_IS_GROUP;
 import static com.netease.yunxin.kit.teamkit.ui.activity.BaseTeamInfoActivity.KEY_TEAM_TYPE;
 import static com.netease.yunxin.kit.teamkit.ui.activity.BaseTeamInfoActivity.KEY_TEAM_UPDATE_INFO_PRIVILEGE;
@@ -24,16 +24,17 @@ import android.widget.EditText;
 import android.widget.TextView;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.Nullable;
-import com.netease.nimlib.sdk.team.constant.TeamTypeEnum;
+import androidx.lifecycle.ViewModelProvider;
+import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamType;
 import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
 import com.netease.yunxin.kit.teamkit.ui.R;
 import com.netease.yunxin.kit.teamkit.ui.viewmodel.TeamSettingViewModel;
 import java.util.Objects;
 
-/** set team name activity */
+/** 群名称修改界面基类 子类需要实现{@link #initViewAndGetRootView(Bundle)}方法，返回界面的根布局 */
 public abstract class BaseTeamUpdateNameActivity extends BaseActivity {
   protected static final String MAX_COUNT_STR = "/30";
-  protected final TeamSettingViewModel model = new TeamSettingViewModel();
+  protected TeamSettingViewModel viewModel;
   protected boolean canUpdate = false;
   protected String lastTeamName;
   protected String teamId;
@@ -57,15 +58,15 @@ public abstract class BaseTeamUpdateNameActivity extends BaseActivity {
     rootView = initViewAndGetRootView(savedInstanceState);
     checkViews();
     setContentView(rootView);
-
+    viewModel = new ViewModelProvider(this).get(TeamSettingViewModel.class);
     changeStatusBarColor(R.color.color_eff1f4);
     hasPrivilege = getIntent().getBooleanExtra(KEY_TEAM_UPDATE_INFO_PRIVILEGE, false);
     teamId = getIntent().getStringExtra(KEY_TEAM_ID);
     lastTeamName = getIntent().getStringExtra(KEY_TEAM_NAME);
     isGroup = getIntent().getBooleanExtra(KEY_TEAM_IS_GROUP, false);
-    TeamTypeEnum typeEnum = (TeamTypeEnum) getIntent().getSerializableExtra(KEY_TEAM_TYPE);
+    V2NIMTeamType typeEnum = (V2NIMTeamType) getIntent().getSerializableExtra(KEY_TEAM_TYPE);
 
-    if (typeEnum == TeamTypeEnum.Advanced && !isGroup) {
+    if (typeEnum == V2NIMTeamType.V2NIM_TEAM_TYPE_NORMAL && !isGroup) {
       tvTitle.setText(R.string.team_name_title);
     } else {
       tvTitle.setText(R.string.team_group_name_title);
@@ -106,17 +107,17 @@ public abstract class BaseTeamUpdateNameActivity extends BaseActivity {
             tvFlag.setText(String.valueOf(s).length() + MAX_COUNT_STR);
           }
         });
-    tvSave.setOnClickListener(v -> model.updateName(teamId, String.valueOf(etName.getText())));
-    model
+    tvSave.setOnClickListener(v -> viewModel.updateName(teamId, String.valueOf(etName.getText())));
+    viewModel
         .getNameData()
         .observe(
             this,
             voidResultInfo -> {
-              if (!voidResultInfo.getSuccess()) {
+              if (!voidResultInfo.isSuccess()) {
                 handleNetworkBrokenResult(this, voidResultInfo);
                 return;
               }
-              if (!TextUtils.equals(lastTeamName, voidResultInfo.getValue())) {
+              if (!TextUtils.equals(lastTeamName, voidResultInfo.getData())) {
                 canUpdate = true;
               }
               teamName = String.valueOf(etName.getText());
@@ -146,11 +147,23 @@ public abstract class BaseTeamUpdateNameActivity extends BaseActivity {
     super.finish();
   }
 
+  /**
+   * 启动群名称修改界面
+   *
+   * @param context 上下文
+   * @param activity 目标Activity
+   * @param hasPrivilege 是否有权限
+   * @param typeEnum 群类型
+   * @param teamId 群ID
+   * @param name 群名称
+   * @param isGroup 是否是群
+   * @param launcher 启动器
+   */
   public static void launch(
       Context context,
       Class<? extends Activity> activity,
       boolean hasPrivilege,
-      TeamTypeEnum typeEnum,
+      V2NIMTeamType typeEnum,
       String teamId,
       String name,
       boolean isGroup,

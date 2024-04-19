@@ -43,6 +43,8 @@
         app:layout_constraintTop_toBottomOf="@id/searchTitleBar"
         tools:ignore="SpUsage"
         android:inputType="text"
+        android:imeOptions="actionSearch"
+        android:imeActionLabel="Search"
         android:autofillHints="" />
 
     <ImageView

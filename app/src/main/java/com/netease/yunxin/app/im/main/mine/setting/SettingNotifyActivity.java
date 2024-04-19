@@ -75,8 +75,8 @@ public class SettingNotifyActivity extends BaseActivity {
   }
 
   private void updateCommonView() {
-    changeStatusBarColor(R.color.color_ededed);
-    viewBinding.clRoot.setBackgroundResource(R.color.color_ededed);
+    changeStatusBarColor(R.color.fun_page_bg_color);
+    viewBinding.clRoot.setBackgroundResource(R.color.fun_page_bg_color);
 
     viewBinding.notifyLl.setBackgroundResource(R.color.color_white);
     ViewGroup.MarginLayoutParams layoutParamsN =

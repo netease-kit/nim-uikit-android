@@ -17,9 +17,8 @@ import com.netease.yunxin.kit.contactkit.ui.model.BaseContactBean;
 import com.netease.yunxin.kit.contactkit.ui.model.ContactVerifyInfoBean;
 import com.netease.yunxin.kit.contactkit.ui.view.ContactListViewAttrs;
 import com.netease.yunxin.kit.contactkit.ui.view.viewholder.BaseContactViewHolder;
-import com.netease.yunxin.kit.corekit.im.model.FriendNotify;
-import com.netease.yunxin.kit.corekit.im.model.FriendVerifyType;
-import com.netease.yunxin.kit.corekit.im.model.SystemMessageInfo;
+import com.netease.yunxin.kit.corekit.im2.IMKitClient;
+import com.netease.yunxin.kit.corekit.im2.model.FriendAddApplicationInfo;
 
 public class FunVerifyInfoViewHolder extends BaseContactViewHolder {
   private final int cornerSize = SizeUtils.dp2px(4);
@@ -40,16 +39,9 @@ public class FunVerifyInfoViewHolder extends BaseContactViewHolder {
   @Override
   public void onBind(BaseContactBean bean, int position, ContactListViewAttrs attrs) {
     ContactVerifyInfoBean infoBean = ((ContactVerifyInfoBean) bean);
-    SystemMessageInfo info = infoBean.data;
-    String name = info.getFromUserName();
-    String targetName = info.getTargetName();
-    String avatar =
-        info.getTargetTeam() != null
-            ? info.getTargetTeam().getIcon()
-            : info.getFromUserInfo().getAvatar();
-    binding.tvName.setText(name);
-    binding.avatarView.setCornerRadius(cornerSize);
-    binding.avatarView.setData(avatar, name, AvatarColor.avatarColor(info.getFromAccount()));
+    FriendAddApplicationInfo info = infoBean.data;
+    String name = info.getApplicantUserInfo().getUserInfoName();
+    String avatar = info.getApplicantUserInfo().getAvatar();
     int unreadCount = infoBean.getUnreadCount();
     if (unreadCount > 1) {
       binding.unreadTv.setVisibility(View.VISIBLE);
@@ -68,10 +60,11 @@ public class FunVerifyInfoViewHolder extends BaseContactViewHolder {
       binding.rootView.setBackgroundColor(context.getResources().getColor(R.color.color_white));
     }
 
-    switch (info.getInfoStatus()) {
-      case Init:
+    switch (info.getStatus()) {
+      case V2NIM_FRIEND_ADD_APPLICATION_STATUS_INIT:
         binding.llyVerifyResult.setVisibility(View.GONE);
         binding.llyVerify.setVisibility(View.VISIBLE);
+        binding.tvAction.setText(R.string.friend_apply);
         binding.tvAccept.setOnClickListener(
             v -> {
               if (verifyListener != null) {
@@ -85,59 +78,44 @@ public class FunVerifyInfoViewHolder extends BaseContactViewHolder {
               }
             });
         break;
-      case Passed:
-        showResult(context.getString(R.string.contact_verify_agreed), true);
+      case V2NIM_FRIEND_ADD_APPLICATION_STATUS_AGREED:
+        if (TextUtils.equals(
+            ((ContactVerifyInfoBean) bean).data.getApplicantAccountId(), IMKitClient.account())) {
+          // 对方同意了我的申请
+          name = info.getOperatorUserInfo().getUserInfoName();
+          avatar = info.getOperatorUserInfo().getAvatar();
+          binding.tvAction.setText(R.string.accept_your_friend_apply);
+          showResult(null, true);
+        } else if (TextUtils.equals(
+            ((ContactVerifyInfoBean) bean).data.getOperatorAccountId(), IMKitClient.account())) {
+          binding.tvAction.setText(R.string.friend_apply);
+          showResult(context.getString(R.string.contact_verify_agreed), true);
+        }
         break;
-      case Declined:
-        showResult(context.getString(R.string.contact_verify_rejected), false);
+      case V2NIM_FRIEND_ADD_APPLICATION_STATUS_REJECTED:
+        if (TextUtils.equals(
+            ((ContactVerifyInfoBean) bean).data.getApplicantAccountId(), IMKitClient.account())) {
+          name = info.getOperatorUserInfo().getUserInfoName();
+          avatar = info.getOperatorUserInfo().getAvatar();
+          binding.tvAction.setText(R.string.reject_your_friend_apply);
+          showResult(null, false);
+        } else if (TextUtils.equals(
+            ((ContactVerifyInfoBean) bean).data.getOperatorAccountId(), IMKitClient.account())) {
+          binding.tvAction.setText(R.string.friend_apply);
+          showResult(context.getString(R.string.contact_verify_rejected), false);
+        }
         break;
-      case Ignored:
-      case Expired:
+      case V2NIM_FRIEND_ADD_APPLICATION_STATUS_EXPIRED:
+        binding.tvAction.setText(R.string.friend_apply);
         showResult(context.getString(R.string.contact_verify_expired), false);
+        break;
+      default:
         break;
     }
 
-    switch (info.getInfoType()) {
-      case ApplyJoinTeam:
-        binding.tvAction.setText(
-            String.format(context.getString(R.string.apply_to_join_group), targetName));
-        break;
-      case RejectTeamApply:
-        binding.tvAction.setText(
-            String.format(context.getString(R.string.apply_to_join_group), targetName));
-        showResult(context.getString(R.string.contact_verify_agreed), false);
-        break;
-      case TeamInvite:
-        binding.tvAction.setText(
-            String.format(context.getString(R.string.invited_to_join_group), targetName));
-        break;
-      case DeclineTeamInvite:
-        binding.tvAction.setText(
-            String.format(context.getString(R.string.invited_to_join_group), targetName));
-        showResult(context.getString(R.string.contact_verify_agreed), false);
-        break;
-      case AddFriend:
-        if (info.getAttachObject() != null && info.getAttachObject() instanceof FriendNotify) {
-          FriendNotify notifyAttach = (FriendNotify) info.getAttachObject();
-          if (notifyAttach.getType() == FriendVerifyType.AgreeAdd) {
-            binding.tvAction.setText(R.string.accept_your_friend_apply);
-            showResult(null, true);
-          } else if (notifyAttach.getType() == FriendVerifyType.DirectAdd) {
-            binding.tvAction.setText(R.string.direct_add_your_friend_apply);
-            showResult(null, true);
-          } else if (notifyAttach.getType() == FriendVerifyType.RejectAdd) {
-            binding.tvAction.setText(R.string.reject_your_friend_apply);
-            showResult(null, true);
-          } else if (notifyAttach.getType() == FriendVerifyType.VerifyRequest) {
-            binding.tvAction.setText(R.string.friend_apply);
-          }
-        } else {
-          binding.tvAction.setText(R.string.friend_apply);
-        }
-        break;
-      case Undefined:
-        break;
-    }
+    binding.tvName.setText(name);
+    binding.avatarView.setCornerRadius(cornerSize);
+    binding.avatarView.setData(avatar, name, AvatarColor.avatarColor(info.getOperatorAccountId()));
 
     loadConfig(attrs);
   }

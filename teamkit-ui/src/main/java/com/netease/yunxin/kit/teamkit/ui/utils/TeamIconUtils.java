@@ -7,6 +7,7 @@ package com.netease.yunxin.kit.teamkit.ui.utils;
 import android.text.TextUtils;
 import kotlin.random.Random;
 
+/** 群头像工具类 群头像默认内置头像地址 */
 public class TeamIconUtils {
 
   public static final String[] DEFAULT_ICON_URL_ARRAY =
@@ -26,6 +27,7 @@ public class TeamIconUtils {
         "https://nim-nosdn.netease.im/MjYxNDkzNzE=/bmltYV8xNDIxMTk0NzAzMzhfMTY4NDgyNzc0MTczNV8wMGVlNWUyOS0wYzg3LTQxMzUtYmVjOS00YjI1MjcxMDhhNTM="
       };
 
+  // 获取默认头像地址
   public static String getDefaultIconUrl(int index, boolean isCircle) {
     if (index < 0 || index > 4) {
       return null;
@@ -33,6 +35,7 @@ public class TeamIconUtils {
     return getDefaultIconUrlArray(isCircle)[index];
   }
 
+  // 获取默认头像地址索引
   public static int getDefaultIconUrlIndex(String url, boolean isCircle) {
     String[] array = getDefaultIconUrlArray(isCircle);
     for (int index = 0; index < array.length; index++) {
@@ -43,10 +46,12 @@ public class TeamIconUtils {
     return -1;
   }
 
+  // 获取默认随机头像地址
   public static String getDefaultRandomIconUrl(boolean isCircle) {
     return getDefaultIconUrlArray(isCircle)[Random.Default.nextInt(0, 5)];
   }
 
+  // 获取默认头像地址数组
   private static String[] getDefaultIconUrlArray(boolean isCircle) {
     return isCircle ? DEFAULT_ICON_URL_ARRAY : DEFAULT_ICON_URL_ARRAY_SQUARE;
   }

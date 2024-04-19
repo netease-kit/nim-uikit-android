@@ -7,23 +7,29 @@ package com.netease.yunxin.kit.teamkit.ui.fun.adapter;
 import android.content.Context;
 import android.text.TextUtils;
 import android.view.View;
-import com.netease.nimlib.sdk.team.constant.TeamMemberType;
-import com.netease.nimlib.sdk.team.constant.TeamTypeEnum;
-import com.netease.yunxin.kit.chatkit.model.UserInfoWithTeam;
-import com.netease.yunxin.kit.corekit.im.IMKitClient;
-import com.netease.yunxin.kit.corekit.im.model.UserInfo;
-import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
+import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamMemberRole;
+import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamType;
+import com.netease.yunxin.kit.chatkit.model.TeamMemberWithUserInfo;
+import com.netease.yunxin.kit.corekit.im2.IMKitClient;
+import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 import com.netease.yunxin.kit.teamkit.ui.R;
 import com.netease.yunxin.kit.teamkit.ui.adapter.BaseTeamMemberListAdapter;
 import com.netease.yunxin.kit.teamkit.ui.databinding.FunTeamMemberListItemBinding;
 import com.netease.yunxin.kit.teamkit.ui.utils.ColorUtils;
 
+/**
+ * 娱乐版群成员列表适配器
+ *
+ * @param <V> ViewBinding 成员Item布局
+ */
 public class FunTeamMemberListAdapter
     extends BaseTeamMemberListAdapter<FunTeamMemberListItemBinding> {
 
   public FunTeamMemberListAdapter(
-      Context context, TeamTypeEnum teamTypeEnum, Class<FunTeamMemberListItemBinding> viewBinding) {
+      Context context,
+      V2NIMTeamType teamTypeEnum,
+      Class<FunTeamMemberListItemBinding> viewBinding) {
     super(context, teamTypeEnum, viewBinding);
   }
 
@@ -31,16 +37,15 @@ public class FunTeamMemberListAdapter
   public void onBindViewHolder(
       FunTeamMemberListItemBinding binding,
       int position,
-      UserInfoWithTeam data,
+      TeamMemberWithUserInfo data,
       int bingingAdapterPosition) {
+    if (data == null) {
+      return;
+    }
     binding.tvUserName.setText(data.getName());
     if (showSelect) {
       binding.selectLayout.setVisibility(View.VISIBLE);
-      if (selectData.containsKey(data.getTeamInfo().getAccount())) {
-        binding.selectorCb.setChecked(true);
-      } else {
-        binding.selectorCb.setChecked(false);
-      }
+      binding.selectorCb.setChecked(selectData.containsKey(data.getAccountId()));
       binding.tvIdentify.setVisibility(View.GONE);
       binding
           .getRoot()
@@ -48,9 +53,9 @@ public class FunTeamMemberListAdapter
               v -> {
                 if (binding.selectorCb.isChecked()) {
                   binding.selectorCb.setChecked(false);
-                  selectData.remove(data.getTeamInfo().getAccount());
+                  selectData.remove(data.getAccountId());
                 } else {
-                  selectData.put(data.getTeamInfo().getAccount(), data);
+                  selectData.put(data.getAccountId(), data);
                   binding.selectorCb.setChecked(true);
                 }
                 if (itemClickListener != null) {
@@ -75,11 +80,11 @@ public class FunTeamMemberListAdapter
         binding.tvRemove.setVisibility(View.GONE);
       }
       if (showGroupIdentify
-          && (data.getTeamInfo().getType() == TeamMemberType.Owner
-              || data.getTeamInfo().getType() == TeamMemberType.Manager)
-          && teamTypeEnum == TeamTypeEnum.Advanced) {
+          && (data.getMemberRole() == V2NIMTeamMemberRole.V2NIM_TEAM_MEMBER_ROLE_OWNER
+              || data.getMemberRole() == V2NIMTeamMemberRole.V2NIM_TEAM_MEMBER_ROLE_MANAGER)
+          && teamTypeEnum == V2NIMTeamType.V2NIM_TEAM_TYPE_NORMAL) {
         binding.tvIdentify.setVisibility(View.VISIBLE);
-        if (data.getTeamInfo().getType() == TeamMemberType.Owner) {
+        if (data.getMemberRole() == V2NIMTeamMemberRole.V2NIM_TEAM_MEMBER_ROLE_OWNER) {
           binding.tvIdentify.setText(binding.getRoot().getContext().getText(R.string.team_owner));
           binding.tvIdentify.setTextColor(
               binding.getRoot().getContext().getResources().getColor(R.color.color_58be6b));
@@ -96,27 +101,24 @@ public class FunTeamMemberListAdapter
         binding.tvIdentify.setVisibility(View.GONE);
       }
     }
-    UserInfo userInfo = data.getUserInfo();
-    if (userInfo != null) {
 
-      binding.cavUserIcon.setData(
-          userInfo.getAvatar(), data.getName(), ColorUtils.avatarColor(userInfo.getAccount()));
-      if (!showSelect) {
-        View.OnClickListener clickListener =
-            v -> {
-              if (TextUtils.equals(userInfo.getAccount(), IMKitClient.account())) {
-                XKitRouter.withKey(RouterConstant.PATH_MINE_INFO_PAGE)
-                    .withContext(v.getContext())
-                    .navigate();
-              } else {
-                XKitRouter.withKey(RouterConstant.PATH_FUN_USER_INFO_PAGE)
-                    .withContext(v.getContext())
-                    .withParam(RouterConstant.KEY_ACCOUNT_ID_KEY, userInfo.getAccount())
-                    .navigate();
-              }
-            };
-        binding.getRoot().setOnClickListener(clickListener);
-      }
+    binding.cavUserIcon.setData(
+        data.getAvatar(), data.getAvatarName(), ColorUtils.avatarColor(data.getAccountId()));
+    if (!showSelect) {
+      View.OnClickListener clickListener =
+          v -> {
+            if (TextUtils.equals(data.getAccountId(), IMKitClient.account())) {
+              XKitRouter.withKey(RouterConstant.PATH_MINE_INFO_PAGE)
+                  .withContext(v.getContext())
+                  .navigate();
+            } else {
+              XKitRouter.withKey(RouterConstant.PATH_FUN_USER_INFO_PAGE)
+                  .withContext(v.getContext())
+                  .withParam(RouterConstant.KEY_ACCOUNT_ID_KEY, data.getAccountId())
+                  .navigate();
+            }
+          };
+      binding.getRoot().setOnClickListener(clickListener);
     }
   }
 }

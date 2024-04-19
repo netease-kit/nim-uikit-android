@@ -10,13 +10,14 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentManager;
-import com.netease.nimlib.sdk.msg.model.IMMessage;
-import com.netease.nimlib.sdk.team.model.Team;
+import com.netease.nimlib.sdk.v2.message.V2NIMMessage;
+import com.netease.nimlib.sdk.v2.team.model.V2NIMTeam;
 import com.netease.yunxin.kit.alog.ALog;
+import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.fun.page.fragment.FunChatTeamFragment;
 import com.netease.yunxin.kit.chatkit.ui.page.ChatBaseActivity;
-import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
+import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 
 /** Fun皮肤群聊聊天页面，逻辑在Fragment中实现，该Activity只做Fragment你管理 */
 public class FunChatTeamActivity extends ChatBaseActivity {
@@ -27,10 +28,10 @@ public class FunChatTeamActivity extends ChatBaseActivity {
 
   @Override
   public void initChat() {
-    Team teamInfo = (Team) getIntent().getSerializableExtra(RouterConstant.CHAT_KRY);
-    String teamId = getIntent().getStringExtra(RouterConstant.CHAT_ID_KRY);
-    if (teamInfo == null && TextUtils.isEmpty(teamId)) {
-      ALog.e(LIB_TAG, TAG, "team info is null && team id is null" + teamId);
+    V2NIMTeam teamInfo = (V2NIMTeam) getIntent().getSerializableExtra(RouterConstant.CHAT_KRY);
+    String conversationId = getIntent().getStringExtra(RouterConstant.CHAT_ID_KRY);
+    if (teamInfo == null && TextUtils.isEmpty(conversationId)) {
+      ALog.e(LIB_TAG, TAG, "team info is null && team id is null" + conversationId);
       finish();
       return;
     }
@@ -38,10 +39,16 @@ public class FunChatTeamActivity extends ChatBaseActivity {
     chatFragment = new FunChatTeamFragment();
     Bundle bundle = new Bundle();
     bundle.putSerializable(RouterConstant.CHAT_KRY, teamInfo);
-    bundle.putSerializable(RouterConstant.CHAT_ID_KRY, teamId);
-    IMMessage message = (IMMessage) getIntent().getSerializableExtra(RouterConstant.KEY_MESSAGE);
+    bundle.putSerializable(RouterConstant.CHAT_ID_KRY, conversationId);
+    V2NIMMessage message =
+        (V2NIMMessage) getIntent().getSerializableExtra(RouterConstant.KEY_MESSAGE);
     if (message != null) {
       bundle.putSerializable(RouterConstant.KEY_MESSAGE, message);
+    }
+    IMMessageInfo messageInfo =
+        (IMMessageInfo) getIntent().getSerializableExtra(RouterConstant.KEY_MESSAGE_INFO);
+    if (messageInfo != null) {
+      bundle.putSerializable(RouterConstant.KEY_MESSAGE_INFO, messageInfo);
     }
     chatFragment.setArguments(bundle);
     FragmentManager fragmentManager = getSupportFragmentManager();

@@ -7,19 +7,20 @@ package com.netease.yunxin.kit.chatkit.ui.fun.viewholder.pin;
 import android.text.TextUtils;
 import android.view.View;
 import androidx.annotation.NonNull;
-import com.netease.nimlib.sdk.msg.attachment.VideoAttachment;
-import com.netease.nimlib.sdk.msg.constant.AttachStatusEnum;
-import com.netease.nimlib.sdk.msg.constant.MsgStatusEnum;
-import com.netease.nimlib.sdk.msg.model.IMMessage;
+import com.netease.nimlib.sdk.v2.message.V2NIMMessage;
+import com.netease.nimlib.sdk.v2.message.attachment.V2NIMMessageVideoAttachment;
+import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageAttachmentUploadState;
+import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageSendingState;
 import com.netease.yunxin.kit.chatkit.media.BitmapDecoder;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.databinding.FunChatBasePinViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.common.ui.utils.ToastX;
+import com.netease.yunxin.kit.common.utils.FileUtils;
 import com.netease.yunxin.kit.common.utils.ImageUtils;
 import com.netease.yunxin.kit.common.utils.SizeUtils;
 import com.netease.yunxin.kit.common.utils.TimeUtils;
-import com.netease.yunxin.kit.corekit.im.IMKitClient;
+import com.netease.yunxin.kit.corekit.im2.IMKitClient;
 import java.util.Locale;
 
 public class FunChatVideoPinViewHolder extends FunChatThumbPinViewHolder {
@@ -46,9 +47,10 @@ public class FunChatVideoPinViewHolder extends FunChatThumbPinViewHolder {
   protected void onMessageStatus(ChatMessageBean data) {
     super.onMessageStatus(data);
     binding.progressBar.setIndeterminate(false);
-    IMMessage message = data.getMessageData().getMessage();
-    if (message.getAttachStatus() == AttachStatusEnum.fail) {
-      if (TextUtils.equals(message.getFromAccount(), IMKitClient.account())) {
+    V2NIMMessage message = data.getMessageData().getMessage();
+    if (message.getAttachmentUploadState()
+        == V2NIMMessageAttachmentUploadState.V2NIM_MESSAGE_ATTACHMENT_UPLOAD_STATE_FAILED) {
+      if (TextUtils.equals(message.getSenderId(), IMKitClient.account())) {
         ToastX.showShortToast(R.string.chat_message_video_send_fail);
       } else {
         ToastX.showShortToast(R.string.chat_message_video_download_fail);
@@ -64,9 +66,10 @@ public class FunChatVideoPinViewHolder extends FunChatThumbPinViewHolder {
     updateProgress((int) data.getLoadProgress());
   }
 
-  private void updateStatus(IMMessage message) {
-    if (message.getStatus() == MsgStatusEnum.sending
-        || message.getAttachStatus() == AttachStatusEnum.transferring) {
+  private void updateStatus(V2NIMMessage message) {
+    if (message.getSendingState() == V2NIMMessageSendingState.V2NIM_MESSAGE_SENDING_STATE_SENDING
+        || message.getAttachmentUploadState()
+            == V2NIMMessageAttachmentUploadState.V2NIM_MESSAGE_ATTACHMENT_UPLOAD_STATE_UPLOADING) {
       binding.progressBar.setVisibility(View.VISIBLE);
       binding.progressBarInsideIcon.setVisibility(View.VISIBLE);
       binding.playIcon.setVisibility(View.GONE);
@@ -89,25 +92,27 @@ public class FunChatVideoPinViewHolder extends FunChatThumbPinViewHolder {
     }
   }
 
-  private VideoAttachment getAttachment(ChatMessageBean messageBean) {
-    return (VideoAttachment) messageBean.getMessageData().getMessage().getAttachment();
+  private V2NIMMessageVideoAttachment getAttachment(ChatMessageBean messageBean) {
+    return (V2NIMMessageVideoAttachment) messageBean.getMessageData().getMessage().getAttachment();
   }
 
   @Override
   protected String thumbFromSourceFile(String path) {
-    VideoAttachment attachment = (VideoAttachment) getMsgInternal().getAttachment();
-    String thumbPath = attachment.getThumbPathForSave();
-    return BitmapDecoder.extractThumbnail(path, thumbPath) ? thumbPath : attachment.getThumbUrl();
+    V2NIMMessageVideoAttachment attachment =
+        (V2NIMMessageVideoAttachment) getMsgInternal().getAttachment();
+    String thumbPath = attachment.getPath();
+    return BitmapDecoder.extractThumbnail(path, thumbPath) ? thumbPath : attachment.getUrl();
   }
 
   @Override
   protected int[] getBounds(String path) {
     int[] bounds = null;
-    if (path != null) {
+    if (path != null && FileUtils.isFileExists(path)) {
       bounds = ImageUtils.getSize(path);
     }
     if (bounds == null) {
-      VideoAttachment attachment = (VideoAttachment) getMsgInternal().getAttachment();
+      V2NIMMessageVideoAttachment attachment =
+          (V2NIMMessageVideoAttachment) getMsgInternal().getAttachment();
       bounds = new int[] {attachment.getWidth(), attachment.getHeight()};
     }
     return bounds;

@@ -9,7 +9,11 @@ import android.view.View;
 import com.netease.yunxin.kit.teamkit.ui.activity.BaseTeamUpdateNameActivity;
 import com.netease.yunxin.kit.teamkit.ui.databinding.TeamUpdateNameActivityBinding;
 
-/** set team name activity */
+/**
+ * 普通版群名称修改页面，差异化UI展示
+ *
+ * <p>
+ */
 public class TeamUpdateNameActivity extends BaseTeamUpdateNameActivity {
 
   @Override

@@ -7,7 +7,7 @@ package com.netease.yunxin.kit.contactkit.ui.model;
 import com.netease.yunxin.kit.chatkit.model.TeamSearchInfo;
 import com.netease.yunxin.kit.common.ui.viewholder.BaseBean;
 import com.netease.yunxin.kit.contactkit.ui.ContactConstant;
-import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
+import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 import java.util.Objects;
 
 public class SearchTeamBean extends BaseBean {
@@ -27,11 +27,12 @@ public class SearchTeamBean extends BaseBean {
     if (this == o) return true;
     if (!(o instanceof SearchTeamBean)) return false;
     SearchTeamBean that = (SearchTeamBean) o;
-    return Objects.equals(teamSearchInfo.getTeam().getId(), that.teamSearchInfo.getTeam().getId());
+    return Objects.equals(
+        teamSearchInfo.getTeam().getTeamId(), that.teamSearchInfo.getTeam().getTeamId());
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(teamSearchInfo.getTeam().getId());
+    return Objects.hash(teamSearchInfo.getTeam().getTeamId());
   }
 }

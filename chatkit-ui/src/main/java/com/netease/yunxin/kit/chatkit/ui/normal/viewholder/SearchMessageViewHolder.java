@@ -6,20 +6,13 @@ package com.netease.yunxin.kit.chatkit.ui.normal.viewholder;
 
 import android.view.View;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import com.netease.yunxin.kit.chatkit.repo.ContactRepo;
 import com.netease.yunxin.kit.chatkit.ui.R;
-import com.netease.yunxin.kit.chatkit.ui.common.ChatUserCache;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatSearchItemLayoutBinding;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatSearchBean;
 import com.netease.yunxin.kit.common.ui.utils.AvatarColor;
 import com.netease.yunxin.kit.common.ui.utils.TimeFormatUtils;
 import com.netease.yunxin.kit.common.ui.viewholder.BaseViewHolder;
-import com.netease.yunxin.kit.corekit.im.model.UserInfo;
-import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
-import java.util.ArrayList;
-import java.util.List;
 
 public class SearchMessageViewHolder extends BaseViewHolder<ChatSearchBean> {
 
@@ -50,38 +43,38 @@ public class SearchMessageViewHolder extends BaseViewHolder<ChatSearchBean> {
 
   private void setUserInfo(ChatSearchBean data) {
     //get nick name
-    UserInfo userInfo = ChatUserCache.getUserInfo(data.getAccount());
-    if (userInfo == null) {
-      ContactRepo.fetchUserInfo(
-          data.getMessage().getFromAccount(),
-          new FetchCallback<UserInfo>() {
-            @Override
-            public void onSuccess(@Nullable UserInfo param) {
-              List<UserInfo> userInfoList = new ArrayList<>();
-              userInfoList.add(param);
-              ChatUserCache.addUserInfo(userInfoList);
-              loadNickAndAvatar(data, param);
-            }
-
-            @Override
-            public void onFailed(int code) {
-              loadNickAndAvatar(data, null);
-            }
-
-            @Override
-            public void onException(@Nullable Throwable exception) {
-              loadNickAndAvatar(data, null);
-            }
-          });
-    } else {
-      loadNickAndAvatar(data, userInfo);
-    }
+    //todo 如果缓存不存在处理
+    //    if (userInfo == null) {
+    //      V2ContactRepo.getFriendInfoList(
+    //          data.getMessage().getSenderId(),
+    //          new FetchCallback<UserInfo>() {
+    //            @Override
+    //            public void onSuccess(@Nullable UserInfo param) {
+    //              List<UserInfo> userInfoList = new ArrayList<>();
+    //              userInfoList.add(param);
+    //              ChatUserCache.addUserInfo(userInfoList);
+    //              loadNickAndAvatar(data, param);
+    //            }
+    //
+    //            @Override
+    //            public void onFailed(int code) {
+    //              loadNickAndAvatar(data, null);
+    //            }
+    //
+    //            @Override
+    //            public void onException(@Nullable Throwable exception) {
+    //              loadNickAndAvatar(data, null);
+    //            }
+    //          });
+    //    } else {
+    loadNickAndAvatar(data);
+    //    }
   }
 
-  private void loadNickAndAvatar(ChatSearchBean data, UserInfo userInfo) {
-    String name = MessageHelper.getChatMessageUserName(data.getMessage());
-    String avatar = userInfo == null ? "" : userInfo.getAvatar();
-    String avatarName = userInfo == null ? data.getAccount() : userInfo.getName();
+  private void loadNickAndAvatar(ChatSearchBean data) {
+    String name = MessageHelper.getChatMessageUserNameByAccount(data.getAccount());
+    String avatar = MessageHelper.getChatCacheAvatar(data.getAccount());
+    String avatarName = MessageHelper.getChatCacheAvatarName(data.getAccount());
     viewBinding.cavIcon.setData(avatar, avatarName, AvatarColor.avatarColor(data.getAccount()));
     viewBinding.tvNickName.setText(name);
   }

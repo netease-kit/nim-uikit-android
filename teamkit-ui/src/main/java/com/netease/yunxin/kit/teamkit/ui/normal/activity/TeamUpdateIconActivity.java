@@ -11,7 +11,11 @@ import com.netease.yunxin.kit.common.ui.photo.PhotoChoiceDialog;
 import com.netease.yunxin.kit.teamkit.ui.activity.BaseTeamUpdateIconActivity;
 import com.netease.yunxin.kit.teamkit.ui.databinding.TeamUpdateIconActivityBinding;
 
-/** set team icon activity */
+/**
+ * 普通版群头像修改页面，差异化UI展示
+ *
+ * <p>
+ */
 public class TeamUpdateIconActivity extends BaseTeamUpdateIconActivity {
   @Override
   protected View initViewAndGetRootView(Bundle savedInstanceState) {

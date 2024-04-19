@@ -15,7 +15,7 @@ import android.view.WindowManager;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentManager;
-import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
+import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.ui.custom.RichTextAttachment;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatMessageDialogLayoutBinding;
@@ -77,11 +77,10 @@ public class WatchTextMessageDialog extends BaseDialog {
     String content = "";
     String title = "";
     if (messageInfo != null) {
-      if (messageInfo.getMessage().getMsgType() == MsgTypeEnum.text) {
-        content = messageInfo.getMessage().getContent();
-      } else if (MessageHelper.isRichText(messageInfo)) {
-        RichTextAttachment attachment =
-            (RichTextAttachment) messageInfo.getMessage().getAttachment();
+      if (messageInfo.getMessage().getMessageType() == V2NIMMessageType.V2NIM_MESSAGE_TYPE_TEXT) {
+        content = messageInfo.getMessage().getText();
+      } else if (MessageHelper.isRichTextMsg(messageInfo)) {
+        RichTextAttachment attachment = (RichTextAttachment) messageInfo.getAttachment();
         if (attachment != null) {
           content = attachment.body;
           title = attachment.title;

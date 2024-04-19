@@ -9,11 +9,11 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import com.netease.yunxin.kit.contactkit.ui.databinding.BlackListViewHolderBinding;
 import com.netease.yunxin.kit.contactkit.ui.model.BaseContactBean;
-import com.netease.yunxin.kit.contactkit.ui.model.ContactBlackListBean;
 import com.netease.yunxin.kit.contactkit.ui.utils.ColorUtils;
+import com.netease.yunxin.kit.contactkit.ui.v2model.V2ContactBlackListBean;
 import com.netease.yunxin.kit.contactkit.ui.view.ContactListViewAttrs;
 import com.netease.yunxin.kit.contactkit.ui.view.viewholder.BaseContactViewHolder;
-import com.netease.yunxin.kit.corekit.im.model.UserInfo;
+import com.netease.yunxin.kit.corekit.im2.model.V2UserInfo;
 
 public class BlackListViewHolder extends BaseContactViewHolder {
 
@@ -32,19 +32,19 @@ public class BlackListViewHolder extends BaseContactViewHolder {
 
   @Override
   public void onBind(BaseContactBean bean, int position, ContactListViewAttrs attrs) {
-    ContactBlackListBean blackListBean = ((ContactBlackListBean) bean);
-    UserInfo friendData = ((ContactBlackListBean) bean).data;
+    V2ContactBlackListBean blackListBean = ((V2ContactBlackListBean) bean);
+    V2UserInfo friendData = ((V2ContactBlackListBean) bean).data;
     binding.tvName.setText(blackListBean.getName());
 
     binding.avatarView.setData(
         friendData.getAvatar(),
         blackListBean.getAvatarName(),
-        ColorUtils.avatarColor(friendData.getAccount()));
+        ColorUtils.avatarColor(friendData.getAccountId()));
 
     binding.tvRelieve.setOnClickListener(
         v -> {
           if (relieveListener != null) {
-            relieveListener.onUserRelieve((ContactBlackListBean) bean);
+            relieveListener.onUserRelieve((V2ContactBlackListBean) bean);
           }
         });
     loadConfig(attrs);
@@ -71,6 +71,6 @@ public class BlackListViewHolder extends BaseContactViewHolder {
   }
 
   public interface RelieveListener {
-    void onUserRelieve(ContactBlackListBean data);
+    void onUserRelieve(V2ContactBlackListBean data);
   }
 }

@@ -18,7 +18,7 @@ import com.netease.yunxin.kit.chatkit.ui.page.ChatSearchBaseActivity;
 import com.netease.yunxin.kit.common.ui.viewholder.BaseBean;
 import com.netease.yunxin.kit.common.ui.viewholder.ViewHolderClickListener;
 import com.netease.yunxin.kit.common.utils.KeyboardUtils;
-import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
+import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 
 /** 标准皮肤，群消息搜索消息页面。 */

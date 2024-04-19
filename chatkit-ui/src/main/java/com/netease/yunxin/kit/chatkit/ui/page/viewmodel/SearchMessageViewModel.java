@@ -6,17 +6,18 @@ package com.netease.yunxin.kit.chatkit.ui.page.viewmodel;
 
 import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
 
+import android.text.TextUtils;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
-import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
+import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
 import com.netease.yunxin.kit.alog.ALog;
-import com.netease.yunxin.kit.chatkit.model.IMMessageRecord;
+import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatSearchBean;
 import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
-import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
+import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,22 +33,30 @@ public class SearchMessageViewModel extends BaseViewModel {
     return searchLiveData;
   }
 
-  public void searchMessage(String keyword, SessionTypeEnum type, String sessionId) {
+  public void searchMessage(String keyword, V2NIMConversationType type, String sessionId) {
     ALog.d(LIB_TAG, TAG, "searchMessage:" + keyword);
+    if (TextUtils.isEmpty(keyword)) {
+      //空字符串不搜索
+      FetchResult<List<ChatSearchBean>> result = new FetchResult<>(LoadStatus.Success);
+      result.setData(new ArrayList<>());
+      searchLiveData.postValue(result);
+      return;
+    }
     ChatRepo.searchMessage(
         keyword,
         type,
         sessionId,
-        new FetchCallback<List<IMMessageRecord>>() {
+        new FetchCallback<>() {
+
           @Override
-          public void onSuccess(@Nullable List<IMMessageRecord> param) {
+          public void onSuccess(@Nullable List<IMMessageInfo> data) {
             ALog.d(
-                LIB_TAG, TAG, "searchMessage,onSuccess:" + (param == null ? "null" : param.size()));
+                LIB_TAG, TAG, "searchMessage,onSuccess:" + (data == null ? "null" : data.size()));
             FetchResult<List<ChatSearchBean>> result = new FetchResult<>(LoadStatus.Success);
-            if (param != null) {
+            if (data != null) {
               List<ChatSearchBean> searchBeanList = new ArrayList<>();
-              for (IMMessageRecord record : param) {
-                searchBeanList.add(new ChatSearchBean(record));
+              for (IMMessageInfo record : data) {
+                searchBeanList.add(new ChatSearchBean(record.getMessage(), keyword));
               }
               result.setData(searchBeanList);
             }
@@ -55,13 +64,11 @@ public class SearchMessageViewModel extends BaseViewModel {
           }
 
           @Override
-          public void onFailed(int code) {
-            ALog.d(LIB_TAG, TAG, "searchMessage,onFailed:" + code);
-          }
-
-          @Override
-          public void onException(@Nullable Throwable exception) {
-            ALog.d(LIB_TAG, TAG, "searchMessage,onException");
+          public void onError(int errorCode, @Nullable String errorMsg) {
+            ALog.d(LIB_TAG, TAG, "searchMessage,onError:" + errorCode + ",errorMsg:" + errorMsg);
+            FetchResult<List<ChatSearchBean>> result = new FetchResult<>(LoadStatus.Error);
+            result.setError(new FetchResult.ErrorMsg(errorCode, errorMsg));
+            searchLiveData.postValue(result);
           }
         });
   }

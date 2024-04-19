@@ -29,11 +29,11 @@ import com.netease.yunxin.kit.contactkit.ui.R;
 import com.netease.yunxin.kit.contactkit.ui.model.SearchTeamBean;
 import com.netease.yunxin.kit.contactkit.ui.search.SearchAdapter;
 import com.netease.yunxin.kit.contactkit.ui.search.SearchViewModel;
-import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
+import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 import java.util.Objects;
 
-/** search your friend or team */
+/** 搜索好友、群组 */
 public abstract class BaseSearchActivity extends BaseActivity {
   protected RecyclerView searchRv;
 
@@ -79,11 +79,13 @@ public abstract class BaseSearchActivity extends BaseActivity {
     Objects.requireNonNull(backView);
   }
 
+  // 绑定视图
   protected void bindView() {
     if (searchRv != null) {
       LinearLayoutManager layoutManager = new LinearLayoutManager(this);
       searchRv.setLayoutManager(layoutManager);
       searchAdapter = new SearchAdapter();
+      // 设置搜索Item点击事件
       searchAdapter.setViewHolderClickListener(
           new ViewHolderClickListener() {
             @Override
@@ -94,7 +96,7 @@ public abstract class BaseSearchActivity extends BaseActivity {
                   SearchTeamBean searchTeamBean = (SearchTeamBean) data;
                   if (!isQueryTeam) {
                     queryTeamData = searchTeamBean;
-                    viewModel.queryTeam(searchTeamBean.teamSearchInfo.getTeam().getId());
+                    viewModel.queryTeam(searchTeamBean.teamSearchInfo.getTeam().getTeamId());
                     isQueryTeam = true;
                   }
                 } else {
@@ -150,6 +152,7 @@ public abstract class BaseSearchActivity extends BaseActivity {
     }
   }
 
+  // 初始化数据
   private void initData() {
     searchHandler = new Handler();
     viewModel = new ViewModelProvider(this).get(SearchViewModel.class);
@@ -175,7 +178,7 @@ public abstract class BaseSearchActivity extends BaseActivity {
               isQueryTeam = false;
               if (result.getLoadStatus() == LoadStatus.Success) {
                 if (result.getData() != null
-                    && result.getData().isMyTeam()
+                    && result.getData().isValidTeam()
                     && queryTeamData != null) {
                   XKitRouter.withKey(queryTeamData.router)
                       .withParam(queryTeamData.paramKey, queryTeamData.param)
@@ -190,6 +193,7 @@ public abstract class BaseSearchActivity extends BaseActivity {
             });
   }
 
+  // 显示键盘
   private void showKeyBoard() {
     searchHandler.postDelayed(
         () -> {
@@ -201,6 +205,7 @@ public abstract class BaseSearchActivity extends BaseActivity {
         300);
   }
 
+  // 显示空布局
   private void showEmpty(boolean show) {
     if (emptyView != null) {
       emptyView.setVisibility(show ? View.VISIBLE : View.GONE);
@@ -210,6 +215,7 @@ public abstract class BaseSearchActivity extends BaseActivity {
     }
   }
 
+  // 显示错误弹窗
   protected void showAlertDialog() {
     AlertDialog.Builder builder = new AlertDialog.Builder(this);
     LayoutInflater layoutInflater = LayoutInflater.from(this);

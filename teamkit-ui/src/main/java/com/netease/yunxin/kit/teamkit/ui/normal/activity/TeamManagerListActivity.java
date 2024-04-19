@@ -10,9 +10,9 @@ import android.view.View;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.Nullable;
 import androidx.viewbinding.ViewBinding;
-import com.netease.nimlib.sdk.team.constant.TeamTypeEnum;
-import com.netease.yunxin.kit.corekit.im.IMKitClient;
-import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
+import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamType;
+import com.netease.yunxin.kit.corekit.im2.IMKitClient;
+import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.teamkit.ui.activity.BaseTeamManagerListActivity;
 import com.netease.yunxin.kit.teamkit.ui.adapter.BaseTeamMemberListAdapter;
 import com.netease.yunxin.kit.teamkit.ui.databinding.TeamManagerListActivityBinding;
@@ -22,6 +22,11 @@ import com.netease.yunxin.kit.teamkit.ui.utils.TeamUIKitConstant;
 import com.netease.yunxin.kit.teamkit.ui.utils.TeamUtils;
 import java.util.ArrayList;
 
+/**
+ * 群管理员列表页面,差异化UI展示
+ *
+ * <p>
+ */
 public class TeamManagerListActivity extends BaseTeamManagerListActivity {
   private TeamManagerListActivityBinding viewBinding;
 
@@ -43,10 +48,8 @@ public class TeamManagerListActivity extends BaseTeamManagerListActivity {
 
   @Override
   protected BaseTeamMemberListAdapter<? extends ViewBinding> getMemberListAdapter(
-      TeamTypeEnum typeEnum) {
-    TeamMemberListAdapter adapter =
-        new TeamMemberListAdapter(this, typeEnum, TeamMemberListItemBinding.class);
-    return adapter;
+      V2NIMTeamType typeEnum) {
+    return new TeamMemberListAdapter(this, typeEnum, TeamMemberListItemBinding.class);
   }
 
   @Override

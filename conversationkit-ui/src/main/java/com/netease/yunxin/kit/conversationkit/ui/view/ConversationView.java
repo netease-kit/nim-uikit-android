@@ -14,21 +14,16 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import com.netease.nimlib.sdk.friend.model.MuteListChangedNotify;
-import com.netease.nimlib.sdk.team.model.Team;
 import com.netease.yunxin.kit.alog.ALog;
-import com.netease.yunxin.kit.chatkit.model.ConversationInfo;
 import com.netease.yunxin.kit.common.ui.viewholder.ViewHolderClickListener;
 import com.netease.yunxin.kit.conversationkit.ui.IConversationFactory;
 import com.netease.yunxin.kit.conversationkit.ui.R;
 import com.netease.yunxin.kit.conversationkit.ui.model.ConversationBean;
 import com.netease.yunxin.kit.conversationkit.ui.page.interfaces.ILoadListener;
-import com.netease.yunxin.kit.corekit.im.model.FriendInfo;
-import com.netease.yunxin.kit.corekit.im.model.UserInfo;
 import java.util.Comparator;
 import java.util.List;
 
-/** conversation list view */
+/** 会话View，封装会话列表的视图 UI和处理逻辑聚合 */
 public class ConversationView extends FrameLayout {
 
   private final String TAG = "ConversationView";
@@ -63,6 +58,7 @@ public class ConversationView extends FrameLayout {
     adapter = new ConversationAdapter(layoutManager);
     recyclerView.setLayoutManager(layoutManager);
     recyclerView.setAdapter(adapter);
+    // 监听滚动，当滚动到底部触发加载更多
     recyclerView.addOnScrollListener(
         new RecyclerView.OnScrollListener() {
           @Override
@@ -86,38 +82,46 @@ public class ConversationView extends FrameLayout {
         });
   }
 
+  // 设置加载更多监听
   public void setLoadMoreListener(ILoadListener listener) {
     this.loadMoreListener = listener;
   }
 
+  // 设置点击事件监听，用于处理点击事件
   public void setItemClickListener(ViewHolderClickListener listener) {
     adapter.setViewHolderClickListener(listener);
   }
 
+  // 列表RecyclerView添加分割线
   public void addItemDecoration(RecyclerView.ItemDecoration decoration) {
     recyclerView.addItemDecoration(decoration);
   }
 
+  // 设置ViewHolder工厂，用于创建ViewHolder
   public void setViewHolderFactory(IConversationFactory factory) {
     adapter.setViewHolderFactory(factory);
   }
 
-  public void setComparator(Comparator<ConversationInfo> comparator) {
+  // 设置比较器，用于排序
+  public void setComparator(Comparator<ConversationBean> comparator) {
     this.adapter.setComparator(comparator);
   }
 
+  // 设置数据，用于初始化数据，清理并添加数据
   public void setData(List<ConversationBean> data) {
     if (adapter != null) {
       adapter.setData(data);
     }
   }
 
+  // 添加数据，追加到列表末尾
   public void addData(List<ConversationBean> data) {
     if (adapter != null) {
       adapter.appendData(data);
     }
   }
 
+  // 更新数据，用于更新数据，替换原有数据，没有则添加
   public void update(List<ConversationBean> data) {
     if (adapter != null) {
       ALog.d(LIB_TAG, TAG, "update ConversationBean list, start");
@@ -126,6 +130,7 @@ public class ConversationView extends FrameLayout {
     }
   }
 
+  // 更新数据，用于更新数据，替换原有数据，没有则添加
   public void update(ConversationBean data) {
     if (adapter != null) {
       ALog.d(LIB_TAG, TAG, "update ConversationBean, start");
@@ -134,31 +139,8 @@ public class ConversationView extends FrameLayout {
     }
   }
 
-  public void updateUserInfo(List<UserInfo> data) {
-    if (adapter != null) {
-      adapter.updateUserInfo(data);
-    }
-  }
-
-  public void updateFriendInfo(List<FriendInfo> data) {
-    if (adapter != null) {
-      adapter.updateFriendInfo(data);
-    }
-  }
-
-  public void updateTeamInfo(List<Team> data) {
-    if (adapter != null) {
-      adapter.updateTeamInfo(data);
-    }
-  }
-
-  public void updateMuteInfo(MuteListChangedNotify changedNotify) {
-    if (adapter != null) {
-      adapter.updateMuteInfo(changedNotify);
-    }
-  }
-
-  public void remove(List<ConversationBean> data) {
+  // 移除数据
+  public void remove(List<String> data) {
     if (adapter != null) {
       adapter.removeData(data);
     }
@@ -177,24 +159,28 @@ public class ConversationView extends FrameLayout {
     return 0;
   }
 
+  // 移除会话
   public void removeConversation(String id) {
     if (adapter != null) {
       adapter.removeData(id);
     }
   }
 
+  // 更新@信息
   public void updateAit(List<String> idList) {
     if (adapter != null) {
       adapter.updateAit(idList);
     }
   }
 
+  // 添加置顶UI
   public void addStickTop(String id) {
     if (adapter != null) {
       adapter.addStickTop(id);
     }
   }
 
+  // 移除置顶UI
   public void removeStickTop(String id) {
     if (adapter != null) {
       adapter.removeStickTop(id);

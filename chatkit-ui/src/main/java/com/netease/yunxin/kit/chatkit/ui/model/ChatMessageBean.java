@@ -5,15 +5,17 @@
 package com.netease.yunxin.kit.chatkit.ui.model;
 
 import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
-import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.KEY_REVOKE_EDIT_TAG;
-import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.KEY_REVOKE_TAG;
+import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.KEY_REVOKE_EDIT_TAG;
+import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.KEY_REVOKE_TAG;
 
-import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
-import com.netease.nimlib.sdk.msg.model.MsgPinOption;
+import com.netease.nimlib.sdk.v2.message.V2NIMMessagePin;
+import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
 import com.netease.yunxin.kit.alog.ALog;
+import com.netease.yunxin.kit.chatkit.model.CustomAttachment;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
+import com.netease.yunxin.kit.chatkit.model.MessagePinInfo;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant;
-import com.netease.yunxin.kit.corekit.im.custom.CustomAttachment;
+import com.netease.yunxin.kit.chatkit.utils.MessageExtensionHelper;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.Objects;
@@ -25,10 +27,12 @@ public class ChatMessageBean implements Serializable {
 
   public ChatMessageBean(IMMessageInfo messageData) {
     this.messageData = messageData;
-    if (messageData.getMessage().getLocalExtension() != null
-        && messageData.getMessage().getLocalExtension().containsKey(KEY_REVOKE_TAG)) {
-      Object revokeLocal = messageData.getMessage().getLocalExtension().get(KEY_REVOKE_TAG);
-      Object revokeEdit = messageData.getMessage().getLocalExtension().get(KEY_REVOKE_EDIT_TAG);
+    Map<String, Object> localExtensionMap =
+        MessageExtensionHelper.parseJsonStringToMap(messageData.getMessage().getLocalExtension());
+
+    if (localExtensionMap != null && localExtensionMap.containsKey(KEY_REVOKE_TAG)) {
+      Object revokeLocal = localExtensionMap.get(KEY_REVOKE_TAG);
+      Object revokeEdit = localExtensionMap.get(KEY_REVOKE_EDIT_TAG);
       if (revokeLocal instanceof Boolean) {
         isRevoked = (Boolean) revokeLocal;
       }
@@ -41,7 +45,8 @@ public class ChatMessageBean implements Serializable {
 
   IMMessageInfo messageData;
 
-  int viewType;
+  //默认-1，表示未知
+  int viewType = V2NIMMessageType.V2NIM_MESSAGE_TYPE_INVALID.getValue();
 
   boolean haveRead;
 
@@ -51,10 +56,19 @@ public class ChatMessageBean implements Serializable {
 
   public boolean revokeMsgEdit = true;
 
-  public long progress;
+  // 上传进度 % 0-100
+  public int progress;
 
   public IMMessageInfo getMessageData() {
     return messageData;
+  }
+
+  public String getSenderId() {
+    return messageData == null ? "" : messageData.getMessage().getSenderId();
+  }
+
+  public String getMsgClientId() {
+    return messageData == null ? "" : messageData.getMessage().getMessageClientId();
   }
 
   public void setMessageData(IMMessageInfo messageData) {
@@ -62,26 +76,25 @@ public class ChatMessageBean implements Serializable {
   }
 
   public boolean hasReply() {
-    return messageData != null
-        && messageData.getMessage().getRemoteExtension() != null
-        && messageData
-            .getMessage()
-            .getRemoteExtension()
-            .containsKey(ChatKitUIConstant.REPLY_REMOTE_EXTENSION_KEY);
+    if (messageData == null) {
+      return false;
+    }
+    Map<String, Object> serverExtensionMap =
+        MessageExtensionHelper.parseJsonStringToMap(messageData.getMessage().getServerExtension());
+    return serverExtensionMap != null
+        && serverExtensionMap.containsKey(ChatKitUIConstant.REPLY_REMOTE_EXTENSION_KEY);
   }
 
   public String getReplyUUid() {
-    if (messageData != null
-        && messageData.getMessage().getRemoteExtension() != null
-        && messageData
-            .getMessage()
-            .getRemoteExtension()
-            .containsKey(ChatKitUIConstant.REPLY_REMOTE_EXTENSION_KEY)) {
-      Object replyInfo =
-          messageData
-              .getMessage()
-              .getRemoteExtension()
-              .get(ChatKitUIConstant.REPLY_REMOTE_EXTENSION_KEY);
+    if (messageData == null) {
+      return null;
+    }
+    Map<String, Object> serverExtensionMap =
+        MessageExtensionHelper.parseJsonStringToMap(messageData.getMessage().getServerExtension());
+
+    if (serverExtensionMap != null
+        && serverExtensionMap.containsKey(ChatKitUIConstant.REPLY_REMOTE_EXTENSION_KEY)) {
+      Object replyInfo = serverExtensionMap.get(ChatKitUIConstant.REPLY_REMOTE_EXTENSION_KEY);
       if (replyInfo instanceof Map) {
         try {
           Map<String, Object> replyMap = (Map<String, Object>) replyInfo;
@@ -94,9 +107,9 @@ public class ChatMessageBean implements Serializable {
         } catch (Exception e) {
           ALog.e(
               LIB_TAG,
-              "ChatMessageBean",
+              "V2ChatMessageBean",
               "getReplyUUid,error message"
-                  + (messageData == null ? "null" : messageData.getMessage().getUuid()));
+                  + (messageData == null ? "null" : messageData.getMessage().getMessageClientId()));
         }
       }
     }
@@ -121,13 +134,13 @@ public class ChatMessageBean implements Serializable {
 
   public int getViewType() {
     if (messageData != null) {
-      if (messageData.getMessage().getMsgType() == MsgTypeEnum.custom) {
-        CustomAttachment attachment = (CustomAttachment) messageData.getMessage().getAttachment();
+      if (messageData.getMessage().getMessageType() == V2NIMMessageType.V2NIM_MESSAGE_TYPE_CUSTOM) {
+        CustomAttachment attachment = messageData.getAttachment();
         if (attachment != null) {
           return attachment.getType();
         }
       } else {
-        return messageData.getMessage().getMsgType().getValue();
+        return messageData.getMessage().getMessageType().getValue();
       }
     }
     return viewType;
@@ -146,12 +159,21 @@ public class ChatMessageBean implements Serializable {
     this.loadProgress = loadProgress;
   }
 
-  public void setPinAccid(MsgPinOption pinOption) {
-    messageData.setPinOption(pinOption);
+  public void setPinAccid(V2NIMMessagePin pinOption) {
+    if (pinOption != null) {
+      messageData.setPinOption(new MessagePinInfo(pinOption));
+    } else {
+      messageData.setPinOption(null);
+    }
   }
 
+  /**
+   * 获取消息的pin操作者
+   *
+   * @return pin操作者的accid
+   */
   public String getPinAccid() {
-    return messageData.getPinOption() == null ? null : messageData.getPinOption().getAccount();
+    return messageData.getPinOption() == null ? null : messageData.getPinOption().getOperatorId();
   }
 
   public boolean isSameMessage(ChatMessageBean bean) {
@@ -160,7 +182,12 @@ public class ChatMessageBean implements Serializable {
     }
     return this.messageData != null
         && bean.messageData != null
-        && this.messageData.getMessage().isTheSame(bean.messageData.getMessage());
+        && this.messageData.getMessage().getMessageType()
+            == bean.messageData.getMessage().getMessageType()
+        && this.messageData
+            .getMessage()
+            .getMessageClientId()
+            .equals(bean.messageData.getMessage().getMessageClientId());
   }
 
   @Override

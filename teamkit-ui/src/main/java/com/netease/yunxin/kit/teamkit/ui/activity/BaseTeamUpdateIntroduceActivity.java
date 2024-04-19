@@ -4,7 +4,7 @@
 
 package com.netease.yunxin.kit.teamkit.ui.activity;
 
-import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.KEY_TEAM_ID;
+import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.KEY_TEAM_ID;
 import static com.netease.yunxin.kit.teamkit.ui.activity.BaseTeamInfoActivity.KEY_TEAM_UPDATE_INFO_PRIVILEGE;
 import static com.netease.yunxin.kit.teamkit.ui.utils.NetworkUtilsWrapper.handleNetworkBrokenResult;
 
@@ -26,7 +26,7 @@ import com.netease.yunxin.kit.teamkit.ui.R;
 import com.netease.yunxin.kit.teamkit.ui.viewmodel.TeamSettingViewModel;
 import java.util.Objects;
 
-/** set team introduce activity */
+/** 群介绍修改界面基类 子类需要实现{@link #initViewAndGetRootView(Bundle)}方法，返回界面的根布局 */
 public abstract class BaseTeamUpdateIntroduceActivity extends BaseActivity {
   public static final String KEY_TEAM_INTRODUCE = "team/teamIntroduce";
   protected static final String MAX_COUNT_STR = "/100";
@@ -96,7 +96,7 @@ public abstract class BaseTeamUpdateIntroduceActivity extends BaseActivity {
         .observe(
             this,
             stringResultInfo -> {
-              if (!stringResultInfo.getSuccess()) {
+              if (!stringResultInfo.isSuccess()) {
                 handleNetworkBrokenResult(this, stringResultInfo);
                 return;
               }
@@ -129,6 +129,16 @@ public abstract class BaseTeamUpdateIntroduceActivity extends BaseActivity {
     super.finish();
   }
 
+  /**
+   * 启动群介绍修改界面
+   *
+   * @param context 上下文
+   * @param activity 目标Activity
+   * @param hasPrivilege 是否有权限
+   * @param teamId 群ID
+   * @param introduce 群介绍
+   * @param launcher 启动器
+   */
   public static void launch(
       Context context,
       Class<? extends Activity> activity,

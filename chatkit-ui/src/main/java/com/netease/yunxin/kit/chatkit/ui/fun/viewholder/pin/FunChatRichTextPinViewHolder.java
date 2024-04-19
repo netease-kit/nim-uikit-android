@@ -6,6 +6,7 @@ package com.netease.yunxin.kit.chatkit.ui.fun.viewholder.pin;
 
 import android.view.LayoutInflater;
 import androidx.annotation.NonNull;
+import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.chatkit.ui.custom.RichTextAttachment;
 import com.netease.yunxin.kit.chatkit.ui.databinding.FunChatBasePinViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.databinding.FunChatRichTextPinViewHolderBinding;
@@ -36,12 +37,15 @@ public class FunChatRichTextPinViewHolder extends FunChatBasePinViewHolder {
     super.onBindData(message, position);
     if (message != null
         && message.getMessageData() != null
-        && message.getMessageData().getMessage().getAttachment() instanceof RichTextAttachment) {
-      RichTextAttachment attachment =
-          (RichTextAttachment) message.getMessageData().getMessage().getAttachment();
+        && message.getMessageData().getAttachment() instanceof RichTextAttachment) {
+      RichTextAttachment attachment = (RichTextAttachment) message.getMessageData().getAttachment();
       if (attachment != null) {
         textBinding.messageTitle.setText(attachment.title);
-        textBinding.messageContent.setText(attachment.body);
+        MessageHelper.identifyExpression(
+            textBinding.getRoot().getContext(),
+            textBinding.messageContent,
+            attachment.body,
+            message.getMessageData().getMessage());
       }
     }
   }

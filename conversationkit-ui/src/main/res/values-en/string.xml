@@ -35,4 +35,6 @@
     <string name="msg_type_tip">[Tip Message]</string>
     <string name="msg_type_custom">[Custom Message]</string>
     <string name="msg_type_no_tips">[Unknown Message]</string>
+    <string name="msg_type_revoke_tips">Message Recalled</string>
+
 </resources>

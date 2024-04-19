@@ -6,8 +6,16 @@
 
 package com.netease.yunxin.kit.teamkit.ui.utils
 
+// 过滤器工具类
 object FilterUtils {
 
+    /**
+     * 过滤列表
+     *
+     * @param sourceList 源列表
+     * @param predicate 过滤条件
+     * @return 过滤后的列表
+     */
     @JvmStatic
     fun <T> filter(sourceList: List<T>, predicate: (T) -> Boolean): List<T> {
         return sourceList.filter {

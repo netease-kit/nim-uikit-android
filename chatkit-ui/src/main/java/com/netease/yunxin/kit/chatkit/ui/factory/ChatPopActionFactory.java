@@ -5,9 +5,9 @@
 package com.netease.yunxin.kit.chatkit.ui.factory;
 
 import android.text.TextUtils;
-import com.netease.nimlib.sdk.msg.constant.MsgDirectionEnum;
-import com.netease.nimlib.sdk.msg.constant.MsgStatusEnum;
 import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
+import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageSendingState;
+import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
 import com.netease.yunxin.kit.chatkit.ui.ChatMessageType;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
@@ -65,10 +65,12 @@ public class ChatPopActionFactory {
     if (customPopMenu == null
         || customPopMenu.get() == null
         || customPopMenu.get().showDefaultPopMenu()) {
-      if (message.getMessageData().getMessage().getStatus() == MsgStatusEnum.fail
-          || message.getMessageData().getMessage().getStatus() == MsgStatusEnum.sending
-          || message.getMessageData().getMessage().isInBlackList()) {
-        if (message.getViewType() == MsgTypeEnum.text.getValue()) {
+      if (message.getMessageData().getMessage().getSendingState()
+              == V2NIMMessageSendingState.V2NIM_MESSAGE_SENDING_STATE_FAILED
+          || message.getMessageData().getMessage().getSendingState()
+              == V2NIMMessageSendingState.V2NIM_MESSAGE_SENDING_STATE_SENDING
+          || message.getViewType() == V2NIMMessageType.V2NIM_MESSAGE_TYPE_INVALID.getValue()) {
+        if (message.getViewType() == V2NIMMessageType.V2NIM_MESSAGE_TYPE_TEXT.getValue()) {
           actions.add(getCopyAction(message));
         }
         actions.add(getDeleteAction(message));
@@ -84,7 +86,7 @@ public class ChatPopActionFactory {
       }
       // 基础消息类型都在MsgTypeEnum中定义,自定义消息类型都是MsgTypeEnum.custom，
       // 自定义消息，根据自定义消息的Type区分IMUIKIt内置从101开始，客户定义从1000开始
-      if (message.getViewType() == MsgTypeEnum.text.getValue()
+      if (message.getViewType() == V2NIMMessageType.V2NIM_MESSAGE_TYPE_TEXT.getValue()
           || message.getViewType() == ChatMessageType.RICH_TEXT_ATTACHMENT) {
         actions.add(getCopyAction(message));
       }
@@ -95,7 +97,7 @@ public class ChatPopActionFactory {
       actions.add(getPinAction(message));
       actions.add(getDeleteAction(message));
       actions.add(getMultiSelectAction(message));
-      if (message.getMessageData().getMessage().getDirect() == MsgDirectionEnum.Out) {
+      if (message.getMessageData().getMessage().isSelf()) {
         actions.add(getRecallAction(message));
       }
     }

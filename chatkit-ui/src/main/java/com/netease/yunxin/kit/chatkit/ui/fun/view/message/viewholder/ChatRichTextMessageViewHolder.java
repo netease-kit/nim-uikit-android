@@ -35,9 +35,8 @@ public class ChatRichTextMessageViewHolder extends FunChatBaseMessageViewHolder 
     super.bindData(message, lastMessage);
     if (message != null
         && message.getMessageData() != null
-        && message.getMessageData().getMessage().getAttachment() instanceof RichTextAttachment) {
-      RichTextAttachment attachment =
-          (RichTextAttachment) message.getMessageData().getMessage().getAttachment();
+        && message.getMessageData().getAttachment() instanceof RichTextAttachment) {
+      RichTextAttachment attachment = (RichTextAttachment) message.getMessageData().getAttachment();
       if (attachment != null) {
         viewBinding.messageTitle.setText(attachment.title);
         if (TextUtils.isEmpty(attachment.body)) {

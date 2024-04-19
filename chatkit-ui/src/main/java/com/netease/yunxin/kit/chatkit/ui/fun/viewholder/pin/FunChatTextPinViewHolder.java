@@ -6,7 +6,7 @@ package com.netease.yunxin.kit.chatkit.ui.fun.viewholder.pin;
 
 import android.view.LayoutInflater;
 import androidx.annotation.NonNull;
-import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
+import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.chatkit.ui.databinding.FunChatBasePinViewHolderBinding;
@@ -40,7 +40,8 @@ public class FunChatTextPinViewHolder extends FunChatBasePinViewHolder {
     if (properties.getMessageTextColor() != null) {
       textBinding.messageText.setTextColor(properties.getMessageTextColor());
     }
-    if (message.getMessageData().getMessage().getMsgType() == MsgTypeEnum.text) {
+    if (message.getMessageData().getMessage().getMessageType()
+        == V2NIMMessageType.V2NIM_MESSAGE_TYPE_TEXT) {
       MessageHelper.identifyExpression(
           textBinding.getRoot().getContext(),
           textBinding.messageText,

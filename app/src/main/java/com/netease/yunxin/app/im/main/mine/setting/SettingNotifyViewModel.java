@@ -7,12 +7,12 @@ package com.netease.yunxin.app.im.main.mine.setting;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
 import com.netease.yunxin.app.im.R;
+import com.netease.yunxin.kit.chatkit.repo.SettingRepo;
 import com.netease.yunxin.kit.common.ui.utils.ToastX;
 import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
-import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
-import com.netease.yunxin.kit.corekit.im.repo.SettingRepo;
+import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
 
 public class SettingNotifyViewModel extends BaseViewModel {
 
@@ -34,30 +34,21 @@ public class SettingNotifyViewModel extends BaseViewModel {
   }
 
   public void setToggleNotification(boolean value) {
-    SettingRepo.setMessageNotification(value);
     SettingRepo.setPushNotify(
         value,
         new FetchCallback<Void>() {
           @Override
+          public void onError(int errorCode, @Nullable String errorMsg) {
+            ToastX.showShortToast(R.string.setting_fail);
+            FetchResult<Boolean> fetchResult = new FetchResult<>(LoadStatus.Error);
+            fetchResult.setData(value);
+            toggleNotificationLiveDataLiveData.postValue(fetchResult);
+          }
+
+          @Override
           public void onSuccess(@Nullable Void param) {
             ToastX.showShortToast(R.string.setting_success);
             FetchResult<Boolean> fetchResult = new FetchResult<>(LoadStatus.Success);
-            fetchResult.setData(value);
-            toggleNotificationLiveDataLiveData.postValue(fetchResult);
-          }
-
-          @Override
-          public void onFailed(int code) {
-            ToastX.showShortToast(R.string.setting_fail);
-            FetchResult<Boolean> fetchResult = new FetchResult<>(LoadStatus.Error);
-            fetchResult.setData(value);
-            toggleNotificationLiveDataLiveData.postValue(fetchResult);
-          }
-
-          @Override
-          public void onException(@Nullable Throwable exception) {
-            ToastX.showShortToast(R.string.setting_fail);
-            FetchResult<Boolean> fetchResult = new FetchResult<>(LoadStatus.Error);
             fetchResult.setData(value);
             toggleNotificationLiveDataLiveData.postValue(fetchResult);
           }
@@ -80,14 +71,6 @@ public class SettingNotifyViewModel extends BaseViewModel {
     SettingRepo.setVibrateMode(mode);
   }
 
-  public boolean getMultiPortPushOpen() {
-    return SettingRepo.getMultiPortPushMode();
-  }
-
-  public void setMultiPortPushOpen(boolean mode) {
-    SettingRepo.setMultiPortPushMode(mode);
-  }
-
   public boolean getPushShowNoDetail() {
     return !SettingRepo.getPushShowDetail();
   }
@@ -97,25 +80,17 @@ public class SettingNotifyViewModel extends BaseViewModel {
         mode,
         new FetchCallback<Void>() {
           @Override
+          public void onError(int errorCode, @Nullable String errorMsg) {
+            ToastX.showShortToast(R.string.setting_fail);
+            FetchResult<Boolean> fetchResult = new FetchResult<>(LoadStatus.Error);
+            fetchResult.setData(mode);
+            notifyDetailLiveData.postValue(fetchResult);
+          }
+
+          @Override
           public void onSuccess(@Nullable Void param) {
             ToastX.showShortToast(R.string.setting_success);
             FetchResult<Boolean> fetchResult = new FetchResult<>(LoadStatus.Success);
-            fetchResult.setData(mode);
-            notifyDetailLiveData.postValue(fetchResult);
-          }
-
-          @Override
-          public void onFailed(int code) {
-            ToastX.showShortToast(R.string.setting_fail);
-            FetchResult<Boolean> fetchResult = new FetchResult<>(LoadStatus.Error);
-            fetchResult.setData(mode);
-            notifyDetailLiveData.postValue(fetchResult);
-          }
-
-          @Override
-          public void onException(@Nullable Throwable exception) {
-            ToastX.showShortToast(R.string.setting_fail);
-            FetchResult<Boolean> fetchResult = new FetchResult<>(LoadStatus.Error);
             fetchResult.setData(mode);
             notifyDetailLiveData.postValue(fetchResult);
           }

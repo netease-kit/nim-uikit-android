@@ -5,16 +5,16 @@
 package com.netease.yunxin.kit.chatkit.ui.model;
 
 import androidx.annotation.NonNull;
-import com.netease.nimlib.sdk.msg.model.IMMessage;
+import com.netease.nimlib.sdk.v2.message.V2NIMMessage;
 
 public class AnchorScrollInfo {
-  IMMessage anchorMessage;
+  V2NIMMessage anchorMessage;
 
-  public AnchorScrollInfo(@NonNull IMMessage anchorMessage) {
+  public AnchorScrollInfo(@NonNull V2NIMMessage anchorMessage) {
     this.anchorMessage = anchorMessage;
   }
 
   public String messageUuid() {
-    return anchorMessage.getUuid();
+    return anchorMessage.getMessageClientId();
   }
 }

@@ -17,7 +17,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import androidx.annotation.NonNull;
-import com.netease.nimlib.sdk.msg.attachment.AudioAttachment;
+import com.netease.nimlib.sdk.v2.message.attachment.V2NIMMessageAudioAttachment;
+import com.netease.yunxin.kit.chatkit.repo.SettingRepo;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatBaseMessageViewHolderBinding;
@@ -25,8 +26,7 @@ import com.netease.yunxin.kit.chatkit.ui.databinding.FunChatMessageAudioViewHold
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.view.message.audio.ChatMessageAudioControl;
 import com.netease.yunxin.kit.common.utils.SizeUtils;
-import com.netease.yunxin.kit.corekit.im.audioplayer.Playable;
-import com.netease.yunxin.kit.corekit.im.repo.SettingRepo;
+import com.netease.yunxin.kit.corekit.im2.audioplayer.Playable;
 import java.util.List;
 import java.util.Objects;
 
@@ -55,7 +55,7 @@ public class ChatAudioMessageViewHolder extends FunChatBaseMessageViewHolder {
 
         @Override
         public void onAudioControllerReady(Playable playable) {
-          if (isTheSame(currentMessage.getMessageData().getMessage().getUuid())) {
+          if (isTheSame(currentMessage.getMessageData().getMessage().getMessageClientId())) {
             return;
           }
           play();
@@ -63,7 +63,7 @@ public class ChatAudioMessageViewHolder extends FunChatBaseMessageViewHolder {
 
         @Override
         public void onEndPlay(Playable playable) {
-          if (isTheSame(currentMessage.getMessageData().getMessage().getUuid())) {
+          if (isTheSame(currentMessage.getMessageData().getMessage().getMessageClientId())) {
             return;
           }
 
@@ -143,7 +143,7 @@ public class ChatAudioMessageViewHolder extends FunChatBaseMessageViewHolder {
     audioBinding.tvTime.setVisibility(View.VISIBLE);
     audioBinding.messageText.setVisibility(View.GONE);
     audioControl = ChatMessageAudioControl.getInstance();
-    audioBinding.tvTime.setTag(message.getMessageData().getMessage().getUuid());
+    audioBinding.tvTime.setTag(message.getMessageData().getMessage().getMessageClientId());
     currentMessage = message;
     playControl(message);
     setAudioLayout(message);
@@ -187,8 +187,8 @@ public class ChatAudioMessageViewHolder extends FunChatBaseMessageViewHolder {
   }
 
   private void setAudioLayout(ChatMessageBean message) {
-    AudioAttachment audioAttachment =
-        (AudioAttachment) message.getMessageData().getMessage().getAttachment();
+    V2NIMMessageAudioAttachment audioAttachment =
+        (V2NIMMessageAudioAttachment) message.getMessageData().getMessage().getAttachment();
     if (audioAttachment == null) {
       return;
     }
@@ -225,8 +225,8 @@ public class ChatAudioMessageViewHolder extends FunChatBaseMessageViewHolder {
   }
 
   private void playControl(ChatMessageBean message) {
-    AudioAttachment audioAttachment =
-        (AudioAttachment) message.getMessageData().getMessage().getAttachment();
+    V2NIMMessageAudioAttachment audioAttachment =
+        (V2NIMMessageAudioAttachment) message.getMessageData().getMessage().getAttachment();
     if (audioAttachment == null) {
       return;
     }
@@ -247,9 +247,6 @@ public class ChatAudioMessageViewHolder extends FunChatBaseMessageViewHolder {
 
   protected boolean isMessagePlaying(ChatMessageBean message) {
     return audioControl.getPlayingAudio() != null
-        && audioControl
-            .getPlayingAudio()
-            .getMessage()
-            .isTheSame(message.getMessageData().getMessage());
+        && audioControl.getPlayingAudio().equals(message.getMessageData());
   }
 }

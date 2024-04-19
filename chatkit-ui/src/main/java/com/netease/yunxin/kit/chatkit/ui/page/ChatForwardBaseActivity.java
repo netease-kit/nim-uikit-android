@@ -11,8 +11,7 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
-import com.netease.nimlib.sdk.msg.model.AttachmentProgress;
+import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.ui.ChatMessageType;
 import com.netease.yunxin.kit.chatkit.ui.R;
@@ -27,7 +26,9 @@ import com.netease.yunxin.kit.chatkit.ui.view.message.adapter.ChatMessageAdapter
 import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
-import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
+import com.netease.yunxin.kit.corekit.im2.model.IMMessageProgress;
+import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
+import com.netease.yunxin.kit.corekit.route.XKitRouter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,8 +52,7 @@ public class ChatForwardBaseActivity extends BaseActivity {
 
   private void initData() {
     messageInfo = (IMMessageInfo) getIntent().getSerializableExtra(RouterConstant.KEY_MESSAGE);
-    if (messageInfo == null
-        || !(messageInfo.getMessage().getAttachment() instanceof MultiForwardAttachment)) {
+    if (messageInfo == null || !(messageInfo.getAttachment() instanceof MultiForwardAttachment)) {
       finish();
     }
     viewModel = new ViewModelProvider(this).get(ChatForwardMsgViewModel.class);
@@ -78,7 +78,8 @@ public class ChatForwardBaseActivity extends BaseActivity {
         new IMessageItemClickListener() {
           @Override
           public boolean onMessageLongClick(View view, int position, ChatMessageBean messageBean) {
-            if (messageBean.getMessageData().getMessage().getMsgType() == MsgTypeEnum.text) {
+            if (messageBean.getMessageData().getMessage().getMessageType()
+                == V2NIMMessageType.V2NIM_MESSAGE_TYPE_TEXT) {
               MessageHelper.copyTextMessage(messageBean.getMessageData(), true);
             }
             return true;
@@ -102,7 +103,7 @@ public class ChatForwardBaseActivity extends BaseActivity {
     }
   }
 
-  protected void onAttachmentUpdateProgress(FetchResult<AttachmentProgress> fetchResult) {
+  protected void onAttachmentUpdateProgress(FetchResult<IMMessageProgress> fetchResult) {
     messageAdapter.updateMessageProgress(fetchResult.getData());
   }
 
@@ -110,19 +111,26 @@ public class ChatForwardBaseActivity extends BaseActivity {
     if (messageInfo == null) {
       return;
     }
-    if (messageInfo.getMessage().getMsgType() == MsgTypeEnum.image) {
+    if (messageInfo.getMessage().getMessageType() == V2NIMMessageType.V2NIM_MESSAGE_TYPE_IMAGE) {
       ArrayList<IMMessageInfo> messageInfoList = new ArrayList<>();
       messageInfoList.add(messageInfo);
       ChatUtils.watchImage(this, messageInfo, messageInfoList);
-    } else if (messageInfo.getMessage().getMsgType() == MsgTypeEnum.video) {
+    } else if (messageInfo.getMessage().getMessageType()
+        == V2NIMMessageType.V2NIM_MESSAGE_TYPE_VIDEO) {
       ChatUtils.watchVideo(this, messageInfo);
-    } else if (messageInfo.getMessage().getMsgType() == MsgTypeEnum.location) {
-      LocationPageActivity.launch(
-          this, LocationPageActivity.LAUNCH_DETAIL, messageInfo.getMessage());
-    } else if (messageInfo.getMessage().getMsgType() == MsgTypeEnum.file) {
+    } else if (messageInfo.getMessage().getMessageType()
+        == V2NIMMessageType.V2NIM_MESSAGE_TYPE_LOCATION) {
+      XKitRouter.withKey(RouterConstant.PATH_CHAT_LOCATION_PAGE)
+          .withContext(this)
+          .withParam(RouterConstant.KEY_MESSAGE, messageInfo.getMessage())
+          .withParam(RouterConstant.KEY_LOCATION_PAGE_TYPE, RouterConstant.KEY_LOCATION_TYPE_DETAIL)
+          .navigate();
+    } else if (messageInfo.getMessage().getMessageType()
+        == V2NIMMessageType.V2NIM_MESSAGE_TYPE_FILE) {
       ChatUtils.openForwardFile(this, messageInfo);
 
-    } else if (messageInfo.getMessage().getMsgType() == MsgTypeEnum.audio) {
+    } else if (messageInfo.getMessage().getMessageType()
+        == V2NIMMessageType.V2NIM_MESSAGE_TYPE_AUDIO) {
 
     }
   }

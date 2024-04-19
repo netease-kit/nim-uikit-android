@@ -4,8 +4,8 @@
 
 package com.netease.yunxin.kit.chatkit.ui;
 
-import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
+import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
 
 public interface IChatListener {
-  void onSessionChange(String sessionId, SessionTypeEnum typeEnum);
+  void onConversationChange(String conversationId, V2NIMConversationType typeEnum);
 }

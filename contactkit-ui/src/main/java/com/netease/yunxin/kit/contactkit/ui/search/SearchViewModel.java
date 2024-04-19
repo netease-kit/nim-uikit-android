@@ -4,15 +4,14 @@
 
 package com.netease.yunxin.kit.contactkit.ui.search;
 
-import static com.netease.yunxin.kit.contactkit.ui.ContactConstant.LIB_TAG;
-
 import android.text.TextUtils;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
-import com.netease.nimlib.sdk.team.model.Team;
+import com.netease.nimlib.sdk.v2.team.model.V2NIMTeam;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.model.FriendSearchInfo;
 import com.netease.yunxin.kit.chatkit.model.TeamSearchInfo;
+import com.netease.yunxin.kit.chatkit.model.TeamSearchResult;
 import com.netease.yunxin.kit.chatkit.repo.SearchRepo;
 import com.netease.yunxin.kit.chatkit.repo.TeamRepo;
 import com.netease.yunxin.kit.common.ui.viewholder.BaseBean;
@@ -23,13 +22,13 @@ import com.netease.yunxin.kit.contactkit.ui.R;
 import com.netease.yunxin.kit.contactkit.ui.model.SearchFriendBean;
 import com.netease.yunxin.kit.contactkit.ui.model.SearchTeamBean;
 import com.netease.yunxin.kit.contactkit.ui.model.SearchTitleBean;
-import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
+import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-/** to provider search data and operation */
+/** 搜索页面 ViewModel 提供搜索好友、群组 */
 public class SearchViewModel extends BaseViewModel {
 
   private static final String TAG = "SearchViewModel";
@@ -37,33 +36,46 @@ public class SearchViewModel extends BaseViewModel {
   private final MutableLiveData<FetchResult<List<BaseBean>>> queryLiveData =
       new MutableLiveData<>();
 
-  private final MutableLiveData<FetchResult<Team>> queryTeamLiveData = new MutableLiveData<>();
+  // 查询群组信息，搜索结果中点击群组时，需要查询群组信息
+  private final MutableLiveData<FetchResult<V2NIMTeam>> queryTeamLiveData = new MutableLiveData<>();
 
   private final List<BaseBean> resultList = new ArrayList<>();
 
+  // 搜索标记为，查询结果都结束时，才返回结果
+  private int searchTag = 0;
+
+  // 查询结果
   public MutableLiveData<FetchResult<List<BaseBean>>> getQueryLiveData() {
     return queryLiveData;
   }
 
-  public MutableLiveData<FetchResult<Team>> getQueryTeamLiveData() {
+  public MutableLiveData<FetchResult<V2NIMTeam>> getQueryTeamLiveData() {
     return queryTeamLiveData;
   }
 
   protected String routerFriend;
   protected String routerTeam;
 
+  // 设置路由
   public void setRouter(String friend, String team) {
     routerFriend = friend;
     routerTeam = team;
   }
 
+  // 搜索好友和群组
   public void query(String text) {
-
     resultList.clear();
+    searchTag = 0;
     if (!TextUtils.isEmpty(text)) {
       SearchRepo.searchFriend(
           text,
-          new FetchCallback<List<FriendSearchInfo>>() {
+          new FetchCallback<>() {
+            @Override
+            public void onError(int errorCode, @Nullable String errorMsg) {
+              ALog.d(LIB_TAG, TAG, "searchFriend,onFailed:" + errorCode);
+              searchTag++;
+            }
+
             @Override
             public void onSuccess(@Nullable List<FriendSearchInfo> param) {
               if (param != null && param.size() > 0) {
@@ -79,81 +91,59 @@ public class SearchViewModel extends BaseViewModel {
                 }
                 resultList.addAll(0, friendResult);
               }
-              FetchResult<List<BaseBean>> fetchResult = new FetchResult<>(LoadStatus.Success);
-              fetchResult.setData(resultList);
-              queryLiveData.postValue(fetchResult);
-            }
-
-            @Override
-            public void onFailed(int code) {
-              ALog.d(LIB_TAG, TAG, "searchFriend,onFailed:" + code);
-            }
-
-            @Override
-            public void onException(@Nullable Throwable exception) {
-              ALog.d(LIB_TAG, TAG, "searchFriend,onException");
-            }
-          });
-
-      SearchRepo.searchGroup(
-          text,
-          new FetchCallback<List<TeamSearchInfo>>() {
-            @Override
-            public void onSuccess(@Nullable List<TeamSearchInfo> param) {
-              if (param != null && param.size() > 0) {
-                List<BaseBean> groupResult = new ArrayList<>();
-                groupResult.add(new SearchTitleBean(R.string.global_search_group_title));
-                Collections.sort(param, teamComparator);
-                for (int index = 0; index < param.size(); index++) {
-                  groupResult.add(new SearchTeamBean(param.get(index), routerTeam));
-                }
-                ALog.d(LIB_TAG, TAG, "searchTeamm,onSuccess,team:" + param.size());
-                resultList.addAll(groupResult);
+              if (searchTag > 0) {
+                FetchResult<List<BaseBean>> fetchResult = new FetchResult<>(LoadStatus.Success);
+                fetchResult.setData(resultList);
+                queryLiveData.postValue(fetchResult);
+              } else {
+                searchTag++;
               }
-              FetchResult<List<BaseBean>> fetchResult = new FetchResult<>(LoadStatus.Success);
-              fetchResult.setData(resultList);
-              queryLiveData.postValue(fetchResult);
-            }
-
-            @Override
-            public void onFailed(int code) {
-              ALog.d(LIB_TAG, TAG, "searchFriend,onFailed:" + code);
-            }
-
-            @Override
-            public void onException(@Nullable Throwable exception) {
-              ALog.d(LIB_TAG, TAG, "searchFriend:onException");
             }
           });
 
       SearchRepo.searchTeam(
           text,
-          new FetchCallback<List<TeamSearchInfo>>() {
+          new FetchCallback<TeamSearchResult>() {
             @Override
-            public void onSuccess(@Nullable List<TeamSearchInfo> param) {
-              if (param != null && param.size() > 0) {
-                List<BaseBean> friendResult = new ArrayList<>();
-                friendResult.add(new SearchTitleBean(R.string.global_search_team_title));
-                Collections.sort(param, teamComparator);
-                for (int index = 0; index < param.size(); index++) {
-                  friendResult.add(new SearchTeamBean(param.get(index), routerTeam));
+            public void onError(int errorCode, @Nullable String errorMsg) {
+              ALog.d(LIB_TAG, TAG, "searchFriend,onFailed:" + errorCode);
+              searchTag++;
+            }
+
+            @Override
+            public void onSuccess(@Nullable TeamSearchResult param) {
+              if (param != null) {
+                if (param.getGroupList().size() > 0) {
+                  List<BaseBean> groupResult = new ArrayList<>();
+                  List<TeamSearchInfo> groupList = param.getGroupList();
+                  groupResult.add(new SearchTitleBean(R.string.global_search_group_title));
+                  Collections.sort(groupList, teamComparator);
+                  for (int index = 0; index < groupList.size(); index++) {
+                    groupResult.add(new SearchTeamBean(groupList.get(index), routerTeam));
+                  }
+                  ALog.d(LIB_TAG, TAG, "searchTeam,onSuccess,team:" + groupList.size());
+                  resultList.addAll(groupResult);
                 }
-                resultList.addAll(friendResult);
-                ALog.d(LIB_TAG, TAG, "searchTeam,onSuccess:" + friendResult.size());
+
+                if (param.getTeamList().size() > 0) {
+                  List<BaseBean> teamResult = new ArrayList<>();
+                  List<TeamSearchInfo> teamList = param.getTeamList();
+                  teamResult.add(new SearchTitleBean(R.string.global_search_team_title));
+                  Collections.sort(teamList, teamComparator);
+                  for (int index = 0; index < teamList.size(); index++) {
+                    teamResult.add(new SearchTeamBean(teamList.get(index), routerTeam));
+                  }
+                  resultList.addAll(teamResult);
+                  ALog.d(LIB_TAG, TAG, "searchTeam,onSuccess:" + teamResult.size());
+                }
               }
-              FetchResult<List<BaseBean>> fetchResult = new FetchResult<>(LoadStatus.Success);
-              fetchResult.setData(resultList);
-              queryLiveData.postValue(fetchResult);
-            }
-
-            @Override
-            public void onFailed(int code) {
-              ALog.d(LIB_TAG, TAG, "searchFriend,onFailed:" + code);
-            }
-
-            @Override
-            public void onException(@Nullable Throwable exception) {
-              ALog.d(LIB_TAG, TAG, "searchFriend,onException");
+              if (searchTag > 0) {
+                FetchResult<List<BaseBean>> fetchResult = new FetchResult<>(LoadStatus.Success);
+                fetchResult.setData(resultList);
+                queryLiveData.postValue(fetchResult);
+              } else {
+                searchTag++;
+              }
             }
           });
 
@@ -165,27 +155,23 @@ public class SearchViewModel extends BaseViewModel {
   }
 
   public void queryTeam(String tid) {
-    if (TextUtils.isEmpty(tid)) {}
+    if (TextUtils.isEmpty(tid)) {
+      return;
+    }
 
     TeamRepo.getTeamInfo(
         tid,
-        new FetchCallback<Team>() {
+        new FetchCallback<V2NIMTeam>() {
           @Override
-          public void onSuccess(@Nullable Team param) {
-            FetchResult<Team> fetchResult = new FetchResult<>(LoadStatus.Success);
-            fetchResult.setData(param);
+          public void onError(int errorCode, @Nullable String errorMsg) {
+            FetchResult<V2NIMTeam> fetchResult = new FetchResult<>(LoadStatus.Error);
             queryTeamLiveData.postValue(fetchResult);
           }
 
           @Override
-          public void onFailed(int code) {
-            FetchResult<Team> fetchResult = new FetchResult<>(LoadStatus.Error);
-            queryTeamLiveData.postValue(fetchResult);
-          }
-
-          @Override
-          public void onException(@Nullable Throwable exception) {
-            FetchResult<Team> fetchResult = new FetchResult<>(LoadStatus.Error);
+          public void onSuccess(@Nullable V2NIMTeam data) {
+            FetchResult<V2NIMTeam> fetchResult = new FetchResult<>(LoadStatus.Success);
+            fetchResult.setData(data);
             queryTeamLiveData.postValue(fetchResult);
           }
         });

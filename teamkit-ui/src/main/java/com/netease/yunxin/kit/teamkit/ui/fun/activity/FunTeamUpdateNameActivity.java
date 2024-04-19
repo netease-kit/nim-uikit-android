@@ -11,7 +11,11 @@ import com.netease.yunxin.kit.teamkit.ui.R;
 import com.netease.yunxin.kit.teamkit.ui.activity.BaseTeamUpdateNameActivity;
 import com.netease.yunxin.kit.teamkit.ui.databinding.FunTeamUpdateNameActivityBinding;
 
-/** set team name activity */
+/**
+ * 娱乐版群名称修改页面，差异化UI展示
+ *
+ * <p>
+ */
 public class FunTeamUpdateNameActivity extends BaseTeamUpdateNameActivity {
 
   @Override

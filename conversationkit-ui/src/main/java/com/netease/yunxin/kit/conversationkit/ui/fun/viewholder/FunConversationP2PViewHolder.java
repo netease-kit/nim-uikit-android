@@ -9,6 +9,7 @@ import com.netease.yunxin.kit.common.ui.utils.AvatarColor;
 import com.netease.yunxin.kit.conversationkit.ui.databinding.FunConversationViewHolderBinding;
 import com.netease.yunxin.kit.conversationkit.ui.model.ConversationBean;
 
+/** 会话列表P2P会话ViewHolder，用于加载P2P会话的UI 头像、会话名称 */
 public class FunConversationP2PViewHolder extends FunConversationBaseViewHolder {
 
   public FunConversationP2PViewHolder(@NonNull FunConversationViewHolderBinding binding) {
@@ -18,11 +19,11 @@ public class FunConversationP2PViewHolder extends FunConversationBaseViewHolder 
   @Override
   public void onBindData(ConversationBean data, int position) {
     super.onBindData(data, position);
-    String name = data.infoData.getName();
+    String name = data.getConversationName();
     viewBinding.avatarView.setData(
         data.infoData.getAvatar(),
-        data.infoData.getAvatarName(),
-        AvatarColor.avatarColor(data.infoData.getContactId()));
+        data.getAvatarName(),
+        AvatarColor.avatarColor(data.getTargetId()));
     viewBinding.nameTv.setText(name);
   }
 }

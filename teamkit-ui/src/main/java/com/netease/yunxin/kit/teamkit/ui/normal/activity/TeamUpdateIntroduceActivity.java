@@ -9,7 +9,11 @@ import android.view.View;
 import com.netease.yunxin.kit.teamkit.ui.activity.BaseTeamUpdateIntroduceActivity;
 import com.netease.yunxin.kit.teamkit.ui.databinding.TeamUpdateIntroduceActivityBinding;
 
-/** set team introduce activity */
+/**
+ * 普通版群介绍修改页面，差异化UI展示
+ *
+ * <p>
+ */
 public class TeamUpdateIntroduceActivity extends BaseTeamUpdateIntroduceActivity {
 
   @Override

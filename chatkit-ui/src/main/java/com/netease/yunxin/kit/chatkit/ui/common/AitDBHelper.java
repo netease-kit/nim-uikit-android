@@ -13,8 +13,8 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.text.TextUtils;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant;
-import com.netease.yunxin.kit.corekit.im.IMKitClient;
-import com.netease.yunxin.kit.corekit.im.custom.AitInfo;
+import com.netease.yunxin.kit.corekit.im2.IMKitClient;
+import com.netease.yunxin.kit.corekit.im2.custom.AitInfo;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -111,7 +111,7 @@ public class AitDBHelper extends SQLiteOpenHelper {
     return aitDatabase.delete(TABLE_NAME, condition, null);
   }
 
-  public int deleteWithSessionId(String[] sessionId) {
+  public int deleteWithConversationId(String[] sessionId) {
     // 执行删除记录动作，该语句返回删除记录的数目
     ALog.d(ChatKitUIConstant.LIB_TAG, TAG, "deleteWithSessionId");
     if (sessionId == null
@@ -143,7 +143,7 @@ public class AitDBHelper extends SQLiteOpenHelper {
     if (info == null) {
       return -1;
     }
-    ALog.d(ChatKitUIConstant.LIB_TAG, TAG, "insert:" + info.getSessionId());
+    ALog.d(ChatKitUIConstant.LIB_TAG, TAG, "insert:" + info.getConversationId());
     List<AitInfo> aitInfo = new ArrayList<>();
     aitInfo.add(info);
     return insert(aitInfo);
@@ -160,10 +160,11 @@ public class AitDBHelper extends SQLiteOpenHelper {
     }
     ALog.d(ChatKitUIConstant.LIB_TAG, TAG, "list insert:" + aitInfoList.size());
     for (AitInfo aitInfo : aitInfoList) {
-      if (!TextUtils.isEmpty(aitInfo.getSessionId()) && aitInfo.getMsgUidList() != null) {
-        ALog.d(ChatKitUIConstant.LIB_TAG, TAG, "list insert aitinfo:" + aitInfo.getSessionId());
+      if (!TextUtils.isEmpty(aitInfo.getConversationId()) && aitInfo.getMsgUidList() != null) {
+        ALog.d(
+            ChatKitUIConstant.LIB_TAG, TAG, "list insert aitinfo:" + aitInfo.getConversationId());
         ContentValues cv = new ContentValues();
-        cv.put(DB_COLUMN_SESSION, aitInfo.getSessionId());
+        cv.put(DB_COLUMN_SESSION, aitInfo.getConversationId());
         cv.put(DB_COLUMN_MSG_ID, aitInfo.getMsgUidString());
         cv.put(DB_COLUMN_USER_ID, aitInfo.getAccountId());
         // 执行插入记录动作，该语句返回插入记录的行号
@@ -184,14 +185,14 @@ public class AitDBHelper extends SQLiteOpenHelper {
   public int update(AitInfo aitInfo, String condition) {
     ALog.d(ChatKitUIConstant.LIB_TAG, TAG, "update:" + condition);
     if (aitInfo == null
-        || TextUtils.isEmpty(aitInfo.getSessionId())
+        || TextUtils.isEmpty(aitInfo.getConversationId())
         || aitDatabase == null
         || !aitDatabase.isOpen()) {
       return -1;
     }
-    ALog.d(ChatKitUIConstant.LIB_TAG, TAG, "update:" + aitInfo.getSessionId());
+    ALog.d(ChatKitUIConstant.LIB_TAG, TAG, "update:" + aitInfo.getConversationId());
     ContentValues cv = new ContentValues();
-    cv.put(DB_COLUMN_SESSION, aitInfo.getSessionId());
+    cv.put(DB_COLUMN_SESSION, aitInfo.getConversationId());
     cv.put(DB_COLUMN_MSG_ID, aitInfo.getMsgUidString());
     cv.put(DB_COLUMN_USER_ID, aitInfo.getAccountId());
     return aitDatabase.update(TABLE_NAME, cv, condition, null);
@@ -231,7 +232,7 @@ public class AitDBHelper extends SQLiteOpenHelper {
       // 循环取出游标指向的每条记录
       while (cursor != null && cursor.moveToNext()) {
         AitInfo aitInfo = new AitInfo();
-        aitInfo.setSessionId(cursor.getString(cursor.getColumnIndex(DB_COLUMN_SESSION)));
+        aitInfo.setConversationId(cursor.getString(cursor.getColumnIndex(DB_COLUMN_SESSION)));
         aitInfo.setRowId(cursor.getInt(cursor.getColumnIndex(DB_COLUMN_ROW_ID)));
         String msgId = cursor.getString(cursor.getColumnIndex(DB_COLUMN_MSG_ID));
         String accountID = cursor.getString(cursor.getColumnIndex(DB_COLUMN_USER_ID));
@@ -240,7 +241,7 @@ public class AitDBHelper extends SQLiteOpenHelper {
           aitInfo.addMsgUid(Arrays.asList(idStrings));
         }
         aitInfo.setAccountId(accountID);
-        ALog.d(ChatKitUIConstant.LIB_TAG, TAG, "query AitInfo:" + aitInfo.getSessionId());
+        ALog.d(ChatKitUIConstant.LIB_TAG, TAG, "query AitInfo:" + aitInfo.getConversationId());
         infoList.add(aitInfo);
       }
       // 查询完毕，关闭数据库游标

@@ -161,7 +161,7 @@
                     android:layout_gravity="end"
                     android:layout_marginTop="@dimen/dimen_8_dp"
                     android:layout_marginEnd="@dimen/dimen_16_dp"
-                    android:src="@drawable/ic_send_rich_text" />
+                    android:src="@drawable/ic_chat_send_rich_text" />
 
             </FrameLayout>
 

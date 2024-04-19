@@ -4,8 +4,10 @@
 
 package com.netease.yunxin.kit.conversationkit.ui;
 
+/** 会话UI配置管理类 */
 public class ConversationKitClient {
 
+  // 会话UI配置
   private static ConversationUIConfig sConversationConfig;
 
   public static void setConversationUIConfig(ConversationUIConfig config) {

@@ -11,6 +11,7 @@ import com.netease.yunxin.app.im.R;
 import com.netease.yunxin.app.im.databinding.ActivityAboutBinding;
 import com.netease.yunxin.app.im.utils.AppUtils;
 import com.netease.yunxin.kit.common.ui.activities.BrowseActivity;
+import com.netease.yunxin.kit.corekit.im2.IMKitClient;
 
 public class AboutActivity extends AppCompatActivity {
 
@@ -27,6 +28,7 @@ public class AboutActivity extends AppCompatActivity {
             BrowseActivity.Companion.launch(
                 AboutActivity.this, getString(R.string.mine_about), productUrl));
     viewBinding.tvVersion.setText(AppUtils.getAppVersionName(this));
+    viewBinding.tvIMVersion.setText(IMKitClient.getSDKVersion());
     viewBinding.aboutTitleBar.setOnBackIconClickListener(v -> onBackPressed());
   }
 }

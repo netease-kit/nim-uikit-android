@@ -7,7 +7,7 @@ package com.netease.yunxin.kit.chatkit.ui.view.message.viewholder;
 import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-import com.netease.nimlib.sdk.team.model.Team;
+import com.netease.nimlib.sdk.v2.team.model.V2NIMTeam;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant;
 import com.netease.yunxin.kit.chatkit.ui.ChatMessageType;
@@ -25,7 +25,7 @@ public abstract class CommonBaseMessageViewHolder extends RecyclerView.ViewHolde
   // 已读回执消息
   protected long receiptTime;
   // 群聊场景下群信息
-  protected Team teamInfo;
+  protected V2NIMTeam teamInfo;
   // 消息体 多选状态
   protected boolean isMultiSelect;
   // 当前支持的自定义配置
@@ -56,7 +56,7 @@ public abstract class CommonBaseMessageViewHolder extends RecyclerView.ViewHolde
    *
    * @param teamInfo 群信息
    */
-  public void setTeamInfo(Team teamInfo) {
+  public void setTeamInfo(V2NIMTeam teamInfo) {
     this.teamInfo = teamInfo;
   }
 

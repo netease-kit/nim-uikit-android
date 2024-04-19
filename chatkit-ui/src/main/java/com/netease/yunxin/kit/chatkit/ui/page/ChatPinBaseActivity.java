@@ -7,7 +7,7 @@ package com.netease.yunxin.kit.chatkit.ui.page;
 import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.KEY_MAP_FOR_PIN;
 import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
 import static com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants.PAYLOAD_REFRESH_AUDIO_ANIM;
-import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.REQUEST_CONTACT_SELECTOR_KEY;
+import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.REQUEST_CONTACT_SELECTOR_KEY;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -23,8 +23,8 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
-import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
-import com.netease.nimlib.sdk.msg.model.AttachmentProgress;
+import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
+import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitClient;
@@ -39,14 +39,17 @@ import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.page.adapter.PinMessageAdapter;
 import com.netease.yunxin.kit.chatkit.ui.page.viewmodel.ChatPinViewModel;
 import com.netease.yunxin.kit.chatkit.ui.view.message.audio.ChatMessageAudioControl;
+import com.netease.yunxin.kit.chatkit.utils.ChatKitConstant;
 import com.netease.yunxin.kit.common.ui.action.ActionItem;
 import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
 import com.netease.yunxin.kit.common.ui.dialog.BaseBottomChoiceDialog;
 import com.netease.yunxin.kit.common.ui.dialog.BottomChoiceDialog;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
+import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.common.utils.NetworkUtils;
-import com.netease.yunxin.kit.corekit.im.IMKitClient;
-import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
+import com.netease.yunxin.kit.corekit.im2.IMKitClient;
+import com.netease.yunxin.kit.corekit.im2.model.IMMessageProgress;
+import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 import java.util.ArrayList;
 
@@ -57,16 +60,22 @@ public abstract class ChatPinBaseActivity extends BaseActivity {
   protected ChatPinViewModel viewModel;
   protected String mSessionId;
   protected String mSessionName;
-  protected SessionTypeEnum mSessionType;
+  protected V2NIMConversationType mSessionType;
   protected PinMessageAdapter pinAdapter;
   protected ChatMessageBean forwardMessage;
 
+  // 转发到单聊Launcher
   protected ActivityResultLauncher<Intent> forwardP2PLauncher;
+  // 转发到群聊Launcher
   protected ActivityResultLauncher<Intent> forwardTeamLauncher;
 
+  // 跳转到聊天页面
   public static final String ACTION_CHECK_PIN = "check_pin";
+  // 标记页面弹窗 取消置顶
   public static final String ACTION_CANCEL_PIN = "cancel_pin";
+  // 标记页面弹窗 转发消息
   public static final String ACTION_TRANSMIT_PIN = "message_transmit";
+  // 标记页面弹窗 复制消息
   public static final String ACTION_COPY_PIN = "message_copy";
 
   @Override
@@ -92,6 +101,7 @@ public abstract class ChatPinBaseActivity extends BaseActivity {
     ChatMessageAudioControl.getInstance().stopAudio();
   }
 
+  // 初始化页面View
   protected void initView() {
     viewBinding.pinTitleBar.setOnBackIconClickListener(view -> finish());
     LinearLayoutManager layoutManager = new LinearLayoutManager(this);
@@ -105,22 +115,34 @@ public abstract class ChatPinBaseActivity extends BaseActivity {
     viewBinding.pinRecyclerView.setAdapter(pinAdapter);
   }
 
+  // 初始化页面数据
   protected void initData() {
     viewModel = new ViewModelProvider(this).get(ChatPinViewModel.class);
     mSessionId = getIntent().getStringExtra(RouterConstant.KEY_SESSION_ID);
     mSessionName = getIntent().getStringExtra(RouterConstant.KEY_SESSION_NAME);
     mSessionType =
-        SessionTypeEnum.typeOfValue(getIntent().getIntExtra(RouterConstant.KEY_SESSION_TYPE, -1));
+        V2NIMConversationType.typeOfValue(
+            getIntent().getIntExtra(RouterConstant.KEY_SESSION_TYPE, -1));
 
+    // 监听标记列表查询结果
     viewModel
         .getMessageLiveData()
         .observe(
             this,
             result -> {
-              showEmptyView(result.getData() == null || result.getData().size() < 1);
-              pinAdapter.setData(result.getData());
+              if (result.getLoadStatus() == LoadStatus.Error
+                  && result.getError() != null
+                  && result.getError().getCode() == ChatKitConstant.ERROR_CODE_PARAM_INVALID) {
+                Toast.makeText(this, R.string.chat_team_error_tip_content, Toast.LENGTH_SHORT)
+                    .show();
+                finish();
+              } else {
+                showEmptyView(result.getData() == null || result.getData().size() < 1);
+                pinAdapter.setData(result.getData());
+              }
             });
 
+    // 监听标记列表移除
     viewModel
         .getRemovePinLiveData()
         .observe(
@@ -132,12 +154,13 @@ public abstract class ChatPinBaseActivity extends BaseActivity {
                       ChatMessageAudioControl.getInstance()
                           .getPlayingAudio()
                           .getMessage()
-                          .getUuid())) {
+                          .getMessageClientId())) {
                 ChatMessageAudioControl.getInstance().stopAudio();
               }
-              pinAdapter.removeDataWithUuId(result.getData());
+              pinAdapter.removeDataWithClientId(result.getData());
               showEmptyView(pinAdapter.getItemCount() < 1);
             });
+    // 监听标记列表添加
     viewModel
         .getAddPinLiveData()
         .observe(
@@ -146,15 +169,19 @@ public abstract class ChatPinBaseActivity extends BaseActivity {
               pinAdapter.addData(result.getData());
               showEmptyView(pinAdapter.getItemCount() < 1);
             });
+    // 监听标记列表消息删除
     viewModel
         .getDeleteMessageLiveData()
         .observe(
             this,
             result -> {
-              pinAdapter.removeData(result.getData());
+              if (result.isSuccess() && result.getData() != null) {
+                pinAdapter.removeDataWithClientIds(result.getData());
+              }
               showEmptyView(pinAdapter.getItemCount() < 1);
             });
 
+    // 转发到单聊Launcher
     forwardP2PLauncher =
         registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -168,11 +195,13 @@ public abstract class ChatPinBaseActivity extends BaseActivity {
                 ArrayList<String> friends =
                     data.getStringArrayListExtra(REQUEST_CONTACT_SELECTOR_KEY);
                 if (friends != null && !friends.isEmpty()) {
-                  showForwardConfirmDialog(SessionTypeEnum.P2P, friends);
+                  showForwardConfirmDialog(
+                      V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P, friends);
                 }
               }
             });
 
+    // 转发到群聊Launcher
     forwardTeamLauncher =
         registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -187,25 +216,27 @@ public abstract class ChatPinBaseActivity extends BaseActivity {
                 if (!TextUtils.isEmpty(tid)) {
                   ArrayList<String> sessionIds = new ArrayList<>();
                   sessionIds.add(tid);
-                  showForwardConfirmDialog(SessionTypeEnum.Team, sessionIds);
+                  showForwardConfirmDialog(
+                      V2NIMConversationType.V2NIM_CONVERSATION_TYPE_TEAM, sessionIds);
                 }
               }
             });
 
-    viewModel
-        .getAttachmentProgressMutableLiveData()
-        .observeForever(this::onAttachmentUpdateProgress);
+    // 监听附件下载进度
+    viewModel.getAttachmentProgressLiveData().observeForever(this::onAttachmentUpdateProgress);
 
-    if (TextUtils.isEmpty(mSessionId) || mSessionType == SessionTypeEnum.None) {
+    if (TextUtils.isEmpty(mSessionId)
+        || mSessionType == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_UNKNOWN) {
       showEmptyView(true);
       finish();
     } else {
       showEmptyView(false);
       viewModel.init(mSessionId, mSessionType);
-      viewModel.fetchPinMsg();
+      viewModel.getPinMessageList();
     }
   }
 
+  // 显示空页面
   private void showEmptyView(boolean show) {
     if (show) {
       viewBinding.pinEmptyView.setVisibility(View.VISIBLE);
@@ -214,14 +245,19 @@ public abstract class ChatPinBaseActivity extends BaseActivity {
     }
   }
 
-  protected void onAttachmentUpdateProgress(FetchResult<AttachmentProgress> fetchResult) {
-    pinAdapter.updateMessageProgress(fetchResult.getData());
+  // 附件下载进度更新
+  protected void onAttachmentUpdateProgress(FetchResult<IMMessageProgress> fetchResult) {
+    if (fetchResult.isSuccess() && fetchResult.getData() != null) {
+      pinAdapter.updateMessageProgress(fetchResult.getData());
+    }
   }
 
+  // 获取RecyclerView的ItemDecoration 普通版和娱乐版UI差异
   public RecyclerView.ItemDecoration getItemDecoration() {
     return null;
   }
 
+  // 标记列表消息点击事件监听
   private final IChatClickListener pinClickListener =
       new IChatClickListener() {
         @Override
@@ -241,46 +277,62 @@ public abstract class ChatPinBaseActivity extends BaseActivity {
         }
       };
 
+  // 标记列表，消息体点击
   private void clickMsg(ChatMessageBean messageInfo) {
-
-    if (messageInfo.getMessageData().getMessage().getMsgType() == MsgTypeEnum.text
-        || MessageHelper.isRichText(messageInfo.getMessageData())) {
+    // 文本消息和富文本消息点击进入查看页面
+    if (messageInfo.getMessageData().getMessage().getMessageType()
+            == V2NIMMessageType.V2NIM_MESSAGE_TYPE_TEXT
+        || MessageHelper.isRichTextMsg(messageInfo.getMessageData())) {
       WatchTextMessageDialog.launchDialog(
           getSupportFragmentManager(), TAG, messageInfo.getMessageData(), getPageBackgroundColor());
-    } else if (messageInfo.getMessageData().getMessage().getMsgType() == MsgTypeEnum.image) {
+    } else if (messageInfo.getMessageData().getMessage().getMessageType()
+        == V2NIMMessageType.V2NIM_MESSAGE_TYPE_IMAGE) {
+      // 图片消息点击查看大图
       ArrayList<IMMessageInfo> messageList = new ArrayList<>();
       messageList.add(messageInfo.getMessageData());
       ChatUtils.watchImage(ChatPinBaseActivity.this, messageInfo.getMessageData(), messageList);
-    } else if (messageInfo.getMessageData().getMessage().getMsgType() == MsgTypeEnum.video) {
+    } else if (messageInfo.getMessageData().getMessage().getMessageType()
+        == V2NIMMessageType.V2NIM_MESSAGE_TYPE_VIDEO) {
+      // 视频消息点击查看视频
       ChatUtils.watchVideo(ChatPinBaseActivity.this, messageInfo.getMessageData());
-    } else if (messageInfo.getMessageData().getMessage().getMsgType() == MsgTypeEnum.file) {
+    } else if (messageInfo.getMessageData().getMessage().getMessageType()
+        == V2NIMMessageType.V2NIM_MESSAGE_TYPE_FILE) {
+      // 文件消息点击查看文件,打开系统查看器
       ChatUtils.openFile(ChatPinBaseActivity.this, messageInfo.getMessageData());
-    } else if (messageInfo.getMessageData().getMessage().getMsgType() == MsgTypeEnum.location) {
-      LocationPageActivity.launch(
-          ChatPinBaseActivity.this,
-          LocationPageActivity.LAUNCH_DETAIL,
-          messageInfo.getMessageData().getMessage());
-    } else if (messageInfo.getMessageData().getMessage().getMsgType() == MsgTypeEnum.audio) {
+    } else if (messageInfo.getMessageData().getMessage().getMessageType()
+        == V2NIMMessageType.V2NIM_MESSAGE_TYPE_LOCATION) {
+      // 位置消息点击查看地图
+      XKitRouter.withKey(RouterConstant.PATH_CHAT_LOCATION_PAGE)
+          .withContext(this)
+          .withParam(RouterConstant.KEY_MESSAGE, messageInfo.getMessageData().getMessage())
+          .withParam(RouterConstant.KEY_LOCATION_PAGE_TYPE, RouterConstant.KEY_LOCATION_TYPE_DETAIL)
+          .navigate();
+    } else if (messageInfo.getMessageData().getMessage().getMessageType()
+        == V2NIMMessageType.V2NIM_MESSAGE_TYPE_AUDIO) {
+      // 音频消息点击播放音频
       pinAdapter.updateMessage(messageInfo, PAYLOAD_REFRESH_AUDIO_ANIM);
     } else {
+      // 自定义消息点击，实现在子类中
       clickCustomMessage(messageInfo);
     }
   }
 
+  // 跳转到聊天页面，并定位到指定消息
   public void jumpToChat(ChatMessageBean messageInfo) {
     String router = RouterConstant.PATH_CHAT_TEAM_PAGE;
-    if (mSessionType == SessionTypeEnum.P2P) {
+    if (mSessionType == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P) {
       router = RouterConstant.PATH_CHAT_P2P_PAGE;
     }
 
     XKitRouter.withKey(router)
-        .withParam(RouterConstant.KEY_MESSAGE_BEAN, messageInfo)
+        .withParam(RouterConstant.KEY_MESSAGE, messageInfo.getMessageData())
         .withParam(RouterConstant.CHAT_KRY, mSessionId)
         .withContext(ChatPinBaseActivity.this)
         .navigate();
     finish();
   }
 
+  // 显示更多操作弹窗
   public void showMoreActionDialog(ChatMessageBean messageInfo) {
     BaseBottomChoiceDialog dialog = getMoreActionDialog(messageInfo);
     dialog.setOnChoiceListener(
@@ -332,12 +384,13 @@ public abstract class ChatPinBaseActivity extends BaseActivity {
     return new BottomChoiceDialog(this, assembleActions(messageInfo));
   }
 
+  // 组装更多操作弹窗按钮
   public ArrayList<ActionItem> assembleActions(ChatMessageBean messageInfo) {
     ArrayList<ActionItem> actions = new ArrayList<>();
     actions.add(
         new ActionItem(ACTION_CANCEL_PIN, 0, R.string.chat_message_action_pin_cancel)
             .setTitleColorResId(R.color.color_333333));
-    if (messageInfo.getViewType() == MsgTypeEnum.text.getValue()) {
+    if (messageInfo.getViewType() == V2NIMMessageType.V2NIM_MESSAGE_TYPE_TEXT.getValue()) {
       actions.add(
           new ActionItem(ACTION_COPY_PIN, 0, R.string.chat_message_action_copy)
               .setTitleColorResId(R.color.color_333333));
@@ -351,14 +404,19 @@ public abstract class ChatPinBaseActivity extends BaseActivity {
     return actions;
   }
 
+  // 转发弹窗，子类实现。子类可以继承ChatBaseForwardSelectDialog，按照自己的UI风格实现
   protected abstract ChatBaseForwardSelectDialog getForwardSelectDialog();
 
+  // 点击弹窗中转发到单聊，子类实现后续操作
   protected abstract void toP2PSelected();
 
+  // 点击弹窗中转发到群聊，子类实现后续操作
   protected abstract void toTeamSelected();
 
+  // 点击自定义消息，子类实现后续操作
   protected void clickCustomMessage(ChatMessageBean messageBean) {}
 
+  // 转发消息，如果配置不支持群，则直接到P2P转发
   protected void onTransmit(ChatMessageBean messageBean) {
     forwardMessage = messageBean;
     if (IMKitClient.getConfigCenter().getTeamEnable()) {
@@ -371,9 +429,12 @@ public abstract class ChatPinBaseActivity extends BaseActivity {
     }
   }
 
+  // 获取页面背景颜色，子类可以复写
   protected int getPageBackgroundColor() {
     return R.color.color_eef1f4;
   }
 
-  protected void showForwardConfirmDialog(SessionTypeEnum type, ArrayList<String> sessionIds) {}
+  // 显示转发确认弹窗，子类实现
+  protected void showForwardConfirmDialog(
+      V2NIMConversationType type, ArrayList<String> sessionIds) {}
 }

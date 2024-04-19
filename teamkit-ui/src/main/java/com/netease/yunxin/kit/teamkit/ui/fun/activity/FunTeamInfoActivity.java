@@ -12,7 +12,11 @@ import com.netease.yunxin.kit.teamkit.ui.R;
 import com.netease.yunxin.kit.teamkit.ui.activity.BaseTeamInfoActivity;
 import com.netease.yunxin.kit.teamkit.ui.databinding.FunTeamInfoActivityBinding;
 
-/** team info activity */
+/**
+ * 娱乐版群信息页面，差异化UI展示
+ *
+ * <p>
+ */
 public class FunTeamInfoActivity extends BaseTeamInfoActivity {
 
   @Override

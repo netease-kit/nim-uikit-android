@@ -75,6 +75,36 @@
                 android:layout_gravity="end|center_vertical"/>
 
         </FrameLayout>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="20dp"
+            android:background="@color/color_f5f8fc"/>
+        <FrameLayout android:id="@+id/flIMVersion"
+            android:layout_width="match_parent"
+            android:layout_height="46dp">
+
+            <TextView
+                android:id="@+id/tvIMVersionTip"
+                android:layout_width="wrap_content"
+                android:layout_height="46dp"
+                android:gravity="center"
+                android:text="@string/mine_im_version"
+                android:textColor="@color/color_333333"
+                android:textSize="16dp" />
+
+            <TextView
+                android:id="@+id/tvIMVersion"
+                android:layout_width="wrap_content"
+                android:layout_height="46dp"
+                android:gravity="end|center_vertical"
+                android:singleLine="true"
+                android:textColor="@color/color_333333"
+                android:textSize="@dimen/text_size_14"
+                android:layout_gravity="end|center_vertical"/>
+
+        </FrameLayout>
 
         <View
             android:layout_width="match_parent"

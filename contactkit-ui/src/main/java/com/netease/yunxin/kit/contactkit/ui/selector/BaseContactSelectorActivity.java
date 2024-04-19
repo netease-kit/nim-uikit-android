@@ -4,8 +4,8 @@
 
 package com.netease.yunxin.kit.contactkit.ui.selector;
 
-import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.KEY_REQUEST_SELECTOR_NAME;
-import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.REQUEST_CONTACT_SELECTOR_KEY;
+import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.KEY_REQUEST_SELECTOR_NAME;
+import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.REQUEST_CONTACT_SELECTOR_KEY;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -25,10 +25,10 @@ import com.netease.yunxin.kit.common.utils.NetworkUtils;
 import com.netease.yunxin.kit.contactkit.ui.R;
 import com.netease.yunxin.kit.contactkit.ui.contact.ContactViewModel;
 import com.netease.yunxin.kit.contactkit.ui.interfaces.ContactActions;
-import com.netease.yunxin.kit.contactkit.ui.model.ContactFriendBean;
 import com.netease.yunxin.kit.contactkit.ui.model.IViewTypeConstant;
+import com.netease.yunxin.kit.contactkit.ui.v2model.V2ContactFriendBean;
 import com.netease.yunxin.kit.contactkit.ui.view.ContactListView;
-import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
+import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -98,13 +98,13 @@ public abstract class BaseContactSelectorActivity extends BaseActivity {
                           R.string.contact_selector_max_count, String.valueOf(maxSelectCount)),
                       Toast.LENGTH_LONG)
                   .show();
-              ((ContactFriendBean) data).setSelected(false);
+              ((V2ContactFriendBean) data).setSelected(false);
               contactListView.updateContactData((data));
             } else {
-              selectedListAdapter.addFriend((ContactFriendBean) data);
+              selectedListAdapter.addFriend((V2ContactFriendBean) data);
             }
           } else {
-            selectedListAdapter.removeFriend((ContactFriendBean) data);
+            selectedListAdapter.removeFriend((V2ContactFriendBean) data);
           }
           int count = selectedListAdapter.getItemCount();
           if (count <= 0) {
@@ -195,12 +195,12 @@ public abstract class BaseContactSelectorActivity extends BaseActivity {
             this,
             contactBeansResult -> {
               if (contactBeansResult.getLoadStatus() == LoadStatus.Success) {
-                List<ContactFriendBean> accountList = filterUser(contactBeansResult.getData());
+                List<V2ContactFriendBean> accountList = filterUser(contactBeansResult.getData());
                 contactListView.onFriendDataSourceChanged(accountList);
                 showEmptyView(accountList == null || accountList.size() < 1);
               }
             });
-    viewModel.fetchContactList();
+    viewModel.fetchContactList(true);
   }
 
   protected void showEmptyView(boolean show) {
@@ -213,12 +213,12 @@ public abstract class BaseContactSelectorActivity extends BaseActivity {
     }
   }
 
-  protected List<ContactFriendBean> filterUser(List<ContactFriendBean> source) {
+  protected List<V2ContactFriendBean> filterUser(List<V2ContactFriendBean> source) {
     if (filterUser == null || filterUser.isEmpty()) {
       return source;
     }
-    List<ContactFriendBean> result = new ArrayList<>(source);
-    for (ContactFriendBean friendBean : source) {
+    List<V2ContactFriendBean> result = new ArrayList<>(source);
+    for (V2ContactFriendBean friendBean : source) {
       if (filterUser.contains(friendBean.data.getAccount())) {
         result.remove(friendBean);
       }
@@ -228,7 +228,7 @@ public abstract class BaseContactSelectorActivity extends BaseActivity {
 
   protected ArrayList<String> getSelectedAccount() {
     ArrayList<String> result = new ArrayList<>();
-    for (ContactFriendBean bean : selectedListAdapter.getSelectedFriends()) {
+    for (V2ContactFriendBean bean : selectedListAdapter.getSelectedFriends()) {
       result.add(bean.data.getAccount());
     }
     return result;
@@ -236,7 +236,7 @@ public abstract class BaseContactSelectorActivity extends BaseActivity {
 
   protected ArrayList<String> getSelectedName() {
     ArrayList<String> result = new ArrayList<>();
-    for (ContactFriendBean bean : selectedListAdapter.getSelectedFriends()) {
+    for (V2ContactFriendBean bean : selectedListAdapter.getSelectedFriends()) {
       if (bean.data.getUserInfo() == null) {
         continue;
       }

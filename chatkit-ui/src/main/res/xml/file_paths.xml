@@ -14,4 +14,7 @@
     <cache-path
         name="cachePath"
         path="/cache"/>
+    <cache-path
+        name="cache"
+        path="nim/file/" />
 </paths>

@@ -10,8 +10,8 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import androidx.annotation.NonNull;
-import com.netease.nimlib.sdk.msg.attachment.FileAttachment;
-import com.netease.nimlib.sdk.msg.model.IMMessage;
+import com.netease.nimlib.sdk.v2.message.V2NIMMessage;
+import com.netease.nimlib.sdk.v2.message.attachment.V2NIMMessageFileAttachment;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatUtils;
 import com.netease.yunxin.kit.chatkit.ui.databinding.FunChatBasePinViewHolderBinding;
@@ -43,7 +43,7 @@ public class FunChatFilePinViewHolder extends FunChatBasePinViewHolder {
     loadData();
   }
 
-  protected IMMessage getMsgInternal() {
+  protected V2NIMMessage getMsgInternal() {
     return currentMessage.getMessageData().getMessage();
   }
 
@@ -54,15 +54,16 @@ public class FunChatFilePinViewHolder extends FunChatBasePinViewHolder {
   }
 
   private void loadData() {
-    FileAttachment attachment = (FileAttachment) getMsgInternal().getAttachment();
+    V2NIMMessageFileAttachment attachment =
+        (V2NIMMessageFileAttachment) getMsgInternal().getAttachment();
     if (attachment == null) {
       return;
     }
-    binding.displayName.setText(attachment.getDisplayName());
+    binding.displayName.setText(attachment.getName());
     binding.displaySize.setText(ChatUtils.formatFileSize(attachment.getSize()));
-    String fileType = attachment.getExtension();
+    String fileType = attachment.getExt();
     if (TextUtils.isEmpty(fileType)) {
-      fileType = FileUtils.getFileExtension(attachment.getDisplayName());
+      fileType = FileUtils.getFileExtension(attachment.getName());
     }
     if (properties != null
         && properties.fileDrawable != null
@@ -71,7 +72,7 @@ public class FunChatFilePinViewHolder extends FunChatBasePinViewHolder {
     } else {
       binding.fileTypeIv.setImageResource(ChatUtils.getFileIcon(fileType));
     }
-    ALog.d(LIB_TAG, TAG, "file:" + fileType + "name:" + attachment.getDisplayName());
+    ALog.d(LIB_TAG, TAG, "file:" + fileType + "name:" + attachment.getName());
   }
 
   @Override

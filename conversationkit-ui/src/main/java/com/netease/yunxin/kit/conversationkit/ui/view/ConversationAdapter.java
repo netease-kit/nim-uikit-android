@@ -11,40 +11,38 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import com.netease.nimlib.sdk.friend.model.MuteListChangedNotify;
-import com.netease.nimlib.sdk.team.constant.TeamMessageNotifyTypeEnum;
-import com.netease.nimlib.sdk.team.model.Team;
 import com.netease.yunxin.kit.alog.ALog;
-import com.netease.yunxin.kit.chatkit.model.ConversationInfo;
 import com.netease.yunxin.kit.common.ui.viewholder.BaseViewHolder;
 import com.netease.yunxin.kit.common.ui.viewholder.ViewHolderClickListener;
 import com.netease.yunxin.kit.conversationkit.ui.IConversationFactory;
-import com.netease.yunxin.kit.conversationkit.ui.common.DataUtils;
 import com.netease.yunxin.kit.conversationkit.ui.model.ConversationBean;
 import com.netease.yunxin.kit.conversationkit.ui.page.DefaultViewHolderFactory;
-import com.netease.yunxin.kit.corekit.im.model.FriendInfo;
-import com.netease.yunxin.kit.corekit.im.model.UserInfo;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 
-/** conversation adapter */
+/** 会话列表适配器 */
 public class ConversationAdapter extends RecyclerView.Adapter<BaseViewHolder> {
 
   private final String TAG = "ConversationAdapter";
+  // 默认使用默认的viewHolder工厂,用于创建viewHolder
   private IConversationFactory viewHolderFactory = new DefaultViewHolderFactory();
+  // 会话列表数据
   private final List<ConversationBean> conversationList = new ArrayList<>();
-  private Comparator<ConversationInfo> dataComparator;
+  // 数据比较器
+  private Comparator<ConversationBean> dataComparator;
+  // 点击事件监听
   private ViewHolderClickListener clickListener;
+  // 是否显示
   private boolean isShow = true;
+  // 布局管理器,用于滚动到指定位置和获取第一个可见位置
   private final LinearLayoutManager layoutManager;
 
   public ConversationAdapter(LinearLayoutManager layoutManager) {
     this.layoutManager = layoutManager;
   }
 
-  /** set data and clear conversationList */
+  // 设置数据，将原有数据清空，添加新数据
   public void setData(List<ConversationBean> data) {
     conversationList.clear();
     if (data != null) {
@@ -67,23 +65,30 @@ public class ConversationAdapter extends RecyclerView.Adapter<BaseViewHolder> {
     }
   }
 
-  /** append data to list */
+  // 添加数据，将新数据添加到原有数据的末尾
   public void appendData(List<ConversationBean> data) {
     if (data != null) {
-      int position = conversationList.size();
-      conversationList.addAll(data);
-      notifyItemInserted(position);
+      for (ConversationBean bean : data) {
+        ALog.d(LIB_TAG, TAG, "appendData" + bean.getConversationId());
+        int insertIndex = searchComparatorIndex(bean, false);
+        conversationList.add(insertIndex, bean);
+        if (isShow) {
+          notifyItemInserted(insertIndex);
+        }
+      }
     }
   }
 
+  // 更新数据
   public void update(List<ConversationBean> data) {
     for (int i = 0; data != null && i < data.size(); i++) {
       update(data.get(i));
     }
   }
 
+  // 更新数据，如果数据已存在，则更新，不存在则添加
   public void update(ConversationBean data) {
-    ALog.d(LIB_TAG, TAG, "update" + data.infoData.getContactId());
+    ALog.d(LIB_TAG, TAG, "update" + data.getConversationId());
     int position = layoutManager.findFirstVisibleItemPosition();
     int removeIndex = -1;
     for (int j = 0; j < conversationList.size(); j++) {
@@ -92,10 +97,14 @@ public class ConversationAdapter extends RecyclerView.Adapter<BaseViewHolder> {
         break;
       }
     }
+    boolean addStickTop =
+        data.infoData.isStickTop()
+            && removeIndex > -1
+            && !conversationList.get(removeIndex).infoData.isStickTop();
     ALog.d(LIB_TAG, TAG, "update, removeIndex:" + removeIndex);
     if (removeIndex > -1) {
       conversationList.remove(removeIndex);
-      int insertIndex = searchComparatorIndex(data);
+      int insertIndex = searchComparatorIndex(data, addStickTop);
       ALog.d(
           LIB_TAG,
           TAG,
@@ -106,7 +115,7 @@ public class ConversationAdapter extends RecyclerView.Adapter<BaseViewHolder> {
         notifyItemChanged(insertIndex);
       }
     } else {
-      int insertIndex = searchComparatorIndex(data);
+      int insertIndex = searchComparatorIndex(data, addStickTop);
       conversationList.add(insertIndex, data);
       if (isShow) {
         notifyItemInserted(insertIndex);
@@ -115,80 +124,14 @@ public class ConversationAdapter extends RecyclerView.Adapter<BaseViewHolder> {
     layoutManager.scrollToPosition(position);
   }
 
-  public void updateUserInfo(List<UserInfo> data) {
-    Map<String, UserInfo> accountMap = DataUtils.getUserInfoMap(data);
-    if (accountMap != null) {
-      for (int i = 0; i < conversationList.size(); i++) {
-        UserInfo info = conversationList.get(i).infoData.getUserInfo();
-        if (info != null && accountMap.containsKey(info.getAccount())) {
-          conversationList.get(i).infoData.setUserInfo(accountMap.get(info.getAccount()));
-          if (isShow) {
-            notifyItemChanged(i);
-          }
-        }
-      }
-    }
-  }
-
-  public void updateFriendInfo(List<FriendInfo> data) {
-    Map<String, FriendInfo> accountMap = DataUtils.getFriendInfoMap(data);
-    if (accountMap != null) {
-      for (int i = 0; i < conversationList.size(); i++) {
-        UserInfo info = conversationList.get(i).infoData.getUserInfo();
-        if (info != null && accountMap.containsKey(info.getAccount())) {
-          conversationList.get(i).infoData.setFriendInfo(accountMap.get(info.getAccount()));
-          if (isShow) {
-            notifyItemChanged(i);
-          }
-        }
-      }
-    }
-  }
-
-  public void updateTeamInfo(List<Team> data) {
-    Map<String, Team> accountMap = DataUtils.getTeamInfoMap(data);
-    if (accountMap != null) {
-      for (int i = 0; i < conversationList.size(); i++) {
-        ConversationInfo info = conversationList.get(i).infoData;
-        if (info != null
-            && info.getTeamInfo() != null
-            && accountMap.containsKey(info.getTeamInfo().getId())) {
-          Team team = accountMap.get(info.getTeamInfo().getId());
-          info.setTeamInfo(team);
-          if (team != null && team.getMessageNotifyType() != null) {
-            info.setMute(team.getMessageNotifyType() == TeamMessageNotifyTypeEnum.Mute);
-          }
-          if (isShow) {
-            notifyItemChanged(i);
-          }
-        }
-      }
-    }
-  }
-
-  public void updateMuteInfo(MuteListChangedNotify data) {
-    if (data != null) {
-      for (int i = 0; i < conversationList.size(); i++) {
-        String contactId = conversationList.get(i).infoData.getContactId();
-        if (TextUtils.equals(contactId, data.getAccount())) {
-          conversationList.get(i).infoData.setMute(data.isMute());
-          if (isShow) {
-            notifyItemChanged(i);
-          }
-        }
-      }
-    }
-  }
-
-  private int searchComparatorIndex(ConversationBean data) {
+  private int searchComparatorIndex(ConversationBean data, boolean addStickTop) {
     int index = conversationList.size();
     // add stick must be insert 0
-    if (data.infoData.isStickTop()) {
+    if (addStickTop && data.infoData.isStickTop()) {
       return 0;
     }
     for (int i = 0; i < conversationList.size(); i++) {
-      if (dataComparator != null
-          && dataComparator.compare(data.infoData, conversationList.get(i).infoData) < 1) {
+      if (dataComparator != null && dataComparator.compare(data, conversationList.get(i)) < 1) {
         index = i;
         break;
       }
@@ -197,14 +140,14 @@ public class ConversationAdapter extends RecyclerView.Adapter<BaseViewHolder> {
     return index;
   }
 
-  public void removeData(List<ConversationBean> dataList) {
+  public void removeData(List<String> dataList) {
     if (dataList == null || dataList.size() < 1) {
       return;
     }
-    for (ConversationBean data : dataList) {
+    for (String data : dataList) {
       int index = -1;
       for (int j = 0; j < conversationList.size(); j++) {
-        if (data.equals(conversationList.get(j))) {
+        if (TextUtils.equals(data, conversationList.get(j).getConversationId())) {
           index = j;
           break;
         }
@@ -223,7 +166,7 @@ public class ConversationAdapter extends RecyclerView.Adapter<BaseViewHolder> {
   public void removeData(String id) {
     int index = -1;
     for (int j = 0; j < conversationList.size(); j++) {
-      if (TextUtils.equals(conversationList.get(j).infoData.getContactId(), id)) {
+      if (TextUtils.equals(conversationList.get(j).getConversationId(), id)) {
         index = j;
         break;
       }
@@ -242,11 +185,12 @@ public class ConversationAdapter extends RecyclerView.Adapter<BaseViewHolder> {
     }
   }
 
+  // 更新@信息
   public void updateAit(List<String> idList) {
     int index = -1;
     for (String id : idList) {
       for (int j = 0; j < conversationList.size(); j++) {
-        if (TextUtils.equals(conversationList.get(j).infoData.getContactId(), id)) {
+        if (TextUtils.equals(conversationList.get(j).getConversationId(), id)) {
           index = j;
           break;
         }
@@ -257,16 +201,17 @@ public class ConversationAdapter extends RecyclerView.Adapter<BaseViewHolder> {
     }
   }
 
+  // 添加置顶展示
   public void addStickTop(String id) {
     int index = -1;
     for (int j = 0; j < conversationList.size(); j++) {
-      if (TextUtils.equals(conversationList.get(j).infoData.getContactId(), id)) {
+      if (TextUtils.equals(conversationList.get(j).getConversationId(), id)) {
         index = j;
         break;
       }
     }
     if (index > -1) {
-      conversationList.get(index).infoData.setStickTop(true);
+      conversationList.get(index).setStickTop(true);
       ConversationBean data = conversationList.remove(index);
       conversationList.add(0, data);
       if (isShow) {
@@ -276,18 +221,19 @@ public class ConversationAdapter extends RecyclerView.Adapter<BaseViewHolder> {
     }
   }
 
+  // 移除置顶展示
   public void removeStickTop(String id) {
     int index = -1;
     for (int j = 0; j < conversationList.size(); j++) {
-      if (TextUtils.equals(conversationList.get(j).infoData.getContactId(), id)) {
+      if (TextUtils.equals(conversationList.get(j).getConversationId(), id)) {
         index = j;
         break;
       }
     }
     if (index > -1) {
       ConversationBean data = conversationList.remove(index);
-      data.infoData.setStickTop(false);
-      int insertIndex = searchComparatorIndex(data);
+      data.setStickTop(false);
+      int insertIndex = searchComparatorIndex(data, false);
       conversationList.add(insertIndex, data);
       if (isShow) {
         notifyItemMoved(index, insertIndex);
@@ -304,7 +250,7 @@ public class ConversationAdapter extends RecyclerView.Adapter<BaseViewHolder> {
     this.clickListener = listener;
   }
 
-  public void setComparator(Comparator<ConversationInfo> comparator) {
+  public void setComparator(Comparator<ConversationBean> comparator) {
     this.dataComparator = comparator;
   }
 
