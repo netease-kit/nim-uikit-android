@@ -18,8 +18,9 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import androidx.annotation.Nullable;
-import com.netease.nimlib.sdk.msg.model.AttachmentProgress;
-import com.netease.nimlib.sdk.msg.model.IMMessage;
+import com.netease.nimlib.sdk.uinfo.model.UserInfo;
+import com.netease.nimlib.sdk.v2.message.V2NIMMessage;
+import com.netease.nimlib.sdk.v2.message.V2NIMMessageRefer;
 import com.netease.yunxin.kit.chatkit.ui.ChatUIConfig;
 import com.netease.yunxin.kit.chatkit.ui.ChatViewHolderDefaultFactory;
 import com.netease.yunxin.kit.chatkit.ui.IChatFactory;
@@ -40,7 +41,7 @@ import com.netease.yunxin.kit.chatkit.ui.view.ait.AitTextChangeListener;
 import com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants;
 import com.netease.yunxin.kit.chatkit.ui.view.message.ChatMessageListView;
 import com.netease.yunxin.kit.common.ui.widgets.BackTitleBar;
-import com.netease.yunxin.kit.corekit.im.model.UserInfo;
+import com.netease.yunxin.kit.corekit.im2.model.IMMessageProgress;
 import java.util.List;
 
 /** chat view contain all view about chat */
@@ -202,7 +203,7 @@ public class ChatView extends LinearLayout implements IChatView, AitTextChangeLi
     }
     String title = binding.chatBottomInputLayout.getRichInputTitle();
     String content = binding.chatBottomInputLayout.getRichInputContent();
-    MessageHelper.identifyExpressionForEditMsg(
+    MessageHelper.identifyExpressionForRichTextMsg(
         getContext(),
         binding.chatRichContentEt,
         content,
@@ -285,6 +286,11 @@ public class ChatView extends LinearLayout implements IChatView, AitTextChangeLi
     binding.messageView.updateUserInfo(userInfoList);
   }
 
+  @Override
+  public void notifyUserInfoChanged(List<String> accountIdList) {
+    binding.messageView.notifyUserInfoChanged(accountIdList);
+  }
+
   public void setMessageBackground(Drawable drawable) {
     binding.chatViewBody.setBackground(drawable);
   }
@@ -304,6 +310,8 @@ public class ChatView extends LinearLayout implements IChatView, AitTextChangeLi
 
   @Override
   public void setReeditMessage(String content) {
+    hideRichInputPanel();
+    binding.chatBottomInputLayout.switchRichInput(false, "", "");
     binding.chatBottomInputLayout.setReEditMessage(content);
   }
 
@@ -317,6 +325,9 @@ public class ChatView extends LinearLayout implements IChatView, AitTextChangeLi
   @Override
   public void setReplyMessage(ChatMessageBean messageBean) {
     binding.chatBottomInputLayout.setReplyMessage(messageBean);
+    if (binding.chatRichLayout.getVisibility() == VISIBLE) {
+      binding.chatRichContentEt.requestFocus();
+    }
   }
 
   public void setTypeState(boolean isTyping) {
@@ -375,6 +386,16 @@ public class ChatView extends LinearLayout implements IChatView, AitTextChangeLi
     binding.messageView.deleteMessage(message);
   }
 
+  /**
+   * 根据clientId删除消息
+   *
+   * @param clientIds 消息clientId
+   */
+  @Override
+  public void deleteMessages(List<String> clientIds) {
+    binding.messageView.deleteMessages(clientIds);
+  }
+
   @Override
   public List<ChatMessageBean> getMessageList() {
     if (binding.messageView.getMessageAdapter() != null) {
@@ -384,7 +405,7 @@ public class ChatView extends LinearLayout implements IChatView, AitTextChangeLi
   }
 
   @Override
-  public void revokeMessage(ChatMessageBean message) {
+  public void revokeMessage(V2NIMMessageRefer message) {
     binding.messageView.revokeMessage(message);
   }
 
@@ -396,11 +417,11 @@ public class ChatView extends LinearLayout implements IChatView, AitTextChangeLi
     binding.messageView.updateMessage(message, payload);
   }
 
-  public void updateMessage(IMMessage message, Object payload) {
+  public void updateMessage(V2NIMMessage message, Object payload) {
     binding.messageView.updateMessage(message, payload);
   }
 
-  public void updateProgress(AttachmentProgress progress) {
+  public void updateProgress(IMMessageProgress progress) {
     binding.messageView.updateAttachmentProgress(progress);
   }
 
@@ -444,6 +465,7 @@ public class ChatView extends LinearLayout implements IChatView, AitTextChangeLi
     return binding;
   }
 
+  @Override
   public FrameLayout getChatBodyTopLayout() {
     return binding.chatViewBodyTop;
   }
@@ -472,16 +494,14 @@ public class ChatView extends LinearLayout implements IChatView, AitTextChangeLi
     return binding.getRoot();
   }
 
-  private TextWatcher richTitleInputTextWatcher =
+  private final TextWatcher richTitleInputTextWatcher =
       new TextWatcher() {
         private int start;
         private int count;
 
         @Override
         public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-          if (!canRender) {
-            return;
-          }
+          if (!canRender) {}
         }
 
         @Override
@@ -515,7 +535,7 @@ public class ChatView extends LinearLayout implements IChatView, AitTextChangeLi
         }
       };
 
-  private TextWatcher richBodyInputTextWatcher =
+  private final TextWatcher richBodyInputTextWatcher =
       new TextWatcher() {
         private int start;
         private int count;

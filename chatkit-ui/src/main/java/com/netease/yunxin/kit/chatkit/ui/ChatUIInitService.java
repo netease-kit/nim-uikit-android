@@ -6,13 +6,14 @@ package com.netease.yunxin.kit.chatkit.ui;
 
 import android.content.Context;
 import androidx.annotation.NonNull;
-import com.netease.nimlib.sdk.Observer;
-import com.netease.nimlib.sdk.msg.model.RevokeMsgNotification;
-import com.netease.yunxin.kit.chatkit.repo.ChatObserverRepo;
+import com.netease.yunxin.kit.chatkit.listener.MessageRevokeNotification;
+import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.chatkit.ui.custom.ChatConfigManager;
+import com.netease.yunxin.kit.chatkit.ui.impl.MessageObserverImpl;
 import com.netease.yunxin.kit.chatkit.ui.view.ait.AitService;
-import com.netease.yunxin.kit.corekit.im.IIMKitInitService;
+import com.netease.yunxin.kit.corekit.im2.IIMKitInitService;
+import java.util.List;
 
 /** Chat模块初始化服务。在初始化完成之后，会调用{@link #onInit(Context)}方法。 */
 public class ChatUIInitService implements IIMKitInitService {
@@ -23,13 +24,25 @@ public class ChatUIInitService implements IIMKitInitService {
   }
 
   private void registerForInsertLocalMsgWhenRevoke() {
-    ChatObserverRepo.registerRevokeMessageObserve(
-        (Observer<RevokeMsgNotification>)
-            revokeMsgNotification -> {
-              // 注册消息撤回时是否插入本地消息
-              if (ChatConfigManager.enableInsertLocalMsgWhenRevoke) {
-                MessageHelper.saveLocalRevokeMessage(revokeMsgNotification.getMessage(), false);
+    ChatRepo.addMessageListener(
+        new MessageObserverImpl() {
+          @Override
+          public void onMessageRevokeNotifications(
+              List<MessageRevokeNotification> revokeNotifications) {
+            if (ChatConfigManager.enableInsertLocalMsgWhenRevoke) {
+              for (MessageRevokeNotification revokeNotification : revokeNotifications) {
+                //非当前会话的保存
+                if (!revokeNotification
+                    .getNimNotification()
+                    .getMessageRefer()
+                    .getConversationId()
+                    .equals(ChatRepo.getConversationId())) {
+                  MessageHelper.saveLocalMessageForOthersRevokeMessage(
+                      revokeNotification.getNimNotification());
+                }
               }
-            });
+            }
+          }
+        });
   }
 }

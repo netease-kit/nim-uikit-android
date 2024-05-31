@@ -19,7 +19,7 @@ import com.netease.yunxin.kit.common.utils.SizeUtils;
 import com.netease.yunxin.kit.contactkit.ui.R;
 import com.netease.yunxin.kit.contactkit.ui.databinding.FunSearchActivityBinding;
 import com.netease.yunxin.kit.contactkit.ui.search.page.BaseSearchActivity;
-import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
+import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 
 public class FunSearchActivity extends BaseSearchActivity {
 

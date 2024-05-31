@@ -9,18 +9,16 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import com.netease.nimlib.sdk.msg.constant.MsgDirectionEnum;
-import com.netease.nimlib.sdk.msg.constant.MsgStatusEnum;
-import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
-import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
+import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
+import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageSendingState;
+import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
-import com.netease.yunxin.kit.chatkit.repo.ContactRepo;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatMsgCache;
+import com.netease.yunxin.kit.chatkit.ui.common.ChatUserCache;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.chatkit.ui.custom.ChatConfigManager;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatBaseMessageViewHolderBinding;
@@ -32,12 +30,13 @@ import com.netease.yunxin.kit.chatkit.ui.view.message.viewholder.options.CommonU
 import com.netease.yunxin.kit.chatkit.ui.view.message.viewholder.options.MessageStatusUIOption;
 import com.netease.yunxin.kit.chatkit.ui.view.message.viewholder.options.SignalUIOption;
 import com.netease.yunxin.kit.chatkit.ui.view.message.viewholder.options.UserInfoUIOption;
+import com.netease.yunxin.kit.chatkit.utils.MessageExtensionHelper;
 import com.netease.yunxin.kit.common.ui.utils.AvatarColor;
 import com.netease.yunxin.kit.common.ui.utils.TimeFormatUtils;
 import com.netease.yunxin.kit.common.utils.SizeUtils;
-import com.netease.yunxin.kit.corekit.im.IMKitClient;
-import com.netease.yunxin.kit.corekit.im.model.UserInfo;
-import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
+import com.netease.yunxin.kit.corekit.im2.IMKitClient;
+import com.netease.yunxin.kit.corekit.im2.model.V2UserInfo;
+import com.netease.yunxin.kit.corekit.im2.provider.V2MessageProvider;
 import java.util.List;
 import java.util.Map;
 
@@ -79,9 +78,12 @@ public abstract class ChatBaseMessageViewHolder extends CommonBaseMessageViewHol
     if (messageReader == null
         || currentMessage == null
         || currentMessage.getMessageData() == null
-        || currentMessage.getMessageData().getMessage().getDirect() != MsgDirectionEnum.In
-        || !currentMessage.getMessageData().getMessage().needMsgAck()
-        || currentMessage.getMessageData().getMessage().hasSendAck()) {
+        || currentMessage.getMessageData().getMessage().isSelf()
+        || !currentMessage
+            .getMessageData()
+            .getMessage()
+            .getMessageConfig()
+            .isReadReceiptEnabled()) {
       return;
     }
     // 当消息被展示出时发送消息已读回执
@@ -191,13 +193,12 @@ public abstract class ChatBaseMessageViewHolder extends CommonBaseMessageViewHol
     return true;
   }
 
-  protected boolean needMultiSelect() {
-    if (currentMessage.isRevoked()
-        || currentMessage.getMessageData().getMessage().getMsgType() == MsgTypeEnum.notification
-        || currentMessage.getMessageData().getMessage().getMsgType() == MsgTypeEnum.tip) {
-      return false;
-    }
-    return true;
+  //多选状态下，是否展示选择按钮（撤回消息、通知消息和提示消息不展示多选）
+  protected boolean needShowMultiSelect() {
+    return currentMessage.getMessageData().getMessage().getMessageType()
+            != V2NIMMessageType.V2NIM_MESSAGE_TYPE_NOTIFICATION
+        && currentMessage.getMessageData().getMessage().getMessageType()
+            != V2NIMMessageType.V2NIM_MESSAGE_TYPE_TIPS;
   }
 
   /**
@@ -215,7 +216,7 @@ public abstract class ChatBaseMessageViewHolder extends CommonBaseMessageViewHol
   protected void onProgressUpdate(ChatMessageBean data) {}
 
   //// 消息标记状态渲染，消息撤回时需要移除标记，添加标记也都会触发此方法，
-  //// 是否存在标记内容需要根据 ChatMessageBean 中方法判断
+  //// 是否存在标记内容需要根据 V2ChatMessageBean 中方法判断
   protected void onMessageSignal(ChatMessageBean data) {
     ALog.d(ChatKitUIConstant.LIB_TAG, TAG, "onMessageSignal" + data.getPinAccid());
     SignalUIOption signalUIOption = uiOptions.signalUIOption;
@@ -226,15 +227,12 @@ public abstract class ChatBaseMessageViewHolder extends CommonBaseMessageViewHol
     if (!TextUtils.isEmpty(data.getPinAccid()) && !data.isRevoked()) {
       // 消息存在标记内容，且消息未被撤回展示标记相关ui
       baseViewBinding.llSignal.setVisibility(View.VISIBLE);
-      String tid = null;
-      if (data.getMessageData().getMessage().getSessionType() == SessionTypeEnum.Team) {
-        tid = data.getMessageData().getMessage().getSessionId();
-      }
 
-      String nick = MessageHelper.getChatDisplayNameYou(tid, data.getPinAccid());
-      if (data.getMessageData().getMessage().getSessionType() == SessionTypeEnum.P2P) {
+      String nick = MessageHelper.getChatPinDisplayName(data.getPinAccid());
+      if (data.getMessageData().getMessage().getConversationType()
+          == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P) {
         // 展示点对点聊天时标记内容及 ui
-        if (signalUIOption.signalTipTextForP2p != null) {
+        if (signalUIOption != null && signalUIOption.signalTipTextForP2p != null) {
           baseViewBinding.tvSignal.setText(signalUIOption.signalTipTextForP2p);
         } else {
           baseViewBinding.tvSignal.setText(
@@ -242,7 +240,8 @@ public abstract class ChatBaseMessageViewHolder extends CommonBaseMessageViewHol
                   IMKitClient.getApplicationContext().getString(R.string.chat_message_signal_tip),
                   nick));
         }
-      } else if (data.getMessageData().getMessage().getSessionType() == SessionTypeEnum.Team) {
+      } else if (data.getMessageData().getMessage().getConversationType()
+          == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_TEAM) {
         // 展示群聊天时标记内容及 ui
         if (signalUIOption.signalTipTextForGroup != null) {
           baseViewBinding.tvSignal.setText(signalUIOption.signalTipTextForGroup);
@@ -282,7 +281,7 @@ public abstract class ChatBaseMessageViewHolder extends CommonBaseMessageViewHol
   protected void onMessageRevokeStatus(ChatMessageBean data) {}
 
   /**
-   * 消息撤回时展示此消息在撤回状态下的 ui，是否为撤回消息需要自己在此方法中根据 ChatMessageBean 中的方法判断
+   * 消息撤回时展示此消息在撤回状态下的 ui，是否为撤回消息需要自己在此方法中根据 V2ChatMessageBean 中的方法判断
    *
    * @param data 待展示消息体
    */
@@ -304,32 +303,8 @@ public abstract class ChatBaseMessageViewHolder extends CommonBaseMessageViewHol
     }
     // 处理消息发送方为他人的个人信息内容设置
     if (MessageHelper.isReceivedMessage(message)) {
-      // 防止UserInfo数据不存在，若消息发送方不为当前用户好友可能发生此种情况需要额外请求数据并进行异步加载
-      if (message.getMessageData().getFromUser() == null) {
-        // TODO: 移除合并至repo
-        ContactRepo.fetchUserInfo(
-            message.getMessageData().getMessage().getFromAccount(),
-            new FetchCallback<UserInfo>() {
-              @Override
-              public void onSuccess(@Nullable UserInfo param) {
-                message.getMessageData().setFromUser(param);
-                loadNickAndAvatarForOthers(message);
-              }
-
-              @Override
-              public void onFailed(int code) {
-                loadNickAndAvatarForOthers(message);
-              }
-
-              @Override
-              public void onException(@Nullable Throwable exception) {
-                loadNickAndAvatarForOthers(message);
-              }
-            });
-      } else {
-        // 用户信息存在直接设置对方的个人信息内容
-        loadNickAndAvatarForOthers(message);
-      }
+      // 用户信息存在直接设置对方的个人信息内容
+      loadNickAndAvatarForOthers(message);
     } else {
       // 处理消息发送方为自己时的个人信息内容设置
       loadNickAndAvatarForMy(message);
@@ -362,22 +337,16 @@ public abstract class ChatBaseMessageViewHolder extends CommonBaseMessageViewHol
       // 更新若头像消息后对头像依赖的间距
       updateGoneParam(size);
     }
+    V2UserInfo myUserInfo = new V2UserInfo(IMKitClient.account(), IMKitClient.currentUser());
     // 设置当前用户昵称
-    String name = MessageHelper.getChatMessageUserName(message.getMessageData());
+    String name = myUserInfo.getUserInfoName();
     if (!TextUtils.isEmpty(name)) {
       baseViewBinding.myName.setText(name);
     }
     // 设置当前用户头像
-    String messageUser = message.getMessageData().getMessage().getFromAccount();
-    UserInfo userInfo = MessageHelper.getChatMessageUserInfo(messageUser);
-    if (userInfo == null) {
-      userInfo = message.getMessageData().getFromUser();
-    }
-    if (userInfo != null) {
-      String nickname = userInfo.getName();
-      baseViewBinding.myAvatar.setData(
-          userInfo.getAvatar(), nickname, AvatarColor.avatarColor(userInfo.getAccount()));
-    }
+    String avatar = myUserInfo.getAvatar();
+    String avatarName = myUserInfo.getUserInfoName();
+    baseViewBinding.myAvatar.setData(avatar, avatarName, AvatarColor.avatarColor(avatarName));
     // 自定义设置是否展示当前用户头像
     if (userInfoUIOption.myAvatarVisible != null) {
       baseViewBinding.myAvatar.setVisibility(
@@ -414,22 +383,13 @@ public abstract class ChatBaseMessageViewHolder extends CommonBaseMessageViewHol
   protected void loadNickAndAvatarForOthers(ChatMessageBean message) {
 
     // 获取对方用户头像
-    String avatar =
-        MessageHelper.getChatCacheAvatar(message.getMessageData().getMessage().getFromAccount());
-    String avatarName = message.getMessageData().getMessage().getFromNick();
-    if (TextUtils.isEmpty(avatar)) {
-      avatar =
-          message.getMessageData().getFromUser() == null
-              ? ""
-              : message.getMessageData().getFromUser().getAvatar();
-    }
-    // 获取用户展示头像时文字内容
-    if (avatarName == null) {
-      avatarName = message.getMessageData().getMessage().getFromAccount();
-    }
-
+    String fromAccount = message.getMessageData().getMessage().getSenderId();
+    String avatar = MessageHelper.getChatCacheAvatar(fromAccount);
+    String avatarName = MessageHelper.getChatCacheAvatarName(fromAccount);
     if (isForwardMsg()) {
-      Map<String, Object> remoteExt = message.getMessageData().getMessage().getRemoteExtension();
+      Map<String, Object> remoteExt =
+          MessageExtensionHelper.parseJsonStringToMap(
+              message.getMessageData().getMessage().getServerExtension());
       if (remoteExt != null) {
         if (remoteExt.containsKey(ChatKitUIConstant.KEY_MERGE_REMOTE_EXTENSION_NICK)) {
           avatarName = remoteExt.get(ChatKitUIConstant.KEY_MERGE_REMOTE_EXTENSION_NICK).toString();
@@ -442,9 +402,10 @@ public abstract class ChatBaseMessageViewHolder extends CommonBaseMessageViewHol
       baseViewBinding.otherUsername.setText(avatarName);
     } else {
       // 获取对方用户昵称
-      String name = MessageHelper.getChatMessageUserName(message.getMessageData());
+      String name = MessageHelper.getChatMessageUserNameByAccount(fromAccount);
       // 当前若时在群会话中，则展示对方用户昵称否则不展示
-      if (message.getMessageData().getMessage().getSessionType() == SessionTypeEnum.Team) {
+      if (message.getMessageData().getMessage().getConversationType()
+          == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_TEAM) {
         baseViewBinding.otherUsername.setVisibility(View.VISIBLE);
         baseViewBinding.otherUsername.setText(name);
       } else {
@@ -454,9 +415,9 @@ public abstract class ChatBaseMessageViewHolder extends CommonBaseMessageViewHol
 
     if (!isForwardMsg()) {
       avatarName =
-          message.getMessageData().getFromUser() == null
-              ? message.getMessageData().getMessage().getFromAccount()
-              : message.getMessageData().getFromUser().getUserInfoName();
+          ChatUserCache.getInstance()
+              .getFriendInfo(message.getMessageData().getMessage().getSenderId())
+              .getAvatarName();
     }
     // 用户信息ui自定义设置内容
     UserInfoUIOption userInfoUIOption = uiOptions.userInfoUIOption;
@@ -481,9 +442,7 @@ public abstract class ChatBaseMessageViewHolder extends CommonBaseMessageViewHol
     }
     // 设置对方用户头像
     baseViewBinding.otherUserAvatar.setData(
-        avatar,
-        avatarName,
-        AvatarColor.avatarColor(message.getMessageData().getMessage().getFromAccount()));
+        avatar, avatarName, AvatarColor.avatarColor(fromAccount));
     // 自定义设置对方用户头像是否展示
     if (userInfoUIOption.otherUserAvatarVisible != null) {
       baseViewBinding.otherUserAvatar.setVisibility(
@@ -513,7 +472,7 @@ public abstract class ChatBaseMessageViewHolder extends CommonBaseMessageViewHol
   }
 
   /**
-   * 若当前消息为回复消息时，渲染回复状态的 ui，是否为回复消息需要用户在此方法中根据 ChatMessageBean 中方法判断
+   * 若当前消息为回复消息时，渲染回复状态的 ui，是否为回复消息需要用户在此方法中根据 V2ChatMessageBean 中方法判断
    *
    * @param messageBean 待展示消息体
    */
@@ -531,13 +490,14 @@ public abstract class ChatBaseMessageViewHolder extends CommonBaseMessageViewHol
     ConstraintLayout.LayoutParams bottomLayoutParams =
         (ConstraintLayout.LayoutParams) baseViewBinding.messageBottomGroup.getLayoutParams();
 
-    if (isMultiSelect && needMultiSelect()) {
-      baseViewBinding.chatMsgSelectLayout.setVisibility(View.VISIBLE);
-      if (ChatMsgCache.contains(message.getMessageData().getMessage().getUuid())) {
-        baseViewBinding.chatSelectorCb.setChecked(true);
+    if (isMultiSelect && needShowMultiSelect()) {
+      if (currentMessage.isRevoked()) {
+        baseViewBinding.chatMsgSelectLayout.setVisibility(View.INVISIBLE);
       } else {
-        baseViewBinding.chatSelectorCb.setChecked(false);
+        baseViewBinding.chatMsgSelectLayout.setVisibility(View.VISIBLE);
       }
+      baseViewBinding.chatSelectorCb.setChecked(
+          ChatMsgCache.contains(message.getMessageData().getMessage().getMessageClientId()));
       avatarLayoutParams.setMarginEnd(SizeUtils.dp2px(mineAvatarMarginEndInMulti));
       containerLayoutParams.goneEndMargin = SizeUtils.dp2px(containerMarginEndInMulti);
       topLayoutParams.goneEndMargin = SizeUtils.dp2px(containerMarginEndInMulti);
@@ -573,9 +533,9 @@ public abstract class ChatBaseMessageViewHolder extends CommonBaseMessageViewHol
     if (baseViewBinding.tvTime.getVisibility() == View.VISIBLE) {
       // 获取待展示消息时间戳，若为 0 则设置为当前系统时间
       long createTime =
-          message.getMessageData().getMessage().getTime() == 0
+          message.getMessageData().getMessage().getCreateTime() == 0
               ? System.currentTimeMillis()
-              : message.getMessageData().getMessage().getTime();
+              : message.getMessageData().getMessage().getCreateTime();
       // 自定义设置时间格式，用户可以通过此设置修改时间戳的 format 格式
       if (commonUIOption.timeFormat != null) {
         baseViewBinding.tvTime.setText(String.format(commonUIOption.timeFormat, createTime));
@@ -601,16 +561,16 @@ public abstract class ChatBaseMessageViewHolder extends CommonBaseMessageViewHol
   protected boolean needShowTimeView(ChatMessageBean message, ChatMessageBean lastMessage) {
     CommonUIOption commonUIOption = uiOptions.commonUIOption;
     long createTime =
-        message.getMessageData().getMessage().getTime() == 0
+        message.getMessageData().getMessage().getCreateTime() == 0
             ? System.currentTimeMillis()
-            : message.getMessageData().getMessage().getTime();
+            : message.getMessageData().getMessage().getCreateTime();
     // 用户可以通过 CommonUIOption#messageTimeIntervalMillisecond 完成修改，默认 5 分钟
     long intervalTime =
         commonUIOption.messageTimeIntervalMillisecond != null
             ? commonUIOption.messageTimeIntervalMillisecond
             : CommonUIOption.DEFAULT_MESSAGE_TIME_INTERVAL_MILLISECOND;
     return lastMessage == null
-        || Math.abs(createTime - lastMessage.getMessageData().getMessage().getTime())
+        || Math.abs(createTime - lastMessage.getMessageData().getMessage().getCreateTime())
             > intervalTime;
   }
 
@@ -620,7 +580,7 @@ public abstract class ChatBaseMessageViewHolder extends CommonBaseMessageViewHol
    * @param data 待展示消息体
    */
   protected void setStatus(ChatMessageBean data) {
-    // 消息状态自定义设置
+    // 消息状态自定义设置a
     MessageStatusUIOption messageStatusUIOption = uiOptions.messageStatusUIOption;
     // 自定义消息状态是否展示
     if (messageStatusUIOption.enableStatus != null && !messageStatusUIOption.enableStatus) {
@@ -639,7 +599,8 @@ public abstract class ChatBaseMessageViewHolder extends CommonBaseMessageViewHol
     }
     // 展示相关状态配置
     baseViewBinding.messageStatus.setVisibility(View.VISIBLE);
-    if (data.getMessageData().getMessage().getStatus() == MsgStatusEnum.sending) { // 消息发送过程状态展示
+    if (data.getMessageData().getSendingState()
+        == V2NIMMessageSendingState.V2NIM_MESSAGE_SENDING_STATE_SENDING) { // 消息发送过程状态展示
       baseViewBinding.ivStatus.setVisibility(View.GONE);
       baseViewBinding.readProcess.setVisibility(View.GONE);
       // 自定义是否展示消息发送中状态
@@ -649,8 +610,8 @@ public abstract class ChatBaseMessageViewHolder extends CommonBaseMessageViewHol
       } else {
         baseViewBinding.messageSending.setVisibility(View.VISIBLE);
       }
-    } else if (((data.getMessageData().getMessage().getStatus() == MsgStatusEnum.fail)
-        || data.getMessageData().getMessage().isInBlackList())) { // 消息发送失败或者对方将自己拉黑时展示
+    } else if (((data.getMessageData().getSendingState()
+        == V2NIMMessageSendingState.V2NIM_MESSAGE_SENDING_STATE_FAILED))) { // 消息发送失败或者对方将自己拉黑时展示
       baseViewBinding.readProcess.setVisibility(View.GONE);
       baseViewBinding.messageSending.setVisibility(View.GONE);
       // 自定义设置消息失败图片资源
@@ -666,20 +627,20 @@ public abstract class ChatBaseMessageViewHolder extends CommonBaseMessageViewHol
       } else {
         baseViewBinding.ivStatus.setVisibility(View.VISIBLE);
       }
-    } else if (data.getMessageData().getMessage().getSessionType()
-        == SessionTypeEnum.P2P) { // p2p 消息发送成功状态
+    } else if (data.getMessageData().getMessage().getConversationType()
+        == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P) { // p2p 消息发送成功状态
       baseViewBinding.messageSending.setVisibility(View.GONE);
       baseViewBinding.readProcess.setVisibility(View.GONE);
       // 若消息不需要展示消息已读状态 或者 MessageProperties#getShowP2pMessageStatus 返回 false
       // 控制不展示点对点消息发送成功后的已读状态，则不进行点对点会话中消息已读状态展示，否则展示
       if (!properties.getShowP2pMessageStatus()
-          || !data.getMessageData().getMessage().needMsgAck()
+          || !data.getMessageData().getMessage().getMessageConfig().isReadReceiptEnabled()
           || !ChatConfigManager.showReadStatus) {
         baseViewBinding.ivStatus.setVisibility(View.GONE);
       } else {
         baseViewBinding.ivStatus.setVisibility(View.VISIBLE);
         // 判断消息是否已读，根据已读状态设置对应状态图标
-        if (data.getMessageData().getMessage().isRemoteRead()) {
+        if (V2MessageProvider.INSTANCE.isPeerRead(data.getMessageData().getMessage())) {
           if (messageStatusUIOption.readFlagIconRes != null) {
             // 自定义设置消息已读状态图标资源
             baseViewBinding.ivStatus.setImageResource(messageStatusUIOption.readFlagIconRes);
@@ -701,14 +662,14 @@ public abstract class ChatBaseMessageViewHolder extends CommonBaseMessageViewHol
         baseViewBinding.ivStatus.setVisibility(
             messageStatusUIOption.showReadStatus ? View.VISIBLE : View.GONE);
       }
-    } else if (data.getMessageData().getMessage().getSessionType()
-        == SessionTypeEnum.Team) { // 群聊消息发送成功状态
+    } else if (data.getMessageData().getMessage().getConversationType()
+        == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_TEAM) { // 群聊消息发送成功状态
       baseViewBinding.messageSending.setVisibility(View.GONE);
       baseViewBinding.ivStatus.setVisibility(View.GONE);
       // 若群聊不需要展示已读，或者 MessageProperties#getShowTeamMessageStatus 返回 false
       // 控制不展示群聊的已读状态，则不进行点群会话中消息已读状态展示，否则展示
       if (!properties.getShowTeamMessageStatus()
-          || !data.getMessageData().getMessage().needMsgAck()
+          || !data.getMessageData().getMessage().getMessageConfig().isReadReceiptEnabled()
           || !ChatConfigManager.showReadStatus) {
         baseViewBinding.readProcess.setVisibility(View.GONE);
         return;
@@ -720,16 +681,19 @@ public abstract class ChatBaseMessageViewHolder extends CommonBaseMessageViewHol
               ? messageStatusUIOption.maxReadingNum
               : MessageStatusUIOption.DEFAULT_MAX_READING_COUNT;
       if ((teamInfo != null && teamInfo.getMemberCount() >= maxNum)
-          || !data.getMessageData().getMessage().needMsgAck()) {
+          || !data.getMessageData().getMessage().getMessageConfig().isReadReceiptEnabled()) {
         baseViewBinding.readProcess.setVisibility(View.GONE);
         return;
       }
       // 已读人数
-      int ackCount = data.getMessageData().getMessage().getTeamMsgAckCount();
+      int ackCount = data.getMessageData().getReadCount();
       // 未读人数
-      int unAckCount = data.getMessageData().getMessage().getTeamMsgUnAckCount();
+      int unAckCount = data.getMessageData().getUnReadCount();
       // 人员总数
       float all = ackCount + unAckCount;
+      ALog.d(
+          "ChatBaseMessageViewHolder",
+          "ackCount = " + ackCount + " unAckCount = " + unAckCount + " all = " + all);
       // 若获取到 all 人数 <= 0 则不展示已读状态
       if (all > 0) {
         // 计算已读进度
@@ -839,8 +803,8 @@ public abstract class ChatBaseMessageViewHolder extends CommonBaseMessageViewHol
           if (isMultiSelect) {
             return;
           }
-          if (currentMessage.getMessageData().getMessage().getStatus() == MsgStatusEnum.fail
-              || currentMessage.getMessageData().getMessage().isInBlackList()) {
+          if (currentMessage.getMessageData().getSendingState()
+              == V2NIMMessageSendingState.V2NIM_MESSAGE_SENDING_STATE_FAILED) {
             itemClickListener.onSendFailBtnClick(v, position, currentMessage);
           }
         });

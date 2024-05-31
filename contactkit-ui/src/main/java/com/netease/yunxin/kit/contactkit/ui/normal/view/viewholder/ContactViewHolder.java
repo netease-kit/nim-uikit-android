@@ -14,7 +14,7 @@ import com.netease.yunxin.kit.contactkit.ui.model.ContactFriendBean;
 import com.netease.yunxin.kit.contactkit.ui.utils.ColorUtils;
 import com.netease.yunxin.kit.contactkit.ui.view.ContactListViewAttrs;
 import com.netease.yunxin.kit.contactkit.ui.view.viewholder.BaseContactViewHolder;
-import com.netease.yunxin.kit.corekit.im.model.FriendInfo;
+import com.netease.yunxin.kit.corekit.im2.model.UserWithFriend;
 
 public class ContactViewHolder extends BaseContactViewHolder {
 
@@ -31,7 +31,7 @@ public class ContactViewHolder extends BaseContactViewHolder {
 
   @Override
   public void onBind(BaseContactBean bean, int position, ContactListViewAttrs attrs) {
-    FriendInfo friendInfo = ((ContactFriendBean) bean).data;
+    UserWithFriend friendInfo = ((ContactFriendBean) bean).data;
     String nickName = friendInfo.getName();
     String avatarName = friendInfo.getAvatarName();
     binding.tvName.setText(nickName);

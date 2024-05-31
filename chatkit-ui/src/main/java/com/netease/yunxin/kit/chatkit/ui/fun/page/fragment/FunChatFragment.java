@@ -11,8 +11,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
-import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
+import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatMsgCache;
@@ -26,7 +25,7 @@ import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.page.fragment.ChatBaseFragment;
 import com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants;
 import com.netease.yunxin.kit.common.utils.NetworkUtils;
-import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
+import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 import java.util.ArrayList;
 
@@ -58,22 +57,17 @@ public abstract class FunChatFragment extends ChatBaseFragment {
   }
 
   @Override
-  protected void forwardP2P() {
-    ChatUtils.startP2PSelector(
-        getContext(), RouterConstant.PATH_FUN_CONTACT_SELECTOR_PAGE, null, forwardP2PLauncher);
+  protected void onStartForward(String action) {
+    super.onStartForward(action);
+    ChatUtils.startForwardSelector(
+        getContext(), RouterConstant.PATH_FUN_FORWARD_SELECTOR_PAGE, false, forwardLauncher);
   }
 
   @Override
-  protected void forwardTeam() {
-    ChatUtils.startTeamList(
-        getContext(), RouterConstant.PATH_FUN_MY_TEAM_PAGE, forwardTeamLauncher);
-  }
-
-  @Override
-  public void showForwardConfirmDialog(SessionTypeEnum type, ArrayList<String> sessionIds) {
+  public void showForwardConfirmDialog(ArrayList<String> conversationIds) {
     FunChatMessageForwardConfirmDialog confirmDialog =
         FunChatMessageForwardConfirmDialog.createForwardConfirmDialog(
-            type, sessionIds, getSessionName(), true, forwardAction);
+            conversationIds, getConversationName(), true, forwardAction);
     confirmDialog.setCallback(
         (inputMsg) -> {
           if (!NetworkUtils.isConnected()) {
@@ -83,32 +77,31 @@ public abstract class FunChatFragment extends ChatBaseFragment {
           }
           if (TextUtils.equals(forwardAction, ActionConstants.POP_ACTION_TRANSMIT)) {
             ChatMessageBean msg = getForwardMessage();
-            if (msg != null) {
-              for (String accId : sessionIds) {
-                viewModel.sendForwardMessage(msg, inputMsg, accId, type);
-              }
-            }
+            viewModel.sendForwardMessage(msg, inputMsg, conversationIds);
+
           } else if (TextUtils.equals(forwardAction, ActionConstants.ACTION_TYPE_MULTI_FORWARD)) {
             viewModel.sendMultiForwardMessage(
-                getSessionName(), inputMsg, sessionIds, type, ChatMsgCache.getMessageList());
+                getConversationName(), inputMsg, conversationIds, ChatMsgCache.getMessageList());
             clearMessageMultiSelectStatus();
           } else if (TextUtils.equals(forwardAction, ActionConstants.ACTION_TYPE_SINGLE_FORWARD)) {
-            viewModel.sendForwardMessages(
-                getSessionName(), inputMsg, sessionIds, type, ChatMsgCache.getMessageList());
+            viewModel.sendForwardMessages(inputMsg, conversationIds, ChatMsgCache.getMessageList());
             clearMessageMultiSelectStatus();
           }
         });
     confirmDialog.show(getParentFragmentManager(), FunChatMessageForwardConfirmDialog.TAG);
   }
 
-  public String getSessionName() {
-    return sessionID;
+  public String getConversationName() {
+    return accountId;
   }
 
   @Override
   protected void clickMessage(IMMessageInfo messageInfo, boolean isReply) {
-    if (messageInfo.getMessage().getMsgType() == MsgTypeEnum.custom) {
-      if (messageInfo.getMessage().getAttachment() instanceof MultiForwardAttachment) {
+    if (messageInfo == null) {
+      return;
+    }
+    if (messageInfo.getMessage().getMessageType() == V2NIMMessageType.V2NIM_MESSAGE_TYPE_CUSTOM) {
+      if (messageInfo.getAttachment() instanceof MultiForwardAttachment) {
         XKitRouter.withKey(RouterConstant.PATH_FUN_CHAT_FORWARD_PAGE)
             .withContext(getContext())
             .withParam(RouterConstant.KEY_MESSAGE, messageInfo)

@@ -13,7 +13,14 @@ import androidx.annotation.Nullable;
 import com.netease.yunxin.kit.teamkit.ui.R;
 import com.netease.yunxin.kit.teamkit.ui.activity.BaseTeamManagerActivity;
 import com.netease.yunxin.kit.teamkit.ui.databinding.FunTeamManagerActivityBinding;
+import com.netease.yunxin.kit.teamkit.ui.dialog.BaseTeamIdentifyDialog;
+import com.netease.yunxin.kit.teamkit.ui.fun.dialog.FunTeamIdentifyDialog;
 
+/**
+ * 娱乐版群管理页面，差异化UI展示
+ *
+ * <p>
+ */
 public class FunTeamManagerActivity extends BaseTeamManagerActivity {
   private FunTeamManagerActivityBinding binding;
 
@@ -34,8 +41,15 @@ public class FunTeamManagerActivity extends BaseTeamManagerActivity {
     viewUpdate = binding.tvUpdateInfoPermission;
     tvUpdateValue = binding.tvUpdateInfoValue;
     viewAit = binding.tvNotifyAllMembersPermission;
+    viewTopSticky = binding.tvTopStickyPermission;
     tvAitValue = binding.tvNotifyAllMembersValue;
+    tvTopStickyValue = binding.tvTopStickyValue;
     return binding.getRoot();
+  }
+
+  @Override
+  protected BaseTeamIdentifyDialog getTeamIdentifyDialog() {
+    return new FunTeamIdentifyDialog(this);
   }
 
   @Override

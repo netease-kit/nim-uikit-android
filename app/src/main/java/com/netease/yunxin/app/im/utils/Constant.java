@@ -10,6 +10,7 @@ public class Constant {
   public static final String PAGE_MAIN = "https://netease.yunxin.im.demo.home";
   public static final String CONFIG_APPKEY_KEY = "com.netease.nim.appKey";
   public static final String CONFIG_APPKEY_KEY_OVERSEA = "com.netease.nim.oversea.appKey";
+  public static final String CONFIG_AMAP_SERVER_KEY = "com.amap.api.v2.web.apikey";
 
   public static final String TITLE = "title";
   public static final String CHOICE_LIST = "choice_list";
@@ -27,5 +28,5 @@ public class Constant {
   public static final int CHINA_CONFIG = 0;
   public static final int OVERSEA_CONFIG = 1;
 
-  public static final int NETWORK_ERROR_CODE = 415;
+  public static final int NETWORK_ERROR_CODE = 192003;
 }

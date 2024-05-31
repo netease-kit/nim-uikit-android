@@ -17,6 +17,7 @@ import com.netease.yunxin.kit.conversationkit.ui.common.ConversationUtils;
 import com.netease.yunxin.kit.conversationkit.ui.databinding.ConversationViewHolderBinding;
 import com.netease.yunxin.kit.conversationkit.ui.model.ConversationBean;
 
+/** 普通版会话列表基础ViewHolder 加载会话列表的基础UI，包括头像、名称、消息内容、时间、未读数、置顶状态等 */
 public class ConversationBaseViewHolder extends BaseViewHolder<ConversationBean> {
 
   protected ConversationViewHolderBinding viewBinding;
@@ -32,7 +33,9 @@ public class ConversationBaseViewHolder extends BaseViewHolder<ConversationBean>
   public void onBindData(ConversationBean data, int position) {
     loadUIConfig();
 
-    if (data.infoData.isStickTop()) {
+    // 置顶信息，ConversationBean中保存的是在UI操作结果后的置顶状态，如果没有置顶状态，则使用infoData中的置顶状态
+    boolean isStickTop = data.isStickTop() != null ? data.isStickTop() : data.infoData.isStickTop();
+    if (isStickTop) {
       viewBinding.rootView.setBackground(stickTopDrawable);
     } else {
       viewBinding.rootView.setBackground(itemDrawable);
@@ -42,9 +45,9 @@ public class ConversationBaseViewHolder extends BaseViewHolder<ConversationBean>
         ConversationUtils.getConversationText(viewBinding.getRoot().getContext(), data.infoData));
     viewBinding.timeTv.setText(
         TimeFormatUtils.formatMillisecond(
-            viewBinding.getRoot().getContext(), data.infoData.getTime()));
+            viewBinding.getRoot().getContext(), data.getLastMsgTime()));
 
-    if (data.infoData.getMute()) {
+    if (data.infoData.isMute()) {
       viewBinding.muteIv.setVisibility(View.VISIBLE);
       viewBinding.unreadTv.setVisibility(View.GONE);
     } else {
@@ -72,6 +75,7 @@ public class ConversationBaseViewHolder extends BaseViewHolder<ConversationBean>
         v -> itemListener.onAvatarLongClick(v, data, position));
   }
 
+  /** 加载UI配置,包括字体颜色、大小、背景等 */
   private void loadUIConfig() {
     itemDrawable =
         ResourcesCompat.getDrawable(

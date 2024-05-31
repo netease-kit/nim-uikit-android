@@ -9,32 +9,33 @@ import static com.netease.yunxin.kit.contactkit.ui.ContactConstant.LIB_TAG;
 import android.text.TextUtils;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
-import com.netease.nimlib.sdk.Observer;
-import com.netease.nimlib.sdk.team.model.Team;
+import com.netease.nimlib.sdk.v2.team.V2NIMTeamListener;
+import com.netease.nimlib.sdk.v2.team.model.V2NIMTeam;
 import com.netease.yunxin.kit.alog.ALog;
-import com.netease.yunxin.kit.chatkit.repo.TeamObserverRepo;
+import com.netease.yunxin.kit.chatkit.impl.TeamListenerImpl;
 import com.netease.yunxin.kit.chatkit.repo.TeamRepo;
 import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.contactkit.ui.model.ContactTeamBean;
-import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
-import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
+import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
+import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+/** 群组列表ViewModel */
 public class TeamListViewModel extends BaseViewModel {
   private final String TAG = "TeamListViewModel";
 
+  // 群组列表数据
   private final MutableLiveData<FetchResult<List<ContactTeamBean>>> resultLiveData =
       new MutableLiveData<>();
   private final FetchResult<List<ContactTeamBean>> fetchResult =
       new FetchResult<>(LoadStatus.Finish);
   private final List<ContactTeamBean> teamBeanList = new ArrayList<>();
-  private final Observer<List<Team>> teamUpdateObserver;
-  private final Observer<Team> teamRemoveObserver;
+  // 默认跳转路径
   private String defaultRoutePath = RouterConstant.PATH_CHAT_TEAM_PAGE;
 
   public void configRoutePath(String path) {
@@ -46,26 +47,69 @@ public class TeamListViewModel extends BaseViewModel {
   }
 
   public TeamListViewModel() {
-    teamUpdateObserver = this::updateTeamData;
-    teamRemoveObserver = this::removeTeamData;
-    TeamObserverRepo.registerTeamUpdateObserver(teamUpdateObserver);
-    TeamObserverRepo.registerTeamRemoveObserver(teamRemoveObserver);
+    TeamRepo.addTeamListener(teamListener);
   }
 
-  public void fetchTeamList() {
-    ALog.d(LIB_TAG, TAG, "fetchTeamList");
+  // 群组监听
+  private V2NIMTeamListener teamListener =
+      new TeamListenerImpl() {
+
+        @Override
+        public void onTeamCreated(V2NIMTeam team) {
+          ALog.d(LIB_TAG, TAG, "onTeamCreated:" + (team != null ? team.getTeamId() : "null"));
+          updateTeamData(team);
+        }
+
+        @Override
+        public void onTeamDismissed(V2NIMTeam team) {
+          ALog.d(LIB_TAG, TAG, "onTeamDismissed:" + (team != null ? team.getTeamId() : "null"));
+
+          removeTeamData(team);
+        }
+
+        @Override
+        public void onTeamJoined(V2NIMTeam team) {
+          ALog.d(LIB_TAG, TAG, "onTeamJoined:" + (team != null ? team.getTeamId() : "null"));
+
+          updateTeamData(team);
+        }
+
+        @Override
+        public void onTeamLeft(V2NIMTeam team, boolean isKicked) {
+          ALog.d(LIB_TAG, TAG, "onTeamLeft:" + (team != null ? team.getTeamId() : "null"));
+
+          removeTeamData(team);
+        }
+
+        @Override
+        public void onTeamInfoUpdated(V2NIMTeam team) {
+          ALog.d(LIB_TAG, TAG, "onTeamInfoUpdated:" + (team != null ? team.getTeamId() : "null"));
+
+          updateTeamData(team);
+        }
+      };
+
+  // 获取群组列表
+  public void getTeamList() {
+    ALog.d(LIB_TAG, TAG, "getTeamList");
     fetchResult.setStatus(LoadStatus.Loading);
     resultLiveData.postValue(fetchResult);
     TeamRepo.getTeamList(
-        new FetchCallback<List<Team>>() {
+        new FetchCallback<>() {
           @Override
-          public void onSuccess(List<Team> param) {
-            ALog.d(
-                LIB_TAG, TAG, "fetchTeamList,onSuccess:" + (param == null ? "null" : param.size()));
+          public void onError(int errorCode, @Nullable String errorMsg) {
+            ALog.d(LIB_TAG, TAG, "getTeamList,onFailed:" + errorCode);
+            fetchResult.setError(errorCode, errorMsg);
+            resultLiveData.postValue(fetchResult);
+          }
+
+          @Override
+          public void onSuccess(@Nullable List<V2NIMTeam> data) {
+            ALog.d(LIB_TAG, TAG, "getTeamList,onSuccess:" + (data == null ? "null" : data.size()));
             teamBeanList.clear();
-            if (param != null && param.size() > 0) {
+            if (data != null && data.size() > 0) {
               fetchResult.setStatus(LoadStatus.Success);
-              for (Team teamInfo : param) {
+              for (V2NIMTeam teamInfo : data) {
                 ContactTeamBean teamBean = new ContactTeamBean(teamInfo);
                 teamBean.router = defaultRoutePath;
                 teamBeanList.add(0, teamBean);
@@ -78,29 +122,16 @@ public class TeamListViewModel extends BaseViewModel {
             }
             resultLiveData.postValue(fetchResult);
           }
-
-          @Override
-          public void onFailed(int code) {
-            ALog.d(LIB_TAG, TAG, "fetchTeamList,onFailed:" + code);
-            fetchResult.setError(code, "");
-            resultLiveData.postValue(fetchResult);
-          }
-
-          @Override
-          public void onException(@Nullable Throwable exception) {
-            ALog.d(LIB_TAG, TAG, "fetchTeamList,onException");
-            fetchResult.setError(-1, "");
-            resultLiveData.postValue(fetchResult);
-          }
         });
   }
 
-  private void removeTeamData(Team teamInfo) {
+  // 移除群组数据
+  private void removeTeamData(V2NIMTeam teamInfo) {
     if (teamInfo != null) {
-      ALog.d(LIB_TAG, TAG, "removeTeamData:" + teamInfo.getId());
+      ALog.d(LIB_TAG, TAG, "removeTeamData:" + teamInfo.getTeamId());
       List<ContactTeamBean> remove = new ArrayList<>();
       for (ContactTeamBean bean : teamBeanList) {
-        if (TextUtils.equals(teamInfo.getId(), bean.data.getId())) {
+        if (TextUtils.equals(teamInfo.getTeamId(), bean.data.getTeamId())) {
           remove.add(bean);
           break;
         }
@@ -111,29 +142,28 @@ public class TeamListViewModel extends BaseViewModel {
         fetchResult.setData(remove);
         resultLiveData.postValue(fetchResult);
       } else {
-        fetchTeamList();
+        getTeamList();
       }
     }
   }
 
-  private void updateTeamData(List<Team> teamInfoList) {
-    if (teamInfoList != null && !teamInfoList.isEmpty()) {
-      ALog.d(LIB_TAG, TAG, "updateTeamData:" + teamInfoList.size());
+  // 更新群组数据
+  private void updateTeamData(V2NIMTeam teamInfo) {
+    if (teamInfo != null) {
+      ALog.d(LIB_TAG, TAG, "updateTeamData:" + teamInfo.getTeamId());
       List<ContactTeamBean> add = new ArrayList<>();
-      for (Team teamInfo : teamInfoList) {
-        boolean has = false;
-        for (ContactTeamBean bean : teamBeanList) {
-          if (TextUtils.equals(teamInfo.getId(), bean.data.getId())) {
-            has = true;
-            break;
-          }
+      boolean has = false;
+      for (ContactTeamBean bean : teamBeanList) {
+        if (TextUtils.equals(teamInfo.getTeamId(), bean.data.getTeamId())) {
+          has = true;
+          break;
         }
-        if (!has) {
-          ContactTeamBean teamBean = new ContactTeamBean(teamInfo);
-          teamBean.router = defaultRoutePath;
-          add.add(teamBean);
-          teamBeanList.add(0, teamBean);
-        }
+      }
+      if (!has) {
+        ContactTeamBean teamBean = new ContactTeamBean(teamInfo);
+        teamBean.router = defaultRoutePath;
+        add.add(teamBean);
+        teamBeanList.add(0, teamBean);
       }
 
       if (add.size() > 0) {
@@ -144,7 +174,8 @@ public class TeamListViewModel extends BaseViewModel {
     }
   }
 
-  private Comparator<ContactTeamBean> teamComparator =
+  // 群组排序
+  private final Comparator<ContactTeamBean> teamComparator =
       (bean1, bean2) -> {
         int result;
         if (bean1 == null) {
@@ -154,16 +185,15 @@ public class TeamListViewModel extends BaseViewModel {
         } else if (bean1.data.getCreateTime() >= bean2.data.getCreateTime()) {
           result = -1;
         } else {
-          result = 1;
+          result = 0;
         }
-        ALog.d(LIB_TAG, TAG, "teamComparator, result:" + result);
         return result;
       };
 
+  // 清除数据
   @Override
   protected void onCleared() {
     super.onCleared();
-    TeamObserverRepo.unregisterTeamUpdateObserver(teamUpdateObserver);
-    TeamObserverRepo.unregisterTeamRemoveObserver(teamRemoveObserver);
+    TeamRepo.removeTeamListener(teamListener);
   }
 }

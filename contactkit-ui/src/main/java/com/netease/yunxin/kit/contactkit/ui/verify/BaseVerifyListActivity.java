@@ -14,7 +14,6 @@ import com.netease.yunxin.kit.contactkit.ui.R;
 import com.netease.yunxin.kit.contactkit.ui.activity.BaseListActivity;
 import com.netease.yunxin.kit.contactkit.ui.databinding.BaseListActivityLayoutBinding;
 import com.netease.yunxin.kit.contactkit.ui.model.ContactVerifyInfoBean;
-import com.netease.yunxin.kit.corekit.im.model.SystemMessageInfoType;
 import java.util.List;
 
 public class BaseVerifyListActivity extends BaseListActivity implements ILoadListener {
@@ -23,7 +22,7 @@ public class BaseVerifyListActivity extends BaseListActivity implements ILoadLis
   protected boolean hasInit = false;
   protected int seriesPageCount = 0;
   protected final int seriesPageLimit = 20;
-  protected final int error_duplicate = 509;
+  protected final int error_duplicate = 104405;
 
   protected void configViewHolderFactory() {}
 
@@ -82,7 +81,7 @@ public class BaseVerifyListActivity extends BaseListActivity implements ILoadLis
                   addNotifyData(result.getData());
                 } else if (result.getType() == FetchResult.FetchType.Update) {
                   for (ContactVerifyInfoBean bean : result.getData()) {
-                    binding.contactListView.updateContactDataAndSort(bean);
+                    binding.contactListView.updateVerifyDate(bean);
                   }
                 }
               }
@@ -107,25 +106,15 @@ public class BaseVerifyListActivity extends BaseListActivity implements ILoadLis
     return 0;
   }
 
-  protected void toastResult(boolean agree, SystemMessageInfoType type, int errorCode) {
+  protected void toastResult(boolean agree, int errorCode) {
     String content = null;
     if (errorCode == error_duplicate) {
       content = getResources().getString(R.string.verify_duplicate_fail);
-    } else if (type == SystemMessageInfoType.AddFriend) {
+    } else {
       content =
           agree
               ? getResources().getString(R.string.agree_add_friend_fail)
               : getResources().getString(R.string.disagree_add_friend_fail);
-    } else if ((type == SystemMessageInfoType.ApplyJoinTeam)) {
-      content =
-          agree
-              ? getResources().getString(R.string.agree_apply_join_team_fail)
-              : getResources().getString(R.string.disagree_apply_join_team_fail);
-    } else if ((type == SystemMessageInfoType.TeamInvite)) {
-      content =
-          agree
-              ? getResources().getString(R.string.agree_invite_team_fail)
-              : getResources().getString(R.string.disagree_invite_team_fail);
     }
     Toast.makeText(this, content, Toast.LENGTH_SHORT).show();
   }

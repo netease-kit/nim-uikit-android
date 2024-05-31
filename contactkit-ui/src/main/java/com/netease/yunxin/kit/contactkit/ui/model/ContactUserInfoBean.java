@@ -4,25 +4,23 @@
 
 package com.netease.yunxin.kit.contactkit.ui.model;
 
-import android.text.TextUtils;
-import com.netease.yunxin.kit.corekit.im.model.FriendInfo;
-import com.netease.yunxin.kit.corekit.im.model.UserInfo;
+import com.netease.yunxin.kit.corekit.im2.model.UserWithFriend;
+import com.netease.yunxin.kit.corekit.im2.model.V2UserInfo;
 
 /** profile page user info */
 public class ContactUserInfoBean {
-  public UserInfo data;
-  public FriendInfo friendInfo;
+  public V2UserInfo data;
+  public UserWithFriend friendInfo;
   public boolean isFriend;
   public boolean isBlack;
-  public boolean messageNotify = true;
 
-  public ContactUserInfoBean(UserInfo user) {
+  public ContactUserInfoBean(V2UserInfo user) {
     this.data = user;
   }
 
   public String getName() {
     String name = data.getUserInfoName();
-    if (friendInfo != null && !TextUtils.isEmpty(friendInfo.getAlias())) {
+    if (friendInfo != null) {
       name = friendInfo.getName();
     }
 

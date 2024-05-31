@@ -11,7 +11,11 @@ import com.netease.yunxin.kit.common.ui.photo.BasePhotoChoiceDialog;
 import com.netease.yunxin.kit.teamkit.ui.R;
 import com.netease.yunxin.kit.teamkit.ui.databinding.FunDialogPhotoChoiceBinding;
 
-/** This dialog supports to take photos or get a image from album and upload to nos service. */
+/**
+ * 娱乐版群头像选择弹窗，差异化UI展示
+ *
+ * <p>
+ */
 public class FunPhotoChoiceDialog extends BasePhotoChoiceDialog {
   public FunPhotoChoiceDialog(@NonNull Activity activity) {
     super(activity, R.style.FunBottomDialogTheme);

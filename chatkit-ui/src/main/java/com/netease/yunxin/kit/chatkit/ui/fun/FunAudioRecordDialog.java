@@ -198,9 +198,7 @@ public class FunAudioRecordDialog extends Dialog {
       timer = 0;
     }
     viewBinding.recordingMaxTimeTv.setText(String.format(remindText, timer));
-    if (status == STATUS_RECORD) {
-      viewBinding.recordingMaxTimeTv.setVisibility(View.VISIBLE);
-      viewBinding.recordLottieView.setVisibility(View.GONE);
-    }
+    viewBinding.recordingMaxTimeTv.setVisibility(View.VISIBLE);
+    viewBinding.recordLottieView.setVisibility(View.GONE);
   }
 }

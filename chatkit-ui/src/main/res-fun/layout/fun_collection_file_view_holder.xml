@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <FrameLayout
+        android:layout_width="254dp"
+        android:layout_height="@dimen/dimen_56_dp"
+        tools:ignore="MissingConstraints"
+        android:background="@drawable/bg_shape_corner">
+
+        <ImageView android:id="@+id/file_type_iv"
+            android:layout_width="@dimen/dimen_32_dp"
+            android:layout_height="@dimen/dimen_32_dp"
+            android:src="@drawable/ic_unknown_file"
+            android:scaleType="fitXY"
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="@dimen/dimen_14_dp"/>
+
+        <FrameLayout android:id="@+id/file_progress_fl"
+            android:layout_width="@dimen/dimen_32_dp"
+            android:layout_height="@dimen/dimen_32_dp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="@dimen/dimen_14_dp"
+            android:visibility="gone"
+            android:background="@drawable/bg_file_mask">
+
+            <com.google.android.material.progressindicator.CircularProgressIndicator
+                android:id="@+id/progress_bar"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:indicatorColor="@color/color_white"
+                app:trackColor="@color/color_4d000000"
+                app:trackCornerRadius="@dimen/dimen_1_dp"
+                app:trackThickness="@dimen/dimen_2_dp"
+                app:indicatorSize="@dimen/dimen_20_dp"
+                android:layout_gravity="center"/>
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/progress_bar_inside_icon"
+                android:layout_width="@dimen/dimen_6_dp"
+                android:layout_height="@dimen/dimen_9_dp"
+                android:src="@drawable/ic_video_pause_thumb"
+                android:layout_gravity="center"/>
+        </FrameLayout>
+
+        <TextView
+            android:id="@+id/display_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/dimen_56_dp"
+            android:layout_marginTop="@dimen/dimen_12_dp"
+            android:layout_marginEnd="@dimen/dimen_6_dp"
+            android:layout_marginBottom="@dimen/dimen_6_dp"
+            android:textColor="@color/color_333333"
+            android:textSize="@dimen/dimen_14_dp"
+            android:typeface="monospace"
+            android:ellipsize="middle"
+            tools:text="文件"
+            tools:ignore="SpUsage"
+            android:singleLine="true" />
+
+        <TextView
+            android:id="@+id/display_size"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/dimen_58_dp"
+            android:layout_marginEnd="@dimen/dimen_6_dp"
+            android:layout_marginBottom="@dimen/dimen_12_dp"
+            android:layout_gravity="bottom"
+            android:textColor="@color/color_999999"
+            android:textSize="@dimen/dimen_10_dp"
+            android:typeface="monospace"
+            android:singleLine="true"
+            android:ellipsize="middle"
+            tools:ignore="SpUsage" />
+    </FrameLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

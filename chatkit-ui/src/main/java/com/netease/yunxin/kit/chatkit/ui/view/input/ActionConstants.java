@@ -57,6 +57,9 @@ public class ActionConstants {
   //消息长按菜单-转发
   public static final String POP_ACTION_TRANSMIT = "POP_ACTION_TRANSMIT";
 
+  //消息长按菜单-置顶
+  public static final String POP_ACTION_TOP_STICK = "POP_ACTION_TOP_STICK";
+
   //消息列表payload
   public static final String PAYLOAD_STATUS = "messageStatus";
   public static final String PAYLOAD_PROGRESS = "messageProgress";

@@ -4,7 +4,7 @@
 
 package com.netease.yunxin.kit.teamkit.ui.activity;
 
-import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.KEY_TEAM_ID;
+import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.KEY_TEAM_ID;
 import static com.netease.yunxin.kit.teamkit.ui.utils.NetworkUtilsWrapper.handleNetworkBrokenResult;
 
 import android.annotation.SuppressLint;
@@ -25,7 +25,7 @@ import com.netease.yunxin.kit.teamkit.ui.R;
 import com.netease.yunxin.kit.teamkit.ui.viewmodel.TeamSettingViewModel;
 import java.util.Objects;
 
-/** set nick name activity */
+/** 群昵称修改界面基类 子类需要实现{@link #initViewAndGetRootView(Bundle)}方法，返回界面的根布局 */
 public abstract class BaseTeamUpdateNicknameActivity extends BaseActivity {
   public static final String KEY_TEAM_MY_NICKNAME = "my_team_nickname";
   protected static final String MAX_COUNT_STR = "/30";
@@ -89,11 +89,11 @@ public abstract class BaseTeamUpdateNicknameActivity extends BaseActivity {
         .observe(
             this,
             stringResultInfo -> {
-              if (!stringResultInfo.getSuccess()) {
+              if (!stringResultInfo.isSuccess()) {
                 handleNetworkBrokenResult(this, stringResultInfo);
                 return;
               }
-              if (!TextUtils.equals(lastTeamNickname, stringResultInfo.getValue())) {
+              if (!TextUtils.equals(lastTeamNickname, stringResultInfo.getData())) {
                 canUpdate = true;
               }
               teamNickname = String.valueOf(etNickname.getText());
@@ -122,6 +122,15 @@ public abstract class BaseTeamUpdateNicknameActivity extends BaseActivity {
     super.finish();
   }
 
+  /**
+   * 启动群昵称修改界面
+   *
+   * @param context 上下文
+   * @param activity 目标Activity
+   * @param teamId 群ID
+   * @param teamNickname 群昵称
+   * @param launcher 启动器
+   */
   public static void launch(
       Context context,
       Class<? extends Activity> activity,

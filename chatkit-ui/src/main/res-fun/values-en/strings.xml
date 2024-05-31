@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <string name="fun_chat_input_more_album_title">Album</string>
+    <string name="fun_chat_input_audio_record_title">Hold to Talk</string>
     <string name="fun_chat_audio_record_send_tips">release to send</string>
     <string name="fun_chat_audio_record_cancel_tips">release to cancel</string>
     <string name="fun_chat_audio_record_max_time_tips">Recording will stop after %d \"</string>
     <string name="fun_chat_input_hint_tips">Enter what you want to say…</string>
+
+    <string name="fun_chat_message_revoked">%s recalled the message</string>
+
 </resources>

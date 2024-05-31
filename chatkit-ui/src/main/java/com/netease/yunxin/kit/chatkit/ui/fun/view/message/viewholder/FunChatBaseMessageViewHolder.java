@@ -13,11 +13,12 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import com.netease.nimlib.sdk.msg.model.MsgThreadOption;
+import com.netease.nimlib.sdk.v2.message.V2NIMMessageRefer;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.ui.ChatMessageType;
 import com.netease.yunxin.kit.chatkit.ui.R;
+import com.netease.yunxin.kit.chatkit.ui.common.ChatMsgCache;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.chatkit.ui.custom.MultiForwardAttachment;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatBaseMessageViewHolderBinding;
@@ -31,13 +32,14 @@ import com.netease.yunxin.kit.chatkit.ui.view.message.viewholder.options.Message
 import com.netease.yunxin.kit.chatkit.ui.view.message.viewholder.options.ReplayUIOption;
 import com.netease.yunxin.kit.chatkit.ui.view.message.viewholder.options.RevokeUIOption;
 import com.netease.yunxin.kit.chatkit.ui.view.message.viewholder.options.SignalUIOption;
+import com.netease.yunxin.kit.common.ui.utils.ToastX;
+import com.netease.yunxin.kit.common.utils.NetworkUtils;
 import com.netease.yunxin.kit.common.utils.SizeUtils;
-import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
-import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
+import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
+import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
-import java.util.List;
 
-class FunChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
+public class FunChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
   private static final String TAG = "FunChatBaseMessageViewHolder";
 
   protected FunChatMessageReplayViewBinding replayBinding;
@@ -88,9 +90,46 @@ class FunChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
     otherUserAvatarLayoutParams.height = avatarSize;
     baseViewBinding.otherUserAvatar.setCornerRadius(cornerRadius);
     if (message.isRevoked()) {
+      if (MessageHelper.isReceivedMessage(message) && revokedViewBinding != null) {
+        Context context = revokedViewBinding.messageText.getContext();
+        revokedViewBinding.messageText.setText(
+            context.getString(
+                R.string.fun_chat_message_revoked,
+                MessageHelper.getChatMessageUserNameByAccount(message.getSenderId())));
+      }
       return;
     }
     super.setUserInfo(message);
+  }
+
+  @Override
+  protected void setSelectStatus(ChatMessageBean message) {
+    // 当前账户发送消息的消息体右移
+    ConstraintLayout.LayoutParams avatarLayoutParams =
+        (ConstraintLayout.LayoutParams) baseViewBinding.myAvatar.getLayoutParams();
+    // 接受消息内容右移
+    ConstraintLayout.LayoutParams containerLayoutParams =
+        (ConstraintLayout.LayoutParams) baseViewBinding.messageContainer.getLayoutParams();
+    ConstraintLayout.LayoutParams topLayoutParams =
+        (ConstraintLayout.LayoutParams) baseViewBinding.messageTopGroup.getLayoutParams();
+    ConstraintLayout.LayoutParams bottomLayoutParams =
+        (ConstraintLayout.LayoutParams) baseViewBinding.messageBottomGroup.getLayoutParams();
+
+    if (isMultiSelect && needShowMultiSelect() && !currentMessage.isRevoked()) {
+      baseViewBinding.chatMsgSelectLayout.setVisibility(View.VISIBLE);
+      baseViewBinding.chatSelectorCb.setChecked(
+          ChatMsgCache.contains(message.getMessageData().getMessage().getMessageClientId()));
+      avatarLayoutParams.setMarginEnd(SizeUtils.dp2px(mineAvatarMarginEndInMulti));
+      containerLayoutParams.goneEndMargin = SizeUtils.dp2px(containerMarginEndInMulti);
+      topLayoutParams.goneEndMargin = SizeUtils.dp2px(containerMarginEndInMulti);
+      bottomLayoutParams.goneEndMargin = SizeUtils.dp2px(containerMarginEndInMulti);
+    } else {
+      baseViewBinding.chatMsgSelectLayout.setVisibility(View.GONE);
+      avatarLayoutParams.setMarginEnd(SizeUtils.dp2px(mineAvatarMarginEnd));
+      containerLayoutParams.goneEndMargin = SizeUtils.dp2px(containerMarginEnd);
+      topLayoutParams.goneEndMargin = SizeUtils.dp2px(containerMarginEnd);
+      bottomLayoutParams.goneEndMargin = SizeUtils.dp2px(containerMarginEnd);
+    }
   }
 
   @Override
@@ -166,8 +205,7 @@ class FunChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
     if (isReceivedMsg) {
       firstChild.setBackgroundResource(R.drawable.fun_message_receive_bg);
     } else {
-      if (messageBean.getMessageData().getMessage().getAttachment()
-          instanceof MultiForwardAttachment) {
+      if (messageBean.getMessageData().getAttachment() instanceof MultiForwardAttachment) {
         firstChild.setBackgroundResource(R.drawable.fun_forward_message_send_bg);
       } else {
         firstChild.setBackgroundResource(R.drawable.fun_message_send_bg);
@@ -194,12 +232,12 @@ class FunChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
     if (MessageHelper.isReceivedMessage(messageBean)) {
       revokedViewBinding.messageText.setText(
           context.getString(
-              R.string.chat_message_revoked_fun,
-              MessageHelper.getChatMessageUserName(messageBean.getMessageData())));
+              R.string.fun_chat_message_revoked,
+              MessageHelper.getChatMessageUserNameByAccount(messageBean.getSenderId())));
     } else {
       revokedViewBinding.messageText.setText(
           context.getString(
-              R.string.chat_message_revoked_fun, context.getString(R.string.chat_you)));
+              R.string.fun_chat_message_revoked, context.getString(R.string.chat_you)));
     }
     // reedit
     revokedViewBinding.tvAction.setOnClickListener(
@@ -242,6 +280,10 @@ class FunChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
       baseViewBinding.readProcess.setOnClickListener(
           v -> {
             if (!isMultiSelect) {
+              if (!NetworkUtils.isConnected()) {
+                ToastX.showShortToast(R.string.chat_network_error_tip);
+                return;
+              }
               XKitRouter.withKey(RouterConstant.PATH_FUN_CHAT_READER_PAGE)
                   .withParam(RouterConstant.KEY_MESSAGE, data.getMessageData().getMessage())
                   .withContext(v.getContext())
@@ -262,37 +304,32 @@ class FunChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
       return;
     }
     baseViewBinding.messageBottomGroup.removeAllViews();
-    ALog.w(TAG, TAG, "setReplyInfo, uuid=" + messageBean.getMessageData().getMessage().getUuid());
+    ALog.w(
+        TAG,
+        TAG,
+        "setReplyInfo, uuid=" + messageBean.getMessageData().getMessage().getMessageClientId());
     if (messageBean.hasReply()) {
       // 自定义回复实现
       addReplayViewToBottomGroup();
-      String replyUuid = messageBean.getReplyUUid();
-      if (!TextUtils.isEmpty(replyUuid)) {
+      V2NIMMessageRefer replyMsg = messageBean.getReplyMessage();
+      if (replyMsg != null) {
         MessageHelper.getReplyMessageInfo(
-            replyUuid,
-            new FetchCallback<List<IMMessageInfo>>() {
+            replyMsg,
+            new FetchCallback<>() {
               @Override
-              public void onSuccess(@Nullable List<IMMessageInfo> param) {
-                replyMessage = null;
-                if (param != null && param.size() > 0) {
-                  replyMessage = param.get(0);
-                }
+              public void onError(int errorCode, @Nullable String errorMsg) {
+                baseViewBinding.messageTopGroup.removeAllViews();
+              }
+
+              @Override
+              public void onSuccess(@Nullable IMMessageInfo param) {
+                replyMessage = param;
                 String content = MessageHelper.getReplyContent(replyMessage);
                 MessageHelper.identifyFaceExpression(
                     replayBinding.tvReply.getContext(),
                     replayBinding.tvReply,
                     content,
                     ImageSpan.ALIGN_BOTTOM);
-              }
-
-              @Override
-              public void onFailed(int code) {
-                baseViewBinding.messageTopGroup.removeAllViews();
-              }
-
-              @Override
-              public void onException(@Nullable Throwable exception) {
-                baseViewBinding.messageTopGroup.removeAllViews();
               }
             });
       }
@@ -315,24 +352,31 @@ class FunChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
 
   /// 内部设置 thread 回复消息
   private void setThreadReplyInfo(ChatMessageBean messageBean) {
-    MsgThreadOption threadOption = messageBean.getMessageData().getMessage().getThreadOption();
-    String replyFrom = threadOption.getReplyMsgFromAccount();
+    V2NIMMessageRefer threadOption = messageBean.getMessageData().getMessage().getThreadReply();
+    String replyFrom = threadOption.getSenderId();
     if (TextUtils.isEmpty(replyFrom)) {
       ALog.w(
           TAG,
-          "no reply message found, uuid=" + messageBean.getMessageData().getMessage().getUuid());
+          "no reply message found, uuid="
+              + messageBean.getMessageData().getMessage().getMessageClientId());
       baseViewBinding.messageTopGroup.removeAllViews();
       return;
     }
     addReplayViewToBottomGroup();
-    String replyUuid = threadOption.getReplyMsgIdClient();
+    V2NIMMessageRefer refer = threadOption;
     MessageHelper.getReplyMessageInfo(
-        replyUuid,
-        new FetchCallback<List<IMMessageInfo>>() {
+        refer,
+        new FetchCallback<>() {
+
           @Override
-          public void onSuccess(@Nullable List<IMMessageInfo> param) {
-            if (param != null && param.size() > 0) {
-              replyMessage = param.get(0);
+          public void onError(int errorCode, @Nullable String errorMsg) {
+            replayBinding.tvReply.setVisibility(View.GONE);
+          }
+
+          @Override
+          public void onSuccess(@Nullable IMMessageInfo param) {
+            if (param != null) {
+              replyMessage = param;
               String content = MessageHelper.getReplyContent(replyMessage);
               MessageHelper.identifyFaceExpression(
                   replayBinding.tvReply.getContext(),
@@ -340,16 +384,6 @@ class FunChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
                   content,
                   ImageSpan.ALIGN_BOTTOM);
             }
-          }
-
-          @Override
-          public void onFailed(int code) {
-            replayBinding.tvReply.setVisibility(View.GONE);
-          }
-
-          @Override
-          public void onException(@Nullable Throwable exception) {
-            replayBinding.tvReply.setVisibility(View.GONE);
           }
         });
 

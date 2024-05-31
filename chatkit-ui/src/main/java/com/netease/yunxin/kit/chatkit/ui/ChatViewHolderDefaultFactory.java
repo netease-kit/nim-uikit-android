@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
+import com.netease.yunxin.kit.chatkit.ui.normal.factory.ChatViewHolderFactory;
 import com.netease.yunxin.kit.chatkit.ui.view.message.viewholder.ChatBaseMessageViewHolder;
 import com.netease.yunxin.kit.chatkit.ui.view.message.viewholder.CommonBaseMessageViewHolder;
 import java.util.HashMap;
@@ -22,7 +23,7 @@ public final class ChatViewHolderDefaultFactory implements IChatDefaultFactory {
   private final Map<Integer, Pair<Class<? extends CommonBaseMessageViewHolder>, Integer>>
       commonBaseViewHolderMap = new HashMap<>();
 
-  private IChatDefaultFactory factory;
+  private IChatDefaultFactory factory = ChatViewHolderFactory.getInstance();
 
   private ChatViewHolderDefaultFactory() {}
 

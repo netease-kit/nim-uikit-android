@@ -5,7 +5,6 @@
 package com.netease.yunxin.kit.chatkit.ui.fun.page;
 
 import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.CHAT_P2P_INVITER_USER_LIMIT;
-import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
 
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -13,12 +12,9 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
-import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
-import com.netease.nimlib.sdk.msg.model.StickTopSessionInfo;
-import com.netease.yunxin.kit.alog.ALog;
-import com.netease.yunxin.kit.chatkit.repo.ConversationRepo;
+import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
+import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
 import com.netease.yunxin.kit.chatkit.ui.R;
-import com.netease.yunxin.kit.chatkit.ui.common.ChatCallback;
 import com.netease.yunxin.kit.chatkit.ui.databinding.FunChatSettingActivityBinding;
 import com.netease.yunxin.kit.chatkit.ui.model.CloseChatPageEvent;
 import com.netease.yunxin.kit.chatkit.ui.page.viewmodel.ChatSettingViewModel;
@@ -27,10 +23,8 @@ import com.netease.yunxin.kit.common.ui.utils.AvatarColor;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.corekit.event.EventCenter;
 import com.netease.yunxin.kit.corekit.event.EventNotify;
-import com.netease.yunxin.kit.corekit.im.IMKitClient;
-import com.netease.yunxin.kit.corekit.im.model.FriendInfo;
-import com.netease.yunxin.kit.corekit.im.model.UserInfo;
-import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
+import com.netease.yunxin.kit.corekit.im2.model.UserWithFriend;
+import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 import java.util.ArrayList;
 
@@ -41,13 +35,11 @@ public class FunChatSettingActivity extends BaseActivity {
   FunChatSettingActivityBinding binding;
 
   ChatSettingViewModel viewModel;
-
-  UserInfo userInfo;
-  FriendInfo friendInfo;
+  UserWithFriend friendInfo;
   String accId;
 
   protected final EventNotify<CloseChatPageEvent> closeEventNotify =
-      new EventNotify<CloseChatPageEvent>() {
+      new EventNotify<>() {
         @Override
         public void onNotify(@NonNull CloseChatPageEvent message) {
           finish();
@@ -77,17 +69,13 @@ public class FunChatSettingActivity extends BaseActivity {
   }
 
   private void initView() {
-    userInfo = (UserInfo) getIntent().getSerializableExtra(RouterConstant.CHAT_KRY);
     accId = (String) getIntent().getSerializableExtra(RouterConstant.CHAT_ID_KRY);
-    if (userInfo == null && TextUtils.isEmpty(accId)) {
+    if (TextUtils.isEmpty(accId)) {
       finish();
       return;
     }
-    if (TextUtils.isEmpty(accId)) {
-      accId = userInfo.getAccount();
-    }
     refreshView();
-    if (IMKitClient.getConfigCenter().getTeamEnable()) {
+    if (IMKitConfigCenter.getTeamEnable()) {
       binding.addIv.setVisibility(View.VISIBLE);
       binding.noTeamNameTv.setVisibility(View.GONE);
       binding.addIv.setOnClickListener(v -> selectUsersCreateGroup());
@@ -95,6 +83,23 @@ public class FunChatSettingActivity extends BaseActivity {
       binding.noTeamNameTv.setVisibility(View.VISIBLE);
       binding.addIv.setVisibility(View.GONE);
     }
+
+    binding.stickTopLayout.setOnClickListener(
+        v -> viewModel.stickTop(accId, !binding.stickTopSC.isChecked()));
+
+    binding.pinLayout.setOnClickListener(
+        v ->
+            XKitRouter.withKey(RouterConstant.PATH_FUN_CHAT_PIN_PAGE)
+                .withParam(
+                    RouterConstant.KEY_SESSION_TYPE,
+                    V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P.getValue())
+                .withParam(RouterConstant.KEY_SESSION_ID, accId)
+                .withParam(RouterConstant.KEY_SESSION_NAME, getName())
+                .withContext(FunChatSettingActivity.this)
+                .navigate());
+
+    binding.notifyLayout.setOnClickListener(
+        v -> viewModel.setMute(accId, binding.notifySC.isChecked()));
   }
 
   private void refreshView() {
@@ -105,21 +110,10 @@ public class FunChatSettingActivity extends BaseActivity {
           AvatarColor.avatarColor(friendInfo.getAccount()));
       binding.nameTv.setText(friendInfo.getName());
       binding.noTeamNameTv.setText(friendInfo.getName());
-    } else if (userInfo == null) {
+    } else {
       binding.avatarView.setData(null, accId, AvatarColor.avatarColor(accId));
       binding.nameTv.setText(accId);
       binding.noTeamNameTv.setText(accId);
-    } else {
-      String name =
-          TextUtils.isEmpty(userInfo.getComment()) ? userInfo.getName() : userInfo.getComment();
-      if (TextUtils.isEmpty(name)) {
-        name = userInfo.getAccount();
-      }
-      ALog.d(LIB_TAG, TAG, "initView name -->> " + name);
-      binding.avatarView.setData(
-          userInfo.getAvatar(), name, AvatarColor.avatarColor(userInfo.getAccount()));
-      binding.nameTv.setText(name);
-      binding.noTeamNameTv.setText(name);
     }
   }
 
@@ -135,59 +129,39 @@ public class FunChatSettingActivity extends BaseActivity {
                 refreshView();
               }
             });
-    viewModel.getUserInfo(accId);
-    binding.stickTopSC.setChecked(ConversationRepo.isStickTop(accId, SessionTypeEnum.P2P));
-    binding.stickTopLayout.setOnClickListener(
-        v -> {
-          if (!binding.stickTopSC.isChecked()) {
-            ConversationRepo.addStickTop(
-                accId,
-                SessionTypeEnum.P2P,
-                "",
-                new ChatCallback<StickTopSessionInfo>() {
-                  @Override
-                  public void onSuccess(@Nullable StickTopSessionInfo param) {
-                    binding.stickTopSC.setChecked(true);
-                    ConversationRepo.notifyStickTop(accId, SessionTypeEnum.P2P);
+    viewModel
+        .getStickTopLiveData()
+        .observe(
+            this,
+            result -> {
+              if (result.getData() != null) {
+                if (result.getLoadStatus() == LoadStatus.Success) {
+                  if (result.getData() != binding.stickTopSC.isChecked()) {
+                    binding.stickTopSC.setChecked(result.getData());
                   }
-                });
-          } else {
-            ConversationRepo.removeStickTop(
-                accId,
-                SessionTypeEnum.P2P,
-                "",
-                new ChatCallback<Void>() {
-                  @Override
-                  public void onSuccess(@Nullable Void param) {
-                    binding.stickTopSC.setChecked(false);
-                    ConversationRepo.notifyStickTop(accId, SessionTypeEnum.P2P);
-                  }
-                });
-          }
-        });
 
-    binding.pinLayout.setOnClickListener(
-        v ->
-            XKitRouter.withKey(RouterConstant.PATH_FUN_CHAT_PIN_PAGE)
-                .withParam(RouterConstant.KEY_SESSION_TYPE, SessionTypeEnum.P2P.getValue())
-                .withParam(RouterConstant.KEY_SESSION_ID, accId)
-                .withParam(RouterConstant.KEY_SESSION_NAME, getName())
-                .withContext(FunChatSettingActivity.this)
-                .navigate());
+                } else {
+                  binding.stickTopSC.setChecked(result.getData());
+                }
+              }
+            });
 
-    binding.notifySC.setChecked(ConversationRepo.isNotify(accId, SessionTypeEnum.P2P));
-    binding.notifyLayout.setOnClickListener(
-        v ->
-            ConversationRepo.setNotify(
-                accId,
-                SessionTypeEnum.P2P,
-                !binding.notifySC.isChecked(),
-                new ChatCallback<Void>() {
-                  @Override
-                  public void onSuccess(@Nullable Void param) {
-                    binding.notifySC.setChecked(!binding.notifySC.isChecked());
+    viewModel
+        .getMuteLiveData()
+        .observe(
+            this,
+            result -> {
+              if (result.getData() != null) {
+                if (result.getLoadStatus() == LoadStatus.Success) {
+                  if (result.getData() == binding.notifySC.isChecked()) {
+                    binding.notifySC.setChecked(!result.getData());
                   }
-                }));
+                } else {
+                  binding.notifySC.setChecked(result.getData());
+                }
+              }
+            });
+    viewModel.requestData(accId);
   }
 
   private void selectUsersCreateGroup() {
@@ -205,8 +179,6 @@ public class FunChatSettingActivity extends BaseActivity {
   private String getName() {
     if (friendInfo != null) {
       return friendInfo.getName();
-    } else if (userInfo != null) {
-      return userInfo.getName();
     }
     return accId;
   }

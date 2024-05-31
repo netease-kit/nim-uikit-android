@@ -4,8 +4,8 @@
 
 package com.netease.yunxin.kit.contactkit.ui.fun.selector;
 
-import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.KEY_REQUEST_SELECTOR_NAME;
-import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.REQUEST_CONTACT_SELECTOR_KEY;
+import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.KEY_REQUEST_SELECTOR_NAME;
+import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.REQUEST_CONTACT_SELECTOR_KEY;
 
 import android.content.Intent;
 import android.graphics.Typeface;
@@ -78,7 +78,7 @@ public class FunContactSelectorActivity extends BaseContactSelectorActivity {
                     .show();
                 return;
               }
-              if (selectedListAdapter.getItemCount() >= maxSelectCount
+              if (selectedListAdapter.getItemCount() > maxSelectCount
                   && selectFinalCheckCountEnable) {
                 Toast.makeText(this, R.string.contact_selector_over_count, Toast.LENGTH_LONG)
                     .show();

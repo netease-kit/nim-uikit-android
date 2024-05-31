@@ -80,7 +80,7 @@ public abstract class ChatReaderBaseFragment extends BaseFragment {
               getViewLifecycleOwner(),
               teamMsgAckInfo -> {
                 if (ack) {
-                  if (teamMsgAckInfo.getAckAccountList().isEmpty()) {
+                  if (teamMsgAckInfo.getReceiptDetail().getReadAccountList().isEmpty()) {
                     if (emptyView != null) {
                       emptyView.setVisibility(View.VISIBLE);
                     }
@@ -94,7 +94,7 @@ public abstract class ChatReaderBaseFragment extends BaseFragment {
                     adapter.appendData(dataList);
                   }
                 } else {
-                  if (teamMsgAckInfo.getUnAckAccountList().isEmpty()) {
+                  if (teamMsgAckInfo.getReceiptDetail().getUnreadAccountList().isEmpty()) {
                     if (emptyView != null) {
                       emptyView.setVisibility(View.VISIBLE);
                     }

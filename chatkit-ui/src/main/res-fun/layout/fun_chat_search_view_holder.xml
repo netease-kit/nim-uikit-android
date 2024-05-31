@@ -51,7 +51,7 @@
 
         <TextView
             android:id="@+id/messageTv"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginEnd="20dp"
             android:paddingTop="4dp"

@@ -5,16 +5,17 @@
 package com.netease.yunxin.kit.contactkit.ui.model;
 
 import android.text.TextUtils;
-import com.netease.yunxin.kit.corekit.im.model.FriendInfo;
-import com.netease.yunxin.kit.corekit.im.model.UserInfo;
+import androidx.annotation.Nullable;
+import com.netease.yunxin.kit.corekit.im2.model.UserWithFriend;
+import com.netease.yunxin.kit.corekit.im2.model.V2UserInfo;
 
 /** data bean for friend */
 public class ContactBlackListBean extends BaseContactBean {
 
-  public UserInfo data;
-  public FriendInfo friendInfo;
+  public V2UserInfo data;
+  public UserWithFriend friendInfo;
 
-  public ContactBlackListBean(UserInfo data) {
+  public ContactBlackListBean(V2UserInfo data) {
     this.data = data;
     viewType = IViewTypeConstant.CONTACT_BLACK_LIST;
   }
@@ -28,14 +29,14 @@ public class ContactBlackListBean extends BaseContactBean {
     if (!TextUtils.isEmpty(data.getName())) {
       return data.getName();
     }
-    return data.getAccount();
+    return data.getAccountId();
   }
 
   public String getAvatarName() {
     if (!TextUtils.isEmpty(data.getName())) {
       return data.getName();
     }
-    return data.getAccount();
+    return data.getAccountId();
   }
 
   @Override
@@ -46,5 +47,18 @@ public class ContactBlackListBean extends BaseContactBean {
   @Override
   public String getTarget() {
     return data.getName();
+  }
+
+  @Override
+  public boolean equals(@Nullable Object obj) {
+    if (obj instanceof ContactBlackListBean) {
+      return data.getAccountId().equals(((ContactBlackListBean) obj).data.getAccountId());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    return data.getAccountId().hashCode();
   }
 }

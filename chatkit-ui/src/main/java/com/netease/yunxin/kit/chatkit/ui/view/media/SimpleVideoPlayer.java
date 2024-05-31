@@ -16,10 +16,11 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import com.netease.nimlib.sdk.msg.attachment.VideoAttachment;
-import com.netease.nimlib.sdk.msg.model.IMMessage;
+import com.netease.nimlib.sdk.v2.message.V2NIMMessage;
+import com.netease.nimlib.sdk.v2.message.attachment.V2NIMMessageVideoAttachment;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.ui.R;
+import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatSimplePlayerViewBinding;
 import com.netease.yunxin.kit.common.ui.utils.ToastX;
 import com.netease.yunxin.kit.common.utils.ScreenUtils;
@@ -134,12 +135,13 @@ public class SimpleVideoPlayer extends ConstraintLayout {
         });
   }
 
-  public void handlePlay(IMMessage message) {
+  public void handlePlay(V2NIMMessage message) {
     if (message == null || message.getAttachment() == null) {
       return;
     }
-    VideoAttachment videoAttachment = (VideoAttachment) message.getAttachment();
-    videoFilePath = videoAttachment.getPath();
+    videoFilePath = MessageHelper.getMessageAttachPath(message);
+    V2NIMMessageVideoAttachment videoAttachment =
+        (V2NIMMessageVideoAttachment) message.getAttachment();
     binding.videoProgress.setIndeterminate(false);
     int duration = (int) TimeUtils.getSecondsByMilliseconds(videoAttachment.getDuration());
     binding.videoProgress.setMax(duration);

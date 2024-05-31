@@ -4,501 +4,498 @@
 
 package com.netease.yunxin.kit.conversationkit.ui.page.viewmodel;
 
+import android.text.TextUtils;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
-import com.netease.nimlib.sdk.Observer;
-import com.netease.nimlib.sdk.friend.model.MuteListChangedNotify;
-import com.netease.nimlib.sdk.msg.constant.DeleteTypeEnum;
-import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
-import com.netease.nimlib.sdk.msg.model.StickTopSessionInfo;
-import com.netease.nimlib.sdk.team.model.Team;
+import com.netease.nimlib.sdk.v2.V2NIMError;
+import com.netease.nimlib.sdk.v2.auth.enums.V2NIMDataSyncState;
+import com.netease.nimlib.sdk.v2.auth.enums.V2NIMDataSyncType;
+import com.netease.nimlib.sdk.v2.conversation.V2NIMConversationListener;
+import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
+import com.netease.nimlib.sdk.v2.conversation.model.V2NIMConversation;
+import com.netease.nimlib.sdk.v2.conversation.result.V2NIMConversationResult;
+import com.netease.nimlib.sdk.v2.team.V2NIMTeamListener;
+import com.netease.nimlib.sdk.v2.team.model.V2NIMTeam;
+import com.netease.nimlib.sdk.v2.utils.V2NIMConversationIdUtil;
 import com.netease.yunxin.kit.alog.ALog;
-import com.netease.yunxin.kit.chatkit.model.ConversationInfo;
-import com.netease.yunxin.kit.chatkit.repo.ContactObserverRepo;
-import com.netease.yunxin.kit.chatkit.repo.ContactRepo;
-import com.netease.yunxin.kit.chatkit.repo.ConversationObserverRepo;
+import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
+import com.netease.yunxin.kit.chatkit.impl.ConversationListenerImpl;
+import com.netease.yunxin.kit.chatkit.impl.LoginDetailListenerImpl;
+import com.netease.yunxin.kit.chatkit.impl.TeamListenerImpl;
 import com.netease.yunxin.kit.chatkit.repo.ConversationRepo;
-import com.netease.yunxin.kit.chatkit.repo.TeamObserverRepo;
+import com.netease.yunxin.kit.chatkit.repo.TeamRepo;
+import com.netease.yunxin.kit.chatkit.utils.ErrorUtils;
 import com.netease.yunxin.kit.common.ui.utils.ToastX;
 import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
-import com.netease.yunxin.kit.conversationkit.ui.ConversationUIConstant;
 import com.netease.yunxin.kit.conversationkit.ui.IConversationFactory;
 import com.netease.yunxin.kit.conversationkit.ui.R;
+import com.netease.yunxin.kit.conversationkit.ui.common.ConversationConstant;
 import com.netease.yunxin.kit.conversationkit.ui.common.ConversationUtils;
 import com.netease.yunxin.kit.conversationkit.ui.model.ConversationBean;
 import com.netease.yunxin.kit.conversationkit.ui.page.DefaultViewHolderFactory;
 import com.netease.yunxin.kit.corekit.event.EventCenter;
 import com.netease.yunxin.kit.corekit.event.EventNotify;
-import com.netease.yunxin.kit.corekit.im.custom.AitEvent;
-import com.netease.yunxin.kit.corekit.im.custom.AitInfo;
-import com.netease.yunxin.kit.corekit.im.model.EventObserver;
-import com.netease.yunxin.kit.corekit.im.model.FriendInfo;
-import com.netease.yunxin.kit.corekit.im.model.UserInfo;
-import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
-import com.netease.yunxin.kit.corekit.im.provider.FriendChangeType;
-import com.netease.yunxin.kit.corekit.im.provider.FriendObserver;
-import com.netease.yunxin.kit.corekit.im.provider.UserInfoObserver;
-import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
+import com.netease.yunxin.kit.corekit.im2.IMKitClient;
+import com.netease.yunxin.kit.corekit.im2.custom.AitEvent;
+import com.netease.yunxin.kit.corekit.im2.custom.AitInfo;
+import com.netease.yunxin.kit.corekit.im2.custom.TeamEvent;
+import com.netease.yunxin.kit.corekit.im2.custom.TeamEventAction;
+import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
+import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
-/** conversation view model to fetch data or operate conversation */
+/** 会话列表逻辑层ViewModel */
 public class ConversationViewModel extends BaseViewModel {
 
   private final String TAG = "ConversationViewModel";
   private final String LIB_TAG = "ConversationKit-UI";
 
+  // 未读数LiveData，用于通知未读数变化
   private final MutableLiveData<FetchResult<Integer>> unreadCountLiveData = new MutableLiveData<>();
+  // 会话列表LiveData，用于通知会话列表查询结果
   private final MutableLiveData<FetchResult<List<ConversationBean>>> queryLiveData =
       new MutableLiveData<>();
+  // 会话变化LiveData，用于通知会话信息变化变更
   private final MutableLiveData<FetchResult<List<ConversationBean>>> changeLiveData =
       new MutableLiveData<>();
-  private final MutableLiveData<FetchResult<ConversationBean>> stickLiveData =
-      new MutableLiveData<>();
-  private final MutableLiveData<FetchResult<String>> addRemoveStickLiveData =
-      new MutableLiveData<>();
-  private final MutableLiveData<FetchResult<List<UserInfo>>> userInfoLiveData =
-      new MutableLiveData<>();
-  private final MutableLiveData<FetchResult<List<FriendInfo>>> friendInfoLiveData =
-      new MutableLiveData<>();
-  private final MutableLiveData<FetchResult<List<Team>>> teamInfoLiveData = new MutableLiveData<>();
-  private final MutableLiveData<FetchResult<MuteListChangedNotify>> muteInfoLiveData =
-      new MutableLiveData<>();
+  // @信息LiveData，用于通知@信息变更
   private final MutableLiveData<FetchResult<List<String>>> aitLiveData = new MutableLiveData<>();
+  // 删除会话LiveData，用于通知会话删除结果
+  private final MutableLiveData<FetchResult<List<String>>> deleteLiveData = new MutableLiveData<>();
 
-  private Comparator<ConversationInfo> comparator;
+  // 会话列表排序比较器
+  private Comparator<ConversationBean> comparator;
   private IConversationFactory conversationFactory = new DefaultViewHolderFactory();
-  private static final int PAGE_LIMIT = 50;
+  // 分页加载，每页加载数量
+  private static final int PAGE_LIMIT = 200;
+  // 分页加载，当前加载偏移量
+  private long mOffset = 0;
+  // 分页加载，是否还有更多数据
   private boolean hasMore = true;
+  // 数据查询是否已经开始
   private boolean hasStart = false;
 
   public ConversationViewModel() {
-    // register observer
-    ConversationObserverRepo.registerSessionChangedObserver(changeObserver);
-    ConversationObserverRepo.registerSessionDeleteObserver(deleteObserver);
-    ContactObserverRepo.registerUserInfoObserver(userInfoObserver);
-    ContactObserverRepo.registerFriendObserver(friendObserver);
-    TeamObserverRepo.registerTeamUpdateObserver(teamUpdateObserver);
-    ConversationObserverRepo.registerNotifyChangeObserver(muteObserver);
-    ConversationObserverRepo.registerAddStickTopObserver(addStickObserver);
-    ConversationObserverRepo.registerRemoveStickTopObserver(removeStickObserver);
-    ConversationObserverRepo.registerSyncStickTopObserver(syncStickObserver);
-    EventNotify<AitEvent> aitNotify =
-        new EventNotify<AitEvent>() {
-          @Override
-          public void onNotify(@NonNull AitEvent message) {
-            AitEvent aitEvent = (AitEvent) message;
-            FetchResult<List<String>> result = new FetchResult<>(LoadStatus.Finish);
-            ALog.d(LIB_TAG, TAG, "aitNotify，onSuccess:" + aitEvent.getEventType().name());
-            if (aitEvent.getEventType() == AitEvent.AitEventType.Arrive
-                || aitEvent.getEventType() == AitEvent.AitEventType.Load) {
-              result.setFetchType(FetchResult.FetchType.Add);
-            } else {
-              result.setFetchType(FetchResult.FetchType.Remove);
-            }
-            List<AitInfo> aitInfoList = aitEvent.getAitInfoList();
-            List<String> sessionIdList = new ArrayList<>();
-            for (AitInfo info : aitInfoList) {
-              sessionIdList.add(info.getSessionId());
-            }
-            result.setData(sessionIdList);
-            aitLiveData.setValue(result);
-          }
-
-          @NonNull
-          @Override
-          public String getEventType() {
-            return "AitEvent";
-          }
-        };
+    // 注册会话监听
+    ConversationRepo.addConversationListener(conversationListener);
+    // 注册群组监听,用于监听群解散和退出
+    TeamRepo.addTeamListener(teamListener);
+    // 注册@信息监听,业务层逻辑
     EventCenter.registerEventNotify(aitNotify);
+    EventCenter.registerEventNotify(dismissTeamEvent);
+    // 注册登录监听,用于同步数据完成后拉取数据，避免会话中会话名称和头像为空
+    IMKitClient.addLoginDetailListener(loginDetailListener);
   }
 
-  /** comparator to sort conversation list */
-  public void setComparator(Comparator<ConversationInfo> comparator) {
+  // @信息监听
+  private EventNotify<AitEvent> aitNotify =
+      new EventNotify<AitEvent>() {
+        @Override
+        public void onNotify(@NonNull AitEvent aitEvent) {
+          FetchResult<List<String>> result = new FetchResult<>(LoadStatus.Finish);
+          ALog.d(LIB_TAG, TAG, "aitNotify");
+          if (aitEvent.getAitInfoList() == null) {
+            return;
+          }
+          if (aitEvent.getEventType() == AitEvent.AitEventType.Arrive
+              || aitEvent.getEventType() == AitEvent.AitEventType.Load) {
+            result.setFetchType(FetchResult.FetchType.Add);
+          } else {
+            result.setFetchType(FetchResult.FetchType.Remove);
+          }
+          List<AitInfo> aitInfoList = aitEvent.getAitInfoList();
+          List<String> sessionIdList = new ArrayList<>();
+          for (AitInfo info : aitInfoList) {
+            sessionIdList.add(info.getConversationId());
+          }
+          result.setData(sessionIdList);
+          aitLiveData.setValue(result);
+        }
+
+        @NonNull
+        @Override
+        public String getEventType() {
+          return "AitEvent";
+        }
+      };
+
+  private EventNotify<TeamEvent> dismissTeamEvent =
+      new EventNotify<TeamEvent>() {
+        @Override
+        public void onNotify(@NonNull TeamEvent teamEvent) {
+          if (teamEvent != null && teamEvent.getAction() == TeamEventAction.ACTION_DISMISS) {
+            ALog.d(LIB_TAG, TAG, "dismissTeamEvent,teamId:" + teamEvent.getTeamId());
+            String id = teamEvent.getTeamId();
+            if (TextUtils.isEmpty(id) || !IMKitConfigCenter.getDismissTeamDeleteConversation()) {
+              return;
+            }
+            deleteConversation(
+                V2NIMConversationIdUtil.conversationId(
+                    id, V2NIMConversationType.V2NIM_CONVERSATION_TYPE_TEAM));
+          }
+        }
+
+        @NonNull
+        @Override
+        public String getEventType() {
+          return "TeamEvent";
+        }
+      };
+
+  private LoginDetailListenerImpl loginDetailListener =
+      new LoginDetailListenerImpl() {
+        @Override
+        public void onDataSync(V2NIMDataSyncType type, V2NIMDataSyncState state, V2NIMError error) {
+          ALog.d(LIB_TAG, TAG, "onDataSync:" + type.name() + "," + state.name());
+          if (type == V2NIMDataSyncType.V2NIM_DATA_SYNC_MAIN
+              && state == V2NIMDataSyncState.V2NIM_DATA_SYNC_STATE_COMPLETED) {
+            getConversationData();
+          }
+        }
+      };
+
+  // 设置会话列表排序比较器
+  public void setComparator(Comparator<ConversationBean> comparator) {
     this.comparator = comparator;
   }
 
-  /** comparator to sort conversation list */
+  // 设置会话列表ViewHolder工厂
   public void setConversationFactory(IConversationFactory factory) {
     this.conversationFactory = factory;
   }
 
-  /** query unread count live data */
   public MutableLiveData<FetchResult<Integer>> getUnreadCountLiveData() {
     return unreadCountLiveData;
   }
 
-  /** query conversation live data */
   public MutableLiveData<FetchResult<List<ConversationBean>>> getQueryLiveData() {
     return queryLiveData;
   }
 
-  /** conversation change live data */
   public MutableLiveData<FetchResult<List<ConversationBean>>> getChangeLiveData() {
     return changeLiveData;
   }
 
-  /** conversation stick live data */
-  public MutableLiveData<FetchResult<ConversationBean>> getStickLiveData() {
-    return stickLiveData;
+  public MutableLiveData<FetchResult<List<String>>> getDeleteLiveData() {
+    return deleteLiveData;
   }
 
-  /** conversation remove stick live data */
-  public MutableLiveData<FetchResult<String>> getAddRemoveStickLiveData() {
-    return addRemoveStickLiveData;
-  }
-
-  /** userinfo changed live data */
-  public MutableLiveData<FetchResult<List<UserInfo>>> getUserInfoLiveData() {
-    return userInfoLiveData;
-  }
-
-  /** friend changed live data */
-  public MutableLiveData<FetchResult<List<FriendInfo>>> getFriendInfoLiveData() {
-    return friendInfoLiveData;
-  }
-
-  /** team changed live data */
-  public MutableLiveData<FetchResult<List<Team>>> getTeamInfoLiveData() {
-    return teamInfoLiveData;
-  }
-
-  /** mute changed live data */
-  public MutableLiveData<FetchResult<MuteListChangedNotify>> getMuteInfoLiveData() {
-    return muteInfoLiveData;
-  }
-
-  /** conversation @ info */
   public MutableLiveData<FetchResult<List<String>>> getAitLiveData() {
     return aitLiveData;
   }
 
+  /** 获取未读数 */
   public void getUnreadCount() {
-    ALog.d(LIB_TAG, TAG, "getUnreadCount");
-    ConversationRepo.getMsgUnreadCountAsync(
-        new FetchCallback<Integer>() {
-          @Override
-          public void onSuccess(@Nullable Integer param) {
-            ALog.d(LIB_TAG, TAG, "getUnreadCount,onSuccess");
-            FetchResult<Integer> fetchResult = new FetchResult<>(LoadStatus.Success);
-            fetchResult.setData(param);
-            unreadCountLiveData.setValue(fetchResult);
-          }
-
-          @Override
-          public void onFailed(int code) {
-            ALog.e(LIB_TAG, TAG, "getUnreadCount,onFailed" + code);
-            ToastX.showShortToast(String.valueOf(code));
-          }
-
-          @Override
-          public void onException(@Nullable Throwable exception) {
-            ALog.e(LIB_TAG, TAG, "getUnreadCount,onException");
-          }
-        });
+    int unreadCount = ConversationRepo.getTotalUnreadCount();
+    ALog.d(LIB_TAG, TAG, "getUnreadCount,onSuccess:" + unreadCount);
+    FetchResult<Integer> fetchResult = new FetchResult<>(LoadStatus.Success);
+    fetchResult.setData(unreadCount);
+    unreadCountLiveData.setValue(fetchResult);
   }
 
-  public void fetchConversation() {
+  /** 获取会话列表相关数据，包括会话列表数据和未读数 */
+  public void getConversationData() {
     XKitRouter.withKey(RouterConstant.PATH_CHAT_AIT_NOTIFY_ACTION).navigate();
-    queryConversation(null);
+    getConversationByPage(0);
+    getUnreadCount();
   }
 
-  public void loadMore(ConversationBean data) {
-    if (data != null && data.infoData != null) {
-      ALog.d(LIB_TAG, TAG, "loadMore:" + data.infoData.getContactId());
-      queryConversation(data.infoData);
-    }
+  /** 加载更多会话列表数据 */
+  public void loadMore() {
+    ALog.d(LIB_TAG, TAG, "loadMore:");
+    getConversationByPage(mOffset);
   }
 
-  private void queryConversation(ConversationInfo data) {
-    ALog.d(LIB_TAG, TAG, "queryConversation:" + (data == null));
+  /**
+   * 查询会话列表
+   *
+   * @param offSet 偏移量
+   */
+  private void getConversationByPage(long offSet) {
+    ALog.d(LIB_TAG, TAG, "queryConversation:" + offSet);
     if (hasStart) {
       ALog.d(LIB_TAG, TAG, "queryConversation,has Started return");
       return;
     }
     hasStart = true;
-    ConversationRepo.getAllSessionList(
-        comparator,
-        new FetchCallback<List<ConversationInfo>>() {
+    ConversationRepo.getConversationList(
+        offSet,
+        PAGE_LIMIT,
+        new FetchCallback<>() {
           @Override
-          public void onSuccess(@Nullable List<ConversationInfo> param) {
-            FetchResult<List<ConversationBean>> result = new FetchResult<>(LoadStatus.Success);
-            if (data != null) {
-              result.setLoadStatus(LoadStatus.Finish);
-            }
+          public void onError(int errorCode, @Nullable String errorMsg) {
+            ALog.e(LIB_TAG, TAG, "queryConversation,onError:" + errorCode + "," + errorMsg);
+            hasStart = false;
+          }
+
+          @Override
+          public void onSuccess(@Nullable V2NIMConversationResult data) {
             ALog.d(
                 LIB_TAG,
                 TAG,
-                "queryConversation:onSuccess,size=" + (param != null ? param.size() : 0));
-            List<ConversationBean> resultData = new ArrayList<>();
-            for (int index = 0; param != null && index < param.size(); index++) {
-              resultData.add(conversationFactory.CreateBean(param.get(index)));
+                "queryConversation,onSuccess:"
+                    + ((data != null && data.getConversationList() != null)
+                        ? data.getConversationList().size()
+                        : 0));
+            FetchResult<List<ConversationBean>> result = new FetchResult<>(LoadStatus.Success);
+            result.setType(offSet > 0 ? FetchResult.FetchType.Add : FetchResult.FetchType.Init);
+
+            if (data != null && data.getConversationList() != null) {
+              checkConversationAndRemove(data.getConversationList());
+              List<ConversationBean> resultData =
+                  createConversationBean(data.getConversationList());
+              if (comparator != null) {
+                Collections.sort(resultData, comparator);
+              }
+              result.setData(resultData);
+              hasMore = resultData.size() == PAGE_LIMIT;
+              mOffset = data.getOffset();
             }
-            hasMore = false; // param != null && param.size() == PAGE_LIMIT;
-            result.setData(resultData);
             queryLiveData.setValue(result);
             hasStart = false;
           }
+        });
+  }
 
+  /**
+   * 删除会话
+   *
+   * @param conversationId 会话ID
+   */
+  public void deleteConversation(String conversationId) {
+    ConversationRepo.deleteConversation(
+        conversationId,
+        false,
+        new FetchCallback<>() {
           @Override
-          public void onFailed(int code) {
-            ALog.d(LIB_TAG, TAG, "queryConversation,onFailed" + code);
-            ToastX.showShortToast(String.valueOf(code));
-            hasStart = false;
+          public void onError(int errorCode, @Nullable String errorMsg) {
+            ALog.d(LIB_TAG, TAG, "deleteConversation,onError:" + errorCode + "," + errorMsg);
+            ErrorUtils.showErrorCodeToast(IMKitClient.getApplicationContext(), errorCode);
           }
 
           @Override
-          public void onException(@Nullable Throwable exception) {
-            ALog.d(LIB_TAG, TAG, "queryConversation,onException");
-            hasStart = false;
+          public void onSuccess(@Nullable Void data) {
+            // 删除回调会走conversationListener.onConversationDeleted方法
+            ALog.d(LIB_TAG, TAG, "deleteConversation,onSuccess:" + conversationId);
           }
         });
   }
 
-  public void deleteConversation(ConversationBean data) {
-    ConversationRepo.deleteSession(
-        data.infoData.getContactId(),
-        data.infoData.getSessionType(),
-        DeleteTypeEnum.LOCAL_AND_REMOTE,
+  /** 置顶会话 */
+  public void addStickTop(ConversationBean param) {
+    ALog.d(LIB_TAG, TAG, "addStickTop:" + param.getConversationId());
+    ConversationRepo.setStickTop(
+        param.getConversationId(),
         true,
         new FetchCallback<Void>() {
           @Override
-          public void onSuccess(@Nullable Void param) {
-            ALog.d(LIB_TAG, TAG, "deleteConversation,onSuccess:" + data.infoData.getContactId());
-            FetchResult<List<ConversationBean>> result = new FetchResult<>(LoadStatus.Finish);
-            result.setFetchType(FetchResult.FetchType.Remove);
-            List<ConversationBean> beanList = new ArrayList<>();
-            beanList.add(data);
-            result.setData(beanList);
-            changeLiveData.setValue(result);
-          }
-
-          @Override
-          public void onFailed(int code) {
-            ALog.d(LIB_TAG, TAG, "deleteConversation,onFailed:" + code);
-            ToastX.showShortToast(String.valueOf(code));
-          }
-
-          @Override
-          public void onException(@Nullable Throwable exception) {
-            ALog.d(LIB_TAG, TAG, "deleteConversation,onException");
-          }
-        });
-  }
-
-  public void addStickTop(ConversationBean data) {
-
-    ConversationRepo.addStickTop(
-        data.infoData.getContactId(),
-        data.infoData.getSessionType(),
-        "",
-        new FetchCallback<StickTopSessionInfo>() {
-          @Override
-          public void onSuccess(@Nullable StickTopSessionInfo param) {
-            if (param != null) {
-              FetchResult<ConversationBean> result = new FetchResult<>(LoadStatus.Success);
-              data.infoData.setStickTop(true);
-              result.setData(data);
-              ALog.d(LIB_TAG, TAG, "addStickTop,onSuccess:" + param.getSessionId());
-              stickLiveData.setValue(result);
-            }
-          }
-
-          @Override
-          public void onFailed(int code) {
-            ALog.d(LIB_TAG, TAG, "addStickTop,onFailed:" + code);
-            if (code == ConversationUIConstant.ERROR_CODE_NETWORK) {
+          public void onError(int errorCode, @Nullable String errorMsg) {
+            ALog.d(LIB_TAG, TAG, "addStickTop,onFailed:" + errorCode);
+            if (errorCode == ConversationConstant.ERROR_CODE_NETWORK) {
               ToastX.showShortToast(R.string.conversation_network_error_tip);
-            } else {
-              ToastX.showShortToast(String.valueOf(code));
             }
           }
 
           @Override
-          public void onException(@Nullable Throwable exception) {
-            ALog.d(LIB_TAG, TAG, "addStickTop,onException");
+          public void onSuccess(@Nullable Void data) {
+            ALog.d(LIB_TAG, TAG, "addStickTop,onSuccess:" + param.getConversationId());
           }
         });
   }
 
-  public void removeStick(ConversationBean data) {
-    ConversationRepo.removeStickTop(
-        data.infoData.getContactId(),
-        data.infoData.getSessionType(),
-        "",
+  /**
+   * 取消置顶会话
+   *
+   * @param conversationBean 会话信息
+   */
+  public void removeStick(ConversationBean conversationBean) {
+    ALog.d(LIB_TAG, TAG, "removeStick:" + conversationBean.getConversationId());
+    ConversationRepo.setStickTop(
+        conversationBean.getConversationId(),
+        false,
         new FetchCallback<Void>() {
           @Override
-          public void onSuccess(@Nullable Void param) {
-            FetchResult<ConversationBean> result = new FetchResult<>(LoadStatus.Success);
-            data.infoData.setStickTop(false);
-            result.setData(data);
-            ALog.d(LIB_TAG, TAG, "removeStick,onSuccess:" + data.infoData.getContactId());
-            stickLiveData.setValue(result);
-          }
-
-          @Override
-          public void onFailed(int code) {
-            ALog.d(LIB_TAG, TAG, "addStickTop,onFailed:" + code);
-            if (code == ConversationUIConstant.ERROR_CODE_NETWORK) {
+          public void onError(int errorCode, @Nullable String errorMsg) {
+            ALog.d(LIB_TAG, TAG, "removeStick,onFailed:" + errorCode);
+            if (errorCode == ConversationConstant.ERROR_CODE_NETWORK) {
               ToastX.showShortToast(R.string.conversation_network_error_tip);
-            } else {
-              ToastX.showShortToast(String.valueOf(code));
             }
           }
 
           @Override
-          public void onException(@Nullable Throwable exception) {}
+          public void onSuccess(@Nullable Void data) {
+            ALog.d(LIB_TAG, TAG, "removeStick,onSuccess:" + conversationBean.getConversationId());
+          }
         });
   }
 
-  private final Observer<StickTopSessionInfo> addStickObserver =
-      param -> {
-        ALog.d(LIB_TAG, TAG, "addStickObserver，onSuccess:" + param.getSessionId());
-        FetchResult<String> result = new FetchResult<>(LoadStatus.Finish);
-        result.setFetchType(FetchResult.FetchType.Add);
-        result.setData(param.getSessionId());
-        addRemoveStickLiveData.setValue(result);
-      };
+  // 会话监听Listener
+  private final V2NIMConversationListener conversationListener =
+      new ConversationListenerImpl() {
 
-  private final Observer<List<StickTopSessionInfo>> syncStickObserver =
-      param -> {
-        ALog.d(LIB_TAG, TAG, "syncStickObserver,onSuccess:" + param.size());
-        queryConversation(null);
-      };
-
-  private final Observer<StickTopSessionInfo> removeStickObserver =
-      param -> {
-        ALog.d(LIB_TAG, TAG, "removeStickObserver,onSuccess:" + param.getSessionId());
-        FetchResult<String> result = new FetchResult<>(LoadStatus.Finish);
-        result.setFetchType(FetchResult.FetchType.Remove);
-        result.setData(param.getSessionId());
-        addRemoveStickLiveData.setValue(result);
-      };
-
-  private final EventObserver<List<ConversationInfo>> changeObserver =
-      new EventObserver<List<ConversationInfo>>() {
         @Override
-        public void onEvent(@Nullable List<ConversationInfo> param) {
-          if (param != null) {
-            FetchResult<List<ConversationBean>> result = new FetchResult<>(LoadStatus.Success);
-            List<ConversationBean> resultData = new ArrayList<>();
-            for (int index = 0; index < param.size(); index++) {
-              ConversationInfo conversationInfo = param.get(index);
-              if (ConversationUtils.isMineLeave(conversationInfo)) {
-                deleteConversation(conversationFactory.CreateBean(conversationInfo));
-                ALog.d(
-                    LIB_TAG,
-                    TAG,
-                    "changeObserver,DismissTeam,onSuccess:" + conversationInfo.getContactId());
-              } else if (conversationInfo.getSessionType() == SessionTypeEnum.Team
-                  && conversationInfo.getTeamInfo() != null
-                  && !conversationInfo.getTeamInfo().isMyTeam()) {
-                deleteConversation(conversationFactory.CreateBean(conversationInfo));
-                ALog.d(
-                    LIB_TAG,
-                    TAG,
-                    "changeObserver,DismissTeam,onSuccess:" + conversationInfo.getContactId());
-              } else {
-                resultData.add(conversationFactory.CreateBean(conversationInfo));
-              }
+        public void onSyncFinished() {
+          ALog.d(LIB_TAG, TAG, "conversationListener onSyncFinished:");
+        }
+
+        @Override
+        public void onSyncFailed(V2NIMError error) {
+          ALog.d(LIB_TAG, TAG, "conversationListener onSyncFailed:");
+        }
+
+        @Override
+        public void onConversationCreated(V2NIMConversation conversation) {
+          ALog.d(
+              LIB_TAG,
+              TAG,
+              "conversationListener onConversationCreated,conversation:"
+                  + (conversation != null ? conversation.getConversationId() : "id is null"));
+          FetchResult<List<ConversationBean>> result = new FetchResult<>(LoadStatus.Success);
+          result.setType(FetchResult.FetchType.Add);
+          List<V2NIMConversation> data = new ArrayList<>();
+          data.add(conversation);
+          convertAndNotify(result, data);
+        }
+
+        @Override
+        public void onConversationDeleted(List<String> conversationIds) {
+          FetchResult<List<String>> result = new FetchResult<>(LoadStatus.Success);
+          result.setData(conversationIds);
+          ALog.d(LIB_TAG, TAG, "conversationListener onConversationDeleted,onSuccess");
+          deleteLiveData.setValue(result);
+        }
+
+        @Override
+        public void onConversationChanged(List<V2NIMConversation> conversationList) {
+          ALog.d(
+              LIB_TAG,
+              TAG,
+              "conversationListener onConversationChanged,conversation:"
+                  + (conversationList != null ? conversationList.size() : "0"));
+          if (conversationList == null || conversationList.isEmpty()) {
+            return;
+          }
+          List<V2NIMConversation> changeList = new ArrayList<>();
+          List<String> deleteList = new ArrayList<>();
+          for (V2NIMConversation conversation : conversationList) {
+            ALog.d(
+                LIB_TAG,
+                TAG,
+                "conversationListener onConversationChanged,conversation:"
+                    + (conversation != null ? conversation.getConversationId() : "id is null"));
+            if (conversation != null
+                && ConversationUtils.isDismissTeamMsg(conversation.getLastMessage())) {
+              deleteList.add(conversation.getConversationId());
+              deleteConversation(conversation.getConversationId());
+            } else {
+              changeList.add(conversation);
             }
-            result.setData(resultData);
-            changeLiveData.setValue(result);
+          }
+          if (changeList.size() > 0) {
+            ALog.d(
+                LIB_TAG,
+                TAG,
+                "conversationListener onConversationChanged,changeList:" + changeList.size());
+            FetchResult<List<ConversationBean>> result = new FetchResult<>(LoadStatus.Success);
+            result.setType(FetchResult.FetchType.Update);
+            convertAndNotify(result, changeList);
+          }
+          if (deleteList.size() > 0) {
+            ALog.d(
+                LIB_TAG,
+                TAG,
+                "conversationListener onConversationChanged,deleteList:" + deleteList.size());
+            FetchResult<List<String>> result = new FetchResult<>(LoadStatus.Success);
+            result.setData(deleteList);
+            deleteLiveData.setValue(result);
           }
         }
-      };
 
-  private final EventObserver<ConversationInfo> deleteObserver =
-      new EventObserver<ConversationInfo>() {
         @Override
-        public void onEvent(@Nullable ConversationInfo param) {
-          ALog.d(LIB_TAG, TAG, "deleteObserver,onSuccess:" + (param == null));
-          FetchResult<List<ConversationBean>> result = new FetchResult<>(LoadStatus.Finish);
-          result.setFetchType(FetchResult.FetchType.Remove);
-          List<ConversationBean> beanList = new ArrayList<>();
-          if (param != null) {
-            beanList.add(conversationFactory.CreateBean(param));
+        public void onTotalUnreadCountChanged(int unreadCount) {
+          ALog.d(LIB_TAG, TAG, "conversationListener onTotalUnreadCountChanged:" + unreadCount);
+          FetchResult<Integer> result = new FetchResult<>(LoadStatus.Success);
+          result.setData(unreadCount);
+          unreadCountLiveData.setValue(result);
+        }
+      };
+
+  // 群组监听Listener
+  private final V2NIMTeamListener teamListener =
+      new TeamListenerImpl() {
+
+        @Override
+        public void onTeamDismissed(@Nullable V2NIMTeam team) {
+          if (team == null || !IMKitConfigCenter.getDismissTeamDeleteConversation()) {
+            return;
           }
-          result.setData(beanList);
-          changeLiveData.setValue(result);
+          ALog.d(LIB_TAG, TAG, "teamListener onTeamDismissed:" + team.getTeamId());
+          String conversationId =
+              V2NIMConversationIdUtil.conversationId(
+                  team.getTeamId(), V2NIMConversationType.V2NIM_CONVERSATION_TYPE_TEAM);
+          deleteConversation(conversationId);
         }
-      };
 
-  private final UserInfoObserver userInfoObserver =
-      userList -> {
-        ALog.d(LIB_TAG, TAG, "userInfoObserver,userList:" + userList.size());
-        FetchResult<List<UserInfo>> result = new FetchResult<>(LoadStatus.Success);
-        result.setData(userList);
-        userInfoLiveData.setValue(result);
-      };
-
-  private final FriendObserver friendObserver =
-      (friendChangeType, accountList) -> {
-        ALog.d(LIB_TAG, TAG, "friendObserver,userList:" + accountList.size());
-        if (friendChangeType == FriendChangeType.Update) {
-          ContactRepo.getFriendList(
-              accountList,
-              new FetchCallback<List<FriendInfo>>() {
-                @Override
-                public void onSuccess(@Nullable List<FriendInfo> param) {
-                  ALog.d(
-                      LIB_TAG, TAG, "friendObserver,getFriendInfo,onSuccess:" + accountList.size());
-                  FetchResult<List<FriendInfo>> result = new FetchResult<>(LoadStatus.Success);
-                  result.setData(param);
-                  friendInfoLiveData.setValue(result);
-                }
-
-                @Override
-                public void onFailed(int code) {
-                  ALog.d(LIB_TAG, TAG, "friendObserver,getFriendInfo,onFailed:" + code);
-                }
-
-                @Override
-                public void onException(@Nullable Throwable exception) {
-                  ALog.d(
-                      LIB_TAG,
-                      TAG,
-                      "friendObserver,getFriendInfo,onException"
-                          + (exception != null ? exception.getMessage() : "null"));
-                }
-              });
-        } else if (friendChangeType == FriendChangeType.Delete) {
-          FetchResult<List<FriendInfo>> result = new FetchResult<>(LoadStatus.Success);
-          List<FriendInfo> friendList = new ArrayList<>();
-          for (String account : accountList) {
-            friendList.add(new FriendInfo(account, null, null));
+        @Override
+        public void onTeamLeft(@Nullable V2NIMTeam team, boolean isKicked) {
+          if (team == null || !IMKitConfigCenter.getDismissTeamDeleteConversation()) {
+            return;
           }
-          result.setData(friendList);
-          friendInfoLiveData.setValue(result);
+          ALog.d(LIB_TAG, TAG, "teamListener onTeamLeft:" + team.getTeamId());
+          String conversationId =
+              V2NIMConversationIdUtil.conversationId(
+                  team.getTeamId(), V2NIMConversationType.V2NIM_CONVERSATION_TYPE_TEAM);
+          deleteConversation(conversationId);
         }
       };
 
-  private final Observer<List<Team>> teamUpdateObserver =
-      teamList -> {
-        if (teamList != null) {
-          ALog.d(LIB_TAG, TAG, "teamUpdateObserver,teamInfoList:" + teamList.size());
-          FetchResult<List<Team>> result = new FetchResult<>(LoadStatus.Success);
-          result.setData(teamList);
-          teamInfoLiveData.setValue(result);
-        }
-      };
+  // 会话列表转换并通知LiveData
+  public void convertAndNotify(
+      FetchResult<List<ConversationBean>> result, List<V2NIMConversation> conversationList) {
+    if (conversationList != null) {
+      List<ConversationBean> resultData = createConversationBean(conversationList);
+      result.setData(resultData);
+      changeLiveData.setValue(result);
+    }
+  }
 
-  private final Observer<MuteListChangedNotify> muteObserver =
-      muteNotify -> {
-        if (muteNotify != null) {
-          ALog.d(LIB_TAG, TAG, "muteObserver,muteNotify:" + muteNotify.getAccount());
-          FetchResult<MuteListChangedNotify> result = new FetchResult<>(LoadStatus.Success);
-          result.setData(muteNotify);
-          muteInfoLiveData.setValue(result);
-        }
-      };
+  //工具方法，将会话信息转换为会话列表数据
+  public List<ConversationBean> createConversationBean(List<V2NIMConversation> data) {
+    List<ConversationBean> resultData = new ArrayList<>();
+    if (data != null) {
+      for (int index = 0; index < data.size(); index++) {
+        resultData.add(conversationFactory.CreateBean(data.get(index)));
+      }
+    }
+    return resultData;
+  }
 
+  //工具方法，去除重复会话
+  public void checkConversationAndRemove(List<V2NIMConversation> data) {
+    Set<String> conversationIds = new HashSet<>();
+    if (data != null) {
+      ALog.d(LIB_TAG, TAG, "checkConversationAndRemove:" + data.size());
+      for (int index = 0; index < data.size(); index++) {
+        if (conversationIds.contains(data.get(index).getConversationId())) {
+          data.remove(index);
+          index--;
+        } else {
+          conversationIds.add(data.get(index).getConversationId());
+        }
+      }
+    }
+  }
+
+  // 是否还有更多数据
   public boolean hasMore() {
     return hasMore;
   }
@@ -506,14 +503,9 @@ public class ConversationViewModel extends BaseViewModel {
   @Override
   protected void onCleared() {
     super.onCleared();
-    ConversationObserverRepo.unregisterSessionDeleteObserver(deleteObserver);
-    ConversationObserverRepo.unregisterSessionChangedObserver(changeObserver);
-    ContactObserverRepo.unregisterUserInfoObserver(userInfoObserver);
-    ContactObserverRepo.unregisterFriendObserver(friendObserver);
-    TeamObserverRepo.unregisterTeamUpdateObserver(teamUpdateObserver);
-    ConversationObserverRepo.unregisterNotifyChangeObserver(muteObserver);
-    ConversationObserverRepo.unregisterAddStickTopObserver(addStickObserver);
-    ConversationObserverRepo.unregisterSyncStickTopObserver(syncStickObserver);
-    ConversationObserverRepo.unregisterRemoveStickTopObserver(removeStickObserver);
+    ALog.d(LIB_TAG, TAG, "onCleared:");
+    ConversationRepo.removeConversationListener(conversationListener);
+    TeamRepo.removeTeamListener(teamListener);
+    IMKitClient.removeLoginDetailListener(loginDetailListener);
   }
 }

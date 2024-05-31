@@ -11,9 +11,9 @@ import androidx.annotation.Nullable;
 import com.netease.yunxin.kit.contactkit.ui.R;
 import com.netease.yunxin.kit.contactkit.ui.addfriend.BaseAddFriendActivity;
 import com.netease.yunxin.kit.contactkit.ui.databinding.FunAddFriendActivityBinding;
-import com.netease.yunxin.kit.corekit.im.IMKitClient;
-import com.netease.yunxin.kit.corekit.im.model.UserInfo;
-import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
+import com.netease.yunxin.kit.corekit.im2.IMKitClient;
+import com.netease.yunxin.kit.corekit.im2.model.V2UserInfo;
+import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 
 public class FunAddFriendActivity extends BaseAddFriendActivity {
@@ -35,16 +35,17 @@ public class FunAddFriendActivity extends BaseAddFriendActivity {
     return viewBinding.getRoot();
   }
 
-  protected void startProfileActivity(UserInfo userInfo) {
+  @Override
+  protected void startProfileActivity(V2UserInfo userInfo) {
     if (userInfo == null) {
       return;
     }
-    if (TextUtils.equals(userInfo.getAccount(), IMKitClient.account())) {
+    if (TextUtils.equals(userInfo.getAccountId(), IMKitClient.account())) {
       XKitRouter.withKey(RouterConstant.PATH_MINE_INFO_PAGE).withContext(this).navigate();
     } else {
       XKitRouter.withKey(RouterConstant.PATH_FUN_USER_INFO_PAGE)
           .withContext(this)
-          .withParam(RouterConstant.KEY_ACCOUNT_ID_KEY, userInfo.getAccount())
+          .withParam(RouterConstant.KEY_ACCOUNT_ID_KEY, userInfo.getAccountId())
           .navigate();
     }
   }

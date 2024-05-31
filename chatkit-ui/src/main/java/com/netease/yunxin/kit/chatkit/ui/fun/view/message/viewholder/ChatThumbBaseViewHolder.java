@@ -5,17 +5,28 @@
 package com.netease.yunxin.kit.chatkit.ui.fun.view.message.viewholder;
 
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.widget.FrameLayout;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
-import com.netease.nimlib.sdk.msg.attachment.FileAttachment;
-import com.netease.nimlib.sdk.msg.model.IMMessage;
+import com.bumptech.glide.request.target.Target;
+import com.netease.nimlib.sdk.v2.message.V2NIMMessage;
+import com.netease.nimlib.sdk.v2.message.attachment.V2NIMMessageFileAttachment;
+import com.netease.nimlib.sdk.v2.message.attachment.V2NIMMessageImageAttachment;
+import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.ui.R;
+import com.netease.yunxin.kit.chatkit.ui.common.ThumbHelper;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatBaseMessageViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.databinding.FunChatMessageThumbnailViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
@@ -29,11 +40,14 @@ public abstract class ChatThumbBaseViewHolder extends FunChatBaseMessageViewHold
 
   FunChatMessageThumbnailViewHolderBinding binding;
 
+  //handler for load image
+  private Handler handler;
+
   public ChatThumbBaseViewHolder(@NonNull ChatBaseMessageViewHolderBinding parent, int viewType) {
     super(parent, viewType);
   }
 
-  protected IMMessage getMsgInternal() {
+  protected V2NIMMessage getMsgInternal() {
     return currentMessage.getMessageData().getMessage();
   }
 
@@ -58,25 +72,50 @@ public abstract class ChatThumbBaseViewHolder extends FunChatBaseMessageViewHold
   }
 
   private void load() {
-    FileAttachment attachment = (FileAttachment) getMsgInternal().getAttachment();
+    V2NIMMessageFileAttachment attachment =
+        (V2NIMMessageFileAttachment) getMsgInternal().getAttachment();
     if (attachment == null) {
       return;
     }
     String path = attachment.getPath();
-    String thumbPath = attachment.getThumbPath();
-    if (!TextUtils.isEmpty(thumbPath)) {
-      ALog.d(TAG, "load from thumb");
-      loadThumbnailImage(thumbPath);
-    } else if (!TextUtils.isEmpty(path)) {
-      ALog.d(TAG, "load from path");
-      loadThumbnailImage(thumbFromSourceFile(path));
-    } else {
-      loadThumbnailInternal(attachment.getUrl(), getImageThumbMinEdge(), getImageThumbMinEdge());
+    //图片消息优先加载本地
+    if (getMsgInternal().getMessageType() == V2NIMMessageType.V2NIM_MESSAGE_TYPE_IMAGE) {
+      V2NIMMessageImageAttachment imageAttachment = (V2NIMMessageImageAttachment) attachment;
+      if (!TextUtils.isEmpty(path)) {
+        loadThumbnailImage(thumbFromSourceFile(path));
+      } else if (attachment.getUrl() != null) {
+        //              没有本地图片，加载缩略图url
+        String thumbUrl =
+            ThumbHelper.makeImageThumbUrl(
+                attachment.getUrl(), imageAttachment.getWidth(), imageAttachment.getHeight());
+        loadThumbnailInternal(thumbUrl, getBounds(null), 0);
+      }
+    } else if (getMsgInternal().getMessageType() == V2NIMMessageType.V2NIM_MESSAGE_TYPE_VIDEO) {
+      if (attachment.getUrl() != null) {
+        //视频消息拼接第一帧
+        String videoUrl = attachment.getUrl();
+        String thumbUrl = ThumbHelper.makeVideoThumbUrl(videoUrl);
+        loadThumbnailImage(thumbUrl);
+      } else {
+        loadThumbnailImage(null);
+      }
     }
   }
 
   private void loadThumbnailImage(String path) {
     int[] bounds = getBounds(path);
+    loadThumbnailInternal(path, bounds, 0);
+  }
+
+  @Override
+  public void onDetachedFromWindow() {
+    super.onDetachedFromWindow();
+    if (handler != null) {
+      handler.removeCallbacksAndMessages(null);
+    }
+  }
+
+  private void loadThumbnailInternal(String path, int[] bounds, int retryCount) {
     int w = bounds[0];
     int h = bounds[1];
     int thumbMinEdge = getImageThumbMinEdge();
@@ -85,15 +124,21 @@ public abstract class ChatThumbBaseViewHolder extends FunChatBaseMessageViewHold
       h = bounds[0] != 0 ? w * bounds[1] / bounds[0] : 0;
     }
     int thumbMaxEdge = getImageThumbMaxEdge();
+    int thumbMaxHeight = (int) (0.45 * ScreenUtils.getDisplayHeight());
     if (w > thumbMaxEdge) {
       w = thumbMaxEdge;
       h = w * bounds[1] / bounds[0];
     }
-
-    loadThumbnailInternal(path, w, h);
-  }
-
-  private void loadThumbnailInternal(String path, int w, int h) {
+    if (h > thumbMaxHeight) {
+      h = thumbMaxHeight;
+    }
+    //避免0的case出现
+    if (w == 0) {
+      w = thumbMinEdge;
+    }
+    if (h == 0) {
+      h = thumbMinEdge;
+    }
     FrameLayout.LayoutParams thumbParams =
         (FrameLayout.LayoutParams) binding.getRoot().getLayoutParams();
     thumbParams.width = w;
@@ -131,6 +176,42 @@ public abstract class ChatThumbBaseViewHolder extends FunChatBaseMessageViewHold
                       new GranularRoundedCornersWithCenterCrop(
                           corners[0], corners[1], corners[2], corners[3])))
           .override(w, h)
+          .addListener(
+              new RequestListener<Drawable>() {
+                @Override
+                public boolean onLoadFailed(
+                    @Nullable GlideException e,
+                    Object model,
+                    Target<Drawable> target,
+                    boolean isFirstResource) {
+                  ALog.e(
+                      TAG,
+                      "load thumbnail failed, path: "
+                          + path
+                          + "error :"
+                          + (e == null ? "" : e.getMessage()));
+                  if (retryCount > 0) {
+                    return false;
+                  }
+                  if (handler == null) {
+                    handler = new Handler(Looper.getMainLooper());
+                  }
+                  //失败重试一次，解决iOS发的图片加载失败的问题
+                  handler.postDelayed(
+                      () -> loadThumbnailInternal(path, bounds, retryCount + 1), 500);
+                  return false;
+                }
+
+                @Override
+                public boolean onResourceReady(
+                    Drawable resource,
+                    Object model,
+                    Target<Drawable> target,
+                    DataSource dataSource,
+                    boolean isFirstResource) {
+                  return false;
+                }
+              })
           .into(binding.thumbnail);
     }
   }

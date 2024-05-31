@@ -4,9 +4,9 @@
 
 package com.netease.yunxin.kit.teamkit.ui.activity;
 
-import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.KEY_TEAM_ICON;
-import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.KEY_TEAM_ID;
-import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.KEY_TEAM_NAME;
+import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.KEY_TEAM_ICON;
+import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.KEY_TEAM_ID;
+import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.KEY_TEAM_NAME;
 import static com.netease.yunxin.kit.teamkit.ui.activity.BaseTeamUpdateIntroduceActivity.KEY_TEAM_INTRODUCE;
 
 import android.app.Activity;
@@ -18,18 +18,24 @@ import android.widget.TextView;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
-import com.netease.nimlib.sdk.team.constant.TeamTypeEnum;
+import androidx.lifecycle.ViewModelProvider;
+import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamType;
 import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
 import com.netease.yunxin.kit.common.ui.widgets.ContactAvatarView;
 import com.netease.yunxin.kit.teamkit.ui.R;
 import com.netease.yunxin.kit.teamkit.ui.utils.ColorUtils;
+import com.netease.yunxin.kit.teamkit.ui.viewmodel.TeamInfoViewModel;
 import java.util.Objects;
 
-/** team info activity */
+/**
+ * 群信息展示页面，包含群头像、群名称、群介绍，基类 子类由于UI不同，需要重写initViewAndGetRootView方法，返回对应的View
+ * 跳转到二级页面可以修改群头像、群名称、群介绍（群管理员或者拥有者可以）
+ */
 public abstract class BaseTeamInfoActivity extends BaseActivity {
   public static final String KEY_TEAM_UPDATE_INFO_PRIVILEGE = "update_info_privilege";
   public static final String KEY_TEAM_TYPE = "team_type";
   public static final String KEY_TEAM_IS_GROUP = "team_group_tag";
+  protected TeamInfoViewModel viewModel;
   private View rootView;
   protected View line2;
   protected View ivBack;
@@ -45,9 +51,8 @@ public abstract class BaseTeamInfoActivity extends BaseActivity {
   protected String teamIconUrl;
   protected String teamIntroduce;
   protected String teamName;
-  protected TeamTypeEnum teamTypeEnum;
+  protected V2NIMTeamType teamTypeEnum;
   protected boolean isGroup = false;
-
   protected boolean canUpdate = false;
   protected boolean hasUpdatePrivilege = false;
 
@@ -57,6 +62,37 @@ public abstract class BaseTeamInfoActivity extends BaseActivity {
     rootView = initViewAndGetRootView(savedInstanceState);
     checkViews();
     setContentView(rootView);
+    // 设置状态栏颜色
+    changeStatusBarColor(R.color.color_eff1f4);
+    viewModel = new ViewModelProvider(this).get(TeamInfoViewModel.class);
+    // 初始化页面数据
+    initData();
+    refreshView();
+  }
+
+  private void initData() {
+    Intent intent = getIntent();
+    hasUpdatePrivilege = intent.getBooleanExtra(KEY_TEAM_UPDATE_INFO_PRIVILEGE, false);
+    teamId = intent.getStringExtra(KEY_TEAM_ID);
+    teamIconUrl = intent.getStringExtra(KEY_TEAM_ICON);
+    teamIntroduce = intent.getStringExtra(KEY_TEAM_INTRODUCE);
+    teamName = intent.getStringExtra(KEY_TEAM_NAME);
+    isGroup = intent.getBooleanExtra(KEY_TEAM_IS_GROUP, false);
+    teamTypeEnum = (V2NIMTeamType) intent.getSerializableExtra(KEY_TEAM_TYPE);
+    // 修改群头像、群名称、群介绍ActivityLauncher结果回调
+    viewModel.configTeamId(teamId);
+    viewModel
+        .getTeamUpdateData()
+        .observe(
+            this,
+            fetchResult -> {
+              if (fetchResult.isSuccess() && fetchResult.getData() != null) {
+                teamIconUrl = fetchResult.getData().getAvatar();
+                teamName = fetchResult.getData().getName();
+                teamIntroduce = fetchResult.getData().getIntro();
+                refreshView();
+              }
+            });
     launcher =
         registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -80,20 +116,11 @@ public abstract class BaseTeamInfoActivity extends BaseActivity {
                 teamName = String.valueOf(nameObj);
               }
             });
+  }
 
-    changeStatusBarColor(R.color.color_eff1f4);
-
-    Intent intent = getIntent();
-    hasUpdatePrivilege = intent.getBooleanExtra(KEY_TEAM_UPDATE_INFO_PRIVILEGE, false);
-    teamId = intent.getStringExtra(KEY_TEAM_ID);
-    teamIconUrl = intent.getStringExtra(KEY_TEAM_ICON);
-    teamIntroduce = intent.getStringExtra(KEY_TEAM_INTRODUCE);
-    teamName = intent.getStringExtra(KEY_TEAM_NAME);
-    isGroup = intent.getBooleanExtra(KEY_TEAM_IS_GROUP, false);
-    teamTypeEnum = (TeamTypeEnum) intent.getSerializableExtra(KEY_TEAM_TYPE);
-
+  private void refreshView() {
     ivIcon.setData(teamIconUrl, teamName, ColorUtils.avatarColor(teamId));
-    if (teamTypeEnum == TeamTypeEnum.Advanced && !isGroup) {
+    if (teamTypeEnum == V2NIMTeamType.V2NIM_TEAM_TYPE_NORMAL && !isGroup) {
       tvTitle.setText(R.string.team_info_title);
       tvIcon.setText(R.string.team_icon_title);
       tvName.setText(R.string.team_name_title);
@@ -180,7 +207,7 @@ public abstract class BaseTeamInfoActivity extends BaseActivity {
       Context context,
       Class<? extends Activity> activity,
       boolean hasUpdatePrivilege,
-      TeamTypeEnum teamTypeEnum,
+      V2NIMTeamType teamTypeEnum,
       String teamId,
       String teamName,
       String teamIntroduce,

@@ -8,14 +8,14 @@ import android.view.View;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.StringRes;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
-import com.netease.yunxin.kit.corekit.im.IMKitClient;
+import com.netease.yunxin.kit.corekit.im2.IMKitClient;
 
 public class ChatPopMenuAction {
 
   private String title;
   private @DrawableRes int actionIcon;
   private OnClickListener actionClickListener;
-  private String action;
+  private final String action;
 
   public ChatPopMenuAction(String action, String title, @DrawableRes int actionIcon) {
     this(action, title, actionIcon, null);

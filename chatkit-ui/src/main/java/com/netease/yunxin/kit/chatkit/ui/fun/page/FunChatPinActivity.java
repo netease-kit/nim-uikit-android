@@ -11,13 +11,12 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
-import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
-import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
+import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
+import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
 import com.netease.yunxin.kit.chatkit.ui.R;
+import com.netease.yunxin.kit.chatkit.ui.common.ChatUserCache;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatUtils;
 import com.netease.yunxin.kit.chatkit.ui.custom.MultiForwardAttachment;
-import com.netease.yunxin.kit.chatkit.ui.dialog.ChatBaseForwardSelectDialog;
-import com.netease.yunxin.kit.chatkit.ui.fun.FunChatForwardSelectDialog;
 import com.netease.yunxin.kit.chatkit.ui.fun.FunChatMessageForwardConfirmDialog;
 import com.netease.yunxin.kit.chatkit.ui.fun.FunChoiceDialog;
 import com.netease.yunxin.kit.chatkit.ui.fun.factory.FunPinViewHolderFactory;
@@ -26,7 +25,7 @@ import com.netease.yunxin.kit.chatkit.ui.page.ChatPinBaseActivity;
 import com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants;
 import com.netease.yunxin.kit.common.ui.dialog.BaseBottomChoiceDialog;
 import com.netease.yunxin.kit.common.utils.SizeUtils;
-import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
+import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 import java.util.ArrayList;
 
@@ -76,12 +75,12 @@ public class FunChatPinActivity extends ChatPinBaseActivity {
   @Override
   public void jumpToChat(ChatMessageBean messageInfo) {
     String router = RouterConstant.PATH_FUN_CHAT_TEAM_PAGE;
-    if (mSessionType == SessionTypeEnum.P2P) {
+    if (mSessionType == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P) {
       router = RouterConstant.PATH_FUN_CHAT_P2P_PAGE;
     }
 
     XKitRouter.withKey(router)
-        .withParam(RouterConstant.KEY_MESSAGE_BEAN, messageInfo)
+        .withParam(RouterConstant.KEY_MESSAGE_INFO, messageInfo.getMessageData())
         .withParam(RouterConstant.CHAT_KRY, mSessionId)
         .withContext(FunChatPinActivity.this)
         .navigate();
@@ -89,25 +88,10 @@ public class FunChatPinActivity extends ChatPinBaseActivity {
   }
 
   @Override
-  protected void toP2PSelected() {
-    ChatUtils.startP2PSelector(
-        FunChatPinActivity.this,
-        RouterConstant.PATH_FUN_CONTACT_SELECTOR_PAGE,
-        null,
-        forwardP2PLauncher);
-  }
-
-  @Override
-  protected void toTeamSelected() {
-    ChatUtils.startTeamList(
-        FunChatPinActivity.this, RouterConstant.PATH_FUN_MY_TEAM_PAGE, forwardTeamLauncher);
-  }
-
-  @Override
   protected void clickCustomMessage(ChatMessageBean messageBean) {
-    if (messageBean.getMessageData().getMessage().getMsgType() == MsgTypeEnum.custom) {
-      if (messageBean.getMessageData().getMessage().getAttachment()
-          instanceof MultiForwardAttachment) {
+    if (messageBean.getMessageData().getMessage().getMessageType()
+        == V2NIMMessageType.V2NIM_MESSAGE_TYPE_CUSTOM) {
+      if (messageBean.getMessageData().getAttachment() instanceof MultiForwardAttachment) {
         XKitRouter.withKey(RouterConstant.PATH_FUN_CHAT_FORWARD_PAGE)
             .withContext(this)
             .withParam(RouterConstant.KEY_MESSAGE, messageBean.getMessageData())
@@ -117,41 +101,31 @@ public class FunChatPinActivity extends ChatPinBaseActivity {
   }
 
   @Override
-  protected ChatBaseForwardSelectDialog getForwardSelectDialog() {
-    ChatBaseForwardSelectDialog dialog = new FunChatForwardSelectDialog();
-    dialog.setSelectedCallback(
-        new ChatBaseForwardSelectDialog.ForwardTypeSelectedCallback() {
-          @Override
-          public void onTeamSelected() {
-            toTeamSelected();
-          }
-
-          @Override
-          public void onP2PSelected() {
-            toP2PSelected();
-          }
-        });
-    return dialog;
+  protected void goToForwardPage() {
+    ChatUtils.startForwardSelector(
+        this, RouterConstant.PATH_FUN_FORWARD_SELECTOR_PAGE, false, forwardLauncher);
   }
 
   @Override
-  protected void showForwardConfirmDialog(SessionTypeEnum type, ArrayList<String> sessionIds) {
+  protected void showForwardConfirmDialog(ArrayList<String> conversationIds) {
     if (forwardMessage == null) {
       return;
     }
     String sendName =
         TextUtils.isEmpty(mSessionName)
-            ? forwardMessage.getMessageData().getMessage().getFromNick()
+            ? ChatUserCache.getInstance()
+                .getFriendInfo(forwardMessage.getMessageData().getMessage().getSenderId())
+                .getAvatarName()
             : mSessionName;
     FunChatMessageForwardConfirmDialog confirmDialog =
         FunChatMessageForwardConfirmDialog.createForwardConfirmDialog(
-            type, sessionIds, sendName, true, ActionConstants.POP_ACTION_TRANSMIT);
+            conversationIds, sendName, true, ActionConstants.POP_ACTION_TRANSMIT);
     confirmDialog.setCallback(
         (inputMsg) -> {
           if (forwardMessage != null) {
-            for (String accId : sessionIds) {
+            for (String conversationId : conversationIds) {
               viewModel.sendForwardMessage(
-                  forwardMessage.getMessageData().getMessage(), inputMsg, accId, type);
+                  forwardMessage.getMessageData().getMessage(), inputMsg, conversationId);
             }
           }
         });

@@ -7,6 +7,7 @@ package com.netease.yunxin.app.im.utils;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.text.TextUtils;
 
 public class AppUtils {
 
@@ -20,5 +21,12 @@ public class AppUtils {
 
     }
     return versionName;
+  }
+
+  //邮箱
+  public static final String EMAIL = "^\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*$";
+  //邮箱检查，为空或者符合邮箱格式
+  public static boolean checkEmail(String email) {
+    return TextUtils.isEmpty(email) || email.matches(EMAIL);
   }
 }

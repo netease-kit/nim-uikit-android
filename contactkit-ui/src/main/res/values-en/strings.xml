@@ -77,13 +77,19 @@
     <string name="remove_black_fail">Failed to remove blacklist</string>
     <string name="verify_duplicate_fail">Already done on other devices</string>
     <string name="contact_error_tips">Data error</string>
+    <string name="contact_selector_session_max_count">Can only choose %s sessions</string>
 
     <!--    selector-->
     <string name="select">Select</string>
+    <string name="selected">Selected</string>
     <string name="selector_sure">Yes(%d)</string>
+    <string name="selector_finish">Yes(%d)</string>
+    <string name="selector_finish_without_number">Yes</string>
     <string name="selector_sure_without_num">Yes</string>
     <string name="contact_selector_max_count">select up to %s friends</string>
     <string name="contact_selector_over_count">exceeding the maximum capacity</string>
+    <string name="selector_conversation_empty">No Chat</string>
+    <string name="selector_team_empty">No Team</string>
     <string name="selector_friend_empty">No Member</string>
     <string name="select_empty_tips">No Member</string>
     <string name="fun_selector_close">Close</string>
@@ -98,9 +104,16 @@
     <string name="global_search_group_title">Temperature Group</string>
     <string name="global_search_team_title">Group</string>
     <string name="global_search_empty">No exist</string>
+    <string name="global_search_no_result">No results related to "%s"</string>
 
     <!--    common-->
     <string name="cancel"> Cancel </string>
     <string name="contact_network_error_tip">No Internet</string>
+
+    <string name="recent_conversation">Conversation</string>
+    <string name="my_friend">My Friend</string>
+    <string name="recent_forward">Forwarded</string>
+
+    <string name="contact_selector_multi_select">MultiSelect</string>
 
 </resources>

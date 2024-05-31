@@ -68,7 +68,7 @@
         android:layout_height="0dp"
         android:layout_marginTop="8dp"
         android:background="@color/color_white"
-        app:layout_constraintBottom_toBottomOf="@id/tvNotifyAllMembersPermission"
+        app:layout_constraintBottom_toBottomOf="@id/tvTopStickyPermission"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tvEditManager" />
@@ -200,6 +200,39 @@
         android:textColor="@color/color_999999"
         android:textSize="14dp"
         app:layout_constraintBottom_toBottomOf="@id/tvNotifyAllMembersPermission"
+        app:layout_constraintEnd_toEndOf="@id/bg1"
+        app:layout_constraintStart_toStartOf="@id/bg1"
+        tools:ignore="SpUsage" />
+
+    <TextView
+        android:id="@+id/tvTopStickyPermission"
+        android:layout_width="0dp"
+        android:layout_height="78dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:paddingTop="18dp"
+        android:text="@string/team_notify_all_permission"
+        android:textColor="@color/color_333333"
+        android:textSize="16dp"
+        app:drawableEndCompat="@drawable/ic_right_arrow"
+        app:layout_constraintEnd_toEndOf="@id/bg1"
+        app:layout_constraintStart_toStartOf="@id/bg1"
+        app:layout_constraintTop_toBottomOf="@id/tvNotifyAllMembersPermission"
+        tools:ignore="SpUsage" />
+
+    <TextView
+        android:id="@+id/tvTopStickyValue"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="6dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="14dp"
+        android:text="@string/team_all_member"
+        android:visibility="visible"
+        android:textColor="@color/color_999999"
+        android:textSize="14dp"
+        app:layout_constraintBottom_toBottomOf="@id/tvTopStickyPermission"
         app:layout_constraintEnd_toEndOf="@id/bg1"
         app:layout_constraintStart_toStartOf="@id/bg1"
         tools:ignore="SpUsage" />

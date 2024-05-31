@@ -7,23 +7,24 @@ package com.netease.yunxin.kit.contactkit.ui.userinfo;
 import static com.netease.yunxin.kit.contactkit.ui.ContactConstant.LIB_TAG;
 
 import android.text.TextUtils;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
+import com.netease.nimlib.sdk.v2.friend.enums.V2NIMFriendAddMode;
 import com.netease.yunxin.kit.alog.ALog;
-import com.netease.yunxin.kit.chatkit.repo.ContactObserverRepo;
 import com.netease.yunxin.kit.chatkit.repo.ContactRepo;
 import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
+import com.netease.yunxin.kit.contactkit.ui.FriendObserveImpl;
 import com.netease.yunxin.kit.contactkit.ui.model.ContactUserInfoBean;
-import com.netease.yunxin.kit.corekit.im.model.FriendInfo;
-import com.netease.yunxin.kit.corekit.im.model.FriendVerifyType;
-import com.netease.yunxin.kit.corekit.im.model.UserInfo;
-import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
-import com.netease.yunxin.kit.corekit.im.provider.FriendChangeType;
-import com.netease.yunxin.kit.corekit.im.provider.FriendObserver;
-import com.netease.yunxin.kit.corekit.im.provider.UserInfoObserver;
-import java.util.ArrayList;
+import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
+import com.netease.yunxin.kit.corekit.im2.listener.V2FriendChangeType;
+import com.netease.yunxin.kit.corekit.im2.listener.V2UserListener;
+import com.netease.yunxin.kit.corekit.im2.model.FriendVerifyType;
+import com.netease.yunxin.kit.corekit.im2.model.UserWithFriend;
+import com.netease.yunxin.kit.corekit.im2.model.V2UserInfo;
+import java.util.Collections;
 import java.util.List;
 
 public class UserInfoViewModel extends BaseViewModel {
@@ -32,13 +33,15 @@ public class UserInfoViewModel extends BaseViewModel {
   private final MutableLiveData<FetchResult<ContactUserInfoBean>> friendLiveData =
       new MutableLiveData<>();
   private final FetchResult<ContactUserInfoBean> fetchResult = new FetchResult<>(LoadStatus.Finish);
-  private final MutableLiveData<FetchResult<List<UserInfo>>> userInfoLiveData =
+  private final MutableLiveData<FetchResult<List<V2UserInfo>>> userInfoLiveData =
       new MutableLiveData<>();
-  private final FetchResult<List<UserInfo>> userInfoFetchResult =
+  private final FetchResult<List<V2UserInfo>> userInfoFetchResult =
       new FetchResult<>(LoadStatus.Finish);
 
-  private final MutableLiveData<FetchResult<String>> friendChangeLiveData = new MutableLiveData<>();
-  private final FetchResult<String> friendChangeFetchResult = new FetchResult<>(LoadStatus.Finish);
+  private final MutableLiveData<FetchResult<UserWithFriend>> friendChangeLiveData =
+      new MutableLiveData<>();
+  private final FetchResult<UserWithFriend> friendChangeFetchResult =
+      new FetchResult<>(LoadStatus.Finish);
 
   private String accountId;
 
@@ -50,98 +53,111 @@ public class UserInfoViewModel extends BaseViewModel {
     accountId = account;
   }
 
-  private final UserInfoObserver userInfoObserver =
+  private final V2UserListener userInfoObserver =
       userList -> {
+        ALog.d(LIB_TAG, TAG, "userInfoObserver:" + userList.size());
         userInfoFetchResult.setLoadStatus(LoadStatus.Finish);
         userInfoFetchResult.setData(userList);
         userInfoFetchResult.setType(FetchResult.FetchType.Update);
         userInfoLiveData.setValue(userInfoFetchResult);
       };
 
-  private final FriendObserver friendObserver =
-      (friendChangeType, accountList) -> {
-        if (friendChangeType == FriendChangeType.Add
-            || friendChangeType == FriendChangeType.Delete) {
-          for (String account : accountList) {
-            if (TextUtils.equals(accountId, account)) {
-              friendChangeFetchResult.setData(account);
-              friendChangeFetchResult.setLoadStatus(LoadStatus.Finish);
-              if (friendChangeType == FriendChangeType.Add) {
-                friendChangeFetchResult.setFetchType(FetchResult.FetchType.Add);
-              } else {
-                friendChangeFetchResult.setFetchType(FetchResult.FetchType.Remove);
+  private final FriendObserveImpl friendObserver =
+      new FriendObserveImpl() {
+        @Override
+        public void onFriendChange(
+            @NonNull V2FriendChangeType friendChangeType,
+            @NonNull List<? extends UserWithFriend> friendList) {
+          ALog.d(LIB_TAG, TAG, "friendObserver:" + friendChangeType + "," + friendList.size());
+          if (friendChangeType == V2FriendChangeType.Add
+              || friendChangeType == V2FriendChangeType.Delete
+              || friendChangeType == V2FriendChangeType.Update) {
+            for (UserWithFriend friend : friendList) {
+              if (TextUtils.equals(accountId, friend.getAccount())) {
+                friendChangeFetchResult.setData(friend);
+                friendChangeFetchResult.setLoadStatus(LoadStatus.Finish);
+                if (friendChangeType == V2FriendChangeType.Add) {
+                  friendChangeFetchResult.setFetchType(FetchResult.FetchType.Add);
+                } else if (friendChangeType == V2FriendChangeType.Delete) {
+                  friendChangeFetchResult.setFetchType(FetchResult.FetchType.Remove);
+                } else {
+                  friendChangeFetchResult.setFetchType(FetchResult.FetchType.Update);
+                }
+                friendChangeLiveData.setValue(friendChangeFetchResult);
               }
-              friendChangeLiveData.setValue(friendChangeFetchResult);
             }
           }
         }
       };
 
   public void registerObserver() {
-    ContactObserverRepo.registerUserInfoObserver(userInfoObserver);
-    ContactObserverRepo.registerFriendObserver(friendObserver);
+    ContactRepo.addUserListener(userInfoObserver);
+    ContactRepo.addFriendListener(friendObserver);
   }
 
   public MutableLiveData<FetchResult<ContactUserInfoBean>> getFriendFetchResult() {
     return friendLiveData;
   }
 
-  public MutableLiveData<FetchResult<List<UserInfo>>> getUserInfoLiveData() {
+  public MutableLiveData<FetchResult<List<V2UserInfo>>> getUserInfoLiveData() {
     return userInfoLiveData;
   }
 
-  public MutableLiveData<FetchResult<String>> getFriendChangeLiveData() {
+  public MutableLiveData<FetchResult<UserWithFriend>> getFriendChangeLiveData() {
     return friendChangeLiveData;
   }
 
-  public void fetchData(String account) {
-    ALog.d(LIB_TAG, TAG, "fetchData:" + account);
+  public void getUserWithFriend(String account) {
+    ALog.d(LIB_TAG, TAG, "getUserWithFriend:" + account);
     if (TextUtils.isEmpty(account)) {
       return;
     }
-    List<String> accountList = new ArrayList<>();
-    accountList.add(account);
-    ContactRepo.fetchFriend(
+    ContactRepo.getFriendUserInfo(
         account,
-        new FetchCallback<FriendInfo>() {
+        false,
+        new FetchCallback<>() {
           @Override
-          public void onSuccess(@Nullable FriendInfo param) {
+          public void onError(int errorCode, String errorMsg) {
+            ALog.d(LIB_TAG, TAG, "getUserWithFriend,onError:" + errorCode + "," + errorMsg);
+            fetchResult.setError(errorCode, errorMsg);
+            friendLiveData.postValue(fetchResult);
+          }
+
+          @Override
+          public void onSuccess(@Nullable UserWithFriend param) {
             ALog.d(
                 LIB_TAG,
                 TAG,
-                "fetchData,onSuccess:" + (param == null ? "null" : param.getAccount()));
-            if (param != null) {
-              ContactUserInfoBean userInfo = new ContactUserInfoBean(param.getUserInfo());
+                "getUserWithFriend,onSuccess:" + (param == null ? "null" : param.getAccount()));
+            if (param != null && param.getUserInfo() != null) {
+              ContactUserInfoBean userInfo =
+                  new ContactUserInfoBean(new V2UserInfo(param.getAccount(), param.getUserInfo()));
               userInfo.friendInfo = param;
               userInfo.isBlack = isBlack(account);
-              userInfo.isFriend = isFriend(account);
+              userInfo.isFriend = isFriend(account) && param.getFriend() != null;
               fetchResult.setData(userInfo);
               fetchResult.setStatus(LoadStatus.Success);
+              updateUserInfoFromCloud(account);
             } else {
               fetchResult.setError(-1, "");
             }
             friendLiveData.postValue(fetchResult);
           }
-
-          @Override
-          public void onFailed(int code) {
-            ALog.d(LIB_TAG, TAG, "fetchData,onFailed:" + code);
-            fetchResult.setError(code, "");
-            friendLiveData.postValue(fetchResult);
-          }
-
-          @Override
-          public void onException(@Nullable Throwable exception) {
-            ALog.d(LIB_TAG, TAG, "fetchData,onException");
-            fetchResult.setError(-1, "");
-            friendLiveData.postValue(fetchResult);
-          }
         });
+  }
+
+  // 从云端更新用户信息，保证用户信息最新
+  public void updateUserInfoFromCloud(String account) {
+    ALog.d(LIB_TAG, TAG, "getUserInfoFromCloud:" + account);
+    if (TextUtils.isEmpty(account)) {
+      return;
+    }
+    ContactRepo.getUserListFromCloud(Collections.singletonList(account), null);
   }
 
   public boolean isBlack(String account) {
     ALog.d(LIB_TAG, TAG, "isBlack:" + account);
-    return ContactRepo.isBlackList(account);
+    return ContactRepo.isBlockList(account);
   }
 
   public boolean isFriend(String account) {
@@ -151,50 +167,38 @@ public class UserInfoViewModel extends BaseViewModel {
 
   public void addBlack(String account) {
     ALog.d(LIB_TAG, TAG, "addBlack:" + account);
-    ContactRepo.addBlackList(
+    ContactRepo.addBlockList(
         account,
-        new FetchCallback<Void>() {
+        new FetchCallback<>() {
+          @Override
+          public void onError(int errorCode, @Nullable String errorMsg) {
+            ALog.d(LIB_TAG, TAG, "addBlack,onError:" + errorCode + "," + errorMsg);
+            fetchResult.setError(errorCode, errorMsg);
+          }
+
           @Override
           public void onSuccess(@Nullable Void param) {
             ALog.d(LIB_TAG, TAG, "addBlack,onSuccess");
-            fetchData(account);
-          }
-
-          @Override
-          public void onFailed(int code) {
-            ALog.d(LIB_TAG, TAG, "addBlack,onFailed:" + code);
-            fetchResult.setError(code, "");
-          }
-
-          @Override
-          public void onException(@Nullable Throwable exception) {
-            ALog.d(LIB_TAG, TAG, "addBlack,onException");
-            fetchResult.setError(-1, "");
+            getUserWithFriend(account);
           }
         });
   }
 
   public void removeBlack(String account) {
     ALog.d(LIB_TAG, TAG, "removeBlack:" + account);
-    ContactRepo.removeBlackList(
+    ContactRepo.removeBlockList(
         account,
-        new FetchCallback<Void>() {
+        new FetchCallback<>() {
+          @Override
+          public void onError(int errorCode, @Nullable String errorMsg) {
+            ALog.d(LIB_TAG, TAG, "removeBlack,onFailed:" + errorCode + "," + errorMsg);
+            fetchResult.setError(errorCode, errorMsg);
+          }
+
           @Override
           public void onSuccess(@Nullable Void param) {
             ALog.d(LIB_TAG, TAG, "removeBlack,onSuccess");
-            fetchData(account);
-          }
-
-          @Override
-          public void onFailed(int code) {
-            ALog.d(LIB_TAG, TAG, "removeBlack,onFailed:" + code);
-            fetchResult.setError(code, "");
-          }
-
-          @Override
-          public void onException(@Nullable Throwable exception) {
-            ALog.d(LIB_TAG, TAG, "removeBlack,onException");
-            fetchResult.setError(-1, "");
+            getUserWithFriend(account);
           }
         });
   }
@@ -204,75 +208,68 @@ public class UserInfoViewModel extends BaseViewModel {
     ContactRepo.deleteFriend(
         account,
         true,
-        new FetchCallback<Void>() {
+        new FetchCallback<>() {
+          @Override
+          public void onError(int errorCode, @Nullable String errorMsg) {
+            ALog.d(LIB_TAG, TAG, "deleteFriend,onFailed:" + errorCode + "," + errorMsg);
+            fetchResult.setError(errorCode, errorMsg);
+          }
+
           @Override
           public void onSuccess(@Nullable Void param) {
             ALog.d(LIB_TAG, TAG, "deleteFriend,onSuccess");
-          }
-
-          @Override
-          public void onFailed(int code) {
-            ALog.d(LIB_TAG, TAG, "deleteFriend,onFailed:" + code);
-            fetchResult.setError(code, "");
-          }
-
-          @Override
-          public void onException(@Nullable Throwable exception) {
-            ALog.d(LIB_TAG, TAG, "deleteFriend,onException");
-            fetchResult.setError(-1, "");
           }
         });
   }
 
   public void addFriend(String account, FriendVerifyType type, FetchCallback<Void> callback) {
     ALog.d(LIB_TAG, TAG, "addFriend:" + account);
+    V2NIMFriendAddMode model =
+        type == FriendVerifyType.DirectAdd
+            ? V2NIMFriendAddMode.V2NIM_FRIEND_MODE_TYPE_ADD
+            : V2NIMFriendAddMode.V2NIM_FRIEND_MODE_TYPE_APPLY;
     if (isBlackList(account)) {
       ALog.d(LIB_TAG, TAG, "addFriend，account in blacklist:" + account);
       removeBlackList(
           account,
-          new FetchCallback<Void>() {
+          new FetchCallback<>() {
+            @Override
+            public void onError(int errorCode, @Nullable String errorMsg) {
+              ALog.d(
+                  LIB_TAG, TAG, "addFriend,removeBlackList onFailed:" + errorCode + "," + errorMsg);
+              callback.onError(errorCode, errorMsg);
+            }
+
             @Override
             public void onSuccess(@Nullable Void param) {
               ALog.d(LIB_TAG, TAG, "addFriend,removeBlackList onSuccess:" + account);
-              ContactRepo.addFriend(account, type, callback);
-            }
-
-            @Override
-            public void onFailed(int code) {
-              ALog.d(LIB_TAG, TAG, "addFriend,removeBlackList onFailed:" + code);
-              callback.onFailed(code);
-            }
-
-            @Override
-            public void onException(@Nullable Throwable exception) {
-              ALog.d(
-                  LIB_TAG, TAG, "addFriend,removeBlackList onException:" + exception.getMessage());
-              callback.onException(exception);
+              ContactRepo.addFriend(account, model, null, callback);
             }
           });
     } else {
-      ContactRepo.addFriend(account, type, callback);
+      ContactRepo.addFriend(account, model, null, callback);
     }
   }
 
   public boolean isBlackList(String account) {
-    return ContactRepo.isBlackList(account);
+    return ContactRepo.isBlockList(account);
   }
 
   public void removeBlackList(String account, FetchCallback<Void> callback) {
     ALog.d(LIB_TAG, TAG, "removeBlackList:" + account);
-    ContactRepo.removeBlackList(account, callback);
+    ContactRepo.removeBlockList(account, callback);
   }
 
   public void updateAlias(String account, String alias) {
     ALog.d(LIB_TAG, TAG, "updateAlias:" + account);
-    ContactRepo.updateAlias(account, alias);
+    alias = TextUtils.isEmpty(alias) ? "" : alias;
+    ContactRepo.updateAlias(account, alias, null);
   }
 
   @Override
   protected void onCleared() {
     super.onCleared();
-    ContactObserverRepo.unregisterUserInfoObserver(userInfoObserver);
-    ContactObserverRepo.unregisterFriendObserver(friendObserver);
+    ContactRepo.removeUserListener(userInfoObserver);
+    ContactRepo.removeFriendListener(friendObserver);
   }
 }

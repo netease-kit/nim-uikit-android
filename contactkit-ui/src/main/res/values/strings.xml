@@ -81,18 +81,25 @@
     <string name="contact_team_be_removed_content">您已被移除群聊或该群聊已被解散</string>
     <!--    selector-->
     <string name="select">选择</string>
+    <string name="selected">已选</string>
     <string name="selector_sure">确定(%d)</string>
+    <string name="selector_finish">完成(%d)</string>
+    <string name="selector_finish_without_number">完成</string>
     <string name="selector_sure_without_num">确定</string>
     <string name="contact_selector_max_count">最多选择%s个好友</string>
     <string name="contact_selector_over_count">超出人数限制</string>
     <string name="selector_friend_empty">暂无好友</string>
+    <string name="selector_conversation_empty">暂无会话</string>
+    <string name="selector_team_empty">暂无群聊</string>
     <string name="select_empty_tips">请选择联系人</string>
     <string name="fun_selector_close">关闭</string>
     <string name="fun_contact_search">搜索</string>
+    <string name="contact_selector_session_max_count">最多只能选择%s个会话</string>
 
     <!-- search -->
     <string name="global_search_hint">请输入你要搜索的关键字</string>
     <string name="global_search_title">搜索</string>
+    <string name="global_search_no_result">未搜索到“%s”相关结果</string>
 
     <string name="global_search_friend_title">好友</string>
     <string name="global_search_group_title">讨论组</string>
@@ -103,4 +110,9 @@
     <string name="cancel">取消</string>
     <string name="contact_network_error_tip">当前网络不可用，请检查你当网络设置。</string>
 
+    <string name="recent_conversation">最近会话</string>
+    <string name="my_friend">我的好友</string>
+    <string name="recent_forward">最近转发</string>
+
+    <string name="contact_selector_multi_select">多选</string>
 </resources>

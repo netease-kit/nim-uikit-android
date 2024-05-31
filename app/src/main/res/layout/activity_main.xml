@@ -28,14 +28,16 @@
         android:clipChildren="false"
         android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
-        tools:ignore="MissingConstraints">
+        tools:ignore="MissingConstraints"
+        android:baselineAligned="false">
 
         <RelativeLayout
             android:id="@+id/conversation_btn_group"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:onClick="tabClick"
-            android:layout_weight="1">
+            android:layout_weight="1"
+            tools:ignore="UsingOnClickInXml">
 
             <TextView
                 android:id="@+id/conversation"
@@ -46,17 +48,17 @@
                 android:gravity="center"
                 android:textSize="12sp"
                 android:textColor="@color/tab_checked_color"
-                android:drawableTop="@mipmap/ic_conversation_tab_checked"
-                android:text="@string/tab_session_tab_text" />
+                android:text="@string/tab_session_tab_text"
+                app:drawableTopCompat="@mipmap/ic_conversation_tab_checked" />
 
             <View android:id="@+id/conversation_dot"
                 android:layout_width="@dimen/dimen_6_dp"
                 android:layout_height="@dimen/dimen_6_dp"
-                android:layout_alignRight="@+id/conversation"
-                android:layout_marginLeft="@dimen/dimen_10_dp"
+                android:layout_alignEnd="@+id/conversation"
+                android:layout_marginStart="@dimen/dimen_10_dp"
                 android:layout_marginTop="@dimen/dimen_7_dp"
                 android:background="@drawable/bg_conversation_red_dot"
-                android:visibility="gone"/>
+                android:visibility="invisible"/>
 
         </RelativeLayout>
 
@@ -66,7 +68,8 @@
             android:layout_height="match_parent"
             android:onClick="tabClick"
             android:layout_weight="1"
-            android:visibility="gone">
+            android:visibility="gone"
+            tools:ignore="UsingOnClickInXml">
 
             <TextView
                 android:id="@+id/live"
@@ -85,19 +88,20 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:onClick="tabClick"
-            android:layout_weight="1">
+            android:layout_weight="1"
+            tools:ignore="UsingOnClickInXml">
 
             <TextView
                 android:id="@+id/contact"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
-                android:drawableTop="@mipmap/ic_contact_tab_unchecked"
                 android:drawablePadding="3dp"
                 android:gravity="center"
                 android:text="@string/tab_contact_tab_text"
                 android:textColor="@color/tab_unchecked_color"
-                android:textSize="12sp" />
+                android:textSize="12sp"
+                app:drawableTopCompat="@mipmap/ic_contact_tab_unchecked" />
 
             <View android:id="@+id/contact_dot"
                 android:layout_width="@dimen/dimen_6_dp"
@@ -106,7 +110,7 @@
                 android:layout_marginTop="@dimen/dimen_7_dp"
                 android:layout_marginEnd="@dimen/dimen_4_dp"
                 android:background="@drawable/bg_conversation_red_dot"
-                android:visibility="gone"/>
+                android:visibility="invisible"/>
 
         </RelativeLayout>
 
@@ -115,7 +119,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:onClick="tabClick"
-            android:layout_weight="1">
+            android:layout_weight="1"
+            tools:ignore="UsingOnClickInXml">
 
             <TextView
                 android:id="@+id/mine"
@@ -125,9 +130,9 @@
                 android:drawablePadding="3dp"
                 android:textSize="12sp"
                 android:gravity="center"
-                android:drawableTop="@mipmap/ic_mine_tab_unchecked"
                 android:textColor="@color/tab_unchecked_color"
-                android:text="@string/tab_mine_tab_text" />
+                android:text="@string/tab_mine_tab_text"
+                app:drawableTopCompat="@mipmap/ic_mine_tab_unchecked" />
 
         </RelativeLayout>
     </LinearLayout>

@@ -8,7 +8,7 @@ import android.text.style.ImageSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import androidx.annotation.NonNull;
-import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
+import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatBaseMessageViewHolderBinding;
@@ -47,13 +47,14 @@ public class ChatTextMessageViewHolder extends NormalChatBaseMessageViewHolder {
       textBinding.messageText.setTextSize(properties.getMessageTextSize());
     }
 
-    if (message.getMessageData().getMessage().getMsgType() == MsgTypeEnum.text) {
+    if (message.getMessageData().getMessage().getMessageType()
+        == V2NIMMessageType.V2NIM_MESSAGE_TYPE_TEXT) {
       //转发消息不需要展示@的高亮
       if (isForwardMsg()) {
         MessageHelper.identifyFaceExpression(
             textBinding.getRoot().getContext(),
             textBinding.messageText,
-            message.getMessageData().getMessage().getContent(),
+            message.getMessageData().getMessage().getText(),
             ImageSpan.ALIGN_BOTTOM);
       } else {
         MessageHelper.identifyExpression(

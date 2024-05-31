@@ -6,9 +6,8 @@ package com.netease.yunxin.kit.chatkit.ui.fun.view.message.viewholder;
 
 import android.view.View;
 import androidx.annotation.NonNull;
-import com.netease.nimlib.sdk.msg.attachment.ImageAttachment;
-import com.netease.nimlib.sdk.msg.constant.AttachStatusEnum;
-import com.netease.nimlib.sdk.msg.constant.MsgStatusEnum;
+import com.netease.nimlib.sdk.v2.message.attachment.V2NIMMessageImageAttachment;
+import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageSendingState;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatBaseMessageViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
@@ -29,8 +28,9 @@ public class ChatImageMessageViewHolder extends ChatThumbBaseViewHolder {
 
     binding.progressBarInsideIcon.setVisibility(View.GONE);
     binding.playIcon.setVisibility(View.GONE);
-    if (getMsgInternal().getStatus() == MsgStatusEnum.sending
-        || getMsgInternal().getAttachStatus() == AttachStatusEnum.transferring) {
+    if (getMsgInternal().isSelf()
+        && (getMsgInternal().getSendingState()
+            == V2NIMMessageSendingState.V2NIM_MESSAGE_SENDING_STATE_SENDING)) {
       binding.progressBar.setVisibility(View.VISIBLE);
       binding.progressBar.setIndeterminate(true);
     } else {
@@ -56,7 +56,8 @@ public class ChatImageMessageViewHolder extends ChatThumbBaseViewHolder {
       bounds = ImageUtils.getSize(path);
     }
     if (bounds == null || bounds[0] == 0) {
-      ImageAttachment attachment = (ImageAttachment) getMsgInternal().getAttachment();
+      V2NIMMessageImageAttachment attachment =
+          (V2NIMMessageImageAttachment) getMsgInternal().getAttachment();
       bounds = new int[] {attachment.getWidth(), attachment.getHeight()};
     }
     return bounds;

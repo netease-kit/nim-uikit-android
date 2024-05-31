@@ -7,18 +7,16 @@ package com.netease.yunxin.kit.chatkit.ui;
 import android.content.Context;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.Nullable;
+import com.netease.yunxin.kit.chatkit.ChatCustomMsgFactory;
 import com.netease.yunxin.kit.chatkit.map.IMessageMapProvider;
-import com.netease.yunxin.kit.chatkit.map.IPageMapProvider;
+import com.netease.yunxin.kit.chatkit.model.CustomAttachment;
 import com.netease.yunxin.kit.chatkit.ui.view.message.viewholder.ChatBaseMessageViewHolder;
 import com.netease.yunxin.kit.chatkit.ui.view.message.viewholder.CommonBaseMessageViewHolder;
-import com.netease.yunxin.kit.corekit.im.custom.CustomAttachParser;
-import com.netease.yunxin.kit.corekit.im.custom.CustomAttachment;
 
 /** Chat模块定制能力入口类。 */
 public class ChatKitClient {
 
   private static ChatUIConfig chatConfig;
-  private static IPageMapProvider pageMapProvider;
   private static IMessageMapProvider messageMapProvider;
 
   @Deprecated
@@ -26,10 +24,6 @@ public class ChatKitClient {
 
   public static void setChatUIConfig(ChatUIConfig config) {
     chatConfig = config;
-  }
-
-  public static void setPageMapProvider(IPageMapProvider provider) {
-    pageMapProvider = provider;
   }
 
   public static void setMessageMapProvider(IMessageMapProvider provider) {
@@ -40,20 +34,16 @@ public class ChatKitClient {
     return chatConfig;
   }
 
-  public static IPageMapProvider getPageMapProvider() {
-    return pageMapProvider;
-  }
-
   public static @Nullable IMessageMapProvider getMessageMapProvider() {
     return messageMapProvider;
   }
 
   public static void addCustomAttach(int type, Class<? extends CustomAttachment> attachmentClass) {
-    CustomAttachParser.Companion.getSInstance().addCustomAttach(type, attachmentClass);
+    ChatCustomMsgFactory.addCustomAttach(type, attachmentClass);
   }
 
   public static void removeCustomAttach(int type) {
-    CustomAttachParser.Companion.getSInstance().removeCustomAttach(type);
+    ChatCustomMsgFactory.removeCustomAttach(type);
   }
 
   public static void addCustomViewHolder(

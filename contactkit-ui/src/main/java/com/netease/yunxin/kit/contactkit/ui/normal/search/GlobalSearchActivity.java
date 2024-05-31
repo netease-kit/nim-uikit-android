@@ -7,7 +7,7 @@ package com.netease.yunxin.kit.contactkit.ui.normal.search;
 import android.view.View;
 import com.netease.yunxin.kit.contactkit.ui.databinding.GlobalSearchActivityBinding;
 import com.netease.yunxin.kit.contactkit.ui.search.page.BaseSearchActivity;
-import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
+import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 
 /** search your friend or team */
 public class GlobalSearchActivity extends BaseSearchActivity {

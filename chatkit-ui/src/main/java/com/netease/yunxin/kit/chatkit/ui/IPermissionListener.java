@@ -11,4 +11,6 @@ public interface IPermissionListener {
   boolean requestPermissionDenied(Activity activity, String permission);
 
   boolean permissionDeniedForever(Activity activity, String permission);
+
+  void onPermissionRequest(Activity activity, String[] permission);
 }

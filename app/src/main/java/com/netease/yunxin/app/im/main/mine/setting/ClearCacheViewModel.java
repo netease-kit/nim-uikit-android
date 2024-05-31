@@ -7,11 +7,11 @@ package com.netease.yunxin.app.im.main.mine.setting;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
 import com.netease.nimlib.sdk.misc.DirCacheFileType;
+import com.netease.yunxin.kit.chatkit.repo.MiscRepo;
 import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
-import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
-import com.netease.yunxin.kit.corekit.im.repo.MiscRepo;
+import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,17 +28,14 @@ public class ClearCacheViewModel extends BaseViewModel {
         getSDKFileType(),
         new FetchCallback<Long>() {
           @Override
+          public void onError(int errorCode, @Nullable String errorMsg) {}
+
+          @Override
           public void onSuccess(@Nullable Long param) {
             FetchResult<Long> fetchResult = new FetchResult<Long>(LoadStatus.Success);
             fetchResult.setData(param);
             sdkCacheLiveData.postValue(fetchResult);
           }
-
-          @Override
-          public void onFailed(int code) {}
-
-          @Override
-          public void onException(@Nullable Throwable exception) {}
         });
   }
 
@@ -48,13 +45,10 @@ public class ClearCacheViewModel extends BaseViewModel {
         getSDKFileType(),
         new FetchCallback<Void>() {
           @Override
+          public void onError(int errorCode, @Nullable String errorMsg) {}
+
+          @Override
           public void onSuccess(@Nullable Void param) {}
-
-          @Override
-          public void onFailed(int code) {}
-
-          @Override
-          public void onException(@Nullable Throwable exception) {}
         });
   }
 

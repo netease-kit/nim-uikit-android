@@ -9,37 +9,44 @@ import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Toast;
 import androidx.viewpager2.widget.ViewPager2;
-import com.netease.nimlib.sdk.msg.attachment.ImageAttachment;
-import com.netease.nimlib.sdk.msg.model.IMMessage;
+import com.netease.nimlib.sdk.v2.message.V2NIMMessage;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.ui.R;
+import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.chatkit.ui.page.adapter.WatchImageAdapter;
 import com.netease.yunxin.kit.common.ui.utils.Permission;
 import com.netease.yunxin.kit.common.ui.utils.ToastX;
 import com.netease.yunxin.kit.common.utils.storage.ExternalStorage;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 
-/** Watch picture page */
+/** 图片查看器 */
 public class WatchImageActivity extends WatchBaseActivity {
   private static final String TAG = "WatchImageActivity";
 
   public static final String EXT_MESSAGE_LIST_KEY = "EXT_MESSAGE_LIST_KEY";
   public static final String EXT_FIRST_DISPLAY_INDEX_KEY = "EXT_FIRST_DISPLAY_INDEX_KEY";
 
+  // 支持左右滑动，查看历史消息中其他图片消息，最多支持100个图片消息
   private ViewPager2 viewPager2;
   private WatchImageAdapter watchImageAdapter;
 
-  private List<IMMessage> messages;
+  // 图片消息列表，由消息页面跳转传入
+  private List<V2NIMMessage> messages;
+  // 保存图片权限，根据系统版本判断，如果是Android13则采用Manifest.permission.READ_MEDIA_IMAGES
+  protected String[] permissionForAlbum;
   private int firstDisplayImageIndex = 0;
   private boolean newPageSelected = false;
 
-  public static void launch(Context context, ArrayList<IMMessage> list, int showIndex) {
+  public static void launch(Context context, ArrayList<V2NIMMessage> list, int showIndex) {
     Intent intent = new Intent(context, WatchImageActivity.class);
     intent.putExtra(EXT_MESSAGE_LIST_KEY, list);
     intent.putExtra(EXT_FIRST_DISPLAY_INDEX_KEY, showIndex);
@@ -49,7 +56,7 @@ public class WatchImageActivity extends WatchBaseActivity {
   @Override
   public void initData(Intent intent) {
     if (intent != null) {
-      messages = (List<IMMessage>) intent.getSerializableExtra(EXT_MESSAGE_LIST_KEY);
+      messages = (List<V2NIMMessage>) intent.getSerializableExtra(EXT_MESSAGE_LIST_KEY);
       if (messages == null || messages.size() < 1) {
         finish();
         return;
@@ -123,20 +130,25 @@ public class WatchImageActivity extends WatchBaseActivity {
     int position = viewPager2.getCurrentItem();
     ALog.d(LIB_TAG, TAG, "save image -->> currentItem:" + position);
     if (position >= 0 && position < messages.size()) {
-      IMMessage currentMsg = messages.get(position);
-      ImageAttachment attachment = (ImageAttachment) currentMsg.getAttachment();
-      String path = attachment.getPath();
+      V2NIMMessage currentMsg = messages.get(position);
+      String path = MessageHelper.getMessageAttachPath(currentMsg);
       if (TextUtils.isEmpty(path)) {
         ALog.e(TAG, "save image -->> path is null");
         return;
       }
       ALog.d(TAG, "save path:" + path);
-      Permission.requirePermissions(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+      permissionForAlbum = new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE};
+      // 根据系统版本判断，如果是Android13则采用Manifest.permission.READ_MEDIA_IMAGES
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        permissionForAlbum = new String[] {Manifest.permission.READ_MEDIA_IMAGES};
+      }
+      Permission.requirePermissions(this, permissionForAlbum)
           .request(
               new Permission.PermissionCallback() {
                 @Override
                 public void onGranted(List<String> permissionsGranted) {
-                  if (permissionsGranted.contains(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                  if (new HashSet<>(permissionsGranted)
+                      .containsAll(Arrays.asList(permissionForAlbum))) {
                     if (ExternalStorage.savePictureFile(new File(path))) {
                       ToastX.showShortToast(R.string.chat_message_image_save);
                     } else {

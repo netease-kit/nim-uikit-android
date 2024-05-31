@@ -11,8 +11,9 @@ import android.view.ViewGroup;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
+import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
 import com.netease.yunxin.kit.alog.ALog;
+import com.netease.yunxin.kit.chatkit.model.CustomAttachment;
 import com.netease.yunxin.kit.chatkit.ui.ChatMessageType;
 import com.netease.yunxin.kit.chatkit.ui.IChatDefaultFactory;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatBaseMessageViewHolderBinding;
@@ -21,7 +22,6 @@ import com.netease.yunxin.kit.chatkit.ui.normal.view.message.ChatMessageViewHold
 import com.netease.yunxin.kit.chatkit.ui.normal.view.message.viewholder.ChatForwardMessageViewHolder;
 import com.netease.yunxin.kit.chatkit.ui.view.message.viewholder.ChatBaseMessageViewHolder;
 import com.netease.yunxin.kit.chatkit.ui.view.message.viewholder.CommonBaseMessageViewHolder;
-import com.netease.yunxin.kit.corekit.im.custom.CustomAttachment;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -64,9 +64,9 @@ public class ChatViewHolderFactory extends ChatMessageViewHolderFactory
   @Override
   public int getCustomViewType(ChatMessageBean messageBean) {
     if (messageBean != null) {
-      if (messageBean.getMessageData().getMessage().getMsgType() == MsgTypeEnum.custom) {
-        CustomAttachment attachment =
-            (CustomAttachment) messageBean.getMessageData().getMessage().getAttachment();
+      if (messageBean.getMessageData().getMessage().getMessageType()
+          == V2NIMMessageType.V2NIM_MESSAGE_TYPE_CUSTOM) {
+        CustomAttachment attachment = messageBean.getMessageData().getAttachment();
         if (attachment != null) {
           return attachment.getType();
         }

@@ -17,16 +17,17 @@ import androidx.lifecycle.ViewModelProvider;
 import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
 import com.netease.yunxin.kit.common.ui.dialog.BottomConfirmDialog;
 import com.netease.yunxin.kit.common.ui.dialog.ConfirmListener;
+import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.common.ui.widgets.BackTitleBar;
 import com.netease.yunxin.kit.common.utils.NetworkUtils;
 import com.netease.yunxin.kit.contactkit.ui.R;
 import com.netease.yunxin.kit.contactkit.ui.model.ContactUserInfoBean;
 import com.netease.yunxin.kit.contactkit.ui.view.ContactInfoView;
-import com.netease.yunxin.kit.corekit.im.model.FriendVerifyType;
-import com.netease.yunxin.kit.corekit.im.model.UserInfo;
-import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
-import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
+import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
+import com.netease.yunxin.kit.corekit.im2.model.FriendVerifyType;
+import com.netease.yunxin.kit.corekit.im2.model.V2UserInfo;
+import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 import java.util.Objects;
 
@@ -70,9 +71,7 @@ public abstract class BaseUserInfoActivity extends BaseActivity {
                   && result.getData() != null) {
                 String comment =
                     result.getData().getStringExtra(BaseCommentActivity.REQUEST_COMMENT_NAME_KEY);
-                userInfoData.friendInfo.setAlias(comment);
-                contactInfoView.setData(userInfoData);
-                viewModel.updateAlias(userInfoData.data.getAccount(), comment);
+                viewModel.updateAlias(userInfoData.data.getAccountId(), comment);
               }
             });
   }
@@ -103,7 +102,9 @@ public abstract class BaseUserInfoActivity extends BaseActivity {
             }
             if (!NetworkUtils.isConnected()) {
               Toast.makeText(
-                      BaseUserInfoActivity.this, R.string.contact_network_error_tip, Toast.LENGTH_SHORT)
+                      BaseUserInfoActivity.this,
+                      R.string.contact_network_error_tip,
+                      Toast.LENGTH_SHORT)
                   .show();
               return;
             }
@@ -119,7 +120,9 @@ public abstract class BaseUserInfoActivity extends BaseActivity {
           public void addBlackList(boolean add) {
             if (!NetworkUtils.isConnected()) {
               Toast.makeText(
-                      BaseUserInfoActivity.this, R.string.contact_network_error_tip, Toast.LENGTH_SHORT)
+                      BaseUserInfoActivity.this,
+                      R.string.contact_network_error_tip,
+                      Toast.LENGTH_SHORT)
                   .show();
               return;
             }
@@ -127,9 +130,9 @@ public abstract class BaseUserInfoActivity extends BaseActivity {
               return;
             }
             if (add) {
-              viewModel.addBlack(userInfoData.data.getAccount());
+              viewModel.addBlack(userInfoData.data.getAccountId());
             } else {
-              viewModel.removeBlack(userInfoData.data.getAccount());
+              viewModel.removeBlack(userInfoData.data.getAccountId());
             }
           }
         });
@@ -157,7 +160,7 @@ public abstract class BaseUserInfoActivity extends BaseActivity {
 
   protected void goChat() {
     XKitRouter.withKey(RouterConstant.PATH_CHAT_P2P_PAGE)
-        .withParam(RouterConstant.CHAT_ID_KRY, userInfoData.data.getAccount())
+        .withParam(RouterConstant.CHAT_ID_KRY, userInfoData.data.getAccountId())
         .withContext(BaseUserInfoActivity.this)
         .navigate();
     finish();
@@ -191,7 +194,7 @@ public abstract class BaseUserInfoActivity extends BaseActivity {
                       .show();
                   return;
                 }
-                viewModel.deleteFriend(userInfoData.data.getAccount());
+                viewModel.deleteFriend(userInfoData.data.getAccountId());
                 finish();
               }
             })
@@ -210,12 +213,14 @@ public abstract class BaseUserInfoActivity extends BaseActivity {
         .observe(
             this,
             mapFetchResult -> {
-              if (mapFetchResult.getLoadStatus() == LoadStatus.Success) {
+              if (mapFetchResult.getLoadStatus() == LoadStatus.Success
+                  && mapFetchResult.getData() != null) {
                 userInfoData = mapFetchResult.getData();
                 contactInfoView.setData(userInfoData);
               } else {
                 if (!NetworkUtils.isConnected()) {
-                  Toast.makeText(this, R.string.contact_network_error_tip, Toast.LENGTH_SHORT).show();
+                  Toast.makeText(this, R.string.contact_network_error_tip, Toast.LENGTH_SHORT)
+                      .show();
                 }
               }
             });
@@ -226,8 +231,8 @@ public abstract class BaseUserInfoActivity extends BaseActivity {
             userInfoResult -> {
               if (userInfoResult.getLoadStatus() == LoadStatus.Finish
                   && userInfoResult.getData() != null) {
-                for (UserInfo userInfo : userInfoResult.getData()) {
-                  if (TextUtils.equals(userInfo.getAccount(), accId)) {
+                for (V2UserInfo userInfo : userInfoResult.getData()) {
+                  if (TextUtils.equals(userInfo.getAccountId(), accId)) {
                     if (userInfoData != null) {
                       userInfoData.data = userInfo;
                       contactInfoView.setData(userInfoData);
@@ -236,7 +241,8 @@ public abstract class BaseUserInfoActivity extends BaseActivity {
                 }
               } else {
                 if (!NetworkUtils.isConnected()) {
-                  Toast.makeText(this, R.string.contact_network_error_tip, Toast.LENGTH_SHORT).show();
+                  Toast.makeText(this, R.string.contact_network_error_tip, Toast.LENGTH_SHORT)
+                      .show();
                 }
               }
             });
@@ -246,43 +252,38 @@ public abstract class BaseUserInfoActivity extends BaseActivity {
             this,
             result -> {
               if (result.getLoadStatus() == LoadStatus.Finish) {
-                viewModel.fetchData(accId);
+                if (result.getType() == FetchResult.FetchType.Update) {
+                  userInfoData.friendInfo = result.getData();
+                  contactInfoView.setData(userInfoData);
+                } else {
+                  viewModel.getUserWithFriend(accId);
+                }
               }
             });
-    viewModel.fetchData(accId);
+    viewModel.getUserWithFriend(accId);
   }
 
   private void addNewFriend() {
     viewModel.addFriend(
-        userInfoData.data.getAccount(),
+        userInfoData.data.getAccountId(),
         FriendVerifyType.AgreeAdd,
         new FetchCallback<Void>() {
           @Override
+          public void onError(int errorCode, @Nullable String errorMsg) {
+            String tips = getResources().getString(R.string.add_friend_operate_fail);
+            Toast.makeText(
+                    BaseUserInfoActivity.this,
+                    String.format(tips, errorMsg == null ? "" + errorCode : errorMsg),
+                    Toast.LENGTH_SHORT)
+                .show();
+          }
+
+          @Override
           public void onSuccess(@Nullable Void param) {
-            viewModel.fetchData(userInfoData.data.getAccount());
+            viewModel.getUserWithFriend(userInfoData.data.getAccountId());
             Toast.makeText(
                     BaseUserInfoActivity.this,
                     getResources().getString(R.string.add_friend_operate_success),
-                    Toast.LENGTH_SHORT)
-                .show();
-          }
-
-          @Override
-          public void onFailed(int code) {
-            String tips = getResources().getString(R.string.add_friend_operate_fail);
-            Toast.makeText(
-                    BaseUserInfoActivity.this,
-                    String.format(tips, String.valueOf(code)),
-                    Toast.LENGTH_SHORT)
-                .show();
-          }
-
-          @Override
-          public void onException(@Nullable Throwable exception) {
-            String tips = getResources().getString(R.string.add_friend_operate_fail);
-            Toast.makeText(
-                    BaseUserInfoActivity.this,
-                    String.format(tips, exception.getMessage()),
                     Toast.LENGTH_SHORT)
                 .show();
           }

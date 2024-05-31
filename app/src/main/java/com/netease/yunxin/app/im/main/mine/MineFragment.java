@@ -12,11 +12,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContract;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.app.ActivityOptionsCompat;
+import com.netease.nimlib.sdk.v2.user.V2NIMUser;
 import com.netease.yunxin.app.im.AppSkinConfig;
 import com.netease.yunxin.app.im.R;
 import com.netease.yunxin.app.im.about.AboutActivity;
@@ -24,15 +23,14 @@ import com.netease.yunxin.app.im.databinding.FragmentMineBinding;
 import com.netease.yunxin.app.im.main.mine.setting.SettingActivity;
 import com.netease.yunxin.app.im.utils.Constant;
 import com.netease.yunxin.kit.alog.ALog;
+import com.netease.yunxin.kit.chatkit.repo.ContactRepo;
 import com.netease.yunxin.kit.common.ui.fragments.BaseFragment;
 import com.netease.yunxin.kit.common.ui.utils.AvatarColor;
 import com.netease.yunxin.kit.common.ui.utils.ToastX;
 import com.netease.yunxin.kit.common.utils.SizeUtils;
-import com.netease.yunxin.kit.corekit.im.IMKitClient;
-import com.netease.yunxin.kit.corekit.im.model.UserInfo;
-import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
-import com.netease.yunxin.kit.corekit.im.repo.CommonRepo;
-import java.util.ArrayList;
+import com.netease.yunxin.kit.corekit.im2.IMKitClient;
+import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
+import java.util.Collections;
 import java.util.List;
 
 public class MineFragment extends BaseFragment {
@@ -70,26 +68,7 @@ public class MineFragment extends BaseFragment {
           startActivity(intent);
         });
 
-    binding.userInfoClick.setOnClickListener(
-        v -> {
-          MineInfoActivity.launch(
-              getContext(),
-              new ActivityResultLauncher<Intent>() {
-                @Override
-                public void launch(Intent input, @Nullable ActivityOptionsCompat options) {
-                  startActivity(input);
-                }
-
-                @Override
-                public void unregister() {}
-
-                @NonNull
-                @Override
-                public ActivityResultContract<Intent, ?> getContract() {
-                  return null;
-                }
-              });
-        });
+    binding.userInfoClick.setOnClickListener(v -> MineInfoActivity.launch(getContext(), launcher));
     binding.collectLl.setOnClickListener(v -> ToastX.showShortToast(R.string.not_usable));
 
     binding.settingLl.setOnClickListener(
@@ -102,35 +81,27 @@ public class MineFragment extends BaseFragment {
       int cornerRadius = SizeUtils.dp2px(4);
       binding.cavIcon.setCornerRadius(cornerRadius);
     }
-    List<String> userInfoList = new ArrayList<>();
-    userInfoList.add(account);
-    CommonRepo.getUserInfo(
-        account,
-        new FetchCallback<UserInfo>() {
+    ContactRepo.getUserInfo(
+        Collections.singletonList(account),
+        new FetchCallback<List<V2NIMUser>>() {
           @Override
-          public void onSuccess(@Nullable UserInfo param) {
-            if (param != null) {
-              updateUI(param);
+          public void onError(int errorCode, @Nullable String errorMsg) {
+            ToastX.showShortToast(R.string.user_fail);
+          }
+
+          @Override
+          public void onSuccess(@Nullable List<V2NIMUser> param) {
+            if (param != null && !param.isEmpty()) {
+              updateUI(param.get(0));
             }
           }
 
-          @Override
-          public void onFailed(int code) {
-            ToastX.showShortToast(R.string.user_fail);
-            updateUI(new UserInfo(account, account, ""));
-          }
-
-          @Override
-          public void onException(@Nullable Throwable exception) {
-            ToastX.showShortToast(R.string.user_fail);
-            updateUI(new UserInfo(account, account, ""));
-          }
         });
   }
 
-  private void updateUI(UserInfo userInfo) {
+  private void updateUI(V2NIMUser userInfo) {
     String name =
-        TextUtils.isEmpty(userInfo.getName()) ? userInfo.getAccount() : userInfo.getName();
+        TextUtils.isEmpty(userInfo.getName()) ? userInfo.getAccountId() : userInfo.getName();
     binding.cavIcon.setData(
         userInfo.getAvatar(), name, AvatarColor.avatarColor(IMKitClient.account()));
     binding.tvName.setText(name);

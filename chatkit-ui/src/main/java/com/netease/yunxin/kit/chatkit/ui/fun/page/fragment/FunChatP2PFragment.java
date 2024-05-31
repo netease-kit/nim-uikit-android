@@ -13,20 +13,19 @@ import android.text.TextUtils;
 import android.view.ViewTreeObserver;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
-import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
-import com.netease.nimlib.sdk.msg.model.IMMessage;
+import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
+import com.netease.nimlib.sdk.v2.message.V2NIMMessage;
+import com.netease.nimlib.sdk.v2.message.V2NIMP2PMessageReadReceipt;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
-import com.netease.yunxin.kit.chatkit.model.IMMessageReceiptInfo;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatUserCache;
 import com.netease.yunxin.kit.chatkit.ui.fun.view.MessageBottomLayout;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.page.viewmodel.ChatP2PViewModel;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
-import com.netease.yunxin.kit.corekit.im.model.FriendInfo;
-import com.netease.yunxin.kit.corekit.im.model.UserInfo;
-import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
+import com.netease.yunxin.kit.corekit.im2.model.UserWithFriend;
+import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 
 /**
@@ -38,32 +37,32 @@ public class FunChatP2PFragment extends FunChatFragment {
 
   private static final int TYPE_DELAY_TIME = 3000;
 
-  public UserInfo userInfo;
+  public UserWithFriend friendInfo;
 
-  public FriendInfo friendInfo;
-
-  public IMMessage anchorMessage;
+  public IMMessageInfo anchorMessage;
 
   private final Handler handler = new Handler();
 
   private final Runnable stopTypingRunnable = () -> chatView.setTypeState(false);
 
-  protected Observer<IMMessageReceiptInfo> p2pReceiptObserver;
+  protected Observer<V2NIMP2PMessageReadReceipt> p2pReceiptObserver;
 
   @Override
   protected void initData(Bundle bundle) {
     ALog.d(LIB_TAG, TAG, "initData");
-    sessionType = SessionTypeEnum.P2P;
-    userInfo = (UserInfo) bundle.getSerializable(RouterConstant.CHAT_KRY);
-    sessionID = (String) bundle.getSerializable(RouterConstant.CHAT_ID_KRY);
-    if (userInfo == null && TextUtils.isEmpty(sessionID)) {
+    conversationType = V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P;
+    accountId = (String) bundle.getSerializable(RouterConstant.CHAT_ID_KRY);
+    if (TextUtils.isEmpty(accountId)) {
       requireActivity().finish();
       return;
     }
-    if (TextUtils.isEmpty(sessionID)) {
-      sessionID = userInfo.getAccount();
+    anchorMessage = (IMMessageInfo) bundle.getSerializable(RouterConstant.KEY_MESSAGE_INFO);
+    if (anchorMessage == null) {
+      V2NIMMessage message = (V2NIMMessage) bundle.getSerializable(RouterConstant.KEY_MESSAGE);
+      if (message != null) {
+        anchorMessage = new IMMessageInfo(message);
+      }
     }
-    anchorMessage = (IMMessage) bundle.getSerializable(RouterConstant.KEY_MESSAGE);
     refreshView();
   }
 
@@ -78,18 +77,16 @@ public class FunChatP2PFragment extends FunChatFragment {
             v -> {
               chatView.hideCurrentInput();
               XKitRouter.withKey(RouterConstant.PATH_FUN_CHAT_SETTING_PAGE)
-                  .withParam(RouterConstant.CHAT_ID_KRY, sessionID)
+                  .withParam(RouterConstant.CHAT_ID_KRY, accountId)
                   .withContext(requireActivity())
                   .navigate();
             });
   }
 
   public void refreshView() {
-    String name = sessionID;
+    String name = accountId;
     if (friendInfo != null) {
       name = friendInfo.getName();
-    } else if (userInfo != null) {
-      name = userInfo.getName();
     }
     chatView.getTitleBar().setTitle(name);
   }
@@ -98,10 +95,10 @@ public class FunChatP2PFragment extends FunChatFragment {
   protected void initViewModel() {
     ALog.d(LIB_TAG, TAG, "initViewModel");
     viewModel = new ViewModelProvider(this).get(ChatP2PViewModel.class);
-    viewModel.init(sessionID, SessionTypeEnum.P2P);
+    viewModel.init(accountId, V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P);
 
     if (chatConfig != null && chatConfig.chatListener != null) {
-      chatConfig.chatListener.onSessionChange(sessionID, sessionType);
+      chatConfig.chatListener.onConversationChange(accountId, conversationType);
     }
     if (chatConfig != null && chatConfig.messageProperties != null) {
       viewModel.setShowReadStatus(chatConfig.messageProperties.showP2pMessageStatus);
@@ -109,12 +106,18 @@ public class FunChatP2PFragment extends FunChatFragment {
   }
 
   @Override
-  protected void initToFetchData() {
+  protected void initData() {
     if (viewModel instanceof ChatP2PViewModel) {
-      ((ChatP2PViewModel) viewModel).getFriendInfo(sessionID);
-      viewModel.initFetch(anchorMessage, false);
+      if (anchorMessage != null) {
+        ((ChatP2PViewModel) viewModel).getP2PData(anchorMessage.getMessage());
+      } else {
+        ((ChatP2PViewModel) viewModel).getP2PData(null);
+      }
     }
   }
+
+  @Override
+  protected void updateDataWhenLogin() {}
 
   @Override
   public void onDestroyView() {
@@ -128,9 +131,7 @@ public class FunChatP2PFragment extends FunChatFragment {
     ALog.d(LIB_TAG, TAG, "initDataObserver");
     p2pReceiptObserver =
         imMessageReceiptInfo ->
-            chatView
-                .getMessageListView()
-                .setP2PReceipt(imMessageReceiptInfo.getMessageReceipt().getTime());
+            chatView.getMessageListView().setP2PReceipt(imMessageReceiptInfo.getTimestamp());
     ((ChatP2PViewModel) viewModel).getMessageReceiptLiveData().observeForever(p2pReceiptObserver);
 
     ((ChatP2PViewModel) viewModel)
@@ -151,9 +152,6 @@ public class FunChatP2PFragment extends FunChatFragment {
             result -> {
               if (result.getLoadStatus() == LoadStatus.Success) {
                 friendInfo = result.getData();
-                if (friendInfo != null) {
-                  userInfo = friendInfo.getUserInfo();
-                }
                 refreshView();
               }
             });
@@ -162,16 +160,23 @@ public class FunChatP2PFragment extends FunChatFragment {
   @Override
   public void onNewIntent(Intent intent) {
     ALog.d(LIB_TAG, TAG, "onNewIntent");
-    anchorMessage = (IMMessage) intent.getSerializableExtra(RouterConstant.KEY_MESSAGE);
-    ChatMessageBean anchorMessageBean =
-        (ChatMessageBean) intent.getSerializableExtra(RouterConstant.KEY_MESSAGE_BEAN);
-    if (anchorMessageBean != null) {
-      anchorMessage = anchorMessageBean.getMessageData().getMessage();
-    } else if (anchorMessage != null) {
-      anchorMessageBean = new ChatMessageBean(new IMMessageInfo(anchorMessage));
+    anchorMessage = (IMMessageInfo) intent.getSerializableExtra(RouterConstant.KEY_MESSAGE_INFO);
+    if (anchorMessage == null) {
+      V2NIMMessage message = (V2NIMMessage) intent.getSerializableExtra(RouterConstant.KEY_MESSAGE);
+      if (message != null) {
+        anchorMessage = new IMMessageInfo(message);
+      }
+    }
+    ChatMessageBean anchorMessageBean = null;
+    //        (V2ChatMessageBean) intent.getSerializableExtra(RouterConstant.KEY_MESSAGE_BEAN);
+    if (anchorMessage != null) {
+      anchorMessageBean = new ChatMessageBean(anchorMessage);
     }
     if (anchorMessage != null) {
-      int position = chatView.getMessageListView().searchMessagePosition(anchorMessage.getUuid());
+      int position =
+          chatView
+              .getMessageListView()
+              .searchMessagePosition(anchorMessage.getMessage().getMessageClientId());
       if (position >= 0) {
         chatView
             .getMessageListView()
@@ -194,7 +199,7 @@ public class FunChatP2PFragment extends FunChatFragment {
         chatView.clearMessageList();
         // need to add anchor message to list panel
         chatView.appendMessage(anchorMessageBean);
-        viewModel.initFetch(anchorMessage, false);
+        viewModel.getMessageList(anchorMessage.getMessage(), false);
       }
     }
   }
@@ -204,24 +209,16 @@ public class FunChatP2PFragment extends FunChatFragment {
   }
 
   @Override
-  public String getSessionName() {
+  public String getConversationName() {
     if (friendInfo != null) {
       return friendInfo.getName();
     }
-    if (userInfo != null) {
-      return userInfo.getName();
-    }
-    return super.getSessionName();
+    return super.getConversationName();
   }
 
   @Override
   public void updateCurrentUserInfo() {
-    UserInfo userInfo = ChatUserCache.getUserInfo(sessionID);
-    if (userInfo != null) {
-      this.userInfo = userInfo;
-    }
-
-    FriendInfo friendInfo = ChatUserCache.getFriendInfo(sessionID);
+    UserWithFriend friendInfo = ChatUserCache.getInstance().getFriendInfo(accountId);
     if (friendInfo != null) {
       this.friendInfo = friendInfo;
     }

@@ -17,13 +17,14 @@ import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
 import com.netease.yunxin.kit.common.ui.viewholder.BaseBean;
 import com.netease.yunxin.kit.common.ui.viewholder.ViewHolderClickListener;
+import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.conversationkit.ui.R;
 import com.netease.yunxin.kit.conversationkit.ui.databinding.ConversationSelectActivityBinding;
 import com.netease.yunxin.kit.conversationkit.ui.model.ConversationBean;
 import com.netease.yunxin.kit.conversationkit.ui.normal.page.viewmodel.SelectorViewModel;
 import com.netease.yunxin.kit.conversationkit.ui.page.interfaces.ILoadListener;
-import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
+import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 import java.util.ArrayList;
 import java.util.HashSet;
 
@@ -32,7 +33,7 @@ public class ConversationSelectActivity extends BaseActivity implements ILoadLis
   private final String TAG = "ConversationSelectActivity";
   private ConversationSelectActivityBinding viewBinding;
   private SelectorViewModel viewModel;
-  private HashSet<String> contactIdSet = new HashSet<>();
+  private final HashSet<String> contactIdSet = new HashSet<>();
 
   @Override
   protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -67,9 +68,9 @@ public class ConversationSelectActivity extends BaseActivity implements ILoadLis
           public boolean onClick(View v, BaseBean data, int isCheck) {
             if (data instanceof ConversationBean) {
               if (isCheck == 1) {
-                contactIdSet.add(((ConversationBean) data).infoData.getContactId());
+                contactIdSet.add(((ConversationBean) data).infoData.getConversationId());
               } else {
-                contactIdSet.remove(((ConversationBean) data).infoData.getContactId());
+                contactIdSet.remove(((ConversationBean) data).infoData.getConversationId());
               }
               ALog.d(LIB_TAG, TAG, "ItemClickListener,onClick:" + isCheck);
               updateTitleBar();
@@ -93,11 +94,15 @@ public class ConversationSelectActivity extends BaseActivity implements ILoadLis
             result -> {
               if (result.getLoadStatus() == LoadStatus.Success) {
                 ALog.d(LIB_TAG, TAG, "QueryLiveData,Success");
-                viewBinding.conversationSelectorView.setData(result.getData());
+                if (result.getType() == FetchResult.FetchType.Add) {
+                  viewBinding.conversationSelectorView.addData(result.getData());
+                } else {
+                  viewBinding.conversationSelectorView.setData(result.getData());
+                }
               }
             });
 
-    viewModel.fetchConversation();
+    viewModel.getConversationData();
   }
 
   private void updateTitleBar() {
@@ -129,8 +134,6 @@ public class ConversationSelectActivity extends BaseActivity implements ILoadLis
 
   @Override
   public void loadMore(Object last) {
-    if (last instanceof ConversationBean) {
-      viewModel.loadMore((ConversationBean) last);
-    }
+    viewModel.loadMore();
   }
 }

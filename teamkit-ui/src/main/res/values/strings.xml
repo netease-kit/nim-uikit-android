@@ -28,6 +28,7 @@
     <string name="team_invite_other_permission">谁可以添加群成员</string>
     <string name="team_update_info_permission">谁可以编辑群信息</string>
     <string name="team_notify_all_permission">谁可以@所有人</string>
+    <string name="team_top_sticky_permission">谁可以置顶消息</string>
     <string name="team_need_agreed_when_be_invited_permission">是否需要被邀请者同意</string>
     <string name="team_advanced_dismiss">解散群聊</string>
     <string name="team_advanced_quit">退出群聊</string>
@@ -62,8 +63,6 @@
     <string name="team_remove_member_content">移除后该成员将离开当前群聊</string>
     <string name="team_remove_manager_content">移除后该成员将无管理权限</string>
     <string name="team_transform_owner">转让群主</string>
-    <string name="team_at_permission_manager_tips">\@所有人权限更新为群主和管理员</string>
-    <string name="team_at_permission_all_tips">\@所有人权限更新为所有人</string>
 
     <!-- error tips-->
     <string name="team_network_error_tip">当前网络不可用，请检查你的网络设置。</string>

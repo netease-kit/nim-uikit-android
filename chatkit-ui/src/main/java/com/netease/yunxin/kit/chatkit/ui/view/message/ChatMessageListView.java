@@ -4,7 +4,6 @@
 
 package com.netease.yunxin.kit.chatkit.ui.view.message;
 
-import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.KEY_MAP_FOR_MESSAGE;
 import static com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants.PAYLOAD_SELECT_STATUS;
 
 import android.annotation.SuppressLint;
@@ -16,12 +15,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import com.netease.nimlib.sdk.msg.model.AttachmentProgress;
-import com.netease.nimlib.sdk.msg.model.IMMessage;
-import com.netease.nimlib.sdk.msg.model.MsgPinOption;
-import com.netease.nimlib.sdk.team.model.Team;
+import com.netease.nimlib.sdk.uinfo.model.UserInfo;
+import com.netease.nimlib.sdk.v2.message.V2NIMMessage;
+import com.netease.nimlib.sdk.v2.message.V2NIMMessagePin;
+import com.netease.nimlib.sdk.v2.message.V2NIMMessageRefer;
+import com.netease.nimlib.sdk.v2.team.model.V2NIMTeam;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
-import com.netease.yunxin.kit.chatkit.ui.ChatKitClient;
 import com.netease.yunxin.kit.chatkit.ui.IChatFactory;
 import com.netease.yunxin.kit.chatkit.ui.factory.ChatPopActionFactory;
 import com.netease.yunxin.kit.chatkit.ui.interfaces.IMessageData;
@@ -33,7 +32,7 @@ import com.netease.yunxin.kit.chatkit.ui.view.message.adapter.ChatMessageAdapter
 import com.netease.yunxin.kit.chatkit.ui.view.popmenu.IChatPopMenu;
 import com.netease.yunxin.kit.chatkit.ui.view.popmenu.IChatPopMenuClickListener;
 import com.netease.yunxin.kit.common.utils.BarUtils;
-import com.netease.yunxin.kit.corekit.im.model.UserInfo;
+import com.netease.yunxin.kit.corekit.im2.model.IMMessageProgress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -217,7 +216,10 @@ public class ChatMessageListView extends RecyclerView implements IMessageData {
   @Override
   public void updateMessageStatus(ChatMessageBean message) {
     if (messageAdapter != null) {
-      messageAdapter.updateMessageStatus(message);
+      int index = messageAdapter.updateMessageStatus(message);
+      if (index < 0) {
+        scrollToEnd();
+      }
     }
   }
 
@@ -229,9 +231,9 @@ public class ChatMessageListView extends RecyclerView implements IMessageData {
   }
 
   @Override
-  public void updateMessage(IMMessage message, Object payload) {
+  public void updateMessage(V2NIMMessage message, Object payload) {
     if (messageAdapter != null && message != null) {
-      String uuid = message.getUuid();
+      String uuid = message.getMessageClientId();
       ChatMessageBean messageBean = messageAdapter.searchMessage(uuid);
       messageBean.setMessageData(new IMMessageInfo(message));
       messageAdapter.updateMessage(messageBean, payload);
@@ -244,27 +246,57 @@ public class ChatMessageListView extends RecyclerView implements IMessageData {
     }
   }
 
-  public void notifyUserInfoChange(List<String> userInfoList) {
+  public void notifyUserInfoChanged(List<String> userInfoList) {
     if (messageAdapter != null) {
       messageAdapter.notifyUserInfoChange(userInfoList);
     }
   }
 
   @Override
-  public void revokeMessage(ChatMessageBean message) {
+  public void revokeMessage(V2NIMMessageRefer message) {
     if (messageAdapter != null) {
       messageAdapter.revokeMessage(message);
     }
   }
 
+  /**
+   * 插入消息
+   *
+   * @param message 消息
+   */
+  public void insertMessage(ChatMessageBean message) {
+    if (messageAdapter != null) {
+      int messageIndex = messageAdapter.searchMessagePosition(message.getMsgClientId());
+      if (messageIndex >= 0) {
+        messageAdapter.updateMessage(message, null);
+        return;
+      }
+      int index = messageAdapter.insertMessageSortByTime(message);
+      if (index == -1) {
+        scrollToEnd();
+      }
+    }
+  }
+
+  /**
+   * 根据ClientID移除消息
+   *
+   * @param clientId 本地ID
+   */
+  public void removeMessageByClientId(String clientId) {
+    if (messageAdapter != null) {
+      messageAdapter.removeMessageByClientId(clientId);
+    }
+  }
+
   @Override
-  public void addPinMessage(String uuid, MsgPinOption pinOption) {
+  public void addPinMessage(String uuid, V2NIMMessagePin pinOption) {
     if (messageAdapter != null) {
       messageAdapter.pinMsg(uuid, pinOption);
     }
   }
 
-  public void updateMessagePin(Map<String, MsgPinOption> pinOptionMap) {
+  public void updateMessagePin(Map<String, V2NIMMessagePin> pinOptionMap) {
     if (messageAdapter != null) {
       messageAdapter.updateMessagePin(pinOptionMap);
     }
@@ -293,7 +325,21 @@ public class ChatMessageListView extends RecyclerView implements IMessageData {
     }
   }
 
-  public void updateTeamInfo(Team teamInfo) {
+  /**
+   * 根据clientId删除消息
+   *
+   * @param clientIds 消息clientId
+   */
+  public void deleteMessages(List<String> clientIds) {
+    if (messageAdapter != null && clientIds != null && !clientIds.isEmpty()) {
+      for (String clientId : clientIds) {
+        messageAdapter.removeMessageByClientId(clientId);
+        messageAdapter.clearReply(clientId);
+      }
+    }
+  }
+
+  public void updateTeamInfo(V2NIMTeam teamInfo) {
     if (messageAdapter != null) {
       messageAdapter.setTeamInfo(teamInfo);
     }
@@ -303,7 +349,7 @@ public class ChatMessageListView extends RecyclerView implements IMessageData {
     messageAdapter.setReceiptTime(receipt);
   }
 
-  public void updateAttachmentProgress(AttachmentProgress progress) {
+  public void updateAttachmentProgress(IMMessageProgress progress) {
     messageAdapter.updateMessageProgress(progress);
   }
 
@@ -438,19 +484,21 @@ public class ChatMessageListView extends RecyclerView implements IMessageData {
     }
   }
 
-  public void scrollToMessage(String msgUuid) {
+  /**
+   * 滚动到消息
+   *
+   * @param msgUuid 消息uuid
+   * @return 是否滚动成功
+   */
+  public boolean scrollToMessage(String msgUuid) {
     if (messageAdapter != null) {
       int index = searchMessagePosition(msgUuid);
       if (index >= 0) {
         smoothScrollToPosition(index);
+        return true;
       }
     }
-  }
-
-  public void release() {
-    if (ChatKitClient.getMessageMapProvider() != null) {
-      ChatKitClient.getMessageMapProvider().releaseAllChatMap(KEY_MAP_FOR_MESSAGE);
-    }
+    return false;
   }
 
   private boolean needScrollToBottom() {

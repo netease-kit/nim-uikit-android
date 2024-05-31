@@ -10,7 +10,11 @@ import android.view.View;
 import com.netease.yunxin.kit.teamkit.ui.activity.BaseTeamInfoActivity;
 import com.netease.yunxin.kit.teamkit.ui.databinding.TeamInfoActivityBinding;
 
-/** team info activity */
+/**
+ * 普通版群信息界面，差异化UI展示
+ *
+ * <p>
+ */
 public class TeamInfoActivity extends BaseTeamInfoActivity {
 
   @Override

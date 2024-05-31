@@ -4,8 +4,9 @@
 
 package com.netease.yunxin.kit.chatkit.ui.interfaces;
 
-import com.netease.nimlib.sdk.msg.model.IMMessage;
-import com.netease.nimlib.sdk.msg.model.MsgPinOption;
+import com.netease.nimlib.sdk.v2.message.V2NIMMessage;
+import com.netease.nimlib.sdk.v2.message.V2NIMMessagePin;
+import com.netease.nimlib.sdk.v2.message.V2NIMMessageRefer;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import java.util.List;
 
@@ -24,15 +25,15 @@ public interface IMessageData {
 
   void updateMessage(ChatMessageBean message, Object payload);
 
-  void updateMessage(IMMessage message, Object payload);
+  void updateMessage(V2NIMMessage message, Object payload);
 
   void deleteMessage(ChatMessageBean message);
 
   void deleteMessage(List<ChatMessageBean> message);
 
-  void revokeMessage(ChatMessageBean message);
+  void revokeMessage(V2NIMMessageRefer message);
 
-  void addPinMessage(String uuid, MsgPinOption pinOption);
+  void addPinMessage(String uuid, V2NIMMessagePin pinOption);
 
   void removePinMessage(String uuid);
 

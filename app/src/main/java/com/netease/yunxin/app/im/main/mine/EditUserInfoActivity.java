@@ -20,26 +20,26 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
+import com.netease.nimlib.sdk.v2.user.V2NIMUser;
+import com.netease.nimlib.sdk.v2.user.params.V2NIMUserUpdateParams;
 import com.netease.yunxin.app.im.AppSkinConfig;
 import com.netease.yunxin.app.im.R;
 import com.netease.yunxin.app.im.databinding.ActivityEditNicknameBinding;
+import com.netease.yunxin.app.im.utils.AppUtils;
 import com.netease.yunxin.app.im.utils.Constant;
+import com.netease.yunxin.kit.chatkit.repo.ContactRepo;
 import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
 import com.netease.yunxin.kit.common.ui.utils.ToastX;
 import com.netease.yunxin.kit.common.utils.SizeUtils;
-import com.netease.yunxin.kit.corekit.im.IMKitClient;
-import com.netease.yunxin.kit.corekit.im.model.UserField;
-import com.netease.yunxin.kit.corekit.im.model.UserInfo;
-import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
-import com.netease.yunxin.kit.corekit.im.repo.CommonRepo;
-import java.util.HashMap;
-import java.util.Map;
+import com.netease.yunxin.kit.corekit.im2.IMKitClient;
+import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
+import java.util.Collections;
+import java.util.List;
 
 public class EditUserInfoActivity extends BaseActivity {
   private ActivityEditNicknameBinding binding;
   private String editType = Constant.EDIT_NAME;
-  private UserField userField = UserField.Name;
-  private UserInfo userInfo;
+  private V2NIMUser userInfo;
 
   @Override
   protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -58,26 +58,20 @@ public class EditUserInfoActivity extends BaseActivity {
     binding.ivBack.setOnClickListener(v -> finish());
     binding.tvDone.setOnClickListener(
         v -> {
-          Map<UserField, Object> map = new HashMap<>(1);
-          String result = binding.etNickname.getText().toString();
-          if (userField == UserField.Name && TextUtils.isEmpty(result)) {
-            result = userInfo.getAccount();
+          if (TextUtils.equals(Constant.EDIT_EMAIL, editType)) {
+            String emailText = binding.etNickname.getText().toString();
+            if (!AppUtils.checkEmail(emailText)) {
+              Toast.makeText(getApplicationContext(), R.string.imkit_email_fail, Toast.LENGTH_SHORT)
+                  .show();
+              return;
+            }
           }
-          map.put(userField, result);
-
-          CommonRepo.updateUserInfo(
-              map,
+          ContactRepo.updateSelfUserProfile(
+              buildUpdateParam(),
               new FetchCallback<Void>() {
                 @Override
-                public void onSuccess(@Nullable Void param) {
-                  loadData();
-                  setResult(RESULT_OK);
-                  finish();
-                }
-
-                @Override
-                public void onFailed(int code) {
-                  if (code == Constant.NETWORK_ERROR_CODE) {
+                public void onError(int errorCode, @Nullable String errorMsg) {
+                  if (errorCode == Constant.NETWORK_ERROR_CODE) {
                     Toast.makeText(
                             getApplicationContext(),
                             getString(R.string.network_error),
@@ -86,19 +80,17 @@ public class EditUserInfoActivity extends BaseActivity {
                   } else {
                     Toast.makeText(
                             getApplicationContext(),
-                            getString(R.string.request_fail) + code,
+                            getString(R.string.request_fail) + errorCode,
                             Toast.LENGTH_SHORT)
                         .show();
                   }
                 }
 
                 @Override
-                public void onException(@Nullable Throwable exception) {
-                  Toast.makeText(
-                          getApplicationContext(),
-                          getString(R.string.request_fail),
-                          Toast.LENGTH_SHORT)
-                      .show();
+                public void onSuccess(@Nullable Void param) {
+                  loadData();
+                  setResult(RESULT_OK);
+                  finish();
                 }
               });
         });
@@ -112,17 +104,7 @@ public class EditUserInfoActivity extends BaseActivity {
           public void onTextChanged(CharSequence s, int start, int before, int count) {}
 
           @Override
-          public void afterTextChanged(Editable s) {
-            //            if (TextUtils.isEmpty(String.valueOf(s))) {
-            //              binding.ivClear.setVisibility(View.GONE);
-            //              binding.tvDone.setEnabled(false);
-            //              binding.tvDone.setAlpha(0.5f);
-            //            } else {
-            //              binding.ivClear.setVisibility(View.VISIBLE);
-            //              binding.tvDone.setEnabled(true);
-            //              binding.tvDone.setAlpha(1f);
-            //            }
-          }
+          public void afterTextChanged(Editable s) {}
         });
 
     binding.etNickname.requestFocus();
@@ -134,8 +116,8 @@ public class EditUserInfoActivity extends BaseActivity {
   }
 
   private void setCommonSkin() {
-    changeStatusBarColor(R.color.color_ededed);
-    binding.clyRoot.setBackgroundResource(R.color.color_ededed);
+    changeStatusBarColor(R.color.fun_page_bg_color);
+    binding.clyRoot.setBackgroundResource(R.color.fun_page_bg_color);
     binding.tvDone.setTextColor(getResources().getColor(R.color.color_58be6b));
 
     binding.etNickname.setBackgroundResource(R.color.color_white);
@@ -151,55 +133,65 @@ public class EditUserInfoActivity extends BaseActivity {
       finish();
       return;
     }
-    CommonRepo.getUserInfo(
-        account,
-        new FetchCallback<UserInfo>() {
+    ContactRepo.getUserInfo(
+        Collections.singletonList(account),
+        new FetchCallback<List<V2NIMUser>>() {
           @Override
-          public void onSuccess(@Nullable UserInfo param) {
-            updateView(param);
+          public void onSuccess(@Nullable List<V2NIMUser> data) {
+            if (data != null && !data.isEmpty()) {
+              updateView(data.get(0));
+            }
           }
 
           @Override
-          public void onFailed(int code) {
+          public void onError(int errorCode, @Nullable String errorMsg) {
             ToastX.showShortToast(R.string.user_fail);
-            updateView(new UserInfo(account, account, ""));
-          }
-
-          @Override
-          public void onException(@Nullable Throwable exception) {
-            ToastX.showShortToast(R.string.user_fail);
-            updateView(new UserInfo(account, account, ""));
           }
         });
   }
 
-  private void updateView(UserInfo user) {
+  private void updateView(V2NIMUser user) {
     this.userInfo = user;
     String remoteInfo = "";
     if (TextUtils.equals(Constant.EDIT_NAME, editType)) {
       remoteInfo = userInfo.getName();
-      userField = UserField.Name;
       binding.etNickname.setFilters(new InputFilter[] {new InputFilter.LengthFilter(15)});
       binding.tvTitle.setText(R.string.user_info_nickname);
     } else if (TextUtils.equals(Constant.EDIT_SIGN, editType)) {
-      remoteInfo = userInfo.getSignature();
-      userField = UserField.Signature;
+      remoteInfo = userInfo.getSign();
       binding.etNickname.setFilters(new InputFilter[] {new InputFilter.LengthFilter(50)});
       binding.tvTitle.setText(R.string.user_info_sign);
     } else if (TextUtils.equals(Constant.EDIT_EMAIL, editType)) {
       remoteInfo = userInfo.getEmail();
-      userField = UserField.Email;
       binding.etNickname.setFilters(new InputFilter[] {new InputFilter.LengthFilter(30)});
       binding.etNickname.setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
       binding.tvTitle.setText(R.string.user_info_email);
     } else if (TextUtils.equals(Constant.EDIT_PHONE, editType)) {
       remoteInfo = userInfo.getMobile();
-      userField = UserField.Mobile;
       binding.etNickname.setFilters(new InputFilter[] {new InputFilter.LengthFilter(11)});
       binding.etNickname.setInputType(InputType.TYPE_CLASS_PHONE);
       binding.tvTitle.setText(R.string.user_info_phone);
     }
     binding.etNickname.setText(remoteInfo);
+  }
+
+  private V2NIMUserUpdateParams buildUpdateParam() {
+    String result = binding.etNickname.getText().toString();
+    V2NIMUserUpdateParams.V2NIMUserUpdateParamsBuilder updateParams =
+        V2NIMUserUpdateParams.V2NIMUserUpdateParamsBuilder.builder();
+    if (TextUtils.equals(Constant.EDIT_NAME, editType)) {
+      if (TextUtils.isEmpty(result)) {
+        result = userInfo.getAccountId();
+      }
+      updateParams.withName(result);
+    } else if (TextUtils.equals(Constant.EDIT_SIGN, editType)) {
+      updateParams.withSign(result);
+    } else if (TextUtils.equals(Constant.EDIT_EMAIL, editType)) {
+      updateParams.withEmail(result);
+    } else if (TextUtils.equals(Constant.EDIT_PHONE, editType)) {
+      updateParams.withMobile(result);
+    }
+    return updateParams.build();
   }
 
   public static void launch(

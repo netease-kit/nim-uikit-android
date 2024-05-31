@@ -4,221 +4,149 @@
 
 package com.netease.yunxin.kit.teamkit.ui.viewmodel;
 
-import static com.netease.yunxin.kit.teamkit.ui.utils.TeamUIKitConstant.KEY_EXTENSION_AT_ALL;
-
 import android.text.TextUtils;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
-import com.netease.nimlib.sdk.Observer;
-import com.netease.nimlib.sdk.msg.MessageBuilder;
-import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
-import com.netease.nimlib.sdk.msg.model.CustomMessageConfig;
-import com.netease.nimlib.sdk.msg.model.IMMessage;
-import com.netease.nimlib.sdk.msg.model.StickTopSessionInfo;
-import com.netease.nimlib.sdk.team.constant.TeamInviteModeEnum;
-import com.netease.nimlib.sdk.team.constant.TeamTypeEnum;
-import com.netease.nimlib.sdk.team.constant.TeamUpdateModeEnum;
-import com.netease.nimlib.sdk.team.model.Team;
-import com.netease.nimlib.sdk.team.model.TeamMember;
+import com.netease.nimlib.sdk.v2.V2NIMError;
+import com.netease.nimlib.sdk.v2.auth.enums.V2NIMDataSyncState;
+import com.netease.nimlib.sdk.v2.auth.enums.V2NIMDataSyncType;
+import com.netease.nimlib.sdk.v2.conversation.model.V2NIMConversation;
+import com.netease.nimlib.sdk.v2.setting.enums.V2NIMTeamMessageMuteMode;
+import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamChatBannedMode;
+import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamType;
+import com.netease.nimlib.sdk.v2.team.model.V2NIMTeam;
+import com.netease.nimlib.sdk.v2.utils.V2NIMConversationIdUtil;
 import com.netease.yunxin.kit.alog.ALog;
-import com.netease.yunxin.kit.chatkit.model.TeamWithCurrentMember;
-import com.netease.yunxin.kit.chatkit.model.UserInfoWithTeam;
-import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
+import com.netease.yunxin.kit.chatkit.impl.LoginDetailListenerImpl;
+import com.netease.yunxin.kit.chatkit.model.TeamMemberListResult;
+import com.netease.yunxin.kit.chatkit.model.TeamMemberWithUserInfo;
 import com.netease.yunxin.kit.chatkit.repo.ConversationRepo;
-import com.netease.yunxin.kit.chatkit.repo.TeamObserverRepo;
 import com.netease.yunxin.kit.chatkit.repo.TeamRepo;
-import com.netease.yunxin.kit.common.ui.utils.ToastX;
-import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
+import com.netease.yunxin.kit.chatkit.utils.ChatKitConstant;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
-import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.corekit.event.EventCenter;
-import com.netease.yunxin.kit.corekit.im.IMKitClient;
-import com.netease.yunxin.kit.corekit.im.custom.TeamEvent;
-import com.netease.yunxin.kit.corekit.im.custom.TeamEventAction;
-import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
-import com.netease.yunxin.kit.corekit.model.ErrorMsg;
-import com.netease.yunxin.kit.corekit.model.ResultInfo;
-import com.netease.yunxin.kit.teamkit.ui.R;
-import com.netease.yunxin.kit.teamkit.ui.utils.TeamUIKitConstant;
+import com.netease.yunxin.kit.corekit.im2.IMKitClient;
+import com.netease.yunxin.kit.corekit.im2.custom.TeamEvent;
+import com.netease.yunxin.kit.corekit.im2.custom.TeamEventAction;
+import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
+import com.netease.yunxin.kit.teamkit.ui.utils.TeamMemberCache;
 import com.netease.yunxin.kit.teamkit.ui.utils.TeamUtils;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import org.json.JSONObject;
 
 /** 群相关业务逻辑 提供数据查询接口 提供群变更监听 */
-public class TeamSettingViewModel extends BaseViewModel {
+public class TeamSettingViewModel extends TeamBaseViewModel {
 
   private static final String TAG = "TeamSettingViewModel";
   private static final String LIB_TAG = "TeamKit-UI";
 
-  private final MutableLiveData<ResultInfo<TeamWithCurrentMember>> teamWithMemberData =
-      new MutableLiveData<>();
-  private final MutableLiveData<ResultInfo<List<UserInfoWithTeam>>> userInfoData =
-      new MutableLiveData<>();
-  private final MutableLiveData<ResultInfo<List<TeamMember>>> memberUpdateData =
-      new MutableLiveData<>();
-  private final MutableLiveData<ResultInfo<Team>> teamUpdateData = new MutableLiveData<>();
-  private final MutableLiveData<ResultInfo<String>> nameData = new MutableLiveData<>();
-  private final MutableLiveData<ResultInfo<String>> introduceData = new MutableLiveData<>();
-  private final MutableLiveData<ResultInfo<String>> nicknameData = new MutableLiveData<>();
-  private final MutableLiveData<ResultInfo<String>> iconData = new MutableLiveData<>();
-  private final MutableLiveData<ResultInfo<Void>> quitTeamData = new MutableLiveData<>();
-  private final MutableLiveData<ResultInfo<Void>> dismissTeamData = new MutableLiveData<>();
-  private final MutableLiveData<ResultInfo<Integer>> updateInvitePrivilegeData =
-      new MutableLiveData<>();
-  private final MutableLiveData<ResultInfo<Integer>> updateInfoPrivilegeData =
-      new MutableLiveData<>();
-  private final MutableLiveData<ResultInfo<Boolean>> notifyData = new MutableLiveData<>();
-  private final MutableLiveData<ResultInfo<Boolean>> stickData = new MutableLiveData<>();
-  private final MutableLiveData<FetchResult<List<String>>> addRemoveMembersData =
-      new MutableLiveData<>();
-  private final MutableLiveData<FetchResult<List<TeamMember>>> addRemoveManagerLiveData =
-      new MutableLiveData<>();
-  private final MutableLiveData<ResultInfo<Boolean>> muteTeamAllMemberData =
-      new MutableLiveData<>();
-  private final MutableLiveData<ResultInfo<String>> updateNotifyAllPrivilegeData =
+  private final MutableLiveData<FetchResult<String>> nameData = new MutableLiveData<>();
+  private final MutableLiveData<FetchResult<String>> introduceData = new MutableLiveData<>();
+  private final MutableLiveData<FetchResult<String>> nicknameData = new MutableLiveData<>();
+  private final MutableLiveData<FetchResult<String>> iconData = new MutableLiveData<>();
+  private final MutableLiveData<FetchResult<Void>> quitTeamData = new MutableLiveData<>();
+  private final MutableLiveData<FetchResult<Void>> dismissTeamData = new MutableLiveData<>();
+
+  private final MutableLiveData<FetchResult<Boolean>> notifyData = new MutableLiveData<>();
+  private final MutableLiveData<FetchResult<Boolean>> stickData = new MutableLiveData<>();
+  private final MutableLiveData<FetchResult<Boolean>> muteTeamAllMemberData =
       new MutableLiveData<>();
 
-  private String teamId;
-
-  // 群信息变更监听
-  private final Observer<List<Team>> observerForTeamUpdate =
-      teams -> {
-        if (teams == null) {
-          return;
-        }
-        for (Team team : teams) {
-          if (!TextUtils.equals(team.getId(), teamId)) {
-            continue;
-          }
-          teamUpdateData.setValue(new ResultInfo<>(team));
-        }
-      };
-
-  // 群成员变更监听
-  private final Observer<List<TeamMember>> observerForTeamMemberUpdate =
-      teamMembers -> {
-        if (teamMembers == null) {
-          return;
-        }
-        ArrayList<TeamMember> updateTeamMembers = new ArrayList<>();
-        for (TeamMember item : teamMembers) {
-          if (!TextUtils.equals(item.getTid(), teamId)) {
-            continue;
-          }
-          updateTeamMembers.add(item);
-        }
-        if (updateTeamMembers.size() > 0) {
-          memberUpdateData.setValue(new ResultInfo<>(updateTeamMembers));
-        }
-      };
-
-  // 群成员移除监听
-  private final Observer<List<TeamMember>> observerForTeamMemberRemove =
-      teamMembers -> {
-        if (teamMembers == null) {
-          return;
-        }
-        ArrayList<String> removeList = new ArrayList<>();
-        for (TeamMember item : teamMembers) {
-          if (!TextUtils.equals(item.getTid(), teamId)) {
-            continue;
-          }
-          removeList.add(item.getAccount());
-        }
-        if (removeList.size() > 0) {
-          FetchResult<List<String>> result = new FetchResult<>(LoadStatus.Success, removeList);
-          result.setType(FetchResult.FetchType.Remove);
-          addRemoveMembersData.setValue(result);
-        }
-      };
-
-  /** 构造函数。注册监听 */
-  public TeamSettingViewModel() {
-    TeamObserverRepo.registerTeamUpdateObserver(observerForTeamUpdate);
-    TeamObserverRepo.registerTeamMemberUpdateObserver(observerForTeamMemberUpdate);
-    TeamObserverRepo.registerTeamMemberRemoveObserver(observerForTeamMemberRemove);
+  public MutableLiveData<FetchResult<Boolean>> getMuteTeamAllMemberData() {
+    return muteTeamAllMemberData;
   }
 
-  /**
-   * 配置群ID，在使用之前必须要调用，业务逻辑中teamId是必要参数
-   *
-   * @param teamId 群ID
-   */
-  public void configTeamId(String teamId) {
-    this.teamId = teamId;
+  public MutableLiveData<FetchResult<String>> getNameData() {
+    return nameData;
   }
+
+  public MutableLiveData<FetchResult<String>> getIntroduceData() {
+    return introduceData;
+  }
+
+  public MutableLiveData<FetchResult<String>> getNicknameData() {
+    return nicknameData;
+  }
+
+  public MutableLiveData<FetchResult<String>> getIconData() {
+    return iconData;
+  }
+
+  public MutableLiveData<FetchResult<Void>> getQuitTeamData() {
+    return quitTeamData;
+  }
+
+  public MutableLiveData<FetchResult<Void>> getDismissTeamData() {
+    return dismissTeamData;
+  }
+
+  public MutableLiveData<FetchResult<Boolean>> getNotifyData() {
+    return notifyData;
+  }
+
+  public MutableLiveData<FetchResult<Boolean>> getStickData() {
+    return stickData;
+  }
+
+  private final LoginDetailListenerImpl loginDetailListener =
+      new LoginDetailListenerImpl() {
+        @Override
+        public void onDataSync(
+            @Nullable V2NIMDataSyncType type,
+            @Nullable V2NIMDataSyncState state,
+            @Nullable V2NIMError error) {
+          if (type == V2NIMDataSyncType.V2NIM_DATA_SYNC_TEAM_MEMBER
+              && state == V2NIMDataSyncState.V2NIM_DATA_SYNC_STATE_COMPLETED) {
+            ALog.d(LIB_TAG, TAG, "loginDetailListener:" + teamId);
+            getSettingPageData();
+          }
+        }
+      };
 
   @Override
-  protected void onCleared() {
-    super.onCleared();
-    TeamObserverRepo.unregisterTeamUpdateObserver(observerForTeamUpdate);
-    TeamObserverRepo.unregisterTeamMemberUpdateObserver(observerForTeamMemberUpdate);
-    TeamObserverRepo.unregisterTeamMemberRemoveObserver(observerForTeamMemberRemove);
+  public void configTeamId(String teamId) {
+    super.configTeamId(teamId);
+    IMKitClient.addLoginDetailListener(loginDetailListener);
+  }
+
+  public void getSettingPageData() {
+    ALog.d(LIB_TAG, TAG, "getSettingPageData:" + teamId);
+    requestTeamData(teamId);
+    getStickAndNotifyData(teamId);
   }
 
   /**
-   * 获取群信息，包含群信息和当前用户在群里的成员信息
+   * 请求置顶和消息提醒状态
    *
    * @param teamId 群ID
    */
-  public void requestTeamData(String teamId) {
-    ALog.d(LIB_TAG, TAG, "requestTeamData:" + teamId);
-    TeamRepo.queryTeamWithMember(
-        teamId,
-        Objects.requireNonNull(IMKitClient.account()),
-        new FetchCallback<TeamWithCurrentMember>() {
+  public void getStickAndNotifyData(String teamId) {
+    ALog.d(LIB_TAG, TAG, "requestStickAndNotify:" + teamId);
+    ConversationRepo.getConversation(
+        V2NIMConversationIdUtil.teamConversationId(teamId),
+        new FetchCallback<>() {
           @Override
-          public void onSuccess(@Nullable TeamWithCurrentMember param) {
-            ALog.d(LIB_TAG, TAG, "requestTeamData,onSuccess:" + (param == null));
-            teamWithMemberData.setValue(new ResultInfo<>(param));
+          public void onError(int errorCode, @Nullable String errorMsg) {
+            ALog.d(LIB_TAG, TAG, "requestStickAndNotify,onFailed:" + errorCode);
           }
 
           @Override
-          public void onFailed(int code) {
-            ALog.d(LIB_TAG, TAG, "requestTeamData,onFailed:" + code);
-            teamWithMemberData.setValue(new ResultInfo<>(null, false, new ErrorMsg(code)));
-          }
-
-          @Override
-          public void onException(@Nullable Throwable exception) {
-            ALog.d(LIB_TAG, TAG, "requestTeamData,onException");
-            teamWithMemberData.setValue(
-                new ResultInfo<>(null, false, new ErrorMsg(-1, "", exception)));
-          }
-        });
-  }
-
-  /**
-   * 获取群成员列表信息
-   *
-   * @param teamId 群ID
-   */
-  public void requestTeamMembers(String teamId) {
-    ALog.d(LIB_TAG, TAG, "requestTeamMembers:" + teamId);
-    TeamRepo.getMemberList(
-        teamId,
-        new FetchCallback<List<UserInfoWithTeam>>() {
-          @Override
-          public void onSuccess(@Nullable List<UserInfoWithTeam> param) {
-            ALog.d(
-                LIB_TAG,
-                TAG,
-                "requestTeamMembers,onSuccess:" + (param == null ? "null" : param.size()));
-            userInfoData.setValue(new ResultInfo<>(param));
-          }
-
-          @Override
-          public void onFailed(int code) {
-            ALog.d(LIB_TAG, TAG, "requestTeamMembers,onFailed:" + code);
-            userInfoData.setValue(new ResultInfo<>(null, false, new ErrorMsg(code)));
-          }
-
-          @Override
-          public void onException(@Nullable Throwable exception) {
-            ALog.d(LIB_TAG, TAG, "requestTeamMembers,onException");
-            userInfoData.setValue(new ResultInfo<>(null, false, new ErrorMsg(-1, "", exception)));
+          public void onSuccess(@Nullable V2NIMConversation data) {
+            if (data != null) {
+              FetchResult<Boolean> stickResult = new FetchResult<>(data.isStickTop());
+              stickResult.setType(FetchResult.FetchType.Update);
+              stickData.setValue(stickResult);
+              FetchResult<Boolean> notifyResult = new FetchResult<>(!data.isMute());
+              notifyResult.setType(FetchResult.FetchType.Update);
+              notifyData.setValue(notifyResult);
+              ALog.d(
+                  LIB_TAG,
+                  TAG,
+                  "requestStickAndNotify,onSuccess,isStickTop:"
+                      + data.isStickTop()
+                      + ",isMute:"
+                      + data.isMute());
+            }
           }
         });
   }
@@ -233,24 +161,19 @@ public class TeamSettingViewModel extends BaseViewModel {
     ALog.d(LIB_TAG, TAG, "updateName:" + teamId);
     TeamRepo.updateTeamName(
         teamId,
+        V2NIMTeamType.V2NIM_TEAM_TYPE_NORMAL,
         name,
-        new FetchCallback<Void>() {
+        new FetchCallback<>() {
           @Override
           public void onSuccess(@Nullable Void param) {
             ALog.d(LIB_TAG, TAG, "updateName,onSuccess");
-            nameData.setValue(new ResultInfo<>(name));
+            nameData.setValue(new FetchResult<>(name));
           }
 
           @Override
-          public void onFailed(int code) {
-            ALog.d(LIB_TAG, TAG, "updateName,onFailed:" + code);
-            nameData.setValue(new ResultInfo<>(null, false, new ErrorMsg(code)));
-          }
-
-          @Override
-          public void onException(@Nullable Throwable exception) {
-            ALog.d(LIB_TAG, TAG, "updateName,onException");
-            nameData.setValue(new ResultInfo<>(null, false, new ErrorMsg(-1, "", exception)));
+          public void onError(int errorCode, String errorMsg) {
+            ALog.d(LIB_TAG, TAG, "updateName,onFailed:" + errorCode);
+            nameData.setValue(new FetchResult<>(errorCode, errorMsg));
           }
         });
   }
@@ -265,24 +188,19 @@ public class TeamSettingViewModel extends BaseViewModel {
     ALog.d(LIB_TAG, TAG, "updateIntroduce:" + teamId);
     TeamRepo.updateTeamIntroduce(
         teamId,
+        V2NIMTeamType.V2NIM_TEAM_TYPE_NORMAL,
         introduce,
-        new FetchCallback<Void>() {
+        new FetchCallback<>() {
           @Override
           public void onSuccess(@Nullable Void param) {
             ALog.d(LIB_TAG, TAG, "updateIntroduce,onSuccess");
-            introduceData.setValue(new ResultInfo<>(introduce));
+            introduceData.setValue(new FetchResult<>(introduce));
           }
 
           @Override
-          public void onFailed(int code) {
-            ALog.d(LIB_TAG, TAG, "updateIntroduce,onFailed:" + code);
-            introduceData.setValue(new ResultInfo<>(null, false, new ErrorMsg(code)));
-          }
-
-          @Override
-          public void onException(@Nullable Throwable exception) {
-            ALog.d(LIB_TAG, TAG, "updateIntroduce,onException");
-            introduceData.setValue(new ResultInfo<>(null, false, new ErrorMsg(-1, "", exception)));
+          public void onError(int errorCode, String errorMsg) {
+            ALog.d(LIB_TAG, TAG, "updateIntroduce,onFailed:" + errorCode);
+            introduceData.setValue(new FetchResult<>(errorCode, errorMsg));
           }
         });
   }
@@ -297,25 +215,20 @@ public class TeamSettingViewModel extends BaseViewModel {
     ALog.d(LIB_TAG, TAG, "updateNickname:" + teamId);
     TeamRepo.updateMemberNick(
         teamId,
+        V2NIMTeamType.V2NIM_TEAM_TYPE_NORMAL,
         Objects.requireNonNull(IMKitClient.account()),
         nickname,
-        new FetchCallback<Void>() {
+        new FetchCallback<>() {
           @Override
           public void onSuccess(@Nullable Void param) {
             ALog.d(LIB_TAG, TAG, "updateNickname,onSuccess");
-            nicknameData.setValue(new ResultInfo<>(nickname));
+            nicknameData.setValue(new FetchResult<>(nickname));
           }
 
           @Override
-          public void onFailed(int code) {
-            ALog.d(LIB_TAG, TAG, "updateNickname,onFailed:" + code);
-            nicknameData.setValue(new ResultInfo<>(null, false, new ErrorMsg(code)));
-          }
-
-          @Override
-          public void onException(@Nullable Throwable exception) {
-            ALog.d(LIB_TAG, TAG, "updateNickname,onException");
-            nicknameData.setValue(new ResultInfo<>(null, false, new ErrorMsg(-1, "", exception)));
+          public void onError(int errorCode, String errorMsg) {
+            ALog.d(LIB_TAG, TAG, "updateNickname,onFailed:" + errorCode);
+            nicknameData.setValue(new FetchResult<>(errorCode, errorMsg));
           }
         });
   }
@@ -330,24 +243,19 @@ public class TeamSettingViewModel extends BaseViewModel {
     ALog.d(LIB_TAG, TAG, "updateIcon:" + teamId);
     TeamRepo.updateTeamIcon(
         teamId,
+        V2NIMTeamType.V2NIM_TEAM_TYPE_NORMAL,
         iconUrl,
-        new FetchCallback<Void>() {
+        new FetchCallback<>() {
           @Override
           public void onSuccess(@Nullable Void param) {
             ALog.d(LIB_TAG, TAG, "updateIcon,onSuccess");
-            iconData.setValue(new ResultInfo<>(iconUrl));
+            iconData.setValue(new FetchResult<>(iconUrl));
           }
 
           @Override
-          public void onFailed(int code) {
-            ALog.d(LIB_TAG, TAG, "updateIcon,onFailed:" + code);
-            iconData.setValue(new ResultInfo<>(null, false, new ErrorMsg(code)));
-          }
-
-          @Override
-          public void onException(@Nullable Throwable exception) {
-            ALog.d(LIB_TAG, TAG, "updateIcon,onException");
-            iconData.setValue(new ResultInfo<>(null, false, new ErrorMsg(-1, "", exception)));
+          public void onError(int errorCode, String errorMsg) {
+            ALog.d(LIB_TAG, TAG, "updateIcon,onFailed:" + errorCode);
+            iconData.setValue(new FetchResult<>(errorCode, errorMsg));
           }
         });
   }
@@ -357,13 +265,12 @@ public class TeamSettingViewModel extends BaseViewModel {
    *
    * @param team 群信息
    */
-  public void quitTeam(Team team) {
-    ALog.d(LIB_TAG, TAG, "quitTeam:" + team.getId());
-    if (team.getType() == TeamTypeEnum.Advanced
-        && TextUtils.equals(team.getCreator(), IMKitClient.account())) {
-      creatorQuitTeam(team.getId());
+  public void quitTeam(V2NIMTeam team) {
+    ALog.d(LIB_TAG, TAG, "quitTeam:" + team.getTeamId());
+    if (TextUtils.equals(team.getOwnerAccountId(), IMKitClient.account())) {
+      creatorQuitTeam(team.getTeamId());
     } else {
-      quitTeam(team.getId());
+      quitTeam(team.getTeamId());
     }
   }
 
@@ -378,58 +285,52 @@ public class TeamSettingViewModel extends BaseViewModel {
       return;
     }
 
-    TeamRepo.getMemberList(
+    TeamRepo.getTeamMemberListWithUserInfo(
         teamId,
-        new FetchCallback<List<UserInfoWithTeam>>() {
+        new FetchCallback<>() {
           @Override
-          public void onSuccess(@Nullable List<UserInfoWithTeam> param) {
+          public void onSuccess(@Nullable TeamMemberListResult param) {
             String account = IMKitClient.account();
-            if (param == null || param.size() <= 1) {
+            if (param == null
+                || param.getMemberList() == null
+                || param.getMemberList().size() <= 1) {
               dismissTeam(teamId);
               return;
             }
-            for (UserInfoWithTeam user : param) {
-              if (user != null && !TextUtils.equals(account, user.getTeamInfo().getAccount())) {
-                account = user.getTeamInfo().getAccount();
+            for (TeamMemberWithUserInfo user : param.getMemberList()) {
+              if (user != null && !TextUtils.equals(account, user.getAccountId())) {
+                account = user.getAccountId();
                 break;
               }
             }
-            TeamRepo.transferTeam(
-                teamId,
-                account,
-                true,
-                new FetchCallback<List<TeamMember>>() {
-                  @Override
-                  public void onSuccess(@Nullable List<TeamMember> param) {
-                    ALog.d(LIB_TAG, TAG, "creatorQuitTeam transferTeam,onSuccess");
-                    quitTeam(teamId);
-                  }
+            if (!TextUtils.isEmpty(account)) {
+              TeamRepo.transferTeam(
+                  teamId,
+                  V2NIMTeamType.V2NIM_TEAM_TYPE_NORMAL,
+                  account,
+                  true,
+                  new FetchCallback<Void>() {
+                    @Override
+                    public void onSuccess(@Nullable Void param) {
+                      ALog.d(LIB_TAG, TAG, "creatorQuitTeam transferTeam,onSuccess");
+                      EventCenter.notifyEvent(
+                          new TeamEvent(teamId, TeamEventAction.ACTION_DISMISS));
+                      quitTeamData.setValue(new FetchResult<>(param));
+                    }
 
-                  @Override
-                  public void onFailed(int code) {
-                    ALog.d(LIB_TAG, TAG, "creatorQuitTeam transferTeam,onFailed:" + code);
-                    quitTeamData.setValue(new ResultInfo<>(null, false, new ErrorMsg(code)));
-                  }
-
-                  @Override
-                  public void onException(@Nullable Throwable exception) {
-                    ALog.d(LIB_TAG, TAG, "creatorQuitTeam transferTeam,onException");
-                    quitTeamData.setValue(
-                        new ResultInfo<>(null, false, new ErrorMsg(-1, "", exception)));
-                  }
-                });
+                    @Override
+                    public void onError(int errorCode, String errorMsg) {
+                      ALog.d(LIB_TAG, TAG, "creatorQuitTeam transferTeam,onFailed:" + errorCode);
+                      quitTeamData.setValue(new FetchResult<>(errorCode, errorMsg));
+                    }
+                  });
+            }
           }
 
           @Override
-          public void onFailed(int code) {
-            ALog.d(LIB_TAG, TAG, "quitTeam  getMemberList,onFailed:" + code);
-            quitTeamData.setValue(new ResultInfo<>(null, false, new ErrorMsg(code)));
-          }
-
-          @Override
-          public void onException(@Nullable Throwable exception) {
-            ALog.d(LIB_TAG, TAG, "quitTeam getMemberList,onException");
-            quitTeamData.setValue(new ResultInfo<>(null, false, new ErrorMsg(-1, "", exception)));
+          public void onError(int errorCode, String errorMsg) {
+            ALog.d(LIB_TAG, TAG, "creatorQuitTeam,onFailed:" + errorCode);
+            quitTeamData.setValue(new FetchResult<>(errorCode, errorMsg));
           }
         });
   }
@@ -441,93 +342,25 @@ public class TeamSettingViewModel extends BaseViewModel {
    */
   public void quitTeam(String teamId) {
     ALog.d(LIB_TAG, TAG, "quitTeam,teamId:" + teamId);
-    EventCenter.notifyEvent(new TeamEvent(teamId, TeamEventAction.ACTION_DISMISS));
-    TeamRepo.quitTeam(
+    TeamRepo.leaveTeam(
         teamId,
-        new FetchCallback<Void>() {
+        V2NIMTeamType.V2NIM_TEAM_TYPE_NORMAL,
+        new FetchCallback<>() {
           @Override
           public void onSuccess(@Nullable Void param) {
             ALog.d(LIB_TAG, TAG, "quitTeam,onSuccess");
-            clearNotify(teamId);
-            removeStickTop(teamId);
-            quitTeamData.setValue(new ResultInfo<>(param));
+            EventCenter.notifyEvent(new TeamEvent(teamId, TeamEventAction.ACTION_DISMISS));
+            quitTeamData.setValue(new FetchResult<>(param));
           }
 
           @Override
-          public void onFailed(int code) {
-            ALog.d(LIB_TAG, TAG, "quitTeam,onFailed:" + code);
-            if (code == TeamUIKitConstant.QUIT_TEAM_ERROR_CODE_NO_MEMBER) {
+          public void onError(int errorCode, String errorMsg) {
+            ALog.d(LIB_TAG, TAG, "quitTeam,onFailed:" + errorCode);
+            if (errorCode == ChatKitConstant.ERROR_CODE_QUIT_TEAM_NO_MEMBER) {
               dismissTeam(teamId);
               return;
             }
-            quitTeamData.setValue(new ResultInfo<>(null, false, new ErrorMsg(code)));
-          }
-
-          @Override
-          public void onException(@Nullable Throwable exception) {
-            ALog.d(LIB_TAG, TAG, "quitTeam,onException");
-            quitTeamData.setValue(new ResultInfo<>(null, false, new ErrorMsg(-1, "", exception)));
-          }
-        });
-  }
-
-  /**
-   * 取消置顶
-   *
-   * @param teamId 群ID
-   */
-  public void removeStickTop(String teamId) {
-    ALog.d(LIB_TAG, TAG, "removeStickTop,teamId:" + teamId);
-    if (ConversationRepo.isStickTop(teamId, SessionTypeEnum.Team)) {
-      ALog.d(LIB_TAG, TAG, "removeStickTop,isStickTop:" + teamId);
-      ConversationRepo.removeStickTop(
-          teamId,
-          SessionTypeEnum.Team,
-          "",
-          new FetchCallback<Void>() {
-            @Override
-            public void onSuccess(@Nullable Void param) {
-              ALog.d(LIB_TAG, TAG, "removeStickTop,onSuccess");
-            }
-
-            @Override
-            public void onFailed(int code) {
-              ALog.d(LIB_TAG, TAG, "removeStickTop,onFailed:" + code);
-            }
-
-            @Override
-            public void onException(@Nullable Throwable exception) {
-              ALog.d(LIB_TAG, TAG, "removeStickTop,onException");
-            }
-          });
-    }
-  }
-
-  /**
-   * 设置消息提醒
-   *
-   * @param teamId 群ID
-   */
-  public void clearNotify(String teamId) {
-    ALog.d(LIB_TAG, TAG, "clearNotify,teamId:" + teamId);
-    ConversationRepo.setNotify(
-        teamId,
-        SessionTypeEnum.Team,
-        true,
-        new FetchCallback<Void>() {
-          @Override
-          public void onSuccess(@Nullable Void param) {
-            ALog.d(LIB_TAG, TAG, "clearNotify,onSuccess");
-          }
-
-          @Override
-          public void onFailed(int code) {
-            ALog.d(LIB_TAG, TAG, "clearNotify,onFailed:" + code);
-          }
-
-          @Override
-          public void onException(@Nullable Throwable exception) {
-            ALog.d(LIB_TAG, TAG, "clearNotify,onException");
+            quitTeamData.setValue(new FetchResult<>(errorCode, errorMsg));
           }
         });
   }
@@ -539,27 +372,21 @@ public class TeamSettingViewModel extends BaseViewModel {
    */
   public void dismissTeam(String teamId) {
     ALog.d(LIB_TAG, TAG, "dismissTeam:" + teamId);
-    EventCenter.notifyEvent(new TeamEvent(teamId, TeamEventAction.ACTION_DISMISS));
     TeamRepo.dismissTeam(
         teamId,
+        V2NIMTeamType.V2NIM_TEAM_TYPE_NORMAL,
         new FetchCallback<Void>() {
           @Override
           public void onSuccess(@Nullable Void param) {
             ALog.d(LIB_TAG, TAG, "dismissTeam,onSuccess");
-            dismissTeamData.setValue(new ResultInfo<>(param));
+            EventCenter.notifyEvent(new TeamEvent(teamId, TeamEventAction.ACTION_DISMISS));
+            dismissTeamData.setValue(new FetchResult<>(param));
           }
 
           @Override
-          public void onFailed(int code) {
-            ALog.d(LIB_TAG, TAG, "dismissTeam,onFailed:" + code);
-            dismissTeamData.setValue(new ResultInfo<>(null, false, new ErrorMsg(code)));
-          }
-
-          @Override
-          public void onException(@Nullable Throwable exception) {
-            ALog.d(LIB_TAG, TAG, "dismissTeam,onException");
-            dismissTeamData.setValue(
-                new ResultInfo<>(null, false, new ErrorMsg(-1, "", exception)));
+          public void onError(int errorCode, String errorMsg) {
+            ALog.d(LIB_TAG, TAG, "dismissTeam,onFailed:" + errorCode);
+            dismissTeamData.setValue(new FetchResult<>(errorCode, errorMsg));
           }
         });
   }
@@ -571,28 +398,26 @@ public class TeamSettingViewModel extends BaseViewModel {
    * @param notify 是否提醒
    */
   public void setTeamNotify(String teamId, boolean notify) {
-    ALog.d(LIB_TAG, TAG, "setTeamNotify:" + teamId);
-    ConversationRepo.setNotify(
+    ALog.d(LIB_TAG, TAG, "setTeamNotify:" + teamId + "," + notify);
+    V2NIMTeamMessageMuteMode muteMode =
+        notify
+            ? V2NIMTeamMessageMuteMode.V2NIM_TEAM_MESSAGE_MUTE_MODE_OFF
+            : V2NIMTeamMessageMuteMode.V2NIM_TEAM_MESSAGE_MUTE_MODE_ON;
+    TeamRepo.setTeamMuteStatus(
         teamId,
-        SessionTypeEnum.Team,
-        !notify,
-        new FetchCallback<Void>() {
+        V2NIMTeamType.V2NIM_TEAM_TYPE_NORMAL,
+        muteMode,
+        new FetchCallback<>() {
           @Override
           public void onSuccess(@Nullable Void param) {
             ALog.d(LIB_TAG, TAG, "setTeamNotify,onSuccess");
-            notifyData.setValue(new ResultInfo<>(notify));
+            notifyData.setValue(new FetchResult<>(notify));
           }
 
           @Override
-          public void onFailed(int code) {
-            ALog.d(LIB_TAG, TAG, "setTeamNotify,onFailed:" + code);
-            notifyData.setValue(new ResultInfo<>(null, false, new ErrorMsg(code)));
-          }
-
-          @Override
-          public void onException(@Nullable Throwable exception) {
-            ALog.d(LIB_TAG, TAG, "muteTeam,onException");
-            notifyData.setValue(new ResultInfo<>(null, false, new ErrorMsg(-1, "", exception)));
+          public void onError(int errorCode, String errorMsg) {
+            ALog.d(LIB_TAG, TAG, "setTeamNotify,onFailed:" + errorCode);
+            notifyData.setValue(new FetchResult<>(errorCode, errorMsg));
           }
         });
   }
@@ -603,209 +428,26 @@ public class TeamSettingViewModel extends BaseViewModel {
    * @param sessionId 会话ID
    * @param stick 是否置顶
    */
-  public void configStick(String sessionId, boolean stick) {
+  public void stickTop(String sessionId, boolean stick) {
     ALog.d(LIB_TAG, TAG, "configStick:" + sessionId + "," + stick);
     if (TextUtils.isEmpty(sessionId)) {
-      stickData.setValue(new ResultInfo<>(null, false, new ErrorMsg(-1)));
+      stickData.setValue(new FetchResult<>(-1, ""));
       return;
     }
-    if (stick) {
-      ConversationRepo.addStickTop(
-          sessionId,
-          SessionTypeEnum.Team,
-          "",
-          new FetchCallback<StickTopSessionInfo>() {
-            @Override
-            public void onSuccess(@Nullable StickTopSessionInfo param) {
-              ALog.d(LIB_TAG, TAG, "configStick,onSuccess");
-              stickData.setValue(new ResultInfo<>(true));
-              ConversationRepo.notifyStickTop(sessionId, SessionTypeEnum.Team);
-            }
-
-            @Override
-            public void onFailed(int code) {
-              ALog.d(LIB_TAG, TAG, "configStick,onFailed:" + code);
-              stickData.setValue(new ResultInfo<>(null, false, new ErrorMsg(code)));
-            }
-
-            @Override
-            public void onException(@Nullable Throwable exception) {
-              ALog.d(LIB_TAG, TAG, "configStick,onException");
-              stickData.setValue(new ResultInfo<>(null, false, new ErrorMsg(-1, "", exception)));
-            }
-          });
-    } else {
-      ConversationRepo.removeStickTop(
-          sessionId,
-          SessionTypeEnum.Team,
-          "",
-          new FetchCallback<Void>() {
-            @Override
-            public void onSuccess(@Nullable Void param) {
-              ALog.d(LIB_TAG, TAG, "configStick,onSuccess");
-              stickData.setValue(new ResultInfo<>(false));
-              ConversationRepo.notifyStickTop(sessionId, SessionTypeEnum.Team);
-            }
-
-            @Override
-            public void onFailed(int code) {
-              ALog.d(LIB_TAG, TAG, "configStick,onFailed:" + code);
-              stickData.setValue(new ResultInfo<>(null, false, new ErrorMsg(code)));
-            }
-
-            @Override
-            public void onException(@Nullable Throwable exception) {
-              ALog.d(LIB_TAG, TAG, "configStick,onException");
-              stickData.setValue(new ResultInfo<>(null, false, new ErrorMsg(-1, "", exception)));
-            }
-          });
-    }
-  }
-
-  /**
-   * 添加成员
-   *
-   * @param teamId 群ID
-   * @param members 成员ID列表
-   */
-  public void addMembers(String teamId, List<String> members) {
-    if (members == null || members.size() == 0) {
-      return;
-    }
-    ALog.d(LIB_TAG, TAG, "addMembers:" + teamId + "," + members.size());
-    TeamRepo.inviteUser(
-        teamId,
-        members,
-        new FetchCallback<List<String>>() {
-          @Override
-          public void onSuccess(@Nullable List<String> param) {
-            ALog.d(LIB_TAG, TAG, "addMembers,onSuccess");
-            addRemoveMembersData.setValue(new FetchResult<>(LoadStatus.Success, param));
-          }
-
-          @Override
-          public void onFailed(int code) {
-            ALog.d(LIB_TAG, TAG, "addMembers,onFailed:" + code);
-            handErrorCode(code);
-            addRemoveMembersData.setValue(new FetchResult<>(LoadStatus.Error));
-          }
-
-          @Override
-          public void onException(@Nullable Throwable exception) {
-            ALog.d(LIB_TAG, TAG, "addMembers,onException");
-            addRemoveMembersData.setValue(new FetchResult<>(LoadStatus.Error));
-          }
-        });
-  }
-
-  /**
-   * 添加管理员
-   *
-   * @param teamId 群ID
-   * @param members 成员ID列表
-   */
-  public void addManager(String teamId, List<String> members) {
-    if (members == null || members.size() == 0) {
-      return;
-    }
-    ALog.d(LIB_TAG, TAG, "addManager:" + teamId + "," + members.size());
-    TeamRepo.addManagers(
-        teamId,
-        members,
-        new FetchCallback<List<TeamMember>>() {
-          @Override
-          public void onSuccess(@Nullable List<TeamMember> param) {
-            ALog.d(LIB_TAG, TAG, "addManager,onSuccess");
-            addRemoveManagerLiveData.setValue(new FetchResult<>(LoadStatus.Success, param));
-          }
-
-          @Override
-          public void onFailed(int code) {
-            ALog.d(LIB_TAG, TAG, "addManager,onFailed:" + code);
-            handErrorCode(code);
-            addRemoveManagerLiveData.setValue(new FetchResult<>(LoadStatus.Error));
-          }
-
-          @Override
-          public void onException(@Nullable Throwable exception) {
-            ALog.d(LIB_TAG, TAG, "addManager,onException");
-            addRemoveManagerLiveData.setValue(new FetchResult<>(LoadStatus.Error));
-          }
-        });
-  }
-
-  /**
-   * 移除管理员
-   *
-   * @param teamId 群ID
-   * @param members 成员ID列表
-   */
-  public void removeManager(String teamId, List<String> members) {
-    if (members == null || members.size() == 0) {
-      return;
-    }
-    ALog.d(LIB_TAG, TAG, "removeManager:" + teamId + "," + members.size());
-    TeamRepo.removeManagers(
-        teamId,
-        members,
-        new FetchCallback<List<TeamMember>>() {
-          @Override
-          public void onSuccess(@Nullable List<TeamMember> param) {
-            ALog.d(LIB_TAG, TAG, "removeManager,onSuccess");
-            FetchResult<List<TeamMember>> result = new FetchResult<>(LoadStatus.Success, param);
-            result.setType(FetchResult.FetchType.Remove);
-            addRemoveManagerLiveData.setValue(result);
-          }
-
-          @Override
-          public void onFailed(int code) {
-            ALog.d(LIB_TAG, TAG, "removeManager,onFailed:" + code);
-            handErrorCode(code);
-            addRemoveManagerLiveData.setValue(new FetchResult<>(LoadStatus.Error));
-          }
-
-          @Override
-          public void onException(@Nullable Throwable exception) {
-            ALog.d(LIB_TAG, TAG, "removeManager,onException");
-            addRemoveManagerLiveData.setValue(new FetchResult<>(LoadStatus.Error));
-          }
-        });
-  }
-
-  /**
-   * 移除成员
-   *
-   * @param teamId 群ID
-   * @param members 成员ID列表
-   */
-  public void removeMember(String teamId, List<String> members) {
-    if (members == null || members.size() == 0) {
-      return;
-    }
-    ALog.d(LIB_TAG, TAG, "removeMember:" + teamId + "," + members.size());
-    TeamRepo.removeMembers(
-        teamId,
-        members,
+    ConversationRepo.setStickTop(
+        V2NIMConversationIdUtil.teamConversationId(teamId),
+        stick,
         new FetchCallback<Void>() {
           @Override
-          public void onSuccess(@Nullable Void param) {
-            ALog.d(LIB_TAG, TAG, "removeManager,onSuccess");
-            FetchResult<List<String>> result = new FetchResult<>(LoadStatus.Success, members);
-            result.setType(FetchResult.FetchType.Remove);
-            addRemoveMembersData.setValue(result);
+          public void onError(int errorCode, String errorMsg) {
+            ALog.d(LIB_TAG, TAG, "stickTop,onFailed:" + errorCode);
+            stickData.setValue(new FetchResult<>(!stick));
           }
 
           @Override
-          public void onFailed(int code) {
-            ALog.d(LIB_TAG, TAG, "removeManager,onFailed:" + code);
-            handErrorCode(code);
-            addRemoveManagerLiveData.setValue(new FetchResult<>(LoadStatus.Error));
-          }
-
-          @Override
-          public void onException(@Nullable Throwable exception) {
-            ALog.d(LIB_TAG, TAG, "removeManager,onException");
-            addRemoveManagerLiveData.setValue(new FetchResult<>(LoadStatus.Error));
+          public void onSuccess(@Nullable Void data) {
+            ALog.d(LIB_TAG, TAG, "configStick,onSuccess:" + stick);
+            stickData.setValue(new FetchResult<>(stick));
           }
         });
   }
@@ -818,242 +460,37 @@ public class TeamSettingViewModel extends BaseViewModel {
    */
   public void muteTeamAllMember(String teamId, boolean mute) {
     ALog.d(LIB_TAG, TAG, "muteTeamAllMember:" + teamId + "," + mute);
-    TeamRepo.muteAllMembers(
+    V2NIMTeamChatBannedMode bannedMode =
+        mute
+            ? V2NIMTeamChatBannedMode.V2NIM_TEAM_CHAT_BANNED_MODE_BANNED_NORMAL
+            : V2NIMTeamChatBannedMode.V2NIM_TEAM_CHAT_BANNED_MODE_UNBAN;
+    TeamRepo.setTeamChatBannedMode(
         teamId,
-        mute,
+        V2NIMTeamType.V2NIM_TEAM_TYPE_NORMAL,
+        bannedMode,
         new FetchCallback<Void>() {
           @Override
           public void onSuccess(@Nullable Void param) {
             ALog.d(LIB_TAG, TAG, "muteTeamAllMember,onSuccess");
-            muteTeamAllMemberData.setValue(new ResultInfo<>(mute));
+            muteTeamAllMemberData.setValue(new FetchResult<>(mute));
           }
 
           @Override
-          public void onFailed(int code) {
-            ALog.d(LIB_TAG, TAG, "muteTeamAllMember,onFailed:" + code);
-            muteTeamAllMemberData.setValue(new ResultInfo<>(null, false, new ErrorMsg(code)));
-          }
-
-          @Override
-          public void onException(@Nullable Throwable exception) {
-            ALog.d(LIB_TAG, TAG, "muteTeamAllMember,onException");
-            muteTeamAllMemberData.setValue(
-                new ResultInfo<>(null, false, new ErrorMsg(-1, "", exception)));
+          public void onError(int errorCode, String errorMsg) {
+            ALog.d(LIB_TAG, TAG, "muteTeamAllMember,onFailed:" + errorCode);
+            muteTeamAllMemberData.setValue(new FetchResult<>(errorCode, errorMsg));
           }
         });
   }
 
-  /**
-   * 更新添加成员权限
-   *
-   * @param teamId 群ID
-   * @param type 权限类型
-   */
-  public void updateInvitePrivilege(String teamId, int type) {
-    ALog.d(LIB_TAG, TAG, "updateInvitePrivilege:" + teamId + "," + type);
-    TeamRepo.updateInviteMode(
-        teamId,
-        TeamInviteModeEnum.typeOfValue(type),
-        new FetchCallback<Void>() {
-          @Override
-          public void onSuccess(@Nullable Void param) {
-            ALog.d(LIB_TAG, TAG, "updateInvitePrivilege,onSuccess");
-            updateInvitePrivilegeData.setValue(new ResultInfo<>(type));
-          }
-
-          @Override
-          public void onFailed(int code) {
-            ALog.d(LIB_TAG, TAG, "updateInvitePrivilege,onFailed:" + code);
-            updateInvitePrivilegeData.setValue(new ResultInfo<>(null, false, new ErrorMsg(code)));
-          }
-
-          @Override
-          public void onException(@Nullable Throwable exception) {
-            ALog.d(LIB_TAG, TAG, "updateInvitePrivilege,onException");
-            updateInvitePrivilegeData.setValue(
-                new ResultInfo<>(null, false, new ErrorMsg(-1, "", exception)));
-          }
-        });
+  public List<String> getTeamMemberIds() {
+    List<TeamMemberWithUserInfo> teamMembers = TeamMemberCache.Instance().getTeamMemberList(teamId);
+    return TeamUtils.getAccIdListFromInfoList(teamMembers);
   }
 
-  /**
-   * 更新群信息权限
-   *
-   * @param teamId 群ID
-   * @param type 权限类型
-   */
-  public void updateInfoPrivilege(String teamId, int type) {
-    ALog.d(LIB_TAG, TAG, "updateInfoPrivilege:" + teamId + "," + type);
-    TeamRepo.updateTeamInfoPrivilege(
-        teamId,
-        TeamUpdateModeEnum.typeOfValue(type),
-        new FetchCallback<Void>() {
-          @Override
-          public void onSuccess(@Nullable Void param) {
-            ALog.d(LIB_TAG, TAG, "updateInfoPrivilege,onSuccess");
-            updateInfoPrivilegeData.setValue(new ResultInfo<>(type));
-          }
-
-          @Override
-          public void onFailed(int code) {
-            ALog.d(LIB_TAG, TAG, "updateInfoPrivilege,onFailed:" + code);
-            updateInfoPrivilegeData.setValue(new ResultInfo<>(null, false, new ErrorMsg(code)));
-          }
-
-          @Override
-          public void onException(@Nullable Throwable exception) {
-            ALog.d(LIB_TAG, TAG, "updateInfoPrivilege,onException");
-            updateInfoPrivilegeData.setValue(
-                new ResultInfo<>(null, false, new ErrorMsg(-1, "", exception)));
-          }
-        });
-  }
-
-  /**
-   * 更新@所有人权限，需要在群扩展中添加KEY_EXTENSION_AT_ALL字段实现
-   *
-   * @param team 群信息
-   * @param type 权限类型
-   */
-  public void updateNotifyAllPrivilege(Team team, String type) {
-    if (team == null) {
-      return;
-    }
-    ALog.d(LIB_TAG, TAG, "updateNotifyAllPrivilege:" + team + "," + type);
-    JSONObject obj;
-    try {
-      obj = new JSONObject(team.getExtension());
-    } catch (Exception e) {
-      ALog.e(TAG, "updateNotifyAllPrivilege-parseExtension", e);
-      obj = new JSONObject();
-    }
-    if (Objects.equals(obj.optString(KEY_EXTENSION_AT_ALL), type)) {
-      return;
-    }
-    try {
-      obj.putOpt(KEY_EXTENSION_AT_ALL, type);
-    } catch (Exception e) {
-      ALog.e(TAG, "updateNotifyAllPrivilege-putOpt", e);
-    }
-    String extension = obj.toString();
-    TeamRepo.updateTeamExtension(
-        team.getId(),
-        extension,
-        new FetchCallback<Void>() {
-          @Override
-          public void onSuccess(@Nullable Void param) {
-            ALog.d(LIB_TAG, TAG, "updateNotifyAllPrivilege,onSuccess");
-            team.setExtension(extension);
-            sendTipsMessage(TeamUtils.buildAtNotificationText(type));
-            updateNotifyAllPrivilegeData.setValue(new ResultInfo<>(type));
-          }
-
-          @Override
-          public void onFailed(int code) {
-            ALog.d(LIB_TAG, TAG, "updateNotifyAllPrivilege,onFailed:" + code);
-            updateNotifyAllPrivilegeData.setValue(
-                new ResultInfo<>(null, false, new ErrorMsg(code)));
-          }
-
-          @Override
-          public void onException(@Nullable Throwable exception) {
-            ALog.d(LIB_TAG, TAG, "updateNotifyAllPrivilege,onException");
-            updateNotifyAllPrivilegeData.setValue(
-                new ResultInfo<>(null, false, new ErrorMsg(-1, "", exception)));
-          }
-        });
-  }
-
-  /**
-   * 发送Tips消息
-   *
-   * @param content 消息内容
-   */
-  public void sendTipsMessage(String content) {
-    IMMessage msg = MessageBuilder.createTipMessage(teamId, SessionTypeEnum.Team);
-    msg.setContent(content);
-    CustomMessageConfig messageConfig = new CustomMessageConfig();
-    messageConfig.enableUnreadCount = false;
-    msg.setConfig(messageConfig);
-    ChatRepo.sendMessage(msg, null);
-  }
-
-  public MutableLiveData<ResultInfo<Boolean>> getMuteTeamAllMemberData() {
-    return muteTeamAllMemberData;
-  }
-
-  public MutableLiveData<ResultInfo<TeamWithCurrentMember>> getTeamWithMemberData() {
-    return teamWithMemberData;
-  }
-
-  public MutableLiveData<ResultInfo<List<UserInfoWithTeam>>> getUserInfoData() {
-    return userInfoData;
-  }
-
-  public MutableLiveData<ResultInfo<List<TeamMember>>> getTeamMemberUpdateData() {
-    return memberUpdateData;
-  }
-
-  public MutableLiveData<ResultInfo<String>> getNameData() {
-    return nameData;
-  }
-
-  public MutableLiveData<ResultInfo<String>> getIntroduceData() {
-    return introduceData;
-  }
-
-  public MutableLiveData<ResultInfo<String>> getNicknameData() {
-    return nicknameData;
-  }
-
-  public MutableLiveData<ResultInfo<String>> getIconData() {
-    return iconData;
-  }
-
-  public MutableLiveData<ResultInfo<Void>> getQuitTeamData() {
-    return quitTeamData;
-  }
-
-  public MutableLiveData<ResultInfo<Void>> getDismissTeamData() {
-    return dismissTeamData;
-  }
-
-  public MutableLiveData<ResultInfo<Boolean>> getNotifyData() {
-    return notifyData;
-  }
-
-  public MutableLiveData<ResultInfo<Boolean>> getStickData() {
-    return stickData;
-  }
-
-  public MutableLiveData<ResultInfo<Integer>> getUpdateInvitePrivilegeData() {
-    return updateInvitePrivilegeData;
-  }
-
-  public MutableLiveData<ResultInfo<Integer>> getUpdateInfoPrivilegeData() {
-    return updateInfoPrivilegeData;
-  }
-
-  public MutableLiveData<ResultInfo<String>> getUpdateNotifyAllPrivilegeData() {
-    return updateNotifyAllPrivilegeData;
-  }
-
-  public MutableLiveData<FetchResult<List<String>>> getAddRemoveMembersData() {
-    return addRemoveMembersData;
-  }
-
-  public MutableLiveData<FetchResult<List<TeamMember>>> getAddRemoveManagerLiveData() {
-    return addRemoveManagerLiveData;
-  }
-
-  public MutableLiveData<ResultInfo<Team>> getTeamUpdateData() {
-    return teamUpdateData;
-  }
-
-  private void handErrorCode(int code) {
-    if (code == TeamUIKitConstant.QUIT_TEAM_ERROR_CODE_NO_MEMBER
-        || code == TeamUIKitConstant.REMOVE_MEMBER_ERROR_CODE_NO_PERMISSION) {
-      ToastX.showLongToast(R.string.team_operate_no_permission_tip);
-    }
+  @Override
+  protected void onCleared() {
+    super.onCleared();
+    IMKitClient.removeLoginDetailListener(loginDetailListener);
   }
 }

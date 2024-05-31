@@ -9,7 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewbinding.ViewBinding;
 import com.netease.yunxin.kit.contactkit.ui.model.ContactFriendBean;
-import com.netease.yunxin.kit.corekit.im.model.FriendInfo;
+import com.netease.yunxin.kit.corekit.im2.model.UserWithFriend;
 import java.util.LinkedList;
 
 public abstract class BaseSelectedListAdapter<R extends ViewBinding>
@@ -37,12 +37,12 @@ public abstract class BaseSelectedListAdapter<R extends ViewBinding>
     if (bean == null) {
       return;
     }
-    FriendInfo friendData = bean.data;
+    UserWithFriend friendData = bean.data;
     handleBindViewHolder(holder, bean, friendData);
   }
 
   protected abstract void handleBindViewHolder(
-      SelectedViewHolder<R> holder, ContactFriendBean bean, FriendInfo friendData);
+      SelectedViewHolder<R> holder, ContactFriendBean bean, UserWithFriend friendData);
 
   public void setItemClickListener(ItemClickListener itemClickListener) {
     this.itemClickListener = itemClickListener;

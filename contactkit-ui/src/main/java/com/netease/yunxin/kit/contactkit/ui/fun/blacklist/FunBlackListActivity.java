@@ -8,19 +8,20 @@ import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.ViewGroup;
-import android.widget.Toast;
 import androidx.annotation.Nullable;
-import com.netease.yunxin.kit.common.utils.NetworkUtils;
 import com.netease.yunxin.kit.contactkit.ui.R;
 import com.netease.yunxin.kit.contactkit.ui.blacklist.BaseBlackListActivity;
-import com.netease.yunxin.kit.contactkit.ui.databinding.BaseListActivityLayoutBinding;
 import com.netease.yunxin.kit.contactkit.ui.fun.selector.FunContactSelectorActivity;
-import com.netease.yunxin.kit.contactkit.ui.fun.view.FunContactViewHolderFactory;
-import com.netease.yunxin.kit.contactkit.ui.fun.view.viewholder.FunBlackListViewHolder;
 import com.netease.yunxin.kit.contactkit.ui.model.IViewTypeConstant;
+import com.netease.yunxin.kit.contactkit.ui.normal.view.ContactViewHolderFactory;
 import com.netease.yunxin.kit.contactkit.ui.view.viewholder.BaseContactViewHolder;
-import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
+import com.netease.yunxin.kit.contactkit.ui.view.viewholder.BlackListViewHolder;
 
+/**
+ * 娱乐版黑名单页面
+ *
+ * <p>
+ */
 public class FunBlackListActivity extends BaseBlackListActivity {
 
   @Override
@@ -29,7 +30,11 @@ public class FunBlackListActivity extends BaseBlackListActivity {
     changeStatusBarColor(R.color.color_ededed);
   }
 
-  protected void configTitle(BaseListActivityLayoutBinding binding) {
+  // 配置差异化UI
+
+  @Override
+  protected void initView() {
+    super.initView();
     binding
         .title
         .setTitle(R.string.black_list)
@@ -45,50 +50,18 @@ public class FunBlackListActivity extends BaseBlackListActivity {
   }
 
   @Override
-  protected void configViewHolderFactory() {
+  protected void setBlackListViewHolder() {
     binding.contactListView.setViewHolderFactory(
-        new FunContactViewHolderFactory() {
+        new ContactViewHolderFactory() {
           @Override
           protected BaseContactViewHolder getCustomViewHolder(ViewGroup view, int viewType) {
             if (viewType == IViewTypeConstant.CONTACT_BLACK_LIST) {
-              FunBlackListViewHolder viewHolder = new FunBlackListViewHolder(view);
+              BlackListViewHolder viewHolder = new BlackListViewHolder(view, true);
               viewHolder.setRelieveListener(
                   data -> {
-                    if (!NetworkUtils.isConnected()) {
-                      Toast.makeText(
-                              FunBlackListActivity.this,
-                              R.string.contact_network_error_tip,
-                              Toast.LENGTH_SHORT)
-                          .show();
-                      return;
+                    if (checkNetwork()) {
+                      viewModel.removeBlackOp(data.data.getAccountId());
                     }
-                    viewModel.removeBlackOp(
-                        data.data.getAccount(),
-                        new FetchCallback<Void>() {
-
-                          @Override
-                          public void onException(@Nullable Throwable exception) {
-                            Toast.makeText(
-                                    FunBlackListActivity.this,
-                                    getText(R.string.remove_black_fail),
-                                    Toast.LENGTH_SHORT)
-                                .show();
-                          }
-
-                          @Override
-                          public void onFailed(int code) {
-                            Toast.makeText(
-                                    FunBlackListActivity.this,
-                                    getText(R.string.remove_black_fail),
-                                    Toast.LENGTH_SHORT)
-                                .show();
-                          }
-
-                          @Override
-                          public void onSuccess(@Nullable Void param) {
-                            binding.contactListView.removeContactData(data);
-                          }
-                        });
                   });
               return viewHolder;
             }

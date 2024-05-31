@@ -13,6 +13,11 @@ import com.netease.yunxin.kit.teamkit.ui.R;
 import com.netease.yunxin.kit.teamkit.ui.activity.BaseTeamManagerActivity;
 import com.netease.yunxin.kit.teamkit.ui.databinding.TeamManagerActivityBinding;
 
+/**
+ * 普通版群管理界面，差异化UI展示
+ *
+ * <p>
+ */
 public class TeamManagerActivity extends BaseTeamManagerActivity {
 
   private TeamManagerActivityBinding binding;
@@ -29,7 +34,9 @@ public class TeamManagerActivity extends BaseTeamManagerActivity {
     viewUpdate = binding.tvUpdateInfoPermission;
     tvUpdateValue = binding.tvUpdateInfoValue;
     viewAit = binding.tvNotifyAllMembersPermission;
+    viewTopSticky = binding.tvTopStickyPermission;
     tvAitValue = binding.tvNotifyAllMembersValue;
+    tvTopStickyValue = binding.tvTopStickyValue;
     return binding.getRoot();
   }
 

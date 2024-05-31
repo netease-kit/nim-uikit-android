@@ -9,122 +9,131 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import androidx.annotation.Nullable;
-import com.netease.nimlib.sdk.team.constant.TeamMemberType;
-import com.netease.nimlib.sdk.team.model.Team;
-import com.netease.nimlib.sdk.team.model.TeamMember;
-import com.netease.yunxin.kit.chatkit.model.UserInfoWithTeam;
-import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
+import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamMemberRole;
+import com.netease.nimlib.sdk.v2.team.model.V2NIMTeam;
+import com.netease.nimlib.sdk.v2.team.model.V2NIMTeamMember;
+import com.netease.nimlib.sdk.v2.user.V2NIMUser;
+import com.netease.yunxin.kit.chatkit.model.TeamMemberWithUserInfo;
+import com.netease.yunxin.kit.chatkit.repo.TeamRepo;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatUserCache;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatUtils;
 import com.netease.yunxin.kit.chatkit.ui.model.ait.AitBlock;
-import com.netease.yunxin.kit.chatkit.ui.model.ait.AitContactsModel;
-import com.netease.yunxin.kit.corekit.im.IMKitClient;
-import com.netease.yunxin.kit.corekit.im.model.UserInfo;
-import com.netease.yunxin.kit.corekit.im.provider.FetchCallbackImpl;
-import java.util.ArrayList;
-import java.util.Collections;
+import com.netease.yunxin.kit.chatkit.ui.model.ait.AtContactsModel;
+import com.netease.yunxin.kit.corekit.im2.IMKitClient;
+import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
 import java.util.List;
 import org.json.JSONObject;
 
 /** Team member @ manager */
 public class AitManager implements TextWatcher {
 
+  // UI风格，协同版
   public static final int STYLE_NORMAL = 0;
+  // UI风格，通用版
   public static final int STYLE_FUN = 1;
   private final Context mContext;
+  // 群id
   private final String tid;
-  private final AitContactsModel aitContactsModel;
+  // @信息实体类
+  private final AtContactsModel atContactsModel;
+  // @文本输入监听
   private AitTextChangeListener aitTextChangeListener;
-  private final List<UserInfoWithTeam> teamMemberList = new ArrayList<>();
-
+  // 当前光标位置
   private int curPos;
+  // 是否忽略文本变化
   private boolean ignoreTextChange = false;
-
+  // 文本输入开始位置
   private int editTextStart;
+  // 文本输入数量
   private int editTextCount;
+  // 文本输入前位置
   private int editTextBefore;
+  // 是否删除操作
   private boolean delete;
-  private boolean fetchNewInfo;
-  private Team team;
-  private TeamMember curTeamMember;
+  // 是否显示@所有成员
   private boolean showAll = true;
-
+  // UI风格，默认协同版
   private int uiStyle = STYLE_NORMAL;
+  //全局dialog
+  AitContactSelectorDialog aitDialog;
 
   public AitManager(Context context, String teamId) {
-    this(context, teamId, true);
-  }
-
-  public AitManager(Context context, String teamId, boolean fetchNewInfo) {
     this.mContext = context;
     this.tid = teamId;
-    aitContactsModel = new AitContactsModel();
-    this.fetchNewInfo = fetchNewInfo;
+    atContactsModel = new AtContactsModel();
   }
 
+  // 设置UI风格
   public void setUIStyle(int style) {
     uiStyle = style;
   }
 
-  public void setTeamMembers(List<UserInfoWithTeam> userInfoWithTeams) {
-    this.teamMemberList.clear();
-    for (UserInfoWithTeam member : userInfoWithTeams) {
-      if (!TextUtils.equals(IMKitClient.account(), member.getTeamInfo().getAccount())) {
-        this.teamMemberList.add(member);
-      } else {
-        curTeamMember = member.getTeamInfo();
+  // 设置成员列表数据
+  public void setTeamMembers(List<TeamMemberWithUserInfo> userInfoWithTeams) {
+    ChatUserCache.getInstance().clearTeamMemberCache();
+    for (TeamMemberWithUserInfo member : userInfoWithTeams) {
+      if (TextUtils.equals(IMKitClient.account(), member.getAccountId())) {
+        ChatUserCache.getInstance().setCurTeamMember(member.getTeamMember());
       }
     }
-    Collections.sort(teamMemberList, ChatUtils.teamManagerComparator());
+    ChatUserCache.getInstance().addTeamMembersCache(userInfoWithTeams);
+    ChatUserCache.getInstance().haveLoadAllTeamMembers = true;
   }
 
-  public void updateTeamInfo(Team team) {
-    this.team = team;
+  // 更新群信息
+  public void updateTeamInfo(V2NIMTeam team) {
     this.showAll = ChatUtils.teamAllowAllMemberAt(team);
   }
 
+  // 设置@文本输入监听
   public void setAitTextChangeListener(AitTextChangeListener listener) {
     this.aitTextChangeListener = listener;
   }
 
+  // 获取群id
   public String getTid() {
     return tid;
   }
 
+  // 获取@成员名称列表
   public List<String> getAitTeamMember() {
-    List<String> aitMembers = aitContactsModel.getAitTeamMember();
+    List<String> aitMembers = atContactsModel.getAtTeamMember();
     for (String account : aitMembers) {
-      if (TextUtils.equals(AitContactsModel.ACCOUNT_ALL, account)) {
+      if (TextUtils.equals(AtContactsModel.ACCOUNT_ALL, account)) {
         aitMembers.clear();
-        aitMembers.add(AitContactsModel.ACCOUNT_ALL);
+        aitMembers.add(AtContactsModel.ACCOUNT_ALL);
         return aitMembers;
       }
     }
     return aitMembers;
   }
 
+  // 重置
   public void reset() {
-    aitContactsModel.reset();
+    atContactsModel.reset();
     ignoreTextChange = false;
     curPos = 0;
   }
 
-  public void setAitContactsModel(AitContactsModel model) {
+  // 设置@数据
+  public void setAitContactsModel(AtContactsModel model) {
     if (model != null) {
-      List<String> accountList = model.getAitTeamMember();
+      List<String> accountList = model.getAtTeamMember();
       for (String account : accountList) {
-        aitContactsModel.addAitBlock(account, model.getAitBlock(account));
+        atContactsModel.addAtBlock(account, model.getAtBlock(account));
       }
     }
   }
 
+  // 获取@数据，转换为Json格式，放在消息体扩展字段中
   public JSONObject getAitData() {
-    return aitContactsModel.getBlockJson();
+    return atContactsModel.getBlockJson();
   }
 
-  public AitContactsModel getAitContactsModel() {
-    return aitContactsModel;
+  // 设置@数据，从消息体扩展字段中解析
+  public AtContactsModel getAitContactsModel() {
+    return atContactsModel;
   }
 
   @Override
@@ -154,56 +163,87 @@ public class AitManager implements TextWatcher {
       if (deleteSegment(before, count)) {
         return;
       }
-      aitContactsModel.onDeleteText(before, count);
+      atContactsModel.onDeleteText(before, count);
     } else {
       if (count <= 0 || editable.length() < start + count) {
         return;
       }
       CharSequence s = editable.subSequence(start, start + count);
+      // 输入@符号，拉起@成员选择器
       if (s.toString().equals("@") && !TextUtils.isEmpty(tid)) {
-
-        AitContactSelectorDialog dialog = new AitContactSelectorDialog(mContext);
-        dialog.setUIStyle(uiStyle);
-        dialog.setData(teamMemberList, false, canAtAll());
-        dialog.setOnItemSelectListener(
-            item -> {
-              if (item == null) {
-                // ait all
-                insertAitMemberInner(
-                    AitContactsModel.ACCOUNT_ALL,
-                    mContext.getString(R.string.chat_team_ait_all),
-                    curPos,
-                    false);
-              } else {
-                UserInfo userInfo = item.getUserInfo();
-                if (userInfo != null) {
+        if (aitDialog == null) {
+          aitDialog = new AitContactSelectorDialog(mContext);
+        }
+        aitDialog.setUIStyle(uiStyle);
+        aitDialog.setOnItemListener(
+            new AitContactSelectorDialog.ItemListener() {
+              // 选择@成员
+              @Override
+              public void onSelect(TeamMemberWithUserInfo item) {
+                if (item == null) {
+                  // ait all
                   insertAitMemberInner(
-                      userInfo.getAccount(), ChatUserCache.getAitName(item), curPos, false);
+                      AtContactsModel.ACCOUNT_ALL,
+                      mContext.getString(R.string.chat_team_ait_all),
+                      curPos,
+                      false);
+                } else {
+                  V2NIMUser userInfo = item.getUserInfo();
+                  if (userInfo != null) {
+                    insertAitMemberInner(
+                        userInfo.getAccountId(),
+                        ChatUserCache.getInstance().getAitName(item),
+                        curPos,
+                        false);
+                  }
                 }
               }
+
+              // 加载更多
+              @Override
+              public void onLoadMore() {}
             });
-        dialog.show();
-        if (fetchNewInfo) {
-          ChatRepo.queryTeamMemberList(
-              tid,
-              true,
-              new FetchCallbackImpl<List<UserInfoWithTeam>>() {
-                @Override
-                public void onSuccess(@Nullable List<UserInfoWithTeam> param) {
-                  if (param != null) {
-                    setTeamMembers(param);
-                  }
-                  if (dialog.isShowing()) {
-                    dialog.setData(teamMemberList, true);
-                  }
-                }
-              });
+        if (!aitDialog.isShowing()) {
+          aitDialog.show();
         }
+        // 加载数据，则请求数据进行异步加载
+        loadData(aitDialog);
       }
-      aitContactsModel.onInsertText(start, s.toString());
+      atContactsModel.onInsertText(start, s.toString());
     }
   }
 
+  // 加载数据，请求群成员列表
+  public void loadData(AitContactSelectorDialog dialog) {
+    //如果已经拉取了所有成员，则使用缓存，直接展示
+    if (ChatUserCache.getInstance().haveLoadAllTeamMembers) {
+      if (dialog.isShowing()) {
+        dialog.setData(
+            ChatUserCache.getInstance().getAllMemberWithoutCurrentUser(), true, canAtAll());
+      }
+      return;
+    }
+    //拉取所有成员并展示
+    TeamRepo.queryAllTeamMemberListWithUserInfo(
+        tid,
+        new FetchCallback<>() {
+          @Override
+          public void onSuccess(@Nullable List<TeamMemberWithUserInfo> data) {
+            if (data != null && !data.isEmpty()) {
+              setTeamMembers(data);
+            }
+            if (dialog.isShowing()) {
+              dialog.setData(
+                  ChatUserCache.getInstance().getAllMemberWithoutCurrentUser(), true, canAtAll());
+            }
+          }
+
+          @Override
+          public void onError(int errorCode, @Nullable String errorMsg) {}
+        });
+  }
+
+  // 插入@成员
   public void insertReplyAit(String account, String name) {
     insertAitMemberInner(account, name, curPos, true);
   }
@@ -218,10 +258,10 @@ public class AitManager implements TextWatcher {
     }
     ignoreTextChange = false;
 
-    aitContactsModel.onInsertText(start, content);
+    atContactsModel.onInsertText(start, content);
 
     int index = needInsertAitInText ? start : start - 1;
-    aitContactsModel.addAitMember(account, name, index);
+    atContactsModel.addAtMember(account, name, index);
   }
 
   private boolean deleteSegment(int start, int count) {
@@ -229,7 +269,7 @@ public class AitManager implements TextWatcher {
       return false;
     }
     boolean result = false;
-    AitBlock.AitSegment segment = aitContactsModel.findAitSegmentByEndPos(start);
+    AitBlock.AitSegment segment = atContactsModel.findAtSegmentByEndPos(start);
     if (segment != null) {
       int length = start - segment.start;
       ignoreTextChange = true;
@@ -237,19 +277,20 @@ public class AitManager implements TextWatcher {
         aitTextChangeListener.onTextDelete(segment.start, length);
       }
       ignoreTextChange = false;
-      aitContactsModel.onDeleteText(start, length);
+      atContactsModel.onDeleteText(start, length);
       result = true;
     }
     return result;
   }
 
   private boolean canAtAll() {
-    TeamMember teamMember = ChatUserCache.getTeamMember(IMKitClient.account());
+    V2NIMTeamMember teamMember =
+        ChatUserCache.getInstance().getTeamMemberOnly(IMKitClient.account());
     if (teamMember == null) {
-      teamMember = curTeamMember;
+      teamMember = ChatUserCache.getInstance().getCurTeamMember();
     }
     return showAll
-        || teamMember.getType() == TeamMemberType.Owner
-        || teamMember.getType() == TeamMemberType.Manager;
+        || teamMember.getMemberRole() == V2NIMTeamMemberRole.V2NIM_TEAM_MEMBER_ROLE_OWNER
+        || teamMember.getMemberRole() == V2NIMTeamMemberRole.V2NIM_TEAM_MEMBER_ROLE_MANAGER;
   }
 }

@@ -4,17 +4,23 @@
 
 package com.netease.yunxin.kit.contactkit.ui.model;
 
-import com.netease.yunxin.kit.corekit.im.model.FriendInfo;
+import com.netease.nimlib.sdk.search.model.RecordHitInfo;
+import com.netease.yunxin.kit.chatkit.model.HitType;
+import com.netease.yunxin.kit.corekit.im2.model.UserWithFriend;
 import java.util.Objects;
 
 /** data bean for friend */
 public class ContactFriendBean extends BaseContactBean {
 
-  public FriendInfo data;
+  public UserWithFriend data;
 
   public boolean isSelected;
 
-  public ContactFriendBean(FriendInfo data) {
+  //搜索相关
+  public HitType hitType = HitType.None;
+  public RecordHitInfo recordHitInfo = null;
+
+  public ContactFriendBean(UserWithFriend data) {
     this.data = data;
     weight = ContactBeanWeight.BASE_WEIGHT;
     viewType = IViewTypeConstant.CONTACT_FRIEND;

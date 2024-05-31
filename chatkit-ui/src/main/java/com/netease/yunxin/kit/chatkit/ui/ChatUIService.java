@@ -4,18 +4,22 @@
 
 package com.netease.yunxin.kit.chatkit.ui;
 
-import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.KEY_MESSAGE_CONTENT;
-import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.KEY_REMOTE_EXTENSION;
-import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.KEY_SESSION_ID;
-import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.KEY_SESSION_TYPE;
-import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.PATH_CHAT_AIT_NOTIFY_ACTION;
-import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.PATH_CHAT_SEND_TEAM_TIP_ACTION;
-import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.PATH_CHAT_SEND_TEXT_ACTION;
+import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.KEY_MESSAGE_CONTENT;
+import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.KEY_REMOTE_EXTENSION;
+import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.KEY_SESSION_ID;
+import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.KEY_SESSION_TYPE;
+import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.PATH_CHAT_AIT_NOTIFY_ACTION;
+import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.PATH_CHAT_SEND_TEAM_TIP_ACTION;
+import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.PATH_CHAT_SEND_TEXT_ACTION;
 
 import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
+import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
+import com.netease.nimlib.sdk.v2.message.V2NIMMessage;
+import com.netease.nimlib.sdk.v2.message.V2NIMMessageCreator;
+import com.netease.nimlib.sdk.v2.message.result.V2NIMSendMessageResult;
+import com.netease.nimlib.sdk.v2.utils.V2NIMConversationIdUtil;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.ChatService;
 import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
@@ -28,6 +32,7 @@ import com.netease.yunxin.kit.chatkit.ui.fun.page.FunChatReaderActivity;
 import com.netease.yunxin.kit.chatkit.ui.fun.page.FunChatSearchActivity;
 import com.netease.yunxin.kit.chatkit.ui.fun.page.FunChatSettingActivity;
 import com.netease.yunxin.kit.chatkit.ui.fun.page.FunChatTeamActivity;
+import com.netease.yunxin.kit.chatkit.ui.fun.page.FunCollectionActivity;
 import com.netease.yunxin.kit.chatkit.ui.normal.page.ChatForwardActivity;
 import com.netease.yunxin.kit.chatkit.ui.normal.page.ChatP2PActivity;
 import com.netease.yunxin.kit.chatkit.ui.normal.page.ChatPinActivity;
@@ -35,12 +40,14 @@ import com.netease.yunxin.kit.chatkit.ui.normal.page.ChatReaderActivity;
 import com.netease.yunxin.kit.chatkit.ui.normal.page.ChatSearchActivity;
 import com.netease.yunxin.kit.chatkit.ui.normal.page.ChatSettingActivity;
 import com.netease.yunxin.kit.chatkit.ui.normal.page.ChatTeamActivity;
-import com.netease.yunxin.kit.chatkit.ui.page.LocationPageActivity;
+import com.netease.yunxin.kit.chatkit.ui.normal.page.CollectionActivity;
+import com.netease.yunxin.kit.chatkit.ui.normal.page.CollectionDetailActivity;
 import com.netease.yunxin.kit.chatkit.ui.view.ait.AitService;
 import com.netease.yunxin.kit.chatkit.ui.view.emoji.EmojiManager;
-import com.netease.yunxin.kit.corekit.im.IMKitClient;
-import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
-import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
+import com.netease.yunxin.kit.corekit.im2.IMKitClient;
+import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
+import com.netease.yunxin.kit.corekit.im2.extend.ProgressFetchCallback;
+import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.model.ErrorMsg;
 import com.netease.yunxin.kit.corekit.model.ResultInfo;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
@@ -72,18 +79,20 @@ public class ChatUIService extends ChatService {
     XKitRouter.registerRouter(RouterConstant.PATH_CHAT_P2P_PAGE, ChatP2PActivity.class);
     XKitRouter.registerRouter(RouterConstant.PATH_CHAT_TEAM_PAGE, ChatTeamActivity.class);
     XKitRouter.registerRouter(RouterConstant.PATH_CHAT_SEARCH_PAGE, ChatSearchActivity.class);
-    XKitRouter.registerRouter(RouterConstant.PATH_CHAT_LOCATION_PAGE, LocationPageActivity.class);
     XKitRouter.registerRouter(RouterConstant.PATH_CHAT_PIN_PAGE, ChatPinActivity.class);
     XKitRouter.registerRouter(RouterConstant.PATH_CHAT_SETTING_PAGE, ChatSettingActivity.class);
     XKitRouter.registerRouter(RouterConstant.PATH_CHAT_ACK_PAGE, ChatReaderActivity.class);
     XKitRouter.registerRouter(RouterConstant.PATH_CHAT_FORWARD_PAGE, ChatForwardActivity.class);
+    XKitRouter.registerRouter(RouterConstant.PATH_COLLECTION_PAGE, CollectionActivity.class);
+    XKitRouter.registerRouter(
+        RouterConstant.PATH_COLLECTION_DETAIL_PAGE, CollectionDetailActivity.class);
 
     // fun
     XKitRouter.registerRouter(RouterConstant.PATH_FUN_CHAT_P2P_PAGE, FunChatP2PActivity.class);
     XKitRouter.registerRouter(RouterConstant.PATH_FUN_CHAT_TEAM_PAGE, FunChatTeamActivity.class);
     XKitRouter.registerRouter(
         RouterConstant.PATH_FUN_CHAT_SEARCH_PAGE, FunChatSearchActivity.class);
-    XKitRouter.registerRouter(RouterConstant.PATH_CHAT_LOCATION_PAGE, LocationPageActivity.class);
+
     XKitRouter.registerRouter(RouterConstant.PATH_FUN_CHAT_PIN_PAGE, FunChatPinActivity.class);
     XKitRouter.registerRouter(
         RouterConstant.PATH_FUN_CHAT_READER_PAGE, FunChatReaderActivity.class);
@@ -91,6 +100,7 @@ public class ChatUIService extends ChatService {
         RouterConstant.PATH_FUN_CHAT_SETTING_PAGE, FunChatSettingActivity.class);
     XKitRouter.registerRouter(
         RouterConstant.PATH_FUN_CHAT_FORWARD_PAGE, FunChatForwardActivity.class);
+    XKitRouter.registerRouter(RouterConstant.PATH_FUN_COLLECTION_PAGE, FunCollectionActivity.class);
 
     // ===通用逻辑初始化===
     // 注册自定义消息类型
@@ -102,7 +112,7 @@ public class ChatUIService extends ChatService {
     registerSendTeamTips();
     registerAitNotifyTrigger();
     registerSendText();
-    IMKitClient.registerInitService(new ChatUIInitService());
+    IMKitClient.addInitService(new ChatUIInitService());
     return this;
   }
 
@@ -131,37 +141,26 @@ public class ChatUIService extends ChatService {
                   extension,
                   false,
                   messageTime,
-                  new FetchCallback<Void>() {
+                  new FetchCallback<>() {
                     @Override
-                    public void onSuccess(@Nullable Void param) {
+                    public void onError(int errorCode, @Nullable String errorMsg) {
+                      if (observer != null) {
+                        observer.onResult(
+                            new ResultInfo<>(null, false, new ErrorMsg(errorCode, errorMsg)));
+                      }
+                      ALog.e(
+                          ChatKitUIConstant.LIB_TAG,
+                          TAG,
+                          "sendTeamTipWithoutUnreadExt onError:" + errorCode);
+                    }
+
+                    @Override
+                    public void onSuccess(@Nullable V2NIMMessage data) {
                       if (observer != null) {
                         observer.onResult(new ResultInfo<>(null, true));
                       }
                       ALog.d(
                           ChatKitUIConstant.LIB_TAG, TAG, "sendTeamTipWithoutUnreadExt onSuccess");
-                    }
-
-                    @Override
-                    public void onFailed(int code) {
-                      if (observer != null) {
-                        observer.onResult(new ResultInfo<>(null, false, new ErrorMsg(code)));
-                      }
-                      ALog.e(
-                          ChatKitUIConstant.LIB_TAG,
-                          TAG,
-                          "sendTeamTipWithoutUnreadExt onFailed:" + code);
-                    }
-
-                    @Override
-                    public void onException(@Nullable Throwable exception) {
-                      if (observer != null) {
-                        observer.onResult(
-                            new ResultInfo<>(null, false, new ErrorMsg(-1, null, exception)));
-                      }
-                      ALog.e(
-                          ChatKitUIConstant.LIB_TAG,
-                          TAG,
-                          "sendTeamTipWithoutUnreadExt onException:" + exception.getMessage());
                     }
                   });
               return true;
@@ -187,16 +186,30 @@ public class ChatUIService extends ChatService {
             (value, params, observer) -> {
               String sessionId = params.get(KEY_SESSION_ID).toString();
               String content = params.get(KEY_MESSAGE_CONTENT).toString();
-              SessionTypeEnum sessionType =
-                  SessionTypeEnum.typeOfValue((int) params.get(KEY_SESSION_TYPE));
-              ChatRepo.sendTextMessage(
-                  sessionId,
-                  sessionType,
-                  content,
-                  true,
-                  new FetchCallback<Void>() {
+              V2NIMConversationType sessionType =
+                  V2NIMConversationType.typeOfValue((int) params.get(KEY_SESSION_TYPE));
+              V2NIMMessage textMessage = V2NIMMessageCreator.createTextMessage(content);
+              String conversationId =
+                  V2NIMConversationIdUtil.conversationId(sessionId, sessionType);
+              ChatRepo.sendMessage(
+                  textMessage,
+                  conversationId,
+                  null,
+                  new ProgressFetchCallback<>() {
                     @Override
-                    public void onSuccess(@Nullable Void param) {
+                    public void onError(int errorCode, @NonNull String errorMsg) {
+                      if (observer != null) {
+                        observer.onResult(
+                            new ResultInfo<>(null, false, new ErrorMsg(errorCode, errorMsg)));
+                      }
+                      ALog.e(
+                          ChatKitUIConstant.LIB_TAG,
+                          TAG,
+                          "sendTeamTipWithoutUnreadExt onError:" + errorCode);
+                    }
+
+                    @Override
+                    public void onSuccess(@Nullable V2NIMSendMessageResult data) {
                       if (observer != null) {
                         observer.onResult(new ResultInfo<>(null, true));
                       }
@@ -205,26 +218,8 @@ public class ChatUIService extends ChatService {
                     }
 
                     @Override
-                    public void onFailed(int code) {
-                      if (observer != null) {
-                        observer.onResult(new ResultInfo<>(null, false, new ErrorMsg(code)));
-                      }
-                      ALog.e(
-                          ChatKitUIConstant.LIB_TAG,
-                          TAG,
-                          "sendTeamTipWithoutUnreadExt onFailed:" + code);
-                    }
-
-                    @Override
-                    public void onException(@Nullable Throwable exception) {
-                      if (observer != null) {
-                        observer.onResult(
-                            new ResultInfo<>(null, false, new ErrorMsg(-1, null, exception)));
-                      }
-                      ALog.e(
-                          ChatKitUIConstant.LIB_TAG,
-                          TAG,
-                          "sendTeamTipWithoutUnreadExt onException:" + exception.getMessage());
+                    public void onProgress(int progress) {
+                      //do nothing
                     }
                   });
               return true;

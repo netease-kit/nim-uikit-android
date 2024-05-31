@@ -5,8 +5,7 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="com.netease.yunxin.kit.contactkit.ui">
+    xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 
@@ -112,6 +111,12 @@
             android:name=".fun.search.FunSearchActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
+        <activity android:name=".normal.selector.forward.ForwardSelectorActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+        <activity android:name=".fun.selector.forward.FunForwardSelectorActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
 
     </application>
 

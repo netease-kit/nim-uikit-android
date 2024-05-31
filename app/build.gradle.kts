@@ -8,14 +8,14 @@ plugins {
 }
 
 android {
-    compileSdk = 33
+    compileSdk = 34
+    namespace = "com.netease.yunxin.app.im"
 
     defaultConfig {
         applicationId = "com.netease.yunxin.app.im"
         minSdk = 21
-        targetSdk = 33
         versionCode = 1
-        versionName = "9.7.0"
+        versionName = "10.1.1"
         multiDexEnabled = true
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -29,23 +29,20 @@ android {
 
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
-    packagingOptions {
-        jniLibs.pickFirsts.add("lib/arm64-v8a/libc++_shared.so")
-        jniLibs.pickFirsts.add("lib/armeabi-v7a/libc++_shared.so")
-    }
 }
 
 dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar","*.aar"))))
-    implementation("androidx.appcompat:appcompat:1.4.2")
-    implementation("com.google.android.material:material:1.5.0")
+    implementation("androidx.appcompat:appcompat:1.6.1")
+    implementation("com.google.android.material:material:1.11.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation("androidx.multidex:multidex:2.0.1")
     //local module code
@@ -55,25 +52,25 @@ dependencies {
 //    implementation(project(":chatkit-ui"))
 //    implementation(project(":locationkit"))
 
-    implementation("com.netease.yunxin.kit.contact:contactkit-ui:9.7.0")
-    implementation("com.netease.yunxin.kit.conversation:conversationkit-ui:9.7.0")
-    implementation("com.netease.yunxin.kit.team:teamkit-ui:9.7.0")
-    implementation("com.netease.yunxin.kit.chat:chatkit-ui:9.7.0")
-    implementation("com.netease.yunxin.kit.locationkit:locationkit:9.7.0")
+    implementation("com.netease.yunxin.kit.contact:contactkit-ui:10.1.1")
+    implementation("com.netease.yunxin.kit.conversation:conversationkit-ui:10.1.1")
+    implementation("com.netease.yunxin.kit.team:teamkit-ui:10.1.1")
+    implementation("com.netease.yunxin.kit.chat:chatkit-ui:10.1.1")
+    implementation("com.netease.yunxin.kit.locationkit:locationkit:10.1.1")
     implementation("com.netease.yunxin.kit.call:call-ui:2.2.0") //呼叫组件 UI 包
-    implementation("com.netease.nimlib:avsignalling:9.14.2") //信令组件
-    implementation("com.airbnb.android:lottie:5.0.3")
+    implementation("com.netease.nimlib:avsignalling:10.2.5-beta") //信令组件
+    implementation("com.airbnb.android:lottie:6.3.0")
     implementation("com.github.bumptech.glide:glide:4.13.1")
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation("com.squareup.retrofit2:converter-scalars:2.9.0")
-    implementation("com.squareup.okhttp3:okhttp:4.9.3")
-    implementation("com.huawei.hms:push:6.3.0.302")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("com.huawei.hms:push:6.10.0.300")
     implementation("com.meizu.flyme.internet:push-internal:4.1.0")
-    implementation("com.huawei.agconnect:agconnect-core:1.6.5.300")
+    implementation("com.huawei.agconnect:agconnect-core:1.7.2.300")
 
-    implementation("com.google.code.gson:gson:2.9.0")
-    implementation("commons-codec:commons-codec:1.10")
-    implementation("androidx.annotation:annotation:1.3.0")
+    implementation("com.google.code.gson:gson:2.10.1")
+    implementation("commons-codec:commons-codec:1.11")
+    implementation("androidx.annotation:annotation:1.7.1")
 
 }

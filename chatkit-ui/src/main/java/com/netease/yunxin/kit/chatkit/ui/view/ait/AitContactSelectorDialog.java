@@ -10,8 +10,9 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
-import com.netease.yunxin.kit.chatkit.model.UserInfoWithTeam;
+import com.netease.yunxin.kit.chatkit.model.TeamMemberWithUserInfo;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatMessageAitSelectorDialogBinding;
 import com.netease.yunxin.kit.chatkit.ui.page.adapter.AitContactAdapter;
@@ -23,7 +24,9 @@ import java.util.List;
 public class AitContactSelectorDialog extends BottomSheetDialog {
   private final ChatMessageAitSelectorDialogBinding binding;
   private AitContactAdapter adapter;
-  private AitContactAdapter.OnItemSelectListener listener;
+  private ItemListener listener;
+
+  private LinearLayoutManager layoutManager;
 
   //展示风格，0:办公风格 1:新版本
   private int uiStyle = 0;
@@ -52,9 +55,10 @@ public class AitContactSelectorDialog extends BottomSheetDialog {
 
   private void initViews() {
     binding.contactArrowIcon.setOnClickListener(v -> dismiss());
-    binding.contactList.setLayoutManager(new LinearLayoutManager(getContext()));
+    layoutManager = new LinearLayoutManager(getContext());
+    binding.contactList.setLayoutManager(layoutManager);
     adapter = new AitContactAdapter();
-    adapter.setOnItemSelectListener(
+    adapter.setOnItemListener(
         item -> {
           if (listener != null) {
             listener.onSelect(item);
@@ -62,6 +66,24 @@ public class AitContactSelectorDialog extends BottomSheetDialog {
           dismiss();
         });
     binding.contactList.setAdapter(adapter);
+    binding.contactList.addOnScrollListener(
+        new RecyclerView.OnScrollListener() {
+          @Override
+          public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+            super.onScrollStateChanged(recyclerView, newState);
+            if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+              int position = layoutManager.findLastVisibleItemPosition();
+              if (listener != null && adapter.getItemCount() < position + 5) {
+                listener.onLoadMore();
+              }
+            }
+          }
+
+          @Override
+          public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+            super.onScrolled(recyclerView, dx, dy);
+          }
+        });
   }
 
   private void switchStyle() {
@@ -82,22 +104,33 @@ public class AitContactSelectorDialog extends BottomSheetDialog {
     }
   }
 
-  public void setData(List<UserInfoWithTeam> data, boolean refresh) {
+  public void setData(List<TeamMemberWithUserInfo> data, boolean refresh) {
     adapter.setMembers(data);
     if (refresh) {
-      adapter.notifyItemRangeChanged(0, adapter.getItemCount());
+      adapter.notifyDataSetChanged();
     }
   }
 
-  public void setData(List<UserInfoWithTeam> data, boolean refresh, boolean showAll) {
+  public void addData(List<TeamMemberWithUserInfo> data) {
+    adapter.addMembers(data);
+    adapter.notifyItemRangeInserted(adapter.getItemCount() - data.size(), data.size());
+  }
+
+  public void setData(List<TeamMemberWithUserInfo> data, boolean refresh, boolean showAll) {
     adapter.setShowAll(showAll);
     adapter.setMembers(data);
     if (refresh) {
-      adapter.notifyItemRangeChanged(0, adapter.getItemCount());
+      adapter.notifyDataSetChanged();
     }
   }
 
-  public void setOnItemSelectListener(AitContactAdapter.OnItemSelectListener listener) {
+  public void setOnItemListener(ItemListener listener) {
     this.listener = listener;
+  }
+
+  public static class ItemListener {
+    public void onSelect(TeamMemberWithUserInfo item) {}
+
+    public void onLoadMore() {}
   }
 }

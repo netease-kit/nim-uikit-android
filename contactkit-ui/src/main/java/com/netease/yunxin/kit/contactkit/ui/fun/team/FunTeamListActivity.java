@@ -17,7 +17,7 @@ import com.netease.yunxin.kit.contactkit.ui.model.IViewTypeConstant;
 import com.netease.yunxin.kit.contactkit.ui.team.BaseTeamListActivity;
 import com.netease.yunxin.kit.contactkit.ui.team.TeamListViewModel;
 import com.netease.yunxin.kit.contactkit.ui.view.viewholder.BaseContactViewHolder;
-import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
+import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 
 public class FunTeamListActivity extends BaseTeamListActivity {
@@ -51,7 +51,7 @@ public class FunTeamListActivity extends BaseTeamListActivity {
                   data -> {
                     if (isSelector) {
                       Intent result = new Intent();
-                      result.putExtra(RouterConstant.KEY_TEAM_ID, data.data.getId());
+                      result.putExtra(RouterConstant.KEY_TEAM_ID, data.data.getTeamId());
                       setResult(RESULT_OK, result);
                       finish();
                     } else {

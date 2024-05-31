@@ -17,21 +17,22 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
+import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
 import com.netease.yunxin.kit.common.ui.widgets.ContentListPopView;
 import com.netease.yunxin.kit.common.ui.widgets.TitleBarView;
 import com.netease.yunxin.kit.common.utils.SizeUtils;
 import com.netease.yunxin.kit.conversationkit.ui.ConversationKitClient;
 import com.netease.yunxin.kit.conversationkit.ui.ConversationUIConfig;
-import com.netease.yunxin.kit.conversationkit.ui.ConversationUIConstant;
 import com.netease.yunxin.kit.conversationkit.ui.R;
+import com.netease.yunxin.kit.conversationkit.ui.common.ConversationConstant;
 import com.netease.yunxin.kit.conversationkit.ui.databinding.FunConversationFragmentBinding;
 import com.netease.yunxin.kit.conversationkit.ui.fun.FunPopItemFactory;
 import com.netease.yunxin.kit.conversationkit.ui.fun.FunViewHolderFactory;
 import com.netease.yunxin.kit.conversationkit.ui.page.ConversationBaseFragment;
-import com.netease.yunxin.kit.corekit.im.IMKitClient;
-import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
+import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 
+/** 娱乐版会话列表Fragment, 用于展示娱乐版会话列表 */
 public class FunConversationFragment extends ConversationBaseFragment {
 
   private FunConversationFragmentBinding viewBinding;
@@ -46,6 +47,7 @@ public class FunConversationFragment extends ConversationBaseFragment {
     return viewBinding.getRoot();
   }
 
+  /** 初始化视图，父类处理业务逻辑，需要按照父类使用到的View进行初始化，保证父类业务逻辑正常展示 */
   private void initView() {
     conversationView = viewBinding.conversationView;
     titleBarView = viewBinding.titleBar;
@@ -55,16 +57,19 @@ public class FunConversationFragment extends ConversationBaseFragment {
 
     setViewHolderFactory(new FunViewHolderFactory());
     viewBinding.conversationView.addItemDecoration(getItemDecoration());
+    // 设置标题栏右侧按钮点击事件
     viewBinding.titleBar.setRightImageClick(
         v -> {
+          // 如果配置了自定义的右侧按钮点击事件，则执行自定义的点击事件
           if (ConversationKitClient.getConversationUIConfig() != null
               && ConversationKitClient.getConversationUIConfig().titleBarRightClick != null) {
             ConversationKitClient.getConversationUIConfig().titleBarRightClick.onClick(v);
             return;
           }
-          if (IMKitClient.getConfigCenter().getTeamEnable()) {
+          // 组件支持是否使用群的配置，如果关闭则相关群的功能都不在展示
+          if (IMKitConfigCenter.getTeamEnable()) {
             Context context = getContext();
-            int memberLimit = ConversationUIConstant.MAX_TEAM_MEMBER;
+            int memberLimit = ConversationConstant.MAX_TEAM_MEMBER;
             ContentListPopView contentListPopView =
                 new ContentListPopView.Builder(context)
                     .addItem(FunPopItemFactory.getAddFriendItem(context))
@@ -78,12 +83,14 @@ public class FunConversationFragment extends ConversationBaseFragment {
             contentListPopView.showAsDropDown(
                 v, (int) requireContext().getResources().getDimension(R.dimen.pop_margin_right), 0);
           } else {
+            // 如果关闭则只展示添加好友的功能，跳转到添加好友页面
             XKitRouter.withKey(RouterConstant.PATH_FUN_ADD_FRIEND_PAGE)
                 .withContext(requireContext())
                 .navigate();
           }
         });
 
+    // 设置搜索按钮点击事件
     viewBinding.searchLayout.setOnClickListener(
         v -> {
           if (ConversationKitClient.getConversationUIConfig() != null
@@ -128,6 +135,7 @@ public class FunConversationFragment extends ConversationBaseFragment {
     };
   }
 
+  /** 加载UI配置，主要根据支持的个性化UI配置ConversationUIConfig，加载外部配置的UI特性 */
   private void loadUIConfig() {
     if (ConversationKitClient.getConversationUIConfig() == null) {
       return;
@@ -140,10 +148,6 @@ public class FunConversationFragment extends ConversationBaseFragment {
             config.titleBarLeftClick.onClick(v);
           }
         });
-
-    if (config.conversationComparator != null) {
-      setComparator(config.conversationComparator);
-    }
 
     if (config.conversationFactory != null) {
       setViewHolderFactory(config.conversationFactory);
@@ -182,34 +186,70 @@ public class FunConversationFragment extends ConversationBaseFragment {
     }
   }
 
+  /**
+   * 获取标题栏
+   *
+   * @return 标题栏
+   */
   public TitleBarView getTitleBar() {
     return viewBinding.titleBar;
   }
 
+  /**
+   * 获取顶部布局
+   *
+   * @return 顶部布局
+   */
   public LinearLayout getTopLayout() {
     return viewBinding.topLayout;
   }
 
+  /**
+   * 获取主体布局
+   *
+   * @return 主体布局
+   */
   public LinearLayout getBodyLayout() {
     return viewBinding.bodyLayout;
   }
 
+  /**
+   * 获取底部布局
+   *
+   * @return 底部布局
+   */
   public FrameLayout getBottomLayout() {
     return viewBinding.bottomLayout;
   }
 
+  /**
+   * 获取主体顶部布局的顶部布局 如果需要再会话列表和标题之间添加一些UI，可以使用此布局
+   *
+   * @return 主体顶部布局
+   */
   public FrameLayout getBodyTopLayout() {
     return viewBinding.bodyTopLayout;
   }
 
+  /**
+   * 获取展示错误信息的TextView 当前断网的错误信息展示在此TextView上
+   *
+   * @return 主体底部布局
+   */
   public TextView getErrorTextView() {
     return viewBinding.errorTv;
   }
 
+  /** 设置空布局是否可见 */
   public void setEmptyViewVisible(int visible) {
     viewBinding.emptyLayout.setVisibility(visible);
   }
 
+  /**
+   * 获取空布局 当会话列表为空时，展示此布局。当前空布局包含文本和图片
+   *
+   * @return 空布局
+   */
   public View getEmptyView() {
     return viewBinding.emptyLayout;
   }

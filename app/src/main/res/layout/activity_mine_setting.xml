@@ -154,7 +154,7 @@
             android:layout_width="match_parent"
             android:layout_height="@dimen/dimen_46_dp">
 
-            <TextView
+            <TextView android:id="@+id/msgReadTv"
                 android:layout_width="wrap_content"
                 android:layout_height="@dimen/dimen_46_dp"
                 android:gravity="center"

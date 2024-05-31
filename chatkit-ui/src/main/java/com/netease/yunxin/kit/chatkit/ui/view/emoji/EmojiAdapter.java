@@ -48,7 +48,7 @@ public class EmojiAdapter extends BaseAdapter {
     int count = EmojiManager.getDisplayCount();
     int index = startIndex + position;
     if (position == EmojiView.EMOJI_PER_PAGE || index == count) {
-      viewBinding.ivEmoji.setBackgroundResource(R.drawable.ic_emoji_del);
+      viewBinding.ivEmoji.setBackgroundResource(R.drawable.ic_chat_emoji_del);
     } else if (index < count) {
       viewBinding.ivEmoji.setBackground(EmojiManager.getDisplayDrawable(context, index));
     }

@@ -13,7 +13,7 @@ import com.netease.yunxin.kit.common.utils.SizeUtils;
 import com.netease.yunxin.kit.contactkit.ui.R;
 import com.netease.yunxin.kit.contactkit.ui.databinding.FunUserInfoActivityLayoutBinding;
 import com.netease.yunxin.kit.contactkit.ui.userinfo.BaseUserInfoActivity;
-import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
+import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 
 public class FunUserInfoActivity extends BaseUserInfoActivity {
@@ -49,14 +49,14 @@ public class FunUserInfoActivity extends BaseUserInfoActivity {
                 Toast.makeText(this, R.string.contact_network_error_tip, Toast.LENGTH_SHORT).show();
                 return;
               }
-              viewModel.deleteFriend(userInfoData.data.getAccount());
+              viewModel.deleteFriend(userInfoData.data.getAccountId());
               finish();
             });
   }
 
   protected void goChat() {
     XKitRouter.withKey(RouterConstant.PATH_FUN_CHAT_P2P_PAGE)
-        .withParam(RouterConstant.CHAT_ID_KRY, userInfoData.data.getAccount())
+        .withParam(RouterConstant.CHAT_ID_KRY, userInfoData.data.getAccountId())
         .withContext(FunUserInfoActivity.this)
         .navigate();
     finish();

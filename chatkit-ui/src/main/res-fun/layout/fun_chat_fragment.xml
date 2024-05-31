@@ -5,7 +5,7 @@
   ~ found in the LICENSE file.
   -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -15,5 +15,18 @@
         android:id="@+id/chatView"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
+    <FrameLayout android:id="@+id/chatInvalidTipLayout"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dimen_60_dp"
+        android:layout_gravity="bottom"
+        android:background="@color/color_eef1f4"
+        android:visibility="gone"
+        >
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/chat_team_error_tip_content"/>
+    </FrameLayout>
 
-</LinearLayout>
+</FrameLayout>

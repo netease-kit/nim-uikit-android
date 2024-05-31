@@ -5,10 +5,10 @@
 package com.netease.yunxin.kit.chatkit.ui.interfaces;
 
 import android.view.View;
-import com.netease.nimlib.sdk.msg.attachment.MsgAttachment;
-import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
+import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import java.io.File;
+import java.util.Map;
 
 /** handle message event in Chat page */
 public interface IMessageProxy {
@@ -24,9 +24,9 @@ public interface IMessageProxy {
 
   boolean sendFile();
 
-  boolean sendAudio(File audioFile, long audioLength, ChatMessageBean replyMsg);
+  boolean sendAudio(File audioFile, int audioLength, ChatMessageBean replyMsg);
 
-  boolean sendCustomMessage(MsgAttachment attachment, String content);
+  boolean sendCustomMessage(Map<String, Object> attachment, String content);
 
   void onTypeStateChange(boolean isTyping);
 
@@ -44,7 +44,7 @@ public interface IMessageProxy {
 
   void audioCall();
 
-  String getSessionId();
+  String getConversationId();
 
-  SessionTypeEnum getSessionType();
+  V2NIMConversationType getConversationType();
 }

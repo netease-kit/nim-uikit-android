@@ -11,7 +11,7 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import com.netease.nimlib.sdk.msg.model.MsgThreadOption;
+import com.netease.nimlib.sdk.v2.message.V2NIMMessageRefer;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.ui.R;
@@ -25,11 +25,12 @@ import com.netease.yunxin.kit.chatkit.ui.view.message.viewholder.options.CommonU
 import com.netease.yunxin.kit.chatkit.ui.view.message.viewholder.options.MessageStatusUIOption;
 import com.netease.yunxin.kit.chatkit.ui.view.message.viewholder.options.ReplayUIOption;
 import com.netease.yunxin.kit.chatkit.ui.view.message.viewholder.options.RevokeUIOption;
+import com.netease.yunxin.kit.common.ui.utils.ToastX;
+import com.netease.yunxin.kit.common.utils.NetworkUtils;
 import com.netease.yunxin.kit.common.utils.SizeUtils;
-import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
-import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
+import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
+import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
-import java.util.List;
 
 public class NormalChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
   private static final String TAG = "NormalChatBaseMessageViewHolder";
@@ -181,21 +182,26 @@ public class NormalChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
       return;
     }
     baseViewBinding.messageTopGroup.removeAllViews();
-    ALog.w(TAG, TAG, "setReplyInfo, uuid=" + messageBean.getMessageData().getMessage().getUuid());
+    ALog.w(
+        TAG,
+        TAG,
+        "setReplyInfo, uuid=" + messageBean.getMessageData().getMessage().getMessageClientId());
     if (messageBean.hasReply()) {
       //自定义回复实现
       addReplayViewToTopGroup();
-      String replyUuid = messageBean.getReplyUUid();
-      if (!TextUtils.isEmpty(replyUuid)) {
+      V2NIMMessageRefer refer = messageBean.getReplyMessage();
+      if (refer != null) {
         MessageHelper.getReplyMessageInfo(
-            replyUuid,
-            new FetchCallback<List<IMMessageInfo>>() {
+            refer,
+            new FetchCallback<>() {
               @Override
-              public void onSuccess(@Nullable List<IMMessageInfo> param) {
-                replyMessage = null;
-                if (param != null && param.size() > 0) {
-                  replyMessage = param.get(0);
-                }
+              public void onError(int errorCode, @Nullable String errorMsg) {
+                baseViewBinding.messageTopGroup.removeAllViews();
+              }
+
+              @Override
+              public void onSuccess(@Nullable IMMessageInfo param) {
+                replyMessage = param;
                 String content = "| " + MessageHelper.getReplyContent(replyMessage);
                 MessageHelper.identifyFaceExpression(
                     replayBinding.tvReply.getContext(),
@@ -203,16 +209,6 @@ public class NormalChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
                     content,
                     ImageSpan.ALIGN_BOTTOM);
                 updateReplayInfoLayoutWidth(messageBean);
-              }
-
-              @Override
-              public void onFailed(int code) {
-                baseViewBinding.messageTopGroup.removeAllViews();
-              }
-
-              @Override
-              public void onException(@Nullable Throwable exception) {
-                baseViewBinding.messageTopGroup.removeAllViews();
               }
             });
       }
@@ -242,35 +238,47 @@ public class NormalChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
           messageStatusUIOption.readProcessClickListener);
     } else {
       baseViewBinding.readProcess.setOnClickListener(
-          v ->
-              XKitRouter.withKey(RouterConstant.PATH_CHAT_ACK_PAGE)
-                  .withParam(RouterConstant.KEY_MESSAGE, data.getMessageData().getMessage())
-                  .withContext(v.getContext())
-                  .navigate());
+          v -> {
+            if (!NetworkUtils.isConnected()) {
+              ToastX.showShortToast(R.string.chat_network_error_tip);
+              return;
+            }
+            XKitRouter.withKey(RouterConstant.PATH_CHAT_ACK_PAGE)
+                .withParam(RouterConstant.KEY_MESSAGE, data.getMessageData().getMessage())
+                .withContext(v.getContext())
+                .navigate();
+          });
     }
   }
 
   /// 内部设置 thread 回复消息
   private void setThreadReplyInfo(ChatMessageBean messageBean) {
-    MsgThreadOption threadOption = messageBean.getMessageData().getMessage().getThreadOption();
-    String replyFrom = threadOption.getReplyMsgFromAccount();
+    //todo 回复Thread消息，need recheck
+    V2NIMMessageRefer threadOption = messageBean.getMessageData().getMessage().getThreadReply();
+    String replyFrom = threadOption.getSenderId();
     if (TextUtils.isEmpty(replyFrom)) {
       ALog.w(
           TAG,
-          "no reply message found, uuid=" + messageBean.getMessageData().getMessage().getUuid());
+          "no reply message found, uuid="
+              + messageBean.getMessageData().getMessage().getMessageClientId());
       baseViewBinding.messageTopGroup.removeAllViews();
       return;
     }
     addReplayViewToTopGroup();
 
-    String replyUuid = threadOption.getReplyMsgIdClient();
+    V2NIMMessageRefer refer = threadOption;
     MessageHelper.getReplyMessageInfo(
-        replyUuid,
-        new FetchCallback<List<IMMessageInfo>>() {
+        refer,
+        new FetchCallback<>() {
           @Override
-          public void onSuccess(@Nullable List<IMMessageInfo> param) {
-            if (param != null && param.size() > 0) {
-              replyMessage = param.get(0);
+          public void onError(int errorCode, @Nullable String errorMsg) {
+            replayBinding.tvReply.setVisibility(View.GONE);
+          }
+
+          @Override
+          public void onSuccess(@Nullable IMMessageInfo param) {
+            if (param != null) {
+              replyMessage = param;
               String content = "| " + MessageHelper.getReplyContent(replyMessage);
               MessageHelper.identifyFaceExpression(
                   replayBinding.tvReply.getContext(),
@@ -279,16 +287,6 @@ public class NormalChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
                   ImageSpan.ALIGN_BOTTOM);
               updateReplayInfoLayoutWidth(messageBean);
             }
-          }
-
-          @Override
-          public void onFailed(int code) {
-            replayBinding.tvReply.setVisibility(View.GONE);
-          }
-
-          @Override
-          public void onException(@Nullable Throwable exception) {
-            replayBinding.tvReply.setVisibility(View.GONE);
           }
         });
 

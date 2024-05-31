@@ -4,14 +4,14 @@
 
 package com.netease.yunxin.kit.chatkit.ui.fun.view.message;
 
+import static com.netease.yunxin.kit.chatkit.ui.ChatMessageType.AUDIO_MESSAGE_VIEW_TYPE;
 import static com.netease.yunxin.kit.chatkit.ui.ChatMessageType.CALL_MESSAGE_VIEW_TYPE;
+import static com.netease.yunxin.kit.chatkit.ui.ChatMessageType.FILE_MESSAGE_VIEW_TYPE;
+import static com.netease.yunxin.kit.chatkit.ui.ChatMessageType.IMAGE_MESSAGE_VIEW_TYPE;
 import static com.netease.yunxin.kit.chatkit.ui.ChatMessageType.LOCATION_MESSAGE_VIEW_TYPE;
-import static com.netease.yunxin.kit.chatkit.ui.ChatMessageType.NORMAL_MESSAGE_VIEW_TYPE_AUDIO;
-import static com.netease.yunxin.kit.chatkit.ui.ChatMessageType.NORMAL_MESSAGE_VIEW_TYPE_FILE;
-import static com.netease.yunxin.kit.chatkit.ui.ChatMessageType.NORMAL_MESSAGE_VIEW_TYPE_IMAGE;
-import static com.netease.yunxin.kit.chatkit.ui.ChatMessageType.NORMAL_MESSAGE_VIEW_TYPE_VIDEO;
 import static com.netease.yunxin.kit.chatkit.ui.ChatMessageType.NOTICE_MESSAGE_VIEW_TYPE;
 import static com.netease.yunxin.kit.chatkit.ui.ChatMessageType.TIP_MESSAGE_VIEW_TYPE;
+import static com.netease.yunxin.kit.chatkit.ui.ChatMessageType.VIDEO_MESSAGE_VIEW_TYPE;
 
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
@@ -57,17 +57,17 @@ public abstract class ChatMessageViewHolderFactory implements IChatFactory {
     ChatBaseMessageViewHolderBinding viewHolderBinding =
         ChatBaseMessageViewHolderBinding.inflate(
             LayoutInflater.from(parent.getContext()), parent, false);
-    if (viewType == NORMAL_MESSAGE_VIEW_TYPE_AUDIO) {
+    if (viewType == AUDIO_MESSAGE_VIEW_TYPE) {
       viewHolder = new ChatAudioMessageViewHolder(viewHolderBinding, viewType);
-    } else if (viewType == NORMAL_MESSAGE_VIEW_TYPE_IMAGE) {
+    } else if (viewType == IMAGE_MESSAGE_VIEW_TYPE) {
       viewHolder = new ChatImageMessageViewHolder(viewHolderBinding, viewType);
-    } else if (viewType == NORMAL_MESSAGE_VIEW_TYPE_VIDEO) {
+    } else if (viewType == VIDEO_MESSAGE_VIEW_TYPE) {
       viewHolder = new ChatVideoMessageViewHolder(viewHolderBinding, viewType);
     } else if (viewType == NOTICE_MESSAGE_VIEW_TYPE) {
       viewHolder = new ChatNotificationMessageViewHolder(viewHolderBinding, viewType);
     } else if (viewType == TIP_MESSAGE_VIEW_TYPE) {
       viewHolder = new ChatTipsMessageViewHolder(viewHolderBinding, viewType);
-    } else if (viewType == NORMAL_MESSAGE_VIEW_TYPE_FILE) {
+    } else if (viewType == FILE_MESSAGE_VIEW_TYPE) {
       viewHolder = new ChatFileMessageViewHolder(viewHolderBinding, viewType);
     } else if (viewType == LOCATION_MESSAGE_VIEW_TYPE) {
       viewHolder = new ChatLocationMessageViewHolder(viewHolderBinding, viewType);

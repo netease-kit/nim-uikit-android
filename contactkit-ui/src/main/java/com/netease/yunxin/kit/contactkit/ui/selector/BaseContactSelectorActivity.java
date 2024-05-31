@@ -4,8 +4,8 @@
 
 package com.netease.yunxin.kit.contactkit.ui.selector;
 
-import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.KEY_REQUEST_SELECTOR_NAME;
-import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.REQUEST_CONTACT_SELECTOR_KEY;
+import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.KEY_REQUEST_SELECTOR_NAME;
+import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.REQUEST_CONTACT_SELECTOR_KEY;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -28,7 +28,7 @@ import com.netease.yunxin.kit.contactkit.ui.interfaces.ContactActions;
 import com.netease.yunxin.kit.contactkit.ui.model.ContactFriendBean;
 import com.netease.yunxin.kit.contactkit.ui.model.IViewTypeConstant;
 import com.netease.yunxin.kit.contactkit.ui.view.ContactListView;
-import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
+import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -90,7 +90,7 @@ public abstract class BaseContactSelectorActivity extends BaseActivity {
         IViewTypeConstant.CONTACT_FRIEND,
         (selector, data) -> {
           if (selector) {
-            if (selectedListAdapter.getItemCount() >= maxSelectCount
+            if (selectedListAdapter.getItemCount() > maxSelectCount
                 && !selectFinalCheckCountEnable) {
               Toast.makeText(
                       this,
@@ -159,7 +159,7 @@ public abstract class BaseContactSelectorActivity extends BaseActivity {
                     .show();
                 return;
               }
-              if (selectedListAdapter.getItemCount() >= maxSelectCount
+              if (selectedListAdapter.getItemCount() > maxSelectCount
                   && selectFinalCheckCountEnable) {
                 Toast.makeText(this, R.string.contact_selector_over_count, Toast.LENGTH_LONG)
                     .show();
@@ -200,7 +200,7 @@ public abstract class BaseContactSelectorActivity extends BaseActivity {
                 showEmptyView(accountList == null || accountList.size() < 1);
               }
             });
-    viewModel.fetchContactList();
+    viewModel.fetchContactList(true);
   }
 
   protected void showEmptyView(boolean show) {

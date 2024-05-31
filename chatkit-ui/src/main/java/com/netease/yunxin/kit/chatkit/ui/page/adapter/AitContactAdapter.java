@@ -8,33 +8,38 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-import com.netease.nimlib.sdk.uinfo.model.NimUserInfo;
-import com.netease.yunxin.kit.chatkit.model.UserInfoWithTeam;
+import com.netease.yunxin.kit.chatkit.model.TeamMemberWithUserInfo;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatUserCache;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatMessageAitContactViewHolderBinding;
 import com.netease.yunxin.kit.common.ui.utils.AvatarColor;
+import java.util.ArrayList;
 import java.util.List;
 
 /** Team member @ adapter */
 public class AitContactAdapter extends RecyclerView.Adapter<AitContactAdapter.AitContactHolder> {
 
-  private List<UserInfoWithTeam> members;
-  private OnItemSelectListener listener;
+  private List<TeamMemberWithUserInfo> members = new ArrayList<>();
+  private OnItemListener listener;
 
   private AitContactConfig contactConfig;
 
   private boolean showAll = true;
 
-  public void setMembers(List<UserInfoWithTeam> userInfoWithTeams) {
-    this.members = userInfoWithTeams;
+  public void setMembers(List<TeamMemberWithUserInfo> userInfoWithTeams) {
+    this.members.clear();
+    this.members.addAll(userInfoWithTeams);
+  }
+
+  public void addMembers(List<TeamMemberWithUserInfo> userInfoWithTeams) {
+    this.members.addAll(userInfoWithTeams);
   }
 
   public void setShowAll(boolean showAll) {
     this.showAll = showAll;
   }
 
-  public void setOnItemSelectListener(OnItemSelectListener listener) {
+  public void setOnItemListener(OnItemListener listener) {
     this.listener = listener;
   }
 
@@ -82,17 +87,14 @@ public class AitContactAdapter extends RecyclerView.Adapter<AitContactAdapter.Ai
       dataPosition = position - 1;
     }
 
-    UserInfoWithTeam member = members.get(dataPosition);
+    TeamMemberWithUserInfo member = members.get(dataPosition);
     if (member == null) {
       return;
     }
-    String showName = ChatUserCache.getName(member);
+    String showName = ChatUserCache.getInstance().getName(member);
     holder.binding.contactName.setText(showName);
-    NimUserInfo userInfo = ChatUserCache.getUserInfo(member);
-    if (userInfo != null) {
-      holder.binding.contactHeader.setData(
-          userInfo.getAvatar(), showName, AvatarColor.avatarColor(userInfo.getAccount()));
-    }
+    holder.binding.contactHeader.setData(
+        member.getAvatar(), showName, AvatarColor.avatarColor(member.getAccountId()));
     holder
         .binding
         .getRoot()
@@ -123,9 +125,9 @@ public class AitContactAdapter extends RecyclerView.Adapter<AitContactAdapter.Ai
     }
   }
 
-  public interface OnItemSelectListener {
+  public interface OnItemListener {
     /** @param item null: @All */
-    void onSelect(UserInfoWithTeam item);
+    void onSelect(TeamMemberWithUserInfo item);
   }
 
   public static class AitContactConfig {

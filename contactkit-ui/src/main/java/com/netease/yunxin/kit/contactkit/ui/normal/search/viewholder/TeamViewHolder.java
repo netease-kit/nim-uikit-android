@@ -36,9 +36,9 @@ public class TeamViewHolder extends BaseViewHolder<SearchTeamBean> {
     if (data != null) {
       searchInfo = data.teamSearchInfo;
       viewBinding.cavUserIcon.setData(
-          searchInfo.getTeam().getIcon(),
+          searchInfo.getTeam().getAvatar(),
           searchInfo.getTeam().getName(),
-          AvatarColor.avatarColor(searchInfo.getTeam().getId()));
+          AvatarColor.avatarColor(searchInfo.getTeam().getTeamId()));
       viewBinding.tvNickName.setText(
           getSelectSpanText(searchInfo.getTeam().getName(), searchInfo.getHitInfo()));
       viewBinding.tvNickName.setVisibility(View.VISIBLE);

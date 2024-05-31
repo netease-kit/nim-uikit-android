@@ -28,7 +28,7 @@ public class FunReaderViewHolder extends BaseViewHolder<ChatReadUserBean> {
   @Override
   public void onBindData(ChatReadUserBean data, int position) {
     if (data != null) {
-      String name = MessageHelper.getTeamMemberDisplayName(data.teamId, data.userInfo);
+      String name = MessageHelper.getTeamReaderDisplayName(data.userInfo.getAccount());
       viewBinding.avatar.setData(
           data.userInfo.getAvatar(), name, AvatarColor.avatarColor(data.userInfo.getAccount()));
       viewBinding.nickname.setText(name);
