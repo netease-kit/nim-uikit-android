@@ -22,7 +22,7 @@ import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.common.ui.widgets.BackTitleBar;
 import com.netease.yunxin.kit.common.utils.NetworkUtils;
 import com.netease.yunxin.kit.contactkit.ui.R;
-import com.netease.yunxin.kit.contactkit.ui.v2model.V2ContactUserInfoBean;
+import com.netease.yunxin.kit.contactkit.ui.model.ContactUserInfoBean;
 import com.netease.yunxin.kit.contactkit.ui.view.ContactInfoView;
 import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
 import com.netease.yunxin.kit.corekit.im2.model.FriendVerifyType;
@@ -33,7 +33,7 @@ import java.util.Objects;
 
 public abstract class BaseUserInfoActivity extends BaseActivity {
   protected UserInfoViewModel viewModel;
-  protected V2ContactUserInfoBean userInfoData;
+  protected ContactUserInfoBean userInfoData;
   protected String accId;
 
   private View rootView;

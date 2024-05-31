@@ -12,12 +12,17 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
 import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessage;
+import com.netease.nimlib.sdk.v2.message.V2NIMMessageRefer;
+import com.netease.nimlib.sdk.v2.message.V2NIMMessageReferBuilder;
 import com.netease.nimlib.sdk.v2.message.V2NIMTeamMessageReadReceipt;
 import com.netease.nimlib.sdk.v2.team.V2NIMTeamListener;
+import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamType;
 import com.netease.nimlib.sdk.v2.team.model.V2NIMTeam;
 import com.netease.nimlib.sdk.v2.team.model.V2NIMTeamMember;
 import com.netease.nimlib.sdk.v2.user.V2NIMUser;
+import com.netease.nimlib.sdk.v2.utils.V2NIMConversationIdUtil;
 import com.netease.yunxin.kit.alog.ALog;
+import com.netease.yunxin.kit.chatkit.ChatConstants;
 import com.netease.yunxin.kit.chatkit.impl.TeamListenerImpl;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.model.TeamMemberWithUserInfo;
@@ -26,6 +31,7 @@ import com.netease.yunxin.kit.chatkit.repo.ContactRepo;
 import com.netease.yunxin.kit.chatkit.repo.TeamRepo;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatUserCache;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
+import com.netease.yunxin.kit.chatkit.ui.model.TopStickyMessage;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.corekit.event.EventCenter;
@@ -41,6 +47,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /** Team chat info view model team message receipt, team member info for Team chat page */
 public class ChatTeamViewModel extends ChatBaseViewModel {
@@ -53,6 +61,8 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
   private final MutableLiveData<V2NIMTeam> teamLiveData = new MutableLiveData<>();
   private final MutableLiveData<FetchResult<List<TeamMemberWithUserInfo>>> teamMemberChangeData =
       new MutableLiveData<>();
+
+  private final MutableLiveData<IMMessageInfo> topMessageLiveData = new MutableLiveData<>();
   private boolean myDismiss = false;
 
   private final V2UserListener userListener =
@@ -83,6 +93,7 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
           ALog.d(LIB_TAG, TAG, "onTeamInfoUpdated:");
           if (team != null && TextUtils.equals(team.getTeamId(), mChatAccountId)) {
             teamLiveData.setValue(team);
+            handleTopMessage(team);
           }
         }
 
@@ -207,16 +218,17 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
       //查询自己在群里的信息
       TeamRepo.getTeamMember(
           mChatAccountId,
+          V2NIMTeamType.V2NIM_TEAM_TYPE_NORMAL,
           Objects.requireNonNull(IMKitClient.account()),
           new FetchCallback<>() {
             @Override
             public void onError(int errorCode, @Nullable String errorMsg) {
-              ALog.d(LIB_TAG, TAG, "getTeamMember,onError:" + errorCode);
+              ALog.d(LIB_TAG, TAG, "init getTeamMember,onError:" + errorCode);
             }
 
             @Override
             public void onSuccess(@Nullable V2NIMTeamMember data) {
-              ALog.d(LIB_TAG, TAG, "getTeamMember,onSuccess:" + (data == null));
+              ALog.d(LIB_TAG, TAG, "init getTeamMember,onSuccess:" + (data == null));
               ChatUserCache.getInstance().setCurTeamMember(data);
             }
           });
@@ -226,7 +238,10 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
   @Override
   protected void onTeamMessageReadReceipts(List<V2NIMTeamMessageReadReceipt> readReceipts) {
     super.onTeamMessageReadReceipts(readReceipts);
-    ALog.d(LIB_TAG, TAG, "messageReceipt:" + (readReceipts == null ? "null" : readReceipts.size()));
+    ALog.d(
+        LIB_TAG,
+        TAG,
+        "onTeamMessageReadReceipts:" + (readReceipts == null ? "null" : readReceipts.size()));
     FetchResult<List<V2NIMTeamMessageReadReceipt>> receiptResult =
         new FetchResult<>(LoadStatus.Finish);
     receiptResult.setData(readReceipts);
@@ -253,6 +268,12 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
         }
       };
 
+  /** 发送解散群聊事件 如果进入该群，发现该群已被解散，发送解散群聊事件，用于通知会话列表界面更新 */
+  public void sendTeamDismissEvent() {
+    ALog.d(LIB_TAG, TAG, "sendTeamDismissEvent:" + mChatAccountId);
+    EventCenter.notifyEvent(new TeamEvent(mChatAccountId, TeamEventAction.ACTION_DISMISS));
+  }
+
   public MutableLiveData<FetchResult<List<V2NIMTeamMessageReadReceipt>>>
       getTeamMessageReceiptLiveData() {
     return teamMessageReceiptLiveData;
@@ -260,6 +281,10 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
 
   public MutableLiveData<FetchResult<List<TeamMemberWithUserInfo>>> getTeamMemberChangeData() {
     return teamMemberChangeData;
+  }
+
+  public MutableLiveData<IMMessageInfo> getTopMessageLiveData() {
+    return topMessageLiveData;
   }
 
   public boolean isMyDismiss() {
@@ -278,7 +303,7 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
     for (ChatMessageBean messageBean : messageBeans) {
       messages.add(messageBean.getMessageData().getMessage());
     }
-    ChatRepo.refreshTeamMessageReceipt(messages);
+    ChatRepo.getTeamMessageReceipts(messages);
   }
 
   /** team info change live data */
@@ -309,26 +334,27 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
     if (message != null && message.getMessageConfig().isReadReceiptEnabled() && showRead) {
       List<V2NIMMessage> msgList = new ArrayList<>();
       msgList.add(message);
-      ChatRepo.markTeamMessagesRead(msgList);
+      ChatRepo.markTeamMessagesRead(msgList, null);
     }
   }
 
-  public void requestTeamInfo() {
-    ALog.d(LIB_TAG, TAG, "requestTeamInfo:" + mChatAccountId);
+  public void getTeamInfo() {
+    ALog.d(LIB_TAG, TAG, "getTeamInfo:" + mChatAccountId);
     TeamRepo.getTeamInfo(
         mChatAccountId,
         new FetchCallback<>() {
           @Override
           public void onSuccess(@Nullable V2NIMTeam param) {
-            ALog.d(LIB_TAG, TAG, "sendReceipt,onSuccess:" + (param == null));
+            ALog.d(LIB_TAG, TAG, "getTeamInfo,onSuccess:" + (param == null));
             teamLiveData.setValue(param);
+            handleTopMessage(param);
             ChatUserCache.getInstance().setCurrentTeam(param);
             ChatRepo.setCurrentTeam(param);
           }
 
           @Override
           public void onError(int errorCode, @Nullable String errorMsg) {
-            ALog.d(LIB_TAG, TAG, "sendReceipt,onError:" + errorCode);
+            ALog.d(LIB_TAG, TAG, "getTeamInfo,onError:" + errorCode);
           }
         });
   }
@@ -336,24 +362,29 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
   @Override
   protected void getTeamMemberInfoWithMessage(List<IMMessageInfo> messages) {
     super.getTeamMemberInfoWithMessage(messages);
+    ALog.d(
+        LIB_TAG,
+        TAG,
+        "getTeamMemberInfoWithMessage:" + (messages == null ? "null" : messages.size()));
     Set<String> memberIds = new HashSet<>();
     for (IMMessageInfo message : messages) {
       memberIds.add(message.getMessage().getSenderId());
     }
     List<String> userIds = new ArrayList<>(memberIds);
     userIds.add(IMKitClient.account());
-    TeamRepo.getTeamMemberListWithUserIds(
+    TeamRepo.getTeamMemberListWithUserInfoByIds(
         mChatAccountId,
+        V2NIMTeamType.V2NIM_TEAM_TYPE_NORMAL,
         userIds,
         new FetchCallback<>() {
           @Override
           public void onError(int errorCode, @Nullable String errorMsg) {
-            ALog.d(LIB_TAG, TAG, "fetchTeamMemberInfoWithMessage,onError:" + errorCode);
+            ALog.d(LIB_TAG, TAG, "getTeamMemberInfoWithMessage,onError:" + errorCode);
           }
 
           @Override
           public void onSuccess(@Nullable List<TeamMemberWithUserInfo> data) {
-            ALog.d(LIB_TAG, TAG, "fetchTeamMemberInfoWithMessage,onSuccess:" + (data == null));
+            ALog.d(LIB_TAG, TAG, "getTeamMemberInfoWithMessage,onSuccess:" + (data == null));
             ChatUserCache.getInstance().addTeamMembersCache(data);
             FetchResult<List<TeamMemberWithUserInfo>> result = new FetchResult<>(LoadStatus.Finish);
             result.setData(data);
@@ -365,5 +396,190 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
 
   public boolean hasLoadMessage() {
     return hasLoadMessage;
+  }
+
+  /**
+   * 处理置顶消息
+   *
+   * @param team 群信息
+   */
+  public void handleTopMessage(V2NIMTeam team) {
+    if (team == null || TextUtils.isEmpty(team.getServerExtension())) {
+      return;
+    }
+    ALog.d(LIB_TAG, TAG, "handleTopMessage:" + team.getTeamId());
+    try {
+      JSONObject jsonTeam = new JSONObject(team.getServerExtension());
+      if (ChatConstants.KEY_EXTENSION_STICKY.equals(
+          jsonTeam.getString(ChatConstants.KEY_EXTENSION_LAST_OPT_TYPE))) {
+        JSONObject jsonSticky = jsonTeam.getJSONObject(ChatConstants.KEY_EXTENSION_STICKY);
+        int operation = jsonSticky.getInt(ChatConstants.KEY_STICKY_MESSAGE_OPERATION);
+        TopStickyMessage topStickyMessage = TopStickyMessage.fromJson(jsonSticky);
+        if (topStickyMessage != null && ChatConstants.TYPE_EXTENSION_STICKY_ADD == operation) {
+          //添加置顶消息
+          getTopStickyMessage(topStickyMessage);
+        } else if (ChatConstants.TYPE_EXTENSION_STICKY_REMOVE == operation) {
+          //移除置顶消息
+          topMessageLiveData.postValue(null);
+          ChatUserCache.getInstance().removeTopMessage();
+        }
+      }
+    } catch (JSONException e) {
+      ALog.e(LIB_TAG, TAG, "handleTopMessage json error:" + e);
+    }
+  }
+
+  /**
+   * 根据置顶信息获取IM 消息
+   *
+   * @param topMessage 置顶信息
+   */
+  private void getTopStickyMessage(TopStickyMessage topMessage) {
+    V2NIMMessageRefer refer =
+        V2NIMMessageReferBuilder.builder()
+            .withMessageClientId(topMessage.getIdClient())
+            .withMessageServerId(topMessage.getIdServer())
+            .withConversationId(topMessage.getTo())
+            .withConversationType(topMessage.getConversationType())
+            .withSenderId(topMessage.getFrom())
+            .withReceiverId(V2NIMConversationIdUtil.conversationTargetId(topMessage.getTo()))
+            .withCreateTime(topMessage.getTime())
+            .build();
+    ALog.d(LIB_TAG, TAG, "getTopStickyMessage:" + topMessage.getIdClient());
+    List<V2NIMMessageRefer> refers = new ArrayList<>();
+    refers.add(refer);
+    ChatRepo.getMessageListByRefers(
+        refers,
+        new FetchCallback<List<IMMessageInfo>>() {
+          @Override
+          public void onError(int errorCode, @Nullable String errorMsg) {
+            ALog.d(LIB_TAG, TAG, "getTopStickyMessage,onError:" + errorCode);
+          }
+
+          @Override
+          public void onSuccess(@Nullable List<IMMessageInfo> data) {
+            ALog.d(LIB_TAG, TAG, "getTopStickyMessage,onSuccess:" + (data == null));
+            if (data != null && data.size() > 0) {
+              ChatUserCache.getInstance().setTopMessage(data.get(0));
+              topMessageLiveData.postValue(data.get(0));
+            }
+          }
+        });
+  }
+
+  /**
+   * 添加置顶消息
+   *
+   * @param message 消息
+   */
+  public void addStickyMessage(V2NIMMessage message) {
+    try {
+      //添加置顶消息的类容
+      JSONObject jsonMessage = new JSONObject();
+      jsonMessage.put(ChatConstants.KEY_STICKY_MESSAGE_CLIENT_ID, message.getMessageClientId());
+      jsonMessage.put(ChatConstants.KEY_STICKY_MESSAGE_TIME, message.getCreateTime());
+      jsonMessage.put(
+          ChatConstants.KEY_STICKY_MESSAGE_SCENE, message.getConversationType().getValue());
+      jsonMessage.put(ChatConstants.KEY_STICKY_MESSAGE_FROM, message.getSenderId());
+      jsonMessage.put(ChatConstants.KEY_STICKY_MESSAGE_TO, message.getConversationId());
+      jsonMessage.put(ChatConstants.KEY_STICKY_MESSAGE_SERVER_ID, message.getMessageServerId());
+      jsonMessage.put(ChatConstants.KEY_STICKY_MESSAGE_OPERATOR, IMKitClient.account());
+      jsonMessage.put(
+          ChatConstants.KEY_STICKY_MESSAGE_OPERATION, ChatConstants.TYPE_EXTENSION_STICKY_ADD);
+
+      V2NIMTeam team = teamLiveData.getValue();
+      if (team != null) {
+        String teamExtension = team.getServerExtension();
+        JSONObject jsonTeam = new JSONObject();
+        if (!TextUtils.isEmpty(teamExtension)) {
+          jsonTeam = new JSONObject(teamExtension);
+        }
+        jsonTeam.put(ChatConstants.KEY_EXTENSION_STICKY, jsonMessage);
+        jsonTeam.put(ChatConstants.KEY_EXTENSION_LAST_OPT_TYPE, ChatConstants.KEY_EXTENSION_STICKY);
+        teamExtension = jsonTeam.toString();
+        TeamRepo.updateTeamExtension(
+            team.getTeamId(),
+            V2NIMTeamType.V2NIM_TEAM_TYPE_NORMAL,
+            teamExtension,
+            new FetchCallback<Void>() {
+              @Override
+              public void onSuccess(@Nullable Void param) {
+                ALog.d(LIB_TAG, TAG, "addStickyMessage,onSuccess");
+              }
+
+              @Override
+              public void onError(int errorCode, @NonNull String errorMsg) {
+                ALog.d(LIB_TAG, TAG, "addStickyMessage,onFailed:" + errorCode);
+              }
+            });
+      }
+
+    } catch (JSONException e) {
+      ALog.e(LIB_TAG, TAG, "addStickyMessage json error:" + e);
+    }
+  }
+
+  @Override
+  protected void setSentMessageReadCount(IMMessageInfo message) {
+    if (message.getMessage().getConversationType()
+        == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_TEAM) {
+      message.setReadCount(0);
+      if (teamLiveData.getValue() != null) {
+        message.setUnReadCount(teamLiveData.getValue().getMemberCount());
+      } else {
+        message.setUnReadCount(0);
+      }
+    }
+  }
+
+  /** 移除置顶消息 */
+  public void removeStickyMessage() {
+    try {
+      //添加置顶消息的类容
+      JSONObject jsonMessage = new JSONObject();
+      IMMessageInfo topMessage = ChatUserCache.getInstance().getTopMessage();
+      if (topMessage != null) {
+        jsonMessage.put(
+            ChatConstants.KEY_STICKY_MESSAGE_CLIENT_ID,
+            topMessage.getMessage().getMessageClientId());
+      }
+      jsonMessage.put(ChatConstants.KEY_STICKY_MESSAGE_OPERATOR, IMKitClient.account());
+      jsonMessage.put(
+          ChatConstants.KEY_STICKY_MESSAGE_OPERATION, ChatConstants.TYPE_EXTENSION_STICKY_REMOVE);
+
+      JSONObject jsonSticky = new JSONObject();
+
+      jsonSticky.put(ChatConstants.KEY_EXTENSION_STICKY, jsonMessage);
+
+      V2NIMTeam team = teamLiveData.getValue();
+      if (team != null) {
+        String teamExtension = team.getServerExtension();
+        JSONObject jsonTeam = new JSONObject();
+        if (!TextUtils.isEmpty(teamExtension)) {
+          jsonTeam = new JSONObject(teamExtension);
+        }
+        jsonTeam.put(ChatConstants.KEY_EXTENSION_STICKY, jsonMessage);
+        jsonTeam.put(ChatConstants.KEY_EXTENSION_LAST_OPT_TYPE, ChatConstants.KEY_EXTENSION_STICKY);
+        teamExtension = jsonTeam.toString();
+        TeamRepo.updateTeamExtension(
+            team.getTeamId(),
+            V2NIMTeamType.V2NIM_TEAM_TYPE_NORMAL,
+            teamExtension,
+            new FetchCallback<Void>() {
+              @Override
+              public void onSuccess(@Nullable Void param) {
+                ALog.d(LIB_TAG, TAG, "addStickyMessage,onSuccess");
+              }
+
+              @Override
+              public void onError(int errorCode, @NonNull String errorMsg) {
+                ALog.d(LIB_TAG, TAG, "addStickyMessage,onFailed:" + errorCode);
+              }
+            });
+      }
+
+    } catch (JSONException e) {
+      ALog.e(LIB_TAG, TAG, "addStickyMessage json error:" + e);
+    }
   }
 }

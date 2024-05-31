@@ -7,7 +7,6 @@ package com.netease.yunxin.kit.locationkit;
 import android.text.TextUtils;
 
 public class ChatMapUtils {
-  public static String AMAP_SERVER_KEY = "78c0eb6bff7db9ed52e07ca7051a97a3";
   public static String AMPS_SERVER_URL =
       "https://restapi.amap.com/v3/staticmap?" + "location=%s,%s&zoom=15&size=500*200&key=%s";
 

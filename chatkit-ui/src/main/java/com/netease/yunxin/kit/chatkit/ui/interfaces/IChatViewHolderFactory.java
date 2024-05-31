@@ -6,11 +6,10 @@ package com.netease.yunxin.kit.chatkit.ui.interfaces;
 
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
-import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 
-public interface IChatViewHolderFactory {
+public interface IChatViewHolderFactory<T> {
 
   ChatBaseViewHolder createViewHolder(@NonNull ViewGroup parent, int viewType);
 
-  int getItemViewType(ChatMessageBean messageBean);
+  int getItemViewType(T messageBean);
 }

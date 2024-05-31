@@ -95,7 +95,7 @@ public class ChatSettingViewModel extends BaseViewModel {
     String conversationId =
         V2NIMConversationIdUtil.conversationId(
             accountId, V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P);
-    ConversationRepo.getConversationById(
+    ConversationRepo.getConversation(
         conversationId,
         new FetchCallback<>() {
           @Override
@@ -147,7 +147,7 @@ public class ChatSettingViewModel extends BaseViewModel {
     String conversationId =
         V2NIMConversationIdUtil.conversationId(
             accountId, V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P);
-    ConversationRepo.stickTop(
+    ConversationRepo.setStickTop(
         conversationId,
         isStickTop,
         new FetchCallback<>() {

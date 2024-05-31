@@ -6,6 +6,7 @@ package com.netease.yunxin.kit.chatkit.ui.impl;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
 import com.netease.nimlib.sdk.v2.message.V2NIMClearHistoryNotification;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessage;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessageDeletedNotification;
@@ -13,14 +14,14 @@ import com.netease.nimlib.sdk.v2.message.V2NIMMessagePinNotification;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessageQuickCommentNotification;
 import com.netease.nimlib.sdk.v2.message.V2NIMP2PMessageReadReceipt;
 import com.netease.nimlib.sdk.v2.message.V2NIMTeamMessageReadReceipt;
+import com.netease.yunxin.kit.chatkit.listener.ChatListener;
+import com.netease.yunxin.kit.chatkit.listener.MessageRevokeNotification;
+import com.netease.yunxin.kit.chatkit.listener.MessageUpdateType;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
-import com.netease.yunxin.kit.chatkit.observer.MessageListener;
-import com.netease.yunxin.kit.chatkit.observer.MessageRevokeNotification;
-import com.netease.yunxin.kit.chatkit.observer.MessageUpdateType;
 import java.util.List;
 
 /** 消息监听实现类 */
-public class MessageObserverImpl implements MessageListener {
+public class MessageObserverImpl implements ChatListener {
   @Override
   public void onReceiveMessages(@NonNull List<IMMessageInfo> messages) {}
 
@@ -57,4 +58,15 @@ public class MessageObserverImpl implements MessageListener {
   @Override
   public void onMessageDeletedNotifications(
       @NonNull List<? extends V2NIMMessageDeletedNotification> messages) {}
+
+  @Override
+  public void onSendMessage(@NonNull V2NIMMessage message) {}
+
+  @Override
+  public void onSendMessageFailed(
+      int errorCode,
+      @NonNull String errorMsg,
+      @NonNull String conversationId,
+      @NonNull V2NIMConversationType conversationType,
+      @Nullable V2NIMMessage data) {}
 }

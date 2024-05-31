@@ -17,10 +17,8 @@ import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatUserCache;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatUtils;
 import com.netease.yunxin.kit.chatkit.ui.custom.MultiForwardAttachment;
-import com.netease.yunxin.kit.chatkit.ui.dialog.ChatBaseForwardSelectDialog;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.normal.ChatMessageForwardConfirmDialog;
-import com.netease.yunxin.kit.chatkit.ui.normal.ChatMessageForwardSelectDialog;
 import com.netease.yunxin.kit.chatkit.ui.normal.factory.PinViewHolderFactory;
 import com.netease.yunxin.kit.chatkit.ui.page.ChatPinBaseActivity;
 import com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants;
@@ -78,20 +76,6 @@ public class ChatPinActivity extends ChatPinBaseActivity {
     };
   }
 
-  // 跳转到P2P选择页面
-  @Override
-  protected void toP2PSelected() {
-    ChatUtils.startP2PSelector(
-        ChatPinActivity.this, RouterConstant.PATH_CONTACT_SELECTOR_PAGE, null, forwardP2PLauncher);
-  }
-
-  // 跳转到群组选择页面
-  @Override
-  protected void toTeamSelected() {
-    ChatUtils.startTeamList(
-        ChatPinActivity.this, RouterConstant.PATH_MY_TEAM_PAGE, forwardTeamLauncher);
-  }
-
   // 点击自定义消息
   @Override
   protected void clickCustomMessage(ChatMessageBean messageBean) {
@@ -106,28 +90,14 @@ public class ChatPinActivity extends ChatPinBaseActivity {
     }
   }
 
-  // 点击转发 弹窗
   @Override
-  protected ChatBaseForwardSelectDialog getForwardSelectDialog() {
-    ChatMessageForwardSelectDialog dialog = new ChatMessageForwardSelectDialog();
-    dialog.setSelectedCallback(
-        new ChatMessageForwardSelectDialog.ForwardTypeSelectedCallback() {
-          @Override
-          public void onTeamSelected() {
-            toTeamSelected();
-          }
-
-          @Override
-          public void onP2PSelected() {
-            toP2PSelected();
-          }
-        });
-    return dialog;
+  protected void goToForwardPage() {
+    ChatUtils.startForwardSelector(
+        this, RouterConstant.PATH_FORWARD_SELECTOR_PAGE, false, forwardLauncher);
   }
 
   @Override
-  protected void showForwardConfirmDialog(
-      V2NIMConversationType type, ArrayList<String> sessionIds) {
+  protected void showForwardConfirmDialog(ArrayList<String> conversationIds) {
     if (forwardMessage == null) {
       return;
     }
@@ -139,13 +109,13 @@ public class ChatPinActivity extends ChatPinBaseActivity {
             : mSessionName;
     ChatMessageForwardConfirmDialog confirmDialog =
         ChatMessageForwardConfirmDialog.createForwardConfirmDialog(
-            type, sessionIds, sendName, true, ActionConstants.POP_ACTION_TRANSMIT);
+            conversationIds, sendName, true, ActionConstants.POP_ACTION_TRANSMIT);
     confirmDialog.setCallback(
         (input) -> {
           if (forwardMessage != null) {
-            for (String accId : sessionIds) {
+            for (String conversationId : conversationIds) {
               viewModel.sendForwardMessage(
-                  forwardMessage.getMessageData().getMessage(), input, accId, type);
+                  forwardMessage.getMessageData().getMessage(), input, conversationId);
             }
           }
         });

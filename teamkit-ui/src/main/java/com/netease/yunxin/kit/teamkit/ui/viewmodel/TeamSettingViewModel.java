@@ -7,12 +7,17 @@ package com.netease.yunxin.kit.teamkit.ui.viewmodel;
 import android.text.TextUtils;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
+import com.netease.nimlib.sdk.v2.V2NIMError;
+import com.netease.nimlib.sdk.v2.auth.enums.V2NIMDataSyncState;
+import com.netease.nimlib.sdk.v2.auth.enums.V2NIMDataSyncType;
 import com.netease.nimlib.sdk.v2.conversation.model.V2NIMConversation;
 import com.netease.nimlib.sdk.v2.setting.enums.V2NIMTeamMessageMuteMode;
+import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamChatBannedMode;
 import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamType;
 import com.netease.nimlib.sdk.v2.team.model.V2NIMTeam;
 import com.netease.nimlib.sdk.v2.utils.V2NIMConversationIdUtil;
 import com.netease.yunxin.kit.alog.ALog;
+import com.netease.yunxin.kit.chatkit.impl.LoginDetailListenerImpl;
 import com.netease.yunxin.kit.chatkit.model.TeamMemberListResult;
 import com.netease.yunxin.kit.chatkit.model.TeamMemberWithUserInfo;
 import com.netease.yunxin.kit.chatkit.repo.ConversationRepo;
@@ -24,6 +29,9 @@ import com.netease.yunxin.kit.corekit.im2.IMKitClient;
 import com.netease.yunxin.kit.corekit.im2.custom.TeamEvent;
 import com.netease.yunxin.kit.corekit.im2.custom.TeamEventAction;
 import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
+import com.netease.yunxin.kit.teamkit.ui.utils.TeamMemberCache;
+import com.netease.yunxin.kit.teamkit.ui.utils.TeamUtils;
+import java.util.List;
 import java.util.Objects;
 
 /** 群相关业务逻辑 提供数据查询接口 提供群变更监听 */
@@ -80,16 +88,41 @@ public class TeamSettingViewModel extends TeamBaseViewModel {
     return stickData;
   }
 
-  public void requestTeamSettingData(String teamId) {
-    ALog.d(LIB_TAG, TAG, "requestTeamSettingData:" + teamId);
-    requestTeamData(teamId);
-    requestTeamMembers(teamId);
-    requestStickAndNotify(teamId);
+  private final LoginDetailListenerImpl loginDetailListener =
+      new LoginDetailListenerImpl() {
+        @Override
+        public void onDataSync(
+            @Nullable V2NIMDataSyncType type,
+            @Nullable V2NIMDataSyncState state,
+            @Nullable V2NIMError error) {
+          if (type == V2NIMDataSyncType.V2NIM_DATA_SYNC_TEAM_MEMBER
+              && state == V2NIMDataSyncState.V2NIM_DATA_SYNC_STATE_COMPLETED) {
+            ALog.d(LIB_TAG, TAG, "loginDetailListener:" + teamId);
+            getSettingPageData();
+          }
+        }
+      };
+
+  @Override
+  public void configTeamId(String teamId) {
+    super.configTeamId(teamId);
+    IMKitClient.addLoginDetailListener(loginDetailListener);
   }
 
-  public void requestStickAndNotify(String teamId) {
+  public void getSettingPageData() {
+    ALog.d(LIB_TAG, TAG, "getSettingPageData:" + teamId);
+    requestTeamData(teamId);
+    getStickAndNotifyData(teamId);
+  }
+
+  /**
+   * 请求置顶和消息提醒状态
+   *
+   * @param teamId 群ID
+   */
+  public void getStickAndNotifyData(String teamId) {
     ALog.d(LIB_TAG, TAG, "requestStickAndNotify:" + teamId);
-    ConversationRepo.getConversationById(
+    ConversationRepo.getConversation(
         V2NIMConversationIdUtil.teamConversationId(teamId),
         new FetchCallback<>() {
           @Override
@@ -128,6 +161,7 @@ public class TeamSettingViewModel extends TeamBaseViewModel {
     ALog.d(LIB_TAG, TAG, "updateName:" + teamId);
     TeamRepo.updateTeamName(
         teamId,
+        V2NIMTeamType.V2NIM_TEAM_TYPE_NORMAL,
         name,
         new FetchCallback<>() {
           @Override
@@ -154,6 +188,7 @@ public class TeamSettingViewModel extends TeamBaseViewModel {
     ALog.d(LIB_TAG, TAG, "updateIntroduce:" + teamId);
     TeamRepo.updateTeamIntroduce(
         teamId,
+        V2NIMTeamType.V2NIM_TEAM_TYPE_NORMAL,
         introduce,
         new FetchCallback<>() {
           @Override
@@ -180,6 +215,7 @@ public class TeamSettingViewModel extends TeamBaseViewModel {
     ALog.d(LIB_TAG, TAG, "updateNickname:" + teamId);
     TeamRepo.updateMemberNick(
         teamId,
+        V2NIMTeamType.V2NIM_TEAM_TYPE_NORMAL,
         Objects.requireNonNull(IMKitClient.account()),
         nickname,
         new FetchCallback<>() {
@@ -207,6 +243,7 @@ public class TeamSettingViewModel extends TeamBaseViewModel {
     ALog.d(LIB_TAG, TAG, "updateIcon:" + teamId);
     TeamRepo.updateTeamIcon(
         teamId,
+        V2NIMTeamType.V2NIM_TEAM_TYPE_NORMAL,
         iconUrl,
         new FetchCallback<>() {
           @Override
@@ -269,6 +306,7 @@ public class TeamSettingViewModel extends TeamBaseViewModel {
             if (!TextUtils.isEmpty(account)) {
               TeamRepo.transferTeam(
                   teamId,
+                  V2NIMTeamType.V2NIM_TEAM_TYPE_NORMAL,
                   account,
                   true,
                   new FetchCallback<Void>() {
@@ -306,6 +344,7 @@ public class TeamSettingViewModel extends TeamBaseViewModel {
     ALog.d(LIB_TAG, TAG, "quitTeam,teamId:" + teamId);
     TeamRepo.leaveTeam(
         teamId,
+        V2NIMTeamType.V2NIM_TEAM_TYPE_NORMAL,
         new FetchCallback<>() {
           @Override
           public void onSuccess(@Nullable Void param) {
@@ -333,13 +372,14 @@ public class TeamSettingViewModel extends TeamBaseViewModel {
    */
   public void dismissTeam(String teamId) {
     ALog.d(LIB_TAG, TAG, "dismissTeam:" + teamId);
-    EventCenter.notifyEvent(new TeamEvent(teamId, TeamEventAction.ACTION_DISMISS));
     TeamRepo.dismissTeam(
         teamId,
+        V2NIMTeamType.V2NIM_TEAM_TYPE_NORMAL,
         new FetchCallback<Void>() {
           @Override
           public void onSuccess(@Nullable Void param) {
             ALog.d(LIB_TAG, TAG, "dismissTeam,onSuccess");
+            EventCenter.notifyEvent(new TeamEvent(teamId, TeamEventAction.ACTION_DISMISS));
             dismissTeamData.setValue(new FetchResult<>(param));
           }
 
@@ -394,7 +434,7 @@ public class TeamSettingViewModel extends TeamBaseViewModel {
       stickData.setValue(new FetchResult<>(-1, ""));
       return;
     }
-    ConversationRepo.stickTop(
+    ConversationRepo.setStickTop(
         V2NIMConversationIdUtil.teamConversationId(teamId),
         stick,
         new FetchCallback<Void>() {
@@ -420,9 +460,14 @@ public class TeamSettingViewModel extends TeamBaseViewModel {
    */
   public void muteTeamAllMember(String teamId, boolean mute) {
     ALog.d(LIB_TAG, TAG, "muteTeamAllMember:" + teamId + "," + mute);
-    TeamRepo.muteAllMembers(
+    V2NIMTeamChatBannedMode bannedMode =
+        mute
+            ? V2NIMTeamChatBannedMode.V2NIM_TEAM_CHAT_BANNED_MODE_BANNED_NORMAL
+            : V2NIMTeamChatBannedMode.V2NIM_TEAM_CHAT_BANNED_MODE_UNBAN;
+    TeamRepo.setTeamChatBannedMode(
         teamId,
-        mute,
+        V2NIMTeamType.V2NIM_TEAM_TYPE_NORMAL,
+        bannedMode,
         new FetchCallback<Void>() {
           @Override
           public void onSuccess(@Nullable Void param) {
@@ -436,5 +481,16 @@ public class TeamSettingViewModel extends TeamBaseViewModel {
             muteTeamAllMemberData.setValue(new FetchResult<>(errorCode, errorMsg));
           }
         });
+  }
+
+  public List<String> getTeamMemberIds() {
+    List<TeamMemberWithUserInfo> teamMembers = TeamMemberCache.Instance().getTeamMemberList(teamId);
+    return TeamUtils.getAccIdListFromInfoList(teamMembers);
+  }
+
+  @Override
+  protected void onCleared() {
+    super.onCleared();
+    IMKitClient.removeLoginDetailListener(loginDetailListener);
   }
 }

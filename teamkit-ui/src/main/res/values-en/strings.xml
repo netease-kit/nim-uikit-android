@@ -27,6 +27,7 @@
     <string name="team_invite_other_permission">Invitation Permission</string> 
     <string name="team_update_info_permission">Group info setting Permission</string>
     <string name="team_notify_all_permission">Notify @all members</string>
+    <string name="team_top_sticky_permission">Top message permission</string>
     <string name="team_need_agreed_when_be_invited_permission">Invitees agree to join</string>
     <string name="team_advanced_dismiss">Dissolve Group</string> 
     <string name="team_advanced_quit">Leave Group</string> 

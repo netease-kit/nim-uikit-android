@@ -17,7 +17,7 @@ import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.contactkit.ui.FriendObserveImpl;
-import com.netease.yunxin.kit.contactkit.ui.v2model.V2ContactUserInfoBean;
+import com.netease.yunxin.kit.contactkit.ui.model.ContactUserInfoBean;
 import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
 import com.netease.yunxin.kit.corekit.im2.listener.V2FriendChangeType;
 import com.netease.yunxin.kit.corekit.im2.listener.V2UserListener;
@@ -30,10 +30,9 @@ import java.util.List;
 public class UserInfoViewModel extends BaseViewModel {
   private final String TAG = "UserInfoViewModel";
 
-  private final MutableLiveData<FetchResult<V2ContactUserInfoBean>> friendLiveData =
+  private final MutableLiveData<FetchResult<ContactUserInfoBean>> friendLiveData =
       new MutableLiveData<>();
-  private final FetchResult<V2ContactUserInfoBean> fetchResult =
-      new FetchResult<>(LoadStatus.Finish);
+  private final FetchResult<ContactUserInfoBean> fetchResult = new FetchResult<>(LoadStatus.Finish);
   private final MutableLiveData<FetchResult<List<V2UserInfo>>> userInfoLiveData =
       new MutableLiveData<>();
   private final FetchResult<List<V2UserInfo>> userInfoFetchResult =
@@ -96,7 +95,7 @@ public class UserInfoViewModel extends BaseViewModel {
     ContactRepo.addFriendListener(friendObserver);
   }
 
-  public MutableLiveData<FetchResult<V2ContactUserInfoBean>> getFriendFetchResult() {
+  public MutableLiveData<FetchResult<ContactUserInfoBean>> getFriendFetchResult() {
     return friendLiveData;
   }
 
@@ -113,7 +112,7 @@ public class UserInfoViewModel extends BaseViewModel {
     if (TextUtils.isEmpty(account)) {
       return;
     }
-    ContactRepo.getFriend(
+    ContactRepo.getFriendUserInfo(
         account,
         false,
         new FetchCallback<>() {
@@ -131,9 +130,8 @@ public class UserInfoViewModel extends BaseViewModel {
                 TAG,
                 "getUserWithFriend,onSuccess:" + (param == null ? "null" : param.getAccount()));
             if (param != null && param.getUserInfo() != null) {
-              V2ContactUserInfoBean userInfo =
-                  new V2ContactUserInfoBean(
-                      new V2UserInfo(param.getAccount(), param.getUserInfo()));
+              ContactUserInfoBean userInfo =
+                  new ContactUserInfoBean(new V2UserInfo(param.getAccount(), param.getUserInfo()));
               userInfo.friendInfo = param;
               userInfo.isBlack = isBlack(account);
               userInfo.isFriend = isFriend(account) && param.getFriend() != null;

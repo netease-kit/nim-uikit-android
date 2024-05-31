@@ -13,7 +13,7 @@ import com.netease.yunxin.kit.chatkit.ui.interfaces.IChatViewHolderFactory;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 
 /** PIN页面的ViewHolder工厂类 */
-public class ChatPinFactory implements IChatViewHolderFactory {
+public class ChatPinFactory implements IChatViewHolderFactory<ChatMessageBean> {
 
   @Override
   public ChatBaseViewHolder createViewHolder(@NonNull ViewGroup parent, int viewType) {

@@ -7,7 +7,6 @@ package com.netease.yunxin.kit.chatkit.ui.fun.view.message.viewholder;
 import android.view.View;
 import androidx.annotation.NonNull;
 import com.netease.nimlib.sdk.v2.message.attachment.V2NIMMessageImageAttachment;
-import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageAttachmentUploadState;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageSendingState;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatBaseMessageViewHolderBinding;
@@ -31,10 +30,7 @@ public class ChatImageMessageViewHolder extends ChatThumbBaseViewHolder {
     binding.playIcon.setVisibility(View.GONE);
     if (getMsgInternal().isSelf()
         && (getMsgInternal().getSendingState()
-                == V2NIMMessageSendingState.V2NIM_MESSAGE_SENDING_STATE_SENDING
-            || getMsgInternal().getAttachmentUploadState()
-                == V2NIMMessageAttachmentUploadState
-                    .V2NIM_MESSAGE_ATTACHMENT_UPLOAD_STATE_UPLOADING)) {
+            == V2NIMMessageSendingState.V2NIM_MESSAGE_SENDING_STATE_SENDING)) {
       binding.progressBar.setVisibility(View.VISIBLE);
       binding.progressBar.setIndeterminate(true);
     } else {

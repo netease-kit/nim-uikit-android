@@ -12,11 +12,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
+import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
 import com.netease.yunxin.kit.contactkit.ui.R;
 import com.netease.yunxin.kit.contactkit.ui.contact.BaseContactFragment;
 import com.netease.yunxin.kit.contactkit.ui.databinding.ContactFragmentBinding;
 import com.netease.yunxin.kit.contactkit.ui.model.ContactEntranceBean;
-import com.netease.yunxin.kit.corekit.im2.IMKitClient;
 import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 import java.util.ArrayList;
@@ -129,7 +129,7 @@ public class ContactFragment extends BaseContactFragment {
     contactDataList.add(verifyBean);
     contactDataList.add(blackBean);
     // my group
-    if (IMKitClient.getConfigCenter().getTeamEnable()) {
+    if (IMKitConfigCenter.getTeamEnable()) {
       ContactEntranceBean groupBean =
           new ContactEntranceBean(
               R.mipmap.ic_contact_my_group, context.getString(R.string.contact_list_my_group));

@@ -22,14 +22,15 @@ import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
 import com.netease.yunxin.kit.chatkit.repo.ContactRepo;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatUserCache;
+import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.corekit.im2.IMKitClient;
 import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
 import com.netease.yunxin.kit.corekit.im2.model.UserWithFriend;
 import com.netease.yunxin.kit.corekit.im2.model.V2UserInfo;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -112,14 +113,12 @@ public class ChatP2PViewModel extends ChatBaseViewModel {
   public void getP2PData(V2NIMMessage anchorMessage) {
     getFriendInfo(mChatAccountId);
     getMessageList(anchorMessage, false);
+    getP2PMessageReadReceipts();
   }
 
   public void getFriendInfo(String accId) {
     ALog.d(LIB_TAG, TAG, "getFriendInfo:" + accId);
-    List<String> accounts = new ArrayList<>();
-    accounts.add(IMKitClient.account());
-    accounts.add(accId);
-    ContactRepo.getFriend(
+    ContactRepo.getFriendUserInfo(
         accId,
         false,
         new FetchCallback<>() {
@@ -135,7 +134,32 @@ public class ChatP2PViewModel extends ChatBaseViewModel {
           }
 
           @Override
-          public void onError(int errorCode, @Nullable String errorMsg) {}
+          public void onError(int errorCode, @Nullable String errorMsg) {
+            ALog.e(TAG, "getFriendInfo error:" + errorCode + " errorMsg:" + errorMsg);
+          }
+        });
+  }
+
+  //获取点对点消息已读时间戳
+  protected void getP2PMessageReadReceipts() {
+    ChatRepo.getP2PMessageReceipt(
+        mConversationId,
+        new FetchCallback<V2NIMP2PMessageReadReceipt>() {
+          @Override
+          public void onError(int errorCode, @Nullable String errorMsg) {
+            ALog.e(
+                LIB_TAG,
+                TAG,
+                "getP2PMessageReadReceipts error:" + errorCode + " errorMsg:" + errorMsg);
+          }
+
+          @Override
+          public void onSuccess(@Nullable V2NIMP2PMessageReadReceipt data) {
+            if (data != null && Objects.equals(data.getConversationId(), mConversationId)) {
+              receiptTime = data.getTimestamp();
+              messageReceiptLiveData.setValue(data);
+            }
+          }
         });
   }
 
@@ -185,7 +209,7 @@ public class ChatP2PViewModel extends ChatBaseViewModel {
         && showRead
         && message.getCreateTime() > receiptTime) {
       receiptTime = message.getCreateTime();
-      ChatRepo.markP2PMessageRead(message);
+      ChatRepo.markP2PMessageRead(message, null);
     }
   }
 
@@ -196,6 +220,22 @@ public class ChatP2PViewModel extends ChatBaseViewModel {
       friendInfoFetchResult.setLoadStatus(LoadStatus.Success);
       friendInfoLiveData.setValue(friendInfoFetchResult);
     }
+  }
+
+  /**
+   * 是否是好友
+   *
+   * @param account
+   * @return
+   */
+  public boolean isFriend(String account) {
+    return ContactRepo.isFriend(account);
+  }
+
+  /** 保存非好友通话提示 */
+  public void saveNotFriendCallTips() {
+    MessageHelper.saveLocalNotFriendCallTipMessageAndNotify(
+        getConversationId(), IMKitClient.account());
   }
 
   public void sendInputNotification(boolean isTyping) {

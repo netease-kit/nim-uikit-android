@@ -4,8 +4,10 @@
 
 package com.netease.yunxin.kit.teamkit.ui.utils;
 
-import static com.netease.yunxin.kit.teamkit.ui.utils.TeamUIKitConstant.KEY_EXTENSION_AT_ALL;
-import static com.netease.yunxin.kit.teamkit.ui.utils.TeamUIKitConstant.TYPE_EXTENSION_VALUE_ALL;
+import static com.netease.yunxin.kit.chatkit.ChatConstants.KEY_EXTENSION_AT_ALL;
+import static com.netease.yunxin.kit.chatkit.ChatConstants.KEY_EXTENSION_STICKY_PERMISSION;
+import static com.netease.yunxin.kit.chatkit.ChatConstants.TYPE_EXTENSION_ALLOW_ALL;
+import static com.netease.yunxin.kit.chatkit.ChatConstants.TYPE_EXTENSION_ALLOW_MANAGER;
 
 import android.text.TextUtils;
 import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamMemberRole;
@@ -34,6 +36,7 @@ import org.json.JSONObject;
 public class TeamUtils {
 
   private static final String TAG = "TeamUtils";
+
   // 是否为讨论组
   public static boolean isTeamGroup(V2NIMTeam teamInfo) {
     String teamExtension = teamInfo.getServerExtension();
@@ -112,7 +115,6 @@ public class TeamUtils {
       }
     }
     Collections.sort(result, teamManagerComparator());
-
     return result;
   }
 
@@ -136,7 +138,7 @@ public class TeamUtils {
 
   // 获取群@权限功能权限信息
   public static String getTeamAtMode(V2NIMTeam teamInfo) {
-    String result = TYPE_EXTENSION_VALUE_ALL;
+    String result = TYPE_EXTENSION_ALLOW_ALL;
     if (teamInfo == null) {
       return result;
     }
@@ -144,7 +146,25 @@ public class TeamUtils {
     if (extension != null && extension.contains(KEY_EXTENSION_AT_ALL)) {
       try {
         JSONObject obj = new JSONObject(teamInfo.getServerExtension());
-        result = obj.optString(KEY_EXTENSION_AT_ALL, TYPE_EXTENSION_VALUE_ALL);
+        result = obj.optString(KEY_EXTENSION_AT_ALL, TYPE_EXTENSION_ALLOW_ALL);
+      } catch (JSONException e) {
+        ALog.e(TAG, "getTeamNotifyAllMode", e);
+      }
+    }
+    return result;
+  }
+
+  // 获取群置顶功能权限信息
+  public static String getTeamTopStickyMode(V2NIMTeam teamInfo) {
+    String result = TYPE_EXTENSION_ALLOW_MANAGER;
+    if (teamInfo == null) {
+      return result;
+    }
+    String extension = teamInfo.getServerExtension();
+    if (extension != null && extension.contains(KEY_EXTENSION_STICKY_PERMISSION)) {
+      try {
+        JSONObject obj = new JSONObject(teamInfo.getServerExtension());
+        result = obj.optString(KEY_EXTENSION_STICKY_PERMISSION, TYPE_EXTENSION_ALLOW_MANAGER);
       } catch (JSONException e) {
         ALog.e(TAG, "getTeamNotifyAllMode", e);
       }
@@ -159,24 +179,54 @@ public class TeamUtils {
    */
   public static Comparator<TeamMemberWithUserInfo> teamManagerComparator() {
     return (o1, o2) -> {
-      if (o1 == null || o2 == null) {
+      if (o1 == null || o2 == null || o1 == o2) {
         return 0;
       }
-      if (o1.getTeamMember().getMemberRole() == V2NIMTeamMemberRole.V2NIM_TEAM_MEMBER_ROLE_OWNER) {
-        return -1;
-      } else if (o2.getTeamMember().getMemberRole()
-          == V2NIMTeamMemberRole.V2NIM_TEAM_MEMBER_ROLE_OWNER) {
-        return 1;
-      } else if (o1.getTeamMember().getMemberRole() == o2.getTeamMember().getMemberRole()) {
-        return o1.getTeamMember().getJoinTime() < o2.getTeamMember().getJoinTime() ? -1 : 1;
-      } else {
-        if (o1.getTeamMember().getMemberRole()
-            == V2NIMTeamMemberRole.V2NIM_TEAM_MEMBER_ROLE_MANAGER) {
-          return -1;
-        } else {
-          return 1;
-        }
+
+      int roleComparison =
+          compareRoles(o1.getTeamMember().getMemberRole(), o2.getTeamMember().getMemberRole());
+      if (roleComparison != 0) {
+        return roleComparison;
       }
+
+      // If roles are the same, compare based on join time
+      return Long.compare(o1.getTeamMember().getJoinTime(), o2.getTeamMember().getJoinTime());
+    };
+  }
+
+  private static int compareRoles(V2NIMTeamMemberRole role1, V2NIMTeamMemberRole role2) {
+    if (role1 == role2) {
+      return 0;
+    } else if (role1 == V2NIMTeamMemberRole.V2NIM_TEAM_MEMBER_ROLE_OWNER) {
+      return -1;
+    } else if (role2 == V2NIMTeamMemberRole.V2NIM_TEAM_MEMBER_ROLE_OWNER) {
+      return 1;
+    } else if (role1 == V2NIMTeamMemberRole.V2NIM_TEAM_MEMBER_ROLE_MANAGER) {
+      return -1;
+    } else {
+      return 1;
+    }
+  }
+
+  /**
+   * 群成员设置页面排序 ，与列表也顺序相反
+   *
+   * @return 排序比较器
+   */
+  public static Comparator<TeamMemberWithUserInfo> teamSettingMemberComparator() {
+    return (o1, o2) -> {
+      if (o1 == null || o2 == null || o1 == o2) {
+        return 0;
+      }
+
+      int roleComparison =
+          compareRoles(o1.getTeamMember().getMemberRole(), o2.getTeamMember().getMemberRole());
+      if (roleComparison != 0) {
+        return -roleComparison;
+      }
+
+      // If roles are the same, compare based on join time
+      return -Long.compare(o1.getTeamMember().getJoinTime(), o2.getTeamMember().getJoinTime());
     };
   }
 

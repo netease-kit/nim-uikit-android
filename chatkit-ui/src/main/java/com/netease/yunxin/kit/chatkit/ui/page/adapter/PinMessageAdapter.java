@@ -11,8 +11,8 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.netease.yunxin.kit.chatkit.ui.interfaces.ChatBaseViewHolder;
-import com.netease.yunxin.kit.chatkit.ui.interfaces.IChatClickListener;
 import com.netease.yunxin.kit.chatkit.ui.interfaces.IChatViewHolderFactory;
+import com.netease.yunxin.kit.chatkit.ui.interfaces.IItemClickListener;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.corekit.im2.model.IMMessageProgress;
 import java.util.ArrayList;
@@ -23,7 +23,7 @@ public class PinMessageAdapter extends RecyclerView.Adapter<ChatBaseViewHolder> 
 
   private final String TAG = "PinMessageAdapter";
   private final List<ChatMessageBean> dataList = new ArrayList<>();
-  private IChatClickListener clickListener;
+  private IItemClickListener clickListener;
   private IChatViewHolderFactory viewHolderFactory;
 
   public void setData(List<ChatMessageBean> data) {
@@ -66,6 +66,15 @@ public class PinMessageAdapter extends RecyclerView.Adapter<ChatBaseViewHolder> 
     int index = getMessageIndex(data);
     if (index >= 0) {
       notifyItemChanged(index, payload);
+    }
+  }
+
+  //更新用户信息
+  public void updateUserList(List<String> accounts) {
+    for (int i = 0; i < dataList.size(); i++) {
+      if (accounts.contains(dataList.get(i).getSenderId())) {
+        notifyItemChanged(i);
+      }
     }
   }
 
@@ -152,7 +161,7 @@ public class PinMessageAdapter extends RecyclerView.Adapter<ChatBaseViewHolder> 
     return null;
   }
 
-  public void setViewHolderClickListener(IChatClickListener listener) {
+  public void setViewHolderClickListener(IItemClickListener listener) {
     this.clickListener = listener;
   }
 
@@ -175,7 +184,7 @@ public class PinMessageAdapter extends RecyclerView.Adapter<ChatBaseViewHolder> 
     if (viewHolderFactory != null) {
       viewHolder = viewHolderFactory.createViewHolder(parent, viewType);
       if (viewHolder != null) {
-        viewHolder.setChatOnClickListener(clickListener);
+        viewHolder.setItemOnClickListener(clickListener);
       }
     }
     return viewHolder;

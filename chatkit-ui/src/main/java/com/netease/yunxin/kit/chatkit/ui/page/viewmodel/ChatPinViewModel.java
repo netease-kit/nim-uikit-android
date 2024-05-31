@@ -25,22 +25,30 @@ import com.netease.nimlib.sdk.v2.message.V2NIMMessageCreator;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessageDeletedNotification;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessagePinNotification;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessageQuickCommentNotification;
+import com.netease.nimlib.sdk.v2.message.V2NIMMessageRefer;
 import com.netease.nimlib.sdk.v2.message.V2NIMP2PMessageReadReceipt;
 import com.netease.nimlib.sdk.v2.message.V2NIMTeamMessageReadReceipt;
 import com.netease.nimlib.sdk.v2.message.config.V2NIMMessageConfig;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessagePinState;
 import com.netease.nimlib.sdk.v2.message.params.V2NIMSendMessageParams;
 import com.netease.nimlib.sdk.v2.message.result.V2NIMSendMessageResult;
+import com.netease.nimlib.sdk.v2.team.V2NIMTeamListener;
+import com.netease.nimlib.sdk.v2.team.model.V2NIMTeamMember;
 import com.netease.nimlib.sdk.v2.utils.V2NIMConversationIdUtil;
 import com.netease.yunxin.kit.alog.ALog;
+import com.netease.yunxin.kit.chatkit.impl.TeamListenerImpl;
+import com.netease.yunxin.kit.chatkit.listener.ChatListener;
+import com.netease.yunxin.kit.chatkit.listener.MessageRevokeNotification;
+import com.netease.yunxin.kit.chatkit.listener.MessageUpdateType;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
-import com.netease.yunxin.kit.chatkit.observer.MessageListener;
-import com.netease.yunxin.kit.chatkit.observer.MessageRevokeNotification;
-import com.netease.yunxin.kit.chatkit.observer.MessageUpdateType;
+import com.netease.yunxin.kit.chatkit.model.MessagePinInfo;
 import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
+import com.netease.yunxin.kit.chatkit.repo.ContactRepo;
 import com.netease.yunxin.kit.chatkit.repo.SettingRepo;
+import com.netease.yunxin.kit.chatkit.repo.TeamRepo;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant;
 import com.netease.yunxin.kit.chatkit.ui.R;
+import com.netease.yunxin.kit.chatkit.ui.common.ChatUserCache;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.model.PinEvent;
@@ -52,7 +60,9 @@ import com.netease.yunxin.kit.corekit.event.EventCenter;
 import com.netease.yunxin.kit.corekit.im2.IMKitClient;
 import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
 import com.netease.yunxin.kit.corekit.im2.extend.ProgressFetchCallback;
+import com.netease.yunxin.kit.corekit.im2.listener.V2UserListener;
 import com.netease.yunxin.kit.corekit.im2.model.IMMessageProgress;
+import com.netease.yunxin.kit.corekit.im2.model.V2UserInfo;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -95,12 +105,18 @@ public class ChatPinViewModel extends BaseViewModel {
   private final MutableLiveData<FetchResult<IMMessageProgress>> attachmentProgressLiveData =
       new MutableLiveData<>();
 
+  //用户信息变更
+  private final MutableLiveData<FetchResult<List<String>>> userChangeLiveData =
+      new MutableLiveData<>();
+
   // 初始化
   public void init(String sessionId, V2NIMConversationType sessionType) {
     this.mSessionId = sessionId;
     this.mSessionType = sessionType;
     this.needACK = SettingRepo.getShowReadStatus();
     ChatRepo.addMessageListener(messageListener);
+    ContactRepo.addUserListener(userListener);
+    TeamRepo.addTeamListener(teamListener);
     IMKitClient.addLoginListener(loginListener);
   }
 
@@ -133,11 +149,15 @@ public class ChatPinViewModel extends BaseViewModel {
     return attachmentProgressLiveData;
   }
 
+  //获取用户信息变更LiveData
+  public MutableLiveData<FetchResult<List<String>>> getUserChangeLiveData() {
+    return userChangeLiveData;
+  }
+
   /** 获取PIN消息 */
   public void getPinMessageList() {
-    ChatRepo.fetchPinMessages(
-        mSessionId,
-        mSessionType,
+    ChatRepo.getPinnedMessageList(
+        V2NIMConversationIdUtil.conversationId(mSessionId, mSessionType),
         new FetchCallback<>() {
           @Override
           public void onError(int errorCode, @Nullable String errorMsg) {
@@ -162,7 +182,7 @@ public class ChatPinViewModel extends BaseViewModel {
     if (messageInfo.getPinOption() == null) {
       return;
     }
-    ChatRepo.removeMessagePin(
+    ChatRepo.unpinMessage(
         messageInfo.getPinOption().getMessageRefer(),
         new FetchCallback<>() {
           @Override
@@ -190,9 +210,8 @@ public class ChatPinViewModel extends BaseViewModel {
   }
 
   // 转发PIN消息
-  public void sendForwardMessage(
-      V2NIMMessage message, String sessionId, V2NIMConversationType sessionType) {
-    ALog.d(LIB_TAG, TAG, "sendForwardMessage:" + sessionId);
+  public void sendForwardMessage(V2NIMMessage message, String conversationId) {
+    ALog.d(LIB_TAG, TAG, "sendForwardMessage:" + conversationId);
     V2NIMMessage forwardMessage = V2NIMMessageCreator.createForwardMessage(message);
     MessageHelper.clearAitAndReplyInfo(forwardMessage);
     V2NIMMessageConfig.V2NIMMessageConfigBuilder configBuilder =
@@ -202,22 +221,20 @@ public class ChatPinViewModel extends BaseViewModel {
         V2NIMSendMessageParams.V2NIMSendMessageParamsBuilder.builder()
             .withMessageConfig(configBuilder.build())
             .build();
-    String conversationId = V2NIMConversationIdUtil.conversationId(sessionId, sessionType);
     ChatRepo.sendMessage(forwardMessage, conversationId, params, null);
   }
 
   // 转发PIN消息并发送文本消息
-  public void sendForwardMessage(
-      V2NIMMessage message, String inputMsg, String sessionId, V2NIMConversationType sessionType) {
-    ALog.d(LIB_TAG, TAG, "sendForwardMessage:" + sessionId);
-    sendForwardMessage(message, sessionId, sessionType);
+  public void sendForwardMessage(V2NIMMessage message, String inputMsg, String conversationId) {
+    ALog.d(LIB_TAG, TAG, "sendForwardMessage:" + conversationId);
+    sendForwardMessage(message, conversationId);
     if (!TextUtils.isEmpty(inputMsg) && TextUtils.getTrimmedLength(inputMsg) > 0) {
-      new Handler().postDelayed(() -> sendTextMessage(inputMsg, sessionId, sessionType), 500);
+      new Handler().postDelayed(() -> sendTextMessage(inputMsg, conversationId), 500);
     }
   }
 
   // 发送文本消息
-  public void sendTextMessage(String content, String session, V2NIMConversationType sessionType) {
+  public void sendTextMessage(String content, String conversationId) {
     ALog.d(LIB_TAG, TAG, "sendTextMessage:" + (content != null ? content.length() : "null"));
     //    IMMessage textMsg = MessageBuilder.createTextMessage(session, sessionType, content);
     V2NIMMessage textMessage = V2NIMMessageCreator.createTextMessage(content);
@@ -228,7 +245,6 @@ public class ChatPinViewModel extends BaseViewModel {
         V2NIMSendMessageParams.V2NIMSendMessageParamsBuilder.builder()
             .withMessageConfig(configBuilder.build())
             .build();
-    String conversationId = V2NIMConversationIdUtil.conversationId(session, sessionType);
     ChatRepo.sendMessage(
         textMessage,
         conversationId,
@@ -251,7 +267,7 @@ public class ChatPinViewModel extends BaseViewModel {
           public void onError(int errorCode, @Nullable String errorMsg) {
             ALog.d(LIB_TAG, TAG, "sendTextMessage error:" + errorCode + "errorMsg:" + errorMsg);
             if (errorCode == RES_IN_BLACK_LIST) {
-              MessageHelper.saveLocalBlackTipMessageAndNotify(textMessage);
+              MessageHelper.saveLocalBlackTipMessage(conversationId, IMKitClient.account());
             }
           }
         });
@@ -284,9 +300,60 @@ public class ChatPinViewModel extends BaseViewModel {
         }
       };
 
+  //用户信息变更通知
+  private final V2UserListener userListener =
+      new V2UserListener() {
+
+        @Override
+        public void onUserChanged(@NonNull List<V2UserInfo> userList) {
+          ChatUserCache.getInstance().addUserInfo(userList);
+          List<String> accounts = new ArrayList<>();
+          for (V2UserInfo userInfo : userList) {
+            accounts.add(userInfo.getAccountId());
+          }
+          FetchResult<List<String>> result = new FetchResult<>(LoadStatus.Success);
+          result.setData(accounts);
+          userChangeLiveData.setValue(result);
+        }
+      };
+
+  //群成员信息变更通知
+  private final V2NIMTeamListener teamListener =
+      new TeamListenerImpl() {
+
+        @Override
+        public void onTeamMemberInfoUpdated(@Nullable List<V2NIMTeamMember> teamMembers) {
+          super.onTeamMemberInfoUpdated(teamMembers);
+          if (teamMembers == null) {
+            return;
+          }
+          ChatUserCache.getInstance().addTeamMember(teamMembers);
+          List<String> accounts = new ArrayList<>();
+          for (V2NIMTeamMember teamMember : teamMembers) {
+            accounts.add(teamMember.getAccountId());
+          }
+          FetchResult<List<String>> result = new FetchResult<>(LoadStatus.Success);
+          result.setData(accounts);
+          userChangeLiveData.postValue(result);
+        }
+      };
+
   // 消息监听
-  private final MessageListener messageListener =
-      new MessageListener() {
+  private final ChatListener messageListener =
+      new ChatListener() {
+        @Override
+        public void onSendMessageFailed(
+            int errorCode,
+            @NonNull String errorMsg,
+            @NonNull String conversationId,
+            @NonNull V2NIMConversationType conversationType,
+            @Nullable V2NIMMessage data) {}
+
+        @Override
+        public void onSendMessage(@NonNull V2NIMMessage message) {
+          ALog.d(LIB_TAG, TAG, "onSendMessage -->> ");
+        }
+
         @Override
         public void onMessageAttachmentDownloadProgress(
             @NonNull V2NIMMessage message, int progress) {
@@ -422,28 +489,39 @@ public class ChatPinViewModel extends BaseViewModel {
 
   // 填充Pin消息
   private void fillPinMessage(V2NIMMessagePinNotification notification) {
-    ChatRepo.fillPinMessage(
-        notification.getPin(),
-        new FetchCallback<>() {
-          @Override
-          public void onError(int errorCode, @Nullable String errorMsg) {
-            ALog.d(LIB_TAG, TAG, "fillPinMessage , onError:" + errorCode + "errorMsg:" + errorMsg);
-          }
+    if (notification != null && notification.getPin() != null) {
+      List<V2NIMMessageRefer> refers = new ArrayList<>();
+      refers.add(notification.getPin().getMessageRefer());
+      ChatRepo.getMessageListByRefers(
+          refers,
+          new FetchCallback<>() {
 
-          @Override
-          public void onSuccess(@Nullable List<IMMessageInfo> param) {
-            ALog.d(LIB_TAG, TAG, "fillPinMessage , onSuccess:");
-            addFetchResult.setLoadStatus(LoadStatus.Success);
-            addFetchResult.setData(MessageHelper.convertToChatMessageBean(param));
-            addLiveData.setValue(addFetchResult);
-          }
-        });
+            @Override
+            public void onSuccess(@Nullable List<IMMessageInfo> data) {
+              ALog.d(LIB_TAG, TAG, "fillPinMessage , onSuccess:");
+              addFetchResult.setLoadStatus(LoadStatus.Success);
+              if (data != null && data.size() > 0) {
+                data.get(0).setPinOption(new MessagePinInfo(notification.getPin()));
+              }
+              addFetchResult.setData(MessageHelper.convertToChatMessageBean(data));
+              addLiveData.setValue(addFetchResult);
+            }
+
+            @Override
+            public void onError(int errorCode, @Nullable String errorMsg) {
+              ALog.d(
+                  LIB_TAG, TAG, "fillPinMessage , onError:" + errorCode + "errorMsg:" + errorMsg);
+            }
+          });
+    }
   }
 
   @Override
   protected void onCleared() {
     super.onCleared();
     ChatRepo.removeMessageListener(messageListener);
+    ContactRepo.removeUserListener(userListener);
+    TeamRepo.removeTeamListener(teamListener);
     IMKitClient.removeLoginListener(loginListener);
   }
 }

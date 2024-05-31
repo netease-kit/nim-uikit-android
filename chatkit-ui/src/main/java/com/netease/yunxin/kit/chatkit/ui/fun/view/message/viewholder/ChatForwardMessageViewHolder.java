@@ -40,7 +40,7 @@ public class ChatForwardMessageViewHolder extends FunChatBaseMessageViewHolder {
     super.onMessageBackgroundConfig(messageBean);
     LinearLayout.LayoutParams layoutParams =
         (LinearLayout.LayoutParams) viewBinding.messageDivider.getLayoutParams();
-    if (MessageHelper.isReceivedMessage(messageBean)) {
+    if (isForwardMsg() || MessageHelper.isReceivedMessage(messageBean)) {
       layoutParams.setMarginStart(SizeUtils.dp2px(7));
       layoutParams.setMarginEnd(0);
     } else {

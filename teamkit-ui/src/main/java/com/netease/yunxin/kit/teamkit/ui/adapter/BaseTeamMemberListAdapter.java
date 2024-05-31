@@ -15,6 +15,7 @@ import com.netease.yunxin.kit.chatkit.model.TeamMemberWithUserInfo;
 import com.netease.yunxin.kit.teamkit.ui.utils.FilterUtils;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -48,6 +49,9 @@ public class BaseTeamMemberListAdapter<R extends ViewBinding>
   // 点击事件
   protected ItemClickListener itemClickListener;
 
+  // 是否展示在线状态
+  protected boolean showOnlineState = false;
+
   public BaseTeamMemberListAdapter(
       Context context, V2NIMTeamType teamTypeEnum, Class<R> viewBinding) {
     super(context, viewBinding);
@@ -75,6 +79,10 @@ public class BaseTeamMemberListAdapter<R extends ViewBinding>
     this.itemClickListener = itemClickListener;
   }
 
+  public void showOnlineState(boolean show) {
+    this.showOnlineState = show;
+  }
+
   // 获取选择框选中的数据
   public ArrayList<TeamMemberWithUserInfo> getSelectData() {
     return new ArrayList<>(selectData.values());
@@ -85,10 +93,76 @@ public class BaseTeamMemberListAdapter<R extends ViewBinding>
       R binding, int position, TeamMemberWithUserInfo data, int bingingAdapterPosition) {}
 
   @Override
-  public void addDataList(List<TeamMemberWithUserInfo> data, boolean clearOld) {
-    super.addDataList(data, clearOld);
+  public void setDataList(List<TeamMemberWithUserInfo> data) {
+    super.setDataList(data);
     backupTotalData = new ArrayList<>(data);
     selectData.clear();
+  }
+
+  @Override
+  public void addData(
+      List<TeamMemberWithUserInfo> dataList, Comparator<TeamMemberWithUserInfo> comparator) {
+    super.addData(dataList, comparator);
+    if (backupTotalData == null) {
+      backupTotalData = new ArrayList<>();
+    }
+    backupTotalData.addAll(dataList);
+  }
+
+  public void updateData(List<TeamMemberWithUserInfo> data) {
+    if (data == null) {
+      return;
+    }
+    for (TeamMemberWithUserInfo user : data) {
+      String userAccount = user.getAccountId();
+      for (int i = 0; i < dataSource.size(); i++) {
+        if (dataSource.get(i).getAccountId().equals(userAccount)) {
+          dataSource.set(i, user);
+          notifyItemChanged(i);
+        }
+      }
+    }
+  }
+
+  public void updateDataWithComparator(
+      List<TeamMemberWithUserInfo> data, Comparator<TeamMemberWithUserInfo> comparator) {
+    if (comparator == null) {
+      this.updateData(data);
+    } else {
+      for (TeamMemberWithUserInfo user : data) {
+        String userAccount = user.getAccountId();
+        for (int i = 0; i < dataSource.size(); i++) {
+          if (dataSource.get(i).getAccountId().equals(userAccount)) {
+            dataSource.set(i, user);
+          }
+        }
+      }
+      Collections.sort(dataSource, comparator);
+      notifyDataSetChanged();
+    }
+  }
+
+  @Override
+  public void removeData(List<String> accountList) {
+    if (accountList == null || accountList.isEmpty()) {
+      return;
+    }
+    for (String account : accountList) {
+      TeamMemberWithUserInfo removeData = null;
+      int removeIndex = -1;
+      for (int index = 0; index < dataSource.size(); index++) {
+        if (dataSource.get(index).getAccountId().equals(account)) {
+          removeData = dataSource.get(index);
+          removeIndex = index;
+          break;
+        }
+      }
+      if (removeData != null && removeIndex != -1) {
+        dataSource.remove(removeData);
+        selectData.remove(account);
+        notifyItemRemoved(removeIndex);
+      }
+    }
   }
 
   /**
@@ -110,7 +184,7 @@ public class BaseTeamMemberListAdapter<R extends ViewBinding>
         }
       }
     }
-    super.addDataList(data, true);
+    super.setDataList(data);
     backupTotalData = new ArrayList<>(data);
   }
 

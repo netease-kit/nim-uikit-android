@@ -8,8 +8,12 @@ import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
 import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.KEY_REVOKE_EDIT_TAG;
 import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.KEY_REVOKE_TAG;
 
+import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessagePin;
+import com.netease.nimlib.sdk.v2.message.V2NIMMessageRefer;
+import com.netease.nimlib.sdk.v2.message.V2NIMMessageReferBuilder;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
+import com.netease.nimlib.sdk.v2.utils.V2NIMConversationIdUtil;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.model.CustomAttachment;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
@@ -85,7 +89,7 @@ public class ChatMessageBean implements Serializable {
         && serverExtensionMap.containsKey(ChatKitUIConstant.REPLY_REMOTE_EXTENSION_KEY);
   }
 
-  public String getReplyUUid() {
+  public V2NIMMessageRefer getReplyMessage() {
     if (messageData == null) {
       return null;
     }
@@ -96,13 +100,23 @@ public class ChatMessageBean implements Serializable {
         && serverExtensionMap.containsKey(ChatKitUIConstant.REPLY_REMOTE_EXTENSION_KEY)) {
       Object replyInfo = serverExtensionMap.get(ChatKitUIConstant.REPLY_REMOTE_EXTENSION_KEY);
       if (replyInfo instanceof Map) {
+        String clientId = "";
+        String senderId = "";
+        String serverId = "";
+        long time = 0;
+        String conversationId = "";
+        String receiveId = "";
+        V2NIMConversationType conversationType = V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P;
         try {
           Map<String, Object> replyMap = (Map<String, Object>) replyInfo;
           if (replyMap.containsKey(ChatKitUIConstant.REPLY_UUID_KEY)) {
-            Object uuid = replyMap.get(ChatKitUIConstant.REPLY_UUID_KEY);
-            if (uuid != null) {
-              return uuid.toString();
-            }
+            clientId = (String) replyMap.get(ChatKitUIConstant.REPLY_UUID_KEY);
+            senderId = (String) replyMap.get(ChatKitUIConstant.REPLY_FROM_KEY);
+            serverId = (String) replyMap.get(ChatKitUIConstant.REPLY_SERVER_ID_KEY);
+            time = (long) replyMap.get(ChatKitUIConstant.REPLY_TIME_KEY);
+            conversationId = (String) replyMap.get(ChatKitUIConstant.REPLY_TO_KEY);
+            receiveId = V2NIMConversationIdUtil.conversationTargetId(conversationId);
+            conversationType = V2NIMConversationIdUtil.conversationType(conversationId);
           }
         } catch (Exception e) {
           ALog.e(
@@ -111,6 +125,14 @@ public class ChatMessageBean implements Serializable {
               "getReplyUUid,error message"
                   + (messageData == null ? "null" : messageData.getMessage().getMessageClientId()));
         }
+        return V2NIMMessageReferBuilder.builder()
+            .withMessageClientId(clientId)
+            .withSenderId(senderId)
+            .withReceiverId(receiveId)
+            .withConversationType(conversationType)
+            .withMessageServerId(serverId)
+            .withCreateTime(time)
+            .build();
       }
     }
     return null;

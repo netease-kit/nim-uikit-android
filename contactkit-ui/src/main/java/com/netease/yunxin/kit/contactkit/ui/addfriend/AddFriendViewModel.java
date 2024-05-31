@@ -37,7 +37,7 @@ public class AddFriendViewModel extends BaseViewModel {
     ALog.d(LIB_TAG, TAG, "getUser:" + account);
     fetchResult.setStatus(LoadStatus.Loading);
     resultLiveData.postValue(fetchResult);
-    ContactRepo.getFriend(
+    ContactRepo.getFriendUserInfo(
         account,
         false,
         new FetchCallback<>() {

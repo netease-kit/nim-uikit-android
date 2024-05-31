@@ -31,23 +31,23 @@ import com.netease.nimlib.sdk.v2.message.config.V2NIMMessageConfig;
 import com.netease.nimlib.sdk.v2.message.config.V2NIMMessagePushConfig;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessagePinState;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageQueryDirection;
-import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageSendingState;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
 import com.netease.nimlib.sdk.v2.message.option.V2NIMMessageListOption;
+import com.netease.nimlib.sdk.v2.message.params.V2NIMAddCollectionParams;
 import com.netease.nimlib.sdk.v2.message.params.V2NIMSendMessageParams;
 import com.netease.nimlib.sdk.v2.message.result.V2NIMSendMessageResult;
 import com.netease.nimlib.sdk.v2.utils.V2NIMConversationIdUtil;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.cache.FriendUserCache;
+import com.netease.yunxin.kit.chatkit.listener.ChatListener;
+import com.netease.yunxin.kit.chatkit.listener.MessageRevokeNotification;
+import com.netease.yunxin.kit.chatkit.listener.MessageUpdateType;
 import com.netease.yunxin.kit.chatkit.map.ChatLocationBean;
 import com.netease.yunxin.kit.chatkit.media.ImageUtil;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
-import com.netease.yunxin.kit.chatkit.observer.MessageListener;
-import com.netease.yunxin.kit.chatkit.observer.MessageRevokeNotification;
-import com.netease.yunxin.kit.chatkit.observer.MessageUpdateType;
+import com.netease.yunxin.kit.chatkit.model.RecentForward;
 import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
 import com.netease.yunxin.kit.chatkit.repo.ContactRepo;
-import com.netease.yunxin.kit.chatkit.repo.MessageSendingObserver;
 import com.netease.yunxin.kit.chatkit.repo.ResourceRepo;
 import com.netease.yunxin.kit.chatkit.repo.SettingRepo;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant;
@@ -80,6 +80,7 @@ import com.netease.yunxin.kit.corekit.im2.model.FriendAddApplicationInfo;
 import com.netease.yunxin.kit.corekit.im2.model.IMMessageProgress;
 import com.netease.yunxin.kit.corekit.im2.model.UserWithFriend;
 import com.netease.yunxin.kit.corekit.im2.model.V2UserInfo;
+import com.netease.yunxin.kit.corekit.im2.provider.V2MessageProvider;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -95,6 +96,9 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
 
   // 撤回消息超时时间
   private static final int RES_REVOKE_TIMEOUT = 107314;
+
+  // 收藏消息类型从1000开始
+  private static final int COLLECTION_TYPE = 1000;
 
   //自己手动撤回的消息的messageClientId，
   //用于判断是否是自己撤回的消息
@@ -135,6 +139,9 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
   private final MutableLiveData<FetchResult<Pair<MessageUpdateType, List<ChatMessageBean>>>>
       updateMessageLiveData = new MutableLiveData<>();
 
+  private final MutableLiveData<FetchResult<List<V2NIMMessagePin>>> pinedMessageListLiveData =
+      new MutableLiveData<>();
+
   // 当前会话账号ID，单聊则为对方账号，群聊则为群ID
   protected String mChatAccountId;
   // 当前会话ID
@@ -155,15 +162,46 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
   // 视频图片旋转角度，适配部分机型发送图片旋转问题
   private final String Orientation_Vertical = "90";
 
+  /**
+   * 设置已发送消息的已读状态
+   *
+   * @param message 已发送消息
+   */
+  protected void setSentMessageReadCount(IMMessageInfo message) {}
+
   // 消息监听
-  private final MessageListener messageListener =
-      new MessageListener() {
+  private final ChatListener messageListener =
+      new ChatListener() {
+
+        @Override
+        public void onSendMessageFailed(
+            int errorCode,
+            @NonNull String errorMsg,
+            @NonNull String conversationId,
+            @NonNull V2NIMConversationType conversationType,
+            @Nullable V2NIMMessage data) {
+          if (errorCode == ChatKitUIConstant.ERROR_CODE_IN_BLACK_LIST) {
+            //保存本地黑名单消息
+            MessageHelper.saveLocalBlackTipMessage(conversationId, IMKitClient.account());
+          }
+        }
+
+        @Override
+        public void onSendMessage(@NonNull V2NIMMessage message) {
+          if (message.getConversationId().equals(mConversationId)) {
+            ALog.d(LIB_TAG, TAG, "onSendMessage -->> " + message.getMessageClientId());
+            IMMessageInfo messageInfo = new IMMessageInfo(message);
+            setSentMessageReadCount(messageInfo);
+            postMessageSend(messageInfo, true);
+          }
+        }
 
         // 消息附件下载进度
         @Override
         public void onMessageAttachmentDownloadProgress(
             @NonNull V2NIMMessage message, int progress) {
-          if (message.getConversationId().equals(mConversationId)) {
+          if (message.getConversationId() != null
+              && message.getConversationId().equals(mConversationId)) {
             ALog.d(LIB_TAG, TAG, "onMessageAttachmentDownloadProgress -->> " + progress);
             FetchResult<IMMessageProgress> result = new FetchResult<>(LoadStatus.Success);
             result.setData(new IMMessageProgress(message.getMessageClientId(), progress));
@@ -318,60 +356,6 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
   //点对点消息处理已读回执
   protected void onP2PMessageReadReceipts(List<V2NIMP2PMessageReadReceipt> readReceipts) {}
 
-  // 消息发送监听，正在发送中的消息。Kit层逻辑，只要调用ChatRepo发送消息，都会在这里回调，方便页面消息加载
-  private final MessageSendingObserver sendingObserver =
-      new MessageSendingObserver() {
-        @Override
-        public void onSuccess(@Nullable V2NIMMessage data) {
-          super.onSuccess(data);
-          if (data != null && TextUtils.equals(data.getConversationId(), mConversationId)) {
-            ALog.d(LIB_TAG, TAG, "sendingObserver onSuccess -->> " + mConversationId);
-            postMessageSend(new IMMessageInfo(data), false);
-          }
-        }
-
-        @Override
-        public void onError(
-            int errorCode,
-            @NonNull String errorMsg,
-            @NonNull String conversationId,
-            @NonNull V2NIMConversationType conversationType,
-            @Nullable V2NIMMessage data) {
-          super.onError(errorCode, errorMsg, conversationId, conversationType, data);
-        }
-
-        @Override
-        public void onProgress(
-            int progress,
-            @NonNull String conversationId,
-            @NonNull V2NIMConversationType conversationType,
-            @Nullable V2NIMMessage data) {
-          super.onProgress(progress, conversationId, conversationType, data);
-          ALog.d(
-              LIB_TAG,
-              TAG,
-              "sendingObserver onProgress update -->> "
-                  + conversationId
-                  + ",,"
-                  + progress
-                  + ","
-                  + TextUtils.equals(conversationId, mConversationId)
-                  + "data:"
-                  + (data != null));
-          if (TextUtils.equals(conversationId, mConversationId) && data != null) {
-            //发送状态回调，代替之前的附件上传进度
-            if (progress == 0) {
-              postMessageSend(new IMMessageInfo(data), true);
-            }
-            FetchResult<IMMessageProgress> result = new FetchResult<>(LoadStatus.Success);
-            result.setData(new IMMessageProgress(data.getMessageClientId(), progress));
-            result.setType(FetchResult.FetchType.Update);
-            result.setTypeIndex(-1);
-            attachmentProgressMutableLiveData.setValue(result);
-          }
-        }
-      };
-
   // 好友信息变更监听
   private final ContactListener friendListener =
       new ContactListener() {
@@ -461,6 +445,11 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
     return updateMessageLiveData;
   }
 
+  // 获取pin 消息列表LiveData
+  public MutableLiveData<FetchResult<List<V2NIMMessagePin>>> getPinedMessageListLiveData() {
+    return pinedMessageListLiveData;
+  }
+
   // 获取标记消息LiveData
   public MutableLiveData<FetchResult<Map<String, V2NIMMessagePin>>> getMsgPinLiveData() {
     return msgPinLiveData;
@@ -469,6 +458,34 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
   // 获取删除消息LiveData
   public MutableLiveData<FetchResult<List<V2NIMMessageRefer>>> getDeleteMessageLiveData() {
     return deleteMessageLiveData;
+  }
+
+  /** 获取PIN消息列表 */
+  public void getPinedMessageList() {
+    V2MessageProvider.getPinMessageList(
+        mConversationId,
+        new FetchCallback<List<V2NIMMessagePin>>() {
+          @Override
+          public void onError(int errorCode, @Nullable String errorMsg) {
+            ALog.d(
+                LIB_TAG,
+                TAG,
+                "getPinedMessageList,onFailed:" + errorCode + " errorMsg:" + errorMsg);
+          }
+
+          @Override
+          public void onSuccess(@Nullable List<V2NIMMessagePin> data) {
+            ALog.d(
+                LIB_TAG,
+                TAG,
+                "getPinedMessageList,onSuccess:" + (data == null ? "0" : data.size()));
+            if (data != null && !data.isEmpty()) {
+              FetchResult<List<V2NIMMessagePin>> result = new FetchResult<>(LoadStatus.Success);
+              result.setData(data);
+              pinedMessageListLiveData.setValue(result);
+            }
+          }
+        });
   }
 
   /**
@@ -482,7 +499,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
     }
     if (messageList.size() < 2) {
       ChatRepo.deleteMessage(
-          messageList.get(0).getMessageData(),
+          messageList.get(0).getMessageData().getMessage(),
           null,
           false,
           new FetchCallback<>() {
@@ -557,7 +574,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
           "revokeMessage " + messageBean.getMessageData().getMessage().getMessageClientId());
       revokedMessageClientId = messageBean.getMessageData().getMessage().getMessageClientId();
       ChatRepo.revokeMessage(
-          messageBean.getMessageData(),
+          messageBean.getMessageData().getMessage(),
           null,
           new FetchCallback<>() {
             @Override
@@ -576,7 +593,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
             @Override
             public void onSuccess(@Nullable Void data) {
               if (!TextUtils.isEmpty(messageBean.getPinAccid())) {
-                ChatRepo.removeMessagePin(messageBean.getMessageData().getMessage(), null);
+                ChatRepo.unpinMessage(messageBean.getMessageData().getMessage(), null);
               }
 
               FetchResult<List<MessageRevokeInfo>> fetchResult =
@@ -655,7 +672,6 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
     ChatRepo.addMessageListener(messageListener);
     ContactRepo.addFriendListener(friendListener);
     ContactRepo.addUserListener(userListener);
-    ChatRepo.addMessageSendingListener(sendingObserver);
   }
 
   // 移除监听
@@ -665,29 +681,12 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
     ChatRepo.removeMessageListener(messageListener);
     ContactRepo.removeFriendListener(friendListener);
     ContactRepo.removeUserListener(userListener);
-    ChatRepo.removeMessageSendingListener(sendingObserver);
   }
 
   // 发送文本消息
   public void sendTextMessage(String content, List<String> pushList) {
     ALog.d(LIB_TAG, TAG, "sendTextMessage:" + (content != null ? content.length() : "null"));
     sendTextMessage(content, pushList, null);
-  }
-
-  // 发送文本消息
-  public void sendTextMessage(String content, String session, V2NIMConversationType sessionType) {
-    ALog.d(LIB_TAG, TAG, "sendTextMessage:" + (content != null ? content.length() : "null"));
-    if (content != null) {
-      V2NIMMessageConfig config =
-          V2NIMMessageConfig.V2NIMMessageConfigBuilder.builder()
-              .withReadReceiptEnabled(needACK && showRead)
-              .build();
-      V2NIMSendMessageParams params =
-          V2NIMSendMessageParams.V2NIMSendMessageParamsBuilder.builder()
-              .withMessageConfig(config)
-              .build();
-      ChatRepo.sendTextMessage(session, sessionType, content, params, null);
-    }
   }
 
   // 发送文本消息
@@ -699,13 +698,14 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
   }
 
   // 添加收藏
-  public void addMsgCollection(IMMessageInfo messageInfo) {
+  public void addMsgCollection(String conversationName, IMMessageInfo messageInfo) {
     if (messageInfo == null) {
       return;
     }
     ALog.d(LIB_TAG, TAG, "addMsgCollection:" + messageInfo.getMessage().getMessageClientId());
-    ChatRepo.collectMessage(
-        messageInfo.getMessage(), new V2ChatCallback<V2NIMCollection>().setShowSuccess(true));
+    V2NIMAddCollectionParams params =
+        MessageHelper.createCollectionParams(conversationName, messageInfo.getMessage());
+    ChatRepo.addCollection(params, new V2ChatCallback<V2NIMCollection>().setShowSuccess(true));
   }
 
   // 发送语音消息
@@ -741,41 +741,44 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
     }
   }
 
-  // 发送转发消息
+  // 发送转发消息(单条转发)
   public void sendForwardMessage(
-      ChatMessageBean message,
-      String inputMsg,
-      String sessionId,
-      V2NIMConversationType sessionType) {
-    ALog.d(LIB_TAG, TAG, "sendForwardMessage:" + sessionId);
+      ChatMessageBean message, String inputMsg, List<String> conversationIds) {
+    ALog.d(LIB_TAG, TAG, "sendForwardMessage:" + conversationIds.size());
     if (message != null && !message.isRevoked()) {
-      // 转发消息
-      V2NIMMessage forwardMessage =
-          V2NIMMessageCreator.createForwardMessage(message.getMessageData().getMessage());
-      MessageHelper.clearAitAndReplyInfo(forwardMessage);
-      sendMessageStrExtension(
-          forwardMessage,
-          V2NIMConversationIdUtil.conversationId(sessionId, sessionType),
-          null,
-          null);
-      sendNoteMessage(inputMsg, Collections.singletonList(sessionId), sessionType);
+      List<RecentForward> recentForwards = new ArrayList<>();
+      for (String conversationId : conversationIds) {
+        // 转发消息
+        V2NIMMessage forwardMessage =
+            V2NIMMessageCreator.createForwardMessage(message.getMessageData().getMessage());
+        MessageHelper.clearAitAndReplyInfo(forwardMessage);
+        sendMessageStrExtension(forwardMessage, conversationId, null, null);
+        sendNoteMessage(inputMsg, Collections.singletonList(conversationId));
+        //保存到最新转发
+        String sessionId = V2NIMConversationIdUtil.conversationTargetId(conversationId);
+        V2NIMConversationType sessionType =
+            V2NIMConversationIdUtil.conversationType(conversationId);
+        recentForwards.add(new RecentForward(sessionId, sessionType));
+      }
+      SettingRepo.saveRecentForward(recentForwards);
     } else {
       ToastX.showShortToast(R.string.chat_message_removed_tip);
     }
   }
-  // 发送转发消息
+  // 发送转发消息（逐条转发）
   public void sendForwardMessages(
-      String displayName,
-      String inputMsg,
-      List<String> sessionInfo,
-      V2NIMConversationType sessionType,
-      List<ChatMessageBean> messages) {
-    if (sessionInfo == null || sessionInfo.isEmpty() || messages == null || messages.isEmpty()) {
+      String inputMsg, List<String> conversationIds, List<ChatMessageBean> messages) {
+    if (conversationIds == null
+        || conversationIds.isEmpty()
+        || messages == null
+        || messages.isEmpty()) {
       return;
     }
 
     boolean hasError = false;
 
+    //记录转发的最新会话
+    List<RecentForward> recentForwards = new ArrayList<>();
     // 合并转发消息需要逆序的，所以获取消息列表是逆序。逐条转发需要正序，所以要倒序遍历
     for (int index = messages.size() - 1; index >= 0; index--) {
       ChatMessageBean message = messages.get(index);
@@ -787,33 +790,38 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
         hasError = true;
         continue;
       }
-      for (String session : sessionInfo) {
+      for (String conversationId : conversationIds) {
         //转发
         V2NIMMessage forwardMessage =
             V2NIMMessageCreator.createForwardMessage(message.getMessageData().getMessage());
         MessageHelper.clearAitAndReplyInfo(forwardMessage);
-        sendMessageStrExtension(
-            forwardMessage,
-            V2NIMConversationIdUtil.conversationId(session, sessionType),
-            null,
-            null);
+        sendMessageStrExtension(forwardMessage, conversationId, null, null);
+        if (recentForwards.isEmpty()) {
+          String sessionId = V2NIMConversationIdUtil.conversationTargetId(conversationId);
+          V2NIMConversationType sessionType =
+              V2NIMConversationIdUtil.conversationType(conversationId);
+          recentForwards.add(new RecentForward(sessionId, sessionType));
+        }
       }
     }
+    SettingRepo.saveRecentForward(recentForwards);
     if (hasError) {
       ToastX.showLongToast(R.string.msg_multi_forward_error_tips);
     }
-    sendNoteMessage(inputMsg, sessionInfo, sessionType);
+    sendNoteMessage(inputMsg, conversationIds);
   }
 
   // 发送合并转发消息
   public void sendMultiForwardMessage(
       String displayName,
       String inputMsg,
-      List<String> sessionInfo,
-      V2NIMConversationType sessionType,
+      List<String> conversationIds,
       List<ChatMessageBean> messages) {
     ALog.d(LIB_TAG, TAG, "sendMultiForwardMessage");
-    if (sessionInfo == null || sessionInfo.isEmpty() || messages == null || messages.isEmpty()) {
+    if (conversationIds == null
+        || conversationIds.isEmpty()
+        || messages == null
+        || messages.isEmpty()) {
       return;
     }
 
@@ -848,14 +856,19 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
                     MessageHelper.createMultiTransmitAttachment(
                         displayName, mChatAccountId, param, iMessageList);
                 attachment.md5 = fileMD5;
-                for (String session : sessionInfo) {
+                List<RecentForward> recentForwards = new ArrayList<>();
+                for (String conversationId : conversationIds) {
                   V2NIMMessage multiForwardMessage =
                       V2NIMMessageCreator.createCustomMessage(displayName, attachment.toJsonStr());
-                  String conversationId =
-                      V2NIMConversationIdUtil.conversationId(session, sessionType);
                   sendMessageStrExtension(multiForwardMessage, conversationId, null, null);
+                  String sessionId = V2NIMConversationIdUtil.conversationTargetId(conversationId);
+                  V2NIMConversationType sessionType =
+                      V2NIMConversationIdUtil.conversationType(conversationId);
+                  recentForwards.add(new RecentForward(sessionId, sessionType));
                 }
-                sendNoteMessage(inputMsg, sessionInfo, sessionType);
+                SettingRepo.saveRecentForward(recentForwards);
+
+                sendNoteMessage(inputMsg, conversationIds);
               }
             }
           });
@@ -869,11 +882,9 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
    * 发送脚本消息
    *
    * @param inputMsg 输入的脚本消息
-   * @param sessions 会话ID列表
-   * @param sessionType 会话类型
+   * @param conversationIds 会话ID列表
    */
-  private void sendNoteMessage(
-      String inputMsg, List<String> sessions, V2NIMConversationType sessionType) {
+  private void sendNoteMessage(String inputMsg, List<String> conversationIds) {
     if (TextUtils.isEmpty(inputMsg) || TextUtils.getTrimmedLength(inputMsg) <= 0) {
       return;
     }
@@ -881,13 +892,9 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
     new Handler(Looper.getMainLooper())
         .postDelayed(
             () -> {
-              for (String sessionId : sessions) {
+              for (String sessionId : conversationIds) {
                 V2NIMMessage textMessage = V2NIMMessageCreator.createTextMessage(inputMsg);
-                sendMessageStrExtension(
-                    textMessage,
-                    V2NIMConversationIdUtil.conversationId(sessionId, sessionType),
-                    null,
-                    null);
+                sendMessageStrExtension(textMessage, sessionId, null, null);
               }
             },
             500);
@@ -924,8 +931,6 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
       }
       V2NIMMessage msg =
           V2NIMMessageCreator.createFileMessage(docsFile.getPath(), displayName, null);
-      //      IMMessage message =
-      //          MessageBuilder.createFileMessage(mSessionId, mSessionType, docsFile, displayName);
       sendMessage(msg, null, null);
     }
   }
@@ -1075,23 +1080,30 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
             @Override
             public void onProgress(int progress) {
               ALog.d(LIB_TAG, TAG, "sendMessage progress -->> " + progress);
+              if (TextUtils.equals(conversationId, mConversationId)
+                  && message.getMessageClientId() != null) {
+                FetchResult<IMMessageProgress> result = new FetchResult<>(LoadStatus.Success);
+                result.setData(new IMMessageProgress(message.getMessageClientId(), progress));
+                result.setType(FetchResult.FetchType.Update);
+                result.setTypeIndex(-1);
+                attachmentProgressMutableLiveData.setValue(result);
+              }
             }
 
             @Override
-            public void onSuccess(@Nullable V2NIMSendMessageResult data) {}
+            public void onSuccess(@Nullable V2NIMSendMessageResult data) {
+              ALog.d(LIB_TAG, TAG, "sendMessage onSuccess -->> ");
+              if (data != null
+                  && TextUtils.equals(data.getMessage().getConversationId(), mConversationId)) {
+                ALog.d(LIB_TAG, TAG, "sendingObserver onSuccess -->> " + mConversationId);
+                postMessageSend(new IMMessageInfo(data.getMessage()), false);
+              }
+            }
 
             @Override
             public void onError(int errorCode, @Nullable String errorMsg) {
               ALog.d(
                   LIB_TAG, TAG, "sendMessage onError -->> " + errorCode + " errorMsg:" + errorMsg);
-              if (errorCode == ChatKitUIConstant.ERROR_CODE_IN_BLACK_LIST) {
-                //保存本地黑名单消息
-                MessageHelper.saveLocalBlackTipMessageAndNotify(message);
-              }
-              IMMessageInfo messageInfo = new IMMessageInfo(message);
-              messageInfo.setSendingState(
-                  V2NIMMessageSendingState.V2NIM_MESSAGE_SENDING_STATE_FAILED);
-              postMessageSend(messageInfo, false);
             }
           });
     }
@@ -1109,11 +1121,11 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
             .withLimit(messagePageSize)
             .withDirection(V2NIMMessageQueryDirection.V2NIM_QUERY_DIRECTION_DESC);
     if (anchor == null) {
-      ChatRepo.getHistoryMessage(
+      ChatRepo.getMessageList(
           optionBuilder.build(),
-          new FetchCallback<List<IMMessageInfo>>() {
+          new FetchCallback<>() {
             @Override
-            public void onError(int errorCode, @NonNull String errorMsg) {}
+            public void onError(int errorCode, @Nullable String errorMsg) {}
 
             @Override
             public void onSuccess(@Nullable List<IMMessageInfo> param) {
@@ -1154,9 +1166,9 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
       optionBuilder.withBeginTime(anchor.getCreateTime());
     }
 
-    ChatRepo.getHistoryMessage(
+    ChatRepo.getMessageList(
         optionBuilder.build(),
-        new FetchCallback<List<IMMessageInfo>>() {
+        new FetchCallback<>() {
           @Override
           public void onError(int errorCode, @Nullable String errorMsg) {
             onListFetchFailed(errorCode);
@@ -1298,10 +1310,10 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
       return;
     }
     ALog.d(LIB_TAG, TAG, "addMessagePin,message" + messageInfo.getMessage().getMessageClientId());
-    ChatRepo.addMessagePin(
+    ChatRepo.pinMessage(
         messageInfo.getMessage(),
         ext,
-        new FetchCallback<Void>() {
+        new FetchCallback<>() {
           @Override
           public void onError(int errorCode, @Nullable String errorMsg) {
             if (errorCode == ChatKitUIConstant.ERROR_CODE_PIN_MSG_LIMIT) {
@@ -1321,11 +1333,13 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
   }
 
   public void removeMsgPin(IMMessageInfo messageInfo) {
-    if (messageInfo == null || messageInfo.getPinOption() == null) {
+    if (messageInfo == null
+        || messageInfo.getPinOption() == null
+        || messageInfo.getPinOption().getMessageRefer() == null) {
       return;
     }
     ALog.d(LIB_TAG, TAG, "removeMsgPin,message" + messageInfo.getMessage().getMessageClientId());
-    ChatRepo.removeMessagePin(messageInfo.getPinOption().getMessageRefer(), null);
+    ChatRepo.unpinMessage(messageInfo.getPinOption().getMessageRefer(), null);
   }
 
   @Override

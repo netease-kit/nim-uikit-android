@@ -117,6 +117,9 @@ public class FunChatP2PFragment extends FunChatFragment {
   }
 
   @Override
+  protected void updateDataWhenLogin() {}
+
+  @Override
   public void onDestroyView() {
     super.onDestroyView();
     ((ChatP2PViewModel) viewModel).getMessageReceiptLiveData().removeObserver(p2pReceiptObserver);
@@ -206,11 +209,11 @@ public class FunChatP2PFragment extends FunChatFragment {
   }
 
   @Override
-  public String getSessionName() {
+  public String getConversationName() {
     if (friendInfo != null) {
       return friendInfo.getName();
     }
-    return super.getSessionName();
+    return super.getConversationName();
   }
 
   @Override

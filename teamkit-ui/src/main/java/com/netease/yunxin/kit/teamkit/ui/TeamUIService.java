@@ -31,6 +31,7 @@ import com.netease.nimlib.sdk.v2.team.params.V2NIMCreateTeamParams;
 import com.netease.nimlib.sdk.v2.team.result.V2NIMCreateTeamResult;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.ChatService;
+import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
 import com.netease.yunxin.kit.chatkit.repo.TeamRepo;
 import com.netease.yunxin.kit.corekit.im2.IMKitConstant;
 import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
@@ -43,6 +44,7 @@ import com.netease.yunxin.kit.corekit.startup.Initializer;
 import com.netease.yunxin.kit.teamkit.ui.fun.activity.FunTeamSettingActivity;
 import com.netease.yunxin.kit.teamkit.ui.normal.activity.TeamSettingActivity;
 import com.netease.yunxin.kit.teamkit.ui.utils.TeamIconUtils;
+import com.netease.yunxin.kit.teamkit.ui.utils.TeamUIKitConstant;
 import com.netease.yunxin.kit.teamkit.ui.utils.TeamUtils;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -153,7 +155,7 @@ public class TeamUIService extends ChatService {
     Object teamIdObject = customParam.get(RouterConstant.KEY_TEAM_ID);
     if (teamIdObject != null && accIdList != null && accIdList.size() > 0) {
       String teamId = teamIdObject.toString();
-      TeamRepo.inviteUser(teamId, accIdList, null);
+      TeamRepo.inviteTeamMembers(teamId, V2NIMTeamType.V2NIM_TEAM_TYPE_NORMAL, accIdList, null);
       return true;
     }
 
@@ -169,8 +171,8 @@ public class TeamUIService extends ChatService {
       boolean isGroup) {
     try {
       Map<String, Object> customParam = params;
-      if (TeamKitClient.getTeamCustom() != null) {
-        customParam = TeamKitClient.getTeamCustom().customCreateTeam(params);
+      if (IMKitConfigCenter.getTeamCustom() != null) {
+        customParam = IMKitConfigCenter.getTeamCustom().customCreateTeam(params);
       }
       List<String> nameList =
           customParam.get(KEY_REQUEST_SELECTOR_NAME) != null
@@ -242,7 +244,7 @@ public class TeamUIService extends ChatService {
               if (observer != null) {
                 observer.onResult(new ResultInfo<>(null, false, new ErrorMsg(errorCode)));
               }
-              ALog.e(TeamKitClient.LIB_TAG, TAG, "create team onFailed:" + errorCode);
+              ALog.e(TeamUIKitConstant.LIB_TAG, TAG, "create team onFailed:" + errorCode);
             }
 
             @Override
@@ -250,11 +252,12 @@ public class TeamUIService extends ChatService {
               if (observer != null) {
                 observer.onResult(new ResultInfo<>(data, true));
               }
-              ALog.e(TeamKitClient.LIB_TAG, TAG, "createNormalTeam onSuccess");
+              ALog.e(TeamUIKitConstant.LIB_TAG, TAG, "createNormalTeam onSuccess");
             }
           });
     } catch (Exception exception) {
-      ALog.e(TeamKitClient.LIB_TAG, TAG, "createNormalTeam exception:" + exception.getMessage());
+      ALog.e(
+          TeamUIKitConstant.LIB_TAG, TAG, "createNormalTeam exception:" + exception.getMessage());
     }
   }
 

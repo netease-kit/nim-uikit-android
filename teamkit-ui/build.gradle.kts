@@ -15,10 +15,9 @@ android {
 
     defaultConfig {
         minSdk = 21
-        targetSdk = 34
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
-        buildConfigField("String", "versionName", "\"10.0.0-beta01\"")
+        buildConfigField("String", "versionName", "\"10.1.1\"")
     }
 
     buildTypes {
@@ -43,10 +42,10 @@ android {
 
 dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
-    api("com.netease.yunxin.kit.chat:chatkit:10.0.0-beta01")
-    api("com.netease.yunxin.kit.common:common-ui:1.3.4")
+    api("com.netease.yunxin.kit.chat:chatkit:10.1.1")
+    api("com.netease.yunxin.kit.common:common-ui:1.3.5")
     api("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.22")
-    implementation("androidx.appcompat:appcompat:1.6.1")
+    implementation("androidx.appcompat:appcompat:1.5.0")
     implementation("com.google.android.material:material:1.11.0")
     implementation("androidx.recyclerview:recyclerview:1.3.2")
     implementation("com.github.bumptech.glide:glide:4.13.1")

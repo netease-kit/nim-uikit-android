@@ -4,7 +4,6 @@
 
 package com.netease.yunxin.kit.chatkit.ui.fun.viewholder.pin;
 
-import android.text.TextUtils;
 import android.view.View;
 import androidx.annotation.NonNull;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessage;
@@ -20,7 +19,6 @@ import com.netease.yunxin.kit.common.utils.FileUtils;
 import com.netease.yunxin.kit.common.utils.ImageUtils;
 import com.netease.yunxin.kit.common.utils.SizeUtils;
 import com.netease.yunxin.kit.common.utils.TimeUtils;
-import com.netease.yunxin.kit.corekit.im2.IMKitClient;
 import java.util.Locale;
 
 public class FunChatVideoPinViewHolder extends FunChatThumbPinViewHolder {
@@ -50,11 +48,8 @@ public class FunChatVideoPinViewHolder extends FunChatThumbPinViewHolder {
     V2NIMMessage message = data.getMessageData().getMessage();
     if (message.getAttachmentUploadState()
         == V2NIMMessageAttachmentUploadState.V2NIM_MESSAGE_ATTACHMENT_UPLOAD_STATE_FAILED) {
-      if (TextUtils.equals(message.getSenderId(), IMKitClient.account())) {
-        ToastX.showShortToast(R.string.chat_message_video_send_fail);
-      } else {
-        ToastX.showShortToast(R.string.chat_message_video_download_fail);
-      }
+
+      ToastX.showShortToast(R.string.chat_message_video_download_fail);
     }
     updateStatus(message);
   }

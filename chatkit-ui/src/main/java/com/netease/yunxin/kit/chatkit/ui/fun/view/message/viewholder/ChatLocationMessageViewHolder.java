@@ -11,7 +11,6 @@ import androidx.annotation.NonNull;
 import com.bumptech.glide.Glide;
 import com.netease.nimlib.sdk.v2.message.attachment.V2NIMMessageLocationAttachment;
 import com.netease.yunxin.kit.alog.ALog;
-import com.netease.yunxin.kit.chatkit.map.IChatMap;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitClient;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant;
 import com.netease.yunxin.kit.chatkit.ui.R;
@@ -22,7 +21,6 @@ import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 public class ChatLocationMessageViewHolder extends FunChatBaseMessageViewHolder {
   public static final String TAG = "ChatLocationMessageViewHolder";
   FunChatMessageLocationViewHolderBinding binding;
-  IChatMap chatMap;
   V2NIMMessageLocationAttachment attachment;
 
   public ChatLocationMessageViewHolder(

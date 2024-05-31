@@ -7,10 +7,15 @@ package com.netease.yunxin.kit.contactkit.ui.fun.blacklist;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.view.ViewGroup;
 import androidx.annotation.Nullable;
 import com.netease.yunxin.kit.contactkit.ui.R;
 import com.netease.yunxin.kit.contactkit.ui.blacklist.BaseBlackListActivity;
 import com.netease.yunxin.kit.contactkit.ui.fun.selector.FunContactSelectorActivity;
+import com.netease.yunxin.kit.contactkit.ui.model.IViewTypeConstant;
+import com.netease.yunxin.kit.contactkit.ui.normal.view.ContactViewHolderFactory;
+import com.netease.yunxin.kit.contactkit.ui.view.viewholder.BaseContactViewHolder;
+import com.netease.yunxin.kit.contactkit.ui.view.viewholder.BlackListViewHolder;
 
 /**
  * 娱乐版黑名单页面
@@ -42,5 +47,26 @@ public class FunBlackListActivity extends BaseBlackListActivity {
     binding.title.getTitleTextView().setTextSize(17);
     binding.title.getTitleTextView().setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
     binding.title.setBackgroundResource(R.color.color_ededed);
+  }
+
+  @Override
+  protected void setBlackListViewHolder() {
+    binding.contactListView.setViewHolderFactory(
+        new ContactViewHolderFactory() {
+          @Override
+          protected BaseContactViewHolder getCustomViewHolder(ViewGroup view, int viewType) {
+            if (viewType == IViewTypeConstant.CONTACT_BLACK_LIST) {
+              BlackListViewHolder viewHolder = new BlackListViewHolder(view, true);
+              viewHolder.setRelieveListener(
+                  data -> {
+                    if (checkNetwork()) {
+                      viewModel.removeBlackOp(data.data.getAccountId());
+                    }
+                  });
+              return viewHolder;
+            }
+            return null;
+          }
+        });
   }
 }

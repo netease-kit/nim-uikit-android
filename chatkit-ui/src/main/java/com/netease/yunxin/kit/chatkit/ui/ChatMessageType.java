@@ -10,15 +10,15 @@ import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
 public interface ChatMessageType {
 
   /** normal message type */
-  int NORMAL_MESSAGE_VIEW_TYPE_TEXT = V2NIMMessageType.V2NIM_MESSAGE_TYPE_TEXT.getValue();
+  int TEXT_MESSAGE_VIEW_TYPE = V2NIMMessageType.V2NIM_MESSAGE_TYPE_TEXT.getValue();
 
-  int NORMAL_MESSAGE_VIEW_TYPE_IMAGE = V2NIMMessageType.V2NIM_MESSAGE_TYPE_IMAGE.getValue();
+  int IMAGE_MESSAGE_VIEW_TYPE = V2NIMMessageType.V2NIM_MESSAGE_TYPE_IMAGE.getValue();
 
-  int NORMAL_MESSAGE_VIEW_TYPE_AUDIO = V2NIMMessageType.V2NIM_MESSAGE_TYPE_AUDIO.getValue();
+  int AUDIO_MESSAGE_VIEW_TYPE = V2NIMMessageType.V2NIM_MESSAGE_TYPE_AUDIO.getValue();
 
-  int NORMAL_MESSAGE_VIEW_TYPE_VIDEO = V2NIMMessageType.V2NIM_MESSAGE_TYPE_VIDEO.getValue();
+  int VIDEO_MESSAGE_VIEW_TYPE = V2NIMMessageType.V2NIM_MESSAGE_TYPE_VIDEO.getValue();
 
-  int NORMAL_MESSAGE_VIEW_TYPE_FILE = V2NIMMessageType.V2NIM_MESSAGE_TYPE_FILE.getValue();
+  int FILE_MESSAGE_VIEW_TYPE = V2NIMMessageType.V2NIM_MESSAGE_TYPE_FILE.getValue();
 
   /** notice message type */
   int NOTICE_MESSAGE_VIEW_TYPE = V2NIMMessageType.V2NIM_MESSAGE_TYPE_NOTIFICATION.getValue();

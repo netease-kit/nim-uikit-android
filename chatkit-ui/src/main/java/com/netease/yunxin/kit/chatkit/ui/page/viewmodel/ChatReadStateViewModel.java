@@ -13,6 +13,7 @@ import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.model.IMTeamMsgAckInfo;
 import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
 import com.netease.yunxin.kit.chatkit.ui.R;
+import com.netease.yunxin.kit.chatkit.ui.common.ChatUserCache;
 import com.netease.yunxin.kit.common.ui.utils.ToastX;
 import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
 import com.netease.yunxin.kit.common.utils.NetworkUtils;
@@ -32,8 +33,9 @@ public class ChatReadStateViewModel extends BaseViewModel {
     if (message == null) {
       return;
     }
-    ChatRepo.fetchTeamMessageReceiptDetail(
+    ChatRepo.getTeamMessageReceiptDetail(
         message,
+        null,
         new FetchCallback<>() {
           @Override
           public void onError(int errorCode, @Nullable String errorMsg) {
@@ -47,6 +49,11 @@ public class ChatReadStateViewModel extends BaseViewModel {
 
           @Override
           public void onSuccess(@Nullable IMTeamMsgAckInfo data) {
+            ALog.d(LIB_TAG, TAG, "fetchTeamAckInfo success:" + data);
+            if (data != null) {
+              ChatUserCache.getInstance().addFriendInfo(data.getAckUserInfoList());
+              ChatUserCache.getInstance().addFriendInfo(data.getUnAckUserInfoList());
+            }
             teamAckInfo.postValue(data);
           }
         });

@@ -193,9 +193,9 @@ public abstract class ChatBaseMessageViewHolder extends CommonBaseMessageViewHol
     return true;
   }
 
-  protected boolean needMultiSelect() {
-    return !currentMessage.isRevoked()
-        && currentMessage.getMessageData().getMessage().getMessageType()
+  //多选状态下，是否展示选择按钮（撤回消息、通知消息和提示消息不展示多选）
+  protected boolean needShowMultiSelect() {
+    return currentMessage.getMessageData().getMessage().getMessageType()
             != V2NIMMessageType.V2NIM_MESSAGE_TYPE_NOTIFICATION
         && currentMessage.getMessageData().getMessage().getMessageType()
             != V2NIMMessageType.V2NIM_MESSAGE_TYPE_TIPS;
@@ -490,8 +490,12 @@ public abstract class ChatBaseMessageViewHolder extends CommonBaseMessageViewHol
     ConstraintLayout.LayoutParams bottomLayoutParams =
         (ConstraintLayout.LayoutParams) baseViewBinding.messageBottomGroup.getLayoutParams();
 
-    if (isMultiSelect && needMultiSelect()) {
-      baseViewBinding.chatMsgSelectLayout.setVisibility(View.VISIBLE);
+    if (isMultiSelect && needShowMultiSelect()) {
+      if (currentMessage.isRevoked()) {
+        baseViewBinding.chatMsgSelectLayout.setVisibility(View.INVISIBLE);
+      } else {
+        baseViewBinding.chatMsgSelectLayout.setVisibility(View.VISIBLE);
+      }
       baseViewBinding.chatSelectorCb.setChecked(
           ChatMsgCache.contains(message.getMessageData().getMessage().getMessageClientId()));
       avatarLayoutParams.setMarginEnd(SizeUtils.dp2px(mineAvatarMarginEndInMulti));
@@ -688,7 +692,8 @@ public abstract class ChatBaseMessageViewHolder extends CommonBaseMessageViewHol
       // 人员总数
       float all = ackCount + unAckCount;
       ALog.d(
-          "GeorgeTest", "ackCount = " + ackCount + " unAckCount = " + unAckCount + " all = " + all);
+          "ChatBaseMessageViewHolder",
+          "ackCount = " + ackCount + " unAckCount = " + unAckCount + " all = " + all);
       // 若获取到 all 人数 <= 0 则不展示已读状态
       if (all > 0) {
         // 计算已读进度

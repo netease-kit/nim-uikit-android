@@ -138,6 +138,16 @@ public class ChatSearchBaseActivity extends BaseActivity {
                 finish();
               }
             });
+
+    viewModel
+        .getUserChangeLiveData()
+        .observe(
+            this,
+            result -> {
+              if (result.getLoadStatus() == LoadStatus.Success && result.getData() != null) {
+                searchAdapter.updateUserList(result.getData());
+              }
+            });
   }
 
   protected void showEmpty(boolean show) {

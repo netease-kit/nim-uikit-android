@@ -17,7 +17,6 @@ import com.netease.yunxin.kit.contactkit.ui.model.ContactVerifyInfoBean;
 import com.netease.yunxin.kit.contactkit.ui.view.ContactListViewAttrs;
 import com.netease.yunxin.kit.contactkit.ui.view.viewholder.BaseContactViewHolder;
 import com.netease.yunxin.kit.corekit.im2.IMKitClient;
-import com.netease.yunxin.kit.corekit.im2.model.BeenOperatedType;
 import com.netease.yunxin.kit.corekit.im2.model.FriendAddApplicationInfo;
 
 public class VerifyInfoViewHolder extends BaseContactViewHolder {
@@ -59,64 +58,56 @@ public class VerifyInfoViewHolder extends BaseContactViewHolder {
       binding.rootView.setBackgroundColor(context.getResources().getColor(R.color.color_white));
     }
 
-    if (info.getBeenOperatedType() == BeenOperatedType.REJECT) {
-      binding.tvAction.setText(R.string.reject_your_friend_apply);
-      showResult(null, true);
-    } else if (info.getBeenOperatedType() == BeenOperatedType.AGREE) {
-      binding.tvAction.setText(R.string.accept_your_friend_apply);
-      showResult(null, true);
-    } else {
-      switch (info.getStatus()) {
-        case V2NIM_FRIEND_ADD_APPLICATION_STATUS_INIT:
-          binding.llyVerifyResult.setVisibility(View.GONE);
-          binding.llyVerify.setVisibility(View.VISIBLE);
+    switch (info.getStatus()) {
+      case V2NIM_FRIEND_ADD_APPLICATION_STATUS_INIT:
+        binding.llyVerifyResult.setVisibility(View.GONE);
+        binding.llyVerify.setVisibility(View.VISIBLE);
+        binding.tvAction.setText(R.string.friend_apply);
+        binding.tvAccept.setOnClickListener(
+            v -> {
+              if (verifyListener != null) {
+                verifyListener.onAccept((ContactVerifyInfoBean) bean);
+              }
+            });
+        binding.tvReject.setOnClickListener(
+            v -> {
+              if (verifyListener != null) {
+                verifyListener.onReject((ContactVerifyInfoBean) bean);
+              }
+            });
+        break;
+      case V2NIM_FRIEND_ADD_APPLICATION_STATUS_AGREED:
+        if (TextUtils.equals(
+            ((ContactVerifyInfoBean) bean).data.getApplicantAccountId(), IMKitClient.account())) {
+          binding.tvAction.setText(R.string.accept_your_friend_apply);
+          showResult(null, true);
+          // 对方同意了我的申请
+          name = info.getOperatorUserInfo().getUserInfoName();
+          avatar = info.getOperatorUserInfo().getAvatar();
+        } else if (TextUtils.equals(
+            ((ContactVerifyInfoBean) bean).data.getOperatorAccountId(), IMKitClient.account())) {
           binding.tvAction.setText(R.string.friend_apply);
-          binding.tvAccept.setOnClickListener(
-              v -> {
-                if (verifyListener != null) {
-                  verifyListener.onAccept((ContactVerifyInfoBean) bean);
-                }
-              });
-          binding.tvReject.setOnClickListener(
-              v -> {
-                if (verifyListener != null) {
-                  verifyListener.onReject((ContactVerifyInfoBean) bean);
-                }
-              });
-          break;
-        case V2NIM_FRIEND_ADD_APPLICATION_STATUS_AGREED:
-          if (TextUtils.equals(
-              ((ContactVerifyInfoBean) bean).data.getApplicantAccountId(), IMKitClient.account())) {
-            binding.tvAction.setText(R.string.accept_your_friend_apply);
-            showResult(null, true);
-            // 对方同意了我的申请
-            name = info.getOperatorUserInfo().getUserInfoName();
-            avatar = info.getOperatorUserInfo().getAvatar();
-          } else if (TextUtils.equals(
-              ((ContactVerifyInfoBean) bean).data.getOperatorAccountId(), IMKitClient.account())) {
-            binding.tvAction.setText(R.string.friend_apply);
-            showResult(context.getString(R.string.contact_verify_agreed), true);
-          }
-          break;
-        case V2NIM_FRIEND_ADD_APPLICATION_STATUS_REJECTED:
-          if (TextUtils.equals(
-              ((ContactVerifyInfoBean) bean).data.getApplicantAccountId(), IMKitClient.account())) {
-            // 对方拒绝了我的申请
-            binding.tvAction.setText(R.string.reject_your_friend_apply);
-            showResult(null, false);
-            name = info.getOperatorUserInfo().getUserInfoName();
-            avatar = info.getOperatorUserInfo().getAvatar();
-          } else if (TextUtils.equals(
-              ((ContactVerifyInfoBean) bean).data.getOperatorAccountId(), IMKitClient.account())) {
-            binding.tvAction.setText(R.string.friend_apply);
-            showResult(context.getString(R.string.contact_verify_rejected), false);
-          }
-          break;
-        case V2NIM_FRIEND_ADD_APPLICATION_STATUS_EXPIRED:
-          showResult(context.getString(R.string.contact_verify_expired), false);
+          showResult(context.getString(R.string.contact_verify_agreed), true);
+        }
+        break;
+      case V2NIM_FRIEND_ADD_APPLICATION_STATUS_REJECTED:
+        if (TextUtils.equals(
+            ((ContactVerifyInfoBean) bean).data.getApplicantAccountId(), IMKitClient.account())) {
+          // 对方拒绝了我的申请
+          binding.tvAction.setText(R.string.reject_your_friend_apply);
+          showResult(null, false);
+          name = info.getOperatorUserInfo().getUserInfoName();
+          avatar = info.getOperatorUserInfo().getAvatar();
+        } else if (TextUtils.equals(
+            ((ContactVerifyInfoBean) bean).data.getOperatorAccountId(), IMKitClient.account())) {
           binding.tvAction.setText(R.string.friend_apply);
-          break;
-      }
+          showResult(context.getString(R.string.contact_verify_rejected), false);
+        }
+        break;
+      case V2NIM_FRIEND_ADD_APPLICATION_STATUS_EXPIRED:
+        showResult(context.getString(R.string.contact_verify_expired), false);
+        binding.tvAction.setText(R.string.friend_apply);
+        break;
     }
 
     binding.tvName.setText(name);

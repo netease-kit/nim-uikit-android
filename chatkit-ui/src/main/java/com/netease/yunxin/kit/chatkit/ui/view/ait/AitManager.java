@@ -13,7 +13,6 @@ import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamMemberRole;
 import com.netease.nimlib.sdk.v2.team.model.V2NIMTeam;
 import com.netease.nimlib.sdk.v2.team.model.V2NIMTeamMember;
 import com.netease.nimlib.sdk.v2.user.V2NIMUser;
-import com.netease.yunxin.kit.chatkit.model.TeamMemberListResult;
 import com.netease.yunxin.kit.chatkit.model.TeamMemberWithUserInfo;
 import com.netease.yunxin.kit.chatkit.repo.TeamRepo;
 import com.netease.yunxin.kit.chatkit.ui.R;
@@ -52,26 +51,17 @@ public class AitManager implements TextWatcher {
   private int editTextBefore;
   // 是否删除操作
   private boolean delete;
-  // 是否重新加载数据
-  private final boolean reloadData;
   // 是否显示@所有成员
   private boolean showAll = true;
   // UI风格，默认协同版
   private int uiStyle = STYLE_NORMAL;
-  // @所有成员列表是否有更多
-  private boolean memberHasMore = false;
-  // 下一页token
-  private String nextToken = "";
+  //全局dialog
+  AitContactSelectorDialog aitDialog;
 
   public AitManager(Context context, String teamId) {
-    this(context, teamId, true);
-  }
-
-  public AitManager(Context context, String teamId, boolean reloadData) {
     this.mContext = context;
     this.tid = teamId;
     atContactsModel = new AtContactsModel();
-    this.reloadData = reloadData;
   }
 
   // 设置UI风格
@@ -88,6 +78,7 @@ public class AitManager implements TextWatcher {
       }
     }
     ChatUserCache.getInstance().addTeamMembersCache(userInfoWithTeams);
+    ChatUserCache.getInstance().haveLoadAllTeamMembers = true;
   }
 
   // 更新群信息
@@ -180,11 +171,11 @@ public class AitManager implements TextWatcher {
       CharSequence s = editable.subSequence(start, start + count);
       // 输入@符号，拉起@成员选择器
       if (s.toString().equals("@") && !TextUtils.isEmpty(tid)) {
-        AitContactSelectorDialog dialog = new AitContactSelectorDialog(mContext);
-        dialog.setUIStyle(uiStyle);
-        dialog.setData(
-            ChatUserCache.getInstance().getAllMemberWithoutCurrentUser(), false, canAtAll());
-        dialog.setOnItemListener(
+        if (aitDialog == null) {
+          aitDialog = new AitContactSelectorDialog(mContext);
+        }
+        aitDialog.setUIStyle(uiStyle);
+        aitDialog.setOnItemListener(
             new AitContactSelectorDialog.ItemListener() {
               // 选择@成员
               @Override
@@ -210,15 +201,13 @@ public class AitManager implements TextWatcher {
 
               // 加载更多
               @Override
-              public void onLoadMore() {
-                loadMoreData(dialog);
-              }
+              public void onLoadMore() {}
             });
-        dialog.show();
-        // 如果需要重新加载数据，则请求数据进行异步加载
-        if (reloadData) {
-          loadData(dialog);
+        if (!aitDialog.isShowing()) {
+          aitDialog.show();
         }
+        // 加载数据，则请求数据进行异步加载
+        loadData(aitDialog);
       }
       atContactsModel.onInsertText(start, s.toString());
     }
@@ -226,55 +215,32 @@ public class AitManager implements TextWatcher {
 
   // 加载数据，请求群成员列表
   public void loadData(AitContactSelectorDialog dialog) {
-    memberHasMore = false;
-    nextToken = "";
-    TeamRepo.getTeamMemberListWithUserInfo(
+    //如果已经拉取了所有成员，则使用缓存，直接展示
+    if (ChatUserCache.getInstance().haveLoadAllTeamMembers) {
+      if (dialog.isShowing()) {
+        dialog.setData(
+            ChatUserCache.getInstance().getAllMemberWithoutCurrentUser(), true, canAtAll());
+      }
+      return;
+    }
+    //拉取所有成员并展示
+    TeamRepo.queryAllTeamMemberListWithUserInfo(
         tid,
-        new FetchCallback<TeamMemberListResult>() {
+        new FetchCallback<>() {
           @Override
-          public void onSuccess(@Nullable TeamMemberListResult data) {
-            if (data != null) {
-              if (data.getMemberList() != null) {
-                setTeamMembers(data.getMemberList());
-              }
-              memberHasMore = !data.isFinished();
-              nextToken = data.getNextToken();
+          public void onSuccess(@Nullable List<TeamMemberWithUserInfo> data) {
+            if (data != null && !data.isEmpty()) {
+              setTeamMembers(data);
             }
             if (dialog.isShowing()) {
-              dialog.setData(ChatUserCache.getInstance().getAllMemberWithoutCurrentUser(), true);
+              dialog.setData(
+                  ChatUserCache.getInstance().getAllMemberWithoutCurrentUser(), true, canAtAll());
             }
           }
 
           @Override
           public void onError(int errorCode, @Nullable String errorMsg) {}
         });
-  }
-
-  // 加载更多数据，请求下一页群成员列表
-  public void loadMoreData(AitContactSelectorDialog dialog) {
-    if (memberHasMore) {
-      TeamRepo.getTeamMemberListWithUserInfo(
-          tid,
-          nextToken,
-          new FetchCallback<>() {
-            @Override
-            public void onSuccess(@Nullable TeamMemberListResult data) {
-              if (data != null) {
-                if (data.getMemberList() != null) {
-                  setTeamMembers(data.getMemberList());
-                }
-                memberHasMore = !data.isFinished();
-                nextToken = data.getNextToken();
-              }
-              if (dialog.isShowing()) {
-                dialog.addData(ChatUserCache.getInstance().getAllMemberWithoutCurrentUser());
-              }
-            }
-
-            @Override
-            public void onError(int errorCode, @Nullable String errorMsg) {}
-          });
-    }
   }
 
   // 插入@成员

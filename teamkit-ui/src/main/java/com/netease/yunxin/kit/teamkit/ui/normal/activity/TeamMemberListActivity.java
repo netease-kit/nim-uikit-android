@@ -30,12 +30,15 @@ public class TeamMemberListActivity extends BaseTeamMemberListActivity {
     rvMemberList = binding.rvMemberList;
     groupEmpty = binding.groupEmtpy;
     etSearch = binding.etSearch;
+    tvTitle = binding.tvTitle;
     return binding.getRoot();
   }
 
   @Override
   protected BaseTeamMemberListAdapter<? extends ViewBinding> getMemberListAdapter(
       V2NIMTeamType typeEnum) {
-    return new TeamMemberListAdapter(this, typeEnum, TeamMemberListItemBinding.class);
+    BaseTeamMemberListAdapter listAdapter =
+        new TeamMemberListAdapter(this, typeEnum, TeamMemberListItemBinding.class);
+    return listAdapter;
   }
 }

@@ -4,7 +4,6 @@
 
 package com.netease.yunxin.kit.chatkit.ui.view.message;
 
-import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.KEY_MAP_FOR_MESSAGE;
 import static com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants.PAYLOAD_SELECT_STATUS;
 
 import android.annotation.SuppressLint;
@@ -22,7 +21,6 @@ import com.netease.nimlib.sdk.v2.message.V2NIMMessagePin;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessageRefer;
 import com.netease.nimlib.sdk.v2.team.model.V2NIMTeam;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
-import com.netease.yunxin.kit.chatkit.ui.ChatKitClient;
 import com.netease.yunxin.kit.chatkit.ui.IChatFactory;
 import com.netease.yunxin.kit.chatkit.ui.factory.ChatPopActionFactory;
 import com.netease.yunxin.kit.chatkit.ui.interfaces.IMessageData;
@@ -218,7 +216,10 @@ public class ChatMessageListView extends RecyclerView implements IMessageData {
   @Override
   public void updateMessageStatus(ChatMessageBean message) {
     if (messageAdapter != null) {
-      messageAdapter.updateMessageStatus(message);
+      int index = messageAdapter.updateMessageStatus(message);
+      if (index < 0) {
+        scrollToEnd();
+      }
     }
   }
 
@@ -265,6 +266,11 @@ public class ChatMessageListView extends RecyclerView implements IMessageData {
    */
   public void insertMessage(ChatMessageBean message) {
     if (messageAdapter != null) {
+      int messageIndex = messageAdapter.searchMessagePosition(message.getMsgClientId());
+      if (messageIndex >= 0) {
+        messageAdapter.updateMessage(message, null);
+        return;
+      }
       int index = messageAdapter.insertMessageSortByTime(message);
       if (index == -1) {
         scrollToEnd();
@@ -478,19 +484,21 @@ public class ChatMessageListView extends RecyclerView implements IMessageData {
     }
   }
 
-  public void scrollToMessage(String msgUuid) {
+  /**
+   * 滚动到消息
+   *
+   * @param msgUuid 消息uuid
+   * @return 是否滚动成功
+   */
+  public boolean scrollToMessage(String msgUuid) {
     if (messageAdapter != null) {
       int index = searchMessagePosition(msgUuid);
       if (index >= 0) {
         smoothScrollToPosition(index);
+        return true;
       }
     }
-  }
-
-  public void release() {
-    if (ChatKitClient.getMessageMapProvider() != null) {
-      ChatKitClient.getMessageMapProvider().releaseAllChatMap(KEY_MAP_FOR_MESSAGE);
-    }
+    return false;
   }
 
   private boolean needScrollToBottom() {

@@ -318,6 +318,9 @@ public class FunChatView extends LinearLayout implements IChatView, AitTextChang
   @Override
   public void setReplyMessage(ChatMessageBean messageBean) {
     binding.chatBottomInputLayout.setReplyMessage(messageBean);
+    if (binding.chatRichLayout.getVisibility() == VISIBLE) {
+      binding.chatRichContentEt.requestFocus();
+    }
   }
 
   public void setTypeState(boolean isTyping) {
@@ -462,6 +465,7 @@ public class FunChatView extends LinearLayout implements IChatView, AitTextChang
     return binding;
   }
 
+  @Override
   public FrameLayout getChatBodyTopLayout() {
     return binding.bodyTopLayout;
   }

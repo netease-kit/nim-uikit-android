@@ -12,7 +12,6 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.ui.R;
@@ -52,21 +51,17 @@ public abstract class NormalChatFragment extends ChatBaseFragment {
   }
 
   @Override
-  protected void forwardP2P() {
-    ChatUtils.startP2PSelector(
-        getContext(), RouterConstant.PATH_CONTACT_SELECTOR_PAGE, null, forwardP2PLauncher);
+  protected void onStartForward(String action) {
+    super.onStartForward(action);
+    ChatUtils.startForwardSelector(
+        getContext(), RouterConstant.PATH_FORWARD_SELECTOR_PAGE, false, forwardLauncher);
   }
 
   @Override
-  protected void forwardTeam() {
-    ChatUtils.startTeamList(getContext(), RouterConstant.PATH_MY_TEAM_PAGE, forwardTeamLauncher);
-  }
-
-  @Override
-  public void showForwardConfirmDialog(V2NIMConversationType type, ArrayList<String> sessionIds) {
+  public void showForwardConfirmDialog(ArrayList<String> conversationIds) {
     ChatMessageForwardConfirmDialog confirmDialog =
         ChatMessageForwardConfirmDialog.createForwardConfirmDialog(
-            type, sessionIds, getConversationName(), true, forwardAction);
+            conversationIds, getConversationName(), true, forwardAction);
     confirmDialog.setCallback(
         (inputMsg) -> {
           if (!NetworkUtils.isConnected()) {
@@ -76,16 +71,13 @@ public abstract class NormalChatFragment extends ChatBaseFragment {
           }
           if (TextUtils.equals(forwardAction, ActionConstants.POP_ACTION_TRANSMIT)) {
             ChatMessageBean msg = getForwardMessage();
-            for (String accId : sessionIds) {
-              viewModel.sendForwardMessage(msg, inputMsg, accId, type);
-            }
+            viewModel.sendForwardMessage(msg, inputMsg, conversationIds);
           } else if (TextUtils.equals(forwardAction, ActionConstants.ACTION_TYPE_MULTI_FORWARD)) {
             viewModel.sendMultiForwardMessage(
-                getConversationName(), inputMsg, sessionIds, type, ChatMsgCache.getMessageList());
+                getConversationName(), inputMsg, conversationIds, ChatMsgCache.getMessageList());
             clearMessageMultiSelectStatus();
           } else if (TextUtils.equals(forwardAction, ActionConstants.ACTION_TYPE_SINGLE_FORWARD)) {
-            viewModel.sendForwardMessages(
-                getConversationName(), inputMsg, sessionIds, type, ChatMsgCache.getMessageList());
+            viewModel.sendForwardMessages(inputMsg, conversationIds, ChatMsgCache.getMessageList());
             clearMessageMultiSelectStatus();
           }
         });
@@ -109,6 +101,7 @@ public abstract class NormalChatFragment extends ChatBaseFragment {
     super.clickMessage(messageInfo, isReply);
   }
 
+  @Override
   public String getConversationName() {
     return accountId;
   }

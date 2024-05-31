@@ -13,6 +13,7 @@ import com.netease.yunxin.kit.corekit.route.XKitRouter;
 import com.netease.yunxin.kit.teamkit.ui.adapter.TeamCommonAdapter;
 import com.netease.yunxin.kit.teamkit.ui.databinding.FunTeamSettingUserItemBinding;
 import com.netease.yunxin.kit.teamkit.ui.utils.ColorUtils;
+import java.util.List;
 
 /**
  * 娱乐版群设置页面成员列表适配器
@@ -48,6 +49,22 @@ public class FunTeamSettingMemberAdapter
                   .navigate();
             }
           });
+    }
+  }
+
+  @Override
+  public void removeData(List<String> accountList) {
+    if (accountList == null || accountList.isEmpty()) {
+      return;
+    }
+    for (String account : accountList) {
+      for (int i = 0; i < dataSource.size(); i++) {
+        if (TextUtils.equals(dataSource.get(i).getAccountId(), account)) {
+          dataSource.remove(i);
+          notifyItemRemoved(i);
+          break;
+        }
+      }
     }
   }
 }

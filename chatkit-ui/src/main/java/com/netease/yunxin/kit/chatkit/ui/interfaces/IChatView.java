@@ -6,6 +6,7 @@ package com.netease.yunxin.kit.chatkit.ui.interfaces;
 
 import android.graphics.drawable.Drawable;
 import android.view.View;
+import android.widget.FrameLayout;
 import com.netease.nimlib.sdk.uinfo.model.UserInfo;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessageRefer;
 import com.netease.yunxin.kit.chatkit.ui.ChatUIConfig;
@@ -52,6 +53,9 @@ public interface IChatView {
   void deleteMessages(List<String> clientIds);
 
   List<ChatMessageBean> getMessageList();
+
+  //获取顶部布局
+  FrameLayout getChatBodyTopLayout();
 
   void revokeMessage(V2NIMMessageRefer message);
 

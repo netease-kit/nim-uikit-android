@@ -13,6 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
+import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.databinding.NormalChatSettingActivityBinding;
 import com.netease.yunxin.kit.chatkit.ui.model.CloseChatPageEvent;
@@ -22,7 +23,6 @@ import com.netease.yunxin.kit.common.ui.utils.AvatarColor;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.corekit.event.EventCenter;
 import com.netease.yunxin.kit.corekit.event.EventNotify;
-import com.netease.yunxin.kit.corekit.im2.IMKitClient;
 import com.netease.yunxin.kit.corekit.im2.model.UserWithFriend;
 import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
@@ -76,7 +76,7 @@ public class ChatSettingActivity extends BaseActivity {
       return;
     }
     refreshView();
-    if (IMKitClient.getConfigCenter().getTeamEnable()) {
+    if (IMKitConfigCenter.getTeamEnable()) {
       binding.addIv.setVisibility(View.VISIBLE);
       binding.noTeamNameTv.setVisibility(View.GONE);
       binding.nameTv.setVisibility(View.VISIBLE);

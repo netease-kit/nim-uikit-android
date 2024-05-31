@@ -28,6 +28,7 @@
     <string name="team_invite_other_permission">谁可以添加群成员</string>
     <string name="team_update_info_permission">谁可以编辑群信息</string>
     <string name="team_notify_all_permission">谁可以@所有人</string>
+    <string name="team_top_sticky_permission">谁可以置顶消息</string>
     <string name="team_need_agreed_when_be_invited_permission">是否需要被邀请者同意</string>
     <string name="team_advanced_dismiss">解散群聊</string>
     <string name="team_advanced_quit">退出群聊</string>

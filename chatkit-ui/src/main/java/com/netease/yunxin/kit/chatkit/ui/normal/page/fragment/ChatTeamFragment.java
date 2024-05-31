@@ -23,14 +23,14 @@ import androidx.lifecycle.ViewModelProvider;
 import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessage;
 import com.netease.nimlib.sdk.v2.message.V2NIMTeamMessageReadReceipt;
-import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamChatBannedMode;
-import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamMemberRole;
 import com.netease.nimlib.sdk.v2.team.model.V2NIMTeam;
 import com.netease.nimlib.sdk.v2.team.model.V2NIMTeamMember;
 import com.netease.yunxin.kit.alog.ALog;
+import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.model.TeamMemberWithUserInfo;
 import com.netease.yunxin.kit.chatkit.ui.R;
+import com.netease.yunxin.kit.chatkit.ui.common.ChatUtils;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.normal.view.MessageBottomLayout;
@@ -54,8 +54,10 @@ public class ChatTeamFragment extends NormalChatFragment {
   V2NIMTeamMember currentMember;
   // 群聊定位消息
   IMMessageInfo anchorMessage;
+  private AlertDialog alertDialog = null;
   // 是否展示删除对话框
   private boolean showDeleteDialog = false;
+  private String deleteDialogContent = "";
   // 群聊消息已读回执观察者
   Observer<FetchResult<List<V2NIMTeamMessageReadReceipt>>> teamReceiptObserver;
 
@@ -114,15 +116,12 @@ public class ChatTeamFragment extends NormalChatFragment {
       chatView.updateInputHintInfo(teamInfo.getName());
       chatView.getMessageListView().updateTeamInfo(teamInfo);
     }
-    if (currentMember != null && teamInfo != null) {
-      if (currentMember.getMemberRole() != V2NIMTeamMemberRole.V2NIM_TEAM_MEMBER_ROLE_OWNER
-          && currentMember.getMemberRole() != V2NIMTeamMemberRole.V2NIM_TEAM_MEMBER_ROLE_MANAGER) {
-        chatView.setInputMute(
-            teamInfo.getChatBannedMode()
-                != V2NIMTeamChatBannedMode.V2NIM_TEAM_CHAT_BANNED_MODE_UNBAN);
-      } else {
-        chatView.setInputMute(false);
-      }
+    boolean isMute = ChatUtils.isMute(currentMember, teamInfo);
+    ALog.d(LIB_TAG, TAG, "refreshView isMute:" + isMute);
+    if (isMute) {
+      chatView.setInputMute(true);
+    } else {
+      chatView.setInputMute(false);
     }
   }
 
@@ -138,13 +137,21 @@ public class ChatTeamFragment extends NormalChatFragment {
   protected void initData() {
     if (viewModel instanceof ChatTeamViewModel) {
       // 请求群信息
-      ((ChatTeamViewModel) viewModel).requestTeamInfo();
+      ((ChatTeamViewModel) viewModel).getTeamInfo();
       // 请求群聊消息
       if (anchorMessage != null) {
         viewModel.getMessageList(anchorMessage.getMessage(), false);
       } else {
         viewModel.getMessageList(null, false);
       }
+    }
+  }
+
+  @Override
+  protected void updateDataWhenLogin() {
+    if (viewModel instanceof ChatTeamViewModel) {
+      // 请求群信息
+      ((ChatTeamViewModel) viewModel).getTeamInfo();
     }
   }
 
@@ -167,7 +174,7 @@ public class ChatTeamFragment extends NormalChatFragment {
     if (((ChatTeamViewModel) viewModel).isMyDismiss()) {
       requireActivity().finish();
     } else if (showDeleteDialog) {
-      showDialogToFinish(null);
+      showDialogToFinish(deleteDialogContent);
     }
   }
 
@@ -234,12 +241,12 @@ public class ChatTeamFragment extends NormalChatFragment {
         .observe(
             getViewLifecycleOwner(),
             team -> {
-              ALog.d(LIB_TAG, TAG, "TeamLiveData,observe");
               if (team != null) {
+                ALog.d(LIB_TAG, TAG, "TeamLiveData,observe:" + team.getTeamId());
                 teamInfo = team;
                 if (!team.isValidTeam()) {
                   ALog.d(LIB_TAG, TAG, "TeamLiveData,observe invalid team");
-                  showDialogToFinish(getString(R.string.chat_team_invalid_content));
+                  handleTeamDismiss(getString(R.string.chat_team_invalid_content));
                   return;
                 }
                 if (!TextUtils.isEmpty(team.getServerExtension())
@@ -271,18 +278,42 @@ public class ChatTeamFragment extends NormalChatFragment {
             });
   }
 
+  // 处理群聊解散，如果配置不删除会话，则不进行弹窗，输入隐藏即可
+  protected void handleTeamDismiss(String dialogContent) {
+    if (IMKitConfigCenter.getDismissTeamDeleteConversation()) {
+      startTeamDismiss(dialogContent);
+      viewBinding.chatView.getBottomInputLayout().setVisibility(View.VISIBLE);
+      viewBinding.chatInvalidTipLayout.setVisibility(View.GONE);
+    } else {
+      viewBinding.chatView.getBottomInputLayout().setVisibility(View.GONE);
+      viewBinding.chatInvalidTipLayout.setVisibility(View.VISIBLE);
+    }
+  }
+
   // 收到群解散或退出，处理解散群聊逻辑
-  private void startTeamDismiss() {
+  private void startTeamDismiss(String dialogContent) {
     if (ChatTeamFragment.this.isResumed()) {
       if (((ChatTeamViewModel) viewModel).isMyDismiss()) {
         ChatTeamFragment.this.requireActivity().finish();
       } else {
-        showDialogToFinish(null);
+        showDialogToFinish(dialogContent);
         showDeleteDialog = false;
       }
     } else {
+      deleteDialogContent = dialogContent;
       showDeleteDialog = true;
     }
+  }
+
+  /** 清除解散群聊弹窗 如果踢出群，在邀请入群可能出现该场景，此时不需要弹窗也不需要关闭页面 */
+  protected void clearTeamDismiss() {
+    if (ChatTeamFragment.this.isResumed() && alertDialog != null) {
+      alertDialog.dismiss();
+    }
+    deleteDialogContent = "";
+    showDeleteDialog = false;
+    viewBinding.chatView.getBottomInputLayout().setVisibility(View.VISIBLE);
+    viewBinding.chatInvalidTipLayout.setVisibility(View.GONE);
   }
 
   // 被踢出群聊、解散群聊、群不存在弹窗
@@ -293,7 +324,7 @@ public class ChatTeamFragment extends NormalChatFragment {
     TextView title = dialogView.findViewById(R.id.tv_dialog_title);
     TextView content = dialogView.findViewById(R.id.tv_dialog_content);
     TextView positiveBut = dialogView.findViewById(R.id.tv_dialog_positive);
-    if (contentText != null) {
+    if (TextUtils.isEmpty(contentText)) {
       contentText = getString(R.string.chat_team_be_removed_content);
     }
     content.setText(contentText);
@@ -302,9 +333,11 @@ public class ChatTeamFragment extends NormalChatFragment {
     // 设置不可取消
     builder.setCancelable(false);
     builder.setView(dialogView);
-    final AlertDialog alertDialog = builder.create();
+    alertDialog = builder.create();
     positiveBut.setOnClickListener(
         v -> {
+          //在点击弹窗的时候，发送UIKit层群解散事件，会话列表页面监听到事件，
+          ((ChatTeamViewModel) viewModel).sendTeamDismissEvent();
           alertDialog.dismiss();
           requireActivity().finish();
         });
@@ -360,14 +393,21 @@ public class ChatTeamFragment extends NormalChatFragment {
   @Override
   protected void onReceiveMessage(FetchResult<List<ChatMessageBean>> listFetchResult) {
     super.onReceiveMessage(listFetchResult);
+    ALog.d(LIB_TAG, TAG, "onReceiveMessage");
     if (listFetchResult.getData() != null) {
       List<ChatMessageBean> messageList = listFetchResult.getData();
       for (ChatMessageBean message : messageList) {
         if (MessageHelper.isDismissTeamMsg(message.getMessageData())) {
-          startTeamDismiss();
+          ALog.d(LIB_TAG, TAG, "onReceiveMessage:isDismissTeamMsg");
+          handleTeamDismiss(null);
           return;
         } else if (MessageHelper.isKickMsg(message.getMessageData())) {
-          showDialogToFinish(getString(R.string.chat_team_be_kick_content));
+          handleTeamDismiss(getString(R.string.chat_team_be_kick_content));
+          ALog.d(LIB_TAG, TAG, "onReceiveMessage:isKickMsg");
+          return;
+        } else if (MessageHelper.isTeamJoinedMsg(message.getMessageData())) {
+          clearTeamDismiss();
+          ALog.d(LIB_TAG, TAG, "onReceiveMessage:isTeamJoinedMsg");
           return;
         }
       }

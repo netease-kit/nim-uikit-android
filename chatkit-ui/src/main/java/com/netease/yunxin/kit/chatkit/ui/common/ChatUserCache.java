@@ -8,11 +8,17 @@ import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
 
 import android.text.TextUtils;
 import androidx.annotation.Nullable;
+import com.netease.nimlib.sdk.v2.V2NIMError;
+import com.netease.nimlib.sdk.v2.auth.enums.V2NIMDataSyncState;
+import com.netease.nimlib.sdk.v2.auth.enums.V2NIMDataSyncType;
+import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamType;
 import com.netease.nimlib.sdk.v2.team.model.V2NIMTeam;
 import com.netease.nimlib.sdk.v2.team.model.V2NIMTeamMember;
 import com.netease.nimlib.sdk.v2.user.V2NIMUser;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.cache.FriendUserCache;
+import com.netease.yunxin.kit.chatkit.impl.LoginDetailListenerImpl;
+import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.model.TeamMemberWithUserInfo;
 import com.netease.yunxin.kit.chatkit.repo.ContactRepo;
 import com.netease.yunxin.kit.chatkit.repo.TeamRepo;
@@ -25,11 +31,29 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /** 用户信息缓存，主要用于消息列表中显示用户信息、@弹窗展示等 */
 public class ChatUserCache {
 
-  private ChatUserCache() {}
+  private ChatUserCache() {
+
+    IMKitClient.addLoginDetailListener(
+        new LoginDetailListenerImpl() {
+          @Override
+          public void onDataSync(
+              @Nullable V2NIMDataSyncType type,
+              @Nullable V2NIMDataSyncState state,
+              @Nullable V2NIMError error) {
+            super.onDataSync(type, state, error);
+            if (type == V2NIMDataSyncType.V2NIM_DATA_SYNC_TEAM_MEMBER
+                && state == V2NIMDataSyncState.V2NIM_DATA_SYNC_STATE_COMPLETED) {
+              updateCurrentTeamMember();
+              haveLoadAllTeamMembers = false;
+            }
+          }
+        });
+  }
 
   private static class InstanceHolder {
     private static final ChatUserCache INSTANCE = new ChatUserCache();
@@ -48,6 +72,23 @@ public class ChatUserCache {
   private V2NIMTeam teamInfo;
 
   private V2NIMTeamMember curTeamMember;
+
+  //置顶消息
+  private IMMessageInfo topMessage;
+
+  public boolean haveLoadAllTeamMembers = false;
+
+  public void setTopMessage(IMMessageInfo topMessage) {
+    this.topMessage = topMessage;
+  }
+
+  public IMMessageInfo getTopMessage() {
+    return topMessage;
+  }
+
+  public void removeTopMessage() {
+    topMessage = null;
+  }
 
   public V2NIMTeamMember getCurTeamMember() {
     return curTeamMember;
@@ -80,6 +121,29 @@ public class ChatUserCache {
       for (TeamMemberWithUserInfo user : userList) {
         addTeamMemberToCache(user);
       }
+    }
+  }
+
+  /** 更新当前用户在群里的信息 */
+  private void updateCurrentTeamMember() {
+    if (teamInfo != null && IMKitClient.account() != null) {
+      String account = IMKitClient.account();
+      TeamRepo.getTeamMember(
+          teamInfo.getTeamId(),
+          V2NIMTeamType.V2NIM_TEAM_TYPE_NORMAL,
+          account,
+          new FetchCallback<V2NIMTeamMember>() {
+            @Override
+            public void onError(int errorCode, @Nullable String errorMsg) {}
+
+            @Override
+            public void onSuccess(@Nullable V2NIMTeamMember data) {
+              if (data != null) {
+                curTeamMember = data;
+                teamMemberMap.put(account, data);
+              }
+            }
+          });
     }
   }
 
@@ -268,9 +332,11 @@ public class ChatUserCache {
     if (FriendUserCache.getFriendByAccount(account) != null) {
       return FriendUserCache.getFriendByAccount(account);
     } else if (userInfoMap.get(account) != null) {
-      return new UserWithFriend(account, null, userInfoMap.get(account).getNIMUserInfo());
+      UserWithFriend friendInfo = new UserWithFriend(account, null);
+      friendInfo.setUserInfo(userInfoMap.get(account).getNIMUserInfo());
+      return friendInfo;
     } else {
-      return new UserWithFriend(account, null, null);
+      return new UserWithFriend(account, null);
     }
   }
 
@@ -278,6 +344,7 @@ public class ChatUserCache {
     teamMemberMap.clear();
     userInfoMap.clear();
     teamInfo = null;
+    haveLoadAllTeamMembers = false;
   }
 
   public String getName(TeamMemberWithUserInfo withTeam) {
@@ -323,6 +390,15 @@ public class ChatUserCache {
 
   public String getName(String account) {
 
+    //当前用户
+    if (Objects.equals(account, IMKitClient.account())) {
+      if (IMKitClient.currentUser() != null
+          && !TextUtils.isEmpty(IMKitClient.currentUser().getName())) {
+        return IMKitClient.currentUser().getName();
+      }
+      return account;
+    }
+
     if (!TextUtils.isEmpty(account)) {
       UserWithFriend friendInfo = FriendUserCache.getFriendByAccount(account);
       if (friendInfo != null && !TextUtils.isEmpty(friendInfo.getAlias())) {
@@ -332,6 +408,13 @@ public class ChatUserCache {
       V2NIMTeamMember teamMember = teamMemberMap.get(account);
       if (teamMember != null && !TextUtils.isEmpty(teamMember.getTeamNick())) {
         return teamMember.getTeamNick();
+      }
+      //没有群成员信息则拉取并更新
+      if (teamMember == null && !account.equals(IMKitClient.account()) && teamInfo != null) {
+
+        List<String> accounts = new ArrayList<>();
+        accounts.add(account);
+        TeamRepo.getTeamMemberAndNotify(teamInfo.getTeamId(), accounts);
       }
 
       if (friendInfo != null && !TextUtils.isEmpty(friendInfo.getName())) {

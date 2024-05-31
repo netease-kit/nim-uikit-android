@@ -15,6 +15,8 @@ import com.netease.yunxin.kit.alog.ALog;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
@@ -46,16 +48,28 @@ public class TeamCommonAdapter<T, R extends ViewBinding>
   }
 
   @SuppressLint("NotifyDataSetChanged")
-  public void addDataList(List<T> data, boolean clearOld) {
-    if (clearOld) {
-      dataSource.clear();
-    }
+  public void setDataList(List<T> data) {
+
     if (data == null) {
       return;
     }
+    dataSource.clear();
     dataSource.addAll(data);
     notifyDataSetChanged();
   }
+
+  public void addData(List<T> dataList, Comparator<T> comparator) {
+    if (dataList == null || dataList.isEmpty()) {
+      return;
+    }
+    dataSource.addAll(dataList);
+    if (comparator != null) {
+      Collections.sort(dataSource, comparator);
+    }
+    notifyDataSetChanged();
+  }
+
+  public void removeData(List<String> accountList) {}
 
   public void setItemClickListener(OnClickListener<T, R> listener) {
     this.clickListener = listener;

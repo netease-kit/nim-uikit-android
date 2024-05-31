@@ -5,17 +5,16 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="com.netease.yunxin.kit.chatkit.ui">
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <!--获取运营商信息，用于支持提供运营商信息相关的接口-->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <!--用于访问wifi网络信息，wifi信息会用于进行网络定位-->
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
     <!--这个权限用于获取wifi的获取权限，wifi信息会用来进行网络定位-->
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
-    <!-- 请求网络 --> <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- 请求网络 -->
+    <uses-permission android:name="android.permission.INTERNET"/>
     <!--用于进行网络定位-->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <!-- 可以提高室内定位的精确度 -->
@@ -98,6 +97,16 @@
             android:windowSoftInputMode="adjustResize"
             android:launchMode="standard"/>
 
+        <activity android:name=".normal.page.CollectionActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize"
+            android:launchMode="standard"/>
+
+        <activity android:name=".normal.page.CollectionDetailActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize"
+            android:launchMode="standard"/>
+
         <!-- Fun -->
         <activity android:name=".fun.page.FunChatP2PActivity"
             android:screenOrientation="portrait"
@@ -129,6 +138,11 @@
             />
 
         <activity android:name=".fun.page.FunChatForwardActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize"
+            android:launchMode="standard"/>
+
+        <activity android:name=".fun.page.FunCollectionActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize"
             android:launchMode="standard"/>

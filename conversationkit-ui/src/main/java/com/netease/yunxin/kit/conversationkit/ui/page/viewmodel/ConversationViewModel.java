@@ -4,11 +4,13 @@
 
 package com.netease.yunxin.kit.conversationkit.ui.page.viewmodel;
 
-import android.os.Handler;
+import android.text.TextUtils;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
 import com.netease.nimlib.sdk.v2.V2NIMError;
+import com.netease.nimlib.sdk.v2.auth.enums.V2NIMDataSyncState;
+import com.netease.nimlib.sdk.v2.auth.enums.V2NIMDataSyncType;
 import com.netease.nimlib.sdk.v2.conversation.V2NIMConversationListener;
 import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
 import com.netease.nimlib.sdk.v2.conversation.model.V2NIMConversation;
@@ -17,7 +19,9 @@ import com.netease.nimlib.sdk.v2.team.V2NIMTeamListener;
 import com.netease.nimlib.sdk.v2.team.model.V2NIMTeam;
 import com.netease.nimlib.sdk.v2.utils.V2NIMConversationIdUtil;
 import com.netease.yunxin.kit.alog.ALog;
+import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
 import com.netease.yunxin.kit.chatkit.impl.ConversationListenerImpl;
+import com.netease.yunxin.kit.chatkit.impl.LoginDetailListenerImpl;
 import com.netease.yunxin.kit.chatkit.impl.TeamListenerImpl;
 import com.netease.yunxin.kit.chatkit.repo.ConversationRepo;
 import com.netease.yunxin.kit.chatkit.repo.TeamRepo;
@@ -37,6 +41,8 @@ import com.netease.yunxin.kit.corekit.event.EventNotify;
 import com.netease.yunxin.kit.corekit.im2.IMKitClient;
 import com.netease.yunxin.kit.corekit.im2.custom.AitEvent;
 import com.netease.yunxin.kit.corekit.im2.custom.AitInfo;
+import com.netease.yunxin.kit.corekit.im2.custom.TeamEvent;
+import com.netease.yunxin.kit.corekit.im2.custom.TeamEventAction;
 import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
 import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
@@ -70,7 +76,7 @@ public class ConversationViewModel extends BaseViewModel {
   private Comparator<ConversationBean> comparator;
   private IConversationFactory conversationFactory = new DefaultViewHolderFactory();
   // 分页加载，每页加载数量
-  private static final int PAGE_LIMIT = 50;
+  private static final int PAGE_LIMIT = 200;
   // 分页加载，当前加载偏移量
   private long mOffset = 0;
   // 分页加载，是否还有更多数据
@@ -84,38 +90,78 @@ public class ConversationViewModel extends BaseViewModel {
     // 注册群组监听,用于监听群解散和退出
     TeamRepo.addTeamListener(teamListener);
     // 注册@信息监听,业务层逻辑
-    EventNotify<AitEvent> aitNotify =
-        new EventNotify<AitEvent>() {
-          @Override
-          public void onNotify(@NonNull AitEvent aitEvent) {
-            FetchResult<List<String>> result = new FetchResult<>(LoadStatus.Finish);
-            ALog.d(LIB_TAG, TAG, "aitNotify");
-            if (aitEvent.getAitInfoList() == null) {
+    EventCenter.registerEventNotify(aitNotify);
+    EventCenter.registerEventNotify(dismissTeamEvent);
+    // 注册登录监听,用于同步数据完成后拉取数据，避免会话中会话名称和头像为空
+    IMKitClient.addLoginDetailListener(loginDetailListener);
+  }
+
+  // @信息监听
+  private EventNotify<AitEvent> aitNotify =
+      new EventNotify<AitEvent>() {
+        @Override
+        public void onNotify(@NonNull AitEvent aitEvent) {
+          FetchResult<List<String>> result = new FetchResult<>(LoadStatus.Finish);
+          ALog.d(LIB_TAG, TAG, "aitNotify");
+          if (aitEvent.getAitInfoList() == null) {
+            return;
+          }
+          if (aitEvent.getEventType() == AitEvent.AitEventType.Arrive
+              || aitEvent.getEventType() == AitEvent.AitEventType.Load) {
+            result.setFetchType(FetchResult.FetchType.Add);
+          } else {
+            result.setFetchType(FetchResult.FetchType.Remove);
+          }
+          List<AitInfo> aitInfoList = aitEvent.getAitInfoList();
+          List<String> sessionIdList = new ArrayList<>();
+          for (AitInfo info : aitInfoList) {
+            sessionIdList.add(info.getConversationId());
+          }
+          result.setData(sessionIdList);
+          aitLiveData.setValue(result);
+        }
+
+        @NonNull
+        @Override
+        public String getEventType() {
+          return "AitEvent";
+        }
+      };
+
+  private EventNotify<TeamEvent> dismissTeamEvent =
+      new EventNotify<TeamEvent>() {
+        @Override
+        public void onNotify(@NonNull TeamEvent teamEvent) {
+          if (teamEvent != null && teamEvent.getAction() == TeamEventAction.ACTION_DISMISS) {
+            ALog.d(LIB_TAG, TAG, "dismissTeamEvent,teamId:" + teamEvent.getTeamId());
+            String id = teamEvent.getTeamId();
+            if (TextUtils.isEmpty(id) || !IMKitConfigCenter.getDismissTeamDeleteConversation()) {
               return;
             }
-            if (aitEvent.getEventType() == AitEvent.AitEventType.Arrive
-                || aitEvent.getEventType() == AitEvent.AitEventType.Load) {
-              result.setFetchType(FetchResult.FetchType.Add);
-            } else {
-              result.setFetchType(FetchResult.FetchType.Remove);
-            }
-            List<AitInfo> aitInfoList = aitEvent.getAitInfoList();
-            List<String> sessionIdList = new ArrayList<>();
-            for (AitInfo info : aitInfoList) {
-              sessionIdList.add(info.getConversationId());
-            }
-            result.setData(sessionIdList);
-            aitLiveData.setValue(result);
+            deleteConversation(
+                V2NIMConversationIdUtil.conversationId(
+                    id, V2NIMConversationType.V2NIM_CONVERSATION_TYPE_TEAM));
           }
+        }
 
-          @NonNull
-          @Override
-          public String getEventType() {
-            return "AitEvent";
+        @NonNull
+        @Override
+        public String getEventType() {
+          return "TeamEvent";
+        }
+      };
+
+  private LoginDetailListenerImpl loginDetailListener =
+      new LoginDetailListenerImpl() {
+        @Override
+        public void onDataSync(V2NIMDataSyncType type, V2NIMDataSyncState state, V2NIMError error) {
+          ALog.d(LIB_TAG, TAG, "onDataSync:" + type.name() + "," + state.name());
+          if (type == V2NIMDataSyncType.V2NIM_DATA_SYNC_MAIN
+              && state == V2NIMDataSyncState.V2NIM_DATA_SYNC_STATE_COMPLETED) {
+            getConversationData();
           }
-        };
-    EventCenter.registerEventNotify(aitNotify);
-  }
+        }
+      };
 
   // 设置会话列表排序比较器
   public void setComparator(Comparator<ConversationBean> comparator) {
@@ -149,7 +195,7 @@ public class ConversationViewModel extends BaseViewModel {
 
   /** 获取未读数 */
   public void getUnreadCount() {
-    int unreadCount = ConversationRepo.getUnreadCount();
+    int unreadCount = ConversationRepo.getTotalUnreadCount();
     ALog.d(LIB_TAG, TAG, "getUnreadCount,onSuccess:" + unreadCount);
     FetchResult<Integer> fetchResult = new FetchResult<>(LoadStatus.Success);
     fetchResult.setData(unreadCount);
@@ -238,6 +284,7 @@ public class ConversationViewModel extends BaseViewModel {
 
           @Override
           public void onSuccess(@Nullable Void data) {
+            // 删除回调会走conversationListener.onConversationDeleted方法
             ALog.d(LIB_TAG, TAG, "deleteConversation,onSuccess:" + conversationId);
           }
         });
@@ -245,9 +292,10 @@ public class ConversationViewModel extends BaseViewModel {
 
   /** 置顶会话 */
   public void addStickTop(ConversationBean param) {
-
-    ConversationRepo.addStickTop(
+    ALog.d(LIB_TAG, TAG, "addStickTop:" + param.getConversationId());
+    ConversationRepo.setStickTop(
         param.getConversationId(),
+        true,
         new FetchCallback<Void>() {
           @Override
           public void onError(int errorCode, @Nullable String errorMsg) {
@@ -270,8 +318,10 @@ public class ConversationViewModel extends BaseViewModel {
    * @param conversationBean 会话信息
    */
   public void removeStick(ConversationBean conversationBean) {
-    ConversationRepo.removeStickTop(
+    ALog.d(LIB_TAG, TAG, "removeStick:" + conversationBean.getConversationId());
+    ConversationRepo.setStickTop(
         conversationBean.getConversationId(),
+        false,
         new FetchCallback<Void>() {
           @Override
           public void onError(int errorCode, @Nullable String errorMsg) {
@@ -294,13 +344,12 @@ public class ConversationViewModel extends BaseViewModel {
 
         @Override
         public void onSyncFinished() {
-          ALog.d(LIB_TAG, TAG, "onSyncFinished:");
-          getConversationData();
+          ALog.d(LIB_TAG, TAG, "conversationListener onSyncFinished:");
         }
 
         @Override
         public void onSyncFailed(V2NIMError error) {
-          ALog.d(LIB_TAG, TAG, "onSyncFailed:");
+          ALog.d(LIB_TAG, TAG, "conversationListener onSyncFailed:");
         }
 
         @Override
@@ -308,7 +357,7 @@ public class ConversationViewModel extends BaseViewModel {
           ALog.d(
               LIB_TAG,
               TAG,
-              "onConversationCreated,conversation:"
+              "conversationListener onConversationCreated,conversation:"
                   + (conversation != null ? conversation.getConversationId() : "id is null"));
           FetchResult<List<ConversationBean>> result = new FetchResult<>(LoadStatus.Success);
           result.setType(FetchResult.FetchType.Add);
@@ -321,7 +370,7 @@ public class ConversationViewModel extends BaseViewModel {
         public void onConversationDeleted(List<String> conversationIds) {
           FetchResult<List<String>> result = new FetchResult<>(LoadStatus.Success);
           result.setData(conversationIds);
-          ALog.d(LIB_TAG, TAG, "onConversationDeleted,onSuccess");
+          ALog.d(LIB_TAG, TAG, "conversationListener onConversationDeleted,onSuccess");
           deleteLiveData.setValue(result);
         }
 
@@ -330,7 +379,7 @@ public class ConversationViewModel extends BaseViewModel {
           ALog.d(
               LIB_TAG,
               TAG,
-              "onConversationChanged,conversation:"
+              "conversationListener onConversationChanged,conversation:"
                   + (conversationList != null ? conversationList.size() : "0"));
           if (conversationList == null || conversationList.isEmpty()) {
             return;
@@ -341,7 +390,7 @@ public class ConversationViewModel extends BaseViewModel {
             ALog.d(
                 LIB_TAG,
                 TAG,
-                "onConversationChanged,conversation:"
+                "conversationListener onConversationChanged,conversation:"
                     + (conversation != null ? conversation.getConversationId() : "id is null"));
             if (conversation != null
                 && ConversationUtils.isDismissTeamMsg(conversation.getLastMessage())) {
@@ -352,13 +401,19 @@ public class ConversationViewModel extends BaseViewModel {
             }
           }
           if (changeList.size() > 0) {
-            ALog.d(LIB_TAG, TAG, "onConversationChanged,changeList:" + changeList.size());
+            ALog.d(
+                LIB_TAG,
+                TAG,
+                "conversationListener onConversationChanged,changeList:" + changeList.size());
             FetchResult<List<ConversationBean>> result = new FetchResult<>(LoadStatus.Success);
             result.setType(FetchResult.FetchType.Update);
             convertAndNotify(result, changeList);
           }
           if (deleteList.size() > 0) {
-            ALog.d(LIB_TAG, TAG, "onConversationChanged,deleteList:" + deleteList.size());
+            ALog.d(
+                LIB_TAG,
+                TAG,
+                "conversationListener onConversationChanged,deleteList:" + deleteList.size());
             FetchResult<List<String>> result = new FetchResult<>(LoadStatus.Success);
             result.setData(deleteList);
             deleteLiveData.setValue(result);
@@ -367,7 +422,7 @@ public class ConversationViewModel extends BaseViewModel {
 
         @Override
         public void onTotalUnreadCountChanged(int unreadCount) {
-          ALog.d(LIB_TAG, TAG, "onTotalUnreadCountChanged:" + unreadCount);
+          ALog.d(LIB_TAG, TAG, "conversationListener onTotalUnreadCountChanged:" + unreadCount);
           FetchResult<Integer> result = new FetchResult<>(LoadStatus.Success);
           result.setData(unreadCount);
           unreadCountLiveData.setValue(result);
@@ -380,42 +435,28 @@ public class ConversationViewModel extends BaseViewModel {
 
         @Override
         public void onTeamDismissed(@Nullable V2NIMTeam team) {
-          if (team == null) {
+          if (team == null || !IMKitConfigCenter.getDismissTeamDeleteConversation()) {
             return;
           }
-          ALog.d(LIB_TAG, TAG, "onTeamDismissed:" + team.getTeamId());
+          ALog.d(LIB_TAG, TAG, "teamListener onTeamDismissed:" + team.getTeamId());
           String conversationId =
               V2NIMConversationIdUtil.conversationId(
                   team.getTeamId(), V2NIMConversationType.V2NIM_CONVERSATION_TYPE_TEAM);
-          delayPostDelete(conversationId);
+          deleteConversation(conversationId);
         }
 
         @Override
         public void onTeamLeft(@Nullable V2NIMTeam team, boolean isKicked) {
-          if (team == null) {
+          if (team == null || !IMKitConfigCenter.getDismissTeamDeleteConversation()) {
             return;
           }
-          ALog.d(LIB_TAG, TAG, "onTeamLeft:" + team.getTeamId());
+          ALog.d(LIB_TAG, TAG, "teamListener onTeamLeft:" + team.getTeamId());
           String conversationId =
               V2NIMConversationIdUtil.conversationId(
                   team.getTeamId(), V2NIMConversationType.V2NIM_CONVERSATION_TYPE_TEAM);
-          delayPostDelete(conversationId);
+          deleteConversation(conversationId);
         }
       };
-
-  //todo 等待SDK 修复群通知和群解散通知时序之后，可以去除该方法
-  private void delayPostDelete(final String conversationId) {
-    new Handler()
-        .postDelayed(
-            () -> {
-              deleteConversation(conversationId);
-              FetchResult<List<String>> result = new FetchResult<>(LoadStatus.Success);
-              result.setData(Collections.singletonList(conversationId));
-              ALog.d(LIB_TAG, TAG, "onTeamDismissed delayPostDelete");
-              deleteLiveData.setValue(result);
-            },
-            500);
-  }
 
   // 会话列表转换并通知LiveData
   public void convertAndNotify(
@@ -442,12 +483,9 @@ public class ConversationViewModel extends BaseViewModel {
   public void checkConversationAndRemove(List<V2NIMConversation> data) {
     Set<String> conversationIds = new HashSet<>();
     if (data != null) {
+      ALog.d(LIB_TAG, TAG, "checkConversationAndRemove:" + data.size());
       for (int index = 0; index < data.size(); index++) {
         if (conversationIds.contains(data.get(index).getConversationId())) {
-          ALog.d(
-              LIB_TAG,
-              TAG,
-              "checkConversationAndRemove,remove:" + data.get(index).getConversationId());
           data.remove(index);
           index--;
         } else {
@@ -465,7 +503,9 @@ public class ConversationViewModel extends BaseViewModel {
   @Override
   protected void onCleared() {
     super.onCleared();
+    ALog.d(LIB_TAG, TAG, "onCleared:");
     ConversationRepo.removeConversationListener(conversationListener);
     TeamRepo.removeTeamListener(teamListener);
+    IMKitClient.removeLoginDetailListener(loginDetailListener);
   }
 }

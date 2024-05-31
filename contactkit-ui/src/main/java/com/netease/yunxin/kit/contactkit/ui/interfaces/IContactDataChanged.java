@@ -5,7 +5,7 @@
 package com.netease.yunxin.kit.contactkit.ui.interfaces;
 
 import com.netease.yunxin.kit.contactkit.ui.model.BaseContactBean;
-import com.netease.yunxin.kit.contactkit.ui.v2model.V2ContactFriendBean;
+import com.netease.yunxin.kit.contactkit.ui.model.ContactFriendBean;
 import com.netease.yunxin.kit.contactkit.ui.view.ContactListView;
 import java.util.List;
 
@@ -13,28 +13,28 @@ import java.util.List;
 public interface IContactDataChanged {
 
   /** Contacts friend data have changed */
-  void onFriendDataSourceChanged(List<V2ContactFriendBean> contactItemBeanList);
+  void onFriendDataSourceChanged(List<ContactFriendBean> contactItemBeanList);
 
   /**
    * add one friend data
    *
    * @param friend friend data,this data will been sort
    */
-  void addFriendData(List<V2ContactFriendBean> friend);
+  void addFriendData(List<ContactFriendBean> friend);
 
   /**
    * remove one friend data
    *
    * @param friend friend data,data will been sort
    */
-  void removeFriendData(List<V2ContactFriendBean> friend);
+  void removeFriendData(List<ContactFriendBean> friend);
 
   /**
    * update one friend data
    *
    * @param friend friend data,data will been sort
    */
-  void updateFriendData(List<V2ContactFriendBean> friend);
+  void updateFriendData(List<ContactFriendBean> friend);
 
   /**
    * update data which have been added

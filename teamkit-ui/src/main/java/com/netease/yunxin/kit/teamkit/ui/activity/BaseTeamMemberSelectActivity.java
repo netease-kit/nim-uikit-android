@@ -27,6 +27,7 @@ import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamType;
 import com.netease.nimlib.sdk.v2.team.model.V2NIMTeam;
 import com.netease.yunxin.kit.chatkit.model.TeamMemberWithUserInfo;
 import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
+import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.utils.NetworkUtils;
 import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.teamkit.ui.R;
@@ -35,6 +36,7 @@ import com.netease.yunxin.kit.teamkit.ui.utils.TeamUIKitConstant;
 import com.netease.yunxin.kit.teamkit.ui.utils.TeamUtils;
 import com.netease.yunxin.kit.teamkit.ui.viewmodel.TeamSettingViewModel;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -182,7 +184,6 @@ public abstract class BaseTeamMemberSelectActivity extends BaseActivity {
 
             if (TextUtils.isEmpty(String.valueOf(s))) {
               ivClear.setVisibility(View.GONE);
-              //              viewModel.requestAllTeamMembers(teamId);
             } else {
               ivClear.setVisibility(View.VISIBLE);
             }
@@ -198,29 +199,44 @@ public abstract class BaseTeamMemberSelectActivity extends BaseActivity {
         .getTeamMemberListWithUserData()
         .observe(
             this,
-            listResultInfo -> {
+            resultInfo -> {
               dismissLoading();
-              if (listResultInfo.isSuccess()) {
-                List<TeamMemberWithUserInfo> memberList =
-                    TeamUtils.filterMemberListFromInfoList(
-                        listResultInfo.getData(), filterAccounts);
-                adapter.setDataAndSaveSelect(memberList);
-                if (adapter.getItemCount() > 0) {
-                  groupEmpty.setVisibility(View.GONE);
-                } else {
-                  groupEmpty.setVisibility(View.VISIBLE);
+              if (resultInfo.isSuccess()) {
+                if (resultInfo.getType() == FetchResult.FetchType.Init) {
+                  loadTeamMembers(resultInfo.getData());
+                } else if (resultInfo.getType() == FetchResult.FetchType.Update) {
+                  adapter.updateData(resultInfo.getData());
+
+                } else if (resultInfo.getType() == FetchResult.FetchType.Add) {
+                  adapter.addData(resultInfo.getData(), null);
                 }
+              }
+            });
+    viewModel
+        .getRemoveMembersData()
+        .observe(
+            this,
+            resultInfo -> {
+              if (resultInfo.isSuccess() && resultInfo.getData() != null) {
+                adapter.removeData(resultInfo.getData());
                 teamMemberUpdate();
               }
             });
-    // 群更新观察着
-    viewModel
-        .getTeamUpdateData()
-        .observeForever(
-            teamResultInfo -> {
-              viewModel.requestAllTeamMembers(teamId);
-            });
-    viewModel.requestAllTeamMembers(teamId);
+    viewModel.loadTeamMember();
+  }
+
+  protected void loadTeamMembers(List<TeamMemberWithUserInfo> teamMemberList) {
+    List<TeamMemberWithUserInfo> memberList =
+        TeamUtils.filterMemberListFromInfoList(teamMemberList, filterAccounts);
+    if (!memberList.isEmpty()) {
+      Collections.sort(memberList, TeamUtils.teamManagerComparator());
+    }
+    adapter.setDataAndSaveSelect(memberList);
+    if (adapter.getItemCount() > 0) {
+      groupEmpty.setVisibility(View.GONE);
+    } else {
+      groupEmpty.setVisibility(View.VISIBLE);
+    }
   }
 
   @Override

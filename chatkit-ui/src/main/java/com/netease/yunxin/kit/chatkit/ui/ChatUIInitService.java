@@ -6,7 +6,7 @@ package com.netease.yunxin.kit.chatkit.ui;
 
 import android.content.Context;
 import androidx.annotation.NonNull;
-import com.netease.yunxin.kit.chatkit.observer.MessageRevokeNotification;
+import com.netease.yunxin.kit.chatkit.listener.MessageRevokeNotification;
 import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.chatkit.ui.custom.ChatConfigManager;

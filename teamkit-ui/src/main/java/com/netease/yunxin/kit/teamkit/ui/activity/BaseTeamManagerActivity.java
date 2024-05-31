@@ -4,23 +4,26 @@
 
 package com.netease.yunxin.kit.teamkit.ui.activity;
 
+import static com.netease.yunxin.kit.chatkit.ChatConstants.TYPE_EXTENSION_ALLOW_ALL;
+import static com.netease.yunxin.kit.chatkit.ChatConstants.TYPE_EXTENSION_ALLOW_MANAGER;
 import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.KEY_TEAM_ID;
 import static com.netease.yunxin.kit.teamkit.ui.dialog.BaseTeamIdentifyDialog.TYPE_TEAM_ALL_MEMBER;
 import static com.netease.yunxin.kit.teamkit.ui.utils.NetworkUtilsWrapper.handleNetworkBrokenResult;
-import static com.netease.yunxin.kit.teamkit.ui.utils.TeamUIKitConstant.TYPE_EXTENSION_VALUE_ALL;
-import static com.netease.yunxin.kit.teamkit.ui.utils.TeamUIKitConstant.TYPE_EXTENSION_VALUE_MANAGER;
 
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamInviteMode;
+import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamMemberRole;
 import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamUpdateInfoMode;
 import com.netease.nimlib.sdk.v2.team.model.V2NIMTeam;
 import com.netease.nimlib.sdk.v2.team.model.V2NIMTeamMember;
+import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
 import com.netease.yunxin.kit.chatkit.model.TeamWithCurrentMember;
 import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
@@ -54,7 +57,11 @@ public abstract class BaseTeamManagerActivity extends BaseActivity {
 
   protected View viewAit;
 
+  protected View viewTopSticky;
+
   protected TextView tvAitValue;
+
+  protected TextView tvTopStickyValue;
 
   @Override
   protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -75,7 +82,9 @@ public abstract class BaseTeamManagerActivity extends BaseActivity {
     Objects.requireNonNull(viewUpdate);
     Objects.requireNonNull(tvUpdateValue);
     Objects.requireNonNull(viewAit);
+    Objects.requireNonNull(viewTopSticky);
     Objects.requireNonNull(tvAitValue);
+    Objects.requireNonNull(tvTopStickyValue);
   }
 
   protected void initData() {
@@ -86,11 +95,19 @@ public abstract class BaseTeamManagerActivity extends BaseActivity {
     viewModel.getUpdateInviteLiveData().observeForever(observerForInviteMode);
     viewModel.getUpdateTeamLiveData().observeForever(observerForTeamUpdate);
     viewModel.getUpdateAtLiveData().observeForever(observerForAt);
+    viewModel.getUpdateTopStickyLiveData().observeForever(observerForTopSticky);
     viewModel.getTeamWitheMemberData().observeForever(observerForTeamData);
     viewModel.getTeamMemberUpdateData().observeForever(observerForTeamMemberUpdateData);
     viewModel.getTeamUpdateData().observeForever(observerForTeamUpdateData);
     viewModel.requestTeamData(teamId);
     viewModel.requestManagerCount(teamId);
+    if (!IMKitConfigCenter.getTopMessageEnable()) {
+      viewTopSticky.setVisibility(View.GONE);
+      tvTopStickyValue.setVisibility(View.GONE);
+    } else {
+      viewTopSticky.setVisibility(View.VISIBLE);
+      tvTopStickyValue.setVisibility(View.VISIBLE);
+    }
   }
 
   protected void refreshUI(V2NIMTeam teamInfo) {
@@ -109,19 +126,42 @@ public abstract class BaseTeamManagerActivity extends BaseActivity {
         v -> getTeamIdentifyDialog().show(type -> viewModel.updateInfoPrivilege(teamId, type)));
 
     tvAitValue.setText(
-        Objects.equals(TeamUtils.getTeamAtMode(teamInfo), TYPE_EXTENSION_VALUE_ALL)
+        Objects.equals(TeamUtils.getTeamAtMode(teamInfo), TYPE_EXTENSION_ALLOW_ALL)
+            ? R.string.team_all_member
+            : R.string.team_owner_and_manager);
+    tvTopStickyValue.setText(
+        Objects.equals(TeamUtils.getTeamTopStickyMode(teamInfo), TYPE_EXTENSION_ALLOW_ALL)
             ? R.string.team_all_member
             : R.string.team_owner_and_manager);
     viewAit.setOnClickListener(
         v ->
             getTeamIdentifyDialog()
                 .show(
+                    type -> {
+                      if (teamMember.getMemberRole()
+                          == V2NIMTeamMemberRole.V2NIM_TEAM_MEMBER_ROLE_NORMAL) {
+                        Toast.makeText(
+                                this, R.string.team_operate_no_permission_tip, Toast.LENGTH_SHORT)
+                            .show();
+                        return;
+                      }
+                      viewModel.updateAtPrivilege(
+                          teamInfo,
+                          type == TYPE_TEAM_ALL_MEMBER
+                              ? TYPE_EXTENSION_ALLOW_ALL
+                              : TYPE_EXTENSION_ALLOW_MANAGER);
+                    }));
+
+    viewTopSticky.setOnClickListener(
+        v ->
+            getTeamIdentifyDialog()
+                .show(
                     type ->
-                        viewModel.updateAtPrivilege(
+                        viewModel.updateTopStickyPrivilege(
                             teamInfo,
                             type == TYPE_TEAM_ALL_MEMBER
-                                ? TYPE_EXTENSION_VALUE_ALL
-                                : TYPE_EXTENSION_VALUE_MANAGER)));
+                                ? TYPE_EXTENSION_ALLOW_ALL
+                                : TYPE_EXTENSION_ALLOW_MANAGER)));
 
     if (TextUtils.equals(IMKitClient.account(), teamInfo.getOwnerAccountId())) {
       viewEditManager.setVisibility(View.VISIBLE);
@@ -144,6 +184,7 @@ public abstract class BaseTeamManagerActivity extends BaseActivity {
     viewModel.getUpdateInviteLiveData().removeObserver(observerForInviteMode);
     viewModel.getUpdateTeamLiveData().removeObserver(observerForTeamUpdate);
     viewModel.getUpdateAtLiveData().removeObserver(observerForAt);
+    viewModel.getUpdateTopStickyLiveData().removeObserver(observerForTopSticky);
     viewModel.getTeamMemberUpdateData().observeForever(observerForTeamMemberUpdateData);
     viewModel.getTeamWitheMemberData().removeObserver(observerForTeamData);
     viewModel.getTeamUpdateData().removeObserver(observerForTeamUpdateData);
@@ -174,6 +215,14 @@ public abstract class BaseTeamManagerActivity extends BaseActivity {
           finish();
           return;
         }
+        if (teamResultInfo.getData().size() > 0) {
+          for (V2NIMTeamMember member : teamResultInfo.getData()) {
+            if (member.getAccountId().equals(IMKitClient.account())) {
+              teamMember = member;
+              break;
+            }
+          }
+        }
         viewModel.requestManagerCount(teamId);
       };
   // 当前用户群信息观察者
@@ -196,7 +245,19 @@ public abstract class BaseTeamManagerActivity extends BaseActivity {
           return;
         }
         tvAitValue.setText(
-            (Objects.equals(stringResultInfo.getData(), TYPE_EXTENSION_VALUE_ALL))
+            (Objects.equals(stringResultInfo.getData(), TYPE_EXTENSION_ALLOW_ALL))
+                ? R.string.team_all_member
+                : R.string.team_owner_and_manager);
+      };
+  // 置顶权限观察者
+  private final Observer<FetchResult<String>> observerForTopSticky =
+      stringResultInfo -> {
+        if (!stringResultInfo.isSuccess() || stringResultInfo.getData() == null) {
+          handleNetworkBrokenResult(this, stringResultInfo);
+          return;
+        }
+        tvTopStickyValue.setText(
+            (Objects.equals(stringResultInfo.getData(), TYPE_EXTENSION_ALLOW_ALL))
                 ? R.string.team_all_member
                 : R.string.team_owner_and_manager);
       };

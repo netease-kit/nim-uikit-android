@@ -141,6 +141,7 @@ public class ConversationView extends FrameLayout {
 
   // 移除数据
   public void remove(List<String> data) {
+    ALog.d(LIB_TAG, TAG, " remove, start");
     if (adapter != null) {
       adapter.removeData(data);
     }

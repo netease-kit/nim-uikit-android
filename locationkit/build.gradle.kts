@@ -16,7 +16,7 @@ android {
     defaultConfig {
         minSdk = 21
         consumerProguardFiles("consumer-rules.pro")
-        buildConfigField("String", "versionName", "\"10.0.0-beta01\"")
+        buildConfigField("String", "versionName", "\"10.1.1\"")
     }
 
     buildTypes {
@@ -40,15 +40,15 @@ android {
 dependencies {
 
     implementation(project(":chatkit-ui"))
-    api("com.netease.yunxin.kit.common:common-ui:1.3.4")
+    api("com.netease.yunxin.kit.common:common-ui:1.3.5")
     api("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.22")
-    implementation("androidx.appcompat:appcompat:1.6.1")
+    implementation("androidx.appcompat:appcompat:1.5.0")
     implementation("com.google.android.material:material:1.11.0")
     implementation("androidx.recyclerview:recyclerview:1.3.2")
     implementation("com.airbnb.android:lottie:6.3.0")
     implementation("com.github.bumptech.glide:glide:4.13.1")
 
-    implementation("androidx.core:core-ktx:1.13.0")
+    implementation("androidx.core:core-ktx:1.8.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
 

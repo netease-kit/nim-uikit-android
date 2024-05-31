@@ -13,10 +13,12 @@ import java.util.Objects;
 /** 会话列表数据Bean，封装会话数据，主要用于UI展示 */
 public class ConversationBean extends BaseBean {
   private static final String TAG = "ConversationBean";
+  // 会话信息
   public V2NIMConversation infoData;
   // 是否置顶
   private Boolean stickTop;
 
+  // 会话ID
   private String targetId = "";
 
   public ConversationBean(V2NIMConversation data) {

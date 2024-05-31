@@ -23,9 +23,13 @@ import com.netease.nimlib.sdk.v2.message.V2NIMMessage;
 import com.netease.nimlib.sdk.v2.message.attachment.V2NIMMessageFileAttachment;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageSendingState;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
+import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamChatBannedMode;
 import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamMemberRole;
+import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamType;
 import com.netease.nimlib.sdk.v2.team.model.V2NIMTeam;
+import com.netease.nimlib.sdk.v2.team.model.V2NIMTeamMember;
 import com.netease.yunxin.kit.alog.ALog;
+import com.netease.yunxin.kit.chatkit.ChatConstants;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.model.TeamMemberWithUserInfo;
 import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
@@ -240,6 +244,25 @@ public class ChatUtils {
         .navigate(launcher);
   }
 
+  /**
+   * 启动转发选择器
+   *
+   * @param context 上下文
+   * @param pagePath 页面路径
+   * @param multiSelector 是否多选
+   * @param launcher 启动器
+   */
+  public static void startForwardSelector(
+      Context context,
+      String pagePath,
+      boolean multiSelector,
+      ActivityResultLauncher<Intent> launcher) {
+    XKitRouter.withKey(pagePath)
+        .withParam(RouterConstant.KEY_FORWARD_SELECTOR_MODE, multiSelector ? 1 : 0)
+        .withContext(context)
+        .navigate(launcher);
+  }
+
   public static void startP2PSelector(
       Context context, String pagePath, String filterId, ActivityResultLauncher<Intent> launcher) {
     ArrayList<String> filterList = new ArrayList<>();
@@ -375,16 +398,15 @@ public class ChatUtils {
     if (teamInfo == null || TextUtils.isEmpty(teamInfo.getServerExtension())) {
       return true;
     }
-    String result = ChatKitUIConstant.TYPE_EXTENSION_ALLOW_ALL;
+    String result = ChatConstants.TYPE_EXTENSION_ALLOW_ALL;
     try {
       JSONObject obj = new JSONObject(teamInfo.getServerExtension());
       result =
-          obj.optString(
-              ChatKitUIConstant.KEY_EXTENSION_AT_ALL, ChatKitUIConstant.TYPE_EXTENSION_ALLOW_ALL);
+          obj.optString(ChatConstants.KEY_EXTENSION_AT_ALL, ChatConstants.TYPE_EXTENSION_ALLOW_ALL);
     } catch (JSONException e) {
       ALog.e(TAG, "getTeamNotifyAllMode", e);
     }
-    return TextUtils.equals(result, ChatKitUIConstant.TYPE_EXTENSION_ALLOW_ALL);
+    return TextUtils.equals(result, ChatConstants.TYPE_EXTENSION_ALLOW_ALL);
   }
 
   public static String getEllipsizeMiddleNick(String content) {
@@ -537,5 +559,66 @@ public class ChatUtils {
         }
       }
     };
+  }
+
+  /**
+   * 是否有置顶权限
+   *
+   * @return 是否有置顶权限
+   */
+  public static boolean havePermissionForTopSticky() {
+    V2NIMTeam team = ChatUserCache.getInstance().getCurrentTeam();
+    boolean isAllAllow = false;
+    if (team != null && team.getServerExtension() != null) {
+      String teamExtension = team.getServerExtension();
+      if ((teamExtension != null && teamExtension.contains(IMKitConstant.TEAM_GROUP_TAG))
+          || team.getTeamType() == V2NIMTeamType.V2NIM_TEAM_TYPE_INVALID) {
+        //讨论组直接有权限
+        isAllAllow = true;
+      } else {
+        try {
+          JSONObject jsonObject = new JSONObject(team.getServerExtension());
+          if (jsonObject.has(ChatConstants.KEY_EXTENSION_STICKY_PERMISSION)) {
+            isAllAllow =
+                ChatConstants.TYPE_EXTENSION_ALLOW_ALL.equals(
+                    jsonObject.getString(ChatConstants.KEY_EXTENSION_STICKY_PERMISSION));
+          }
+        } catch (JSONException e) {
+          e.printStackTrace();
+        }
+      }
+      if (isAllAllow) {
+        return true;
+      }
+    }
+    V2NIMTeamMember teamMember =
+        ChatUserCache.getInstance().getTeamMemberOnly(IMKitClient.account());
+    if (teamMember == null) {
+      teamMember = ChatUserCache.getInstance().getCurTeamMember();
+    }
+    return teamMember != null
+        && (teamMember.getMemberRole() == V2NIMTeamMemberRole.V2NIM_TEAM_MEMBER_ROLE_OWNER
+            || teamMember.getMemberRole() == V2NIMTeamMemberRole.V2NIM_TEAM_MEMBER_ROLE_MANAGER);
+  }
+
+  /**
+   * 当前成员是否被禁言
+   *
+   * @param currentTeamMember 当前群成员信息
+   * @param teamInfo 群信息
+   * @return 是否被禁言 true:被禁言 false:未被禁言
+   */
+  public static boolean isMute(V2NIMTeamMember currentTeamMember, V2NIMTeam teamInfo) {
+    if (currentTeamMember != null && teamInfo != null) {
+      if (currentTeamMember.getMemberRole() != V2NIMTeamMemberRole.V2NIM_TEAM_MEMBER_ROLE_OWNER
+          && currentTeamMember.getMemberRole()
+              != V2NIMTeamMemberRole.V2NIM_TEAM_MEMBER_ROLE_MANAGER) {
+        return teamInfo.getChatBannedMode()
+            != V2NIMTeamChatBannedMode.V2NIM_TEAM_CHAT_BANNED_MODE_UNBAN;
+      } else {
+        return false;
+      }
+    }
+    return false;
   }
 }

@@ -14,6 +14,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
 import com.netease.yunxin.kit.common.ui.widgets.ContentListPopView;
 import com.netease.yunxin.kit.common.ui.widgets.TitleBarView;
 import com.netease.yunxin.kit.conversationkit.ui.ConversationKitClient;
@@ -24,7 +25,6 @@ import com.netease.yunxin.kit.conversationkit.ui.databinding.ConversationFragmen
 import com.netease.yunxin.kit.conversationkit.ui.normal.PopItemFactory;
 import com.netease.yunxin.kit.conversationkit.ui.normal.ViewHolderFactory;
 import com.netease.yunxin.kit.conversationkit.ui.page.ConversationBaseFragment;
-import com.netease.yunxin.kit.corekit.im2.IMKitClient;
 import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 
@@ -61,7 +61,7 @@ public class ConversationFragment extends ConversationBaseFragment {
             return;
           }
           // 如果配置了群组功能，则展示群组相关的弹窗
-          if (IMKitClient.getConfigCenter().getTeamEnable()) {
+          if (IMKitConfigCenter.getTeamEnable()) {
             Context context = getContext();
             int memberLimit = ConversationConstant.MAX_TEAM_MEMBER;
             ContentListPopView contentListPopView =

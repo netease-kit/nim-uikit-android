@@ -41,6 +41,7 @@ public class FunTeamMemberListActivity extends BaseTeamMemberListActivity {
     ivClear = binding.ivClear;
     groupEmpty = binding.groupEmtpy;
     rvMemberList = binding.rvMemberList;
+    tvTitle = binding.tvTitle;
     rvMemberList.addItemDecoration(
         new RecyclerView.ItemDecoration() {
           @Override

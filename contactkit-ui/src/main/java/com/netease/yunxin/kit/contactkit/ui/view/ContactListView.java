@@ -26,8 +26,8 @@ import com.netease.yunxin.kit.contactkit.ui.interfaces.IContactDataChanged;
 import com.netease.yunxin.kit.contactkit.ui.interfaces.IContactListView;
 import com.netease.yunxin.kit.contactkit.ui.interfaces.IContactViewAttrs;
 import com.netease.yunxin.kit.contactkit.ui.model.BaseContactBean;
+import com.netease.yunxin.kit.contactkit.ui.model.ContactFriendBean;
 import com.netease.yunxin.kit.contactkit.ui.model.ContactVerifyInfoBean;
-import com.netease.yunxin.kit.contactkit.ui.v2model.V2ContactFriendBean;
 import com.netease.yunxin.kit.contactkit.ui.view.adapter.ContactAdapter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -160,6 +160,7 @@ public class ContactListView extends FrameLayout
   public void showSelector(boolean show) {
     if (contactAdapter != null) {
       contactAdapter.getContactListViewAttrs().setShowSelector(show);
+      contactAdapter.updateFriendData();
     }
   }
 
@@ -180,7 +181,7 @@ public class ContactListView extends FrameLayout
   }
 
   @Override
-  public void onFriendDataSourceChanged(List<V2ContactFriendBean> contactItemBeanList) {
+  public void onFriendDataSourceChanged(List<ContactFriendBean> contactItemBeanList) {
     if (contactAdapter != null) {
       binding
           .indexBar
@@ -197,19 +198,19 @@ public class ContactListView extends FrameLayout
   }
 
   @Override
-  public void addFriendData(List<V2ContactFriendBean> friend) {
+  public void addFriendData(List<ContactFriendBean> friend) {
     if (contactAdapter != null && friend != null) {
-      List<V2ContactFriendBean> friendList = contactAdapter.getFriendList();
-      Map<String, V2ContactFriendBean> friendMap = new HashMap<>();
+      List<ContactFriendBean> friendList = contactAdapter.getFriendList();
+      Map<String, ContactFriendBean> friendMap = new HashMap<>();
       if (friendList != null) {
-        for (V2ContactFriendBean friendBean : friendList) {
+        for (ContactFriendBean friendBean : friendList) {
           if (friendBean != null && friendBean.data != null) {
             friendMap.put(friendBean.data.getAccount(), friendBean);
           }
         }
       }
 
-      for (V2ContactFriendBean friendBean : friend) {
+      for (ContactFriendBean friendBean : friend) {
         if (friendBean != null && friendBean.data != null) {
           if (friendMap.containsKey(friendBean.data.getAccount())) {
             contactAdapter.getFriendList().remove(friendMap.get(friendBean.data.getAccount()));
@@ -228,7 +229,7 @@ public class ContactListView extends FrameLayout
   }
 
   @Override
-  public void removeFriendData(List<V2ContactFriendBean> friend) {
+  public void removeFriendData(List<ContactFriendBean> friend) {
     if (contactAdapter != null) {
       contactAdapter.getFriendList().removeAll(friend);
       binding
@@ -242,7 +243,7 @@ public class ContactListView extends FrameLayout
   }
 
   @Override
-  public void updateFriendData(List<V2ContactFriendBean> friends) {
+  public void updateFriendData(List<ContactFriendBean> friends) {
     if (contactAdapter != null) {
       boolean result = contactAdapter.getFriendList().removeAll(friends);
       ALog.d(LIB_TAG, TAG, "updateFriendData, contactAdapter:" + result);

@@ -18,6 +18,7 @@ import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.ui.ChatMessageType;
 import com.netease.yunxin.kit.chatkit.ui.R;
+import com.netease.yunxin.kit.chatkit.ui.common.ChatMsgCache;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.chatkit.ui.custom.MultiForwardAttachment;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatBaseMessageViewHolderBinding;
@@ -99,6 +100,36 @@ public class FunChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
       return;
     }
     super.setUserInfo(message);
+  }
+
+  @Override
+  protected void setSelectStatus(ChatMessageBean message) {
+    // 当前账户发送消息的消息体右移
+    ConstraintLayout.LayoutParams avatarLayoutParams =
+        (ConstraintLayout.LayoutParams) baseViewBinding.myAvatar.getLayoutParams();
+    // 接受消息内容右移
+    ConstraintLayout.LayoutParams containerLayoutParams =
+        (ConstraintLayout.LayoutParams) baseViewBinding.messageContainer.getLayoutParams();
+    ConstraintLayout.LayoutParams topLayoutParams =
+        (ConstraintLayout.LayoutParams) baseViewBinding.messageTopGroup.getLayoutParams();
+    ConstraintLayout.LayoutParams bottomLayoutParams =
+        (ConstraintLayout.LayoutParams) baseViewBinding.messageBottomGroup.getLayoutParams();
+
+    if (isMultiSelect && needShowMultiSelect() && !currentMessage.isRevoked()) {
+      baseViewBinding.chatMsgSelectLayout.setVisibility(View.VISIBLE);
+      baseViewBinding.chatSelectorCb.setChecked(
+          ChatMsgCache.contains(message.getMessageData().getMessage().getMessageClientId()));
+      avatarLayoutParams.setMarginEnd(SizeUtils.dp2px(mineAvatarMarginEndInMulti));
+      containerLayoutParams.goneEndMargin = SizeUtils.dp2px(containerMarginEndInMulti);
+      topLayoutParams.goneEndMargin = SizeUtils.dp2px(containerMarginEndInMulti);
+      bottomLayoutParams.goneEndMargin = SizeUtils.dp2px(containerMarginEndInMulti);
+    } else {
+      baseViewBinding.chatMsgSelectLayout.setVisibility(View.GONE);
+      avatarLayoutParams.setMarginEnd(SizeUtils.dp2px(mineAvatarMarginEnd));
+      containerLayoutParams.goneEndMargin = SizeUtils.dp2px(containerMarginEnd);
+      topLayoutParams.goneEndMargin = SizeUtils.dp2px(containerMarginEnd);
+      bottomLayoutParams.goneEndMargin = SizeUtils.dp2px(containerMarginEnd);
+    }
   }
 
   @Override
@@ -280,10 +311,10 @@ public class FunChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
     if (messageBean.hasReply()) {
       // 自定义回复实现
       addReplayViewToBottomGroup();
-      String replyUuid = messageBean.getReplyUUid();
-      if (!TextUtils.isEmpty(replyUuid)) {
+      V2NIMMessageRefer replyMsg = messageBean.getReplyMessage();
+      if (replyMsg != null) {
         MessageHelper.getReplyMessageInfo(
-            replyUuid,
+            replyMsg,
             new FetchCallback<>() {
               @Override
               public void onError(int errorCode, @Nullable String errorMsg) {
@@ -332,9 +363,9 @@ public class FunChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
       return;
     }
     addReplayViewToBottomGroup();
-    String replyUuid = threadOption.getMessageClientId();
+    V2NIMMessageRefer refer = threadOption;
     MessageHelper.getReplyMessageInfo(
-        replyUuid,
+        refer,
         new FetchCallback<>() {
 
           @Override

@@ -16,6 +16,9 @@ public class ContactUIConfig {
 
   public static int INT_DEFAULT_NULL = -1;
 
+  //转发默认最大选择数量
+  public static final int DEFAULT_SESSION_MAX_SELECT_COUNT = 9;
+
   //title config
   public String title;
   public Integer titleColor;

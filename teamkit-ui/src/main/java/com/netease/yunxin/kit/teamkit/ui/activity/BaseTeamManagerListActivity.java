@@ -28,6 +28,7 @@ import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
 import com.netease.yunxin.kit.common.ui.dialog.ChoiceListener;
 import com.netease.yunxin.kit.common.ui.dialog.CommonChoiceDialog;
 import com.netease.yunxin.kit.common.ui.utils.ToastX;
+import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.common.utils.NetworkUtils;
 import com.netease.yunxin.kit.corekit.event.BaseEvent;
@@ -38,10 +39,12 @@ import com.netease.yunxin.kit.teamkit.ui.R;
 import com.netease.yunxin.kit.teamkit.ui.adapter.BaseTeamMemberListAdapter;
 import com.netease.yunxin.kit.teamkit.ui.model.EventDef;
 import com.netease.yunxin.kit.teamkit.ui.normal.adapter.TeamMemberListAdapter;
+import com.netease.yunxin.kit.teamkit.ui.utils.TeamMemberCache;
 import com.netease.yunxin.kit.teamkit.ui.utils.TeamUIKitConstant;
 import com.netease.yunxin.kit.teamkit.ui.utils.TeamUtils;
 import com.netease.yunxin.kit.teamkit.ui.viewmodel.TeamManagerListViewModel;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -52,11 +55,9 @@ public abstract class BaseTeamManagerListActivity extends BaseActivity {
 
   protected V2NIMTeam teamInfo;
 
-  protected List<TeamMemberWithUserInfo> managerList = new ArrayList<>();
-
   protected BaseTeamMemberListAdapter<? extends ViewBinding> adapter;
   protected V2NIMTeamType teamTypeEnum;
-
+  protected List<TeamMemberWithUserInfo> managerList = new ArrayList<>();
   private View rootView;
   protected View ivBack;
   protected View tvAddManager;
@@ -100,7 +101,12 @@ public abstract class BaseTeamManagerListActivity extends BaseActivity {
   @Override
   protected void onStart() {
     super.onStart();
-    viewModel.requestTeamManagers(teamInfo.getTeamId());
+    if (!NetworkUtils.isConnected()) {
+      dismissLoading();
+      Toast.makeText(
+              getApplicationContext(), getString(R.string.team_network_error), Toast.LENGTH_SHORT)
+          .show();
+    }
   }
 
   protected abstract View initViewAndGetRootView(Bundle savedInstanceState);
@@ -147,18 +153,35 @@ public abstract class BaseTeamManagerListActivity extends BaseActivity {
     viewModel.configTeamId(teamInfo.getTeamId());
     // 获取群成员列表，更加成员身份过滤管理员
     viewModel
-        .getTeamManagerWithUserData()
+        .getTeamMemberListWithUserData()
         .observe(
             this,
-            listResultInfo -> {
+            resultInfo -> {
               dismissLoading();
-              if (listResultInfo.isSuccess()) {
-                managerList.clear();
-                managerList =
-                    TeamUtils.filterMemberListWithRole(
-                        listResultInfo.getData(),
-                        V2NIMTeamMemberRole.V2NIM_TEAM_MEMBER_ROLE_MANAGER);
-                adapter.addDataList(managerList, true);
+              if (resultInfo.isSuccess()) {
+                if (resultInfo.getType() == FetchResult.FetchType.Init) {
+                  managerList =
+                      TeamUtils.filterMemberListWithRole(
+                          resultInfo.getData(), V2NIMTeamMemberRole.V2NIM_TEAM_MEMBER_ROLE_MANAGER);
+                  adapter.setDataList(managerList);
+                } else if (resultInfo.getType() == FetchResult.FetchType.Add) {
+                  List<TeamMemberWithUserInfo> addData =
+                      TeamUtils.filterMemberListWithRole(
+                          resultInfo.getData(), V2NIMTeamMemberRole.V2NIM_TEAM_MEMBER_ROLE_MANAGER);
+                  managerList.addAll(addData);
+                  adapter.addData(addData, TeamUtils.teamManagerComparator());
+                } else if (resultInfo.getType() == FetchResult.FetchType.Update) {
+                  //管理员添加和删除，走的群成员身份更新
+                  List<TeamMemberWithUserInfo> updateData =
+                      TeamMemberCache.Instance()
+                          .getTeamMemberWithRoleList(
+                              teamInfo.getTeamId(),
+                              V2NIMTeamMemberRole.V2NIM_TEAM_MEMBER_ROLE_MANAGER);
+                  managerList.clear();
+                  managerList.addAll(updateData);
+                  Collections.sort(managerList, TeamUtils.teamManagerComparator());
+                  adapter.setDataList(managerList);
+                }
                 if (adapter.getItemCount() > 0) {
                   groupEmpty.setVisibility(View.GONE);
                 } else {
@@ -169,12 +192,16 @@ public abstract class BaseTeamManagerListActivity extends BaseActivity {
 
     // 添加或删除群成员员观察者，收到添加和删除员信息后刷新列表
     viewModel
-        .getAddRemoveMembersData()
+        .getRemoveMembersData()
         .observeForever(
             listResultInfo -> {
               dismissLoading();
               if (listResultInfo.getLoadStatus() == LoadStatus.Success) {
-                viewModel.requestTeamManagers(teamInfo.getTeamId());
+                if (adapter != null
+                    && listResultInfo.getData() != null
+                    && !listResultInfo.getData().isEmpty()) {
+                  adapter.removeData(listResultInfo.getData());
+                }
               }
             });
     // 添加管理员观察者，收到添加管理员信息后刷新列表
@@ -184,7 +211,13 @@ public abstract class BaseTeamManagerListActivity extends BaseActivity {
             listResultInfo -> {
               dismissLoading();
               if (listResultInfo.getLoadStatus() == LoadStatus.Success) {
-                viewModel.requestTeamManagers(teamInfo.getTeamId());
+                if (listResultInfo.getType() == FetchResult.FetchType.Remove) {
+                  if (adapter != null
+                      && listResultInfo.getData() != null
+                      && !listResultInfo.getData().isEmpty()) {
+                    adapter.removeData(listResultInfo.getData());
+                  }
+                }
               } else {
                 Toast.makeText(
                         BaseTeamManagerListActivity.this,
@@ -193,6 +226,7 @@ public abstract class BaseTeamManagerListActivity extends BaseActivity {
                     .show();
               }
             });
+
     // Activity Launcher 添加管理员页面返回要添加的人员ID
     launcher =
         registerForActivityResult(
@@ -208,6 +242,7 @@ public abstract class BaseTeamManagerListActivity extends BaseActivity {
                 viewModel.addManager(teamInfo.getTeamId(), memberList);
               }
             });
+    viewModel.loadTeamMember();
   }
 
   protected void checkViews() {

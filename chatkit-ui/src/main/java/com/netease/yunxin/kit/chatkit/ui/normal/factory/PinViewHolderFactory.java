@@ -4,11 +4,11 @@
 
 package com.netease.yunxin.kit.chatkit.ui.normal.factory;
 
+import static com.netease.yunxin.kit.chatkit.ui.ChatMessageType.AUDIO_MESSAGE_VIEW_TYPE;
+import static com.netease.yunxin.kit.chatkit.ui.ChatMessageType.FILE_MESSAGE_VIEW_TYPE;
+import static com.netease.yunxin.kit.chatkit.ui.ChatMessageType.IMAGE_MESSAGE_VIEW_TYPE;
 import static com.netease.yunxin.kit.chatkit.ui.ChatMessageType.LOCATION_MESSAGE_VIEW_TYPE;
-import static com.netease.yunxin.kit.chatkit.ui.ChatMessageType.NORMAL_MESSAGE_VIEW_TYPE_AUDIO;
-import static com.netease.yunxin.kit.chatkit.ui.ChatMessageType.NORMAL_MESSAGE_VIEW_TYPE_FILE;
-import static com.netease.yunxin.kit.chatkit.ui.ChatMessageType.NORMAL_MESSAGE_VIEW_TYPE_IMAGE;
-import static com.netease.yunxin.kit.chatkit.ui.ChatMessageType.NORMAL_MESSAGE_VIEW_TYPE_VIDEO;
+import static com.netease.yunxin.kit.chatkit.ui.ChatMessageType.VIDEO_MESSAGE_VIEW_TYPE;
 
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
@@ -35,13 +35,13 @@ public class PinViewHolderFactory extends ChatPinFactory {
     ChatBasePinViewHolderBinding viewHolderBinding =
         ChatBasePinViewHolderBinding.inflate(
             LayoutInflater.from(parent.getContext()), parent, false);
-    if (viewType == NORMAL_MESSAGE_VIEW_TYPE_AUDIO) {
+    if (viewType == AUDIO_MESSAGE_VIEW_TYPE) {
       viewHolder = new ChatAudioPinViewHolder(viewHolderBinding, viewType);
-    } else if (viewType == NORMAL_MESSAGE_VIEW_TYPE_IMAGE) {
+    } else if (viewType == IMAGE_MESSAGE_VIEW_TYPE) {
       viewHolder = new ChatImagePinViewHolder(viewHolderBinding, viewType);
-    } else if (viewType == NORMAL_MESSAGE_VIEW_TYPE_VIDEO) {
+    } else if (viewType == VIDEO_MESSAGE_VIEW_TYPE) {
       viewHolder = new ChatVideoPinViewHolder(viewHolderBinding, viewType);
-    } else if (viewType == NORMAL_MESSAGE_VIEW_TYPE_FILE) {
+    } else if (viewType == FILE_MESSAGE_VIEW_TYPE) {
       viewHolder = new ChatFilePinViewHolder(viewHolderBinding, viewType);
     } else if (viewType == LOCATION_MESSAGE_VIEW_TYPE) {
       viewHolder = new ChatLocationPinViewHolder(viewHolderBinding, viewType);

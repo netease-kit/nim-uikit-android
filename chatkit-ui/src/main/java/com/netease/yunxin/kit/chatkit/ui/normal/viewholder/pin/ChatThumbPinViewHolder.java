@@ -113,6 +113,13 @@ public abstract class ChatThumbPinViewHolder extends ChatBasePinViewHolder {
     if (h > thumbMaxHeight) {
       h = thumbMaxHeight;
     }
+    //避免0的case出现
+    if (w == 0) {
+      w = thumbMinEdge;
+    }
+    if (h == 0) {
+      h = thumbMinEdge;
+    }
     FrameLayout.LayoutParams thumbParams =
         (FrameLayout.LayoutParams) binding.getRoot().getLayoutParams();
     thumbParams.width = w;

@@ -24,8 +24,8 @@ import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.contactkit.ui.R;
 import com.netease.yunxin.kit.contactkit.ui.model.ContactEntranceBean;
+import com.netease.yunxin.kit.contactkit.ui.model.ContactFriendBean;
 import com.netease.yunxin.kit.contactkit.ui.model.IViewTypeConstant;
-import com.netease.yunxin.kit.contactkit.ui.v2model.V2ContactFriendBean;
 import com.netease.yunxin.kit.corekit.im2.IMKitClient;
 import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
 import com.netease.yunxin.kit.corekit.im2.listener.ContactListener;
@@ -40,14 +40,14 @@ import java.util.List;
 /** contact view model */
 public class ContactViewModel extends BaseViewModel {
   private final String TAG = "ContactViewModel";
-  private final MutableLiveData<FetchResult<List<V2ContactFriendBean>>> contactLiveData =
+  private final MutableLiveData<FetchResult<List<ContactFriendBean>>> contactLiveData =
       new MutableLiveData<>();
-  private final FetchResult<List<V2ContactFriendBean>> fetchResult =
+  private final FetchResult<List<ContactFriendBean>> fetchResult =
       new FetchResult<>(LoadStatus.Finish);
-  private final List<V2ContactFriendBean> contactFriendBeanList = new ArrayList<>();
+  private final List<ContactFriendBean> contactFriendBeanList = new ArrayList<>();
   private final MutableLiveData<ContactEntranceBean> contactEntranceLiveData =
       new MutableLiveData<>();
-  private final MutableLiveData<FetchResult<List<V2ContactFriendBean>>> userInfoLiveData =
+  private final MutableLiveData<FetchResult<List<ContactFriendBean>>> userInfoLiveData =
       new MutableLiveData<>();
   private ContactEntranceBean verifyBean;
   private int unreadCount = 0;
@@ -68,7 +68,7 @@ public class ContactViewModel extends BaseViewModel {
     registerObserver();
   }
 
-  public LiveData<FetchResult<List<V2ContactFriendBean>>> getContactLiveData() {
+  public LiveData<FetchResult<List<ContactFriendBean>>> getContactLiveData() {
     return contactLiveData;
   }
 
@@ -76,14 +76,18 @@ public class ContactViewModel extends BaseViewModel {
     return contactEntranceLiveData;
   }
 
-  public MutableLiveData<FetchResult<List<V2ContactFriendBean>>> getUserInfoLiveData() {
+  public MutableLiveData<FetchResult<List<ContactFriendBean>>> getUserInfoLiveData() {
     return userInfoLiveData;
   }
 
   public void fetchContactList(boolean userCache) {
     ALog.i(LIB_TAG, TAG, "fetchContactList");
     if (!IMKitClient.isDataSyncComplete()) {
-      ALog.e(LIB_TAG, TAG, "fetchContactList,dataSync not complete");
+      ALog.i(LIB_TAG, TAG, "fetchContactList,dataSync not complete");
+      return;
+    }
+    if (!contactFriendBeanList.isEmpty()) {
+      ALog.d(LIB_TAG, TAG, "fetchContactList,contactFriendBeanList not empty");
       return;
     }
     boolean clearCache = !haveFetchContact;
@@ -110,7 +114,7 @@ public class ContactViewModel extends BaseViewModel {
             contactFriendBeanList.clear();
             if (data != null) {
               for (UserWithFriend info : data) {
-                V2ContactFriendBean bean = new V2ContactFriendBean(info);
+                ContactFriendBean bean = new ContactFriendBean(info);
                 bean.viewType = IViewTypeConstant.CONTACT_FRIEND;
                 contactFriendBeanList.add(bean);
               }
@@ -249,9 +253,9 @@ public class ContactViewModel extends BaseViewModel {
     if (accountList == null || accountList.isEmpty()) {
       return;
     }
-    List<V2ContactFriendBean> removeData = new ArrayList<>();
+    List<ContactFriendBean> removeData = new ArrayList<>();
     for (UserWithFriend friend : accountList) {
-      for (V2ContactFriendBean bean : contactFriendBeanList) {
+      for (ContactFriendBean bean : contactFriendBeanList) {
         if (TextUtils.equals(friend.getAccount(), bean.data.getAccount())) {
           contactFriendBeanList.remove(bean);
           removeData.add(bean);
@@ -262,7 +266,7 @@ public class ContactViewModel extends BaseViewModel {
     }
     ALog.d(LIB_TAG, TAG, "removeFriend:removeData" + removeData.size());
     if (!removeData.isEmpty()) {
-      FetchResult<List<V2ContactFriendBean>> removeResult =
+      FetchResult<List<ContactFriendBean>> removeResult =
           new FetchResult<>(FetchResult.FetchType.Remove);
       removeResult.setLoadStatus(LoadStatus.Finish);
       removeResult.setData(removeData);
@@ -271,9 +275,9 @@ public class ContactViewModel extends BaseViewModel {
   }
 
   private void setAddLivieData(List<UserWithFriend> addFriendList) {
-    List<V2ContactFriendBean> addList = new ArrayList<>();
+    List<ContactFriendBean> addList = new ArrayList<>();
     for (UserWithFriend friendInfo : addFriendList) {
-      V2ContactFriendBean bean = new V2ContactFriendBean(friendInfo);
+      ContactFriendBean bean = new ContactFriendBean(friendInfo);
       bean.viewType = IViewTypeConstant.CONTACT_FRIEND;
       if (contactFriendBeanList.contains(bean)) {
         continue;
@@ -282,7 +286,7 @@ public class ContactViewModel extends BaseViewModel {
       ALog.d(LIB_TAG, TAG, "addFriend,add:" + "id=" + friendInfo.getAccount());
       addList.add(bean);
     }
-    FetchResult<List<V2ContactFriendBean>> addResult = new FetchResult<>(FetchResult.FetchType.Add);
+    FetchResult<List<ContactFriendBean>> addResult = new FetchResult<>(FetchResult.FetchType.Add);
     addResult.setData(addList);
     addResult.setLoadStatus(LoadStatus.Finish);
     contactLiveData.setValue(addResult);
@@ -292,12 +296,12 @@ public class ContactViewModel extends BaseViewModel {
     if (contactFriendBeanList.isEmpty()) {
       return;
     }
-    List<V2ContactFriendBean> updateBean = new ArrayList<>();
+    List<ContactFriendBean> updateBean = new ArrayList<>();
     for (UserWithFriend friendInfo : updateList) {
       if (friendInfo == null) {
         continue;
       }
-      for (V2ContactFriendBean bean : contactFriendBeanList) {
+      for (ContactFriendBean bean : contactFriendBeanList) {
         if (TextUtils.equals(friendInfo.getAccount(), bean.data.getAccount())) {
           bean.data = friendInfo;
           updateBean.add(bean);
@@ -306,7 +310,7 @@ public class ContactViewModel extends BaseViewModel {
       }
     }
     if (updateBean.size() > 0) {
-      FetchResult<List<V2ContactFriendBean>> updateResult =
+      FetchResult<List<ContactFriendBean>> updateResult =
           new FetchResult<>(FetchResult.FetchType.Update);
       updateResult.setData(updateBean);
       updateResult.setLoadStatus(LoadStatus.Finish);

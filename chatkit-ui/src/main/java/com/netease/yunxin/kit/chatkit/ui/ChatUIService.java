@@ -17,7 +17,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessage;
+import com.netease.nimlib.sdk.v2.message.V2NIMMessageCreator;
 import com.netease.nimlib.sdk.v2.message.result.V2NIMSendMessageResult;
+import com.netease.nimlib.sdk.v2.utils.V2NIMConversationIdUtil;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.ChatService;
 import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
@@ -30,6 +32,7 @@ import com.netease.yunxin.kit.chatkit.ui.fun.page.FunChatReaderActivity;
 import com.netease.yunxin.kit.chatkit.ui.fun.page.FunChatSearchActivity;
 import com.netease.yunxin.kit.chatkit.ui.fun.page.FunChatSettingActivity;
 import com.netease.yunxin.kit.chatkit.ui.fun.page.FunChatTeamActivity;
+import com.netease.yunxin.kit.chatkit.ui.fun.page.FunCollectionActivity;
 import com.netease.yunxin.kit.chatkit.ui.normal.page.ChatForwardActivity;
 import com.netease.yunxin.kit.chatkit.ui.normal.page.ChatP2PActivity;
 import com.netease.yunxin.kit.chatkit.ui.normal.page.ChatPinActivity;
@@ -37,6 +40,8 @@ import com.netease.yunxin.kit.chatkit.ui.normal.page.ChatReaderActivity;
 import com.netease.yunxin.kit.chatkit.ui.normal.page.ChatSearchActivity;
 import com.netease.yunxin.kit.chatkit.ui.normal.page.ChatSettingActivity;
 import com.netease.yunxin.kit.chatkit.ui.normal.page.ChatTeamActivity;
+import com.netease.yunxin.kit.chatkit.ui.normal.page.CollectionActivity;
+import com.netease.yunxin.kit.chatkit.ui.normal.page.CollectionDetailActivity;
 import com.netease.yunxin.kit.chatkit.ui.view.ait.AitService;
 import com.netease.yunxin.kit.chatkit.ui.view.emoji.EmojiManager;
 import com.netease.yunxin.kit.corekit.im2.IMKitClient;
@@ -78,6 +83,9 @@ public class ChatUIService extends ChatService {
     XKitRouter.registerRouter(RouterConstant.PATH_CHAT_SETTING_PAGE, ChatSettingActivity.class);
     XKitRouter.registerRouter(RouterConstant.PATH_CHAT_ACK_PAGE, ChatReaderActivity.class);
     XKitRouter.registerRouter(RouterConstant.PATH_CHAT_FORWARD_PAGE, ChatForwardActivity.class);
+    XKitRouter.registerRouter(RouterConstant.PATH_COLLECTION_PAGE, CollectionActivity.class);
+    XKitRouter.registerRouter(
+        RouterConstant.PATH_COLLECTION_DETAIL_PAGE, CollectionDetailActivity.class);
 
     // fun
     XKitRouter.registerRouter(RouterConstant.PATH_FUN_CHAT_P2P_PAGE, FunChatP2PActivity.class);
@@ -92,6 +100,7 @@ public class ChatUIService extends ChatService {
         RouterConstant.PATH_FUN_CHAT_SETTING_PAGE, FunChatSettingActivity.class);
     XKitRouter.registerRouter(
         RouterConstant.PATH_FUN_CHAT_FORWARD_PAGE, FunChatForwardActivity.class);
+    XKitRouter.registerRouter(RouterConstant.PATH_FUN_COLLECTION_PAGE, FunCollectionActivity.class);
 
     // ===通用逻辑初始化===
     // 注册自定义消息类型
@@ -179,10 +188,13 @@ public class ChatUIService extends ChatService {
               String content = params.get(KEY_MESSAGE_CONTENT).toString();
               V2NIMConversationType sessionType =
                   V2NIMConversationType.typeOfValue((int) params.get(KEY_SESSION_TYPE));
-              ChatRepo.sendTextMessage(
-                  sessionId,
-                  sessionType,
-                  content,
+              V2NIMMessage textMessage = V2NIMMessageCreator.createTextMessage(content);
+              String conversationId =
+                  V2NIMConversationIdUtil.conversationId(sessionId, sessionType);
+              ChatRepo.sendMessage(
+                  textMessage,
+                  conversationId,
+                  null,
                   new ProgressFetchCallback<>() {
                     @Override
                     public void onError(int errorCode, @NonNull String errorMsg) {

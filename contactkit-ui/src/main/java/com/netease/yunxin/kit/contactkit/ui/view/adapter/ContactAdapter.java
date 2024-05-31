@@ -14,8 +14,8 @@ import com.netease.yunxin.kit.contactkit.ui.IContactFactory;
 import com.netease.yunxin.kit.contactkit.ui.R;
 import com.netease.yunxin.kit.contactkit.ui.interfaces.ContactActions;
 import com.netease.yunxin.kit.contactkit.ui.model.BaseContactBean;
+import com.netease.yunxin.kit.contactkit.ui.model.ContactFriendBean;
 import com.netease.yunxin.kit.contactkit.ui.model.IViewTypeConstant;
-import com.netease.yunxin.kit.contactkit.ui.v2model.V2ContactFriendBean;
 import com.netease.yunxin.kit.contactkit.ui.view.ContactListViewAttrs;
 import com.netease.yunxin.kit.contactkit.ui.view.viewholder.BaseContactViewHolder;
 import java.util.ArrayList;
@@ -27,7 +27,7 @@ public class ContactAdapter extends RecyclerView.Adapter<BaseContactViewHolder> 
 
   private final List<BaseContactBean> dataList;
 
-  private final List<V2ContactFriendBean> friendList;
+  private final List<ContactFriendBean> friendList;
 
   private ContactActions defaultActions;
 
@@ -61,7 +61,7 @@ public class ContactAdapter extends RecyclerView.Adapter<BaseContactViewHolder> 
 
   // 通讯录调用，添加，更新，删除 好友列表
   @SuppressLint("NotifyDataSetChanged")
-  public void updateFriendData(List<V2ContactFriendBean> list) {
+  public void updateFriendData(List<ContactFriendBean> list) {
     if (list == null || list.isEmpty()) {
       return;
     }
@@ -89,7 +89,7 @@ public class ContactAdapter extends RecyclerView.Adapter<BaseContactViewHolder> 
     if (!dataList.isEmpty()) {
       while (dataList.size() > indexStart
           && dataList.get(indexStart) != null
-          && !(dataList.get(indexStart) instanceof V2ContactFriendBean)) {
+          && !(dataList.get(indexStart) instanceof ContactFriendBean)) {
         indexStart++;
       }
       while (indexStart < dataList.size()) {
@@ -270,7 +270,7 @@ public class ContactAdapter extends RecyclerView.Adapter<BaseContactViewHolder> 
     return dataList;
   }
 
-  public List<V2ContactFriendBean> getFriendList() {
+  public List<ContactFriendBean> getFriendList() {
     return friendList;
   }
 }

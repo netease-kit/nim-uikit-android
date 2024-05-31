@@ -325,6 +325,9 @@ public class ChatView extends LinearLayout implements IChatView, AitTextChangeLi
   @Override
   public void setReplyMessage(ChatMessageBean messageBean) {
     binding.chatBottomInputLayout.setReplyMessage(messageBean);
+    if (binding.chatRichLayout.getVisibility() == VISIBLE) {
+      binding.chatRichContentEt.requestFocus();
+    }
   }
 
   public void setTypeState(boolean isTyping) {
@@ -462,6 +465,7 @@ public class ChatView extends LinearLayout implements IChatView, AitTextChangeLi
     return binding;
   }
 
+  @Override
   public FrameLayout getChatBodyTopLayout() {
     return binding.chatViewBodyTop;
   }

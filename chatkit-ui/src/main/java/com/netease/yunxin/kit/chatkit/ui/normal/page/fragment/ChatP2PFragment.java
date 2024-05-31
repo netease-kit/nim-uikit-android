@@ -120,6 +120,9 @@ public class ChatP2PFragment extends NormalChatFragment {
   }
 
   @Override
+  protected void updateDataWhenLogin() {}
+
+  @Override
   public void onDestroyView() {
     super.onDestroyView();
     ((ChatP2PViewModel) viewModel).getMessageReceiptLiveData().removeObserver(p2pReceiptObserver);

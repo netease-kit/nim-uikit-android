@@ -10,7 +10,7 @@ import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMLastMessageState;
 import com.netease.nimlib.sdk.v2.conversation.model.V2NIMConversation;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
 import com.netease.yunxin.kit.chatkit.model.CustomAttachment;
-import com.netease.yunxin.kit.chatkit.repo.ConversationRepo;
+import com.netease.yunxin.kit.chatkit.utils.ChatUtils;
 import com.netease.yunxin.kit.conversationkit.ui.common.ConversationUtils;
 
 /** 会话自定义配置 用于外部定制替换 */
@@ -36,7 +36,8 @@ public class ConversationCustom {
         case V2NIM_MESSAGE_TYPE_FILE:
           return context.getString(R.string.msg_type_file);
         case V2NIM_MESSAGE_TYPE_LOCATION:
-          return context.getString(R.string.msg_type_location);
+          String title = conversationInfo.getLastMessage().getText();
+          return context.getString(R.string.msg_type_location) + title;
         case V2NIM_MESSAGE_TYPE_CALL:
           int type =
               ConversationUtils.getMessageCallType(
@@ -51,7 +52,7 @@ public class ConversationCustom {
           // 自定义消息解析，可以通过ChatKitClient.addCustomAttach添加自定义消息Attachment
           // 也可以使用，ChatKit-ui 中通过配置ChatKitConfig.customParse实现自定义消息解析
           CustomAttachment attachment =
-              ConversationRepo.parseLastMsgCustomAttachment(conversationInfo.getLastMessage());
+              ChatUtils.parseLastMsgCustomAttachment(conversationInfo.getLastMessage());
           if (attachment != null) {
             result = attachment.getContent();
           }

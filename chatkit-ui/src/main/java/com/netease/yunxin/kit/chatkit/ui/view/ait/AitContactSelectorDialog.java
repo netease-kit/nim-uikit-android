@@ -107,7 +107,7 @@ public class AitContactSelectorDialog extends BottomSheetDialog {
   public void setData(List<TeamMemberWithUserInfo> data, boolean refresh) {
     adapter.setMembers(data);
     if (refresh) {
-      adapter.notifyItemRangeChanged(0, adapter.getItemCount());
+      adapter.notifyDataSetChanged();
     }
   }
 
@@ -120,7 +120,7 @@ public class AitContactSelectorDialog extends BottomSheetDialog {
     adapter.setShowAll(showAll);
     adapter.setMembers(data);
     if (refresh) {
-      adapter.notifyItemRangeChanged(0, adapter.getItemCount());
+      adapter.notifyDataSetChanged();
     }
   }
 

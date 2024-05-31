@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (c) 2022 NetEase, Inc. All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be
+  ~ found in the LICENSE file.
+  -->
+
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/llyTopMessage"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/dimen_40_dp"
+    android:layout_marginHorizontal="@dimen/dimen_12_dp"
+    android:layout_marginVertical="@dimen/dimen_6_dp"
+    android:background="@drawable/bg_shape_corner"
+    android:orientation="horizontal"
+    android:padding="@dimen/dimen_8_dp">
+
+    <ImageView
+        android:layout_width="@dimen/dimen_18_dp"
+        android:layout_height="@dimen/dimen_18_dp"
+        android:layout_gravity="center_vertical"
+        android:layout_marginEnd="@dimen/dimen_4_dp"
+        android:src="@drawable/ic_top_sticky" />
+
+    <RelativeLayout
+        android:id="@+id/rlyTopThumb"
+        android:layout_width="@dimen/dimen_28_dp"
+        android:layout_height="@dimen/dimen_28_dp"
+        android:layout_marginStart="@dimen/dimen_4_dp"
+        android:layout_gravity="center_vertical"
+        android:visibility="gone">
+
+        <ImageView
+            android:id="@+id/ivTopThumb"
+            android:layout_width="@dimen/dimen_28_dp"
+            android:layout_height="@dimen/dimen_28_dp" />
+
+        <ImageView
+            android:id="@+id/ivTopVideo"
+            android:layout_width="@dimen/dimen_12_dp"
+            android:layout_height="@dimen/dimen_12_dp"
+            android:layout_centerInParent="true"
+            android:src="@drawable/ic_top_video"
+            android:visibility="gone"/>
+
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/tvNickname"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/dimen_4_dp"
+        android:textColor="@color/color_333333"
+        android:layout_gravity="center_vertical"
+        android:textSize="@dimen/text_size_12" />
+
+    <TextView
+        android:id="@+id/tvTopContent"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:textColor="@color/color_333333"
+        android:layout_gravity="center_vertical"
+        android:textSize="@dimen/text_size_12" />
+
+    <ImageView
+        android:id="@+id/ivTopClose"
+        android:layout_width="@dimen/dimen_18_dp"
+        android:layout_height="@dimen/dimen_18_dp"
+        android:layout_gravity="center_vertical"
+        android:src="@drawable/ic_grey_close" />
+
+</LinearLayout>

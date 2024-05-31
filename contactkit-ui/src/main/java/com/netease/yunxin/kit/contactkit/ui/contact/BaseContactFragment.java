@@ -9,6 +9,7 @@ import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.PATH_ADD_F
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,8 +27,8 @@ import com.netease.yunxin.kit.contactkit.ui.R;
 import com.netease.yunxin.kit.contactkit.ui.interfaces.ContactActions;
 import com.netease.yunxin.kit.contactkit.ui.interfaces.IContactCallback;
 import com.netease.yunxin.kit.contactkit.ui.model.ContactEntranceBean;
+import com.netease.yunxin.kit.contactkit.ui.model.ContactFriendBean;
 import com.netease.yunxin.kit.contactkit.ui.model.IViewTypeConstant;
-import com.netease.yunxin.kit.contactkit.ui.v2model.V2ContactFriendBean;
 import com.netease.yunxin.kit.contactkit.ui.view.ContactLayout;
 import com.netease.yunxin.kit.corekit.im2.model.UserWithFriend;
 import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
@@ -44,14 +45,17 @@ public abstract class BaseContactFragment extends BaseFragment {
   protected ContactLayout contactLayout;
   protected View emptyView;
   protected ContactUIConfig contactConfig;
-  protected Observer<FetchResult<List<V2ContactFriendBean>>> contactObserver;
-  protected Observer<FetchResult<List<V2ContactFriendBean>>> userInfoObserver;
+  protected Observer<FetchResult<List<ContactFriendBean>>> contactObserver;
+  protected Observer<FetchResult<List<ContactFriendBean>>> userInfoObserver;
   protected IContactCallback contactCallback;
   protected int headerCount = 0;
 
   public void setContactConfig(ContactUIConfig config) {
     contactConfig = config;
   }
+
+  //handler,延时请求联系人列表
+  Handler handler = new Handler();
 
   @Override
   public View onCreateView(
@@ -122,7 +126,11 @@ public abstract class BaseContactFragment extends BaseFragment {
     initView();
     viewModel.getContactLiveData().observeForever(contactObserver);
     viewModel.getUserInfoLiveData().observeForever(userInfoObserver);
-    viewModel.fetchContactList(false);
+    handler.postDelayed(
+        () -> {
+          viewModel.fetchContactList(false);
+        },
+        200);
   }
 
   private void initView() {
@@ -180,7 +188,7 @@ public abstract class BaseContactFragment extends BaseFragment {
     actions.addContactListener(
         IViewTypeConstant.CONTACT_FRIEND,
         (position, data) -> {
-          UserWithFriend friendInfo = ((V2ContactFriendBean) data).data;
+          UserWithFriend friendInfo = ((ContactFriendBean) data).data;
           XKitRouter.withKey(RouterConstant.PATH_USER_INFO_PAGE)
               .withContext(requireContext())
               .withParam(RouterConstant.KEY_ACCOUNT_ID_KEY, friendInfo.getAccount())
@@ -302,6 +310,7 @@ public abstract class BaseContactFragment extends BaseFragment {
     if (viewModel != null) {
       viewModel.getContactLiveData().removeObserver(contactObserver);
     }
+    handler.removeCallbacksAndMessages(null);
   }
 
   protected List<ContactEntranceBean> getContactEntranceList(Context context) {

@@ -14,9 +14,8 @@ android {
     defaultConfig {
         applicationId = "com.netease.yunxin.app.im"
         minSdk = 21
-        targetSdk = 34
         versionCode = 1
-        versionName = "10.0.0-beta"
+        versionName = "10.1.1"
         multiDexEnabled = true
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -38,12 +37,6 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    packaging {
-        jniLibs {
-            pickFirsts.add("lib/arm64-v8a/libc++_shared.so")
-            pickFirsts.add("lib/armeabi-v7a/libc++_shared.so")
-        }
-    }
 }
 
 dependencies {
@@ -59,11 +52,11 @@ dependencies {
 //    implementation(project(":chatkit-ui"))
 //    implementation(project(":locationkit"))
 
-    implementation("com.netease.yunxin.kit.contact:contactkit-ui:10.0.0-beta01")
-    implementation("com.netease.yunxin.kit.conversation:conversationkit-ui:10.0.0-beta01")
-    implementation("com.netease.yunxin.kit.team:teamkit-ui:10.0.0-beta01")
-    implementation("com.netease.yunxin.kit.chat:chatkit-ui:10.0.0-beta01")
-    implementation("com.netease.yunxin.kit.locationkit:locationkit:10.0.0-beta01")
+    implementation("com.netease.yunxin.kit.contact:contactkit-ui:10.1.1")
+    implementation("com.netease.yunxin.kit.conversation:conversationkit-ui:10.1.1")
+    implementation("com.netease.yunxin.kit.team:teamkit-ui:10.1.1")
+    implementation("com.netease.yunxin.kit.chat:chatkit-ui:10.1.1")
+    implementation("com.netease.yunxin.kit.locationkit:locationkit:10.1.1")
     implementation("com.netease.yunxin.kit.call:call-ui:2.2.0") //呼叫组件 UI 包
     implementation("com.netease.nimlib:avsignalling:10.2.5-beta") //信令组件
     implementation("com.airbnb.android:lottie:6.3.0")

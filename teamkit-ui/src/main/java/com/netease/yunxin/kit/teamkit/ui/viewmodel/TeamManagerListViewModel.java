@@ -7,8 +7,8 @@ package com.netease.yunxin.kit.teamkit.ui.viewmodel;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
-import com.netease.nimlib.sdk.team.model.TeamMember;
 import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamMemberRoleQueryType;
+import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamType;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.model.TeamMemberListResult;
 import com.netease.yunxin.kit.chatkit.model.TeamMemberWithUserInfo;
@@ -31,10 +31,10 @@ public class TeamManagerListViewModel extends TeamBaseViewModel {
   // 获取群成员信息列表
   private final MutableLiveData<FetchResult<List<TeamMemberWithUserInfo>>> teamManagerWithUserData =
       new MutableLiveData<>();
-  private final MutableLiveData<FetchResult<List<TeamMember>>> addRemoveManagerLiveData =
+  private final MutableLiveData<FetchResult<List<String>>> addRemoveManagerLiveData =
       new MutableLiveData<>();
 
-  public MutableLiveData<FetchResult<List<TeamMember>>> getAddRemoveManagerLiveData() {
+  public MutableLiveData<FetchResult<List<String>>> getAddRemoveManagerLiveData() {
     return addRemoveManagerLiveData;
   }
 
@@ -88,6 +88,7 @@ public class TeamManagerListViewModel extends TeamBaseViewModel {
     ALog.d(LIB_TAG, TAG, "addManager:" + teamId + "," + members.size());
     TeamRepo.addManagers(
         teamId,
+        V2NIMTeamType.V2NIM_TEAM_TYPE_NORMAL,
         members,
         new FetchCallback<Void>() {
           @Override
@@ -117,12 +118,13 @@ public class TeamManagerListViewModel extends TeamBaseViewModel {
     ALog.d(LIB_TAG, TAG, "removeManager:" + teamId + "," + members.size());
     TeamRepo.removeManagers(
         teamId,
+        V2NIMTeamType.V2NIM_TEAM_TYPE_NORMAL,
         members,
         new FetchCallback<Void>() {
           @Override
           public void onSuccess(@Nullable Void param) {
             ALog.d(LIB_TAG, TAG, "removeManager,onSuccess");
-            FetchResult<List<TeamMember>> result = new FetchResult<>(LoadStatus.Success, null);
+            FetchResult<List<String>> result = new FetchResult<>(LoadStatus.Success, members);
             result.setType(FetchResult.FetchType.Remove);
             addRemoveManagerLiveData.setValue(result);
           }

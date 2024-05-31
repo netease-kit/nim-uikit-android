@@ -189,10 +189,10 @@ public class NormalChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
     if (messageBean.hasReply()) {
       //自定义回复实现
       addReplayViewToTopGroup();
-      String replyUuid = messageBean.getReplyUUid();
-      if (!TextUtils.isEmpty(replyUuid)) {
+      V2NIMMessageRefer refer = messageBean.getReplyMessage();
+      if (refer != null) {
         MessageHelper.getReplyMessageInfo(
-            replyUuid,
+            refer,
             new FetchCallback<>() {
               @Override
               public void onError(int errorCode, @Nullable String errorMsg) {
@@ -266,9 +266,9 @@ public class NormalChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
     }
     addReplayViewToTopGroup();
 
-    String replyUuid = threadOption.getMessageClientId();
+    V2NIMMessageRefer refer = threadOption;
     MessageHelper.getReplyMessageInfo(
-        replyUuid,
+        refer,
         new FetchCallback<>() {
           @Override
           public void onError(int errorCode, @Nullable String errorMsg) {

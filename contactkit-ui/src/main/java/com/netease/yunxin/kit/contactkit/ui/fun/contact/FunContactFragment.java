@@ -12,15 +12,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
+import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
 import com.netease.yunxin.kit.contactkit.ui.R;
 import com.netease.yunxin.kit.contactkit.ui.contact.BaseContactFragment;
 import com.netease.yunxin.kit.contactkit.ui.databinding.FunContactFragmentBinding;
 import com.netease.yunxin.kit.contactkit.ui.databinding.FunContactTopSearchViewBinding;
 import com.netease.yunxin.kit.contactkit.ui.interfaces.ContactActions;
 import com.netease.yunxin.kit.contactkit.ui.model.ContactEntranceBean;
+import com.netease.yunxin.kit.contactkit.ui.model.ContactFriendBean;
 import com.netease.yunxin.kit.contactkit.ui.model.IViewTypeConstant;
-import com.netease.yunxin.kit.contactkit.ui.v2model.V2ContactFriendBean;
-import com.netease.yunxin.kit.corekit.im2.IMKitClient;
 import com.netease.yunxin.kit.corekit.im2.model.UserWithFriend;
 import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
@@ -59,18 +59,16 @@ public class FunContactFragment extends BaseContactFragment {
     topGroup.setBackgroundResource(R.color.color_ededed);
     FunContactTopSearchViewBinding topSearchViewBinding =
         FunContactTopSearchViewBinding.inflate(inflater, topGroup, true);
-    topSearchViewBinding
-        .getRoot()
-        .setOnClickListener(
-            v -> {
-              if (contactConfig.titleBarRight2Click != null) {
-                contactConfig.titleBarRight2Click.onClick(v);
-              } else {
-                XKitRouter.withKey(RouterConstant.PATH_FUN_GLOBAL_SEARCH_PAGE)
-                    .withContext(requireContext())
-                    .navigate();
-              }
-            });
+    topSearchViewBinding.searchLayout.setOnClickListener(
+        v -> {
+          if (contactConfig.titleBarRight2Click != null) {
+            contactConfig.titleBarRight2Click.onClick(v);
+          } else {
+            XKitRouter.withKey(RouterConstant.PATH_FUN_GLOBAL_SEARCH_PAGE)
+                .withContext(requireContext())
+                .navigate();
+          }
+        });
   }
 
   @Override
@@ -78,7 +76,7 @@ public class FunContactFragment extends BaseContactFragment {
     actions.addContactListener(
         IViewTypeConstant.CONTACT_FRIEND,
         (position, data) -> {
-          UserWithFriend friendInfo = ((V2ContactFriendBean) data).data;
+          UserWithFriend friendInfo = ((ContactFriendBean) data).data;
           XKitRouter.withKey(RouterConstant.PATH_FUN_USER_INFO_PAGE)
               .withContext(requireContext())
               .withParam(RouterConstant.KEY_ACCOUNT_ID_KEY, friendInfo.getAccount())
@@ -175,7 +173,7 @@ public class FunContactFragment extends BaseContactFragment {
     contactDataList.add(verifyBean);
     contactDataList.add(blackBean);
     // my group
-    if (IMKitClient.getConfigCenter().getTeamEnable()) {
+    if (IMKitConfigCenter.getTeamEnable()) {
       ContactEntranceBean groupBean =
           new ContactEntranceBean(
               R.mipmap.fun_ic_contact_my_group, context.getString(R.string.contact_list_my_group));

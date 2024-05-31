@@ -178,6 +178,7 @@ public class ConversationAdapter extends RecyclerView.Adapter<BaseViewHolder> {
 
   public void removeData(int position) {
     if (position >= 0 && position < conversationList.size()) {
+      ALog.d(LIB_TAG, TAG, "removeData" + conversationList.get(position).getConversationId());
       conversationList.remove(position);
       if (isShow) {
         notifyItemRemoved(position);

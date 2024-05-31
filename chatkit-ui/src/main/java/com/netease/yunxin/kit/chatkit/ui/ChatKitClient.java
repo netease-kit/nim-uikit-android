@@ -7,7 +7,7 @@ package com.netease.yunxin.kit.chatkit.ui;
 import android.content.Context;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.Nullable;
-import com.netease.yunxin.kit.chatkit.ChatKitConfig;
+import com.netease.yunxin.kit.chatkit.ChatCustomMsgFactory;
 import com.netease.yunxin.kit.chatkit.map.IMessageMapProvider;
 import com.netease.yunxin.kit.chatkit.model.CustomAttachment;
 import com.netease.yunxin.kit.chatkit.ui.view.message.viewholder.ChatBaseMessageViewHolder;
@@ -39,11 +39,11 @@ public class ChatKitClient {
   }
 
   public static void addCustomAttach(int type, Class<? extends CustomAttachment> attachmentClass) {
-    ChatKitConfig.addCustomAttach(type, attachmentClass);
+    ChatCustomMsgFactory.addCustomAttach(type, attachmentClass);
   }
 
   public static void removeCustomAttach(int type) {
-    ChatKitConfig.removeCustomAttach(type);
+    ChatCustomMsgFactory.removeCustomAttach(type);
   }
 
   public static void addCustomViewHolder(

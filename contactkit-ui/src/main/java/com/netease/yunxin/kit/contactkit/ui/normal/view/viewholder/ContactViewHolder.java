@@ -10,8 +10,8 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import com.netease.yunxin.kit.contactkit.ui.databinding.FriendContactViewHolderBinding;
 import com.netease.yunxin.kit.contactkit.ui.model.BaseContactBean;
+import com.netease.yunxin.kit.contactkit.ui.model.ContactFriendBean;
 import com.netease.yunxin.kit.contactkit.ui.utils.ColorUtils;
-import com.netease.yunxin.kit.contactkit.ui.v2model.V2ContactFriendBean;
 import com.netease.yunxin.kit.contactkit.ui.view.ContactListViewAttrs;
 import com.netease.yunxin.kit.contactkit.ui.view.viewholder.BaseContactViewHolder;
 import com.netease.yunxin.kit.corekit.im2.model.UserWithFriend;
@@ -31,7 +31,7 @@ public class ContactViewHolder extends BaseContactViewHolder {
 
   @Override
   public void onBind(BaseContactBean bean, int position, ContactListViewAttrs attrs) {
-    UserWithFriend friendInfo = ((V2ContactFriendBean) bean).data;
+    UserWithFriend friendInfo = ((ContactFriendBean) bean).data;
     String nickName = friendInfo.getName();
     String avatarName = friendInfo.getAvatarName();
     binding.tvName.setText(nickName);
@@ -40,12 +40,12 @@ public class ContactViewHolder extends BaseContactViewHolder {
         friendInfo.getAvatar(), avatarName, ColorUtils.avatarColor(friendInfo.getAccount()));
 
     if (attrs.getShowSelector()) {
-      binding.rbSelector.setChecked(((V2ContactFriendBean) bean).isSelected());
+      binding.rbSelector.setChecked(((ContactFriendBean) bean).isSelected());
       binding.rbSelector.setVisibility(View.VISIBLE);
       binding.rootView.setOnClickListener(
           v -> {
             boolean newStatue = !binding.rbSelector.isChecked();
-            ((V2ContactFriendBean) bean).setSelected(newStatue);
+            ((ContactFriendBean) bean).setSelected(newStatue);
             binding.rbSelector.setChecked(newStatue);
             if (actions != null && actions.getSelectorListener(bean.viewType) != null) {
               actions.getSelectorListener(bean.viewType).onSelector(newStatue, bean);

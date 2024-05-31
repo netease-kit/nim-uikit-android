@@ -17,6 +17,7 @@ import com.netease.yunxin.kit.teamkit.ui.R;
 import com.netease.yunxin.kit.teamkit.ui.adapter.BaseTeamMemberListAdapter;
 import com.netease.yunxin.kit.teamkit.ui.databinding.TeamMemberListItemBinding;
 import com.netease.yunxin.kit.teamkit.ui.utils.ColorUtils;
+import com.netease.yunxin.kit.teamkit.ui.utils.TeamMemberOnlineCache;
 
 /**
  * 群成员列表适配器,差异化UI展示
@@ -88,6 +89,16 @@ public class TeamMemberListAdapter extends BaseTeamMemberListAdapter<TeamMemberL
                 : binding.getRoot().getContext().getText(R.string.team_type_manager));
       } else {
         binding.tvIdentify.setVisibility(View.GONE);
+      }
+      //在线状态
+      if (showOnlineState) {
+        if (TeamMemberOnlineCache.isOnline(data.getAccountId())) {
+          binding.userOnlineStatus.setAlpha(0f);
+        } else {
+          binding.userOnlineStatus.setAlpha(0.5f);
+        }
+      } else {
+        binding.userOnlineStatus.setAlpha(0f);
       }
     }
 

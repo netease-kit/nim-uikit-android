@@ -8,11 +8,11 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 import androidx.annotation.Nullable;
-import com.netease.nimlib.sdk.v2.user.V2NIMUser;
 import com.netease.yunxin.kit.contactkit.ui.R;
 import com.netease.yunxin.kit.contactkit.ui.addfriend.BaseAddFriendActivity;
 import com.netease.yunxin.kit.contactkit.ui.databinding.FunAddFriendActivityBinding;
 import com.netease.yunxin.kit.corekit.im2.IMKitClient;
+import com.netease.yunxin.kit.corekit.im2.model.V2UserInfo;
 import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 
@@ -35,7 +35,8 @@ public class FunAddFriendActivity extends BaseAddFriendActivity {
     return viewBinding.getRoot();
   }
 
-  protected void startProfileActivity(V2NIMUser userInfo) {
+  @Override
+  protected void startProfileActivity(V2UserInfo userInfo) {
     if (userInfo == null) {
       return;
     }

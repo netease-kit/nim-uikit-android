@@ -15,9 +15,9 @@ import com.netease.nimlib.sdk.v2.auth.enums.V2NIMConnectStatus;
 import com.netease.nimlib.sdk.v2.auth.enums.V2NIMDataSyncState;
 import com.netease.nimlib.sdk.v2.auth.enums.V2NIMDataSyncType;
 import com.netease.yunxin.kit.alog.ALog;
+import com.netease.yunxin.kit.chatkit.listener.ChatListener;
+import com.netease.yunxin.kit.chatkit.listener.MessageRevokeNotification;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
-import com.netease.yunxin.kit.chatkit.observer.MessageListener;
-import com.netease.yunxin.kit.chatkit.observer.MessageRevokeNotification;
 import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant;
 import com.netease.yunxin.kit.chatkit.ui.common.AitDBHelper;
@@ -47,7 +47,7 @@ public class AitService {
   private Context mContext;
   private boolean hasRegister;
 
-  private MessageListener messageObserver;
+  private ChatListener messageObserver;
 
   private AitService() {}
 

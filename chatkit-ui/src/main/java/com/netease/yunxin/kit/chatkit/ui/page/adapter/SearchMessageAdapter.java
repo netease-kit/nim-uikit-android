@@ -9,6 +9,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatSearchBean;
+import com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants;
 import com.netease.yunxin.kit.chatkit.ui.view.message.viewholder.SearchMessageEmptyViewHolder;
 import com.netease.yunxin.kit.common.ui.viewholder.BaseViewHolder;
 import com.netease.yunxin.kit.common.ui.viewholder.IViewHolderFactory;
@@ -67,6 +68,35 @@ public class SearchMessageAdapter extends RecyclerView.Adapter<BaseViewHolder> {
     }
   }
 
+  /**
+   * update user list
+   *
+   * @param accounts user account list
+   */
+  public void updateUserList(List<String> accounts) {
+    for (String account : accounts) {
+      updateUser(account);
+    }
+  }
+
+  /**
+   * update user info
+   *
+   * @param accId user account
+   */
+  public void updateUser(String accId) {
+    if (accId == null) {
+      return;
+    }
+    List<String> payload = new ArrayList<>();
+    payload.add(ActionConstants.PAYLOAD_USERINFO);
+    for (int j = 0; j < dataList.size(); j++) {
+      if (accId.equals(dataList.get(j).getAccount())) {
+        notifyItemChanged(j, payload);
+      }
+    }
+  }
+
   public void setViewHolderFactory(IViewHolderFactory factory) {
     this.viewHolderFactory = factory;
   }
@@ -93,6 +123,13 @@ public class SearchMessageAdapter extends RecyclerView.Adapter<BaseViewHolder> {
   public void onBindViewHolder(@NonNull BaseViewHolder holder, int position) {
     holder.onBindData(dataList.get(position), position);
     holder.setItemOnClickListener(clickListener);
+  }
+
+  @Override
+  public void onBindViewHolder(
+      @NonNull BaseViewHolder holder, int position, @NonNull List<Object> payloads) {
+    super.onBindViewHolder(holder, position, payloads);
+    holder.onBindData(dataList.get(position), position, payloads);
   }
 
   @Override

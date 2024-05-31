@@ -78,7 +78,7 @@ public class FunContactSelectorActivity extends BaseContactSelectorActivity {
                     .show();
                 return;
               }
-              if (selectedListAdapter.getItemCount() >= maxSelectCount
+              if (selectedListAdapter.getItemCount() > maxSelectCount
                   && selectFinalCheckCountEnable) {
                 Toast.makeText(this, R.string.contact_selector_over_count, Toast.LENGTH_LONG)
                     .show();

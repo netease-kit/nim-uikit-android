@@ -146,7 +146,8 @@ public class MessageBottomLayout extends FrameLayout
                 recordDialog.showRecordingView();
               }
             }
-          } else if (event.getAction() == MotionEvent.ACTION_UP) {
+          } else if (event.getAction() == MotionEvent.ACTION_UP
+              || event.getAction() == MotionEvent.ACTION_CANCEL) {
             if (recordDialog != null) {
               dismissAudioInputDialog(inRecordOpView);
             }
@@ -731,7 +732,7 @@ public class MessageBottomLayout extends FrameLayout
         getContext(),
         mBinding.replyContentTv,
         tips,
-        ImageSpan.ALIGN_CENTER,
+        ImageSpan.ALIGN_BOTTOM,
         MessageHelper.SMALL_SCALE);
     mBinding.replyCloseIv.setOnClickListener(v -> clearReplyMsg());
     switchInput();

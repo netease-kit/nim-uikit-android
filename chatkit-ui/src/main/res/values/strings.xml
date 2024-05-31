@@ -88,6 +88,8 @@
     <string name="chat_message_action_recall">撤回</string>
     <string name="chat_message_positive_recall">撤回</string>
     <string name="chat_message_action_collection">收藏</string>
+    <string name="chat_message_action_top">置顶</string>
+    <string name="chat_message_action_cancel_top">取消置顶</string>
 
     <string name="chat_message_action_revoke_this_message">撤回此消息</string>
     <string name="chat_message_action_delete_this_message">删除此消息</string>
@@ -125,6 +127,8 @@
     <string name="chat_team_un_mute">解除禁言</string>
     <string name="chat_team_removed_manager">%s被撤销管理员身份</string>
     <string name="chat_team_appoint_manager">%s被任命为管理员</string>
+    <string name="chat_team_add_top_message">置顶了一条消息</string>
+    <string name="chat_team_remove_top_message">移除了置顶消息</string>
     <string name="chat_team_extension_server_update">群扩展字段(服务器)被更新为</string>
     <string name="chat_you">你</string>
     <string name="chat_team_avatar_update">更新了群头像</string>
@@ -143,6 +147,8 @@
     <string name="chat_team_update">群%s被更新为%s</string>
     <string name="chat_team_at_permission_manager_tips">\@所有人权限更新为群主和管理员</string>
     <string name="chat_team_at_permission_all_tips">\@所有人权限更新为所有人</string>
+    <string name="chat_team_top_sticky_permission_manager_tips">置顶消息权限更新为群主和管理员</string>
+    <string name="chat_team_top_sticky_permission_all_tips">置顶消息权限更新为所有人</string>
     <string name="chat_team_unknown_notification">未知通知</string>
     <string name="chat_team_ait_all">所有人</string>
     <string name="chat_team_be_removed_title">提示</string>
@@ -175,7 +181,7 @@
     <string name="message_search_empty">暂无聊天记录</string>
 
     <string name="chat_team_all_mute">当前群主设置为禁言</string>
-    <string name="chat_message_session_info">[转发]%s的会话记录</string>
+    <string name="chat_message_forward_tips">[转发]%s的会话记录</string>
     <string name="chat_message_multi_forward_tips">[合并转发]%s的会话记录</string>
     <string name="chat_message_single_forward_tips">[逐条转发]%s的会话记录</string>
 
@@ -201,6 +207,7 @@
     <string name="chat_message_multi_delete_limit_tips">批量删除限制50条消息</string>
     <string name="chat_message_download_tips">正在下载中...</string>
     <string name="chat_message_send_message_when_in_black">"对方把你拉黑，发送消息失败"</string>
+    <string name="chat_message_not_friend_send_call">"非好友暂不支持音视频通话"</string>
 
     <!-- location -->
     <string name="chat_location_mine">定位</string>
@@ -218,6 +225,15 @@
     <string name="chat_network_error_tips">当前网络错误</string>
     <string name="chat_remove_tips">已取消标记</string>
     <string name="chat_pin_limit_tips">已超出pin数量上限</string>
+
+    <!-- 收藏消息 -->
+    <string name="chat_collection_title">收藏</string>
+    <string name="chat_collection_empty_tips">暂无收藏消息</string>
+    <string name="chat_remove_collection_tips">已删除收藏</string>
+    <string name="chat_collection_p2p_name_tip">来自于 与%s的会话</string>
+    <string name="chat_collection_team_name_tip">来自于 %s</string>
+    <string name="chat_collection_p2p_transmit_tip">[转发]来自于 与%s的收藏消息</string>
+    <string name="chat_collection_team_transmit_tip">[转发]来自于 %s的收藏消息</string>
 
     <string name="chat_send_null_message_tips">发送内容不能为空</string>
     <string name="chat_send_null_title_tips">发送内容标题不能为空</string>

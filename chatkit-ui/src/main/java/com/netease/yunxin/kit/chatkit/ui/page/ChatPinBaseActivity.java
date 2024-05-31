@@ -4,10 +4,8 @@
 
 package com.netease.yunxin.kit.chatkit.ui.page;
 
-import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.KEY_MAP_FOR_PIN;
 import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
 import static com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants.PAYLOAD_REFRESH_AUDIO_ANIM;
-import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.REQUEST_CONTACT_SELECTOR_KEY;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -27,14 +25,12 @@ import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
-import com.netease.yunxin.kit.chatkit.ui.ChatKitClient;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatUtils;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.chatkit.ui.common.WatchTextMessageDialog;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatPinActivityBinding;
-import com.netease.yunxin.kit.chatkit.ui.dialog.ChatBaseForwardSelectDialog;
-import com.netease.yunxin.kit.chatkit.ui.interfaces.IChatClickListener;
+import com.netease.yunxin.kit.chatkit.ui.interfaces.IItemClickListener;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.page.adapter.PinMessageAdapter;
 import com.netease.yunxin.kit.chatkit.ui.page.viewmodel.ChatPinViewModel;
@@ -47,7 +43,6 @@ import com.netease.yunxin.kit.common.ui.dialog.BottomChoiceDialog;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.common.utils.NetworkUtils;
-import com.netease.yunxin.kit.corekit.im2.IMKitClient;
 import com.netease.yunxin.kit.corekit.im2.model.IMMessageProgress;
 import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
@@ -55,7 +50,7 @@ import java.util.ArrayList;
 
 public abstract class ChatPinBaseActivity extends BaseActivity {
 
-  public static final String TAG = "ChatPinActivity";
+  public static final String TAG = "ChatPinBaseActivity";
   protected ChatPinActivityBinding viewBinding;
   protected ChatPinViewModel viewModel;
   protected String mSessionId;
@@ -64,10 +59,8 @@ public abstract class ChatPinBaseActivity extends BaseActivity {
   protected PinMessageAdapter pinAdapter;
   protected ChatMessageBean forwardMessage;
 
-  // 转发到单聊Launcher
-  protected ActivityResultLauncher<Intent> forwardP2PLauncher;
-  // 转发到群聊Launcher
-  protected ActivityResultLauncher<Intent> forwardTeamLauncher;
+  // 转发Launcher
+  protected ActivityResultLauncher<Intent> forwardLauncher;
 
   // 跳转到聊天页面
   public static final String ACTION_CHECK_PIN = "check_pin";
@@ -85,14 +78,6 @@ public abstract class ChatPinBaseActivity extends BaseActivity {
     setContentView(viewBinding.getRoot());
     initView();
     initData();
-  }
-
-  @Override
-  protected void onDestroy() {
-    super.onDestroy();
-    if (ChatKitClient.getMessageMapProvider() != null) {
-      ChatKitClient.getMessageMapProvider().releaseAllChatMap(KEY_MAP_FOR_PIN);
-    }
   }
 
   @Override
@@ -169,6 +154,16 @@ public abstract class ChatPinBaseActivity extends BaseActivity {
               pinAdapter.addData(result.getData());
               showEmptyView(pinAdapter.getItemCount() < 1);
             });
+    //监听用户信息变更
+    viewModel
+        .getUserChangeLiveData()
+        .observe(
+            this,
+            result -> {
+              if (result.isSuccess() && result.getData() != null) {
+                pinAdapter.updateUserList(result.getData());
+              }
+            });
     // 监听标记列表消息删除
     viewModel
         .getDeleteMessageLiveData()
@@ -181,43 +176,21 @@ public abstract class ChatPinBaseActivity extends BaseActivity {
               showEmptyView(pinAdapter.getItemCount() < 1);
             });
 
-    // 转发到单聊Launcher
-    forwardP2PLauncher =
+    // 转发Launcher
+    forwardLauncher =
         registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
               if (result.getResultCode() != Activity.RESULT_OK || forwardMessage == null) {
                 return;
               }
-              ALog.d(LIB_TAG, TAG, "forward P2P result");
+              ALog.d(LIB_TAG, TAG, "forward result");
               Intent data = result.getData();
               if (data != null) {
-                ArrayList<String> friends =
-                    data.getStringArrayListExtra(REQUEST_CONTACT_SELECTOR_KEY);
-                if (friends != null && !friends.isEmpty()) {
-                  showForwardConfirmDialog(
-                      V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P, friends);
-                }
-              }
-            });
-
-    // 转发到群聊Launcher
-    forwardTeamLauncher =
-        registerForActivityResult(
-            new ActivityResultContracts.StartActivityForResult(),
-            result -> {
-              if (result.getResultCode() != Activity.RESULT_OK || forwardMessage == null) {
-                return;
-              }
-              ALog.d(LIB_TAG, TAG, "forward Team result");
-              Intent data = result.getData();
-              if (data != null) {
-                String tid = data.getStringExtra(RouterConstant.KEY_TEAM_ID);
-                if (!TextUtils.isEmpty(tid)) {
-                  ArrayList<String> sessionIds = new ArrayList<>();
-                  sessionIds.add(tid);
-                  showForwardConfirmDialog(
-                      V2NIMConversationType.V2NIM_CONVERSATION_TYPE_TEAM, sessionIds);
+                ArrayList<String> conversationIds =
+                    data.getStringArrayListExtra(RouterConstant.KEY_FORWARD_SELECTED_CONVERSATIONS);
+                if (conversationIds != null && !conversationIds.isEmpty()) {
+                  showForwardConfirmDialog(conversationIds);
                 }
               }
             });
@@ -258,8 +231,8 @@ public abstract class ChatPinBaseActivity extends BaseActivity {
   }
 
   // 标记列表消息点击事件监听
-  private final IChatClickListener pinClickListener =
-      new IChatClickListener() {
+  private final IItemClickListener pinClickListener =
+      new IItemClickListener<ChatMessageBean>() {
         @Override
         public boolean onMessageClick(View view, int position, ChatMessageBean messageInfo) {
           jumpToChat(messageInfo);
@@ -332,7 +305,7 @@ public abstract class ChatPinBaseActivity extends BaseActivity {
     finish();
   }
 
-  // 显示更多操作弹窗
+  //   显示更多操作弹窗
   public void showMoreActionDialog(ChatMessageBean messageInfo) {
     BaseBottomChoiceDialog dialog = getMoreActionDialog(messageInfo);
     dialog.setOnChoiceListener(
@@ -404,30 +377,17 @@ public abstract class ChatPinBaseActivity extends BaseActivity {
     return actions;
   }
 
-  // 转发弹窗，子类实现。子类可以继承ChatBaseForwardSelectDialog，按照自己的UI风格实现
-  protected abstract ChatBaseForwardSelectDialog getForwardSelectDialog();
-
-  // 点击弹窗中转发到单聊，子类实现后续操作
-  protected abstract void toP2PSelected();
-
-  // 点击弹窗中转发到群聊，子类实现后续操作
-  protected abstract void toTeamSelected();
-
   // 点击自定义消息，子类实现后续操作
   protected void clickCustomMessage(ChatMessageBean messageBean) {}
 
   // 转发消息，如果配置不支持群，则直接到P2P转发
   protected void onTransmit(ChatMessageBean messageBean) {
     forwardMessage = messageBean;
-    if (IMKitClient.getConfigCenter().getTeamEnable()) {
-      ChatBaseForwardSelectDialog dialog = getForwardSelectDialog();
-      if (dialog != null) {
-        dialog.show(getSupportFragmentManager(), TAG);
-      }
-    } else {
-      toP2PSelected();
-    }
+    goToForwardPage();
   }
+
+  // 跳转到转发页面，子类实现
+  protected abstract void goToForwardPage();
 
   // 获取页面背景颜色，子类可以复写
   protected int getPageBackgroundColor() {
@@ -435,6 +395,5 @@ public abstract class ChatPinBaseActivity extends BaseActivity {
   }
 
   // 显示转发确认弹窗，子类实现
-  protected void showForwardConfirmDialog(
-      V2NIMConversationType type, ArrayList<String> sessionIds) {}
+  protected void showForwardConfirmDialog(ArrayList<String> sessionIds) {}
 }

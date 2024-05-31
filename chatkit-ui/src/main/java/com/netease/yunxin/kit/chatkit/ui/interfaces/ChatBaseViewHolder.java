@@ -8,7 +8,6 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewbinding.ViewBinding;
-import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import java.util.List;
 
 /**
@@ -24,7 +23,7 @@ public abstract class ChatBaseViewHolder<T> extends RecyclerView.ViewHolder {
 
   public boolean editStatus = false;
 
-  public IChatClickListener itemListener;
+  public IItemClickListener itemListener;
 
   public ChatBaseViewHolder(@NonNull View itemView) {
     super(itemView);
@@ -34,11 +33,11 @@ public abstract class ChatBaseViewHolder<T> extends RecyclerView.ViewHolder {
     this(viewBinding.getRoot());
   }
 
-  public abstract void onBindData(ChatMessageBean data, int position, @NonNull List<?> payload);
+  public abstract void onBindData(T data, int position, @NonNull List<?> payload);
 
   public abstract void onBindData(T data, int position);
 
-  public void setChatOnClickListener(IChatClickListener listener) {
+  public void setItemOnClickListener(IItemClickListener listener) {
     itemListener = listener;
   }
 

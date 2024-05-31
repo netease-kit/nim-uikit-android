@@ -41,7 +41,9 @@ public class FunTeamManagerActivity extends BaseTeamManagerActivity {
     viewUpdate = binding.tvUpdateInfoPermission;
     tvUpdateValue = binding.tvUpdateInfoValue;
     viewAit = binding.tvNotifyAllMembersPermission;
+    viewTopSticky = binding.tvTopStickyPermission;
     tvAitValue = binding.tvNotifyAllMembersValue;
+    tvTopStickyValue = binding.tvTopStickyValue;
     return binding.getRoot();
   }
 

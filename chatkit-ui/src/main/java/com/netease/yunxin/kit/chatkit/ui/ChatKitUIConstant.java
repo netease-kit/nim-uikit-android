@@ -62,11 +62,4 @@ public class ChatKitUIConstant {
   public static final String KEY_MULTI_TRANSMIT_SEND_ID = "userAccId";
   public static final String KEY_RICH_TEXT_TITLE = "title";
   public static final String KEY_RICH_TEXT_BODY = "body";
-
-  // 群自定义配置参数，用于是否群中所有人都可以@所有人配置的KEY值
-  public static final String KEY_EXTENSION_AT_ALL = "yxAllowAt";
-  // 群自定义配置参数，用于是否群中管理员可以@所有人，允许所有群成员@所有人
-  public static final String TYPE_EXTENSION_ALLOW_ALL = "all";
-  // 群自定义配置参数，用于是否群中管理员可以@所有人，只允许管理员@所有人
-  public static final String TYPE_EXTENSION_ALLOW_MANAGER = "manager";
 }

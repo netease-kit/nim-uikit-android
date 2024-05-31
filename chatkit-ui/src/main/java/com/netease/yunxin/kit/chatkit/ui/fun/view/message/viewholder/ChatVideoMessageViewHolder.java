@@ -51,7 +51,8 @@ public class ChatVideoMessageViewHolder extends ChatThumbBaseViewHolder {
     super.onMessageStatus(data);
     binding.progressBar.setIndeterminate(false);
     V2NIMMessage message = data.getMessageData().getMessage();
-    if (message.getSendingState() == V2NIMMessageSendingState.V2NIM_MESSAGE_SENDING_STATE_FAILED) {
+    if (message.getAttachmentUploadState()
+        == V2NIMMessageAttachmentUploadState.V2NIM_MESSAGE_ATTACHMENT_UPLOAD_STATE_FAILED) {
       if (TextUtils.equals(message.getSenderId(), IMKitClient.account())) {
         ToastX.showShortToast(R.string.chat_message_video_send_fail);
       } else {
@@ -69,9 +70,7 @@ public class ChatVideoMessageViewHolder extends ChatThumbBaseViewHolder {
   }
 
   private void updateStatus(V2NIMMessage message) {
-    if (message.getSendingState() == V2NIMMessageSendingState.V2NIM_MESSAGE_SENDING_STATE_SENDING
-        || message.getAttachmentUploadState()
-            == V2NIMMessageAttachmentUploadState.V2NIM_MESSAGE_ATTACHMENT_UPLOAD_STATE_UPLOADING) {
+    if (message.getSendingState() == V2NIMMessageSendingState.V2NIM_MESSAGE_SENDING_STATE_SENDING) {
       binding.progressBar.setVisibility(View.VISIBLE);
       binding.progressBarInsideIcon.setVisibility(View.VISIBLE);
       binding.playIcon.setVisibility(View.GONE);

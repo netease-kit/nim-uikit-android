@@ -14,6 +14,7 @@ import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamUpdateInfoMode;
 import com.netease.nimlib.sdk.v2.team.model.V2NIMTeam;
 import com.netease.nimlib.sdk.v2.team.model.V2NIMUpdatedTeamInfo;
 import com.netease.yunxin.kit.alog.ALog;
+import com.netease.yunxin.kit.chatkit.ChatConstants;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.corekit.im2.IMKitClient;
@@ -24,12 +25,6 @@ import org.json.JSONObject;
 
 /** 群通知消息文案构造类，将通知转换为消息展示文案 */
 public class TeamNotificationHelper {
-  // 群@功能设置权限，在扩展字段的保存@功能权限设置信息，该字段作为信息KEY值
-  public static final String KEY_EXTENSION_AT_ALL = "yxAllowAt";
-  // 群@功能设置权限，所有人
-  public static final String TYPE_EXTENSION_VALUE_ALL = "all";
-  // 群@功能设置权限，管理员
-  public static final String TYPE_EXTENSION_VALUE_MANAGER = "manager";
 
   public static String getTeamNotificationText(IMMessageInfo message) {
     return buildNotification(
@@ -242,16 +237,40 @@ public class TeamNotificationHelper {
                 .getString(R.string.chat_team_invited_permission_no));
       }
     } else if (field.getServerExtension() != null) {
-      subStr.delete(0, subStr.length());
-      String mode = getTeamAtMode(field.getServerExtension());
-      if (mode.equals(TYPE_EXTENSION_VALUE_ALL)) {
-        subStr.append(
-            IMKitClient.getApplicationContext()
-                .getString(R.string.chat_team_at_permission_all_tips));
-      } else {
-        subStr.append(
-            IMKitClient.getApplicationContext()
-                .getString(R.string.chat_team_at_permission_manager_tips));
+      String lastOpt = getLastOperation(field.getServerExtension());
+      if (ChatConstants.KEY_EXTENSION_AT_ALL.equals(lastOpt)) {
+        subStr.delete(0, subStr.length());
+        String mode = getTeamAtMode(field.getServerExtension());
+        if (mode.equals(ChatConstants.TYPE_EXTENSION_ALLOW_ALL)) {
+          subStr.append(
+              IMKitClient.getApplicationContext()
+                  .getString(R.string.chat_team_at_permission_all_tips));
+        } else {
+          subStr.append(
+              IMKitClient.getApplicationContext()
+                  .getString(R.string.chat_team_at_permission_manager_tips));
+        }
+      } else if (ChatConstants.KEY_EXTENSION_STICKY_PERMISSION.equals(lastOpt)) {
+        subStr.delete(0, subStr.length());
+        String mode = getTeamTopStickyMode(field.getServerExtension());
+        if (mode.equals(ChatConstants.TYPE_EXTENSION_ALLOW_ALL)) {
+          subStr.append(
+              IMKitClient.getApplicationContext()
+                  .getString(R.string.chat_team_top_sticky_permission_all_tips));
+        } else {
+          subStr.append(
+              IMKitClient.getApplicationContext()
+                  .getString(R.string.chat_team_top_sticky_permission_manager_tips));
+        }
+      } else if (ChatConstants.KEY_EXTENSION_STICKY.equals(lastOpt)) {
+        int mode = getTeamTopStickyOperationMode(field.getServerExtension());
+        if (mode == ChatConstants.TYPE_EXTENSION_STICKY_ADD) {
+          subStr.append(
+              IMKitClient.getApplicationContext().getString(R.string.chat_team_add_top_message));
+        } else {
+          subStr.append(
+              IMKitClient.getApplicationContext().getString(R.string.chat_team_remove_top_message));
+        }
       }
 
     } else if (field.getChatBannedMode() != null) {
@@ -274,16 +293,78 @@ public class TeamNotificationHelper {
     return sb.delete(sb.length() - 2, sb.length()).toString();
   }
 
-  // 获取群@权限功能权限信息
-  public static String getTeamAtMode(String extension) {
-    String result = TYPE_EXTENSION_VALUE_ALL;
+  // 获取群扩展中的最后一次操作类型
+  public static String getLastOperation(String extension) {
+    String result = ChatConstants.KEY_EXTENSION_AT_ALL;
     if (extension == null) {
       return result;
     }
-    if (extension.contains(KEY_EXTENSION_AT_ALL)) {
+    if (extension.contains(ChatConstants.KEY_EXTENSION_LAST_OPT_TYPE)) {
       try {
         JSONObject obj = new JSONObject(extension);
-        result = obj.optString(KEY_EXTENSION_AT_ALL, TYPE_EXTENSION_VALUE_ALL);
+        result =
+            obj.optString(
+                ChatConstants.KEY_EXTENSION_LAST_OPT_TYPE, ChatConstants.KEY_EXTENSION_AT_ALL);
+      } catch (JSONException e) {
+        ALog.e("TeamNotificationHelper", "getLastOperation", e);
+      }
+    }
+    return result;
+  }
+
+  // 获取群置顶功能权限信息
+  public static String getTeamTopStickyMode(String extension) {
+    String result = ChatConstants.TYPE_EXTENSION_ALLOW_MANAGER;
+    if (extension == null) {
+      return result;
+    }
+    if (extension.contains(ChatConstants.KEY_EXTENSION_STICKY_PERMISSION)) {
+      try {
+        JSONObject obj = new JSONObject(extension);
+        result =
+            obj.optString(
+                ChatConstants.KEY_EXTENSION_STICKY_PERMISSION,
+                ChatConstants.TYPE_EXTENSION_ALLOW_MANAGER);
+      } catch (JSONException e) {
+        ALog.e("TeamNotificationHelper", "getTeamTopStickyMode", e);
+      }
+    }
+    return result;
+  }
+
+  //获取指定消息的操作类型
+  public static int getTeamTopStickyOperationMode(String extension) {
+    int result = ChatConstants.TYPE_EXTENSION_STICKY_ADD;
+    if (extension == null) {
+      return result;
+    }
+    if (extension.contains(ChatConstants.KEY_EXTENSION_STICKY)) {
+      try {
+        JSONObject obj = new JSONObject(extension);
+        JSONObject stickyObj = obj.getJSONObject(ChatConstants.KEY_EXTENSION_STICKY);
+        result =
+            stickyObj.optInt(
+                ChatConstants.KEY_STICKY_MESSAGE_OPERATION,
+                ChatConstants.TYPE_EXTENSION_STICKY_ADD);
+      } catch (JSONException e) {
+        ALog.e("TeamNotificationHelper", "getTeamTopStickyMode", e);
+      }
+    }
+    return result;
+  }
+
+  // 获取群@权限功能权限信息
+  public static String getTeamAtMode(String extension) {
+    String result = ChatConstants.TYPE_EXTENSION_ALLOW_ALL;
+    if (extension == null) {
+      return result;
+    }
+    if (extension.contains(ChatConstants.KEY_EXTENSION_AT_ALL)) {
+      try {
+        JSONObject obj = new JSONObject(extension);
+        result =
+            obj.optString(
+                ChatConstants.KEY_EXTENSION_AT_ALL, ChatConstants.TYPE_EXTENSION_ALLOW_ALL);
       } catch (JSONException e) {
         ALog.e("TeamNotificationHelper", "getTeamNotifyAllMode", e);
       }

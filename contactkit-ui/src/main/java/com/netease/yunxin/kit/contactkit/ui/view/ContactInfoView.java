@@ -15,8 +15,8 @@ import androidx.annotation.Nullable;
 import com.netease.yunxin.kit.common.utils.NetworkUtils;
 import com.netease.yunxin.kit.contactkit.ui.R;
 import com.netease.yunxin.kit.contactkit.ui.databinding.UserInfoLayoutBinding;
+import com.netease.yunxin.kit.contactkit.ui.model.ContactUserInfoBean;
 import com.netease.yunxin.kit.contactkit.ui.utils.ColorUtils;
-import com.netease.yunxin.kit.contactkit.ui.v2model.V2ContactUserInfoBean;
 
 public class ContactInfoView extends FrameLayout {
 
@@ -48,7 +48,7 @@ public class ContactInfoView extends FrameLayout {
     this.userCallback = userCallback;
   }
 
-  public void setData(V2ContactUserInfoBean userInfo) {
+  public void setData(ContactUserInfoBean userInfo) {
     String name = userInfo.data.getUserInfoName();
     String nickName = null;
     if (userInfo.friendInfo != null) {
@@ -56,7 +56,9 @@ public class ContactInfoView extends FrameLayout {
     }
     //avatar
     binding.avatarView.setData(
-        userInfo.data.getAvatar(), name, ColorUtils.avatarColor(userInfo.data.getAccountId()));
+        userInfo.data.getAvatar(),
+        userInfo.getName(),
+        ColorUtils.avatarColor(userInfo.data.getAccountId()));
 
     //name
     if (TextUtils.isEmpty(nickName)) {

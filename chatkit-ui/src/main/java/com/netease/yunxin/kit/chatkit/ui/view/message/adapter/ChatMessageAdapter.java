@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.netease.nimlib.sdk.uinfo.model.UserInfo;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessagePin;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessageRefer;
+import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageSendingState;
 import com.netease.nimlib.sdk.v2.team.model.V2NIMTeam;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.model.MessagePinInfo;
@@ -217,13 +218,23 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<CommonBaseMessageVi
     }
   }
 
-  public void updateMessageStatus(ChatMessageBean message) {
+  public int updateMessageStatus(ChatMessageBean message) {
     int index = getMessageIndex(message);
     if (index >= 0 && index < messageList.size()) {
       ChatMessageBean origin = messageList.get(index);
-      origin.getMessageData().setMessage(message.getMessageData().getMessage());
-      updateMessage(origin, PAYLOAD_STATUS);
+      //发送成功的消息，直接替换
+      if (origin.getMessageData().getMessage().getSendingState()
+          == V2NIMMessageSendingState.V2NIM_MESSAGE_SENDING_STATE_SUCCEEDED) {
+        messageList.remove(index);
+        notifyItemRemoved(index);
+        origin.getMessageData().setMessage(message.getMessageData().getMessage());
+        return insertMessageSortByTime(origin);
+      } else {
+        origin.getMessageData().setMessage(message.getMessageData().getMessage());
+        updateMessage(origin, PAYLOAD_STATUS);
+      }
     }
+    return index;
   }
 
   public void reloadMessages(List<ChatMessageBean> messageList, Object payload) {
@@ -246,7 +257,9 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<CommonBaseMessageVi
     }
     for (int i = 0; i < messageList.size(); i++) {
       ChatMessageBean messageInfo = messageList.get(i);
-      if (messageInfo != null && TextUtils.equals(clientId, messageInfo.getReplyUUid())) {
+      if (messageInfo != null
+          && messageInfo.getReplyMessage() != null
+          && TextUtils.equals(clientId, messageInfo.getReplyMessage().getMessageClientId())) {
         notifyItemChanged(i, PAYLOAD_REPLY);
       }
     }
@@ -276,8 +289,14 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<CommonBaseMessageVi
 
     for (int i = 0; i < messageList.size(); i++) {
       IMMessageInfo messageInfo = messageList.get(i).getMessageData();
-      if (messageInfo != null && accountSet.contains(messageInfo.getMessage().getSenderId())) {
-        notifyItemChanged(i, PAYLOAD_USERINFO);
+      if (messageInfo != null) {
+        if (accountSet.contains(messageInfo.getMessage().getSenderId())) {
+          notifyItemChanged(i, PAYLOAD_USERINFO);
+        }
+        if (messageInfo.getPinOption() != null
+            && accountSet.contains(messageInfo.getPinOption().getOperatorId())) {
+          notifyItemChanged(i, PAYLOAD_SIGNAL);
+        }
       }
     }
   }

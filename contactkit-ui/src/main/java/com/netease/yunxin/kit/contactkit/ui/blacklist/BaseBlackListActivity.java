@@ -21,8 +21,8 @@ import com.netease.yunxin.kit.contactkit.ui.R;
 import com.netease.yunxin.kit.contactkit.ui.activity.BaseListActivity;
 import com.netease.yunxin.kit.contactkit.ui.model.IViewTypeConstant;
 import com.netease.yunxin.kit.contactkit.ui.normal.view.ContactViewHolderFactory;
-import com.netease.yunxin.kit.contactkit.ui.normal.view.viewholder.BlackListViewHolder;
 import com.netease.yunxin.kit.contactkit.ui.view.viewholder.BaseContactViewHolder;
+import com.netease.yunxin.kit.contactkit.ui.view.viewholder.BlackListViewHolder;
 import java.util.ArrayList;
 
 /**
@@ -66,23 +66,7 @@ public class BaseBlackListActivity extends BaseListActivity {
               }
             });
 
-    binding.contactListView.setViewHolderFactory(
-        new ContactViewHolderFactory() {
-          @Override
-          protected BaseContactViewHolder getCustomViewHolder(ViewGroup view, int viewType) {
-            if (viewType == IViewTypeConstant.CONTACT_BLACK_LIST) {
-              BlackListViewHolder viewHolder = new BlackListViewHolder(view);
-              viewHolder.setRelieveListener(
-                  data -> {
-                    if (checkNetwork()) {
-                      viewModel.removeBlackOp(data.data.getAccountId());
-                    }
-                  });
-              return viewHolder;
-            }
-            return null;
-          }
-        });
+    setBlackListViewHolder();
     viewModel
         .getBlackListLiveData()
         .observe(
@@ -105,8 +89,28 @@ public class BaseBlackListActivity extends BaseListActivity {
     viewModel.getBlackList();
   }
 
+  protected void setBlackListViewHolder() {
+    binding.contactListView.setViewHolderFactory(
+        new ContactViewHolderFactory() {
+          @Override
+          protected BaseContactViewHolder getCustomViewHolder(ViewGroup view, int viewType) {
+            if (viewType == IViewTypeConstant.CONTACT_BLACK_LIST) {
+              BlackListViewHolder viewHolder = new BlackListViewHolder(view, false);
+              viewHolder.setRelieveListener(
+                  data -> {
+                    if (checkNetwork()) {
+                      viewModel.removeBlackOp(data.data.getAccountId());
+                    }
+                  });
+              return viewHolder;
+            }
+            return null;
+          }
+        });
+  }
+
   // 检查网络并弹出Toast提示
-  private boolean checkNetwork() {
+  protected boolean checkNetwork() {
     if (!NetworkUtils.isConnected()) {
       Toast.makeText(
               BaseBlackListActivity.this, R.string.contact_network_error_tip, Toast.LENGTH_SHORT)

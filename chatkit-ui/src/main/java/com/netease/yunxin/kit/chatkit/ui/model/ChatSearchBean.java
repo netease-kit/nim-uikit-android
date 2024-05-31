@@ -7,6 +7,7 @@ package com.netease.yunxin.kit.chatkit.ui.model;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.style.ForegroundColorSpan;
+import androidx.annotation.Nullable;
 import com.netease.nimlib.sdk.search.model.RecordHitInfo;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessage;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatUserCache;
@@ -61,6 +62,15 @@ public class ChatSearchBean extends BaseBean {
     return msgRecord;
   }
 
+  /**
+   * get the keyword
+   *
+   * @return the keyword
+   */
+  public String getKeyword() {
+    return keyword;
+  }
+
   public SpannableString getSpannableString(int color) {
     if (msgRecord != null) {
       String content = msgRecord.getText();
@@ -88,5 +98,19 @@ public class ChatSearchBean extends BaseBean {
       return spannable;
     }
     return null;
+  }
+
+  @Override
+  public boolean equals(@Nullable Object obj) {
+    if (obj instanceof ChatSearchBean) {
+      ChatSearchBean bean = (ChatSearchBean) obj;
+      return bean.msgRecord.equals(msgRecord);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    return msgRecord.hashCode();
   }
 }

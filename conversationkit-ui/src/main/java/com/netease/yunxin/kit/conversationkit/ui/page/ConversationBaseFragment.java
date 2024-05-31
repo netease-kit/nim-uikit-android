@@ -30,6 +30,7 @@ import com.netease.yunxin.kit.conversationkit.ui.IConversationFactory;
 import com.netease.yunxin.kit.conversationkit.ui.R;
 import com.netease.yunxin.kit.conversationkit.ui.common.ConversationConstant;
 import com.netease.yunxin.kit.conversationkit.ui.common.ConversationHelper;
+import com.netease.yunxin.kit.conversationkit.ui.common.ConversationUtils;
 import com.netease.yunxin.kit.conversationkit.ui.model.ConversationBean;
 import com.netease.yunxin.kit.conversationkit.ui.page.interfaces.IConversationCallback;
 import com.netease.yunxin.kit.conversationkit.ui.page.interfaces.ILoadListener;
@@ -71,6 +72,8 @@ public abstract class ConversationBaseFragment extends BaseFragment implements I
   // 空数据View，当会话列表为空时显示。子类可个性化定制，父类值根据业务数据控制是否展示
   protected View emptyView;
 
+  protected Comparator<ConversationBean> conversationComparator;
+
   // 初始化View 子类重新去实现
   public abstract View initViewAndGetRootView(
       @NonNull LayoutInflater inflater,
@@ -97,7 +100,7 @@ public abstract class ConversationBaseFragment extends BaseFragment implements I
     if (networkErrorView != null) {
       NetworkUtils.registerNetworkStatusChangedListener(networkStateListener);
     }
-    initObserver();
+    initData();
     bindView();
     registerObserver();
     // 获取会话数据
@@ -223,7 +226,8 @@ public abstract class ConversationBaseFragment extends BaseFragment implements I
   }
 
   // 初始化观察者
-  private void initObserver() {
+  private void initData() {
+    conversationComparator = ConversationUtils.getConversationComparator();
     // 会话列表查询数据变化观察者
     viewModel
         .getQueryLiveData()
@@ -383,24 +387,6 @@ public abstract class ConversationBaseFragment extends BaseFragment implements I
       alertDialog.show(getParentFragmentManager());
     }
   }
-
-  // 会话排序规则
-  private final Comparator<ConversationBean> conversationComparator =
-      (bean1, bean2) -> {
-        int result;
-        if (bean1 == null) {
-          result = 1;
-        } else if (bean2 == null) {
-          result = -1;
-        } else if (bean1.isStickTop() == bean2.isStickTop()) {
-          long time = bean1.getLastMsgTime() - bean2.getLastMsgTime();
-          result = time == 0L ? 0 : (time > 0 ? -1 : 1);
-        } else {
-          result = bean1.isStickTop() ? -1 : 1;
-        }
-        ALog.d(LIB_TAG, TAG, "conversationComparator, result:" + result);
-        return result;
-      };
 
   // 生成置顶和删除对话框内容
   protected List<ActionItem> generateDialogContent(boolean isStick) {

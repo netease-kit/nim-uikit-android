@@ -126,7 +126,7 @@ public class ChatPopMenu {
   @SuppressLint("NotifyDataSetChanged")
   private void initDefaultAction(ChatMessageBean message) {
     chatPopMenuActionList.clear();
-    chatPopMenuActionList.addAll(ChatPopActionFactory.getInstance().getNormalActions(message));
+    chatPopMenuActionList.addAll(ChatPopActionFactory.getInstance().getMessageActions(message));
     adapter.notifyDataSetChanged();
   }
 

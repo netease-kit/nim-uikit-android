@@ -17,7 +17,7 @@ import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.contactkit.ui.R;
-import com.netease.yunxin.kit.contactkit.ui.v2model.V2ContactBlackListBean;
+import com.netease.yunxin.kit.contactkit.ui.model.ContactBlackListBean;
 import com.netease.yunxin.kit.corekit.im2.IMKitClient;
 import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
 import com.netease.yunxin.kit.corekit.im2.listener.ContactListener;
@@ -35,14 +35,14 @@ public class BlackListViewModel extends BaseViewModel {
   private static final String TAG = "BlackListViewModel";
 
   //黑名单查询结果LiveData
-  private final MutableLiveData<FetchResult<List<V2ContactBlackListBean>>> resultLiveData =
+  private final MutableLiveData<FetchResult<List<ContactBlackListBean>>> resultLiveData =
       new MutableLiveData<>();
-  private final List<V2ContactBlackListBean> blackList = new ArrayList<>();
+  private final List<ContactBlackListBean> blackList = new ArrayList<>();
   // 黑名单变化监听
   private final ContactListener friendListener;
 
   // 获取黑名单查询结果LiveData
-  public MutableLiveData<FetchResult<List<V2ContactBlackListBean>>> getBlackListLiveData() {
+  public MutableLiveData<FetchResult<List<ContactBlackListBean>>> getBlackListLiveData() {
     return resultLiveData;
   }
 
@@ -76,7 +76,7 @@ public class BlackListViewModel extends BaseViewModel {
 
   public void getBlackList() {
     ALog.d(LIB_TAG, TAG, "getBlackList");
-    FetchResult<List<V2ContactBlackListBean>> blackResult = new FetchResult<>(LoadStatus.Success);
+    FetchResult<List<ContactBlackListBean>> blackResult = new FetchResult<>(LoadStatus.Success);
     blackResult.setStatus(LoadStatus.Loading);
     resultLiveData.postValue(blackResult);
     ContactRepo.getBlockList(
@@ -98,8 +98,8 @@ public class BlackListViewModel extends BaseViewModel {
             blackResult.setStatus(LoadStatus.Success);
             if (param != null && param.size() > 0) {
               for (UserWithFriend contactInfo : param) {
-                V2ContactBlackListBean friendBean =
-                    new V2ContactBlackListBean(
+                ContactBlackListBean friendBean =
+                    new ContactBlackListBean(
                         contactInfo.getUserInfo() != null
                             ? new V2UserInfo(contactInfo.getAccount(), contactInfo.getUserInfo())
                             : new V2UserInfo(contactInfo.getAccount(), null));
@@ -167,9 +167,9 @@ public class BlackListViewModel extends BaseViewModel {
       return;
     }
 
-    List<V2ContactBlackListBean> delete = new ArrayList<>();
+    List<ContactBlackListBean> delete = new ArrayList<>();
     for (UserWithFriend user : accountList) {
-      for (V2ContactBlackListBean bean : blackList) {
+      for (ContactBlackListBean bean : blackList) {
         if (TextUtils.equals(bean.data.getAccountId(), user.getAccount())) {
           delete.add(bean);
           blackList.remove(bean);
@@ -181,7 +181,7 @@ public class BlackListViewModel extends BaseViewModel {
 
     //black list match
     if (accountList.size() == delete.size()) {
-      FetchResult<List<V2ContactBlackListBean>> blackListResult =
+      FetchResult<List<ContactBlackListBean>> blackListResult =
           new FetchResult<>(LoadStatus.Success);
       blackListResult.setLoadStatus(LoadStatus.Success);
       blackListResult.setFetchType(FetchResult.FetchType.Remove);
@@ -198,10 +198,10 @@ public class BlackListViewModel extends BaseViewModel {
     if (userList == null || userList.size() < 1) {
       return;
     }
-    List<V2ContactBlackListBean> add = new ArrayList<>();
+    List<ContactBlackListBean> add = new ArrayList<>();
     for (UserWithFriend contactInfo : userList) {
-      V2ContactBlackListBean friendBean =
-          new V2ContactBlackListBean(
+      ContactBlackListBean friendBean =
+          new ContactBlackListBean(
               contactInfo.getUserInfo() != null
                   ? new V2UserInfo(contactInfo.getAccount(), contactInfo.getUserInfo())
                   : new V2UserInfo(contactInfo.getAccount(), null));
@@ -211,8 +211,7 @@ public class BlackListViewModel extends BaseViewModel {
         add.add(friendBean);
       }
     }
-    FetchResult<List<V2ContactBlackListBean>> blackListResult =
-        new FetchResult<>(LoadStatus.Success);
+    FetchResult<List<ContactBlackListBean>> blackListResult = new FetchResult<>(LoadStatus.Success);
     blackListResult.setLoadStatus(LoadStatus.Success);
     blackListResult.setFetchType(FetchResult.FetchType.Add);
     blackListResult.setData(add);

@@ -24,19 +24,23 @@ import android.text.style.ImageSpan;
 import android.view.View;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessage;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessageConverter;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessageCreator;
+import com.netease.nimlib.sdk.v2.message.V2NIMMessageRefer;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessageRevokeNotification;
 import com.netease.nimlib.sdk.v2.message.attachment.V2NIMMessageFileAttachment;
 import com.netease.nimlib.sdk.v2.message.attachment.V2NIMMessageNotificationAttachment;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageNotificationType;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
-import com.netease.nimlib.sdk.v2.utils.V2NIMConversationIdUtil;
+import com.netease.nimlib.sdk.v2.message.params.V2NIMAddCollectionParams;
+import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamChatBannedMode;
+import com.netease.nimlib.sdk.v2.team.model.V2NIMUpdatedTeamInfo;
 import com.netease.yunxin.kit.alog.ALog;
-import com.netease.yunxin.kit.chatkit.ChatKitConfig;
+import com.netease.yunxin.kit.chatkit.ChatCustomMsgFactory;
 import com.netease.yunxin.kit.chatkit.cache.FriendUserCache;
 import com.netease.yunxin.kit.chatkit.model.CustomAttachment;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
@@ -218,13 +222,33 @@ public class MessageHelper {
   /**
    * 查询回复消息消息体，异步方法
    *
-   * @param uuid 消息体uuid
+   * @param replyMessage 回复
    */
-  public static void getReplyMessageInfo(String uuid, FetchCallback<IMMessageInfo> callback) {
-    if (TextUtils.isEmpty(uuid)) {
+  public static void getReplyMessageInfo(
+      V2NIMMessageRefer replyMessage, FetchCallback<IMMessageInfo> callback) {
+    if (replyMessage == null) {
       callback.onSuccess(null);
+      return;
     }
-    ChatRepo.queryMessageInfoByClientId(uuid, callback);
+    List<V2NIMMessageRefer> refers = new ArrayList<>();
+    refers.add(replyMessage);
+    ChatRepo.getMessageListByRefers(
+        refers,
+        new FetchCallback<>() {
+          @Override
+          public void onError(int errorCode, @Nullable String errorMsg) {
+            callback.onError(errorCode, errorMsg);
+          }
+
+          @Override
+          public void onSuccess(@Nullable List<IMMessageInfo> data) {
+            if (data != null && !data.isEmpty()) {
+              callback.onSuccess(data.get(0));
+            } else {
+              callback.onSuccess(null);
+            }
+          }
+        });
   }
 
   /**
@@ -584,11 +608,9 @@ public class MessageHelper {
       }
       Map<String, Object> replyInfo = new HashMap<>();
       replyInfo.put(ChatKitUIConstant.REPLY_UUID_KEY, replyMsg.getMessageClientId());
-      replyInfo.put(ChatKitUIConstant.REPLY_TYPE_KEY, replyMsg.getConversationType().toString());
+      replyInfo.put(ChatKitUIConstant.REPLY_TYPE_KEY, replyMsg.getConversationType().getValue());
       replyInfo.put(ChatKitUIConstant.REPLY_FROM_KEY, replyMsg.getSenderId());
-      replyInfo.put(
-          ChatKitUIConstant.REPLY_TO_KEY,
-          V2NIMConversationIdUtil.conversationTargetId(replyMsg.getConversationId()));
+      replyInfo.put(ChatKitUIConstant.REPLY_TO_KEY, replyMsg.getConversationId());
       replyInfo.put(ChatKitUIConstant.REPLY_SERVER_ID_KEY, replyMsg.getMessageServerId());
       replyInfo.put(ChatKitUIConstant.REPLY_TIME_KEY, replyMsg.getCreateTime());
       remote.put(ChatKitUIConstant.REPLY_REMOTE_EXTENSION_KEY, replyInfo);
@@ -647,7 +669,7 @@ public class MessageHelper {
     map.put(KEY_REVOKE_TIME_TAG, SystemClock.elapsedRealtime());
     map.put(RouterConstant.KEY_REVOKE_EDIT_TAG, false);
     revokeMessage.setLocalExtension(new JSONObject(map).toString());
-    ChatRepo.saveLocalMessage(
+    ChatRepo.insertMessageToLocal(
         revokeMessage,
         revokeNotification.getMessageRefer().getConversationId(),
         revokeNotification.getRevokeAccountId(),
@@ -692,23 +714,36 @@ public class MessageHelper {
     revokeMessage.setLocalExtension(new JSONObject(map).toString());
     // 本地插入消息要保证时间顺序，所以+1，会话列表才会刷新最新的消息内容
     long createTime = message.getCreateTime() + 1;
-    ChatRepo.saveLocalMessage(
+    ChatRepo.insertMessageToLocal(
         revokeMessage, message.getConversationId(), IMKitClient.account(), createTime, null);
     ALog.d(LIB_TAG, TAG, "saveLocalRevokeMessage:" + message.getCreateTime());
   }
 
-  public static void saveLocalBlackTipMessageAndNotify(V2NIMMessage message) {
+  public static void saveLocalBlackTipMessage(String conversationId, String sendId) {
     V2NIMMessage tipMessage =
         V2NIMMessageCreator.createTipsMessage(
             IMKitClient.getApplicationContext()
                 .getString(R.string.chat_message_send_message_when_in_black));
-    ChatRepo.saveLocalMessage(
-        tipMessage,
-        message.getConversationId(),
-        message.getSenderId(),
-        tipMessage.getCreateTime(),
-        null);
+    ChatRepo.insertMessageToLocal(
+        tipMessage, conversationId, sendId, tipMessage.getCreateTime(), null);
     ALog.d(LIB_TAG, TAG, "saveLocalBlackTipMessage:" + tipMessage.getCreateTime());
+  }
+
+  /**
+   * 保存本地消息，用于发送音视频通话时，对方不是好友，提示消息
+   *
+   * @param conversationId 会话ID
+   * @param senderId 发送者ID
+   */
+  public static void saveLocalNotFriendCallTipMessageAndNotify(
+      String conversationId, String senderId) {
+    V2NIMMessage tipMessage =
+        V2NIMMessageCreator.createTipsMessage(
+            IMKitClient.getApplicationContext()
+                .getString(R.string.chat_message_not_friend_send_call));
+    ChatRepo.insertMessageToLocal(
+        tipMessage, conversationId, senderId, tipMessage.getCreateTime(), null);
+    ALog.d(LIB_TAG, TAG, "saveLocalNotFriendCallTipMessageAndNotify:" + tipMessage.getCreateTime());
   }
 
   // 创建合并转发消息体内容
@@ -758,13 +793,15 @@ public class MessageHelper {
           UserWithFriend friend =
               FriendUserCache.getFriendByAccount(info.getMessage().getSenderId());
           if (friend != null) {
-            name = friend.getName();
+            name = friend.getUserName();
             avatar = friend.getAvatar();
           }
         }
       }
 
-      extension.put(ChatKitUIConstant.KEY_MERGE_REMOTE_EXTENSION_NICK, name != null ? name : "");
+      extension.put(
+          ChatKitUIConstant.KEY_MERGE_REMOTE_EXTENSION_NICK,
+          name != null ? name : info.getMessage().getSenderId());
       extension.put(
           ChatKitUIConstant.KEY_MERGE_REMOTE_EXTENSION_AVATAR, avatar != null ? avatar : "");
       info.getMessage().setServerExtension(new JSONObject(extension).toString());
@@ -904,11 +941,12 @@ public class MessageHelper {
         UserWithFriend contactInfo;
         //自己发送的消息取自己的信息
         if (info.getMessage().isSelf() || TextUtils.isEmpty(info.getMessage().getSenderId())) {
-          contactInfo = new UserWithFriend(IMKitClient.account(), null, IMKitClient.currentUser());
+          contactInfo = new UserWithFriend(IMKitClient.account(), null);
+          contactInfo.setUserInfo(IMKitClient.currentUser());
         } else {
           contactInfo = ChatUserCache.getInstance().getFriendInfo(info.getMessage().getSenderId());
         }
-        String nick = contactInfo.getName();
+        String nick = contactInfo.getUserName();
         MultiForwardAttachment.Abstracts abstracts =
             new MultiForwardAttachment.Abstracts(
                 nick,
@@ -969,11 +1007,11 @@ public class MessageHelper {
   public static RichTextAttachment isRichTextMsg(V2NIMMessage message) {
     if (message == null
         || message.getAttachment() == null
-        || ChatKitConfig.INSTANCE.getCustomParse() == null) {
+        || ChatCustomMsgFactory.INSTANCE.getCustomParse() == null) {
       return null;
     }
     CustomAttachment attachment =
-        ChatKitConfig.INSTANCE.getCustomParse().parse(message.getAttachment().getRaw());
+        ChatCustomMsgFactory.INSTANCE.getCustomParse().parse(message.getAttachment().getRaw());
     if (attachment instanceof RichTextAttachment) {
       return (RichTextAttachment) attachment;
     }
@@ -1039,6 +1077,27 @@ public class MessageHelper {
   }
 
   /**
+   * 是否为被邀请入群的消息
+   *
+   * @param messageInfo 消息体
+   * @return 是否为被踢出群的消息
+   */
+  public static boolean isTeamJoinedMsg(IMMessageInfo messageInfo) {
+    if (messageInfo != null
+        && messageInfo.getMessage().getMessageType()
+            == V2NIMMessageType.V2NIM_MESSAGE_TYPE_NOTIFICATION) {
+      V2NIMMessageNotificationAttachment attachment =
+          (V2NIMMessageNotificationAttachment) messageInfo.getMessage().getAttachment();
+      if (attachment.getType()
+              == V2NIMMessageNotificationType.V2NIM_MESSAGE_NOTIFICATION_TYPE_TEAM_INVITE
+          && attachment.getTargetIds() != null) {
+        return attachment.getTargetIds().contains(IMKitClient.account());
+      }
+    }
+    return false;
+  }
+
+  /**
    * 获取消息附件路径
    *
    * @param message 消息
@@ -1061,7 +1120,7 @@ public class MessageHelper {
         subPath = "file/";
       }
       String ext = attachment.getExt();
-      if (!ext.startsWith(".")) {
+      if (ext != null && !ext.startsWith(".")) {
         ext = "." + ext;
       }
       return IMKitClient.getSDKStorageDirPath() + subPath + message.getMessageClientId() + ext;
@@ -1099,5 +1158,46 @@ public class MessageHelper {
       result.add(new ChatMessageBean(message));
     }
     return result;
+  }
+
+  public static boolean isMuteNotification(V2NIMMessage message) {
+    if (message != null && message.getAttachment() instanceof V2NIMMessageNotificationAttachment) {
+      V2NIMMessageNotificationAttachment attachment =
+          (V2NIMMessageNotificationAttachment) message.getAttachment();
+      V2NIMUpdatedTeamInfo field = attachment.getUpdatedTeamInfo();
+
+      if (field != null && field.getChatBannedMode() != null) {
+        if (field.getChatBannedMode()
+            == V2NIMTeamChatBannedMode.V2NIM_TEAM_CHAT_BANNED_MODE_UNBAN) {
+          return false;
+        } else {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  public static V2NIMAddCollectionParams createCollectionParams(
+      String conversationName, V2NIMMessage message) {
+    int type = message.getMessageType().getValue() + 1000;
+    String data = V2NIMMessageConverter.messageSerialization(message);
+    String senderName = ChatUserCache.getInstance().getName(message.getSenderId());
+    String senderAvatar = getChatCacheAvatar(message.getSenderId());
+    JSONObject paramJson = new JSONObject();
+    try {
+      paramJson.put("type", type);
+      paramJson.put("data", data);
+      paramJson.put("senderName", senderName);
+      paramJson.put("senderAvatar", senderAvatar);
+      paramJson.put("conversationName", conversationName);
+    } catch (JSONException e) {
+      e.printStackTrace();
+    }
+    V2NIMAddCollectionParams params =
+        V2NIMAddCollectionParams.V2NIMAddCollectionParamsBuilder.builder(type, paramJson.toString())
+            .build();
+
+    return params;
   }
 }
