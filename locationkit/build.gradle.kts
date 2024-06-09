@@ -14,9 +14,9 @@ android {
     namespace = "com.netease.yunxin.kit.locationkit"
 
     defaultConfig {
-        minSdk = 21
+        minSdk = 24
         consumerProguardFiles("consumer-rules.pro")
-        buildConfigField("String", "versionName", "\"10.1.1\"")
+        buildConfigField("String", "versionName", "\"10.1.2\"")
     }
 
     buildTypes {
