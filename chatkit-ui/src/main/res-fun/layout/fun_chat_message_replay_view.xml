@@ -17,5 +17,5 @@
     android:layout_marginEnd="@dimen/dimen_12_dp"
     android:padding="@dimen/dimen_10_dp"
     android:textColor="@color/color_666666"
-    android:background="@drawable/fun_message_replay_bg"
+    android:background="@drawable/fun_bg_message_replay"
     android:textSize="@dimen/text_size_13" />

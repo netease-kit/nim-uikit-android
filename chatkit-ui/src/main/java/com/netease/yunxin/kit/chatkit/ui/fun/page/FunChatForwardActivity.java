@@ -8,8 +8,10 @@ import android.os.Bundle;
 import androidx.annotation.Nullable;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
+import com.netease.yunxin.kit.chatkit.ui.IChatDefaultFactory;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.custom.MultiForwardAttachment;
+import com.netease.yunxin.kit.chatkit.ui.fun.factory.FunChatViewHolderFactory;
 import com.netease.yunxin.kit.chatkit.ui.page.ChatForwardBaseActivity;
 import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
@@ -39,5 +41,10 @@ public class FunChatForwardActivity extends ChatForwardBaseActivity {
       }
     }
     super.clickMessage(messageInfo);
+  }
+
+  @Override
+  protected IChatDefaultFactory getChatFactory() {
+    return FunChatViewHolderFactory.getInstance();
   }
 }

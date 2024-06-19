@@ -55,12 +55,12 @@ import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatUserCache;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatUtils;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
-import com.netease.yunxin.kit.chatkit.ui.common.V2ChatCallback;
 import com.netease.yunxin.kit.chatkit.ui.custom.MultiForwardAttachment;
 import com.netease.yunxin.kit.chatkit.ui.model.AnchorScrollInfo;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.model.MessageRevokeInfo;
 import com.netease.yunxin.kit.chatkit.ui.view.ait.AitService;
+import com.netease.yunxin.kit.chatkit.utils.ErrorUtils;
 import com.netease.yunxin.kit.chatkit.utils.SendMediaHelper;
 import com.netease.yunxin.kit.common.ui.utils.ToastX;
 import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
@@ -705,7 +705,20 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
     ALog.d(LIB_TAG, TAG, "addMsgCollection:" + messageInfo.getMessage().getMessageClientId());
     V2NIMAddCollectionParams params =
         MessageHelper.createCollectionParams(conversationName, messageInfo.getMessage());
-    ChatRepo.addCollection(params, new V2ChatCallback<V2NIMCollection>().setShowSuccess(true));
+    ChatRepo.addCollection(
+        params,
+        new FetchCallback<V2NIMCollection>() {
+
+          @Override
+          public void onSuccess(@Nullable V2NIMCollection data) {
+            ToastX.showShortToast(R.string.chat_message_collection_tip);
+          }
+
+          @Override
+          public void onError(int errorCode, @Nullable String errorMsg) {
+            ErrorUtils.showErrorCodeToast(IMKitClient.getApplicationContext(), errorCode);
+          }
+        });
   }
 
   // 发送语音消息

@@ -211,7 +211,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
         android:paddingTop="18dp"
-        android:text="@string/team_notify_all_permission"
+        android:text="@string/team_top_sticky_permission"
         android:textColor="@color/color_333333"
         android:textSize="16dp"
         app:drawableEndCompat="@drawable/ic_right_arrow"

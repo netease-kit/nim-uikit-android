@@ -77,6 +77,9 @@ public interface IChatView {
 
   void setNetWorkState(boolean available);
 
+  //添加顶部View，显示在无网状态下方
+  void addTopView(View view);
+
   void setMessageBackground(Drawable drawable);
 
   // 设置撤回消息重新编辑内容到输入框

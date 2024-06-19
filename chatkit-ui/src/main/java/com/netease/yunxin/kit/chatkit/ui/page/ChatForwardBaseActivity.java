@@ -14,6 +14,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.ui.ChatMessageType;
+import com.netease.yunxin.kit.chatkit.ui.ChatViewHolderDefaultFactory;
+import com.netease.yunxin.kit.chatkit.ui.IChatDefaultFactory;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatUtils;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
@@ -39,7 +41,7 @@ public class ChatForwardBaseActivity extends BaseActivity {
   protected IMMessageInfo messageInfo;
 
   protected ChatForwardMsgViewModel viewModel;
-  private ChatMessageAdapter messageAdapter;
+  protected ChatMessageAdapter messageAdapter;
 
   @Override
   protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -74,6 +76,7 @@ public class ChatForwardBaseActivity extends BaseActivity {
     messageAdapter = new ChatMessageAdapter();
     viewBinding.messageView.setAdapter(messageAdapter);
     messageAdapter.setMessageMode(ChatMessageType.FORWARD_MESSAGE_MODE);
+    messageAdapter.setViewHolderFactory(getChatFactory());
     messageAdapter.setItemClickListener(
         new IMessageItemClickListener() {
           @Override
@@ -91,6 +94,10 @@ public class ChatForwardBaseActivity extends BaseActivity {
             return true;
           }
         });
+  }
+
+  protected IChatDefaultFactory getChatFactory() {
+    return ChatViewHolderDefaultFactory.getInstance();
   }
 
   private void onMessageLoad(FetchResult<List<ChatMessageBean>> result) {
@@ -128,10 +135,6 @@ public class ChatForwardBaseActivity extends BaseActivity {
     } else if (messageInfo.getMessage().getMessageType()
         == V2NIMMessageType.V2NIM_MESSAGE_TYPE_FILE) {
       ChatUtils.openForwardFile(this, messageInfo);
-
-    } else if (messageInfo.getMessage().getMessageType()
-        == V2NIMMessageType.V2NIM_MESSAGE_TYPE_AUDIO) {
-
     }
   }
 }

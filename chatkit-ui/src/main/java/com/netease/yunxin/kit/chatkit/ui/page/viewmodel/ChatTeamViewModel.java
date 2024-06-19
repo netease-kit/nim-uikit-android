@@ -62,7 +62,11 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
   private final MutableLiveData<FetchResult<List<TeamMemberWithUserInfo>>> teamMemberChangeData =
       new MutableLiveData<>();
 
+  //置顶消息变化通知
   private final MutableLiveData<IMMessageInfo> topMessageLiveData = new MutableLiveData<>();
+
+  //置顶消息权限过滤通知
+  private final MutableLiveData<String> topMessagePermissionLiveData = new MutableLiveData<>();
   private boolean myDismiss = false;
 
   private final V2UserListener userListener =
@@ -92,8 +96,26 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
         public void onTeamInfoUpdated(V2NIMTeam team) {
           ALog.d(LIB_TAG, TAG, "onTeamInfoUpdated:");
           if (team != null && TextUtils.equals(team.getTeamId(), mChatAccountId)) {
+            ChatUserCache.getInstance().setCurrentTeam(team);
             teamLiveData.setValue(team);
-            handleTopMessage(team);
+            if (!TextUtils.isEmpty(team.getServerExtension())) {
+              try {
+                //处理最后一次操作类型
+                JSONObject jsonTeam = new JSONObject(team.getServerExtension());
+                if (jsonTeam.has(ChatConstants.KEY_EXTENSION_LAST_OPT_TYPE)) {
+                  String lastOptType =
+                      jsonTeam.optString(ChatConstants.KEY_EXTENSION_LAST_OPT_TYPE);
+                  if (TextUtils.equals(lastOptType, ChatConstants.KEY_EXTENSION_STICKY)) {
+                    handleTopMessage(team.getServerExtension());
+                  } else if (TextUtils.equals(
+                      lastOptType, ChatConstants.KEY_EXTENSION_STICKY_PERMISSION)) {
+                    handleTopMessagePermission(team.getServerExtension());
+                  }
+                }
+              } catch (JSONException e) {
+                ALog.e(LIB_TAG, TAG, "handleTopMessage json error:" + e);
+              }
+            }
           }
         }
 
@@ -150,6 +172,14 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
             return;
           }
           ALog.d(LIB_TAG, TAG, "teamMemberUpdateObserver:" + teamMembers.size());
+          ChatUserCache.getInstance().addTeamMember(teamMembers);
+          for (V2NIMTeamMember teamMember : teamMembers) {
+            //如果是自己，可能是管理员变化，通知置顶消息权限
+            if (TextUtils.equals(teamMember.getAccountId(), IMKitClient.account())) {
+              topMessagePermissionLiveData.postValue("");
+              break;
+            }
+          }
           ChatUserCache.getInstance()
               .fillUserInfoToTeamMember(
                   teamMembers,
@@ -190,6 +220,11 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
     return members;
   }
 
+  /**
+   * 清除群成员缓存
+   *
+   * @param teamMembers 群成员列表
+   */
   private void clearMemberCache(List<V2NIMTeamMember> teamMembers) {
     ChatUserCache.getInstance()
         .fillUserInfoToTeamMember(
@@ -283,8 +318,14 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
     return teamMemberChangeData;
   }
 
+  //置顶消息
   public MutableLiveData<IMMessageInfo> getTopMessageLiveData() {
     return topMessageLiveData;
+  }
+
+  //置顶消息权限
+  public MutableLiveData<String> getTopMessagePermissionLiveData() {
+    return topMessagePermissionLiveData;
   }
 
   public boolean isMyDismiss() {
@@ -344,12 +385,14 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
         mChatAccountId,
         new FetchCallback<>() {
           @Override
-          public void onSuccess(@Nullable V2NIMTeam param) {
-            ALog.d(LIB_TAG, TAG, "getTeamInfo,onSuccess:" + (param == null));
-            teamLiveData.setValue(param);
-            handleTopMessage(param);
-            ChatUserCache.getInstance().setCurrentTeam(param);
-            ChatRepo.setCurrentTeam(param);
+          public void onSuccess(@Nullable V2NIMTeam team) {
+            ALog.d(LIB_TAG, TAG, "getTeamInfo,onSuccess:" + (team == null));
+            teamLiveData.setValue(team);
+            ChatUserCache.getInstance().setCurrentTeam(team);
+            ChatRepo.setCurrentTeam(team);
+            if (team != null && !TextUtils.isEmpty(team.getServerExtension())) {
+              handleTopMessage(team.getServerExtension());
+            }
           }
 
           @Override
@@ -399,19 +442,36 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
   }
 
   /**
+   * 处理置顶消息权限
+   *
+   * @param teamExtension 群扩展信息
+   */
+  public void handleTopMessagePermission(String teamExtension) {
+    try {
+      JSONObject jsonTeam = new JSONObject(teamExtension);
+      if (jsonTeam.has(ChatConstants.KEY_EXTENSION_STICKY_PERMISSION)) {
+        String result =
+            jsonTeam.optString(
+                ChatConstants.KEY_EXTENSION_STICKY_PERMISSION,
+                ChatConstants.TYPE_EXTENSION_ALLOW_MANAGER);
+
+        topMessagePermissionLiveData.setValue(result);
+      }
+    } catch (JSONException e) {
+      ALog.e(LIB_TAG, TAG, "handleTopMessage json error:" + e);
+    }
+  }
+
+  /**
    * 处理置顶消息
    *
-   * @param team 群信息
+   * @param teamExtension 群扩展信息
    */
-  public void handleTopMessage(V2NIMTeam team) {
-    if (team == null || TextUtils.isEmpty(team.getServerExtension())) {
-      return;
-    }
-    ALog.d(LIB_TAG, TAG, "handleTopMessage:" + team.getTeamId());
+  public void handleTopMessage(String teamExtension) {
+    ALog.d(LIB_TAG, TAG, "handleTopMessage:" + teamExtension);
     try {
-      JSONObject jsonTeam = new JSONObject(team.getServerExtension());
-      if (ChatConstants.KEY_EXTENSION_STICKY.equals(
-          jsonTeam.getString(ChatConstants.KEY_EXTENSION_LAST_OPT_TYPE))) {
+      JSONObject jsonTeam = new JSONObject(teamExtension);
+      if (jsonTeam.has(ChatConstants.KEY_EXTENSION_STICKY)) {
         JSONObject jsonSticky = jsonTeam.getJSONObject(ChatConstants.KEY_EXTENSION_STICKY);
         int operation = jsonSticky.getInt(ChatConstants.KEY_STICKY_MESSAGE_OPERATION);
         TopStickyMessage topStickyMessage = TopStickyMessage.fromJson(jsonSticky);
@@ -467,6 +527,33 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
         });
   }
 
+  /** 更新我的群成员信息 */
+  public void updateMyTeamMember() {
+    String myAccId = IMKitClient.account();
+    if (myAccId == null) {
+      return;
+    }
+    TeamRepo.getTeamMember(
+        mChatAccountId,
+        V2NIMTeamType.V2NIM_TEAM_TYPE_NORMAL,
+        myAccId,
+        new FetchCallback<>() {
+          @Override
+          public void onError(int errorCode, @Nullable String errorMsg) {
+            ALog.d(LIB_TAG, TAG, "updateMyTeamMember getTeamMember,onError:" + errorCode);
+          }
+
+          @Override
+          public void onSuccess(@Nullable V2NIMTeamMember data) {
+            ALog.d(LIB_TAG, TAG, "updateMyTeamMember getTeamMember,onSuccess:" + (data == null));
+            ChatUserCache.getInstance().setCurTeamMember(data);
+            if (ChatUserCache.getInstance().getTopMessage() != null) {
+              topMessagePermissionLiveData.postValue("");
+            }
+          }
+        });
+  }
+
   /**
    * 添加置顶消息
    *
@@ -487,7 +574,7 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
       jsonMessage.put(
           ChatConstants.KEY_STICKY_MESSAGE_OPERATION, ChatConstants.TYPE_EXTENSION_STICKY_ADD);
 
-      V2NIMTeam team = teamLiveData.getValue();
+      V2NIMTeam team = ChatUserCache.getInstance().getCurrentTeam();
       if (team != null) {
         String teamExtension = team.getServerExtension();
         JSONObject jsonTeam = new JSONObject();
@@ -551,7 +638,7 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
 
       jsonSticky.put(ChatConstants.KEY_EXTENSION_STICKY, jsonMessage);
 
-      V2NIMTeam team = teamLiveData.getValue();
+      V2NIMTeam team = ChatUserCache.getInstance().getCurrentTeam();
       if (team != null) {
         String teamExtension = team.getServerExtension();
         JSONObject jsonTeam = new JSONObject();
@@ -568,18 +655,18 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
             new FetchCallback<Void>() {
               @Override
               public void onSuccess(@Nullable Void param) {
-                ALog.d(LIB_TAG, TAG, "addStickyMessage,onSuccess");
+                ALog.d(LIB_TAG, TAG, "removeStickyMessage,onSuccess");
               }
 
               @Override
               public void onError(int errorCode, @NonNull String errorMsg) {
-                ALog.d(LIB_TAG, TAG, "addStickyMessage,onFailed:" + errorCode);
+                ALog.d(LIB_TAG, TAG, "removeStickyMessage,onFailed:" + errorCode);
               }
             });
       }
 
     } catch (JSONException e) {
-      ALog.e(LIB_TAG, TAG, "addStickyMessage json error:" + e);
+      ALog.e(LIB_TAG, TAG, "removeStickyMessage json error:" + e);
     }
   }
 }

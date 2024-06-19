@@ -5,6 +5,7 @@
 package com.netease.yunxin.kit.chatkit.ui.common;
 
 import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
+import static com.netease.yunxin.kit.chatkit.ui.model.CollectionBean.COLLECTION_TYPE_START;
 import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.KEY_REVOKE_CONTENT_TAG;
 import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.KEY_REVOKE_RICH_CONTENT_TAG;
 import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.KEY_REVOKE_TAG;
@@ -45,7 +46,6 @@ import com.netease.yunxin.kit.chatkit.cache.FriendUserCache;
 import com.netease.yunxin.kit.chatkit.model.CustomAttachment;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
-import com.netease.yunxin.kit.chatkit.ui.ChatBriefUtils;
 import com.netease.yunxin.kit.chatkit.ui.ChatCustom;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitClient;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant;
@@ -215,7 +215,7 @@ public class MessageHelper {
       return "...";
     }
     String nickName = getChatMessageUserNameByAccount(messageInfo.getMessage().getSenderId());
-    String content = getReplyMsgBrief(messageInfo);
+    String content = getMsgBrief(messageInfo, false);
     return nickName + ": " + content;
   }
 
@@ -263,7 +263,7 @@ public class MessageHelper {
       result = IMKitClient.getApplicationContext().getString(R.string.chat_message_removed_tip);
     } else {
       String nickName = messageInfo.getFromUserName();
-      String content = getReplyMsgBrief(messageInfo);
+      String content = getMsgBrief(messageInfo, false);
       result = nickName + ": " + content;
     }
     return result;
@@ -275,12 +275,14 @@ public class MessageHelper {
    * @param messageInfo 消息体
    * @return UI展示消息体内容
    */
-  public static String getReplyMsgBrief(IMMessageInfo messageInfo) {
+  public static String getMsgBrief(IMMessageInfo messageInfo, boolean showLocationDetail) {
     if (ChatKitClient.getChatUIConfig() != null
         && ChatKitClient.getChatUIConfig().chatCustom != null) {
-      return ChatKitClient.getChatUIConfig().chatCustom.getReplyMsgBrief(messageInfo);
+      return ChatKitClient.getChatUIConfig()
+          .chatCustom
+          .getMessageBrief(messageInfo, showLocationDetail);
     }
-    return chatCustom.getReplyMsgBrief(messageInfo);
+    return chatCustom.getMessageBrief(messageInfo, showLocationDetail);
   }
 
   /**
@@ -949,9 +951,7 @@ public class MessageHelper {
         String nick = contactInfo.getUserName();
         MultiForwardAttachment.Abstracts abstracts =
             new MultiForwardAttachment.Abstracts(
-                nick,
-                ChatBriefUtils.customContentText(IMKitClient.getApplicationContext(), info),
-                info.getMessage().getSenderId());
+                nick, getMsgBrief(info, false), info.getMessage().getSenderId());
         abstractsList.add(abstracts);
       }
     }
@@ -1180,22 +1180,22 @@ public class MessageHelper {
 
   public static V2NIMAddCollectionParams createCollectionParams(
       String conversationName, V2NIMMessage message) {
-    int type = message.getMessageType().getValue() + 1000;
+    int type = message.getMessageType().getValue() + COLLECTION_TYPE_START;
     String data = V2NIMMessageConverter.messageSerialization(message);
     String senderName = ChatUserCache.getInstance().getName(message.getSenderId());
     String senderAvatar = getChatCacheAvatar(message.getSenderId());
     JSONObject paramJson = new JSONObject();
     try {
-      paramJson.put("type", type);
-      paramJson.put("data", data);
+      paramJson.put("message", data);
       paramJson.put("senderName", senderName);
-      paramJson.put("senderAvatar", senderAvatar);
+      paramJson.put("avatar", senderAvatar);
       paramJson.put("conversationName", conversationName);
     } catch (JSONException e) {
       e.printStackTrace();
     }
     V2NIMAddCollectionParams params =
         V2NIMAddCollectionParams.V2NIMAddCollectionParamsBuilder.builder(type, paramJson.toString())
+            .withUniqueId(message.getMessageServerId())
             .build();
 
     return params;

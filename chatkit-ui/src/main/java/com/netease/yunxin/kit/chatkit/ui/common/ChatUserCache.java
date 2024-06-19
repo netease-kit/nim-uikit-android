@@ -96,11 +96,17 @@ public class ChatUserCache {
 
   public void setCurTeamMember(V2NIMTeamMember curTeamMember) {
     this.curTeamMember = curTeamMember;
+    if (curTeamMember != null) {
+      teamMemberMap.put(curTeamMember.getAccountId(), curTeamMember);
+    }
   }
 
   public void addTeamMember(List<V2NIMTeamMember> teamMemberList) {
     for (V2NIMTeamMember teamMember : teamMemberList) {
       teamMemberMap.put(teamMember.getAccountId(), teamMember);
+      if (TextUtils.equals(teamMember.getAccountId(), IMKitClient.account())) {
+        curTeamMember = teamMember;
+      }
     }
   }
 
@@ -392,6 +398,9 @@ public class ChatUserCache {
 
     //当前用户
     if (Objects.equals(account, IMKitClient.account())) {
+      if (curTeamMember != null && !TextUtils.isEmpty(curTeamMember.getTeamNick())) {
+        return curTeamMember.getTeamNick();
+      }
       if (IMKitClient.currentUser() != null
           && !TextUtils.isEmpty(IMKitClient.currentUser().getName())) {
         return IMKitClient.currentUser().getName();

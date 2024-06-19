@@ -62,4 +62,9 @@ public class ChatKitUIConstant {
   public static final String KEY_MULTI_TRANSMIT_SEND_ID = "userAccId";
   public static final String KEY_RICH_TEXT_TITLE = "title";
   public static final String KEY_RICH_TEXT_BODY = "body";
+
+  public static final String KEY_COLLECTION_SENDER_NAME = "senderName";
+  public static final String KEY_COLLECTION_SENDER_AVATAR = "avatar";
+  public static final String KEY_COLLECTION_CONVERSATION_NAME = "conversationName";
+  public static final String KEY_COLLECTION_MESSAGE = "message";
 }

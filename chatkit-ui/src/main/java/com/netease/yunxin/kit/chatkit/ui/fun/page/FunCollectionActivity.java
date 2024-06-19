@@ -7,12 +7,14 @@ package com.netease.yunxin.kit.chatkit.ui.fun.page;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
 import com.netease.yunxin.kit.chatkit.ui.R;
+import com.netease.yunxin.kit.chatkit.ui.common.ChatUtils;
 import com.netease.yunxin.kit.chatkit.ui.custom.MultiForwardAttachment;
 import com.netease.yunxin.kit.chatkit.ui.fun.FunChatMessageForwardConfirmDialog;
 import com.netease.yunxin.kit.chatkit.ui.fun.FunChoiceDialog;
@@ -43,6 +45,11 @@ public class FunCollectionActivity extends CollectionBaseActivity {
     collectionAdapter.setViewHolderFactory(new FunCollectionViewHolderFactory());
   }
 
+  protected void goToForwardPage() {
+    ChatUtils.startForwardSelector(
+        this, RouterConstant.PATH_FUN_FORWARD_SELECTOR_PAGE, false, forwardLauncher);
+  }
+
   @Override
   public RecyclerView.ItemDecoration getItemDecoration() {
     return new RecyclerView.ItemDecoration() {
@@ -71,20 +78,28 @@ public class FunCollectionActivity extends CollectionBaseActivity {
 
   @Override
   protected void clickCustomMessage(CollectionBean messageBean) {
+    if (messageBean == null || messageBean.getMessageData() == null) {
+      Toast.makeText(this, R.string.chat_collection_message_empty_tips, Toast.LENGTH_SHORT).show();
+      return;
+    }
     if (messageBean.getMessageData().getMessageType()
         == V2NIMMessageType.V2NIM_MESSAGE_TYPE_CUSTOM) {
-      if (messageBean.getMessageData().getAttachment() instanceof MultiForwardAttachment) {
+      if (messageBean.getCustomAttachment() instanceof MultiForwardAttachment) {
         XKitRouter.withKey(RouterConstant.PATH_FUN_CHAT_FORWARD_PAGE)
             .withContext(this)
             .withParam(RouterConstant.KEY_MESSAGE, messageBean.getMessageInfo())
             .navigate();
+      } else {
+        Toast.makeText(this, R.string.chat_collection_message_not_support_tips, Toast.LENGTH_SHORT)
+            .show();
       }
     }
   }
 
   @Override
   protected void showForwardConfirmDialog(ArrayList<String> conversationIds) {
-    if (forwardMessage == null) {
+    if (forwardMessage == null || forwardMessage.getMessageData() == null) {
+      Toast.makeText(this, R.string.chat_collection_message_empty_tips, Toast.LENGTH_SHORT).show();
       return;
     }
     String sendTips = "";

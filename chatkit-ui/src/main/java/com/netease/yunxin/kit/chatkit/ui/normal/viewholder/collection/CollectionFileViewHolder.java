@@ -59,6 +59,9 @@ public class CollectionFileViewHolder extends CollectionBaseViewHolder {
     if (TextUtils.isEmpty(fileType)) {
       fileType = FileUtils.getFileExtension(attachment.getName());
     }
+    if (fileType.startsWith(".")) {
+      fileType = fileType.substring(1);
+    }
     binding.fileTypeIv.setImageResource(ChatUtils.getFileIcon(fileType));
     ALog.d(LIB_TAG, TAG, "file:" + fileType + "name:" + attachment.getName());
   }

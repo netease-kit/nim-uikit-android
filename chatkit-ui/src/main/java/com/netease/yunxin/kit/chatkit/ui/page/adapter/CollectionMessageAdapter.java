@@ -46,18 +46,9 @@ public class CollectionMessageAdapter extends RecyclerView.Adapter<ChatBaseViewH
 
   public void addData(List<CollectionBean> data) {
     if (data != null) {
-      for (CollectionBean messageBean : data) {
-        int insertIndex = 0;
-        long time = messageBean.getCreateTime();
-        for (int index = 0; index < dataList.size(); index++) {
-          if (time > dataList.get(index).getCreateTime()) {
-            break;
-          }
-          insertIndex++;
-        }
-        dataList.add(insertIndex, messageBean);
-        notifyItemInserted(insertIndex);
-      }
+      int size = dataList.size();
+      dataList.addAll(data);
+      notifyItemInserted(size);
     }
   }
 

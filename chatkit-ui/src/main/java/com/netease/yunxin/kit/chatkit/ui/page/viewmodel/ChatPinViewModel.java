@@ -52,6 +52,7 @@ import com.netease.yunxin.kit.chatkit.ui.common.ChatUserCache;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.model.PinEvent;
+import com.netease.yunxin.kit.chatkit.utils.ErrorUtils;
 import com.netease.yunxin.kit.common.ui.utils.ToastX;
 import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
@@ -189,7 +190,7 @@ public class ChatPinViewModel extends BaseViewModel {
           public void onError(int errorCode, @Nullable String errorMsg) {
             ALog.d(LIB_TAG, TAG, "removePin , onError:" + errorCode + "errorMsg:" + errorMsg);
             if (errorCode == ChatKitUIConstant.ERROR_CODE_NETWORK) {
-              ToastX.showShortToast(R.string.chat_network_error_tips);
+              ToastX.showShortToast(R.string.chat_network_error_tip);
             }
           }
 
@@ -221,7 +222,25 @@ public class ChatPinViewModel extends BaseViewModel {
         V2NIMSendMessageParams.V2NIMSendMessageParamsBuilder.builder()
             .withMessageConfig(configBuilder.build())
             .build();
-    ChatRepo.sendMessage(forwardMessage, conversationId, params, null);
+    ChatRepo.sendMessage(
+        forwardMessage,
+        conversationId,
+        params,
+        new ProgressFetchCallback<V2NIMSendMessageResult>() {
+
+          @Override
+          public void onProgress(int progress) {}
+
+          @Override
+          public void onSuccess(@Nullable V2NIMSendMessageResult data) {
+            ToastX.showShortToast(R.string.chat_message_forward_success_tips);
+          }
+
+          @Override
+          public void onError(int errorCode, @NonNull String errorMsg) {
+            ErrorUtils.showErrorCodeToast(IMKitClient.getApplicationContext(), errorCode);
+          }
+        });
   }
 
   // 转发PIN消息并发送文本消息

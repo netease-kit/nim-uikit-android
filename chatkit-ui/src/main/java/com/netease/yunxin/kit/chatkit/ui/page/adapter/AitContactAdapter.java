@@ -19,6 +19,9 @@ import java.util.List;
 /** Team member @ adapter */
 public class AitContactAdapter extends RecyclerView.Adapter<AitContactAdapter.AitContactHolder> {
 
+  //@所有人的特殊类型
+  private static final int SHOW_ALL_TYPE = 101;
+
   private List<TeamMemberWithUserInfo> members = new ArrayList<>();
   private OnItemListener listener;
 
@@ -53,6 +56,14 @@ public class AitContactAdapter extends RecyclerView.Adapter<AitContactAdapter.Ai
     return new AitContactHolder(
         ChatMessageAitContactViewHolderBinding.inflate(
             LayoutInflater.from(parent.getContext()), parent, false));
+  }
+
+  @Override
+  public int getItemViewType(int position) {
+    if (showAll && position == 0) {
+      return SHOW_ALL_TYPE;
+    }
+    return super.getItemViewType(position);
   }
 
   @Override

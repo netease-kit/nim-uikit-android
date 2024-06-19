@@ -81,7 +81,7 @@ public class ChatLocationMessageViewHolder extends FunChatBaseMessageViewHolder 
   protected void onMessageBackgroundConfig(ChatMessageBean messageBean) {
     super.onMessageBackgroundConfig(messageBean);
     if (!messageBean.isRevoked()) {
-      binding.getRoot().setBackgroundResource(R.drawable.fun_message_location_bg);
+      binding.getRoot().setBackgroundResource(R.drawable.fun_bg_message_location);
     } else {
       binding.getRoot().setBackgroundResource(R.color.title_transfer);
     }

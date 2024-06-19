@@ -56,13 +56,9 @@ public class ChatTextMessageViewHolder extends FunChatBaseMessageViewHolder {
             message.getMessageData().getMessage());
       }
     } else {
-      if (message.getMessageData().getMessage().getText() != null) {
-        textBinding.messageText.setText(message.getMessageData().getMessage().getText());
-      } else {
-        //暂不支持消息展示提示信息
-        textBinding.messageText.setText(
-            parent.getContext().getResources().getString(R.string.chat_message_not_support_tips));
-      }
+      //暂不支持消息展示提示信息
+      textBinding.messageText.setText(
+          parent.getContext().getResources().getString(R.string.chat_message_not_support_tips));
     }
   }
 

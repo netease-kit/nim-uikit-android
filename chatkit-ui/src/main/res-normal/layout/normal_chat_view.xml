@@ -52,16 +52,23 @@
             android:layout_height="wrap_content"
             android:overScrollMode="never" />
 
-        <TextView
-            android:id="@+id/tv_notification"
+        <LinearLayout
+            android:id="@+id/chatTopContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/color_white"
-            android:gravity="center"
-            android:padding="@dimen/dimen_5_dp"
-            android:textColor="@color/color_333333"
-            android:textSize="@dimen/text_size_10"
-            android:visibility="gone" />
+            android:orientation="vertical">
+            <TextView
+                android:id="@+id/tv_notification"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/color_white"
+                android:gravity="center"
+                android:padding="@dimen/dimen_5_dp"
+                android:textColor="@color/color_333333"
+                android:textSize="@dimen/text_size_10"
+                android:visibility="gone" />
+
+        </LinearLayout>
 
     </FrameLayout>
 

@@ -352,6 +352,11 @@ public class ChatView extends LinearLayout implements IChatView, AitTextChangeLi
   }
 
   @Override
+  public void addTopView(View view) {
+    binding.chatTopContainer.addView(view);
+  }
+
+  @Override
   public void showMultiSelect(boolean show) {
     binding.chatBottomInputLayout.collapse(true);
     binding.chatMsgMultiSelectLayout.setVisibility(show ? VISIBLE : GONE);

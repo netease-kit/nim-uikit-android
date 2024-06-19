@@ -85,7 +85,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/divideForBasic"
-        android:visibility="gone"
+        android:visibility="visible"
         tools:ignore="SpUsage">
 
 
@@ -99,7 +99,7 @@
             android:gravity="center_vertical"
             android:text="@string/mine_collect"
             android:textColor="@color/color_333333"
-            app:drawableLeftCompat="@drawable/ic_collect"
+            app:drawableLeftCompat="@mipmap/ic_collection"
             app:drawableRightCompat="@drawable/ic_frame_mine_right_arrow"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
