@@ -12,7 +12,7 @@
     android:layout_height="@dimen/dimen_42_dp"
     android:paddingVertical="@dimen/dimen_9_dp"
     android:paddingHorizontal="@dimen/dimen_16_dp"
-    android:background="@drawable/bg_corner_white_stroke"
+    android:background="@drawable/fun_bg_blue_audio_message"
     tools:ignore="MissingDefaultResource">
 
     <ImageView

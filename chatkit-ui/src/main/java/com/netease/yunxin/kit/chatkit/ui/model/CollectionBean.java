@@ -12,6 +12,7 @@ import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
 import com.netease.yunxin.kit.chatkit.ChatCustomMsgFactory;
 import com.netease.yunxin.kit.chatkit.model.CustomAttachment;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
+import com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant;
 import java.io.Serializable;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -19,6 +20,7 @@ import org.json.JSONObject;
 /** 收藏列表数据 包含收藏信息，以及解析转换之后的消息信息 */
 public class CollectionBean implements Serializable {
 
+  public static final int COLLECTION_TYPE_START = 1000;
   // 收藏类型，消息类型+1000
   public int type;
   // 收藏消息的发送者名称
@@ -43,15 +45,17 @@ public class CollectionBean implements Serializable {
     if (!TextUtils.isEmpty(collectionData)) {
       try {
         JSONObject jsonData = new JSONObject(collectionData);
-        type = jsonData.optInt("type");
-        senderName = jsonData.optString("senderName", "");
-        senderAvatar = jsonData.optString("senderAvatar", "");
-        conversationName = jsonData.optString("conversationName", "");
-        String data = jsonData.optString("data", "");
+        type = collection.getCollectionType() - COLLECTION_TYPE_START;
+        senderName = jsonData.optString(ChatKitUIConstant.KEY_COLLECTION_SENDER_NAME, "");
+        senderAvatar = jsonData.optString(ChatKitUIConstant.KEY_COLLECTION_SENDER_AVATAR, "");
+        conversationName =
+            jsonData.optString(ChatKitUIConstant.KEY_COLLECTION_CONVERSATION_NAME, "");
+        String data = jsonData.optString(ChatKitUIConstant.KEY_COLLECTION_MESSAGE, "");
         if (!TextUtils.isEmpty(data)) {
           V2NIMMessage message = V2NIMMessageConverter.messageDeserialization(data);
           messageData = new IMMessageInfo(message);
           if (message != null
+              && message.getAttachment() != null
               && message.getMessageType() == V2NIMMessageType.V2NIM_MESSAGE_TYPE_CUSTOM) {
             messageData.setAttachment(
                 ChatCustomMsgFactory.INSTANCE

@@ -320,7 +320,7 @@ public abstract class ChatPinBaseActivity extends BaseActivity {
                 } else {
                   Toast.makeText(
                           ChatPinBaseActivity.this,
-                          R.string.chat_network_error_tips,
+                          R.string.chat_network_error_tip,
                           Toast.LENGTH_SHORT)
                       .show();
                 }
@@ -331,7 +331,7 @@ public abstract class ChatPinBaseActivity extends BaseActivity {
                 } else {
                   Toast.makeText(
                           ChatPinBaseActivity.this,
-                          R.string.chat_network_error_tips,
+                          R.string.chat_network_error_tip,
                           Toast.LENGTH_SHORT)
                       .show();
                 }

@@ -11,7 +11,8 @@
 
     <solid
         android:width="@dimen/dimen_1_dp"
-        android:color="@color/color_white" />
+        android:color="@color/color_eef1f4" />
 
-
+    <stroke android:color="@color/color_e9eff5"
+        android:width="@dimen/dimen_1_dp" />
 </shape>

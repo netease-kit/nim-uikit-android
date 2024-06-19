@@ -30,6 +30,8 @@ import com.netease.yunxin.kit.common.ui.utils.ToastX;
 import com.netease.yunxin.kit.common.utils.SizeUtils;
 import com.netease.yunxin.kit.corekit.im2.IMKitClient;
 import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
+import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
+import com.netease.yunxin.kit.corekit.route.XKitRouter;
 import java.util.Collections;
 import java.util.List;
 
@@ -69,7 +71,14 @@ public class MineFragment extends BaseFragment {
         });
 
     binding.userInfoClick.setOnClickListener(v -> MineInfoActivity.launch(getContext(), launcher));
-    binding.collectLl.setOnClickListener(v -> ToastX.showShortToast(R.string.not_usable));
+    binding.collectLl.setOnClickListener(
+        v -> {
+          String path =
+              AppSkinConfig.getInstance().getAppSkinStyle() == AppSkinConfig.AppSkin.commonSkin
+                  ? RouterConstant.PATH_FUN_COLLECTION_PAGE
+                  : RouterConstant.PATH_COLLECTION_PAGE;
+          XKitRouter.withKey(path).withContext(this.requireContext()).navigate();
+        });
 
     binding.settingLl.setOnClickListener(
         v -> startActivity(new Intent(getContext(), SettingActivity.class)));

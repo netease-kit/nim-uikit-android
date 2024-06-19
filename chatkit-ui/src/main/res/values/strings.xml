@@ -208,6 +208,7 @@
     <string name="chat_message_download_tips">正在下载中...</string>
     <string name="chat_message_send_message_when_in_black">"对方把你拉黑，发送消息失败"</string>
     <string name="chat_message_not_friend_send_call">"非好友暂不支持音视频通话"</string>
+    <string name="chat_message_forward_success_tips">转发成功</string>
 
     <!-- location -->
     <string name="chat_location_mine">定位</string>
@@ -222,21 +223,24 @@
     <string name="chat_pin_title">标记</string>
     <string name="chat_pin_empty_tips">暂无标记消息</string>
     <string name="chat_remove_pin_error_tips">取消标记失败</string>
-    <string name="chat_network_error_tips">当前网络错误</string>
     <string name="chat_remove_tips">已取消标记</string>
     <string name="chat_pin_limit_tips">已超出pin数量上限</string>
+    <string name="chat_network_error_tips">当前网络错误</string>
 
     <!-- 收藏消息 -->
     <string name="chat_collection_title">收藏</string>
     <string name="chat_collection_empty_tips">暂无收藏消息</string>
-    <string name="chat_remove_collection_tips">已删除收藏</string>
+    <string name="chat_remove_collection_tips">删除成功</string>
     <string name="chat_collection_p2p_name_tip">来自于 与%s的会话</string>
     <string name="chat_collection_team_name_tip">来自于 %s</string>
     <string name="chat_collection_p2p_transmit_tip">[转发]来自于 与%s的收藏消息</string>
     <string name="chat_collection_team_transmit_tip">[转发]来自于 %s的收藏消息</string>
-
+    <string name="chat_delete_collection_content">确认要删除该收藏吗？</string>
+    <string name="chat_message_collection_tip">已收藏</string>
     <string name="chat_send_null_message_tips">发送内容不能为空</string>
     <string name="chat_send_null_title_tips">发送内容标题不能为空</string>
+    <string name="chat_collection_message_empty_tips">收藏消息解析失败</string>
+    <string name="chat_collection_message_not_support_tips">暂不支持该自定义消息</string>
 
     <!-- 合并转发相关文案-->
     <string name="chat_message_multi_transmit_input_hint">留言</string>

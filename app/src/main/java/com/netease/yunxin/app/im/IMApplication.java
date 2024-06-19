@@ -21,7 +21,6 @@ import com.netease.yunxin.app.im.welcome.WelcomeActivity;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.repo.SettingRepo;
 import com.netease.yunxin.kit.corekit.im2.IMKitClient;
-import com.netease.yunxin.kit.corekit.im2.utils.IMKitUtils;
 import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 import com.netease.yunxin.kit.locationkit.LocationConfig;
@@ -63,28 +62,26 @@ public class IMApplication extends MultiDexApplication {
     ALog.d(Constant.PROJECT_TAG, TAG, "initUIKit");
 
     // 如果是主进程，初始化地图组件，推送组件，crash组件
-    if (IMKitUtils.isMainProcess(this)) {
-      ALog.d(Constant.PROJECT_TAG, TAG, "initUIKit:isMainProcess");
-      // 地图组件初始化，LocationConfig中包含高德地图web API的key，主要用于发送位置消息调用该服务生成图片来展示，提高页面加载性能
-      LocationConfig locationConfig = new LocationConfig();
-      locationConfig.aMapWebServerKey = DataUtils.readAMapAppKey(this);
-      LocationKitClient.init(this, locationConfig);
-      // huawei push
-      ActivityMgr.INST.init(this);
-      // oppo push
-      HeytapPushManager.init(this, true);
-      try {
-        // vivo push
-        PushClient.getInstance(this).initialize();
-      } catch (VivoPushException e) {
-        e.printStackTrace();
-      }
-      //设置推送提醒开关，根据用户设置的推送提醒开关状态，设置是否接收推送消息
-      IMKitClient.toggleNotification(SettingRepo.isPushNotify());
-      // 注册推送消息处理器，用于处理推送消息
-      IMKitClient.registerMixPushMessageHandler(new PushMessageHandler());
-
+    ALog.d(Constant.PROJECT_TAG, TAG, "initUIKit:isMainProcess");
+    // 地图组件初始化，LocationConfig中包含高德地图web API的key，主要用于发送位置消息调用该服务生成图片来展示，提高页面加载性能
+    LocationConfig locationConfig = new LocationConfig();
+    locationConfig.aMapWebServerKey = DataUtils.readAMapAppKey(this);
+    LocationKitClient.init(this, locationConfig);
+    // huawei push
+    ActivityMgr.INST.init(this);
+    // oppo push
+    HeytapPushManager.init(this, true);
+    try {
+      // vivo push
+      PushClient.getInstance(this).initialize();
+    } catch (VivoPushException e) {
+      e.printStackTrace();
     }
+    //设置推送提醒开关，根据用户设置的推送提醒开关状态，设置是否接收推送消息
+    IMKitClient.toggleNotification(SettingRepo.isPushNotify());
+    // 注册推送消息处理器，用于处理推送消息
+    IMKitClient.registerMixPushMessageHandler(new PushMessageHandler());
+
   }
 
   private final List<Activity> activities = new ArrayList<>();

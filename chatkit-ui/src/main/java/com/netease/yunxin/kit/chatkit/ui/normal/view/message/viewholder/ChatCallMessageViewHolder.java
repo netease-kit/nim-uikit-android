@@ -10,9 +10,9 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessage;
 import com.netease.yunxin.kit.alog.ALog;
-import com.netease.yunxin.kit.chatkit.ui.ChatCustom;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatUtils;
+import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.chatkit.ui.custom.NERTCCallAttachment;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatBaseMessageViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.databinding.NormalChatMessageCallViewHolderBinding;
@@ -88,7 +88,7 @@ public class ChatCallMessageViewHolder extends NormalChatBaseMessageViewHolder {
     if (isForwardMsg()) {
       callBinding.chatMessageCallIconIn.setVisibility(View.GONE);
       callBinding.chatMessageCallIconOut.setVisibility(View.GONE);
-      String brief = new ChatCustom().getReplyMsgBrief(messageBean.getMessageData());
+      String brief = MessageHelper.getMsgBrief(messageBean.getMessageData(), false);
       callBinding.chatMessageCallText.setText(brief);
       return;
     }

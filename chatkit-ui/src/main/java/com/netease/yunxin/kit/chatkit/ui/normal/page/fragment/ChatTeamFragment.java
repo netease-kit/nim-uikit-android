@@ -218,8 +218,11 @@ public class ChatTeamFragment extends NormalChatFragment {
                   && messageBean.getMessageData() != null
                   && TextUtils.equals(
                       messageBean.getMessageData().getMessage().getMessageClientId(), msgId)) {
-                messageBean.getMessageData().setReadCount(receiptInfo.getReadCount());
-                messageBean.getMessageData().setUnReadCount(receiptInfo.getUnreadCount());
+                // 更新消息已读状态，判断已读书的变化，过滤已读数变小的case
+                if (receiptInfo.getReadCount() >= messageBean.getMessageData().getReadCount()) {
+                  messageBean.getMessageData().setReadCount(receiptInfo.getReadCount());
+                  messageBean.getMessageData().setUnReadCount(receiptInfo.getUnreadCount());
+                }
                 updateMessage.add(messageBean);
                 break;
               }

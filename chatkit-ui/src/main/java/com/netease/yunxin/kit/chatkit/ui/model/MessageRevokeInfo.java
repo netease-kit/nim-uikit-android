@@ -46,4 +46,14 @@ public class MessageRevokeInfo {
   public void setRevokeMessage(V2NIMMessage revokeMessage) {
     this.revokeMessage = revokeMessage;
   }
+
+  public String getRevokeMessageClientId() {
+    if (revokeMessage != null) {
+      return revokeMessage.getMessageClientId();
+    }
+    if (revokeNotification != null) {
+      return revokeNotification.getMessageRefer().getMessageClientId();
+    }
+    return "";
+  }
 }

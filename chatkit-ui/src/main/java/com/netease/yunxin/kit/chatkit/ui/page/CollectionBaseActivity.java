@@ -39,6 +39,9 @@ import com.netease.yunxin.kit.common.ui.action.ActionItem;
 import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
 import com.netease.yunxin.kit.common.ui.dialog.BaseBottomChoiceDialog;
 import com.netease.yunxin.kit.common.ui.dialog.BottomChoiceDialog;
+import com.netease.yunxin.kit.common.ui.dialog.ChoiceListener;
+import com.netease.yunxin.kit.common.ui.dialog.CommonChoiceDialog;
+import com.netease.yunxin.kit.common.ui.utils.ToastX;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.utils.NetworkUtils;
 import com.netease.yunxin.kit.corekit.im2.model.IMMessageProgress;
@@ -89,6 +92,27 @@ public abstract class CollectionBaseActivity extends BaseActivity {
     if (itemDecoration != null) {
       viewBinding.collectionRecyclerView.addItemDecoration(itemDecoration);
     }
+    // 监听滚动，当滚动到底部触发加载更多
+    viewBinding.collectionRecyclerView.addOnScrollListener(
+        new RecyclerView.OnScrollListener() {
+          @Override
+          public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+            super.onScrollStateChanged(recyclerView, newState);
+            if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+              int position = layoutManager.findLastVisibleItemPosition();
+              if (viewModel.hasMore()) {
+                CollectionBean last =
+                    collectionAdapter.getData(collectionAdapter.getItemCount() - 1);
+                viewModel.getCollectionMessageList(last.collectionData);
+              }
+            }
+          }
+
+          @Override
+          public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+            super.onScrolled(recyclerView, dx, dy);
+          }
+        });
     collectionAdapter = new CollectionMessageAdapter();
     collectionAdapter.setViewHolderClickListener(collectionClickListener);
     viewBinding.collectionRecyclerView.setAdapter(collectionAdapter);
@@ -104,8 +128,8 @@ public abstract class CollectionBaseActivity extends BaseActivity {
         .observe(
             this,
             result -> {
-              showEmptyView(result.getData() == null || result.getData().size() < 1);
-              collectionAdapter.setData(result.getData());
+              collectionAdapter.addData(result.getData());
+              showEmptyView(collectionAdapter.getItemCount() < 1);
             });
 
     // 监听收藏列表移除
@@ -193,6 +217,10 @@ public abstract class CollectionBaseActivity extends BaseActivity {
 
   // 标记列表，消息体点击
   private void clickMsg(CollectionBean bean) {
+    if (bean == null || bean.getMessageData() == null) {
+      Toast.makeText(this, R.string.chat_collection_message_empty_tips, Toast.LENGTH_SHORT).show();
+      return;
+    }
     // 文本消息和富文本消息点击进入查看页面
     if (bean.getMessageData().getMessageType() == V2NIMMessageType.V2NIM_MESSAGE_TYPE_TEXT
         || MessageHelper.isRichTextMsg(bean.getMessageData()) != null) {
@@ -229,15 +257,6 @@ public abstract class CollectionBaseActivity extends BaseActivity {
     }
   }
 
-  // 跳转到收藏详情页
-  public void jumpCollectionDetail(CollectionBean collectionBean) {
-    XKitRouter.withKey(RouterConstant.PATH_COLLECTION_DETAIL_PAGE)
-        .withParam(RouterConstant.KEY_MESSAGE, collectionBean)
-        .withContext(CollectionBaseActivity.this)
-        .navigate();
-    finish();
-  }
-
   // 显示更多操作弹窗
   public void showMoreActionDialog(CollectionBean collectionBean) {
     BaseBottomChoiceDialog dialog = getMoreActionDialog(collectionBean);
@@ -253,21 +272,13 @@ public abstract class CollectionBaseActivity extends BaseActivity {
                 } else {
                   Toast.makeText(
                           CollectionBaseActivity.this,
-                          R.string.chat_network_error_tips,
+                          R.string.chat_network_error_tip,
                           Toast.LENGTH_SHORT)
                       .show();
                 }
                 break;
               case ACTION_DELETE_COLLECTION:
-                if (hasNetwork) {
-                  viewModel.removeCollection(collectionBean.collectionData);
-                } else {
-                  Toast.makeText(
-                          CollectionBaseActivity.this,
-                          R.string.chat_network_error_tips,
-                          Toast.LENGTH_SHORT)
-                      .show();
-                }
+                showDeleteConfirmDialog(collectionBean);
                 break;
               case ACTION_COPY_COLLECTION:
                 MessageHelper.copyTextMessage(
@@ -286,6 +297,30 @@ public abstract class CollectionBaseActivity extends BaseActivity {
 
   public BaseBottomChoiceDialog getMoreActionDialog(CollectionBean collectionBean) {
     return new BottomChoiceDialog(this, assembleActions(collectionBean));
+  }
+
+  private void showDeleteConfirmDialog(CollectionBean collectionBean) {
+    CommonChoiceDialog dialog = new CommonChoiceDialog();
+    dialog
+        .setTitleStr(getString(R.string.chat_message_action_delete))
+        .setContentStr(getString(R.string.chat_delete_collection_content))
+        .setPositiveStr(getString(R.string.chat_message_delete))
+        .setNegativeStr(getString(R.string.cancel))
+        .setConfirmListener(
+            new ChoiceListener() {
+              @Override
+              public void onPositive() {
+                if (!NetworkUtils.isConnected()) {
+                  ToastX.showShortToast(R.string.chat_network_error_tip);
+                  return;
+                }
+                viewModel.removeCollection(collectionBean.collectionData);
+              }
+
+              @Override
+              public void onNegative() {}
+            })
+        .show(this.getSupportFragmentManager());
   }
 
   // 组装更多操作弹窗按钮

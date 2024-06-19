@@ -6,6 +6,7 @@ package com.netease.yunxin.kit.chatkit.ui.factory;
 
 import android.text.TextUtils;
 import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
+import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageSendingState;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
 import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
@@ -98,12 +99,14 @@ public class ChatPopActionFactory {
       }
       actions.add(getPinAction(message));
       actions.add(getDeleteAction(message));
-      actions.add(getMultiSelectAction(message));
       if (message.getMessageData().getMessage().isSelf()) {
         actions.add(getRecallAction(message));
       }
-      //      actions.add(getCollectionAction(message));
-      if (IMKitConfigCenter.getTopMessageEnable()) {
+      actions.add(getMultiSelectAction(message));
+      actions.add(getCollectionAction(message));
+      if (IMKitConfigCenter.getTopMessageEnable()
+          && message.getMessageData().getMessage().getConversationType()
+              == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_TEAM) {
         actions.add(getTopStickyAction(message));
       }
     }
@@ -196,7 +199,7 @@ public class ChatPopActionFactory {
     return new ChatPopMenuAction(
         ActionConstants.POP_ACTION_TOP_STICK,
         isAdd ? R.string.chat_message_action_top : R.string.chat_message_action_cancel_top,
-        R.drawable.ic_pop_top_sticky,
+        isAdd ? R.drawable.ic_pop_top_sticky : R.drawable.ic_pop_untop_sticky,
         (view, messageInfo) -> {
           if (!NetworkUtils.isConnected()) {
             ToastX.showShortToast(R.string.chat_network_error_tip);
@@ -215,6 +218,10 @@ public class ChatPopActionFactory {
         R.string.chat_message_action_collection,
         R.drawable.ic_message_collection,
         (view, messageInfo) -> {
+          if (!NetworkUtils.isConnected()) {
+            ToastX.showShortToast(R.string.chat_network_error_tip);
+            return;
+          }
           if (actionListener != null) {
             actionListener.get().onCollection(messageInfo);
           }

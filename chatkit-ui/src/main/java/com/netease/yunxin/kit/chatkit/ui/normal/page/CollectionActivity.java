@@ -7,6 +7,7 @@ package com.netease.yunxin.kit.chatkit.ui.normal.page;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
@@ -47,11 +48,6 @@ public class CollectionActivity extends CollectionBaseActivity {
         this, RouterConstant.PATH_FORWARD_SELECTOR_PAGE, false, forwardLauncher);
   }
 
-  // 跳转到聊天页面
-  public void jumpCollectionDetail(CollectionBean bean) {
-    CollectionDetailActivity.launch(this, bean);
-  }
-
   // 列表分割线
   @Override
   public RecyclerView.ItemDecoration getItemDecoration() {
@@ -74,6 +70,10 @@ public class CollectionActivity extends CollectionBaseActivity {
   // 点击自定义消息
   @Override
   protected void clickCustomMessage(CollectionBean messageBean) {
+    if (messageBean == null || messageBean.getMessageData() == null) {
+      Toast.makeText(this, R.string.chat_collection_message_empty_tips, Toast.LENGTH_SHORT).show();
+      return;
+    }
     if (messageBean.getMessageData().getMessageType()
         == V2NIMMessageType.V2NIM_MESSAGE_TYPE_CUSTOM) {
       if (messageBean.getCustomAttachment() instanceof MultiForwardAttachment) {
@@ -81,6 +81,9 @@ public class CollectionActivity extends CollectionBaseActivity {
             .withContext(this)
             .withParam(RouterConstant.KEY_MESSAGE, messageBean.getMessageInfo())
             .navigate();
+      } else {
+        Toast.makeText(this, R.string.chat_collection_message_not_support_tips, Toast.LENGTH_SHORT)
+            .show();
       }
     }
   }
@@ -88,7 +91,8 @@ public class CollectionActivity extends CollectionBaseActivity {
   @Override
   protected void showForwardConfirmDialog(ArrayList<String> conversationIds) {
 
-    if (forwardMessage == null) {
+    if (forwardMessage == null || forwardMessage.getMessageData() == null) {
+      Toast.makeText(this, R.string.chat_collection_message_empty_tips, Toast.LENGTH_SHORT).show();
       return;
     }
     String sendTips = "";

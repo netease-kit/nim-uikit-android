@@ -70,6 +70,7 @@ public class ChatP2PViewModel extends ChatBaseViewModel {
           }
           for (V2NIMCustomNotification notification : customNotifications) {
             if (!TextUtils.equals(notification.getReceiverId(), IMKitClient.account())
+                || !TextUtils.equals(notification.getSenderId(), mChatAccountId)
                 || notification.getConversationType()
                     != V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P) {
               return;

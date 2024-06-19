@@ -7,8 +7,7 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     android:installLocation="auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="com.netease.yunxin.app.im">
+    xmlns:tools="http://schemas.android.com/tools">
 
     <!-- replace com.netease.yunxin.app.im with your package name -->
     <!-- add uses-permission into your AndroidManifest -->
@@ -58,13 +57,16 @@
         android:theme="@style/Theme.Xkit">
         <meta-data
             android:name="com.netease.nim.appKey"
-            android:value="your appKey" />
+            android:value="appKey" />
         <meta-data
             android:name="com.netease.nim.oversea.appKey"
-            android:value="your appKey" />
+            android:value="appKey" />
         <meta-data
             android:name="com.amap.api.v2.apikey"
-            android:value="your apikey" />
+            android:value="apiKey" />
+        <meta-data
+            android:name="com.amap.api.v2.web.apikey"
+            android:value="apiKey" />
 
         <activity android:name=".welcome.WelcomeActivity"
             android:screenOrientation="portrait"
@@ -128,6 +130,10 @@
             android:exported="false" />
         <activity
             android:name=".welcome.ServerActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+
+        <activity android:name=".main.mine.setting.ServerConfigActivity"
             android:screenOrientation="portrait"
             android:exported="false" />
 
@@ -258,10 +264,10 @@
 
         <meta-data
             android:name="com.vivo.push.api_key"
-            android:value="api_key"/>
+            android:value="922b90ed97e9b1aaee38b92cbe6df280"/>
         <meta-data
             android:name="com.vivo.push.app_id"
-            android:value="app_id"/>
+            android:value="105556578"/>
 
         <receiver android:name="com.netease.nimlib.mixpush.vivo.VivoPushReceiver"
             android:exported="true">

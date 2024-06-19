@@ -206,14 +206,12 @@
     <string name="chat_message_download_tips">Downloading</string>
     <string name="chat_message_send_message_when_in_black">"He/She had blocked you, sent message failed!"</string>
     <string name="chat_message_not_friend_send_call">"Cannot make audio or video calls to someone who is not in your friends list."</string>
-
     <string name="chat_message_multi_forward_limit_tips">Combined forwarding limits 100
         messages</string>
     <string name="chat_message_single_forward_limit_tips">Forward one by one to limit 10
         message</string>
     <string name="chat_message_multi_delete_limit_tips">Delete limits 50 messages</string>
-
-
+    <string name="chat_message_forward_success_tips">Forward Success</string>
     <!-- location -->
     <string name="chat_location_mine">Location</string>
     <string name="chat_location_nav">Navigation</string>
@@ -229,8 +227,8 @@
     <string name="chat_pin_empty_tips">Pin Message Empty</string>
     <string name="chat_remove_pin_error_tips">Unpin failed</string>
     <string name="chat_remove_tips">Unpin</string>
-    <string name="chat_network_error_tips">No Internet</string>
     <string name="chat_pin_limit_tips">The number of pin has reached the upper limit</string>
+    <string name="chat_network_error_tips">No Internet</string>
 
     <!-- Collection -->
     <string name="chat_collection_title">Favorite</string>
@@ -240,8 +238,12 @@
     <string name="chat_collection_team_name_tip">From %s</string>
     <string name="chat_send_null_message_tips">Message cannot be empty</string>
     <string name="chat_send_null_title_tips">Message title cannot be empty</string>
-    <string name="chat_collection_p2p_transmit_tip">[Forward]From Chat with %s Bookmark Message</string>
-    <string name="chat_collection_team_transmit_tip">[Forward]From %s Bookmark Message</string>
+    <string name="chat_delete_collection_content">Delete this favorite message</string>
+    <string name="chat_message_collection_tip">Bookmarked</string>
+    <string name="chat_collection_p2p_transmit_tip">[Forward]From Chat with %s Favorite Message</string>
+    <string name="chat_collection_team_transmit_tip">[Forward]From %s Favorite Message</string>
+    <string name="chat_collection_message_empty_tips">Favorite message error</string>
+    <string name="chat_collection_message_not_support_tips">Unknown Favorite message</string>
 
 
     <!-- 合并转发相关文案-->

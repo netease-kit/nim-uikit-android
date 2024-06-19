@@ -65,6 +65,9 @@ public class FunChatFilePinViewHolder extends FunChatBasePinViewHolder {
     if (TextUtils.isEmpty(fileType)) {
       fileType = FileUtils.getFileExtension(attachment.getName());
     }
+    if (fileType.startsWith(".")) {
+      fileType = fileType.substring(1);
+    }
     if (properties != null
         && properties.fileDrawable != null
         && properties.fileDrawable.containsKey(fileType)) {

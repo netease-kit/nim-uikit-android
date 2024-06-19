@@ -18,6 +18,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.provider.MediaStore;
 import android.text.TextUtils;
+import android.text.style.ImageSpan;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -53,8 +54,8 @@ import com.netease.yunxin.kit.chatkit.listener.MessageUpdateType;
 import com.netease.yunxin.kit.chatkit.map.ChatLocationBean;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.model.MessagePinInfo;
+import com.netease.yunxin.kit.chatkit.model.TeamMemberWithUserInfo;
 import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
-import com.netease.yunxin.kit.chatkit.ui.ChatCustom;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitClient;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant;
 import com.netease.yunxin.kit.chatkit.ui.ChatUIConfig;
@@ -113,6 +114,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /** 聊天页面基础Fragment 页面交互、消息相关功能 */
 public abstract class ChatBaseFragment extends BaseFragment {
@@ -234,6 +236,11 @@ public abstract class ChatBaseFragment extends BaseFragment {
               initData();
             }
           }
+          //群成员数据同步完成后，更新群成员信息
+          if (type == V2NIMDataSyncType.V2NIM_DATA_SYNC_TEAM_MEMBER
+              && state == V2NIMDataSyncState.V2NIM_DATA_SYNC_STATE_COMPLETED) {
+            updateMyTeamMember();
+          }
         }
       };
 
@@ -290,7 +297,17 @@ public abstract class ChatBaseFragment extends BaseFragment {
 
   private void handleTopMessage() {
     if (viewModel instanceof ChatTeamViewModel) {
-      chatView.getChatBodyTopLayout().addView(topMessageViewBinding.getRoot());
+      ((ChatTeamViewModel) viewModel)
+          .getTopMessagePermissionLiveData()
+          .observeForever(
+              s -> {
+                if (ChatUtils.havePermissionForTopSticky()) {
+                  topMessageViewBinding.ivTopClose.setVisibility(View.VISIBLE);
+                } else {
+                  topMessageViewBinding.ivTopClose.setVisibility(View.GONE);
+                }
+              });
+      chatView.addTopView(topMessageViewBinding.getRoot());
       topMessageViewBinding.getRoot().setVisibility(View.GONE);
       ((ChatTeamViewModel) viewModel)
           .getTopMessageLiveData()
@@ -328,9 +345,14 @@ public abstract class ChatBaseFragment extends BaseFragment {
                   } else {
                     topMessageViewBinding.rlyTopThumb.setVisibility(View.GONE);
                   }
-                  topMessageViewBinding.tvNickname.setText(topMessage.getFromUserName() + ":");
-                  topMessageViewBinding.tvTopContent.setText(
-                      new ChatCustom().getReplyMsgBrief(topMessage));
+                  topMessageViewBinding.tvNickname.setText(
+                      ChatUtils.getEllipsizeMiddleNick(getTopMessageNick(topMessage)) + ":");
+                  MessageHelper.identifyFaceExpression(
+                      getContext(),
+                      topMessageViewBinding.tvTopContent,
+                      MessageHelper.getMsgBrief(topMessage, true),
+                      ImageSpan.ALIGN_BOTTOM,
+                      MessageHelper.SMALL_SCALE);
                   if (ChatUtils.havePermissionForTopSticky()) {
                     topMessageViewBinding.ivTopClose.setVisibility(View.VISIBLE);
                   } else {
@@ -338,6 +360,10 @@ public abstract class ChatBaseFragment extends BaseFragment {
                   }
                   topMessageViewBinding.ivTopClose.setOnClickListener(
                       v -> {
+                        if (!NetworkUtils.isConnected()) {
+                          ToastX.showShortToast(R.string.chat_network_error_tip);
+                          return;
+                        }
                         ((ChatTeamViewModel) viewModel).removeStickyMessage();
                       });
 
@@ -352,7 +378,99 @@ public abstract class ChatBaseFragment extends BaseFragment {
                   topMessageViewBinding.getRoot().setVisibility(View.GONE);
                 }
               });
+      //删除消息则隐藏
+      viewModel
+          .getDeleteMessageLiveData()
+          .observeForever(
+              fetchResult -> {
+                if (ChatUserCache.getInstance().getTopMessage() != null
+                    && fetchResult.getData() != null
+                    && !fetchResult.getData().isEmpty()) {
+                  for (V2NIMMessageRefer refer : fetchResult.getData()) {
+                    if (Objects.equals(
+                        refer.getMessageClientId(),
+                        ChatUserCache.getInstance()
+                            .getTopMessage()
+                            .getMessage()
+                            .getMessageClientId())) {
+                      topMessageViewBinding.getRoot().setVisibility(View.GONE);
+                      break;
+                    }
+                  }
+                }
+              });
+      //撤回消息则隐藏
+      viewModel
+          .getRevokeMessageLiveData()
+          .observeForever(
+              fetchResult -> {
+                if (ChatUserCache.getInstance().getTopMessage() != null
+                    && fetchResult.getData() != null
+                    && !fetchResult.getData().isEmpty()) {
+                  for (MessageRevokeInfo revokeInfo : fetchResult.getData()) {
+                    if (Objects.equals(
+                        revokeInfo.getRevokeMessageClientId(),
+                        ChatUserCache.getInstance()
+                            .getTopMessage()
+                            .getMessage()
+                            .getMessageClientId())) {
+                      topMessageViewBinding.getRoot().setVisibility(View.GONE);
+                      break;
+                    }
+                  }
+                }
+              });
+      //置顶消息昵称
+      viewModel
+          .getUserChangeLiveData()
+          .observeForever(
+              fetchResult -> {
+                if (ChatUserCache.getInstance().getTopMessage() != null
+                    && fetchResult.getData() != null
+                    && !fetchResult.getData().isEmpty()) {
+                  for (String userId : fetchResult.getData()) {
+                    if (Objects.equals(
+                        userId,
+                        ChatUserCache.getInstance().getTopMessage().getMessage().getSenderId())) {
+                      topMessageViewBinding.tvNickname.setText(
+                          ChatUtils.getEllipsizeMiddleNick(
+                                  getTopMessageNick(ChatUserCache.getInstance().getTopMessage()))
+                              + ":");
+                      break;
+                    }
+                  }
+                }
+              });
+      //置顶消息昵称监听群成员变化
+      ((ChatTeamViewModel) viewModel)
+          .getTeamMemberChangeData()
+          .observeForever(
+              fetchResult -> {
+                if (ChatUserCache.getInstance().getTopMessage() != null
+                    && fetchResult.getData() != null
+                    && !fetchResult.getData().isEmpty()) {
+                  for (TeamMemberWithUserInfo user : fetchResult.getData()) {
+                    if (Objects.equals(
+                        user.getAccountId(),
+                        ChatUserCache.getInstance().getTopMessage().getMessage().getSenderId())) {
+                      topMessageViewBinding.tvNickname.setText(
+                          ChatUtils.getEllipsizeMiddleNick(
+                                  getTopMessageNick(ChatUserCache.getInstance().getTopMessage()))
+                              + ":");
+                      break;
+                    }
+                  }
+                }
+              });
     }
+  }
+
+  //获取指定消息昵称，优先取缓存
+  private String getTopMessageNick(IMMessageInfo messageInfo) {
+    if (ChatUserCache.getInstance().getUserInfo(messageInfo.getMessage().getSenderId()) != null) {
+      return ChatUserCache.getInstance().getName(messageInfo.getMessage().getSenderId());
+    }
+    return messageInfo.getFromUserName();
   }
 
   /**
@@ -1283,9 +1401,18 @@ public abstract class ChatBaseFragment extends BaseFragment {
 
         @Override
         public boolean onTopSticky(ChatMessageBean messageInfo, boolean isAdd) {
+          if (chatConfig != null
+              && chatConfig.popMenuClickListener != null
+              && chatConfig.popMenuClickListener.onTopSticky(messageInfo, isAdd)) {
+            return true;
+          }
+          if (!NetworkUtils.isConnected()) {
+            ToastX.showShortToast(R.string.chat_network_error_tip);
+            return true;
+          }
           if (!ChatUtils.havePermissionForTopSticky()) {
             ToastX.showShortToast(R.string.chat_no_permission);
-            return false;
+            return true;
           }
 
           if (viewModel instanceof ChatTeamViewModel) {
@@ -1404,6 +1531,13 @@ public abstract class ChatBaseFragment extends BaseFragment {
 
   //登录状态变化时更新数据
   protected abstract void updateDataWhenLogin();
+
+  /** 更新我在群中的成员信息 */
+  protected void updateMyTeamMember() {
+    if (viewModel instanceof ChatTeamViewModel) {
+      ((ChatTeamViewModel) viewModel).updateMyTeamMember();
+    }
+  };
 
   protected void initDataObserver() {
     ALog.d(LIB_TAG, LOG_TAG, "initDataObserver");
