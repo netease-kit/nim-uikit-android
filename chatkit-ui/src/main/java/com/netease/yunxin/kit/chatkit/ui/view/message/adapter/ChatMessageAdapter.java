@@ -18,15 +18,18 @@ import com.netease.nimlib.sdk.uinfo.model.UserInfo;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessagePin;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessageRefer;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageSendingState;
+import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
 import com.netease.nimlib.sdk.v2.team.model.V2NIMTeam;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.model.MessagePinInfo;
 import com.netease.yunxin.kit.chatkit.ui.ChatMessageType;
 import com.netease.yunxin.kit.chatkit.ui.ChatViewHolderDefaultFactory;
 import com.netease.yunxin.kit.chatkit.ui.IChatFactory;
+import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.chatkit.ui.interfaces.IMessageItemClickListener;
 import com.netease.yunxin.kit.chatkit.ui.interfaces.IMessageReader;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
+import com.netease.yunxin.kit.chatkit.ui.textSelectionHelper.SelectableTextHelper;
 import com.netease.yunxin.kit.chatkit.ui.view.message.MessageProperties;
 import com.netease.yunxin.kit.chatkit.ui.view.message.viewholder.CommonBaseMessageViewHolder;
 import com.netease.yunxin.kit.corekit.im2.model.IMMessageProgress;
@@ -249,6 +252,13 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<CommonBaseMessageVi
   public void revokeMessage(V2NIMMessageRefer message) {
     removeMessageByClientId(message.getMessageClientId());
     clearReply(message.getMessageClientId());
+    //撤回消息后，清除选中的消息
+    ChatMessageBean selectedMessage = SelectableTextHelper.getInstance().getMessage();
+    if (selectedMessage != null) {
+      if (TextUtils.equals(selectedMessage.getMsgClientId(), message.getMessageClientId())) {
+        SelectableTextHelper.getInstance().dismiss();
+      }
+    }
   }
 
   public void clearReply(String clientId) {
@@ -290,12 +300,17 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<CommonBaseMessageVi
     for (int i = 0; i < messageList.size(); i++) {
       IMMessageInfo messageInfo = messageList.get(i).getMessageData();
       if (messageInfo != null) {
-        if (accountSet.contains(messageInfo.getMessage().getSenderId())) {
+        if (accountSet.contains(MessageHelper.getRealMessageSenderId(messageInfo.getMessage()))) {
           notifyItemChanged(i, PAYLOAD_USERINFO);
         }
         if (messageInfo.getPinOption() != null
             && accountSet.contains(messageInfo.getPinOption().getOperatorId())) {
           notifyItemChanged(i, PAYLOAD_SIGNAL);
+        }
+        //通知消息可能涉及用户名称，需要更新内容
+        if (messageInfo.getMessage().getMessageType()
+            == V2NIMMessageType.V2NIM_MESSAGE_TYPE_NOTIFICATION) {
+          notifyItemChanged(i);
         }
       }
     }

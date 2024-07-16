@@ -44,6 +44,8 @@ public interface IMessageProxy {
 
   void audioCall();
 
+  void onTranslateAction();
+
   String getConversationId();
 
   V2NIMConversationType getConversationType();

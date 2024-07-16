@@ -16,6 +16,7 @@ import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.KEY_TEAM_C
 import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.KEY_TEAM_ID;
 import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.PATH_CHAT_SEND_TEAM_TIP_ACTION;
 import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.PATH_CHAT_TEAM_PAGE;
+import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.PATH_CONTACT_AI_SELECTOR_PAGE;
 import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.PATH_CONTACT_SELECTOR_PAGE;
 import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.PATH_TEAM_INVITE_ACTION;
 import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.REQUEST_CONTACT_SELECTOR_KEY;
@@ -25,6 +26,7 @@ import android.content.Intent;
 import com.netease.nimlib.sdk.v2.team.model.V2NIMTeam;
 import com.netease.nimlib.sdk.v2.team.result.V2NIMCreateTeamResult;
 import com.netease.yunxin.kit.alog.ALog;
+import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
 import com.netease.yunxin.kit.common.ui.photo.TransHelper;
 import com.netease.yunxin.kit.conversationkit.ui.R;
 import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
@@ -60,7 +62,11 @@ public class NormalCreateTeamFactory {
         requestCode,
         (activity, integer) -> {
           // 路由跳转到人员选择器，并监听返回，返回结果中包含选择的人员列表
-          XKitRouter.withKey(PATH_CONTACT_SELECTOR_PAGE)
+          String path = PATH_CONTACT_SELECTOR_PAGE;
+          if (IMKitConfigCenter.getEnableAIUser()) {
+            path = PATH_CONTACT_AI_SELECTOR_PAGE;
+          }
+          XKitRouter.withKey(path)
               .withParam(KEY_CONTACT_SELECTOR_MAX_COUNT, memberLimit)
               .withParam(KEY_REQUEST_SELECTOR_NAME_ENABLE, true)
               .withParam(RouterConstant.SELECTOR_CONTACT_FILTER_KEY, filterList)

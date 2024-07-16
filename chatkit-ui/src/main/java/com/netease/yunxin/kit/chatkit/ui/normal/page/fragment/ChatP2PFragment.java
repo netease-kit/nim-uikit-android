@@ -16,13 +16,18 @@ import androidx.lifecycle.ViewModelProvider;
 import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessage;
 import com.netease.nimlib.sdk.v2.message.V2NIMP2PMessageReadReceipt;
+import com.netease.nimlib.sdk.v2.user.V2NIMUser;
 import com.netease.yunxin.kit.alog.ALog;
+import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
+import com.netease.yunxin.kit.chatkit.cache.FriendUserCache;
+import com.netease.yunxin.kit.chatkit.manager.AIUserManager;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatUserCache;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.normal.view.MessageBottomLayout;
 import com.netease.yunxin.kit.chatkit.ui.page.viewmodel.ChatP2PViewModel;
+import com.netease.yunxin.kit.chatkit.ui.view.ait.AitManager;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.corekit.im2.model.UserWithFriend;
 import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
@@ -61,6 +66,16 @@ public class ChatP2PFragment extends NormalChatFragment {
       if (message != null) {
         anchorMessage = new IMMessageInfo(message);
       }
+    }
+    // 初始化AitManager
+    if (IMKitConfigCenter.getEnableAIUser()
+        && !AIUserManager.isAIUser(accountId)
+        && !AIUserManager.getAIChatUserList().isEmpty()) {
+      aitManager = new AitManager(getContext(), accountId);
+      aitManager.setShowAll(false);
+      aitManager.setShowAIUser(true);
+      aitManager.setShowTeamMember(false);
+      chatView.setAitManager(aitManager);
     }
     refreshView();
   }
@@ -220,9 +235,18 @@ public class ChatP2PFragment extends NormalChatFragment {
 
   @Override
   public void updateCurrentUserInfo() {
-    UserWithFriend friendInfo = ChatUserCache.getInstance().getFriendInfo(accountId);
+    UserWithFriend friendInfo = FriendUserCache.getFriendByAccount(accountId);
     if (friendInfo != null) {
       this.friendInfo = friendInfo;
+    } else {
+      V2NIMUser userInfo =
+          ChatUserCache.getInstance()
+              .getUserInfo(accountId, V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P);
+      if (userInfo != null) {
+        friendInfo = new UserWithFriend(userInfo.getAccountId(), null);
+        friendInfo.setUserInfo(userInfo);
+        this.friendInfo = friendInfo;
+      }
     }
 
     refreshView();

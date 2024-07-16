@@ -62,7 +62,11 @@ public class TeamCommonAdapter<T, R extends ViewBinding>
     if (dataList == null || dataList.isEmpty()) {
       return;
     }
-    dataSource.addAll(dataList);
+    for (T data : dataList) {
+      if (!dataSource.contains(data)) {
+        dataSource.add(data);
+      }
+    }
     if (comparator != null) {
       Collections.sort(dataSource, comparator);
     }
@@ -70,6 +74,20 @@ public class TeamCommonAdapter<T, R extends ViewBinding>
   }
 
   public void removeData(List<String> accountList) {}
+
+  public void updateData(List<T> dataList) {
+    if (dataList == null) {
+      return;
+    }
+    for (T user : dataList) {
+      for (int i = 0; i < dataSource.size(); i++) {
+        if (dataSource.get(i).equals(user)) {
+          dataSource.set(i, user);
+          notifyItemChanged(i);
+        }
+      }
+    }
+  }
 
   public void setItemClickListener(OnClickListener<T, R> listener) {
     this.clickListener = listener;

@@ -19,6 +19,9 @@ public class ContactUIConfig {
   //转发默认最大选择数量
   public static final int DEFAULT_SESSION_MAX_SELECT_COUNT = 9;
 
+  // 人员选择器默认最大选择数量（创建群）
+  public static final int DEFAULT_SELECTOR_MAX_SELECT_COUNT = 199;
+
   //title config
   public String title;
   public Integer titleColor;

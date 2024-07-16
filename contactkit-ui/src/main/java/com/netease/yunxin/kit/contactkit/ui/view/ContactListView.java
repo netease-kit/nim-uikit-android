@@ -180,6 +180,13 @@ public class ContactListView extends FrameLayout
     return contactAdapter;
   }
 
+  public List<BaseContactBean> getDataList() {
+    if (contactAdapter != null) {
+      return contactAdapter.getDataList();
+    }
+    return null;
+  }
+
   @Override
   public void onFriendDataSourceChanged(List<ContactFriendBean> contactItemBeanList) {
     if (contactAdapter != null) {

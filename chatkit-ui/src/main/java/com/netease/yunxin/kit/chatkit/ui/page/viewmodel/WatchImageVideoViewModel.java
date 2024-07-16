@@ -12,7 +12,6 @@ import androidx.lifecycle.MutableLiveData;
 import com.netease.nimlib.sdk.msg.attachment.FileAttachment;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessage;
 import com.netease.nimlib.sdk.v2.message.attachment.V2NIMMessageFileAttachment;
-import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageAttachmentUploadState;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
@@ -45,8 +44,7 @@ public class WatchImageVideoViewModel extends BaseViewModel {
   private void registerObservers(boolean register) {}
 
   private boolean isFileHasDownloaded(final V2NIMMessage message) {
-    return message.getAttachmentUploadState()
-            == V2NIMMessageAttachmentUploadState.V2NIM_MESSAGE_ATTACHMENT_UPLOAD_STATE_SUCCEEDED
+    return message.getAttachment() instanceof V2NIMMessageFileAttachment
         && !TextUtils.isEmpty(((V2NIMMessageFileAttachment) message.getAttachment()).getPath());
   }
 

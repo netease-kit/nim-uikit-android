@@ -33,6 +33,7 @@ import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
 import com.netease.yunxin.kit.common.ui.dialog.ChoiceListener;
 import com.netease.yunxin.kit.common.ui.dialog.CommonChoiceDialog;
 import com.netease.yunxin.kit.common.ui.utils.ToastX;
+import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.utils.NetworkUtils;
 import com.netease.yunxin.kit.corekit.event.BaseEvent;
 import com.netease.yunxin.kit.corekit.event.EventCenter;
@@ -40,9 +41,8 @@ import com.netease.yunxin.kit.corekit.event.EventNotify;
 import com.netease.yunxin.kit.corekit.im2.IMKitClient;
 import com.netease.yunxin.kit.teamkit.ui.R;
 import com.netease.yunxin.kit.teamkit.ui.adapter.BaseTeamMemberListAdapter;
-import com.netease.yunxin.kit.teamkit.ui.model.EventDef;
+import com.netease.yunxin.kit.teamkit.ui.model.EventCloseChat;
 import com.netease.yunxin.kit.teamkit.ui.normal.adapter.TeamMemberListAdapter;
-import com.netease.yunxin.kit.teamkit.ui.utils.TeamMemberCache;
 import com.netease.yunxin.kit.teamkit.ui.utils.TeamUtils;
 import com.netease.yunxin.kit.teamkit.ui.viewmodel.TeamBaseViewModel;
 import java.util.ArrayList;
@@ -81,7 +81,7 @@ public abstract class BaseTeamMemberListActivity extends BaseActivity {
         @NonNull
         @Override
         public String getEventType() {
-          return EventDef.EVENT_TYPE_CLOSE_CHAT_PAGE;
+          return EventCloseChat.EVENT_TYPE_CLOSE_CHAT_PAGE;
         }
       };
 
@@ -238,8 +238,16 @@ public abstract class BaseTeamMemberListActivity extends BaseActivity {
             resultInfo -> {
               dismissLoading();
               if (resultInfo.isSuccess()) {
-                if (resultInfo.getData() != null && !resultInfo.getData().isEmpty()) {
-                  refreshTeamMemberList();
+                if (resultInfo.getType() == FetchResult.FetchType.Init
+                    && resultInfo.getData() != null
+                    && !resultInfo.getData().isEmpty()) {
+                  refreshTeamMemberList(resultInfo.getData());
+                } else if (resultInfo.getType() == FetchResult.FetchType.Update) {
+                  adapter.updateDataWithComparator(
+                      resultInfo.getData(), TeamUtils.teamManagerComparator());
+                } else if (resultInfo.getType() == FetchResult.FetchType.Add
+                    || resultInfo.getType() == FetchResult.FetchType.Remove) {
+                  viewModel.loadTeamMember();
                 }
                 if (adapter.getItemCount() > 0) {
                   groupEmpty.setVisibility(View.GONE);
@@ -265,15 +273,12 @@ public abstract class BaseTeamMemberListActivity extends BaseActivity {
     viewModel.requestTeamData(teamId);
   }
 
-  public void refreshTeamMemberList() {
-    List<TeamMemberWithUserInfo> teamMemberInfoList =
-        TeamMemberCache.Instance().getTeamMemberList(teamId);
+  public void refreshTeamMemberList(List<TeamMemberWithUserInfo> teamMemberInfoList) {
     Collections.sort(teamMemberInfoList, TeamUtils.teamManagerComparator());
     if (adapter != null) {
       adapter.setDataList(teamMemberInfoList);
     }
     if (teamWithCurrentMember != null) {
-
       for (TeamMemberWithUserInfo member : teamMemberInfoList) {
         if (TextUtils.equals(IMKitClient.account(), member.getAccountId())) {
           teamWithCurrentMember =

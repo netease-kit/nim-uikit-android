@@ -24,6 +24,7 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
@@ -31,14 +32,16 @@ import androidx.annotation.Nullable;
 import com.netease.nimlib.sdk.media.record.AudioRecorder;
 import com.netease.nimlib.sdk.media.record.IAudioRecordCallback;
 import com.netease.nimlib.sdk.media.record.RecordType;
+import com.netease.nimlib.sdk.v2.utils.V2NIMConversationIdUtil;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.chatkit.ui.databinding.FunChatMessageBottomViewBinding;
 import com.netease.yunxin.kit.chatkit.ui.fun.FunAudioRecordDialog;
-import com.netease.yunxin.kit.chatkit.ui.fun.view.input.FunBottomActionFactory;
+import com.netease.yunxin.kit.chatkit.ui.fun.factory.FunBottomActionFactory;
 import com.netease.yunxin.kit.chatkit.ui.interfaces.IMessageProxy;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
+import com.netease.yunxin.kit.chatkit.ui.textSelectionHelper.SelectableTextHelper;
 import com.netease.yunxin.kit.chatkit.ui.view.IItemActionListener;
 import com.netease.yunxin.kit.chatkit.ui.view.ait.AitManager;
 import com.netease.yunxin.kit.chatkit.ui.view.ait.AitTextChangeListener;
@@ -66,13 +69,15 @@ import java.util.List;
  * <p>包含文本输入、语音输入、表情输入、更多输入
  */
 public class MessageBottomLayout extends FrameLayout
-    implements IAudioRecordCallback, AitTextChangeListener, IItemActionListener {
+    implements AitTextChangeListener, IItemActionListener {
   public static final String TAG = "MessageBottomLayout";
   private static final long SHOW_DELAY_TIME = 200;
   private FunChatMessageBottomViewBinding mBinding;
   // 消息发送
   private IMessageProxy mProxy;
-  private String mEdieNormalHint = "";
+  private ActionClickListener actionClickListener;
+  // 输入框提示
+  private String mEditHintText = "";
   // 是否禁言
   private boolean mMute = false;
   // 输入框属性配置
@@ -91,11 +96,15 @@ public class MessageBottomLayout extends FrameLayout
   // 表情选择监听
   private IEmojiSelectedListener emojiSelectedListener;
 
+  // 语音输入监听
+  private IAudioRecordCallback audioRecordCallback;
+
   // 语音输入对话框
   private FunAudioRecordDialog recordDialog;
 
   private boolean inRecordOpView;
 
+  // 语音输入
   private AudioRecorder mAudioRecorder;
 
   private final int recordMaxDuration = 60;
@@ -154,6 +163,8 @@ public class MessageBottomLayout extends FrameLayout
           }
           return true;
         });
+
+    // 表情选择监听
     emojiSelectedListener =
         new IEmojiSelectedListener() {
           @Override
@@ -175,7 +186,49 @@ public class MessageBottomLayout extends FrameLayout
             sendText(replyMessage);
           }
         };
-    mEdieNormalHint = getContext().getResources().getString(R.string.fun_chat_input_hint_tips);
+
+    // 语音输入监听
+    audioRecordCallback =
+        new IAudioRecordCallback() {
+          @Override
+          public void onRecordReady() {
+            ALog.d(LIB_TAG, TAG, "onRecordReady");
+            ChatMessageAudioControl.getInstance().stopAudio();
+          }
+
+          @Override
+          public void onRecordStart(File audioFile, RecordType recordType) {
+            ALog.d(LIB_TAG, TAG, "onRecordStart");
+          }
+
+          @Override
+          public void onRecordSuccess(File audioFile, long audioLength, RecordType recordType) {
+            ALog.d(
+                LIB_TAG,
+                TAG,
+                "onRecordSuccess -->> file:" + audioFile.getName() + " length:" + audioLength);
+            mProxy.sendAudio(audioFile, (int) audioLength, replyMessage);
+            clearReplyMsg();
+          }
+
+          @Override
+          public void onRecordFail() {
+            ALog.d(LIB_TAG, TAG, "onRecordFail");
+          }
+
+          @Override
+          public void onRecordCancel() {
+            ALog.d(LIB_TAG, TAG, "onRecordCancel");
+          }
+
+          @Override
+          public void onRecordReachedMaxTime(int maxTime) {
+            ALog.d(LIB_TAG, TAG, "onRecordReachedMaxTime -->> " + maxTime);
+            dismissAudioInputDialog(false);
+            mAudioRecorder.handleEndRecord(true, maxTime);
+          }
+        };
+    mEditHintText = getContext().getResources().getString(R.string.fun_chat_input_hint_tips);
     mBinding.replyLayout.setVisibility(GONE);
     mBinding.inputEt.setOnFocusChangeListener(
         (v, hasFocus) ->
@@ -184,6 +237,15 @@ public class MessageBottomLayout extends FrameLayout
 
   public FunChatMessageBottomViewBinding getViewBinding() {
     return mBinding;
+  }
+
+  // 获取输入框
+  public EditText getInputEditText() {
+    return mBinding.inputEt;
+  }
+
+  public void setActionClickListener(ActionClickListener listener) {
+    actionClickListener = listener;
   }
 
   @Override
@@ -217,29 +279,36 @@ public class MessageBottomLayout extends FrameLayout
       case ActionConstants.ACTION_TYPE_VIDEO_CALL:
         onCallClick();
         break;
+      case ActionConstants.ACTION_TYPE_TRANSLATE:
+        switchTranslate(view, item.getAction());
+        break;
       default:
         mProxy.onCustomAction(view, item.getAction());
         break;
     }
   }
 
+  // 设置输入watcher,用于@功能实现，监听输入框中输入@弹出的联系人列表
   public void setAitTextWatcher(AitManager aitTextWatcher) {
     this.aitTextWatcher = aitTextWatcher;
   }
 
-  public String getInputHit() {
-    return mEdieNormalHint;
+  // 获取输入框Hint
+  public String getInputEditTextHint() {
+    return mEditHintText;
   }
 
-  public void updateInputHintInfo(String content) {
-    mEdieNormalHint = content;
-    mBinding.inputEt.setHint(mEdieNormalHint);
+  // 设置输入框Hint
+  public void setInputEditTextHint(String content) {
+    mEditHintText = content;
+    mBinding.inputEt.setHint(mEditHintText);
   }
 
+  // 显示语音输入对话框
   public void showAudioInputDialog() {
-
     if (mAudioRecorder == null) {
-      mAudioRecorder = new AudioRecorder(getContext(), RecordType.AAC, recordMaxDuration, this);
+      mAudioRecorder =
+          new AudioRecorder(getContext(), RecordType.AAC, recordMaxDuration, audioRecordCallback);
     }
 
     recordDialog = new FunAudioRecordDialog(getContext());
@@ -259,6 +328,7 @@ public class MessageBottomLayout extends FrameLayout
     }
   }
 
+  // 隐藏语音输入对话框
   public void dismissAudioInputDialog(boolean isCancel) {
 
     if (recordDialog != null && recordDialog.isShowing()) {
@@ -283,13 +353,20 @@ public class MessageBottomLayout extends FrameLayout
             () -> {
               if (KeyboardUtils.isKeyboardShow((Activity) getContext())) {
                 if (!isKeyboardShow) {
-                  onKeyboardShow();
+                  ALog.d(LIB_TAG, TAG, "OnGlobalLayoutListener isKeyboardShow:" + isKeyboardShow);
                   isKeyboardShow = true;
+                  if (mInputState != InputState.input) {
+                    hideCurrentInput();
+                    updateState(InputState.input);
+                  }
                 }
               } else {
                 if (isKeyboardShow) {
-                  onKeyboardHide();
+                  ALog.d(LIB_TAG, TAG, "OnGlobalLayoutListener isKeyboardShow:" + isKeyboardShow);
                   isKeyboardShow = false;
+                  if (mInputState == InputState.input) {
+                    updateState(InputState.none);
+                  }
                 }
               }
             });
@@ -344,6 +421,9 @@ public class MessageBottomLayout extends FrameLayout
         private int start;
         private int count;
 
+        //保存输入框的内容，和之后的做对比
+        private String editable;
+
         @Override
         public void beforeTextChanged(CharSequence s, int start, int count, int after) {
           if (!canRender) {
@@ -375,6 +455,8 @@ public class MessageBottomLayout extends FrameLayout
             canRender = true;
             return;
           }
+          //隐藏文本选择器选择框
+          SelectableTextHelper.getInstance().dismiss();
           SpannableString spannableString = new SpannableString(s);
           if (MessageHelper.replaceEmoticons(getContext(), spannableString, start, count)) {
             canRender = false;
@@ -382,55 +464,57 @@ public class MessageBottomLayout extends FrameLayout
             mBinding.inputEt.setSelection(spannableString.length());
           }
 
-          if (aitTextWatcher != null) {
+          if (aitTextWatcher != null && !TextUtils.equals(s, editable)) {
             aitTextWatcher.afterTextChanged(s);
           }
           if (TextUtils.isEmpty(s.toString())) {
-            mBinding.inputEt.setHint(mEdieNormalHint);
+            mBinding.inputEt.setHint(mEditHintText);
           }
+          editable = s.toString();
         }
       };
 
-  public void clearInputEditTextChange() {
+  public void clearEditTextChangeListener() {
     mBinding.inputEt.removeTextChangedListener(msgInputTextWatcher);
   }
 
   public void sendText(ChatMessageBean replyMessage) {
-
-    String msg = mBinding.inputEt.getEditableText().toString();
-    String title = mBinding.chatRichEt.getEditableText().toString();
     if (mProxy != null) {
+      String msg = mBinding.inputEt.getEditableText().toString();
+      String title = mBinding.chatRichEt.getEditableText().toString();
+      boolean sendMsg;
       if (!TextUtils.isEmpty(title) && TextUtils.getTrimmedLength(title) > 0) {
-        if (mProxy.sendRichTextMessage(title, msg, replyMessage)) {
-          mBinding.chatRichEt.setText("");
-          mBinding.inputEt.setText("");
-          clearReplyMsg();
-        } else {
-          clearInput();
-        }
+        sendMsg = mProxy.sendRichTextMessage(title, msg, replyMessage);
       } else {
-        if (mProxy.sendTextMessage(msg, replyMessage)) {
-          mBinding.inputEt.setText("");
-          clearReplyMsg();
-        } else {
-          clearInput();
-        }
+        sendMsg = mProxy.sendTextMessage(msg, replyMessage);
+      }
+      clearEditTextInput(sendMsg);
+      if (actionClickListener != null) {
+        actionClickListener.sendMessage(msg, sendMsg);
       }
     }
   }
 
-  public void clearInput() {
-    String msg = mBinding.inputEt.getEditableText().toString();
-    String title = mBinding.chatRichEt.getEditableText().toString();
-    if (TextUtils.getTrimmedLength(msg) < 1) {
-      mBinding.inputEt.setText("");
-    }
-    if (TextUtils.getTrimmedLength(title) < 1) {
-      keepRichEt = true;
+  // 清空输入框内容 force为true时强制清空(包括输入框内容、回复消息、翻译内容)，false时只有输入框内容为空时才清空
+  public void clearEditTextInput(boolean force) {
+    if (force) {
       mBinding.chatRichEt.setText("");
+      mBinding.inputEt.setText("");
+      clearReplyMsg();
+    } else {
+      String msg = mBinding.inputEt.getEditableText().toString();
+      String title = mBinding.chatRichEt.getEditableText().toString();
+      if (TextUtils.getTrimmedLength(msg) < 1) {
+        mBinding.inputEt.setText("");
+      }
+      if (TextUtils.getTrimmedLength(title) < 1) {
+        keepRichEt = true;
+        mBinding.chatRichEt.setText("");
+      }
     }
   }
 
+  // 清空富文本状态下输入框内容，并隐藏富文本输入框
   public void hideAndClearRichInput() {
     mBinding.chatRichEt.setText("");
     mBinding.chatRichEt.setVisibility(GONE);
@@ -462,6 +546,7 @@ public class MessageBottomLayout extends FrameLayout
     return mBinding.inputEt.getText().toString();
   }
 
+  // 切换富文本输入模式
   public void switchRichInput(boolean titleForces, String title, String content) {
 
     hideCurrentInput();
@@ -485,6 +570,7 @@ public class MessageBottomLayout extends FrameLayout
     mBinding.inputEt.addTextChangedListener(msgInputTextWatcher);
   }
 
+  //切换到文本输入模式
   public void switchInput() {
     if (mInputState == InputState.input) {
       return;
@@ -494,23 +580,30 @@ public class MessageBottomLayout extends FrameLayout
     updateState(InputState.input);
   }
 
+  // 切换到语音输入模式
   public void switchRecord() {
     if (mInputState == InputState.voice) {
       recordShow(false, 0);
       updateState(InputState.input);
       return;
     }
+    if (actionClickListener != null) {
+      actionClickListener.onActionClick(
+          mBinding.chatMsgInputSwitchLayout, ActionConstants.ACTION_TYPE_RECORD);
+    }
     recordShow(true, 0);
     hideCurrentInput();
     updateState(InputState.voice);
   }
 
+  // 显示语音输入
   public void recordShow(boolean show, long delay) {
     mBinding.inputAudioTv.setVisibility(show ? VISIBLE : GONE);
     mBinding.inputEt.setVisibility(show ? GONE : VISIBLE);
     mBinding.chatMsgInputSwitchLayout.setVisibility(show ? GONE : VISIBLE);
   }
 
+  // 切换到表情输入模式
   public void switchEmoji() {
     if (mInputState == InputState.emoji) {
       emojiShow(false, 0);
@@ -522,6 +615,7 @@ public class MessageBottomLayout extends FrameLayout
     updateState(InputState.emoji);
   }
 
+  // 更新输入状态，包括文本输入、语音输入、表情输入、更多输入
   private void updateState(InputState state) {
     mInputState = state;
     mBinding.inputMoreRb.setBackgroundResource(R.drawable.fun_ic_chat_input_more_selector);
@@ -535,6 +629,7 @@ public class MessageBottomLayout extends FrameLayout
     }
   }
 
+  // 显示表情输入
   public void emojiShow(boolean show, long delay) {
     postDelayed(
         () -> {
@@ -546,6 +641,7 @@ public class MessageBottomLayout extends FrameLayout
         delay);
   }
 
+  // 切换到更多输入模式
   public void switchMore() {
     if (mInputState == InputState.more) {
       morePanelShow(false, 0);
@@ -557,17 +653,29 @@ public class MessageBottomLayout extends FrameLayout
     updateState(InputState.more);
   }
 
+  // 显示更多按钮菜单
   public void morePanelShow(boolean show, long delay) {
     // init more panel
     if (!mActionsPanel.hasInit() && show) {
       mActionsPanel.init(
           mBinding.actionsPanelVp,
-          FunBottomActionFactory.assembleInputMoreActions(mProxy.getConversationType()),
+          FunBottomActionFactory.assembleInputMoreActions(
+              V2NIMConversationIdUtil.conversationTargetId(mProxy.getConversationId()),
+              mProxy.getConversationType()),
           this);
     }
     postDelayed(() -> mBinding.actionsPanelVp.setVisibility(show ? VISIBLE : GONE), delay);
   }
 
+  // 切换到翻译输入模式
+  public void switchTranslate(View view, String action) {
+    if (actionClickListener != null) {
+      actionClickListener.onActionClick(view, action);
+    }
+    mProxy.onTranslateAction();
+  }
+
+  // 发送图片或者视频
   public void onAlbumClick() {
     if (mInputState == InputState.input) {
       hideKeyboard();
@@ -577,6 +685,7 @@ public class MessageBottomLayout extends FrameLayout
     }
   }
 
+  // 拍摄照片或者视频
   public void onCameraClick() {
     BottomChoiceDialog dialog =
         new BottomChoiceDialog(
@@ -610,6 +719,7 @@ public class MessageBottomLayout extends FrameLayout
     dialog.show();
   }
 
+  // 发起视频或者语音通话
   public void onCallClick() {
     BottomChoiceDialog dialog =
         new BottomChoiceDialog(
@@ -646,6 +756,7 @@ public class MessageBottomLayout extends FrameLayout
     dialog.show();
   }
 
+  // 发送位置信息
   public void onLocationClick() {
     String[] permissions = {
       Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION
@@ -677,6 +788,7 @@ public class MessageBottomLayout extends FrameLayout
     }
   }
 
+  // 发送文件
   public void onFileClick() {
     if (mInputState == InputState.input) {
       hideKeyboard();
@@ -687,6 +799,7 @@ public class MessageBottomLayout extends FrameLayout
     }
   }
 
+  // 设置是否禁言
   public void setMute(boolean mute) {
     if (mute != mMute) {
       mMute = mute;
@@ -712,17 +825,29 @@ public class MessageBottomLayout extends FrameLayout
     }
   }
 
+  // 获取是否禁言
   public boolean isMute() {
     return mMute;
   }
 
+  // 收起输入框键盘、更多区域、表情等，恢复初始状态
   public void collapse(boolean immediately) {
     if (mInputState == InputState.none) {
       return;
     }
-    hideAllInputLayout(immediately);
+    postDelayed(
+        () -> {
+          ALog.d(LIB_TAG, TAG, "hideAllInputLayout");
+          updateState(InputState.none);
+          KeyboardUtils.hideKeyboard(this);
+          long delay = immediately ? 0 : SHOW_DELAY_TIME;
+          emojiShow(false, delay);
+          morePanelShow(false, delay);
+        },
+        immediately ? 0 : ViewConfiguration.getDoubleTapTimeout());
   }
 
+  // 设置被回复消息内容
   public void setReplyMessage(ChatMessageBean messageBean) {
     this.replyMessage = messageBean;
     mBinding.replyLayout.setVisibility(VISIBLE);
@@ -738,114 +863,46 @@ public class MessageBottomLayout extends FrameLayout
     switchInput();
   }
 
-  public void setReEditMessage(String msgContent) {
-    mBinding.inputEt.setText(msgContent);
+  // 设置输入框内容
+  public void setInputEditTextContent(String msgContent) {
+    if (aitTextWatcher != null
+        && !aitTextWatcher.getAitContactsModel().getAtBlockList().isEmpty()) {
+      MessageHelper.identifyExpressionForRichTextMsg(
+          getContext(), mBinding.inputEt, msgContent, aitTextWatcher.getAitContactsModel());
+    } else {
+      mBinding.inputEt.setText(msgContent);
+    }
     mBinding.inputEt.requestFocus();
     mBinding.inputEt.setSelection(mBinding.inputEt.getText().length());
     switchInput();
   }
 
-  public void setInputText(String msgContent) {
-    mBinding.inputEt.setText(msgContent);
-    mBinding.inputEt.requestFocus();
-    mBinding.inputEt.setSelection(mBinding.inputEt.getText().length());
-    switchInput();
-  }
-
+  // 清除被回复消息内容
   public void clearReplyMsg() {
     replyMessage = null;
     mBinding.replyLayout.setVisibility(GONE);
   }
 
+  // 设置输入框属性配置
   public void setInputProperties(InputProperties properties) {
     this.inputProperties = properties;
     loadConfig();
   }
 
-  private void hideAllInputLayout(boolean immediately) {
-    postDelayed(
-        () -> {
-          updateState(InputState.none);
-          KeyboardUtils.hideKeyboard(this);
-          long delay = immediately ? 0 : SHOW_DELAY_TIME;
-          emojiShow(false, delay);
-          morePanelShow(false, delay);
-        },
-        immediately ? 0 : ViewConfiguration.getDoubleTapTimeout());
-  }
-
-  @Override
-  public void onRecordReady() {
-    ALog.d(LIB_TAG, TAG, "onRecordReady");
-    ChatMessageAudioControl.getInstance().stopAudio();
-  }
-
-  @Override
-  public void onRecordStart(File audioFile, RecordType recordType) {
-    ALog.d(LIB_TAG, TAG, "onRecordStart");
-    startRecord();
-  }
-
-  @Override
-  public void onRecordSuccess(File audioFile, long audioLength, RecordType recordType) {
-    ALog.d(
-        LIB_TAG,
-        TAG,
-        "onRecordSuccess -->> file:" + audioFile.getName() + " length:" + audioLength);
-    endRecord();
-    mProxy.sendAudio(audioFile, (int) audioLength, replyMessage);
-    clearReplyMsg();
-  }
-
-  @Override
-  public void onRecordFail() {
-    ALog.d(LIB_TAG, TAG, "onRecordFail");
-    endRecord();
-  }
-
-  @Override
-  public void onRecordCancel() {
-    ALog.d(LIB_TAG, TAG, "onRecordCancel");
-    endRecord();
-  }
-
-  @Override
-  public void onRecordReachedMaxTime(int maxTime) {
-    ALog.d(LIB_TAG, TAG, "onRecordReachedMaxTime -->> " + maxTime);
-    dismissAudioInputDialog(false);
-    mAudioRecorder.handleEndRecord(true, maxTime);
-  }
-
-  private void startRecord() {}
-
-  private void endRecord() {}
-
-  private void onKeyboardShow() {
-    ALog.d(LIB_TAG, TAG, "onKeyboardShow inputState:" + mInputState);
-    if (mInputState != InputState.input) {
-      hideCurrentInput();
-      updateState(InputState.input);
-    }
-  }
-
-  private void onKeyboardHide() {
-    ALog.d(LIB_TAG, TAG, "onKeyboardHide inputState:" + mInputState);
-    if (mInputState == InputState.input) {
-      updateState(InputState.none);
-    }
-  }
-
+  // 隐藏键盘
   private void hideKeyboard() {
     KeyboardUtils.hideKeyboard(mBinding.inputEt);
     mBinding.inputEt.clearFocus();
   }
 
+  // 显示键盘
   private void showKeyboard() {
     mBinding.inputEt.requestFocus();
     mBinding.inputEt.setSelection(mBinding.inputEt.getText().length());
     KeyboardUtils.showKeyboard(mBinding.inputEt);
   }
 
+  // @功能中，插入输入框内容回调
   @Override
   public void onTextAdd(String content, int start, int length, boolean hasAt) {
     if (mInputState != InputState.input) {
@@ -855,6 +912,7 @@ public class MessageBottomLayout extends FrameLayout
     mBinding.inputEt.getEditableText().replace(hasAt ? start : start - 1, start, spannable);
   }
 
+  // @功能中，删除输入框内容回调
   @Override
   public void onTextDelete(int start, int length) {
     if (mInputState != InputState.input) {
@@ -895,5 +953,12 @@ public class MessageBottomLayout extends FrameLayout
         mBinding.inputEt.setHintTextColor(inputProperties.inputEditHintTextColor);
       }
     }
+  }
+
+  // View 之间的交互接口 FunChatView使用
+  public interface ActionClickListener {
+    public void onActionClick(View view, String action);
+
+    void sendMessage(String msg, boolean sendResult);
   }
 }

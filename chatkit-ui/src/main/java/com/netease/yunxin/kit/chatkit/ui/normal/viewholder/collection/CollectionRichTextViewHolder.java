@@ -4,6 +4,7 @@
 
 package com.netease.yunxin.kit.chatkit.ui.normal.viewholder.collection;
 
+import android.text.style.ImageSpan;
 import android.view.LayoutInflater;
 import androidx.annotation.NonNull;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
@@ -38,11 +39,11 @@ public class CollectionRichTextViewHolder extends CollectionBaseViewHolder {
       RichTextAttachment attachment = (RichTextAttachment) message.getCustomAttachment();
       if (attachment != null) {
         viewBinding.messageTitle.setText(attachment.title);
-        MessageHelper.identifyExpression(
+        MessageHelper.identifyFaceExpression(
             viewBinding.getRoot().getContext(),
             viewBinding.messageContent,
             attachment.body,
-            message.getMessageData());
+            ImageSpan.ALIGN_BOTTOM);
       }
     }
   }

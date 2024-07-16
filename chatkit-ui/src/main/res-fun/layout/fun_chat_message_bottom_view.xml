@@ -4,12 +4,13 @@
   ~ found in the LICENSE file.
   -->
 
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/chat_message_input_root"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:orientation="vertical"
     android:background="@color/fun_chat_input_bg_color">
 
     <LinearLayout
@@ -89,10 +90,10 @@
                         android:ellipsize="end"
                         android:hint="@string/fun_chat_input_hint_tips"
                         android:imeOptions="actionSend"
-                        android:inputType="text"
+                        android:inputType="textNoSuggestions"
+                        android:maxLines="3"
                         android:maxLength="2000"
                         android:paddingStart="@dimen/dimen_12_dp"
-                        android:singleLine="true"
                         android:textColorHint="@color/color_b3b7bc"
                         android:textCursorDrawable="@null"
                         android:textSize="@dimen/text_size_16"
@@ -224,10 +225,7 @@
     <FrameLayout
         android:id="@+id/inputMoreLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/inputBarLayout">
+        android:layout_height="wrap_content">
 
         <com.netease.yunxin.kit.chatkit.ui.view.emoji.EmojiPickerView
             android:id="@+id/emojiPickerView"
@@ -248,4 +246,4 @@
         android:layout_height="wrap_content"
         app:constraint_referenced_ids="inputBarLayout" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>

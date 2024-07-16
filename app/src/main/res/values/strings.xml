@@ -86,6 +86,7 @@
     <string name="user_fail">用户信息获取失败</string>
     <string name="imkit_email_fail">邮箱格式错误，请检查</string>
     <string name="network_error">当前网络不可用，请检查你的网络设置。</string>
+    <string name="anti_error">存在不安全内容，请重新输入。</string>
 
     <!--    skin-->
     <string name="base_type">基础皮肤</string>

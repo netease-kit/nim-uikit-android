@@ -106,13 +106,16 @@
     <string name="global_search_team_title">高级群</string>
     <string name="global_search_empty">该用户不存在</string>
 
+    <!--    AI数字人 -->
+    <string name="ai_user_title">数字人</string>
+    <string name="contact_ai_user_title">我的数字人</string>
+    <string name="contact_ai_user_empty_tips">暂无数字人</string>
+
     <!--    common-->
     <string name="cancel">取消</string>
     <string name="contact_network_error_tip">当前网络不可用，请检查你当网络设置。</string>
-
     <string name="recent_conversation">最近会话</string>
     <string name="my_friend">我的好友</string>
     <string name="recent_forward">最近转发</string>
-
     <string name="contact_selector_multi_select">多选</string>
 </resources>

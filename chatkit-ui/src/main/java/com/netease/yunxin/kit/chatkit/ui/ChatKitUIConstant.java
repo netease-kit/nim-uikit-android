@@ -28,6 +28,8 @@ public class ChatKitUIConstant {
   public static final int CHAT_P2P_INVITER_USER_LIMIT = 199;
 
   public static final int CHAT_FORWARD_USER_LIMIT = 6;
+
+  //合并转发摘要限制，即合并转发消息摘要不超过3条
   public static final int CHAT_FORWARD_ABSTRACTS_LIMIT = 3;
   //合并转发深度限制，即合并转发消息嵌套不超过3层
   public static final int CHAT_MULTI_FORWARD_DEEP_LIMIT = 3;
@@ -37,6 +39,8 @@ public class ChatKitUIConstant {
   public static final String REPLY_TYPE_KEY = "scene";
   public static final String REPLY_FROM_KEY = "from";
   public static final String REPLY_TO_KEY = "to";
+
+  public static final String REPLY_RECEIVE_ID_KEY = "receiverId";
   public static final String REPLY_SERVER_ID_KEY = "idServer";
   public static final String REPLY_TIME_KEY = "time";
 

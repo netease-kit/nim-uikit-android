@@ -10,9 +10,12 @@ import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
 import com.netease.yunxin.kit.common.utils.SizeUtils;
 import com.netease.yunxin.kit.contactkit.ui.R;
 import com.netease.yunxin.kit.contactkit.ui.databinding.FunForwardContactSelectorLayoutBinding;
+import com.netease.yunxin.kit.contactkit.ui.fun.selector.FunSelectedListDialog;
+import com.netease.yunxin.kit.contactkit.ui.fun.selector.forward.adapter.FunForwardSelectedAdapter;
 import com.netease.yunxin.kit.contactkit.ui.fun.selector.forward.adapter.FunRecentForwardAdapter;
-import com.netease.yunxin.kit.contactkit.ui.fun.selector.forward.adapter.FunSelectedAdapter;
-import com.netease.yunxin.kit.contactkit.ui.selector.forward.BaseForwardSelectorActivity;
+import com.netease.yunxin.kit.contactkit.ui.model.SelectedViewBean;
+import com.netease.yunxin.kit.contactkit.ui.selector.BaseSelectedDialogAdapter;
+import com.netease.yunxin.kit.contactkit.ui.selector.forward.adapter.BaseForwardSelectorActivity;
 
 public class FunForwardSelectorActivity extends BaseForwardSelectorActivity {
 
@@ -40,7 +43,7 @@ public class FunForwardSelectorActivity extends BaseForwardSelectorActivity {
   protected void initFragments() {
     fragments.add(new FunConversationSelectorFragment());
     fragments.add(new FunFriendSelectorFragment());
-    if (IMKitConfigCenter.getTeamEnable()) {
+    if (IMKitConfigCenter.getEnableTeam()) {
       fragments.add(new FunTeamSelectorFragment());
     }
   }
@@ -50,12 +53,20 @@ public class FunForwardSelectorActivity extends BaseForwardSelectorActivity {
     // show selected detail
     FunSelectedListDialog dialog = new FunSelectedListDialog();
     dialog.show(getSupportFragmentManager(), FunSelectedListDialog.TAG);
+    dialog.setData(viewModel.getSelectedList());
+    dialog.setDeletedListener(
+        new BaseSelectedDialogAdapter.OnDeletedListener() {
+          @Override
+          public void onDeleted(SelectedViewBean bean) {
+            viewModel.removeSelectedItem(bean);
+          }
+        });
   }
 
   @Override
   protected void setSelectorAdapter() {
     recentForwardSelectorAdapter = new FunRecentForwardAdapter();
-    selectedAdapter = new FunSelectedAdapter();
+    selectedAdapter = new FunForwardSelectedAdapter();
   }
 
   @Override

@@ -95,7 +95,9 @@ public class FunChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
         revokedViewBinding.messageText.setText(
             context.getString(
                 R.string.fun_chat_message_revoked,
-                MessageHelper.getChatMessageUserNameByAccount(message.getSenderId())));
+                MessageHelper.getChatMessageUserNameByAccount(
+                    message.getSenderId(),
+                    message.getMessageData().getMessage().getConversationType())));
       }
       return;
     }
@@ -233,7 +235,9 @@ public class FunChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
       revokedViewBinding.messageText.setText(
           context.getString(
               R.string.fun_chat_message_revoked,
-              MessageHelper.getChatMessageUserNameByAccount(messageBean.getSenderId())));
+              MessageHelper.getChatMessageUserNameByAccount(
+                  messageBean.getSenderId(),
+                  messageBean.getMessageData().getMessage().getConversationType())));
     } else {
       revokedViewBinding.messageText.setText(
           context.getString(
@@ -243,7 +247,7 @@ public class FunChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
     revokedViewBinding.tvAction.setOnClickListener(
         v -> {
           if (itemClickListener != null && !isMultiSelect) {
-            itemClickListener.onReEditRevokeMessage(v, position, messageBean);
+            itemClickListener.onReeditRevokeMessage(v, position, messageBean);
           }
         });
     if (MessageHelper.revokeMsgIsEdit(messageBean)) {
@@ -308,7 +312,10 @@ public class FunChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
         TAG,
         TAG,
         "setReplyInfo, uuid=" + messageBean.getMessageData().getMessage().getMessageClientId());
-    if (messageBean.hasReply()) {
+    if (MessageHelper.isThreadReplayInfo(messageBean)) {
+      // thread 回复
+      setThreadReplyInfo(messageBean);
+    } else if (messageBean.hasReply()) {
       // 自定义回复实现
       addReplayViewToBottomGroup();
       V2NIMMessageRefer replyMsg = messageBean.getReplyMessage();
@@ -342,9 +349,6 @@ public class FunChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
               }
             });
       }
-    } else if (MessageHelper.isThreadReplayInfo(messageBean)) {
-      // thread 回复
-      setThreadReplyInfo(messageBean);
     } else {
       baseViewBinding.messageTopGroup.removeAllViews();
     }
@@ -363,9 +367,8 @@ public class FunChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
       return;
     }
     addReplayViewToBottomGroup();
-    V2NIMMessageRefer refer = threadOption;
     MessageHelper.getReplyMessageInfo(
-        refer,
+        threadOption,
         new FetchCallback<>() {
 
           @Override
@@ -375,15 +378,14 @@ public class FunChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
 
           @Override
           public void onSuccess(@Nullable IMMessageInfo param) {
-            if (param != null) {
-              replyMessage = param;
-              String content = MessageHelper.getReplyContent(replyMessage);
-              MessageHelper.identifyFaceExpression(
-                  replayBinding.tvReply.getContext(),
-                  replayBinding.tvReply,
-                  content,
-                  ImageSpan.ALIGN_BOTTOM);
-            }
+
+            replyMessage = param;
+            String content = MessageHelper.getReplyContent(replyMessage);
+            MessageHelper.identifyFaceExpression(
+                replayBinding.tvReply.getContext(),
+                replayBinding.tvReply,
+                content,
+                ImageSpan.ALIGN_BOTTOM);
           }
         });
 

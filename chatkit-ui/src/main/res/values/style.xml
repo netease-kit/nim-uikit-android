@@ -20,4 +20,8 @@
     <style name="bottomSheetStyleWrapper" parent="Widget.Design.BottomSheet.Modal">
         <item name="android:background">@android:color/transparent</item>
     </style>
+
+    <style name="LanguageRadioButton" parent="android:Widget.CompoundButton.RadioButton">
+        <item name="android:button">@drawable/chat_ai_language_selector</item>
+    </style>
 </resources>

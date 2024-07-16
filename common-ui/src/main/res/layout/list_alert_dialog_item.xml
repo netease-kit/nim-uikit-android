@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?><!-- Copyright (c) 2022 NetEase, Inc. All rights reserved. -->
+<!-- Use of this source code is governed by a MIT license that can be -->
+<!-- found in the LICENSE file. -->
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_centerInParent="true"
+    android:id="@+id/list_dialog_item_rl"
+    android:background="@drawable/rectangle_white_reduce_bg">
+
+
+    <TextView
+        android:id="@+id/list_dialog_content_tv"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dimen_36_dp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="@dimen/dimen_4_dp"
+        android:layout_marginBottom="@dimen/dimen_4_dp"
+        android:paddingStart="@dimen/dimen_10_dp"
+        android:gravity="center"
+        android:paddingEnd="@dimen/dimen_4_dp"
+        android:textColor="@color/color_333333"
+        android:textSize="@dimen/text_size_16" />
+
+    <View
+        android:id="@+id/line_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dimen_1_dp"
+        android:layout_below="@+id/list_dialog_content_tv"
+        android:background="@color/color_0c000050" />
+
+
+</RelativeLayout>

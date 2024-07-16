@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) 2022 NetEase, Inc. All rights reserved. -->
+<!-- Use of this source code is governed by a MIT license that can be -->
+<!-- found in the LICENSE file. -->
+
+<!-- shape这个属性一定要设置为oval、若设置成 rectangle则只是有一定弧度的形状-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval" >
+    <!-- 设置弧半径 -->
+    <corners android:radius="162dp" />
+    <!-- 设置控件的背景色 -->
+    <solid android:color="#00000000" />
+    <!-- 设置宽高，注意一定要和半径一致 -->
+    <size
+        android:height="162dp"
+        android:width="162dp" />
+</shape>

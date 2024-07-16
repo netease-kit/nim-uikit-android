@@ -8,13 +8,14 @@ import android.view.Gravity;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.netease.yunxin.kit.common.ui.dialog.BaseBottomDialog;
 import com.netease.yunxin.kit.common.ui.widgets.BackTitleBar;
 import com.netease.yunxin.kit.contactkit.ui.R;
-import com.netease.yunxin.kit.contactkit.ui.selector.forward.adapter.BaseSelectedListAdapter;
+import com.netease.yunxin.kit.contactkit.ui.model.SelectedViewBean;
+import com.netease.yunxin.kit.contactkit.ui.selector.BaseSelectedDialogAdapter;
+import java.util.List;
 
 /** 已选择列表基类 */
 public abstract class BaseSelectedDialog extends BaseBottomDialog {
@@ -23,11 +24,11 @@ public abstract class BaseSelectedDialog extends BaseBottomDialog {
 
   protected RecyclerView recyclerView;
 
-  protected BaseSelectedListAdapter.OnDeletedListener deletedListener;
+  protected BaseSelectedDialogAdapter.OnDeletedListener deletedListener;
 
-  protected BaseSelectedListAdapter selectedAdapter;
+  protected BaseSelectedDialogAdapter selectedAdapter;
 
-  protected ContactSelectorViewModel viewModel;
+  protected List<SelectedViewBean> dataList;
 
   @Override
   protected void setStyle() {}
@@ -55,16 +56,20 @@ public abstract class BaseSelectedDialog extends BaseBottomDialog {
   @Override
   protected void initData() {
     super.initData();
-    viewModel = new ViewModelProvider(requireActivity()).get(ContactSelectorViewModel.class);
-    selectedAdapter.setData(viewModel.getSelectedList());
-    deletedListener =
-        data -> {
-          if (viewModel != null) {
-            viewModel.removeSelectedItem(data);
-          }
-        };
+    selectedAdapter.setData(dataList);
     selectedAdapter.setOnDeletedListener(deletedListener);
   }
 
   protected abstract void setAdapter();
+
+  public void setData(List<SelectedViewBean> data) {
+    dataList = data;
+    if (selectedAdapter != null) {
+      selectedAdapter.setData(data);
+    }
+  }
+
+  public void setDeletedListener(BaseSelectedDialogAdapter.OnDeletedListener listener) {
+    this.deletedListener = listener;
+  }
 }

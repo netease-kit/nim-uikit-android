@@ -10,8 +10,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewbinding.ViewBinding;
 import com.netease.nimlib.sdk.v2.team.model.V2NIMTeam;
 import com.netease.yunxin.kit.contactkit.ui.model.SelectableBean;
-import com.netease.yunxin.kit.contactkit.ui.selector.forward.BaseSelectableViewHolder;
-import com.netease.yunxin.kit.contactkit.ui.selector.forward.SelectableListener;
+import com.netease.yunxin.kit.contactkit.ui.selector.BaseSelectableViewHolder;
+import com.netease.yunxin.kit.contactkit.ui.selector.SelectableListener;
 import java.util.LinkedList;
 import java.util.List;
 

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) 2022 NetEase, Inc. All rights reserved. -->
+<!-- Use of this source code is governed by a MIT license that can be -->
+<!-- found in the LICENSE file. -->
+
+<resources>
+    <string name="time_format_y_m_d_h_m">yy年MM月dd日 HH:mm</string>
+    <string name="time_format_m_d_h_m">MM月dd日 HH:mm</string>
+
+    <string name="cancel">取消</string>
+    <string name="title">请选择时间</string>
+    <string name="confirm">确定</string>
+    <string name="year">年</string>
+    <string name="month">月</string>
+    <string name="day">日</string>
+    <string name="hour">时</string>
+    <string name="minute">分</string>
+
+    <string name="error_no_permission">操作无权限</string>
+    <string name="error_over_time">请求超时</string>
+    <string name="error_default">请求失败</string>
+
+    <string name="dialog_disagree">不同意</string>
+    <string name="dialog_read_agree">已阅读并同意</string>
+    <string name="dialog_tips_title">温馨提示</string>
+    <string name="dialog_permission_tips">请在设置页面添加相关权限</string>
+
+    <string name="common_take_photo">拍照</string>
+    <string name="common_get_from_album">从相册选择</string>
+    <string name="common_network_error">当前网络不可用，请检查你的网络设置。</string>
+    <string name="common_photo_crop">裁剪</string>
+    <string name="common_complete">完成</string>
+
+</resources>

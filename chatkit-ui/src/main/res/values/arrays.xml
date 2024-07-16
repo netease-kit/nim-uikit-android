@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 在语言选择框中展示，翻译接口中传递该值 -->
+    <string-array name="language_name_arrays">
+        <item>英语</item>
+        <item>日语</item>
+        <item>韩语</item>
+        <item>俄语</item>
+        <item>法语</item>
+        <item>德语</item>
+    </string-array>
+    <!-- 在翻译的View中展示，参考聊天页面展示效果 -->
+    <string-array name="language_code">
+        <item>英</item>
+        <item>日</item>
+        <item>韩</item>
+        <item>俄</item>
+        <item>法</item>
+        <item>德</item>
+    </string-array>
+</resources>

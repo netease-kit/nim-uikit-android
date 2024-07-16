@@ -18,10 +18,12 @@ import com.netease.nimlib.sdk.v2.team.model.V2NIMTeam;
 import com.netease.nimlib.sdk.v2.utils.V2NIMConversationIdUtil;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.impl.LoginDetailListenerImpl;
+import com.netease.yunxin.kit.chatkit.manager.AIUserManager;
 import com.netease.yunxin.kit.chatkit.model.TeamMemberListResult;
 import com.netease.yunxin.kit.chatkit.model.TeamMemberWithUserInfo;
 import com.netease.yunxin.kit.chatkit.repo.ConversationRepo;
 import com.netease.yunxin.kit.chatkit.repo.TeamRepo;
+import com.netease.yunxin.kit.chatkit.ui.cache.TeamUserManager;
 import com.netease.yunxin.kit.chatkit.utils.ChatKitConstant;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.corekit.event.EventCenter;
@@ -29,8 +31,6 @@ import com.netease.yunxin.kit.corekit.im2.IMKitClient;
 import com.netease.yunxin.kit.corekit.im2.custom.TeamEvent;
 import com.netease.yunxin.kit.corekit.im2.custom.TeamEventAction;
 import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
-import com.netease.yunxin.kit.teamkit.ui.utils.TeamMemberCache;
-import com.netease.yunxin.kit.teamkit.ui.utils.TeamUtils;
 import java.util.List;
 import java.util.Objects;
 
@@ -297,11 +297,19 @@ public class TeamSettingViewModel extends TeamBaseViewModel {
               dismissTeam(teamId);
               return;
             }
+            boolean onlyHasAiUser = true;
             for (TeamMemberWithUserInfo user : param.getMemberList()) {
-              if (user != null && !TextUtils.equals(account, user.getAccountId())) {
+              if (user != null
+                  && !TextUtils.equals(account, user.getAccountId())
+                  && !AIUserManager.isAIUser(user.getAccountId())) {
                 account = user.getAccountId();
+                onlyHasAiUser = false;
                 break;
               }
+            }
+            if (onlyHasAiUser) {
+              dismissTeam(teamId);
+              return;
             }
             if (!TextUtils.isEmpty(account)) {
               TeamRepo.transferTeam(
@@ -484,8 +492,7 @@ public class TeamSettingViewModel extends TeamBaseViewModel {
   }
 
   public List<String> getTeamMemberIds() {
-    List<TeamMemberWithUserInfo> teamMembers = TeamMemberCache.Instance().getTeamMemberList(teamId);
-    return TeamUtils.getAccIdListFromInfoList(teamMembers);
+    return TeamUserManager.getInstance().getAllMembersAccountIds();
   }
 
   @Override

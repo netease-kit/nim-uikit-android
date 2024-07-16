@@ -77,6 +77,12 @@ public class EditUserInfoActivity extends BaseActivity {
                             getString(R.string.network_error),
                             Toast.LENGTH_SHORT)
                         .show();
+                  } else if (errorCode == Constant.ANTI_ERROR_CODE) {
+                    Toast.makeText(
+                            getApplicationContext(),
+                            getString(R.string.anti_error),
+                            Toast.LENGTH_SHORT)
+                        .show();
                   } else {
                     Toast.makeText(
                             getApplicationContext(),
@@ -135,7 +141,7 @@ public class EditUserInfoActivity extends BaseActivity {
     }
     ContactRepo.getUserInfo(
         Collections.singletonList(account),
-        new FetchCallback<List<V2NIMUser>>() {
+        new FetchCallback<>() {
           @Override
           public void onSuccess(@Nullable List<V2NIMUser> data) {
             if (data != null && !data.isEmpty()) {
@@ -173,6 +179,10 @@ public class EditUserInfoActivity extends BaseActivity {
       binding.tvTitle.setText(R.string.user_info_phone);
     }
     binding.etNickname.setText(remoteInfo);
+    if (!TextUtils.isEmpty(remoteInfo)) {
+
+      binding.etNickname.setSelection(remoteInfo.length());
+    }
   }
 
   private V2NIMUserUpdateParams buildUpdateParam() {

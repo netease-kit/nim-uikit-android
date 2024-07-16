@@ -10,15 +10,16 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:orientation="horizontal">
+    android:paddingHorizontal="@dimen/dimen_16_dp"
+    android:paddingVertical="@dimen/dimen_12_dp"
+    android:orientation="vertical"
+    android:gravity="center_vertical">
 
     <TextView
         android:id="@+id/messageText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="@dimen/text_size_16"
-        android:paddingHorizontal="@dimen/dimen_16_dp"
-        android:paddingVertical="@dimen/dimen_12_dp"
         android:textColor="@color/color_666666"
         android:maxLines="1"
         android:text="@string/chat_message_revoked"
@@ -29,8 +30,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="@dimen/text_size_16"
-        android:paddingEnd="@dimen/dimen_16_dp"
-        android:paddingVertical="@dimen/dimen_12_dp"
         android:text="@string/chat_message_re_edit"
         android:textColor="@color/color_007aff"
         android:visibility="gone"

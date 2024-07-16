@@ -26,10 +26,37 @@
         android:layout_marginVertical="@dimen/dimen_4_dp"
         android:visibility="gone" />
 
-    <com.netease.yunxin.kit.contactkit.ui.view.ContactListView
-        android:id="@+id/contact_listView"
+
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:showIndexBar="false" />
+        android:layout_height="match_parent">
+
+        <LinearLayout android:id="@+id/empty_layout"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dimen_188_dp"
+            android:layout_marginTop="200dp"
+            android:visibility="gone"
+            android:orientation="vertical">
+
+        <ImageView android:id="@+id/emptyIv"
+            android:layout_width="@dimen/dimen_118_dp"
+            android:layout_height="@dimen/dimen_96_dp"
+            android:layout_gravity="center_horizontal"
+            android:src="@drawable/ic_contact_empty"/>
+
+        <TextView android:id="@+id/emptyTv"
+            android:layout_width="@dimen/dimen_118_dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:gravity="center"/>
+        </LinearLayout>
+
+        <com.netease.yunxin.kit.contactkit.ui.view.ContactListView
+            android:id="@+id/contact_listView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:showIndexBar="false" />
+    </FrameLayout>
+
 
 </LinearLayout>

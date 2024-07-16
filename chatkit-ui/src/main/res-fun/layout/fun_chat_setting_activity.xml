@@ -165,7 +165,35 @@
                 android:thumb="@drawable/fun_bg_switch_thumb_selector"
                 app:track="@drawable/fun_bg_switch_track_selector" />
         </RelativeLayout>
+        <View android:id="@+id/aiPinDivider"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dimen_1_dp"
+            android:background="@color/color_f5f8fc" />
 
+        <FrameLayout
+            android:id="@+id/aiPinLayout"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dimen_50_dp"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/chat_message_set_ai_pin"
+                android:textColor="@color/color_666666"
+                android:textSize="@dimen/text_size_12"
+                android:layout_gravity="center_vertical"/>
+
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/aiPinSC"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:clickable="false"
+                android:enabled="false"
+                android:thumb="@drawable/fun_bg_switch_thumb_selector"
+                app:track="@drawable/fun_bg_switch_track_selector"
+                android:layout_gravity="end|center_vertical"/>
+        </FrameLayout>
 
     </LinearLayout>
 

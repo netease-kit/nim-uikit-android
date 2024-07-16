@@ -15,6 +15,7 @@ import com.netease.nimlib.sdk.v2.auth.enums.V2NIMConnectStatus;
 import com.netease.nimlib.sdk.v2.auth.enums.V2NIMDataSyncState;
 import com.netease.nimlib.sdk.v2.auth.enums.V2NIMDataSyncType;
 import com.netease.yunxin.kit.alog.ALog;
+import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
 import com.netease.yunxin.kit.chatkit.listener.ChatListener;
 import com.netease.yunxin.kit.chatkit.listener.MessageRevokeNotification;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
@@ -60,7 +61,7 @@ public class AitService {
 
   // 初始化
   public void init(Context context) {
-    if (NIMUtil.isMainProcess(context)) {
+    if (NIMUtil.isMainProcess(context) && IMKitConfigCenter.getEnableAtMessage()) {
       ALog.d(ChatKitUIConstant.LIB_TAG, TAG, "init");
       mContext = context;
       // 监听登录状态
@@ -69,6 +70,9 @@ public class AitService {
             @Override
             public void onConnectStatus(V2NIMConnectStatus status) {
               ALog.d(ChatKitUIConstant.LIB_TAG, TAG, "onConnectStatus:" + status.name());
+              if (!IMKitConfigCenter.getEnableAtMessage()) {
+                return;
+              }
               if (status == V2NIMConnectStatus.V2NIM_CONNECT_STATUS_CONNECTED) {
                 if (!hasRegister) {
                   registerObserver();
@@ -154,7 +158,7 @@ public class AitService {
 
   // 发送加载@信息事件
   public void sendLocalAitEvent() {
-    if (mContext == null) {
+    if (mContext == null || !IMKitConfigCenter.getEnableAtMessage()) {
       return;
     }
     sendAitEvent(new ArrayList<>(aitInfoMapCache.values()), AitEvent.AitEventType.Load);
@@ -162,7 +166,7 @@ public class AitService {
 
   // 发送@信息事件，如果收到@信息则发送事件，会话列表接收到事件之后，在相关的会话中增加@提示。事件包括加载、清理和新增
   public void sendAitEvent(List<AitInfo> aitInfoList, AitEvent.AitEventType type) {
-    if (aitInfoList == null || mContext == null) {
+    if (aitInfoList == null || mContext == null || !IMKitConfigCenter.getEnableAtMessage()) {
       return;
     }
     ALog.d(ChatKitUIConstant.LIB_TAG, TAG, "sendAitEvent:" + type.name() + aitInfoList.size());
@@ -179,7 +183,7 @@ public class AitService {
           @Override
           public void onReceiveMessages(@NonNull List<IMMessageInfo> messages) {
             super.onReceiveMessages(messages);
-            if (mContext != null) {
+            if (mContext != null && IMKitConfigCenter.getEnableAtMessage()) {
               ALog.d(
                   ChatKitUIConstant.LIB_TAG,
                   TAG,
@@ -196,7 +200,7 @@ public class AitService {
           public void onMessageRevokeNotifications(
               @Nullable List<MessageRevokeNotification> revokeNotifications) {
             super.onMessageRevokeNotifications(revokeNotifications);
-            if (revokeNotifications == null) {
+            if (revokeNotifications == null || !IMKitConfigCenter.getEnableAtMessage()) {
               return;
             }
             for (MessageRevokeNotification notification : revokeNotifications) {
@@ -331,7 +335,7 @@ public class AitService {
 
   // 删除本地数据库中@信息
   private void deleteAit() {
-    if (mContext == null) {
+    if (mContext == null || !IMKitConfigCenter.getEnableAtMessage()) {
       return;
     }
 

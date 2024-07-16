@@ -173,7 +173,7 @@ public class FunContactFragment extends BaseContactFragment {
     contactDataList.add(verifyBean);
     contactDataList.add(blackBean);
     // my group
-    if (IMKitConfigCenter.getTeamEnable()) {
+    if (IMKitConfigCenter.getEnableTeam()) {
       ContactEntranceBean groupBean =
           new ContactEntranceBean(
               R.mipmap.fun_ic_contact_my_group, context.getString(R.string.contact_list_my_group));
@@ -181,6 +181,16 @@ public class FunContactFragment extends BaseContactFragment {
       groupBean.showRightArrow = false;
       contactDataList.add(groupBean);
     }
+    //AI数字人
+    if (IMKitConfigCenter.getEnableAIUser()) {
+      ContactEntranceBean aiUserBean =
+          new ContactEntranceBean(
+              R.mipmap.fun_ic_contact_ai_user, context.getString(R.string.contact_ai_user_title));
+      aiUserBean.router = RouterConstant.PATH_FUN_MY_AI_USER_PAGE;
+      aiUserBean.showRightArrow = false;
+      contactDataList.add(aiUserBean);
+    }
+
     return contactDataList;
   }
 

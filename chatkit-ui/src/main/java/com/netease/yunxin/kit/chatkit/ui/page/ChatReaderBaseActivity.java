@@ -29,7 +29,7 @@ import java.util.List;
 /** chat message read state page */
 public abstract class ChatReaderBaseActivity extends BaseActivity {
 
-  private static final String TAG = "ChatMessageAckActivity";
+  private static final String TAG = "ChatReaderBaseActivity";
 
   public TabLayout tabLayout;
   public ViewPager2 fragmentViewPager;

@@ -16,8 +16,13 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
+import com.netease.yunxin.kit.common.ui.viewholder.BaseBean;
+import com.netease.yunxin.kit.common.ui.viewholder.ViewHolderClickListener;
+import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
+import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.common.ui.widgets.ContentListPopView;
 import com.netease.yunxin.kit.common.ui.widgets.TitleBarView;
 import com.netease.yunxin.kit.common.utils.SizeUtils;
@@ -26,16 +31,23 @@ import com.netease.yunxin.kit.conversationkit.ui.ConversationUIConfig;
 import com.netease.yunxin.kit.conversationkit.ui.R;
 import com.netease.yunxin.kit.conversationkit.ui.common.ConversationConstant;
 import com.netease.yunxin.kit.conversationkit.ui.databinding.FunConversationFragmentBinding;
+import com.netease.yunxin.kit.conversationkit.ui.fun.FunConversationTopAdapter;
 import com.netease.yunxin.kit.conversationkit.ui.fun.FunPopItemFactory;
 import com.netease.yunxin.kit.conversationkit.ui.fun.FunViewHolderFactory;
+import com.netease.yunxin.kit.conversationkit.ui.model.AIUserBean;
 import com.netease.yunxin.kit.conversationkit.ui.page.ConversationBaseFragment;
 import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
+import java.util.List;
 
 /** 娱乐版会话列表Fragment, 用于展示娱乐版会话列表 */
 public class FunConversationFragment extends ConversationBaseFragment {
 
   private FunConversationFragmentBinding viewBinding;
+
+  // 顶部横向滚动列表
+  protected RecyclerView topRecyclerView;
+  protected FunConversationTopAdapter topAdapter;
 
   @Override
   public View initViewAndGetRootView(
@@ -53,6 +65,7 @@ public class FunConversationFragment extends ConversationBaseFragment {
     titleBarView = viewBinding.titleBar;
     networkErrorView = viewBinding.errorTv;
     emptyView = viewBinding.emptyLayout;
+    topRecyclerView = viewBinding.horizontalRecyclerView;
     viewBinding.titleBar.getRight2ImageView().setVisibility(View.GONE);
 
     setViewHolderFactory(new FunViewHolderFactory());
@@ -67,9 +80,9 @@ public class FunConversationFragment extends ConversationBaseFragment {
             return;
           }
           // 组件支持是否使用群的配置，如果关闭则相关群的功能都不在展示
-          if (IMKitConfigCenter.getTeamEnable()) {
+          if (IMKitConfigCenter.getEnableTeam()) {
             Context context = getContext();
-            int memberLimit = ConversationConstant.MAX_TEAM_MEMBER;
+            int memberLimit = ConversationConstant.MAX_TEAM_MEMBER - 1;
             ContentListPopView contentListPopView =
                 new ContentListPopView.Builder(context)
                     .addItem(FunPopItemFactory.getAddFriendItem(context))
@@ -103,7 +116,50 @@ public class FunConversationFragment extends ConversationBaseFragment {
               .navigate();
         });
 
+    if (topRecyclerView != null) {
+      LinearLayoutManager layoutManager =
+          new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
+      topRecyclerView.setLayoutManager(layoutManager);
+      topAdapter = new FunConversationTopAdapter();
+      topRecyclerView.setAdapter(topAdapter);
+      topAdapter.setViewHolderClickListener(
+          new ViewHolderClickListener() {
+            @Override
+            public boolean onClick(View view, BaseBean data, int position) {
+              if (data instanceof AIUserBean) {
+                XKitRouter.withKey(RouterConstant.PATH_FUN_CHAT_P2P_PAGE)
+                    .withParam(RouterConstant.CHAT_ID_KRY, ((AIUserBean) data).getAccountId())
+                    .withContext(FunConversationFragment.this.requireContext())
+                    .navigate();
+              }
+              return true;
+            }
+          });
+    }
+
     loadUIConfig();
+  }
+
+  // 加载AI用户数据，父类获取数据之后回调
+  @Override
+  public void loadAIUserData(FetchResult<List<AIUserBean>> result) {
+    if (!IMKitConfigCenter.getEnableAIUser()) {
+      return;
+    }
+    if (result.getLoadStatus() == LoadStatus.Success
+        && result.getData() != null
+        && result.getData().size() > 0) {
+      if (topAdapter != null) {
+        topAdapter.setData(result.getData());
+        viewBinding.horizontalRecyclerView.setVisibility(View.VISIBLE);
+        viewBinding.horizontalLine.setVisibility(View.VISIBLE);
+      }
+    } else {
+      if (topRecyclerView != null) {
+        viewBinding.horizontalRecyclerView.setVisibility(View.GONE);
+        viewBinding.horizontalLine.setVisibility(View.GONE);
+      }
+    }
   }
 
   public RecyclerView.ItemDecoration getItemDecoration() {
@@ -183,6 +239,13 @@ public class FunConversationFragment extends ConversationBaseFragment {
 
     if (config.customLayout != null) {
       config.customLayout.customizeConversationLayout(this);
+    }
+
+    if (config.showConversationTopAIList) {
+      viewBinding.horizontalRecyclerView.setVisibility(View.VISIBLE);
+    } else {
+      viewBinding.horizontalRecyclerView.setVisibility(View.GONE);
+      topRecyclerView = null;
     }
   }
 

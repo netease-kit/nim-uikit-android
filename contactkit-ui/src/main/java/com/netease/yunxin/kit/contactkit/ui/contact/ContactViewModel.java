@@ -28,9 +28,9 @@ import com.netease.yunxin.kit.contactkit.ui.model.ContactFriendBean;
 import com.netease.yunxin.kit.contactkit.ui.model.IViewTypeConstant;
 import com.netease.yunxin.kit.corekit.im2.IMKitClient;
 import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
+import com.netease.yunxin.kit.corekit.im2.listener.ContactChangeType;
 import com.netease.yunxin.kit.corekit.im2.listener.ContactListener;
 import com.netease.yunxin.kit.corekit.im2.listener.FriendApplicationCountListener;
-import com.netease.yunxin.kit.corekit.im2.listener.V2FriendChangeType;
 import com.netease.yunxin.kit.corekit.im2.model.FriendAddApplicationInfo;
 import com.netease.yunxin.kit.corekit.im2.model.UserWithFriend;
 import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
@@ -149,7 +149,7 @@ public class ContactViewModel extends BaseViewModel {
     if (haveRegisterListener) {
       return;
     }
-    ContactRepo.addFriendListener(friendChangeObserve);
+    ContactRepo.addContactListener(friendChangeObserve);
     ContactRepo.addFriendApplicationCountListener(friendApplicationCountListener);
     IMKitClient.addLoginDetailListener(loginDetailListener);
     haveRegisterListener = true;
@@ -163,21 +163,21 @@ public class ContactViewModel extends BaseViewModel {
   private final ContactListener friendChangeObserve =
       new ContactListener() {
         @Override
-        public void onFriendChange(
-            @NonNull V2FriendChangeType friendChangeType,
-            @NonNull List<? extends UserWithFriend> friendList) {
-          ALog.d(LIB_TAG, TAG, "onFriendChange:" + friendChangeType + "," + friendList.size());
-          switch (friendChangeType) {
-            case Add:
+        public void onContactChange(
+            @NonNull ContactChangeType changeType,
+            @NonNull List<? extends UserWithFriend> contactList) {
+          ALog.d(LIB_TAG, TAG, "onFriendChange:" + changeType + "," + contactList.size());
+          switch (changeType) {
+            case AddFriend:
             case RemoveBlack:
-              setAddLivieData(new ArrayList<>(friendList));
+              setAddLivieData(new ArrayList<>(contactList));
               break;
             case Update:
-              setUpdateLiveData(new ArrayList<>(friendList));
+              setUpdateLiveData(new ArrayList<>(contactList));
               break;
-            case Delete:
+            case DeleteFriend:
             case AddBlack:
-              removeFriend(new ArrayList<>(friendList));
+              removeFriend(new ArrayList<>(contactList));
               break;
           }
         }
@@ -353,7 +353,7 @@ public class ContactViewModel extends BaseViewModel {
   @Override
   protected void onCleared() {
     super.onCleared();
-    ContactRepo.removeFriendListener(friendChangeObserve);
+    ContactRepo.removeContactListener(friendChangeObserve);
     ContactRepo.removeFriendApplicationCountListener(friendApplicationCountListener);
     IMKitClient.removeLoginDetailListener(loginDetailListener);
   }

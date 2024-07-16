@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import com.netease.yunxin.kit.chatkit.emoji.ChatEmojiManager;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatEmojiItemLayoutBinding;
 
@@ -25,7 +26,7 @@ public class EmojiAdapter extends BaseAdapter {
   }
 
   public int getCount() {
-    int count = EmojiManager.getDisplayCount() - startIndex + 1;
+    int count = ChatEmojiManager.INSTANCE.getDisplayCount() - startIndex + 1;
     count = Math.min(count, EmojiView.EMOJI_PER_PAGE + 1);
     return count;
   }
@@ -45,12 +46,12 @@ public class EmojiAdapter extends BaseAdapter {
     ChatEmojiItemLayoutBinding viewBinding =
         ChatEmojiItemLayoutBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
     convertView = viewBinding.getRoot();
-    int count = EmojiManager.getDisplayCount();
+    int count = ChatEmojiManager.INSTANCE.getDisplayCount();
     int index = startIndex + position;
     if (position == EmojiView.EMOJI_PER_PAGE || index == count) {
       viewBinding.ivEmoji.setBackgroundResource(R.drawable.ic_chat_emoji_del);
     } else if (index < count) {
-      viewBinding.ivEmoji.setBackground(EmojiManager.getDisplayDrawable(context, index));
+      viewBinding.ivEmoji.setBackground(ChatEmojiManager.INSTANCE.getDisplayDrawable(index));
     }
 
     return convertView;

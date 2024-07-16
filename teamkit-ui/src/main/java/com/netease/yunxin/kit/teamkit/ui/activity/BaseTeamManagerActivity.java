@@ -101,7 +101,7 @@ public abstract class BaseTeamManagerActivity extends BaseActivity {
     viewModel.getTeamUpdateData().observeForever(observerForTeamUpdateData);
     viewModel.requestTeamData(teamId);
     viewModel.requestManagerCount(teamId);
-    if (!IMKitConfigCenter.getTopMessageEnable()) {
+    if (!IMKitConfigCenter.getEnableTopMessage()) {
       viewTopSticky.setVisibility(View.GONE);
       tvTopStickyValue.setVisibility(View.GONE);
     } else {
@@ -125,32 +125,41 @@ public abstract class BaseTeamManagerActivity extends BaseActivity {
     viewUpdate.setOnClickListener(
         v -> getTeamIdentifyDialog().show(type -> viewModel.updateInfoPrivilege(teamId, type)));
 
-    tvAitValue.setText(
-        Objects.equals(TeamUtils.getTeamAtMode(teamInfo), TYPE_EXTENSION_ALLOW_ALL)
-            ? R.string.team_all_member
-            : R.string.team_owner_and_manager);
     tvTopStickyValue.setText(
         Objects.equals(TeamUtils.getTeamTopStickyMode(teamInfo), TYPE_EXTENSION_ALLOW_ALL)
             ? R.string.team_all_member
             : R.string.team_owner_and_manager);
-    viewAit.setOnClickListener(
-        v ->
-            getTeamIdentifyDialog()
-                .show(
-                    type -> {
-                      if (teamMember.getMemberRole()
-                          == V2NIMTeamMemberRole.V2NIM_TEAM_MEMBER_ROLE_NORMAL) {
-                        Toast.makeText(
-                                this, R.string.team_operate_no_permission_tip, Toast.LENGTH_SHORT)
-                            .show();
-                        return;
-                      }
-                      viewModel.updateAtPrivilege(
-                          teamInfo,
-                          type == TYPE_TEAM_ALL_MEMBER
-                              ? TYPE_EXTENSION_ALLOW_ALL
-                              : TYPE_EXTENSION_ALLOW_MANAGER);
-                    }));
+
+    if (IMKitConfigCenter.getEnableAtMessage()) {
+      viewAit.setVisibility(View.VISIBLE);
+      tvAitValue.setVisibility(View.VISIBLE);
+      tvAitValue.setText(
+          Objects.equals(TeamUtils.getTeamAtMode(teamInfo), TYPE_EXTENSION_ALLOW_ALL)
+              ? R.string.team_all_member
+              : R.string.team_owner_and_manager);
+
+      viewAit.setOnClickListener(
+          v ->
+              getTeamIdentifyDialog()
+                  .show(
+                      type -> {
+                        if (teamMember.getMemberRole()
+                            == V2NIMTeamMemberRole.V2NIM_TEAM_MEMBER_ROLE_NORMAL) {
+                          Toast.makeText(
+                                  this, R.string.team_operate_no_permission_tip, Toast.LENGTH_SHORT)
+                              .show();
+                          return;
+                        }
+                        viewModel.updateAtPrivilege(
+                            teamInfo,
+                            type == TYPE_TEAM_ALL_MEMBER
+                                ? TYPE_EXTENSION_ALLOW_ALL
+                                : TYPE_EXTENSION_ALLOW_MANAGER);
+                      }));
+    } else {
+      viewAit.setVisibility(View.GONE);
+      tvAitValue.setVisibility(View.GONE);
+    }
 
     viewTopSticky.setOnClickListener(
         v ->

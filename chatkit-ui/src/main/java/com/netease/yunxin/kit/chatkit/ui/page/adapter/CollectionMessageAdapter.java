@@ -138,7 +138,8 @@ public class CollectionMessageAdapter extends RecyclerView.Adapter<ChatBaseViewH
 
   public CollectionBean searchMessage(String messageId) {
     for (int i = dataList.size() - 1; i >= 0; i--) {
-      if (TextUtils.equals(messageId, dataList.get(i).getMessageData().getMessageClientId())) {
+      if (dataList.get(i).getMessageData() != null
+          && TextUtils.equals(messageId, dataList.get(i).getMessageData().getMessageClientId())) {
         return dataList.get(i);
       }
     }

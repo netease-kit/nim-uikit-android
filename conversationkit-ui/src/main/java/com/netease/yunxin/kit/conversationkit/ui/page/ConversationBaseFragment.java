@@ -31,6 +31,7 @@ import com.netease.yunxin.kit.conversationkit.ui.R;
 import com.netease.yunxin.kit.conversationkit.ui.common.ConversationConstant;
 import com.netease.yunxin.kit.conversationkit.ui.common.ConversationHelper;
 import com.netease.yunxin.kit.conversationkit.ui.common.ConversationUtils;
+import com.netease.yunxin.kit.conversationkit.ui.model.AIUserBean;
 import com.netease.yunxin.kit.conversationkit.ui.model.ConversationBean;
 import com.netease.yunxin.kit.conversationkit.ui.page.interfaces.IConversationCallback;
 import com.netease.yunxin.kit.conversationkit.ui.page.interfaces.ILoadListener;
@@ -61,6 +62,8 @@ public abstract class ConversationBaseFragment extends BaseFragment implements I
   private Observer<FetchResult<List<String>>> deleteObserver;
   // 会话列表未读数变化观察者
   private Observer<FetchResult<Integer>> unreadCountObserver;
+  // AI数字人员数据变化观察者
+  private Observer<FetchResult<List<AIUserBean>>> aiRobotObserver;
   // 会话外部定制接口，用于创建ViewHolder
   protected IConversationFactory conversationFactory;
   // 会话列表封装View
@@ -71,7 +74,6 @@ public abstract class ConversationBaseFragment extends BaseFragment implements I
   protected View networkErrorView;
   // 空数据View，当会话列表为空时显示。子类可个性化定制，父类值根据业务数据控制是否展示
   protected View emptyView;
-
   protected Comparator<ConversationBean> conversationComparator;
 
   // 初始化View 子类重新去实现
@@ -92,11 +94,6 @@ public abstract class ConversationBaseFragment extends BaseFragment implements I
   @Override
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
-    viewModel = new ViewModelProvider(this).get(ConversationViewModel.class);
-    viewModel.setComparator(conversationComparator);
-    if (conversationFactory != null) {
-      viewModel.setConversationFactory(conversationFactory);
-    }
     if (networkErrorView != null) {
       NetworkUtils.registerNetworkStatusChangedListener(networkStateListener);
     }
@@ -115,104 +112,107 @@ public abstract class ConversationBaseFragment extends BaseFragment implements I
       conversationView.setComparator(conversationComparator);
       conversationView.setLoadMoreListener(this);
       // 设置会话点击事件
-      conversationView.setItemClickListener(
-          new ViewHolderClickListener() {
-            @Override
-            public boolean onClick(View v, BaseBean data, int position) {
-              boolean result = false;
-              // 点击事件，如果外部有定制点击事件，则触发外部点击事件，返回true则外部拦截，不需要内部处理
-              if (ConversationKitClient.getConversationUIConfig() != null
-                  && ConversationKitClient.getConversationUIConfig().itemClickListener != null
-                  && data instanceof ConversationBean) {
-                result =
-                    ConversationKitClient.getConversationUIConfig()
-                        .itemClickListener
-                        .onClick(
-                            ConversationBaseFragment.this.getContext(),
-                            (ConversationBean) data,
-                            position);
-              }
-              // 内部逻辑，跳转到聊天页面
-              if (!result) {
-                XKitRouter.withKey(data.router)
-                    .withParam(data.paramKey, data.param)
-                    .withContext(ConversationBaseFragment.this.requireContext())
-                    .navigate();
-              }
-              return true;
-            }
-
-            @Override
-            public boolean onAvatarClick(View v, BaseBean data, int position) {
-              // 会话头像点击事件，如果外部有定制点击事件，则触发外部点击事件，返回true则外部拦截，不需要内部处理
-              boolean result = false;
-              if (ConversationKitClient.getConversationUIConfig() != null
-                  && ConversationKitClient.getConversationUIConfig().itemClickListener != null
-                  && data instanceof ConversationBean) {
-                result =
-                    ConversationKitClient.getConversationUIConfig()
-                        .itemClickListener
-                        .onAvatarClick(
-                            ConversationBaseFragment.this.getContext(),
-                            (ConversationBean) data,
-                            position);
-              }
-              // 内部逻辑，跳转到聊天页面
-              if (!result) {
-                XKitRouter.withKey(data.router)
-                    .withParam(data.paramKey, data.param)
-                    .withContext(ConversationBaseFragment.this.requireContext())
-                    .navigate();
-              }
-              return true;
-            }
-
-            @Override
-            public boolean onLongClick(View v, BaseBean data, int position) {
-              // 会话长按事件，如果外部有定制点击事件，则触发外部点击事件，返回true则外部拦截，不需要内部处理
-              boolean result = false;
-              if (ConversationKitClient.getConversationUIConfig() != null
-                  && ConversationKitClient.getConversationUIConfig().itemClickListener != null
-                  && data instanceof ConversationBean) {
-                result =
-                    ConversationKitClient.getConversationUIConfig()
-                        .itemClickListener
-                        .onLongClick(
-                            ConversationBaseFragment.this.getContext(),
-                            (ConversationBean) data,
-                            position);
-              }
-              // 内部逻辑，显示置顶和删除对话框
-              if (!result) {
-                showStickDialog(data);
-              }
-              return true;
-            }
-
-            @Override
-            public boolean onAvatarLongClick(View v, BaseBean data, int position) {
-              // 会话头像长按事件，如果外部有定制点击事件，则触发外部点击事件，返回true则外部拦截，不需要内部处理
-              boolean result = false;
-              if (ConversationKitClient.getConversationUIConfig() != null
-                  && ConversationKitClient.getConversationUIConfig().itemClickListener != null
-                  && data instanceof ConversationBean) {
-                result =
-                    ConversationKitClient.getConversationUIConfig()
-                        .itemClickListener
-                        .onAvatarLongClick(
-                            ConversationBaseFragment.this.getContext(),
-                            (ConversationBean) data,
-                            position);
-              }
-              // 内部逻辑，显示置顶和删除对话框
-              if (!result) {
-                showStickDialog(data);
-              }
-              return true;
-            }
-          });
+      conversationView.setItemClickListener(getViewHolderClickListener());
     }
   }
+
+  protected ViewHolderClickListener getViewHolderClickListener() {
+    return new ViewHolderClickListener() {
+      @Override
+      public boolean onClick(View v, BaseBean data, int position) {
+        boolean result = false;
+        // 点击事件，如果外部有定制点击事件，则触发外部点击事件，返回true则外部拦截，不需要内部处理
+        if (ConversationKitClient.getConversationUIConfig() != null
+            && ConversationKitClient.getConversationUIConfig().itemClickListener != null
+            && data instanceof ConversationBean) {
+          result =
+              ConversationKitClient.getConversationUIConfig()
+                  .itemClickListener
+                  .onClick(
+                      ConversationBaseFragment.this.getContext(),
+                      (ConversationBean) data,
+                      position);
+        }
+        // 内部逻辑，跳转到聊天页面
+        if (!result) {
+          XKitRouter.withKey(data.router)
+              .withParam(data.paramKey, data.param)
+              .withContext(ConversationBaseFragment.this.requireContext())
+              .navigate();
+        }
+        return true;
+      }
+
+      @Override
+      public boolean onAvatarClick(View v, BaseBean data, int position) {
+        // 会话头像点击事件，如果外部有定制点击事件，则触发外部点击事件，返回true则外部拦截，不需要内部处理
+        boolean result = false;
+        if (ConversationKitClient.getConversationUIConfig() != null
+            && ConversationKitClient.getConversationUIConfig().itemClickListener != null
+            && data instanceof ConversationBean) {
+          result =
+              ConversationKitClient.getConversationUIConfig()
+                  .itemClickListener
+                  .onAvatarClick(
+                      ConversationBaseFragment.this.getContext(),
+                      (ConversationBean) data,
+                      position);
+        }
+        // 内部逻辑，跳转到聊天页面
+        if (!result) {
+          XKitRouter.withKey(data.router)
+              .withParam(data.paramKey, data.param)
+              .withContext(ConversationBaseFragment.this.requireContext())
+              .navigate();
+        }
+        return true;
+      }
+
+      @Override
+      public boolean onLongClick(View v, BaseBean data, int position) {
+        // 会话长按事件，如果外部有定制点击事件，则触发外部点击事件，返回true则外部拦截，不需要内部处理
+        boolean result = false;
+        if (ConversationKitClient.getConversationUIConfig() != null
+            && ConversationKitClient.getConversationUIConfig().itemClickListener != null
+            && data instanceof ConversationBean) {
+          result =
+              ConversationKitClient.getConversationUIConfig()
+                  .itemClickListener
+                  .onLongClick(
+                      ConversationBaseFragment.this.getContext(),
+                      (ConversationBean) data,
+                      position);
+        }
+        // 内部逻辑，显示置顶和删除对话框
+        if (!result) {
+          showStickDialog(data);
+        }
+        return true;
+      }
+
+      @Override
+      public boolean onAvatarLongClick(View v, BaseBean data, int position) {
+        // 会话头像长按事件，如果外部有定制点击事件，则触发外部点击事件，返回true则外部拦截，不需要内部处理
+        boolean result = false;
+        if (ConversationKitClient.getConversationUIConfig() != null
+            && ConversationKitClient.getConversationUIConfig().itemClickListener != null
+            && data instanceof ConversationBean) {
+          result =
+              ConversationKitClient.getConversationUIConfig()
+                  .itemClickListener
+                  .onAvatarLongClick(
+                      ConversationBaseFragment.this.getContext(),
+                      (ConversationBean) data,
+                      position);
+        }
+        // 内部逻辑，显示置顶和删除对话框
+        if (!result) {
+          showStickDialog(data);
+        }
+        return true;
+      }
+    };
+  };
 
   // 设置外部定制的ViewHolderFactory
   public void setViewHolderFactory(IConversationFactory factory) {
@@ -226,8 +226,13 @@ public abstract class ConversationBaseFragment extends BaseFragment implements I
   }
 
   // 初始化观察者
-  private void initData() {
+  protected void initData() {
+    viewModel = new ViewModelProvider(this).get(ConversationViewModel.class);
     conversationComparator = ConversationUtils.getConversationComparator();
+    viewModel.setComparator(conversationComparator);
+    if (conversationFactory != null) {
+      viewModel.setConversationFactory(conversationFactory);
+    }
     // 会话列表查询数据变化观察者
     viewModel
         .getQueryLiveData()
@@ -241,6 +246,7 @@ public abstract class ConversationBaseFragment extends BaseFragment implements I
                   } else if (result.getType() == FetchResult.FetchType.Add) {
                     conversationView.addData(result.getData());
                   }
+                  loadData(result.getType(), result.getData());
                   updateEmptyView();
                 }
               }
@@ -304,7 +310,23 @@ public abstract class ConversationBaseFragment extends BaseFragment implements I
             updateEmptyView();
           }
         };
+    // AI数字人员数据变化观察者
+    aiRobotObserver = result -> loadAIUserData(result);
   }
+  /**
+   * 加载数据, 用于加载会话列表数据
+   *
+   * @param type 加载类型 {@link FetchResult.FetchType} init 初始加载，add 加载更多,update 更新
+   * @param data 会话列表数据
+   */
+  public void loadData(FetchResult.FetchType type, List<ConversationBean> data) {}
+
+  /**
+   * 加载AI数字人员数据
+   *
+   * @param result
+   */
+  public void loadAIUserData(FetchResult<List<AIUserBean>> result) {}
 
   @Override
   public void onStop() {
@@ -333,6 +355,7 @@ public abstract class ConversationBaseFragment extends BaseFragment implements I
     viewModel.getAitLiveData().observeForever(aitObserver);
     viewModel.getUnreadCountLiveData().observeForever(unreadCountObserver);
     viewModel.getDeleteLiveData().observeForever(deleteObserver);
+    viewModel.getAiRobotLiveData().observeForever(aiRobotObserver);
   }
 
   private void unregisterObserver() {
@@ -340,6 +363,7 @@ public abstract class ConversationBaseFragment extends BaseFragment implements I
     viewModel.getAitLiveData().removeObserver(aitObserver);
     viewModel.getUnreadCountLiveData().removeObserver(unreadCountObserver);
     viewModel.getDeleteLiveData().removeObserver(deleteObserver);
+    viewModel.getAiRobotLiveData().removeObserver(aiRobotObserver);
   }
 
   public void setConversationCallback(IConversationCallback callback) {

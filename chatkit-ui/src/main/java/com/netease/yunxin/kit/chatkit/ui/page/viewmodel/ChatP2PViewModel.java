@@ -7,6 +7,7 @@ package com.netease.yunxin.kit.chatkit.ui.page.viewmodel;
 import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
 
 import android.text.TextUtils;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
 import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
@@ -17,8 +18,11 @@ import com.netease.nimlib.sdk.v2.notification.V2NIMCustomNotification;
 import com.netease.nimlib.sdk.v2.notification.V2NIMNotificationListener;
 import com.netease.nimlib.sdk.v2.notification.config.V2NIMNotificationConfig;
 import com.netease.nimlib.sdk.v2.notification.config.V2NIMNotificationPushConfig;
+import com.netease.nimlib.sdk.v2.notification.config.V2NIMNotificationRouteConfig;
 import com.netease.nimlib.sdk.v2.notification.params.V2NIMSendCustomNotificationParams;
 import com.netease.yunxin.kit.alog.ALog;
+import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
+import com.netease.yunxin.kit.chatkit.cache.FriendUserCache;
 import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
 import com.netease.yunxin.kit.chatkit.repo.ContactRepo;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatUserCache;
@@ -27,8 +31,11 @@ import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.corekit.im2.IMKitClient;
 import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
+import com.netease.yunxin.kit.corekit.im2.listener.ContactChangeType;
+import com.netease.yunxin.kit.corekit.im2.listener.ContactListener;
+import com.netease.yunxin.kit.corekit.im2.model.FriendAddApplicationInfo;
 import com.netease.yunxin.kit.corekit.im2.model.UserWithFriend;
-import com.netease.yunxin.kit.corekit.im2.model.V2UserInfo;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import org.json.JSONException;
@@ -55,6 +62,7 @@ public class ChatP2PViewModel extends ChatBaseViewModel {
   private final FetchResult<UserWithFriend> friendInfoFetchResult =
       new FetchResult<>(LoadStatus.Finish);
 
+  // 正在输入功能监听，监听通知消息来展示对方是否正在输入
   private final V2NIMNotificationListener notificationListener =
       new V2NIMNotificationListener() {
         @Override
@@ -97,6 +105,45 @@ public class ChatP2PViewModel extends ChatBaseViewModel {
         }
       };
 
+  // 好友信息变更监听
+  private final ContactListener friendListener =
+      new ContactListener() {
+        @Override
+        public void onContactChange(
+            @NonNull ContactChangeType changeType,
+            @NonNull List<? extends UserWithFriend> contactList) {
+
+          List<UserWithFriend> needFriendList = new ArrayList<>();
+          List<String> accountList = new ArrayList<>();
+          for (UserWithFriend friendInfo : contactList) {
+            if (friendInfo != null && FriendUserCache.isFriend(friendInfo.getAccount())) {
+              needFriendList.add(friendInfo);
+              accountList.add(friendInfo.getAccount());
+            }
+          }
+
+          if (needFriendList.size() > 0) {
+            FetchResult<List<String>> userInfoFetchResult = new FetchResult<>(LoadStatus.Finish);
+            userInfoFetchResult.setData(accountList);
+            userInfoFetchResult.setType(FetchResult.FetchType.Update);
+            userChangeLiveData.setValue(userInfoFetchResult);
+          }
+          if (changeType == ContactChangeType.Update) {
+            for (UserWithFriend friend : contactList) {
+              if (friend.getAccount().equals(mChatAccountId)) {
+                notifyFriendChange(friend);
+              }
+            }
+          }
+        }
+
+        @Override
+        public void onFriendAddApplication(@NonNull FriendAddApplicationInfo friendApplication) {}
+
+        @Override
+        public void onFriendAddRejected(@NonNull FriendAddApplicationInfo rejectionInfo) {}
+      };
+
   /** chat message read receipt live data */
   public MutableLiveData<V2NIMP2PMessageReadReceipt> getMessageReceiptLiveData() {
     return messageReceiptLiveData;
@@ -127,7 +174,7 @@ public class ChatP2PViewModel extends ChatBaseViewModel {
           @Override
           public void onSuccess(@Nullable UserWithFriend data) {
             if (data != null) {
-              ChatUserCache.getInstance().addUserInfo(new V2UserInfo(accId, data.getUserInfo()));
+              ChatUserCache.getInstance().addUserInfo(data.getUserInfo());
               friendInfoFetchResult.setData(data);
               friendInfoFetchResult.setLoadStatus(LoadStatus.Success);
               friendInfoLiveData.setValue(friendInfoFetchResult);
@@ -186,13 +233,19 @@ public class ChatP2PViewModel extends ChatBaseViewModel {
   @Override
   public void addListener() {
     super.addListener();
-    ChatRepo.addNotificationListener(notificationListener);
+    if (IMKitConfigCenter.getEnableTypingStatus()) {
+      ChatRepo.addNotificationListener(notificationListener);
+    }
+    ContactRepo.addContactListener(friendListener);
   }
 
   @Override
   public void removeListener() {
     super.removeListener();
-    ChatRepo.removeNotificationListener(notificationListener);
+    if (IMKitConfigCenter.getEnableTypingStatus()) {
+      ChatRepo.removeNotificationListener(notificationListener);
+    }
+    ContactRepo.removeContactListener(friendListener);
   }
 
   @Override
@@ -242,6 +295,10 @@ public class ChatP2PViewModel extends ChatBaseViewModel {
   public void sendInputNotification(boolean isTyping) {
     ALog.d(LIB_TAG, TAG, "sendInputNotification:" + isTyping);
 
+    // 功能控制开关，支持关闭该功能
+    if (!IMKitConfigCenter.getEnableTypingStatus()) {
+      return;
+    }
     try {
       JSONObject json = new JSONObject();
       json.put(TYPE_STATE, isTyping ? 1 : 0);
@@ -257,9 +314,13 @@ public class ChatP2PViewModel extends ChatBaseViewModel {
               .withOfflineEnabled(false)
               .build();
 
+      V2NIMNotificationRouteConfig.V2NIMNotificationRouteConfigBuilder routerConfig =
+          V2NIMNotificationRouteConfig.V2NIMNotificationRouteConfigBuilder.builder();
+      routerConfig.withRouteEnabled(false);
       V2NIMSendCustomNotificationParams params =
           V2NIMSendCustomNotificationParams.V2NIMSendCustomNotificationParamsBuilder.builder()
               .withPushConfig(pushConfig)
+              .withRouteConfig(routerConfig.build())
               .withNotificationConfig(notificationConfig)
               .build();
 

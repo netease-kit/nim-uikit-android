@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2022 NetEase, Inc. All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be
+  ~ found in the LICENSE file.
+  -->
+
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/chat_message_action_item"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/dimen_48_dp">
+
+    <RadioButton
+        android:id="@+id/languageItemBtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:button="@null"
+        android:textColor="@color/chat_ai_language_text_color_selector"
+        android:background="@drawable/chat_ai_language_selector"
+        android:textSize="@dimen/text_size_16"
+        android:drawableRight="@drawable/chat_ic_radio_button_selector"
+        android:layout_gravity="center"
+        android:paddingStart="@dimen/dimen_16_dp"
+        android:paddingEnd="@dimen/dimen_16_dp"/>
+</FrameLayout>

@@ -7,12 +7,12 @@ package com.netease.yunxin.kit.teamkit.ui.viewmodel;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
-import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamMemberRoleQueryType;
+import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamMemberRole;
 import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamType;
 import com.netease.yunxin.kit.alog.ALog;
-import com.netease.yunxin.kit.chatkit.model.TeamMemberListResult;
 import com.netease.yunxin.kit.chatkit.model.TeamMemberWithUserInfo;
 import com.netease.yunxin.kit.chatkit.repo.TeamRepo;
+import com.netease.yunxin.kit.chatkit.ui.cache.TeamUserManager;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
@@ -49,31 +49,39 @@ public class TeamManagerListViewModel extends TeamBaseViewModel {
    */
   public void requestTeamManagers(String teamId) {
     ALog.d(LIB_TAG, TAG, "requestTeamMembers:" + teamId);
-    TeamRepo.getTeamMemberListWithUserInfo(
-        teamId,
-        null,
-        100,
-        V2NIMTeamMemberRoleQueryType.V2NIM_TEAM_MEMBER_ROLE_QUERY_TYPE_MANAGER,
-        new FetchCallback<>() {
-          @Override
-          public void onSuccess(@Nullable TeamMemberListResult param) {
-            ALog.d(
-                LIB_TAG,
-                TAG,
-                "requestTeamManagers,onSuccess:" + (param == null ? "null" : param.isFinished()));
-            if (param != null) {
-              hasMore = !param.isFinished();
-              nextPageTag = param.getNextToken();
-              teamManagerWithUserData.setValue(new FetchResult<>(param.getMemberList()));
-            }
-          }
+    List<TeamMemberWithUserInfo> managerList =
+        TeamUserManager.getInstance()
+            .getTeamMemberWithRoleListFromCache(
+                teamId, V2NIMTeamMemberRole.V2NIM_TEAM_MEMBER_ROLE_MANAGER);
 
-          @Override
-          public void onError(int errorCode, String errorMsg) {
-            ALog.d(LIB_TAG, TAG, "requestTeamManagers,onFailed:" + errorCode);
-            teamManagerWithUserData.setValue(new FetchResult<>(errorCode, errorMsg));
-          }
-        });
+    FetchResult<List<TeamMemberWithUserInfo>> result =
+        new FetchResult<>(LoadStatus.Success, managerList);
+    teamMemberWithUserData.setValue(result);
+    //    TeamRepo.getTeamMemberListWithUserInfo(
+    //        teamId,
+    //        null,
+    //        100,
+    //        V2NIMTeamMemberRoleQueryType.V2NIM_TEAM_MEMBER_ROLE_QUERY_TYPE_MANAGER,
+    //        new FetchCallback<>() {
+    //          @Override
+    //          public void onSuccess(@Nullable TeamMemberListResult param) {
+    //            ALog.d(
+    //                LIB_TAG,
+    //                TAG,
+    //                "requestTeamManagers,onSuccess:" + (param == null ? "null" : param.isFinished()));
+    //            if (param != null) {
+    //              hasMore = !param.isFinished();
+    //              nextPageTag = param.getNextToken();
+    //              teamManagerWithUserData.setValue(new FetchResult<>(param.getMemberList()));
+    //            }
+    //          }
+    //
+    //          @Override
+    //          public void onError(int errorCode, String errorMsg) {
+    //            ALog.d(LIB_TAG, TAG, "requestTeamManagers,onFailed:" + errorCode);
+    //            teamManagerWithUserData.setValue(new FetchResult<>(errorCode, errorMsg));
+    //          }
+    //        });
   }
   /**
    * 添加管理员

@@ -17,6 +17,7 @@ import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.ChatConstants;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.ui.R;
+import com.netease.yunxin.kit.chatkit.ui.cache.TeamUserManager;
 import com.netease.yunxin.kit.corekit.im2.IMKitClient;
 import com.netease.yunxin.kit.corekit.im2.utils.IMKitUtils;
 import java.util.List;
@@ -138,9 +139,7 @@ public class TeamNotificationHelper {
   }
 
   private static V2NIMTeam getTeam() {
-    V2NIMTeam team = ChatUserCache.getInstance().getCurrentTeam();
-    // todo 不存在的情况
-    return team;
+    return TeamUserManager.getInstance().getCurrentTeam();
   }
 
   private static String buildDismissTeamNotification(String fromAccount) {

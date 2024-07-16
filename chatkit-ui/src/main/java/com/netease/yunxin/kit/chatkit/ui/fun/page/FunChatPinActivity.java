@@ -14,8 +14,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
 import com.netease.yunxin.kit.chatkit.ui.R;
-import com.netease.yunxin.kit.chatkit.ui.common.ChatUserCache;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatUtils;
+import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.chatkit.ui.custom.MultiForwardAttachment;
 import com.netease.yunxin.kit.chatkit.ui.fun.FunChatMessageForwardConfirmDialog;
 import com.netease.yunxin.kit.chatkit.ui.fun.FunChoiceDialog;
@@ -113,9 +113,9 @@ public class FunChatPinActivity extends ChatPinBaseActivity {
     }
     String sendName =
         TextUtils.isEmpty(mSessionName)
-            ? ChatUserCache.getInstance()
-                .getFriendInfo(forwardMessage.getMessageData().getMessage().getSenderId())
-                .getAvatarName()
+            ? MessageHelper.getChatMessageUserNameByAccount(
+                forwardMessage.getSenderId(),
+                forwardMessage.getMessageData().getMessage().getConversationType())
             : mSessionName;
     FunChatMessageForwardConfirmDialog confirmDialog =
         FunChatMessageForwardConfirmDialog.createForwardConfirmDialog(

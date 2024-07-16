@@ -6,14 +6,15 @@ package com.netease.yunxin.kit.chatkit.ui.view.popmenu;
 
 import androidx.annotation.NonNull;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
+import com.netease.yunxin.kit.corekit.model.PluginAction;
 import java.util.List;
 
 public interface IChatPopMenu {
 
   /** custom actions will show first */
   @NonNull
-  default List<ChatPopMenuAction> customizePopMenu(
-      List<ChatPopMenuAction> menuList, ChatMessageBean messageBean) {
+  default List<PluginAction> customizePopMenu(
+      List<PluginAction> menuList, ChatMessageBean messageBean) {
     return menuList;
   }
 

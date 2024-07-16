@@ -151,7 +151,7 @@ public class NormalChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
     revokedViewBinding.tvAction.setOnClickListener(
         v -> {
           if (itemClickListener != null && !isMultiSelect) {
-            itemClickListener.onReEditRevokeMessage(v, position, data);
+            itemClickListener.onReeditRevokeMessage(v, position, data);
           }
         });
     if (MessageHelper.revokeMsgIsEdit(data)) {
@@ -186,7 +186,10 @@ public class NormalChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
         TAG,
         TAG,
         "setReplyInfo, uuid=" + messageBean.getMessageData().getMessage().getMessageClientId());
-    if (messageBean.hasReply()) {
+    if (MessageHelper.isThreadReplayInfo(messageBean)) {
+      //thread 回复
+      setThreadReplyInfo(messageBean);
+    } else if (messageBean.hasReply()) {
       //自定义回复实现
       addReplayViewToTopGroup();
       V2NIMMessageRefer refer = messageBean.getReplyMessage();
@@ -221,9 +224,6 @@ public class NormalChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
               }
             });
       }
-    } else if (MessageHelper.isThreadReplayInfo(messageBean)) {
-      //thread 回复
-      setThreadReplyInfo(messageBean);
     } else {
       baseViewBinding.messageTopGroup.removeAllViews();
     }
@@ -253,7 +253,6 @@ public class NormalChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
 
   /// 内部设置 thread 回复消息
   private void setThreadReplyInfo(ChatMessageBean messageBean) {
-    //todo 回复Thread消息，need recheck
     V2NIMMessageRefer threadOption = messageBean.getMessageData().getMessage().getThreadReply();
     String replyFrom = threadOption.getSenderId();
     if (TextUtils.isEmpty(replyFrom)) {
@@ -266,9 +265,8 @@ public class NormalChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
     }
     addReplayViewToTopGroup();
 
-    V2NIMMessageRefer refer = threadOption;
     MessageHelper.getReplyMessageInfo(
-        refer,
+        threadOption,
         new FetchCallback<>() {
           @Override
           public void onError(int errorCode, @Nullable String errorMsg) {
@@ -277,16 +275,15 @@ public class NormalChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
 
           @Override
           public void onSuccess(@Nullable IMMessageInfo param) {
-            if (param != null) {
-              replyMessage = param;
-              String content = "| " + MessageHelper.getReplyContent(replyMessage);
-              MessageHelper.identifyFaceExpression(
-                  replayBinding.tvReply.getContext(),
-                  replayBinding.tvReply,
-                  content,
-                  ImageSpan.ALIGN_BOTTOM);
-              updateReplayInfoLayoutWidth(messageBean);
-            }
+
+            replyMessage = param;
+            String content = "| " + MessageHelper.getReplyContent(replyMessage);
+            MessageHelper.identifyFaceExpression(
+                replayBinding.tvReply.getContext(),
+                replayBinding.tvReply,
+                content,
+                ImageSpan.ALIGN_BOTTOM);
+            updateReplayInfoLayoutWidth(messageBean);
           }
         });
 

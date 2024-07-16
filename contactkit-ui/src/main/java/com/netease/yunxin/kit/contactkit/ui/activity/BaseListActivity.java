@@ -5,6 +5,7 @@
 package com.netease.yunxin.kit.contactkit.ui.activity;
 
 import android.os.Bundle;
+import android.view.View;
 import androidx.annotation.Nullable;
 import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
 import com.netease.yunxin.kit.contactkit.ui.databinding.BaseListActivityLayoutBinding;
@@ -21,6 +22,16 @@ public abstract class BaseListActivity extends BaseActivity {
     binding.title.setOnBackIconClickListener(v -> onBackPressed());
     initView();
     initData();
+  }
+
+  public void showEmptyView(boolean show) {
+    if (show) {
+      binding.emptyLayout.setVisibility(View.VISIBLE);
+      binding.contactListView.setVisibility(View.GONE);
+    } else {
+      binding.contactListView.setVisibility(View.VISIBLE);
+      binding.emptyLayout.setVisibility(View.GONE);
+    }
   }
 
   protected void configViewHolderFactory() {}

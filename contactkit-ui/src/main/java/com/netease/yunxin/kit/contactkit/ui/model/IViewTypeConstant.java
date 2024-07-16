@@ -7,21 +7,24 @@ package com.netease.yunxin.kit.contactkit.ui.model;
 /** constants view type 1~9 for default ViewHolder */
 public interface IViewTypeConstant {
 
-  /** friend */
+  // 好友
   int CONTACT_FRIEND = 1;
 
-  /** entrance */
+  // 列表入口Item
   int CONTACT_ACTION_ENTER = 2;
 
-  /** custom view type start with this */
+  // 以下为自定义类型起始
   int CUSTOM_START = 10;
 
-  /** blackList */
+  // 黑名单
   int CONTACT_BLACK_LIST = 11;
 
-  /** verify info */
+  // 验证消息
   int CONTACT_VERIFY_INFO = 12;
 
-  /** group list */
+  // 我的群列表
   int CONTACT_TEAM_LIST = 13;
+
+  // AI数字人
+  int CONTACT_AI_USER = 14;
 }

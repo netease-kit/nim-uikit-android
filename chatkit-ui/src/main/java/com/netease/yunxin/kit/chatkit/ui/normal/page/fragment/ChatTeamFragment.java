@@ -28,8 +28,8 @@ import com.netease.nimlib.sdk.v2.team.model.V2NIMTeamMember;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
-import com.netease.yunxin.kit.chatkit.model.TeamMemberWithUserInfo;
 import com.netease.yunxin.kit.chatkit.ui.R;
+import com.netease.yunxin.kit.chatkit.ui.cache.TeamUserManager;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatUtils;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
@@ -262,28 +262,26 @@ public class ChatTeamFragment extends NormalChatFragment {
             });
     // 监听群成员数量变化
     ((ChatTeamViewModel) viewModel)
-        .getTeamMemberChangeData()
+        .getUserChangeLiveData()
         .observe(
             getViewLifecycleOwner(),
             result -> {
               ALog.d(LIB_TAG, TAG, "TeamMemberChangeData,observe");
               if (result.getLoadStatus() == LoadStatus.Finish && result.getData() != null) {
-                List<String> accIdList = new ArrayList<>();
-                for (TeamMemberWithUserInfo user : result.getData()) {
-                  if (TextUtils.equals(user.getAccountId(), IMKitClient.account())) {
-                    currentMember = user.getTeamMember();
+                for (String userId : result.getData()) {
+                  if (TextUtils.equals(userId, IMKitClient.account())) {
+                    currentMember = TeamUserManager.getInstance().getCurTeamMember();
                     refreshView();
                   }
-                  accIdList.add(user.getAccountId());
                 }
-                chatView.getMessageListView().notifyUserInfoChanged(accIdList);
+                chatView.getMessageListView().notifyUserInfoChanged(result.getData());
               }
             });
   }
 
   // 处理群聊解散，如果配置不删除会话，则不进行弹窗，输入隐藏即可
   protected void handleTeamDismiss(String dialogContent) {
-    if (IMKitConfigCenter.getDismissTeamDeleteConversation()) {
+    if (IMKitConfigCenter.getEnableDismissTeamDeleteConversation()) {
       startTeamDismiss(dialogContent);
       viewBinding.chatView.getBottomInputLayout().setVisibility(View.VISIBLE);
       viewBinding.chatInvalidTipLayout.setVisibility(View.GONE);

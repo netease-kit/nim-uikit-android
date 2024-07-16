@@ -39,6 +39,7 @@ public class AtContactsModel {
     AitBlock aitBlock = aitBlocks.get(account);
     if (aitBlock == null) {
       aitBlock = new AitBlock(name);
+      aitBlock.setAccountId(account);
       aitBlocks.put(account, aitBlock);
     }
     int end = start + name.length();

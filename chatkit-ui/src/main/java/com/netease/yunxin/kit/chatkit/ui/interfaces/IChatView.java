@@ -86,7 +86,7 @@ public interface IChatView {
   void setReeditMessage(String content);
 
   // 设置富文本撤回消息重新编辑内容到输入框
-  void setReEditRichMessage(String title, String body);
+  void setReeditRichMessage(String title, String body);
 
   void setReplyMessage(ChatMessageBean messageBean);
 

@@ -21,6 +21,7 @@ public class SelectableBean<T> {
 
   //搜索结果相关
   public HitType hitType = HitType.None;
+
   public RecordHitInfo recordHitInfo;
 
   //成员数，用于展示

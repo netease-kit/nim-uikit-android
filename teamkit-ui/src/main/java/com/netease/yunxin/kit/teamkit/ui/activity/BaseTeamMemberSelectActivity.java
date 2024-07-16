@@ -25,6 +25,8 @@ import androidx.viewbinding.ViewBinding;
 import com.netease.nimlib.sdk.team.model.Team;
 import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamType;
 import com.netease.nimlib.sdk.v2.team.model.V2NIMTeam;
+import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
+import com.netease.yunxin.kit.chatkit.manager.AIUserManager;
 import com.netease.yunxin.kit.chatkit.model.TeamMemberWithUserInfo;
 import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
@@ -82,6 +84,7 @@ public abstract class BaseTeamMemberSelectActivity extends BaseActivity {
     if (accoutList != null) {
       filterAccounts.addAll(accoutList);
     }
+
     teamId = teamInfo.getTeamId();
     teamTypeEnum = teamInfo.getTeamType();
     initUI();
@@ -206,8 +209,8 @@ public abstract class BaseTeamMemberSelectActivity extends BaseActivity {
                   loadTeamMembers(resultInfo.getData());
                 } else if (resultInfo.getType() == FetchResult.FetchType.Update) {
                   adapter.updateData(resultInfo.getData());
-
                 } else if (resultInfo.getType() == FetchResult.FetchType.Add) {
+                  filterAIUser(resultInfo.getData());
                   adapter.addData(resultInfo.getData(), null);
                 }
               }
@@ -228,6 +231,7 @@ public abstract class BaseTeamMemberSelectActivity extends BaseActivity {
   protected void loadTeamMembers(List<TeamMemberWithUserInfo> teamMemberList) {
     List<TeamMemberWithUserInfo> memberList =
         TeamUtils.filterMemberListFromInfoList(teamMemberList, filterAccounts);
+    filterAIUser(memberList);
     if (!memberList.isEmpty()) {
       Collections.sort(memberList, TeamUtils.teamManagerComparator());
     }
@@ -258,5 +262,17 @@ public abstract class BaseTeamMemberSelectActivity extends BaseActivity {
       intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
     }
     context.startActivity(intent);
+  }
+
+  protected void filterAIUser(List<TeamMemberWithUserInfo> memberList) {
+    if (memberList == null || memberList.size() < 1 || !IMKitConfigCenter.getEnableAIUser()) {
+      return;
+    }
+    for (int index = memberList.size() - 1; index >= 0; index--) {
+      TeamMemberWithUserInfo userInfo = memberList.get(index);
+      if (AIUserManager.isAIUser(userInfo.getAccountId())) {
+        memberList.remove(index);
+      }
+    }
   }
 }

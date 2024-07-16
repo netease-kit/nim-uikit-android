@@ -53,8 +53,8 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="@dimen/dimen_36_dp"
-                    android:gravity="center_vertical"
                     android:layout_marginStart="@dimen/dimen_5_dp"
+                    android:gravity="center_vertical"
                     android:text="@string/fun_conversation_search_text"
                     android:textColor="@color/fun_conversation_search_text_color"
                     android:textSize="@dimen/text_size_16" />
@@ -82,26 +82,50 @@
             android:id="@+id/errorTv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingTop="@dimen/dimen_10_dp"
-            android:paddingBottom="@dimen/dimen_10_dp"
-            android:paddingStart="@dimen/dimen_35_dp"
-            android:paddingEnd="@dimen/dimen_5_dp"
             android:background="@color/color_fceeee"
             android:gravity="center"
-            app:drawableStartCompat="@drawable/ic_error"
+            android:paddingStart="@dimen/dimen_35_dp"
+            android:paddingTop="@dimen/dimen_10_dp"
+            android:paddingEnd="@dimen/dimen_5_dp"
+            android:paddingBottom="@dimen/dimen_10_dp"
             android:text="@string/conversation_network_error_tip"
             android:textColor="@color/color_50_000000"
             android:textSize="14dp"
-            android:visibility="gone" />
-
+            android:visibility="gone"
+            app:drawableStartCompat="@drawable/ic_error" />
+        <androidx.core.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true">
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <com.netease.yunxin.kit.conversationkit.ui.view.ConversationView
-                android:id="@+id/conversationView"
+            <LinearLayout
+                android:id="@+id/contentLayout"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/horizontalRecyclerView"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/dimen_89_dp"
+                    android:layout_marginStart="@dimen/dimen_8_dp"
+                    android:layout_marginEnd="@dimen/dimen_8_dp"
+                    android:visibility="gone"/>
+
+                <View android:id="@+id/horizontalLine"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/dimen_1_dp"
+                    android:background="@color/color_ededed"
+                    android:visibility="gone"/>
+
+                <com.netease.yunxin.kit.conversationkit.ui.view.ConversationView
+                    android:id="@+id/conversationView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+            </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/emptyLayout"
@@ -126,6 +150,7 @@
 
             </LinearLayout>
         </FrameLayout>
+        </androidx.core.widget.NestedScrollView>
     </LinearLayout>
 
     <FrameLayout

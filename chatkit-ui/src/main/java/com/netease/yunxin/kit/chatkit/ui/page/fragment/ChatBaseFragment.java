@@ -36,6 +36,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.netease.nimlib.sdk.v2.V2NIMError;
+import com.netease.nimlib.sdk.v2.ai.enums.V2NIMAIModelRoleType;
+import com.netease.nimlib.sdk.v2.ai.model.V2NIMAIUser;
+import com.netease.nimlib.sdk.v2.ai.params.V2NIMAIModelCallMessage;
 import com.netease.nimlib.sdk.v2.auth.enums.V2NIMDataSyncState;
 import com.netease.nimlib.sdk.v2.auth.enums.V2NIMDataSyncType;
 import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
@@ -44,6 +47,8 @@ import com.netease.nimlib.sdk.v2.message.V2NIMMessagePin;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessageRefer;
 import com.netease.nimlib.sdk.v2.message.attachment.V2NIMMessageImageAttachment;
 import com.netease.nimlib.sdk.v2.message.attachment.V2NIMMessageVideoAttachment;
+import com.netease.nimlib.sdk.v2.message.config.V2NIMMessageAIConfig;
+import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageAIStatus;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageQueryDirection;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
 import com.netease.nimlib.sdk.v2.utils.V2NIMConversationIdUtil;
@@ -51,10 +56,10 @@ import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
 import com.netease.yunxin.kit.chatkit.impl.LoginDetailListenerImpl;
 import com.netease.yunxin.kit.chatkit.listener.MessageUpdateType;
+import com.netease.yunxin.kit.chatkit.manager.AIUserManager;
 import com.netease.yunxin.kit.chatkit.map.ChatLocationBean;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.model.MessagePinInfo;
-import com.netease.yunxin.kit.chatkit.model.TeamMemberWithUserInfo;
 import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitClient;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant;
@@ -133,6 +138,9 @@ public abstract class ChatBaseFragment extends BaseFragment {
   private static final int REQUEST_READ_EXTERNAL_STORAGE_PERMISSION_FILE = 4;
   // 音频消息最小长度(单位ms)
   private static final int AUDIO_MESSAGE_MIN_LENGTH = 1000;
+
+  //AI 消息的上下文长度
+  private static final int AI_MESSAGE_SIZE = 30;
 
   //当前申请的权限
   private int currentRequest = 0;
@@ -239,7 +247,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
           //群成员数据同步完成后，更新群成员信息
           if (type == V2NIMDataSyncType.V2NIM_DATA_SYNC_TEAM_MEMBER
               && state == V2NIMDataSyncState.V2NIM_DATA_SYNC_STATE_COMPLETED) {
-            updateMyTeamMember();
+            //            updateMyTeamMember();
           }
         }
       };
@@ -431,7 +439,8 @@ public abstract class ChatBaseFragment extends BaseFragment {
                   for (String userId : fetchResult.getData()) {
                     if (Objects.equals(
                         userId,
-                        ChatUserCache.getInstance().getTopMessage().getMessage().getSenderId())) {
+                        MessageHelper.getRealMessageSenderId(
+                            ChatUserCache.getInstance().getTopMessage().getMessage()))) {
                       topMessageViewBinding.tvNickname.setText(
                           ChatUtils.getEllipsizeMiddleNick(
                                   getTopMessageNick(ChatUserCache.getInstance().getTopMessage()))
@@ -443,15 +452,15 @@ public abstract class ChatBaseFragment extends BaseFragment {
               });
       //置顶消息昵称监听群成员变化
       ((ChatTeamViewModel) viewModel)
-          .getTeamMemberChangeData()
+          .getUserChangeLiveData()
           .observeForever(
               fetchResult -> {
                 if (ChatUserCache.getInstance().getTopMessage() != null
                     && fetchResult.getData() != null
                     && !fetchResult.getData().isEmpty()) {
-                  for (TeamMemberWithUserInfo user : fetchResult.getData()) {
+                  for (String userId : fetchResult.getData()) {
                     if (Objects.equals(
-                        user.getAccountId(),
+                        userId,
                         ChatUserCache.getInstance().getTopMessage().getMessage().getSenderId())) {
                       topMessageViewBinding.tvNickname.setText(
                           ChatUtils.getEllipsizeMiddleNick(
@@ -467,8 +476,14 @@ public abstract class ChatBaseFragment extends BaseFragment {
 
   //获取指定消息昵称，优先取缓存
   private String getTopMessageNick(IMMessageInfo messageInfo) {
-    if (ChatUserCache.getInstance().getUserInfo(messageInfo.getMessage().getSenderId()) != null) {
-      return ChatUserCache.getInstance().getName(messageInfo.getMessage().getSenderId());
+    if (ChatUserCache.getInstance()
+            .getUserInfo(
+                MessageHelper.getRealMessageSenderId(messageInfo.getMessage()),
+                V2NIMConversationType.V2NIM_CONVERSATION_TYPE_TEAM)
+        != null) {
+      return MessageHelper.getChatMessageUserNameByAccount(
+          MessageHelper.getRealMessageSenderId(messageInfo.getMessage()),
+          V2NIMConversationType.V2NIM_CONVERSATION_TYPE_TEAM);
     }
     return messageInfo.getFromUserName();
   }
@@ -555,7 +570,9 @@ public abstract class ChatBaseFragment extends BaseFragment {
                       }
                     } else if (TextUtils.equals(
                             permission, Manifest.permission.READ_EXTERNAL_STORAGE)
-                        || TextUtils.equals(permission, Manifest.permission.READ_MEDIA_IMAGES)) {
+                        || TextUtils.equals(permission, Manifest.permission.READ_MEDIA_IMAGES)
+                        || TextUtils.equals(
+                            permission, Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED)) {
                       if (currentRequest == REQUEST_READ_EXTERNAL_STORAGE_PERMISSION_ALBUM) {
                         startPickMedia();
                       } else if (currentRequest == REQUEST_READ_EXTERNAL_STORAGE_PERMISSION_FILE) {
@@ -676,8 +693,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
                 .show();
             return false;
           }
-          if (aitManager != null
-              && conversationType == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_TEAM) {
+          if (aitManager != null) {
             pushList = aitManager.getAitTeamMember();
             if (pushList != null && pushList.size() > 0) {
               extension = new HashMap<>();
@@ -685,10 +701,10 @@ public abstract class ChatBaseFragment extends BaseFragment {
             }
           }
           if (replyMsg == null) {
-            viewModel.sendTextMessage(msg, pushList, extension);
+            viewModel.sendTextMessage(msg, pushList, extension, getAIUser(), getAIMessage());
           } else {
             viewModel.replyTextMessage(
-                msg, replyMsg.getMessageData().getMessage(), pushList, extension);
+                msg, replyMsg.getMessageData().getMessage(), pushList, extension, getAIUser());
           }
           if (aitManager != null) {
             aitManager.reset();
@@ -709,8 +725,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
             return false;
           }
           String msgContent = TextUtils.getTrimmedLength(content) < 1 ? null : content;
-          if (aitManager != null
-              && conversationType == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_TEAM) {
+          if (aitManager != null) {
             pushList = aitManager.getAitTeamMember();
             if (pushList != null && pushList.size() > 0) {
               extension = new HashMap<>();
@@ -722,10 +737,10 @@ public abstract class ChatBaseFragment extends BaseFragment {
           V2NIMMessage sendMsg = MessageHelper.createRichTextMessage(replaceTitle, msgContent);
           pushList = MessageHelper.getTeamMemberPush(pushList);
           if (replyMsg == null) {
-            viewModel.sendMessage(sendMsg, pushList, extension);
+            viewModel.sendMessage(sendMsg, pushList, extension, getAIUser(), getAIMessage());
           } else {
             viewModel.replyMessage(
-                sendMsg, replyMsg.getMessageData().getMessage(), pushList, extension);
+                sendMsg, replyMsg.getMessageData().getMessage(), pushList, extension, getAIUser());
           }
           if (aitManager != null) {
             aitManager.reset();
@@ -741,6 +756,14 @@ public abstract class ChatBaseFragment extends BaseFragment {
             permission =
                 new String[] {
                   Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_MEDIA_VIDEO
+                };
+          }
+          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            permission =
+                new String[] {
+                  Manifest.permission.READ_MEDIA_IMAGES,
+                  Manifest.permission.READ_MEDIA_VIDEO,
+                  Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED
                 };
           }
           if (PermissionUtils.hasPermissions(ChatBaseFragment.this.getContext(), permission)) {
@@ -876,6 +899,9 @@ public abstract class ChatBaseFragment extends BaseFragment {
         }
 
         @Override
+        public void onTranslateAction() {}
+
+        @Override
         public String getConversationId() {
           return V2NIMConversationIdUtil.conversationId(accountId, conversationType);
         }
@@ -885,6 +911,68 @@ public abstract class ChatBaseFragment extends BaseFragment {
           return conversationType;
         }
       };
+
+  /**
+   * 获取AI用户
+   *
+   * @return AI数字人
+   */
+  protected V2NIMAIUser getAIUser() {
+    if (AIUserManager.getAIUserById(accountId) != null) {
+      return AIUserManager.getAIUserById(accountId);
+    }
+    if (aitManager == null) {
+      return null;
+    }
+    String accId = aitManager.getFirstAIMember();
+    if (!TextUtils.isEmpty(accId)) {
+      return AIUserManager.getAIUserById(accId);
+    }
+    return null;
+  }
+
+  /**
+   * 获取AI聊的上下文
+   *
+   * @return 上下文
+   */
+  protected List<V2NIMAIModelCallMessage> getAIMessage() {
+    //上下文
+    List<V2NIMAIModelCallMessage> aiMessages = new ArrayList<>();
+    if (AIUserManager.getAIUserById(accountId) != null) {
+      int size = Math.min(chatView.getMessageList().size(), AI_MESSAGE_SIZE);
+      //第一条消息不能是数字人消息
+      // 标记是否已经设置过第一条消息
+      boolean firstSet = false;
+      for (int i = size; i > 0; i--) {
+        int index = chatView.getMessageList().size() - i;
+        ChatMessageBean chatMessageBean = chatView.getMessageList().get(index);
+        boolean isFromAIUser =
+            AIUserManager.isAIUser(chatMessageBean.getMessageData().getMessage().getSenderId());
+        //1 如果第一条是数字人消息，则不再添加
+        //2 如果消息已经撤回，则不再添加
+        //3 如果消息没有服务器ID，说明不是发出去的消息，则不再添加
+        if ((!firstSet && isFromAIUser)
+            || chatMessageBean.isRevoked()
+            || TextUtils.isEmpty(
+                chatMessageBean.getMessageData().getMessage().getMessageServerId())) {
+          continue;
+        }
+        firstSet = true;
+        if (!TextUtils.isEmpty(
+            MessageHelper.getAIContentMsg(chatMessageBean.getMessageData().getMessage()))) {
+          aiMessages.add(
+              new V2NIMAIModelCallMessage(
+                  isFromAIUser
+                      ? V2NIMAIModelRoleType.V2NIM_AI_MODEL_ROLE_TYPE_ASSISTANT
+                      : V2NIMAIModelRoleType.V2NIM_AI_MODEL_ROLE_TYPE_USER,
+                  MessageHelper.getAIContentMsg(chatMessageBean.getMessageData().getMessage()),
+                  V2NIMMessageType.V2NIM_MESSAGE_TYPE_TEXT.getValue()));
+        }
+      }
+    }
+    return aiMessages;
+  }
 
   private void requestCameraPermission(String permission, int request) {
     currentRequest = request;
@@ -978,12 +1066,11 @@ public abstract class ChatBaseFragment extends BaseFragment {
               return false;
             }
             // show pop menu
-            if (popMenu == null) {
-              popMenu = new ChatPopMenu();
+            if (popMenu != null && popMenu.isShowing()) {
+              popMenu.hide();
             }
-            if (popMenu.isShowing()) {
-              return true;
-            }
+            popMenu = new ChatPopMenu();
+            //            popMenu.setDismissListener(() -> SelectableTextHelper.getInstance().dismiss());
             int[] location = new int[2];
             chatView.getMessageListView().getLocationOnScreen(location);
             popMenu.show(view, messageBean, location[1]);
@@ -1017,11 +1104,14 @@ public abstract class ChatBaseFragment extends BaseFragment {
         public boolean onUserIconClick(View view, int position, ChatMessageBean messageBean) {
           if (delegateListener == null
               || !delegateListener.onUserIconClick(view, position, messageBean)) {
+            String userId = messageBean.getMessageData().getMessage().getSenderId();
+            //如果是AI消息，取AI的ID
+            if (MessageHelper.isReceivedMessageFromAi(messageBean.getMessageData().getMessage())) {
+              userId = messageBean.getMessageData().getMessage().getAIConfig().getAccountId();
+            }
             XKitRouter.withKey(getUserInfoRoutePath())
                 .withContext(view.getContext())
-                .withParam(
-                    RouterConstant.KEY_ACCOUNT_ID_KEY,
-                    messageBean.getMessageData().getMessage().getSenderId())
+                .withParam(RouterConstant.KEY_ACCOUNT_ID_KEY, userId)
                 .navigate();
           }
           return true;
@@ -1042,15 +1132,13 @@ public abstract class ChatBaseFragment extends BaseFragment {
         public boolean onUserIconLongClick(View view, int position, ChatMessageBean messageBean) {
           if (delegateListener == null
               || !delegateListener.onUserIconLongClick(view, position, messageBean)) {
-            if (aitManager != null
-                && conversationType == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_TEAM) {
-              String account = messageBean.getMessageData().getMessage().getSenderId();
-              if (!TextUtils.equals(account, IMKitClient.account())) {
-                String name = MessageHelper.getTeamAtName(account);
-                if (TextUtils.isEmpty(name)) {
-                  name = ChatUserCache.getInstance().getFriendInfo(account).getName();
+            String account = getMessageSendId(messageBean.getMessageData().getMessage());
+            if (aitManager != null) {
+              if (conversationType == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_TEAM) {
+                if (!TextUtils.equals(account, IMKitClient.account())) {
+                  String name = MessageHelper.getTeamAtName(account);
+                  aitManager.insertReplyAit(account, name);
                 }
-                aitManager.insertReplyAit(account, name);
               }
             }
           }
@@ -1064,22 +1152,28 @@ public abstract class ChatBaseFragment extends BaseFragment {
         }
 
         @Override
-        public boolean onReEditRevokeMessage(View view, int position, ChatMessageBean messageBean) {
+        public boolean onReeditRevokeMessage(View view, int position, ChatMessageBean messageBean) {
           // only support text message
           if (delegateListener == null
-              || !delegateListener.onReEditRevokeMessage(view, position, messageBean)) {
+              || !delegateListener.onReeditRevokeMessage(view, position, messageBean)) {
             if (messageBean != null && MessageHelper.revokeMsgIsEdit(messageBean)) {
+              AtContactsModel aitModel =
+                  MessageHelper.getAitBlockFromMsg(messageBean.getMessageData().getMessage());
+              if (aitModel != null) {
+                aitManager.reset();
+                aitManager.setAitContactsModel(aitModel);
+              }
               Map<String, String> richMap =
                   MessageHelper.getRichMessageRevokeContent(messageBean.getMessageData());
               if (MessageHelper.isRichTextMsg(messageBean.getMessageData())) {
                 RichTextAttachment attachment =
                     (RichTextAttachment) messageBean.getMessageData().getMessage().getAttachment();
-                chatView.setReEditRichMessage(attachment.title, attachment.body);
+                chatView.setReeditRichMessage(attachment.title, attachment.body);
 
               } else if (richMap != null) {
                 String title = richMap.get(ChatKitUIConstant.KEY_RICH_TEXT_TITLE);
                 String body = richMap.get(ChatKitUIConstant.KEY_RICH_TEXT_BODY);
-                chatView.setReEditRichMessage(title, body);
+                chatView.setReeditRichMessage(title, body);
               } else {
                 String revokeContent =
                     MessageHelper.getMessageRevokeContent(messageBean.getMessageData());
@@ -1090,12 +1184,6 @@ public abstract class ChatBaseFragment extends BaseFragment {
               }
               if (messageBean.hasReply()) {
                 loadReplyInfo(messageBean.getReplyMessage(), false);
-              }
-              AtContactsModel aitModel =
-                  MessageHelper.getAitBlockFromMsg(messageBean.getMessageData().getMessage());
-              if (aitModel != null) {
-                aitManager.reset();
-                aitManager.setAitContactsModel(aitModel);
               }
 
             } else {
@@ -1148,9 +1236,33 @@ public abstract class ChatBaseFragment extends BaseFragment {
         }
 
         @Override
-        public boolean onTextSelected(View view, int position, ChatMessageBean messageInfo) {
-          return (delegateListener != null
-              && delegateListener.onTextSelected(view, position, messageInfo));
+        public boolean onTextSelected(
+            View view,
+            int position,
+            ChatMessageBean messageInfo,
+            String text,
+            boolean isSelectAll) {
+          if (delegateListener == null
+              || delegateListener.onTextSelected(view, position, messageInfo, text, isSelectAll)) {
+            if (messageInfo.isRevoked()) {
+              return false;
+            }
+            ALog.d(LIB_TAG, LOG_TAG, "onTextSelected: " + text);
+            // show pop menu
+            if (popMenu == null) {
+              popMenu = new ChatPopMenu();
+            }
+            //            popMenu.setDismissListener(() -> SelectableTextHelper.getInstance().dismiss());
+            int[] location = new int[2];
+            chatView.getMessageListView().getLocationOnScreen(location);
+            if (isSelectAll) {
+              popMenu.show(view, messageInfo, location[1]);
+            } else {
+              popMenu.show(
+                  view, text, messageInfo.getMessageData().getMessage().isSelf(), location[1]);
+            }
+          }
+          return true;
         }
 
         @Override
@@ -1159,6 +1271,21 @@ public abstract class ChatBaseFragment extends BaseFragment {
               && delegateListener.onCustomClick(view, position, messageInfo));
         }
       };
+
+  /**
+   * 获取消息发送者ID
+   *
+   * @param message 消息
+   * @return 发送者ID，可能是ai
+   */
+  private String getMessageSendId(V2NIMMessage message) {
+    V2NIMMessageAIConfig aiConfig = message.getAIConfig();
+    if (aiConfig != null
+        && aiConfig.getAIStatus() == V2NIMMessageAIStatus.V2NIM_MESSAGE_AI_STATUS_RESPONSE) {
+      return aiConfig.getAccountId();
+    }
+    return message.getSenderId();
+  }
 
   protected void loadReplyInfo(V2NIMMessageRefer refer, boolean addAit) {
     if (refer == null) {
@@ -1267,7 +1394,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
   protected void startCall(int type) {
     if (conversationType == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P
         && viewModel instanceof ChatP2PViewModel) {
-      if (IMKitConfigCenter.getOnlyFriendCall()
+      if (IMKitConfigCenter.getEnableOnlyFriendCall()
           && !((ChatP2PViewModel) viewModel).isFriend(accountId)) {
         ((ChatP2PViewModel) viewModel).saveNotFriendCallTips();
       } else {
@@ -1284,12 +1411,9 @@ public abstract class ChatBaseFragment extends BaseFragment {
     if (aitManager != null
         && conversationType == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_TEAM
         && addAit) {
-      String account = messageInfo.getMessage().getSenderId();
+      String account = MessageHelper.getRealMessageSenderId(messageInfo.getMessage());
       if (!TextUtils.equals(account, IMKitClient.account())) {
         String name = MessageHelper.getTeamAtName(account);
-        if (TextUtils.isEmpty(name)) {
-          name = ChatUserCache.getInstance().getFriendInfo(account).getName();
-        }
         aitManager.insertReplyAit(account, name);
       }
     }
@@ -1326,13 +1450,13 @@ public abstract class ChatBaseFragment extends BaseFragment {
   private final IChatPopMenuClickListener actionListener =
       new IChatPopMenuClickListener() {
         @Override
-        public boolean onCopy(ChatMessageBean messageBean) {
+        public boolean onCopy(String content) {
           if (chatConfig != null
               && chatConfig.popMenuClickListener != null
-              && chatConfig.popMenuClickListener.onCopy(messageBean)) {
+              && chatConfig.popMenuClickListener.onCopy(content)) {
             return true;
           }
-          MessageHelper.copyTextMessage(messageBean.getMessageData(), true);
+          MessageHelper.copyText(content, true);
           return true;
         }
 
@@ -1411,7 +1535,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
             return true;
           }
           if (!ChatUtils.havePermissionForTopSticky()) {
-            ToastX.showShortToast(R.string.chat_no_permission);
+            ToastX.showShortToast(R.string.chat_kit_no_permission_error);
             return true;
           }
 
@@ -1533,11 +1657,11 @@ public abstract class ChatBaseFragment extends BaseFragment {
   protected abstract void updateDataWhenLogin();
 
   /** 更新我在群中的成员信息 */
-  protected void updateMyTeamMember() {
-    if (viewModel instanceof ChatTeamViewModel) {
-      ((ChatTeamViewModel) viewModel).updateMyTeamMember();
-    }
-  };
+  //  protected void updateMyTeamMember() {
+  //    if (viewModel instanceof ChatTeamViewModel) {
+  //      ((ChatTeamViewModel) viewModel).updateMyTeamMember();
+  //    }
+  //  };
 
   protected void initDataObserver() {
     ALog.d(LIB_TAG, LOG_TAG, "initDataObserver");

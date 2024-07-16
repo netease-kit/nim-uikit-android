@@ -19,8 +19,7 @@ import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.contactkit.ui.FriendObserveImpl;
 import com.netease.yunxin.kit.contactkit.ui.model.ContactUserInfoBean;
 import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
-import com.netease.yunxin.kit.corekit.im2.listener.V2FriendChangeType;
-import com.netease.yunxin.kit.corekit.im2.listener.V2UserListener;
+import com.netease.yunxin.kit.corekit.im2.listener.ContactChangeType;
 import com.netease.yunxin.kit.corekit.im2.model.FriendVerifyType;
 import com.netease.yunxin.kit.corekit.im2.model.UserWithFriend;
 import com.netease.yunxin.kit.corekit.im2.model.V2UserInfo;
@@ -33,8 +32,7 @@ public class UserInfoViewModel extends BaseViewModel {
   private final MutableLiveData<FetchResult<ContactUserInfoBean>> friendLiveData =
       new MutableLiveData<>();
   private final FetchResult<ContactUserInfoBean> fetchResult = new FetchResult<>(LoadStatus.Finish);
-  private final MutableLiveData<FetchResult<List<V2UserInfo>>> userInfoLiveData =
-      new MutableLiveData<>();
+
   private final FetchResult<List<V2UserInfo>> userInfoFetchResult =
       new FetchResult<>(LoadStatus.Finish);
 
@@ -53,32 +51,23 @@ public class UserInfoViewModel extends BaseViewModel {
     accountId = account;
   }
 
-  private final V2UserListener userInfoObserver =
-      userList -> {
-        ALog.d(LIB_TAG, TAG, "userInfoObserver:" + userList.size());
-        userInfoFetchResult.setLoadStatus(LoadStatus.Finish);
-        userInfoFetchResult.setData(userList);
-        userInfoFetchResult.setType(FetchResult.FetchType.Update);
-        userInfoLiveData.setValue(userInfoFetchResult);
-      };
-
   private final FriendObserveImpl friendObserver =
       new FriendObserveImpl() {
         @Override
-        public void onFriendChange(
-            @NonNull V2FriendChangeType friendChangeType,
-            @NonNull List<? extends UserWithFriend> friendList) {
-          ALog.d(LIB_TAG, TAG, "friendObserver:" + friendChangeType + "," + friendList.size());
-          if (friendChangeType == V2FriendChangeType.Add
-              || friendChangeType == V2FriendChangeType.Delete
-              || friendChangeType == V2FriendChangeType.Update) {
-            for (UserWithFriend friend : friendList) {
+        public void onContactChange(
+            @NonNull ContactChangeType changeType,
+            @NonNull List<? extends UserWithFriend> contactList) {
+          ALog.d(LIB_TAG, TAG, "friendObserver:" + changeType + "," + contactList.size());
+          if (changeType == ContactChangeType.AddFriend
+              || changeType == ContactChangeType.DeleteFriend
+              || changeType == ContactChangeType.Update) {
+            for (UserWithFriend friend : contactList) {
               if (TextUtils.equals(accountId, friend.getAccount())) {
                 friendChangeFetchResult.setData(friend);
                 friendChangeFetchResult.setLoadStatus(LoadStatus.Finish);
-                if (friendChangeType == V2FriendChangeType.Add) {
+                if (changeType == ContactChangeType.AddFriend) {
                   friendChangeFetchResult.setFetchType(FetchResult.FetchType.Add);
-                } else if (friendChangeType == V2FriendChangeType.Delete) {
+                } else if (changeType == ContactChangeType.DeleteFriend) {
                   friendChangeFetchResult.setFetchType(FetchResult.FetchType.Remove);
                 } else {
                   friendChangeFetchResult.setFetchType(FetchResult.FetchType.Update);
@@ -91,16 +80,11 @@ public class UserInfoViewModel extends BaseViewModel {
       };
 
   public void registerObserver() {
-    ContactRepo.addUserListener(userInfoObserver);
-    ContactRepo.addFriendListener(friendObserver);
+    ContactRepo.addContactListener(friendObserver);
   }
 
   public MutableLiveData<FetchResult<ContactUserInfoBean>> getFriendFetchResult() {
     return friendLiveData;
-  }
-
-  public MutableLiveData<FetchResult<List<V2UserInfo>>> getUserInfoLiveData() {
-    return userInfoLiveData;
   }
 
   public MutableLiveData<FetchResult<UserWithFriend>> getFriendChangeLiveData() {
@@ -130,8 +114,7 @@ public class UserInfoViewModel extends BaseViewModel {
                 TAG,
                 "getUserWithFriend,onSuccess:" + (param == null ? "null" : param.getAccount()));
             if (param != null && param.getUserInfo() != null) {
-              ContactUserInfoBean userInfo =
-                  new ContactUserInfoBean(new V2UserInfo(param.getAccount(), param.getUserInfo()));
+              ContactUserInfoBean userInfo = new ContactUserInfoBean(param.getUserInfo());
               userInfo.friendInfo = param;
               userInfo.isBlack = isBlack(account);
               userInfo.isFriend = isFriend(account) && param.getFriend() != null;
@@ -269,7 +252,6 @@ public class UserInfoViewModel extends BaseViewModel {
   @Override
   protected void onCleared() {
     super.onCleared();
-    ContactRepo.removeUserListener(userInfoObserver);
-    ContactRepo.removeFriendListener(friendObserver);
+    ContactRepo.removeContactListener(friendObserver);
   }
 }

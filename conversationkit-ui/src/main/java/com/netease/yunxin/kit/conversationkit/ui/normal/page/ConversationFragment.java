@@ -14,7 +14,13 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
+import com.netease.yunxin.kit.common.ui.viewholder.BaseBean;
+import com.netease.yunxin.kit.common.ui.viewholder.ViewHolderClickListener;
+import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
+import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.common.ui.widgets.ContentListPopView;
 import com.netease.yunxin.kit.common.ui.widgets.TitleBarView;
 import com.netease.yunxin.kit.conversationkit.ui.ConversationKitClient;
@@ -22,17 +28,24 @@ import com.netease.yunxin.kit.conversationkit.ui.ConversationUIConfig;
 import com.netease.yunxin.kit.conversationkit.ui.R;
 import com.netease.yunxin.kit.conversationkit.ui.common.ConversationConstant;
 import com.netease.yunxin.kit.conversationkit.ui.databinding.ConversationFragmentBinding;
+import com.netease.yunxin.kit.conversationkit.ui.model.AIUserBean;
+import com.netease.yunxin.kit.conversationkit.ui.normal.ConversationTopAdapter;
 import com.netease.yunxin.kit.conversationkit.ui.normal.PopItemFactory;
 import com.netease.yunxin.kit.conversationkit.ui.normal.ViewHolderFactory;
 import com.netease.yunxin.kit.conversationkit.ui.page.ConversationBaseFragment;
 import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
+import java.util.List;
 
 /** 普通版会话列表页面 */
 public class ConversationFragment extends ConversationBaseFragment {
 
   private final String TAG = "ConversationFragment";
   protected ConversationFragmentBinding viewBinding;
+
+  // 顶部横向滚动列表
+  protected RecyclerView topRecyclerView;
+  protected ConversationTopAdapter topAdapter;
 
   @Override
   public View initViewAndGetRootView(
@@ -49,6 +62,8 @@ public class ConversationFragment extends ConversationBaseFragment {
     titleBarView = viewBinding.titleBar;
     networkErrorView = viewBinding.errorTv;
     emptyView = viewBinding.emptyLayout;
+    topRecyclerView = viewBinding.horizontalRecyclerView;
+
     setViewHolderFactory(new ViewHolderFactory());
     loadUIConfig();
     // 设置标题栏点击事件
@@ -61,7 +76,7 @@ public class ConversationFragment extends ConversationBaseFragment {
             return;
           }
           // 如果配置了群组功能，则展示群组相关的弹窗
-          if (IMKitConfigCenter.getTeamEnable()) {
+          if (IMKitConfigCenter.getEnableTeam()) {
             Context context = getContext();
             int memberLimit = ConversationConstant.MAX_TEAM_MEMBER;
             ContentListPopView contentListPopView =
@@ -94,6 +109,47 @@ public class ConversationFragment extends ConversationBaseFragment {
               .withContext(requireContext())
               .navigate();
         });
+
+    if (IMKitConfigCenter.getEnableAIUser() && topRecyclerView != null) {
+      LinearLayoutManager layoutManager =
+          new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
+      topRecyclerView.setLayoutManager(layoutManager);
+      topAdapter = new ConversationTopAdapter();
+      topRecyclerView.setAdapter(topAdapter);
+      topAdapter.setViewHolderClickListener(
+          new ViewHolderClickListener() {
+            @Override
+            public boolean onClick(View view, BaseBean data, int position) {
+              if (data instanceof AIUserBean) {
+                XKitRouter.withKey(RouterConstant.PATH_CHAT_P2P_PAGE)
+                    .withParam(RouterConstant.CHAT_ID_KRY, ((AIUserBean) data).getAccountId())
+                    .withContext(ConversationFragment.this.requireContext())
+                    .navigate();
+              }
+              return true;
+            }
+          });
+    }
+  }
+
+  // 加载AI用户数据, 用于展示顶部横向滚动列表。父类数据拉取之后回调
+  @Override
+  public void loadAIUserData(FetchResult<List<AIUserBean>> result) {
+    if (!IMKitConfigCenter.getEnableAIUser()) {
+      return;
+    }
+    if (result.getLoadStatus() == LoadStatus.Success
+        && result.getData() != null
+        && result.getData().size() > 0) {
+      if (topAdapter != null) {
+        topAdapter.setData(result.getData());
+        viewBinding.horizontalRecyclerView.setVisibility(View.VISIBLE);
+      }
+    } else {
+      if (topRecyclerView != null) {
+        viewBinding.horizontalRecyclerView.setVisibility(View.GONE);
+      }
+    }
   }
 
   // 加载UI配置, 用于设置标题栏、会话列表等UI
@@ -151,6 +207,13 @@ public class ConversationFragment extends ConversationBaseFragment {
 
       if (config.customLayout != null) {
         config.customLayout.customizeConversationLayout(this);
+      }
+
+      if (config.showConversationTopAIList) {
+        viewBinding.horizontalRecyclerView.setVisibility(View.VISIBLE);
+      } else {
+        viewBinding.horizontalRecyclerView.setVisibility(View.GONE);
+        topRecyclerView = null;
       }
     }
   }

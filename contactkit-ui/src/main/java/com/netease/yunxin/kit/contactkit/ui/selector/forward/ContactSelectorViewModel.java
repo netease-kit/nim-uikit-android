@@ -164,6 +164,10 @@ public class ContactSelectorViewModel extends BaseViewModel {
     indexBarDataHelper.sortSourceData(allFriendList);
   }
 
+  public List<RecentForward> getAllRecentForwardList() {
+    return allRecentForwardList;
+  }
+
   /** 加载最近会话 */
   public void loadRecentConversation() {
     conversationListResult.setStatus(LoadStatus.Loading);
@@ -327,9 +331,9 @@ public class ContactSelectorViewModel extends BaseViewModel {
   //检查是否选中
   private boolean isTeamSelected(V2NIMTeam team) {
     for (SelectedViewBean selected : selectedList) {
-      if (V2NIMConversationIdUtil.conversationType(selected.getConversationId())
+      if (V2NIMConversationIdUtil.conversationType(selected.getTargetId())
               == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_TEAM
-          && V2NIMConversationIdUtil.conversationTargetId(selected.getConversationId())
+          && V2NIMConversationIdUtil.conversationTargetId(selected.getTargetId())
               .equals(team.getTeamId())) {
         return true;
       }
@@ -340,9 +344,9 @@ public class ContactSelectorViewModel extends BaseViewModel {
   //检查是否选中
   private boolean isFriendSelected(UserWithFriend friend) {
     for (SelectedViewBean selected : selectedList) {
-      if (V2NIMConversationIdUtil.conversationType(selected.getConversationId())
+      if (V2NIMConversationIdUtil.conversationType(selected.getTargetId())
               == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P
-          && V2NIMConversationIdUtil.conversationTargetId(selected.getConversationId())
+          && V2NIMConversationIdUtil.conversationTargetId(selected.getTargetId())
               .equals(friend.getAccount())) {
         return true;
       }
@@ -358,7 +362,7 @@ public class ContactSelectorViewModel extends BaseViewModel {
    */
   private boolean isConversationSelected(V2NIMConversation conversation) {
     for (SelectedViewBean selected : selectedList) {
-      if (selected.getConversationId().equals(conversation.getConversationId())) {
+      if (selected.getTargetId().equals(conversation.getConversationId())) {
         return true;
       }
     }
@@ -460,7 +464,8 @@ public class ContactSelectorViewModel extends BaseViewModel {
             friend.getAvatar(),
             friend.getAvatarName(),
             V2NIMConversationIdUtil.conversationId(
-                friend.getAccount(), V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P));
+                friend.getAccount(), V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P),
+            friend.getAccount());
     onSelectedChanged(bean, isSelected);
     //检查会话和最近转发
     checkSelectedRecentForward(
@@ -490,6 +495,7 @@ public class ContactSelectorViewModel extends BaseViewModel {
             team.getName(),
             V2NIMConversationIdUtil.conversationId(
                 team.getTeamId(), V2NIMConversationType.V2NIM_CONVERSATION_TYPE_TEAM),
+            team.getTeamId(),
             team.getMemberCount());
     onSelectedChanged(bean, isSelected);
     //检查会话和最近转发
@@ -524,6 +530,7 @@ public class ContactSelectorViewModel extends BaseViewModel {
             conversation.getAvatar(),
             conversation.getName(),
             conversation.getConversationId(),
+            V2NIMConversationIdUtil.conversationTargetId(conversation.getConversationId()),
             count);
     onSelectedChanged(bean, isSelected);
     //检查最近转发，群组，和好友
@@ -578,6 +585,7 @@ public class ContactSelectorViewModel extends BaseViewModel {
             recentForward.getName(),
             V2NIMConversationIdUtil.conversationId(
                 recentForward.getSessionId(), recentForward.getSessionType()),
+            recentForward.getSessionId(),
             recentForward.getCount());
     onSelectedChanged(bean, isSelected);
     //检查会话，群组，和好友
@@ -597,9 +605,9 @@ public class ContactSelectorViewModel extends BaseViewModel {
    * @param bean 已选的会话
    */
   public void removeSelectedItem(SelectedViewBean bean) {
-    String sessionId = V2NIMConversationIdUtil.conversationTargetId(bean.getConversationId());
+    String sessionId = V2NIMConversationIdUtil.conversationTargetId(bean.getTargetId());
     V2NIMConversationType sessionType =
-        V2NIMConversationIdUtil.conversationType(bean.getConversationId());
+        V2NIMConversationIdUtil.conversationType(bean.getTargetId());
     checkSelectConversation(sessionId, sessionType, false);
     if (sessionType == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P) {
       checkSelectedFriend(sessionId, false);
@@ -727,7 +735,7 @@ public class ContactSelectorViewModel extends BaseViewModel {
   public ArrayList<String> getSelectedSelectedConversation() {
     ArrayList<String> selectedConversationIds = new ArrayList<>();
     for (SelectedViewBean selectedViewBean : selectedList) {
-      selectedConversationIds.add(selectedViewBean.getConversationId());
+      selectedConversationIds.add(selectedViewBean.getTargetId());
     }
     return selectedConversationIds;
   }
@@ -946,7 +954,7 @@ public class ContactSelectorViewModel extends BaseViewModel {
     return searchConversationResultLiveData;
   }
 
-  static enum SearchType {
+  public static enum SearchType {
     FRIEND,
     TEAM,
     CONVERSATION

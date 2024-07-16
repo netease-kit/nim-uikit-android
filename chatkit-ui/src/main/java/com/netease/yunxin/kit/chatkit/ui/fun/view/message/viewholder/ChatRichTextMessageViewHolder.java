@@ -13,6 +13,7 @@ import com.netease.yunxin.kit.chatkit.ui.custom.RichTextAttachment;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatBaseMessageViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.databinding.FunChatMessageRichTextViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
+import com.netease.yunxin.kit.chatkit.ui.textSelectionHelper.SelectableTextHelper;
 
 public class ChatRichTextMessageViewHolder extends FunChatBaseMessageViewHolder {
 
@@ -48,6 +49,39 @@ public class ChatRichTextMessageViewHolder extends FunChatBaseMessageViewHolder 
               viewBinding.messageContent,
               attachment.body,
               message.getMessageData().getMessage());
+          //    设置选中文本监听回调
+          SelectableTextHelper.getInstance()
+              .setSelectableOnChangeListener(
+                  (view, pos, msg, text, isSelectAll) -> {
+                    if (itemClickListener != null) {
+                      itemClickListener.onTextSelected(
+                          view, pos, msg, text.toString(), isSelectAll);
+                    }
+                  });
+          //    设置长按事件
+          viewBinding
+              .getRoot()
+              .setOnLongClickListener(
+                  v -> {
+                    if (isMultiSelect) {
+                      return true;
+                    }
+                    SelectableTextHelper.getInstance()
+                        .showSelectView(
+                            viewBinding.messageContent,
+                            viewBinding.messageContent.getLayout(),
+                            position,
+                            message);
+                    return false;
+                  });
+
+          if (!isMultiSelect) {
+            viewBinding
+                .getRoot()
+                .setOnClickListener(v -> SelectableTextHelper.getInstance().dismiss());
+          } else {
+            viewBinding.getRoot().setOnClickListener(this::clickSelect);
+          }
         }
       }
     }
