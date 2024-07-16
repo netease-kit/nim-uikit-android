@@ -109,6 +109,17 @@ public abstract class ChatReaderBaseFragment extends BaseFragment {
                   }
                 }
               });
+      viewModel
+          .getUserChangeLiveData()
+          .observe(
+              getViewLifecycleOwner(),
+              fetchResult -> {
+                if (fetchResult != null && fetchResult.isSuccess()) {
+                  if (adapter != null && fetchResult.getData() != null) {
+                    adapter.updateUserInfo(fetchResult.getData());
+                  }
+                }
+              });
     }
   }
 

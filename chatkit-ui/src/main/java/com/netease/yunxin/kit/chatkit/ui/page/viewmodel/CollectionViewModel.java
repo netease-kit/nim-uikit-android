@@ -4,11 +4,8 @@
 
 package com.netease.yunxin.kit.chatkit.ui.page.viewmodel;
 
-import static com.netease.nimlib.sdk.ResponseCode.RES_IN_BLACK_LIST;
 import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
 
-import android.os.Handler;
-import android.text.TextUtils;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
@@ -20,18 +17,18 @@ import com.netease.nimlib.sdk.v2.auth.model.V2NIMKickedOfflineDetail;
 import com.netease.nimlib.sdk.v2.auth.model.V2NIMLoginClient;
 import com.netease.nimlib.sdk.v2.message.V2NIMCollection;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessage;
-import com.netease.nimlib.sdk.v2.message.V2NIMMessageCreator;
-import com.netease.nimlib.sdk.v2.message.config.V2NIMMessageConfig;
 import com.netease.nimlib.sdk.v2.message.option.V2NIMCollectionOption;
-import com.netease.nimlib.sdk.v2.message.params.V2NIMSendMessageParams;
-import com.netease.nimlib.sdk.v2.message.result.V2NIMSendMessageResult;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.impl.MessageListenerImpl;
 import com.netease.yunxin.kit.chatkit.listener.ChatListener;
+import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
+import com.netease.yunxin.kit.chatkit.repo.SettingRepo;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant;
 import com.netease.yunxin.kit.chatkit.ui.R;
+import com.netease.yunxin.kit.chatkit.ui.common.MessageCreator;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
+import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.model.CollectionBean;
 import com.netease.yunxin.kit.chatkit.utils.ErrorUtils;
 import com.netease.yunxin.kit.common.ui.utils.ToastX;
@@ -40,7 +37,6 @@ import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.corekit.im2.IMKitClient;
 import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
-import com.netease.yunxin.kit.corekit.im2.extend.ProgressFetchCallback;
 import com.netease.yunxin.kit.corekit.im2.model.IMMessageProgress;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -152,84 +148,17 @@ public class CollectionViewModel extends BaseViewModel {
         });
   }
 
-  // 转发收藏消息
-  public void sendForwardMessage(V2NIMMessage message, String conversationId) {
-    ALog.d(LIB_TAG, TAG, "sendForwardMessage:" + conversationId);
-    V2NIMMessage forwardMessage = V2NIMMessageCreator.createForwardMessage(message);
-    MessageHelper.clearAitAndReplyInfo(forwardMessage);
-    V2NIMMessageConfig.V2NIMMessageConfigBuilder configBuilder =
-        V2NIMMessageConfig.V2NIMMessageConfigBuilder.builder();
-    V2NIMSendMessageParams params =
-        V2NIMSendMessageParams.V2NIMSendMessageParamsBuilder.builder()
-            .withMessageConfig(configBuilder.build())
-            .build();
-    ChatRepo.sendMessage(
-        forwardMessage,
-        conversationId,
-        params,
-        new ProgressFetchCallback<V2NIMSendMessageResult>() {
-
-          @Override
-          public void onProgress(int progress) {}
-
-          @Override
-          public void onSuccess(@Nullable V2NIMSendMessageResult data) {
-            ToastX.showShortToast(R.string.chat_message_forward_success_tips);
-          }
-
-          @Override
-          public void onError(int errorCode, @NonNull String errorMsg) {
-            ErrorUtils.showErrorCodeToast(IMKitClient.getApplicationContext(), errorCode);
-          }
-        });
-  }
-
   // 转发收藏消息并发送文本消息
   public void sendForwardMessage(V2NIMMessage message, String inputMsg, String conversationId) {
     ALog.d(LIB_TAG, TAG, "sendForwardMessage:" + conversationId);
-    sendForwardMessage(message, conversationId);
-    if (!TextUtils.isEmpty(inputMsg) && TextUtils.getTrimmedLength(inputMsg) > 0) {
-      new Handler().postDelayed(() -> sendTextMessage(inputMsg, conversationId), 500);
-    }
-  }
-
-  // 发送文本消息
-  public void sendTextMessage(String content, String conversationId) {
-    ALog.d(LIB_TAG, TAG, "sendTextMessage:" + (content != null ? content.length() : "null"));
-    //    IMMessage textMsg = MessageBuilder.createTextMessage(session, sessionType, content);
-    V2NIMMessage textMessage = V2NIMMessageCreator.createTextMessage(content);
-    V2NIMMessageConfig.V2NIMMessageConfigBuilder configBuilder =
-        V2NIMMessageConfig.V2NIMMessageConfigBuilder.builder();
-    V2NIMSendMessageParams params =
-        V2NIMSendMessageParams.V2NIMSendMessageParamsBuilder.builder()
-            .withMessageConfig(configBuilder.build())
-            .build();
-    ChatRepo.sendMessage(
-        textMessage,
-        conversationId,
-        params,
-        new ProgressFetchCallback<>() {
-
-          @Override
-          public void onProgress(int progress) {
-            ALog.d(LIB_TAG, TAG, "sendTextMessage progress:" + progress);
-            // do nothing
-          }
-
-          @Override
-          public void onSuccess(@Nullable V2NIMSendMessageResult data) {
-            ALog.d(LIB_TAG, TAG, "sendTextMessage success");
-            // do nothing
-          }
-
-          @Override
-          public void onError(int errorCode, @Nullable String errorMsg) {
-            ALog.d(LIB_TAG, TAG, "sendTextMessage error:" + errorCode + "errorMsg:" + errorMsg);
-            if (errorCode == RES_IN_BLACK_LIST) {
-              MessageHelper.saveLocalBlackTipMessage(conversationId, IMKitClient.account());
-            }
-          }
-        });
+    boolean needACK = SettingRepo.getShowReadStatus();
+    V2NIMMessage collectionMsg = MessageCreator.createMessage(message);
+    MessageHelper.sendForwardMessage(
+        new ChatMessageBean(new IMMessageInfo(collectionMsg)),
+        inputMsg,
+        Collections.singletonList(conversationId),
+        true,
+        needACK);
   }
 
   private final ChatListener messageListener =

@@ -7,7 +7,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application>
         <provider
@@ -65,6 +65,14 @@
             android:exported="false"
             android:screenOrientation="portrait" />
 
+        <activity
+            android:name=".normal.ai.AIUserListActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".normal.selector.ai.AIContactSelectorActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
 
         <!-- fun style activity -->
         <activity
@@ -111,12 +119,22 @@
             android:name=".fun.search.FunSearchActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
-        <activity android:name=".normal.selector.forward.ForwardSelectorActivity"
-            android:screenOrientation="portrait"
-            android:exported="false" />
-        <activity android:name=".fun.selector.forward.FunForwardSelectorActivity"
-            android:screenOrientation="portrait"
-            android:exported="false" />
+        <activity
+            android:name=".normal.selector.forward.ForwardSelectorActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".fun.selector.forward.FunForwardSelectorActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".fun.ai.FunAIUserListActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".fun.selector.ai.FunAIContactSelectorActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
 
     </application>
 

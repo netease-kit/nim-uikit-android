@@ -5,26 +5,38 @@
 package com.netease.yunxin.kit.conversationkit.ui;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
+import android.text.Spannable;
+import android.text.SpannableString;
 import android.text.TextUtils;
+import android.text.style.ImageSpan;
 import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMLastMessageState;
 import com.netease.nimlib.sdk.v2.conversation.model.V2NIMConversation;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
+import com.netease.yunxin.kit.chatkit.emoji.ChatEmojiManager;
 import com.netease.yunxin.kit.chatkit.model.CustomAttachment;
 import com.netease.yunxin.kit.chatkit.utils.ChatUtils;
 import com.netease.yunxin.kit.conversationkit.ui.common.ConversationUtils;
+import java.util.regex.Matcher;
 
 /** 会话自定义配置 用于外部定制替换 */
 public class ConversationCustom {
 
+  public final float SMALL_SCALE = 0.4F;
   // 获取会话最近一条消息的内容展示
-  public String customContentText(Context context, V2NIMConversation conversationInfo) {
+  public CharSequence customContentText(Context context, V2NIMConversation conversationInfo) {
     if (conversationInfo != null && context != null && conversationInfo.getLastMessage() != null) {
       V2NIMMessageType typeEnum = conversationInfo.getLastMessage().getMessageType();
       switch (typeEnum) {
         case V2NIM_MESSAGE_TYPE_NOTIFICATION:
           return context.getString(R.string.msg_type_notification);
         case V2NIM_MESSAGE_TYPE_TEXT:
-          return conversationInfo.getLastMessage().getText();
+          String content = conversationInfo.getLastMessage().getText();
+          if (!TextUtils.isEmpty(content)) {
+            content = content.replaceAll("[\n\r]", " ");
+          }
+
+          return identifyFaceExpression(content);
         case V2NIM_MESSAGE_TYPE_AUDIO:
           return context.getString(R.string.msg_type_audio);
         case V2NIM_MESSAGE_TYPE_VIDEO:
@@ -73,5 +85,26 @@ public class ConversationCustom {
       }
     }
     return "";
+  }
+
+  // 识别文本中的表情，并替换成表情图片
+  public CharSequence identifyFaceExpression(String value) {
+    if (TextUtils.isEmpty(value)) {
+      value = "";
+    }
+    SpannableString mSpannableString = new SpannableString(value);
+    Matcher matcher = ChatEmojiManager.INSTANCE.getPattern().matcher(value);
+    while (matcher.find()) {
+      int start = matcher.start();
+      int end = matcher.end();
+      String emote = value.substring(start, end);
+      Drawable d = ChatEmojiManager.INSTANCE.getEmoteDrawable(emote, SMALL_SCALE);
+      if (d != null) {
+        ImageSpan span = new ImageSpan(d, ImageSpan.ALIGN_BOTTOM);
+        mSpannableString.setSpan(span, start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+      }
+    }
+
+    return mSpannableString;
   }
 }

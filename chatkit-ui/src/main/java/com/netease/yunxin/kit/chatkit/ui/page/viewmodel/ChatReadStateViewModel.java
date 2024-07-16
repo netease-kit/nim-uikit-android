@@ -13,17 +13,51 @@ import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.model.IMTeamMsgAckInfo;
 import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
 import com.netease.yunxin.kit.chatkit.ui.R;
-import com.netease.yunxin.kit.chatkit.ui.common.ChatUserCache;
+import com.netease.yunxin.kit.chatkit.ui.cache.TeamUserChangedListener;
+import com.netease.yunxin.kit.chatkit.ui.cache.TeamUserManager;
 import com.netease.yunxin.kit.common.ui.utils.ToastX;
 import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
+import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
+import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.common.utils.NetworkUtils;
 import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
+import java.util.List;
 
 /** chat read state info vide model fetch team read state info to read state page */
 public class ChatReadStateViewModel extends BaseViewModel {
   private static final String TAG = "ChatReadStateViewModel";
 
   private final MutableLiveData<IMTeamMsgAckInfo> teamAckInfo = new MutableLiveData<>();
+
+  /** 用户变更监听 */
+  private final MutableLiveData<FetchResult<List<String>>> userChangeLiveData =
+      new MutableLiveData<>();
+
+  /**
+   * 用户变更监听
+   *
+   * @return 用户变更监听
+   */
+  public MutableLiveData<FetchResult<List<String>>> getUserChangeLiveData() {
+    return userChangeLiveData;
+  }
+
+  private final TeamUserChangedListener cacheUserChangedListener =
+      new TeamUserChangedListener() {
+
+        @Override
+        public void onUsersChanged(List<String> accountIds) {
+          FetchResult<List<String>> result = new FetchResult<>(LoadStatus.Success);
+          result.setData(accountIds);
+          userChangeLiveData.postValue(result);
+        }
+
+        @Override
+        public void onUserDelete(List<String> accountIds) {}
+
+        @Override
+        public void onUsersAdd(List<String> accountIds) {}
+      };
 
   public void fetchTeamAckInfo(V2NIMMessage message) {
     ALog.d(
@@ -33,6 +67,7 @@ public class ChatReadStateViewModel extends BaseViewModel {
     if (message == null) {
       return;
     }
+    TeamUserManager.getInstance().addMemberChangedListener(cacheUserChangedListener);
     ChatRepo.getTeamMessageReceiptDetail(
         message,
         null,
@@ -50,10 +85,6 @@ public class ChatReadStateViewModel extends BaseViewModel {
           @Override
           public void onSuccess(@Nullable IMTeamMsgAckInfo data) {
             ALog.d(LIB_TAG, TAG, "fetchTeamAckInfo success:" + data);
-            if (data != null) {
-              ChatUserCache.getInstance().addFriendInfo(data.getAckUserInfoList());
-              ChatUserCache.getInstance().addFriendInfo(data.getUnAckUserInfoList());
-            }
             teamAckInfo.postValue(data);
           }
         });
@@ -61,5 +92,11 @@ public class ChatReadStateViewModel extends BaseViewModel {
 
   public MutableLiveData<IMTeamMsgAckInfo> getTeamAckInfoLiveData() {
     return teamAckInfo;
+  }
+
+  @Override
+  protected void onCleared() {
+    super.onCleared();
+    TeamUserManager.getInstance().removeMemberChangedListener(cacheUserChangedListener);
   }
 }

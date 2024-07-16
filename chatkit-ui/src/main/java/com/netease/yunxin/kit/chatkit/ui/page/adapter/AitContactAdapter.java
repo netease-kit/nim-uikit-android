@@ -8,10 +8,9 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-import com.netease.yunxin.kit.chatkit.model.TeamMemberWithUserInfo;
 import com.netease.yunxin.kit.chatkit.ui.R;
-import com.netease.yunxin.kit.chatkit.ui.common.ChatUserCache;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatMessageAitContactViewHolderBinding;
+import com.netease.yunxin.kit.chatkit.ui.model.ait.AitUserInfo;
 import com.netease.yunxin.kit.common.ui.utils.AvatarColor;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,22 +18,22 @@ import java.util.List;
 /** Team member @ adapter */
 public class AitContactAdapter extends RecyclerView.Adapter<AitContactAdapter.AitContactHolder> {
 
+  private List<AitUserInfo> members = new ArrayList<>();
   //@所有人的特殊类型
   private static final int SHOW_ALL_TYPE = 101;
 
-  private List<TeamMemberWithUserInfo> members = new ArrayList<>();
   private OnItemListener listener;
 
   private AitContactConfig contactConfig;
 
   private boolean showAll = true;
 
-  public void setMembers(List<TeamMemberWithUserInfo> userInfoWithTeams) {
+  public void setMembers(List<AitUserInfo> userInfoWithTeams) {
     this.members.clear();
     this.members.addAll(userInfoWithTeams);
   }
 
-  public void addMembers(List<TeamMemberWithUserInfo> userInfoWithTeams) {
+  public void addMembers(List<AitUserInfo> userInfoWithTeams) {
     this.members.addAll(userInfoWithTeams);
   }
 
@@ -98,14 +97,14 @@ public class AitContactAdapter extends RecyclerView.Adapter<AitContactAdapter.Ai
       dataPosition = position - 1;
     }
 
-    TeamMemberWithUserInfo member = members.get(dataPosition);
+    AitUserInfo member = members.get(dataPosition);
     if (member == null) {
       return;
     }
-    String showName = ChatUserCache.getInstance().getName(member);
+    String showName = member.getName();
     holder.binding.contactName.setText(showName);
     holder.binding.contactHeader.setData(
-        member.getAvatar(), showName, AvatarColor.avatarColor(member.getAccountId()));
+        member.getAvatar(), showName, AvatarColor.avatarColor(member.getAccount()));
     holder
         .binding
         .getRoot()
@@ -138,7 +137,7 @@ public class AitContactAdapter extends RecyclerView.Adapter<AitContactAdapter.Ai
 
   public interface OnItemListener {
     /** @param item null: @All */
-    void onSelect(TeamMemberWithUserInfo item);
+    void onSelect(AitUserInfo item);
   }
 
   public static class AitContactConfig {

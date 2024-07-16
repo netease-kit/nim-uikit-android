@@ -4,6 +4,8 @@
 
 package com.netease.yunxin.kit.chatkit.ui.normal.view.message.viewholder;
 
+import android.app.Activity;
+import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
@@ -96,7 +98,7 @@ public abstract class ChatThumbBaseViewHolder extends NormalChatBaseMessageViewH
         String thumbUrl =
             ThumbHelper.makeImageThumbUrl(
                 attachment.getUrl(), imageAttachment.getWidth(), imageAttachment.getHeight());
-        loadThumbnailInternal(thumbUrl, getBounds(null), 0);
+        loadThumbnailInternal(thumbUrl, attachment.getUrl(), getBounds(null));
       }
     } else if (getMsgInternal().getMessageType() == V2NIMMessageType.V2NIM_MESSAGE_TYPE_VIDEO) {
       if (attachment.getUrl() != null) {
@@ -112,16 +114,16 @@ public abstract class ChatThumbBaseViewHolder extends NormalChatBaseMessageViewH
 
   private void loadThumbnailImage(String path) {
     int[] bounds = getBounds(path);
-    loadThumbnailInternal(path, bounds, 0);
+    loadThumbnailInternal(path, null, bounds);
   }
 
-  private void loadThumbnailInternal(String path, int[] bounds, int retryCount) {
+  private void loadThumbnailInternal(String path, String backupUrl, int[] bounds) {
     int w = bounds[0];
     int h = bounds[1];
     int thumbMinEdge = getImageThumbMinEdge();
     if (w < thumbMinEdge) {
       w = thumbMinEdge;
-      h = bounds[0] != 0 ? w * bounds[1] / bounds[0] : getImageThumbMinEdge();
+      h = bounds[0] != 0 ? w * bounds[1] / bounds[0] : 0;
     }
     int thumbMaxEdge = getImageThumbMaxEdge();
     int thumbMaxHeight = (int) (0.45 * ScreenUtils.getDisplayHeight());
@@ -166,8 +168,14 @@ public abstract class ChatThumbBaseViewHolder extends NormalChatBaseMessageViewH
       shapeBuilder.setSolid(Color.BLACK);
     }
     binding.getRoot().setBackground(shapeBuilder.build());
+    Context context = binding.thumbnail.getContext();
 
-    if (path != null) {
+    if (path != null && context != null) {
+      if (context instanceof Activity) {
+        if (((Activity) context).isDestroyed()) {
+          return;
+        }
+      }
       Glide.with(binding.thumbnail.getContext())
           .load(path)
           .apply(
@@ -190,15 +198,14 @@ public abstract class ChatThumbBaseViewHolder extends NormalChatBaseMessageViewH
                           + path
                           + "error :"
                           + (e == null ? "" : e.getMessage()));
-                  if (retryCount > 0) {
+                  if (TextUtils.isEmpty(backupUrl)) {
                     return false;
                   }
+                  //失败重试一次，使用备份url，解决iOS发的图片加载失败的问题
                   if (handler == null) {
                     handler = new Handler(Looper.getMainLooper());
                   }
-                  //失败重试一次，解决iOS发的图片加载失败的问题
-                  handler.postDelayed(
-                      () -> loadThumbnailInternal(path, bounds, retryCount + 1), 500);
+                  handler.post(() -> loadThumbnailInternal(backupUrl, null, bounds));
                   return false;
                 }
 

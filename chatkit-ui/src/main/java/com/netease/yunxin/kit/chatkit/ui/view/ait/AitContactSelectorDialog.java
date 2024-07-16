@@ -12,9 +12,9 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
-import com.netease.yunxin.kit.chatkit.model.TeamMemberWithUserInfo;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatMessageAitSelectorDialogBinding;
+import com.netease.yunxin.kit.chatkit.ui.model.ait.AitUserInfo;
 import com.netease.yunxin.kit.chatkit.ui.page.adapter.AitContactAdapter;
 import com.netease.yunxin.kit.common.utils.ScreenUtils;
 import com.netease.yunxin.kit.common.utils.SizeUtils;
@@ -104,19 +104,19 @@ public class AitContactSelectorDialog extends BottomSheetDialog {
     }
   }
 
-  public void setData(List<TeamMemberWithUserInfo> data, boolean refresh) {
+  public void setData(List<AitUserInfo> data, boolean refresh) {
     adapter.setMembers(data);
     if (refresh) {
       adapter.notifyDataSetChanged();
     }
   }
 
-  public void addData(List<TeamMemberWithUserInfo> data) {
+  public void addData(List<AitUserInfo> data) {
     adapter.addMembers(data);
     adapter.notifyItemRangeInserted(adapter.getItemCount() - data.size(), data.size());
   }
 
-  public void setData(List<TeamMemberWithUserInfo> data, boolean refresh, boolean showAll) {
+  public void setData(List<AitUserInfo> data, boolean refresh, boolean showAll) {
     adapter.setShowAll(showAll);
     adapter.setMembers(data);
     if (refresh) {
@@ -129,7 +129,7 @@ public class AitContactSelectorDialog extends BottomSheetDialog {
   }
 
   public static class ItemListener {
-    public void onSelect(TeamMemberWithUserInfo item) {}
+    public void onSelect(AitUserInfo item) {}
 
     public void onLoadMore() {}
   }

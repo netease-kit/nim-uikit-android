@@ -24,8 +24,10 @@ import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatPopMenuLayoutBinding;
 import com.netease.yunxin.kit.chatkit.ui.factory.ChatPopActionFactory;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
+import com.netease.yunxin.kit.chatkit.ui.textSelectionHelper.SelectableTextHelper;
 import com.netease.yunxin.kit.common.utils.SizeUtils;
 import com.netease.yunxin.kit.corekit.im2.IMKitClient;
+import com.netease.yunxin.kit.corekit.model.PluginAction;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,7 +50,7 @@ public class ChatPopMenu {
   private final PopupWindow popupWindow;
   private final ChatPopMenuLayoutBinding layoutBinding;
   private final MenuAdapter adapter;
-  private final List<ChatPopMenuAction> chatPopMenuActionList = new ArrayList<>();
+  private final List<PluginAction> chatPopMenuActionList = new ArrayList<>();
 
   public ChatPopMenu() {
     layoutBinding =
@@ -69,13 +71,58 @@ public class ChatPopMenu {
     popupWindow.setOutsideTouchable(true);
   }
 
+  /**
+   * 设置pop window消失监听
+   *
+   * @param listener 消失监听
+   */
+  public void setDismissListener(PopupWindow.OnDismissListener listener) {
+    if (popupWindow != null) {
+      popupWindow.setOnDismissListener(listener);
+    }
+  }
+
+  /**
+   * 弹出pop Window，选中文本时
+   *
+   * @param anchorView 消息view
+   * @param text 选中文本
+   * @param isSelf 是否是自己
+   * @param minY 最小Y值
+   */
+  public void show(View anchorView, String text, boolean isSelf, int minY) {
+    ALog.d(LIB_TAG, TAG, "show text");
+    initStringAction(text);
+    if (chatPopMenuActionList.size() < 1) {
+      return;
+    }
+    showWindow(anchorView, isSelf, minY);
+  }
+
+  /**
+   * 弹出pop Window，真个消息选中时
+   *
+   * @param anchorView 消息view
+   * @param message 消息
+   * @param minY 最小Y值
+   */
   public void show(View anchorView, ChatMessageBean message, int minY) {
-    ALog.d(LIB_TAG, TAG, "show");
-    adapter.setMessageInfo(message);
+    ALog.d(LIB_TAG, TAG, "show message");
     initDefaultAction(message);
     if (chatPopMenuActionList.size() < 1) {
       return;
     }
+    showWindow(anchorView, message.getMessageData().getMessage().isSelf(), minY);
+  }
+
+  /**
+   * 显示pop window
+   *
+   * @param anchorView 标的view
+   * @param isSelf 是否是自己
+   * @param minY 最小Y值
+   */
+  private void showWindow(View anchorView, boolean isSelf, int minY) {
     float anchorWidth = anchorView.getWidth();
     float anchorHeight = anchorView.getHeight();
     int[] location = new int[2];
@@ -100,7 +147,7 @@ public class ChatPopMenu {
       int x = location[0];
       int y = location[1] - popHeight - Y_OFFSET;
       // if this is a send message,show on right
-      if (message.getMessageData().getMessage().isSelf()) {
+      if (isSelf) {
         x = (int) (location[0] + anchorWidth - popWidth);
       }
       // if is top show pop below anchorView,else show above
@@ -108,8 +155,11 @@ public class ChatPopMenu {
       if (isTop) {
         y = (int) (location[1] + anchorHeight) + Y_OFFSET;
       }
-
-      popupWindow.showAtLocation(anchorView, Gravity.NO_GRAVITY, x, y);
+      if (isShowing()) {
+        popupWindow.update(x, y, popWidth, popHeight);
+      } else {
+        popupWindow.showAtLocation(anchorView, Gravity.NO_GRAVITY, x, y);
+      }
     }
   }
 
@@ -130,17 +180,22 @@ public class ChatPopMenu {
     adapter.notifyDataSetChanged();
   }
 
-  private ChatPopMenuAction getChatPopMenuAction(int position) {
+  /**
+   * 初始化文本操作
+   *
+   * @param text 选中文本
+   */
+  private void initStringAction(String text) {
+    chatPopMenuActionList.clear();
+    chatPopMenuActionList.addAll(ChatPopActionFactory.getInstance().getTextActions(text));
+    adapter.notifyDataSetChanged();
+  }
+
+  private PluginAction getChatPopMenuAction(int position) {
     return chatPopMenuActionList.get(position);
   }
 
   class MenuAdapter extends RecyclerView.Adapter<MenuAdapter.MenuItemViewHolder> {
-
-    private ChatMessageBean messageInfo;
-
-    public void setMessageInfo(ChatMessageBean messageBean) {
-      messageInfo = messageBean;
-    }
 
     @NonNull
     @Override
@@ -154,7 +209,7 @@ public class ChatPopMenu {
 
     @Override
     public void onBindViewHolder(@NonNull MenuAdapter.MenuItemViewHolder holder, int position) {
-      ChatPopMenuAction chatPopMenuAction = getChatPopMenuAction(position);
+      PluginAction chatPopMenuAction = getChatPopMenuAction(position);
       holder.title.setText(chatPopMenuAction.getTitle());
       Drawable drawable =
           ResourcesCompat.getDrawable(
@@ -165,7 +220,9 @@ public class ChatPopMenu {
       holder.itemView.setOnClickListener(
           v -> {
             if (chatPopMenuAction.getActionClickListener() != null) {
-              chatPopMenuAction.getActionClickListener().onClick(v, messageInfo);
+              // 文本选择器Dismiss
+              SelectableTextHelper.getInstance().dismiss();
+              chatPopMenuAction.getActionClickListener().onClick(v, chatPopMenuAction.getBean());
             }
             hide();
           });

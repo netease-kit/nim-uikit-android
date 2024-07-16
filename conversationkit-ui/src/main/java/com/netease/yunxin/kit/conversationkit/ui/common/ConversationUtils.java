@@ -20,6 +20,9 @@ import com.netease.yunxin.kit.conversationkit.ui.ConversationKitClient;
 import com.netease.yunxin.kit.conversationkit.ui.model.ConversationBean;
 import com.netease.yunxin.kit.corekit.im2.IMKitClient;
 import java.util.Comparator;
+import java.util.HashSet;
+import java.util.Set;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 /** 会话工具类 */
@@ -37,7 +40,8 @@ public class ConversationUtils {
    * @param conversationInfo 会话信息
    * @return 会话最近一条消息内容
    */
-  public static String getConversationText(Context context, V2NIMConversation conversationInfo) {
+  public static CharSequence getConversationText(
+      Context context, V2NIMConversation conversationInfo) {
     if (ConversationKitClient.getConversationUIConfig() != null
         && ConversationKitClient.getConversationUIConfig().conversationCustom != null) {
       return ConversationKitClient.getConversationUIConfig()
@@ -115,5 +119,16 @@ public class ConversationUtils {
       }
       return result;
     };
+  }
+
+  public static Set<String> toHashSet(JSONArray jsonArray) {
+    if (jsonArray == null) {
+      return null;
+    }
+    Set<String> set = new HashSet<>();
+    for (int i = 0; i < jsonArray.length(); i++) {
+      set.add(jsonArray.optString(i));
+    }
+    return set;
   }
 }

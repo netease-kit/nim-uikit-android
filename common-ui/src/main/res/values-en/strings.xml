@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2022 NetEase, Inc. All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be
+  ~ found in the LICENSE file.
+  -->
+
+<resources>
+    <string name="time_format_y_m_d_h_m"> MM/dd/yy HH:mm </string>
+    <string name="time_format_m_d_h_m"> MMM/dd HH:mm</string>
+
+    <string name="cancel">Cancel</string>
+    <string name="title">Select time</string>
+    <string name="confirm">Yes</string>
+    <string name="year">Year</string>
+    <string name="month">Month</string>
+    <string name="day">Day</string>
+    <string name="hour">Hours</string>
+    <string name="minute">Min</string>
+
+    <string name="error_no_permission">No permission</string>
+    <string name="error_over_time">Timeout</string>
+    <string name="error_default">Failed</string>
+
+    <string name="dialog_disagree">Disagree</string>
+    <string name="dialog_read_agree">Have read and agree</string>
+    <string name="dialog_tips_title">Tips</string>
+    <string name="dialog_permission_tips">Please give your permission</string>
+
+    <string name="common_take_photo">Camera</string>
+    <string name="common_get_from_album">Album</string>
+    <string name="common_network_error">No internet</string>
+    <string name="common_photo_crop">Tailor</string>
+    <string name="common_complete">Done</string>
+
+</resources>

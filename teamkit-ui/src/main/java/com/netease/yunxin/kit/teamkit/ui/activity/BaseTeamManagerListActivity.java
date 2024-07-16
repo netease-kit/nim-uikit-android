@@ -6,6 +6,7 @@ package com.netease.yunxin.kit.teamkit.ui.activity;
 
 import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.REQUEST_CONTACT_SELECTOR_KEY;
 import static com.netease.yunxin.kit.teamkit.ui.utils.NetworkUtilsWrapper.doActionAndFilterNetworkBroken;
+import static com.netease.yunxin.kit.teamkit.ui.utils.TeamUIKitConstant.LIB_TAG;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -23,7 +24,9 @@ import androidx.viewbinding.ViewBinding;
 import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamMemberRole;
 import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamType;
 import com.netease.nimlib.sdk.v2.team.model.V2NIMTeam;
+import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.model.TeamMemberWithUserInfo;
+import com.netease.yunxin.kit.chatkit.ui.cache.TeamUserManager;
 import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
 import com.netease.yunxin.kit.common.ui.dialog.ChoiceListener;
 import com.netease.yunxin.kit.common.ui.dialog.CommonChoiceDialog;
@@ -37,9 +40,8 @@ import com.netease.yunxin.kit.corekit.event.EventNotify;
 import com.netease.yunxin.kit.corekit.im2.IMKitClient;
 import com.netease.yunxin.kit.teamkit.ui.R;
 import com.netease.yunxin.kit.teamkit.ui.adapter.BaseTeamMemberListAdapter;
-import com.netease.yunxin.kit.teamkit.ui.model.EventDef;
+import com.netease.yunxin.kit.teamkit.ui.model.EventCloseChat;
 import com.netease.yunxin.kit.teamkit.ui.normal.adapter.TeamMemberListAdapter;
-import com.netease.yunxin.kit.teamkit.ui.utils.TeamMemberCache;
 import com.netease.yunxin.kit.teamkit.ui.utils.TeamUIKitConstant;
 import com.netease.yunxin.kit.teamkit.ui.utils.TeamUtils;
 import com.netease.yunxin.kit.teamkit.ui.viewmodel.TeamManagerListViewModel;
@@ -50,6 +52,8 @@ import java.util.Objects;
 
 /** 群管理员列表页面, 包含添加管理员和删除管理员功能 子类需要实现{@link #initViewAndGetRootView(Bundle)}方法, 并在其中初始化页面布局 */
 public abstract class BaseTeamManagerListActivity extends BaseActivity {
+
+  private final String TAG = "BaseTeamManagerListActivity";
 
   protected TeamManagerListViewModel viewModel;
 
@@ -75,7 +79,7 @@ public abstract class BaseTeamManagerListActivity extends BaseActivity {
         @NonNull
         @Override
         public String getEventType() {
-          return EventDef.EVENT_TYPE_CLOSE_CHAT_PAGE;
+          return EventCloseChat.EVENT_TYPE_CLOSE_CHAT_PAGE;
         }
       };
 
@@ -158,6 +162,7 @@ public abstract class BaseTeamManagerListActivity extends BaseActivity {
             this,
             resultInfo -> {
               dismissLoading();
+              ALog.d(LIB_TAG, TAG, "getTeamMemberListWithUserData observe");
               if (resultInfo.isSuccess()) {
                 if (resultInfo.getType() == FetchResult.FetchType.Init) {
                   managerList =
@@ -173,8 +178,8 @@ public abstract class BaseTeamManagerListActivity extends BaseActivity {
                 } else if (resultInfo.getType() == FetchResult.FetchType.Update) {
                   //管理员添加和删除，走的群成员身份更新
                   List<TeamMemberWithUserInfo> updateData =
-                      TeamMemberCache.Instance()
-                          .getTeamMemberWithRoleList(
+                      TeamUserManager.getInstance()
+                          .getTeamMemberWithRoleListFromCache(
                               teamInfo.getTeamId(),
                               V2NIMTeamMemberRole.V2NIM_TEAM_MEMBER_ROLE_MANAGER);
                   managerList.clear();
@@ -242,7 +247,7 @@ public abstract class BaseTeamManagerListActivity extends BaseActivity {
                 viewModel.addManager(teamInfo.getTeamId(), memberList);
               }
             });
-    viewModel.loadTeamMember();
+    viewModel.requestTeamManagers(teamInfo.getTeamId());
   }
 
   protected void checkViews() {

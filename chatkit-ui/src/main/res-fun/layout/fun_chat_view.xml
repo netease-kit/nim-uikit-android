@@ -89,10 +89,16 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
+    <com.netease.yunxin.kit.chatkit.ui.view.ai.AiTranslateView
+        android:id="@+id/chatAITranslateView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"/>
     <FrameLayout
         android:id="@+id/bottomLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
+
 
         <com.netease.yunxin.kit.chatkit.ui.fun.view.MessageBottomLayout
             android:id="@+id/chatBottomInputLayout"

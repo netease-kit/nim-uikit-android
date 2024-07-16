@@ -9,9 +9,12 @@ import android.view.View;
 import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
 import com.netease.yunxin.kit.contactkit.ui.R;
 import com.netease.yunxin.kit.contactkit.ui.databinding.ForwardContactSelectorLayoutBinding;
+import com.netease.yunxin.kit.contactkit.ui.model.SelectedViewBean;
+import com.netease.yunxin.kit.contactkit.ui.normal.selector.SelectedListDialog;
 import com.netease.yunxin.kit.contactkit.ui.normal.selector.forward.adapter.RecentForwardAdapter;
 import com.netease.yunxin.kit.contactkit.ui.normal.selector.forward.adapter.SelectedAdapter;
-import com.netease.yunxin.kit.contactkit.ui.selector.forward.BaseForwardSelectorActivity;
+import com.netease.yunxin.kit.contactkit.ui.selector.BaseSelectedDialogAdapter;
+import com.netease.yunxin.kit.contactkit.ui.selector.forward.adapter.BaseForwardSelectorActivity;
 
 public class ForwardSelectorActivity extends BaseForwardSelectorActivity {
 
@@ -43,6 +46,14 @@ public class ForwardSelectorActivity extends BaseForwardSelectorActivity {
   protected void showSelectedDetail() {
     SelectedListDialog dialog = new SelectedListDialog();
     dialog.show(getSupportFragmentManager(), SelectedListDialog.TAG);
+    dialog.setData(viewModel.getSelectedList());
+    dialog.setDeletedListener(
+        new BaseSelectedDialogAdapter.OnDeletedListener() {
+          @Override
+          public void onDeleted(SelectedViewBean bean) {
+            viewModel.removeSelectedItem(bean);
+          }
+        });
   }
 
   @Override
@@ -69,7 +80,7 @@ public class ForwardSelectorActivity extends BaseForwardSelectorActivity {
   protected void initFragments() {
     fragments.add(new ConversationSelectorFragment());
     fragments.add(new FriendSelectorFragment());
-    if (IMKitConfigCenter.getTeamEnable()) {
+    if (IMKitConfigCenter.getEnableTeam()) {
       fragments.add(new TeamSelectorFragment());
     }
   }

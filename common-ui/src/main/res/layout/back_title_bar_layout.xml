@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) 2022 NetEase, Inc. All rights reserved. -->
+<!-- Use of this source code is governed by a MIT license that can be -->
+<!-- found in the LICENSE file. -->
+
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root_view"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <ImageView
+        android:id="@+id/iv_back"
+        android:layout_width="@dimen/dimen_26_dp"
+        android:layout_height="@dimen/dimen_26_dp"
+        android:layout_marginVertical="@dimen/dimen_12_dp"
+        android:layout_marginStart="@dimen/dimen_20_dp"
+        android:src="@drawable/ic_back" />
+
+    <TextView
+        android:id="@+id/tv_left"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="@dimen/dimen_12_dp"
+        android:layout_marginStart="@dimen/dimen_20_dp"
+        android:maxWidth="@dimen/dimen_70_dp"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:textSize="@dimen/dimen_16_dp"
+        android:textColor="@color/color_333333"
+        android:visibility="gone"
+        tools:ignore="SpUsage" />
+
+    <TextView
+        android:id="@+id/tv_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/dimen_16_dp"
+        android:textColor="@color/color_333333"
+        android:layout_marginStart="@dimen/dimen_96_dp"
+        android:layout_marginEnd="@dimen/dimen_96_dp"
+        android:layout_gravity="center"
+        android:maxLines="1"
+        android:ellipsize="end"
+        tools:ignore="SpUsage" />
+
+    <TextView
+        android:id="@+id/tv_action"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/dimen_25_dp"
+        android:textSize="@dimen/dimen_16_dp"
+        android:textColor="@color/color_666666"
+        android:maxWidth="@dimen/dimen_103_dp"
+        android:gravity="end"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:visibility="gone"
+        android:layout_gravity="end|center_vertical"
+        tools:ignore="SpUsage" />
+
+    <ImageView
+        android:id="@+id/iv_action"
+        android:layout_width="@dimen/dimen_20_dp"
+        android:layout_height="@dimen/dimen_20_dp"
+        android:layout_marginEnd="@dimen/dimen_25_dp"
+        android:visibility="gone"
+        android:layout_gravity="end|center_vertical"/>
+
+</FrameLayout>

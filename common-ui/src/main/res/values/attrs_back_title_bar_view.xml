@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?><!-- Copyright (c) 2022 NetEase, Inc. All rights reserved. -->
+<!-- Use of this source code is governed by a MIT license that can be -->
+<!-- found in the LICENSE file. -->
+
+<resources>
+    <declare-styleable name="BackTitleBar">
+
+        <attr name="titleText" format="string" />
+        <attr name="titleTextColor" format="color" />
+        <attr name="leftTitleText" format="string" />
+        <attr name="rightTitleText" format="string" />
+
+    </declare-styleable>
+
+</resources>

@@ -7,16 +7,15 @@ package com.netease.yunxin.kit.contactkit.ui.normal.selector.forward.adapter;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
-import com.netease.nimlib.sdk.v2.utils.V2NIMConversationIdUtil;
 import com.netease.yunxin.kit.common.ui.utils.AvatarColor;
 import com.netease.yunxin.kit.contactkit.ui.databinding.ForwardSelectedSelectorViewHolderBinding;
 import com.netease.yunxin.kit.contactkit.ui.model.SelectedViewBean;
-import com.netease.yunxin.kit.contactkit.ui.selector.forward.BaseSelectableViewHolder;
-import com.netease.yunxin.kit.contactkit.ui.selector.forward.adapter.BaseSelectedForwardSelectorAdapter;
+import com.netease.yunxin.kit.contactkit.ui.selector.BaseSelectableViewHolder;
+import com.netease.yunxin.kit.contactkit.ui.selector.BaseSelectedSelectorAdapter;
 
 /** 已选中的Adapter */
 public class SelectedAdapter
-    extends BaseSelectedForwardSelectorAdapter<ForwardSelectedSelectorViewHolderBinding> {
+    extends BaseSelectedSelectorAdapter<ForwardSelectedSelectorViewHolderBinding> {
   @Override
   protected ForwardSelectedSelectorViewHolderBinding provideViewBinding(
       @NonNull ViewGroup parent, int viewType) {
@@ -29,9 +28,6 @@ public class SelectedAdapter
       BaseSelectableViewHolder<ForwardSelectedSelectorViewHolderBinding> holder,
       SelectedViewBean bean) {
     holder.binding.avatarView.setData(
-        bean.getAvatar(),
-        bean.getName(),
-        AvatarColor.avatarColor(
-            V2NIMConversationIdUtil.conversationTargetId(bean.getConversationId())));
+        bean.getAvatar(), bean.getName(), AvatarColor.avatarColor(bean.getAccountId()));
   }
 }

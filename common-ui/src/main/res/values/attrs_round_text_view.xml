@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) 2022 NetEase, Inc. All rights reserved. -->
+<!-- Use of this source code is governed by a MIT license that can be -->
+<!-- found in the LICENSE file. -->
+
+<resources>
+
+    <attr name="corner_radius" format="dimension" />
+    <attr name="corner_topRadius" format="dimension" />
+    <attr name="corner_bottomRadius" format="dimension" />
+
+
+    <declare-styleable name="RoundTextView">
+
+        <attr name="corner_radius" />
+        <attr name="corner_topRadius" />
+        <attr name="corner_bottomRadius" />
+
+    </declare-styleable>
+
+    <declare-styleable name="RoundFrameLayout">
+
+        <attr name="corner_topRadius" />
+        <attr name="corner_bottomRadius" />
+        <attr name="corner_radius"/>
+
+    </declare-styleable>
+
+</resources>

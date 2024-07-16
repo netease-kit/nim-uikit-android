@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) 2022 NetEase, Inc. All rights reserved. -->
+<!-- Use of this source code is governed by a MIT license that can be -->
+<!-- found in the LICENSE file. -->
+
+<resources>
+    <declare-styleable name="TitleBarView">
+
+        <attr name="head_img_src" format="integer" />
+        <attr name="head_img_visible" format="enum">
+            <enum name="visible" value="0"/>
+            <enum name="invisible" value="4"/>
+            <enum name="gone" value="8"/>
+        </attr>
+        <attr name="right_img_src" format="integer"/>
+        <attr name="right_img_second_src" format="integer"/>
+        <attr name="head_title" format="string"/>
+        <attr name="head_title_color" format="color"/>
+
+    </declare-styleable>
+</resources>

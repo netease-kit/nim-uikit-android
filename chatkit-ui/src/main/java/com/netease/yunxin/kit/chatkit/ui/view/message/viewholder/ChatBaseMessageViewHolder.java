@@ -18,7 +18,6 @@ import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatMsgCache;
-import com.netease.yunxin.kit.chatkit.ui.common.ChatUserCache;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.chatkit.ui.custom.ChatConfigManager;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatBaseMessageViewHolderBinding;
@@ -228,7 +227,9 @@ public abstract class ChatBaseMessageViewHolder extends CommonBaseMessageViewHol
       // 消息存在标记内容，且消息未被撤回展示标记相关ui
       baseViewBinding.llSignal.setVisibility(View.VISIBLE);
 
-      String nick = MessageHelper.getChatPinDisplayName(data.getPinAccid());
+      String nick =
+          MessageHelper.getChatPinDisplayName(
+              data.getPinAccid(), data.getMessageData().getMessage().getConversationType());
       if (data.getMessageData().getMessage().getConversationType()
           == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P) {
         // 展示点对点聊天时标记内容及 ui
@@ -383,9 +384,9 @@ public abstract class ChatBaseMessageViewHolder extends CommonBaseMessageViewHol
   protected void loadNickAndAvatarForOthers(ChatMessageBean message) {
 
     // 获取对方用户头像
-    String fromAccount = message.getMessageData().getMessage().getSenderId();
-    String avatar = MessageHelper.getChatCacheAvatar(fromAccount);
-    String avatarName = MessageHelper.getChatCacheAvatarName(fromAccount);
+    String fromAccount = message.getSenderId();
+    String avatar = null;
+    String avatarName = fromAccount;
     if (isForwardMsg()) {
       Map<String, Object> remoteExt =
           MessageExtensionHelper.parseJsonStringToMap(
@@ -401,8 +402,16 @@ public abstract class ChatBaseMessageViewHolder extends CommonBaseMessageViewHol
       baseViewBinding.otherUsername.setVisibility(View.VISIBLE);
       baseViewBinding.otherUsername.setText(avatarName);
     } else {
+      avatar =
+          MessageHelper.getChatCacheAvatar(
+              fromAccount, message.getMessageData().getMessage().getConversationType());
+      avatarName =
+          MessageHelper.getChatCacheAvatarName(
+              fromAccount, message.getMessageData().getMessage().getConversationType());
       // 获取对方用户昵称
-      String name = MessageHelper.getChatMessageUserNameByAccount(fromAccount);
+      String name =
+          MessageHelper.getChatMessageUserNameByAccount(
+              fromAccount, message.getMessageData().getMessage().getConversationType());
       // 当前若时在群会话中，则展示对方用户昵称否则不展示
       if (message.getMessageData().getMessage().getConversationType()
           == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_TEAM) {
@@ -415,9 +424,8 @@ public abstract class ChatBaseMessageViewHolder extends CommonBaseMessageViewHol
 
     if (!isForwardMsg()) {
       avatarName =
-          ChatUserCache.getInstance()
-              .getFriendInfo(message.getMessageData().getMessage().getSenderId())
-              .getAvatarName();
+          MessageHelper.getChatCacheAvatarName(
+              fromAccount, message.getMessageData().getMessage().getConversationType());
     }
     // 用户信息ui自定义设置内容
     UserInfoUIOption userInfoUIOption = uiOptions.userInfoUIOption;

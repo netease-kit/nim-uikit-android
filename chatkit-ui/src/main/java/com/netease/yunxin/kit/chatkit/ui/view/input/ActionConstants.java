@@ -32,6 +32,8 @@ public class ActionConstants {
   public static final String ACTION_TYPE_LOCATION = "ACTION_TYPE_LOCATION";
   // action video call in more action
   public static final String ACTION_TYPE_VIDEO_CALL = "ACTION_TYPE_VIDEO_CALL";
+  // 更多中翻译功能
+  public static final String ACTION_TYPE_TRANSLATE = "ACTION_TYPE_TRANSLATE";
 
   //多选操作下，合并转发按钮点击事件
   public static final String ACTION_TYPE_MULTI_FORWARD = "ACTION_TYPE_MULTI_FORWARD";

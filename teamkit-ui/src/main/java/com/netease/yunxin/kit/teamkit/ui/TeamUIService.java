@@ -31,7 +31,7 @@ import com.netease.nimlib.sdk.v2.team.params.V2NIMCreateTeamParams;
 import com.netease.nimlib.sdk.v2.team.result.V2NIMCreateTeamResult;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.ChatService;
-import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
+import com.netease.yunxin.kit.chatkit.IMKitCustomFactory;
 import com.netease.yunxin.kit.chatkit.repo.TeamRepo;
 import com.netease.yunxin.kit.corekit.im2.IMKitConstant;
 import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
@@ -171,8 +171,8 @@ public class TeamUIService extends ChatService {
       boolean isGroup) {
     try {
       Map<String, Object> customParam = params;
-      if (IMKitConfigCenter.getTeamCustom() != null) {
-        customParam = IMKitConfigCenter.getTeamCustom().customCreateTeam(params);
+      if (IMKitCustomFactory.getTeamCustom() != null) {
+        customParam = IMKitCustomFactory.getTeamCustom().customCreateTeam(params);
       }
       List<String> nameList =
           customParam.get(KEY_REQUEST_SELECTOR_NAME) != null

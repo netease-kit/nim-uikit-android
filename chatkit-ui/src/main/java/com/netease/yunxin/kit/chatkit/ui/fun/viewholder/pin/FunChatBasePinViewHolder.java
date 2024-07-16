@@ -11,7 +11,6 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import com.netease.nimlib.sdk.team.model.Team;
 import com.netease.yunxin.kit.chatkit.ui.ChatMessageType;
-import com.netease.yunxin.kit.chatkit.ui.common.ChatUserCache;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.chatkit.ui.databinding.FunChatBasePinViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.interfaces.ChatBaseViewHolder;
@@ -107,7 +106,9 @@ public abstract class FunChatBasePinViewHolder extends ChatBaseViewHolder<ChatMe
   private void loadNickAndAvatar(ChatMessageBean message) {
 
     //get nick name
-    String name = MessageHelper.getChatMessageUserNameByAccount(message.getSenderId());
+    String name =
+        MessageHelper.getChatMessageUserNameByAccount(
+            message.getSenderId(), message.getMessageData().getMessage().getConversationType());
     baseViewBinding.otherUsername.setText(name);
     if (properties.getUserNickColor() != null) {
       baseViewBinding.otherUsername.setTextColor(properties.getUserNickColor());
@@ -115,7 +116,9 @@ public abstract class FunChatBasePinViewHolder extends ChatBaseViewHolder<ChatMe
     if (properties.getUserNickTextSize() != null) {
       baseViewBinding.otherUsername.setTextSize(properties.getUserNickTextSize());
     }
-    String avatar = ChatUserCache.getInstance().getFriendInfo(message.getSenderId()).getAvatar();
+    String avatar =
+        MessageHelper.getChatCacheAvatar(
+            message.getSenderId(), message.getMessageData().getMessage().getConversationType());
     baseViewBinding.messageAvatar.setVisibility(View.VISIBLE);
     if (properties.getAvatarCornerRadius() != null) {
       baseViewBinding.messageAvatar.setCornerRadius(properties.getAvatarCornerRadius());

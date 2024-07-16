@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
 import com.netease.nimlib.sdk.v2.V2NIMError;
+import com.netease.nimlib.sdk.v2.ai.model.V2NIMAIUser;
 import com.netease.nimlib.sdk.v2.auth.enums.V2NIMDataSyncState;
 import com.netease.nimlib.sdk.v2.auth.enums.V2NIMDataSyncType;
 import com.netease.nimlib.sdk.v2.conversation.V2NIMConversationListener;
@@ -17,12 +18,17 @@ import com.netease.nimlib.sdk.v2.conversation.model.V2NIMConversation;
 import com.netease.nimlib.sdk.v2.conversation.result.V2NIMConversationResult;
 import com.netease.nimlib.sdk.v2.team.V2NIMTeamListener;
 import com.netease.nimlib.sdk.v2.team.model.V2NIMTeam;
+import com.netease.nimlib.sdk.v2.user.V2NIMUser;
 import com.netease.nimlib.sdk.v2.utils.V2NIMConversationIdUtil;
 import com.netease.yunxin.kit.alog.ALog;
+import com.netease.yunxin.kit.chatkit.ChatConstants;
 import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
 import com.netease.yunxin.kit.chatkit.impl.ConversationListenerImpl;
 import com.netease.yunxin.kit.chatkit.impl.LoginDetailListenerImpl;
 import com.netease.yunxin.kit.chatkit.impl.TeamListenerImpl;
+import com.netease.yunxin.kit.chatkit.manager.AIUserChangeListener;
+import com.netease.yunxin.kit.chatkit.manager.AIUserManager;
+import com.netease.yunxin.kit.chatkit.repo.ContactRepo;
 import com.netease.yunxin.kit.chatkit.repo.ConversationRepo;
 import com.netease.yunxin.kit.chatkit.repo.TeamRepo;
 import com.netease.yunxin.kit.chatkit.utils.ErrorUtils;
@@ -34,6 +40,7 @@ import com.netease.yunxin.kit.conversationkit.ui.IConversationFactory;
 import com.netease.yunxin.kit.conversationkit.ui.R;
 import com.netease.yunxin.kit.conversationkit.ui.common.ConversationConstant;
 import com.netease.yunxin.kit.conversationkit.ui.common.ConversationUtils;
+import com.netease.yunxin.kit.conversationkit.ui.model.AIUserBean;
 import com.netease.yunxin.kit.conversationkit.ui.model.ConversationBean;
 import com.netease.yunxin.kit.conversationkit.ui.page.DefaultViewHolderFactory;
 import com.netease.yunxin.kit.corekit.event.EventCenter;
@@ -44,6 +51,10 @@ import com.netease.yunxin.kit.corekit.im2.custom.AitInfo;
 import com.netease.yunxin.kit.corekit.im2.custom.TeamEvent;
 import com.netease.yunxin.kit.corekit.im2.custom.TeamEventAction;
 import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
+import com.netease.yunxin.kit.corekit.im2.listener.ContactChangeType;
+import com.netease.yunxin.kit.corekit.im2.listener.ContactListener;
+import com.netease.yunxin.kit.corekit.im2.model.FriendAddApplicationInfo;
+import com.netease.yunxin.kit.corekit.im2.model.UserWithFriend;
 import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 import java.util.ArrayList;
@@ -52,6 +63,9 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /** 会话列表逻辑层ViewModel */
 public class ConversationViewModel extends BaseViewModel {
@@ -71,6 +85,10 @@ public class ConversationViewModel extends BaseViewModel {
   private final MutableLiveData<FetchResult<List<String>>> aitLiveData = new MutableLiveData<>();
   // 删除会话LiveData，用于通知会话删除结果
   private final MutableLiveData<FetchResult<List<String>>> deleteLiveData = new MutableLiveData<>();
+
+  // 置顶AI机器人列表
+  private final MutableLiveData<FetchResult<List<AIUserBean>>> aiRobotLiveData =
+      new MutableLiveData<>();
 
   // 会话列表排序比较器
   private Comparator<ConversationBean> comparator;
@@ -94,6 +112,10 @@ public class ConversationViewModel extends BaseViewModel {
     EventCenter.registerEventNotify(dismissTeamEvent);
     // 注册登录监听,用于同步数据完成后拉取数据，避免会话中会话名称和头像为空
     IMKitClient.addLoginDetailListener(loginDetailListener);
+    if (IMKitConfigCenter.getEnableAIUser()) {
+      ContactRepo.addContactListener(contactListener);
+      AIUserManager.addAIUserChangeListener(aiUserChangeListener);
+    }
   }
 
   // @信息监听
@@ -135,7 +157,8 @@ public class ConversationViewModel extends BaseViewModel {
           if (teamEvent != null && teamEvent.getAction() == TeamEventAction.ACTION_DISMISS) {
             ALog.d(LIB_TAG, TAG, "dismissTeamEvent,teamId:" + teamEvent.getTeamId());
             String id = teamEvent.getTeamId();
-            if (TextUtils.isEmpty(id) || !IMKitConfigCenter.getDismissTeamDeleteConversation()) {
+            if (TextUtils.isEmpty(id)
+                || !IMKitConfigCenter.getEnableDismissTeamDeleteConversation()) {
               return;
             }
             deleteConversation(
@@ -161,6 +184,29 @@ public class ConversationViewModel extends BaseViewModel {
             getConversationData();
           }
         }
+      };
+
+  private ContactListener contactListener =
+      new ContactListener() {
+        @Override
+        public void onContactChange(
+            @NonNull ContactChangeType changeType,
+            @NonNull List<? extends UserWithFriend> contactList) {
+          if (changeType == ContactChangeType.Update) {
+            for (UserWithFriend user : contactList) {
+              ALog.d(LIB_TAG, TAG, "onUserProfileChanged:" + user.getAccount());
+              if (TextUtils.equals(user.getAccount(), IMKitClient.account())) {
+                getAiRobotUserList();
+              }
+            }
+          }
+        }
+
+        @Override
+        public void onFriendAddApplication(@NonNull FriendAddApplicationInfo friendApplication) {}
+
+        @Override
+        public void onFriendAddRejected(@NonNull FriendAddApplicationInfo rejectionInfo) {}
       };
 
   // 设置会话列表排序比较器
@@ -193,6 +239,10 @@ public class ConversationViewModel extends BaseViewModel {
     return aitLiveData;
   }
 
+  public MutableLiveData<FetchResult<List<AIUserBean>>> getAiRobotLiveData() {
+    return aiRobotLiveData;
+  }
+
   /** 获取未读数 */
   public void getUnreadCount() {
     int unreadCount = ConversationRepo.getTotalUnreadCount();
@@ -207,6 +257,7 @@ public class ConversationViewModel extends BaseViewModel {
     XKitRouter.withKey(RouterConstant.PATH_CHAT_AIT_NOTIFY_ACTION).navigate();
     getConversationByPage(0);
     getUnreadCount();
+    getAiRobotUserList();
   }
 
   /** 加载更多会话列表数据 */
@@ -266,6 +317,56 @@ public class ConversationViewModel extends BaseViewModel {
         });
   }
 
+  public void getAiRobotUserList() {
+    if (!IMKitConfigCenter.getEnableAIUser()) {
+      return;
+    }
+    List<V2NIMAIUser> aiUserList = AIUserManager.getPinDefaultUserList();
+    if (aiUserList == null || aiUserList.isEmpty()) {
+      return;
+    }
+    ContactRepo.getUserInfo(
+        Collections.singletonList(IMKitClient.account()),
+        new FetchCallback<List<V2NIMUser>>() {
+          @Override
+          public void onError(int errorCode, @Nullable String errorMsg) {}
+
+          @Override
+          public void onSuccess(@Nullable List<V2NIMUser> data) {
+            if (data != null && data.size() > 0) {
+              V2NIMUser user = data.get(0);
+              if (user != null) {
+                ALog.d(LIB_TAG, TAG, "getAiRobotUserList,user:" + user.getServerExtension());
+                try {
+                  String userExtStr = user.getServerExtension();
+                  Set<String> userUnpinSet = null;
+                  if (!TextUtils.isEmpty(userExtStr)) {
+                    JSONObject userExtJson = new JSONObject(userExtStr);
+                    JSONArray userUnpinArray =
+                        userExtJson.optJSONArray(ChatConstants.KEY_UNPIN_AI_USERS);
+                    if (userUnpinArray != null) {
+                      userUnpinSet = ConversationUtils.toHashSet(userUnpinArray);
+                    }
+                  }
+                  List<AIUserBean> aiUserBeanList = new ArrayList<>();
+                  for (V2NIMAIUser aiUser : aiUserList) {
+                    if (userUnpinSet == null || !userUnpinSet.contains(aiUser.getAccountId())) {
+                      aiUserBeanList.add(new AIUserBean(aiUser));
+                    }
+                  }
+                  FetchResult<List<AIUserBean>> result = new FetchResult<>(LoadStatus.Success);
+                  result.setData(aiUserBeanList);
+                  aiRobotLiveData.setValue(result);
+
+                } catch (JSONException e) {
+                  throw new RuntimeException(e);
+                }
+              }
+            }
+          }
+        });
+  }
+
   /**
    * 删除会话
    *
@@ -300,9 +401,7 @@ public class ConversationViewModel extends BaseViewModel {
           @Override
           public void onError(int errorCode, @Nullable String errorMsg) {
             ALog.d(LIB_TAG, TAG, "addStickTop,onFailed:" + errorCode);
-            if (errorCode == ConversationConstant.ERROR_CODE_NETWORK) {
-              ToastX.showShortToast(R.string.conversation_network_error_tip);
-            }
+            ErrorUtils.showErrorCodeToast(IMKitClient.getApplicationContext(), errorCode);
           }
 
           @Override
@@ -435,7 +534,7 @@ public class ConversationViewModel extends BaseViewModel {
 
         @Override
         public void onTeamDismissed(@Nullable V2NIMTeam team) {
-          if (team == null || !IMKitConfigCenter.getDismissTeamDeleteConversation()) {
+          if (team == null || !IMKitConfigCenter.getEnableDismissTeamDeleteConversation()) {
             return;
           }
           ALog.d(LIB_TAG, TAG, "teamListener onTeamDismissed:" + team.getTeamId());
@@ -447,7 +546,7 @@ public class ConversationViewModel extends BaseViewModel {
 
         @Override
         public void onTeamLeft(@Nullable V2NIMTeam team, boolean isKicked) {
-          if (team == null || !IMKitConfigCenter.getDismissTeamDeleteConversation()) {
+          if (team == null || !IMKitConfigCenter.getEnableDismissTeamDeleteConversation()) {
             return;
           }
           ALog.d(LIB_TAG, TAG, "teamListener onTeamLeft:" + team.getTeamId());
@@ -455,6 +554,15 @@ public class ConversationViewModel extends BaseViewModel {
               V2NIMConversationIdUtil.conversationId(
                   team.getTeamId(), V2NIMConversationType.V2NIM_CONVERSATION_TYPE_TEAM);
           deleteConversation(conversationId);
+        }
+      };
+
+  protected AIUserChangeListener aiUserChangeListener =
+      new AIUserChangeListener() {
+        @Override
+        public void onAIUserChanged(@NonNull List<? extends V2NIMAIUser> aiUsers) {
+          ALog.d(LIB_TAG, TAG, "onAIUserChanged:" + aiUsers.size());
+          getAiRobotUserList();
         }
       };
 
@@ -483,7 +591,7 @@ public class ConversationViewModel extends BaseViewModel {
   public void checkConversationAndRemove(List<V2NIMConversation> data) {
     Set<String> conversationIds = new HashSet<>();
     if (data != null) {
-      ALog.d(LIB_TAG, TAG, "checkConversationAndRemove:" + data.size());
+      ALog.d(LIB_TAG, TAG, "checkConversationAndRemove start:" + data.size());
       for (int index = 0; index < data.size(); index++) {
         if (conversationIds.contains(data.get(index).getConversationId())) {
           data.remove(index);
@@ -492,6 +600,7 @@ public class ConversationViewModel extends BaseViewModel {
           conversationIds.add(data.get(index).getConversationId());
         }
       }
+      ALog.d(LIB_TAG, TAG, "checkConversationAndRemove end:" + data.size());
     }
   }
 
@@ -507,5 +616,9 @@ public class ConversationViewModel extends BaseViewModel {
     ConversationRepo.removeConversationListener(conversationListener);
     TeamRepo.removeTeamListener(teamListener);
     IMKitClient.removeLoginDetailListener(loginDetailListener);
+    if (IMKitConfigCenter.getEnableAIUser()) {
+      ContactRepo.removeContactListener(contactListener);
+      AIUserManager.removeAIUserChangeListener(aiUserChangeListener);
+    }
   }
 }

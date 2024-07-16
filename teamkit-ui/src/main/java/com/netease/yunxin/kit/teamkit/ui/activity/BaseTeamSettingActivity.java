@@ -55,10 +55,9 @@ import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 import com.netease.yunxin.kit.teamkit.ui.R;
 import com.netease.yunxin.kit.teamkit.ui.adapter.TeamCommonAdapter;
-import com.netease.yunxin.kit.teamkit.ui.model.EventDef;
+import com.netease.yunxin.kit.teamkit.ui.model.EventCloseChat;
 import com.netease.yunxin.kit.teamkit.ui.utils.ColorUtils;
 import com.netease.yunxin.kit.teamkit.ui.utils.NetworkUtilsWrapper;
-import com.netease.yunxin.kit.teamkit.ui.utils.TeamMemberCache;
 import com.netease.yunxin.kit.teamkit.ui.utils.TeamUtils;
 import com.netease.yunxin.kit.teamkit.ui.viewmodel.TeamSettingViewModel;
 import java.util.ArrayList;
@@ -116,7 +115,7 @@ public abstract class BaseTeamSettingActivity extends BaseActivity {
         @NonNull
         @Override
         public String getEventType() {
-          return EventDef.EVENT_TYPE_CLOSE_CHAT_PAGE;
+          return EventCloseChat.EVENT_TYPE_CLOSE_CHAT_PAGE;
         }
       };
 
@@ -274,6 +273,7 @@ public abstract class BaseTeamSettingActivity extends BaseActivity {
                 // 监听群成员信息变更，如果当前账号在群众身份发送变化，筛选UI，管理员变更成普通成员
                 for (TeamMemberWithUserInfo member : result.getData()) {
                   if (member != null
+                      && teamMember != null
                       && member.getTeamMember().getTeamId().equals(teamId)
                       && member.getAccountId().equals(teamMember.getAccountId())
                       && member.getMemberRole() != teamMember.getMemberRole()) {
@@ -282,8 +282,15 @@ public abstract class BaseTeamSettingActivity extends BaseActivity {
                     break;
                   }
                 }
+                if (adapter != null) {
+                  adapter.updateData(result.getData());
+                }
+              } else if (result.getType() == FetchResult.FetchType.Init) {
+                refreshTeamMemberList(result.getData());
+              } else if (result.getType() == FetchResult.FetchType.Add
+                  || result.getType() == FetchResult.FetchType.Remove) {
+                settingViewModel.loadTeamMember();
               }
-              refreshTeamMemberList();
             });
     // 退出群聊回调
     settingViewModel
@@ -362,8 +369,8 @@ public abstract class BaseTeamSettingActivity extends BaseActivity {
     settingViewModel.loadTeamMember();
   }
 
-  public void refreshTeamMemberList() {
-    teamMemberInfoList = TeamMemberCache.Instance().getTeamMemberList(teamId);
+  public void refreshTeamMemberList(List<TeamMemberWithUserInfo> memberList) {
+    teamMemberInfoList = memberList;
     Collections.sort(teamMemberInfoList, TeamUtils.teamSettingMemberComparator());
     if (adapter != null) {
       adapter.setDataList(teamMemberInfoList);
@@ -660,7 +667,6 @@ public abstract class BaseTeamSettingActivity extends BaseActivity {
   @Override
   protected void onDestroy() {
     super.onDestroy();
-    TeamMemberCache.Instance().clear();
   }
 
   public static class NoScrollLayoutManager extends LinearLayoutManager {

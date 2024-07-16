@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (c) 2022 NetEase, Inc. All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be
+  ~ found in the LICENSE file.
+  -->
+
+<resources>
+    <color name="title_transfer">#00000000</color>
+    <color name="color_white">#FFFFFF</color>
+    <color name="color_black">#000000</color>
+    <color name="color_333333">#333333</color>
+    <color name="color_222222">#222222</color>
+    <color name="color_e6605c">#E6605C</color>
+    <color name="color_f5f8fc">#F5F8FC</color>
+    <color name="color_8f8f8f">#8F8F8F</color>
+    <color name="color_666666">#666666</color>
+    <color name="color_537ff4">#537FF4</color>
+    <color name="color_0c000050">#0C000050</color>
+    <color name="color_007aff">#007AFF</color>
+    <color name="color_60cfa7">#60CFA7</color>
+    <color name="color_53c3f3">#53C3F3</color>
+    <color name="color_854fe2">#854FE2</color>
+    <color name="color_be65d9">#BE65D9</color>
+    <color name="color_e9749d">#E9749D</color>
+    <color name="color_f9b751">#F9B751</color>
+    <color name="color_dedede">#dedede</color>
+    <color name="color_e2e5e8">#E2E5E8</color>
+    <color name="color_e3e4e4">#E3E4E4</color>
+    <color name="color_c4c4c4">#c4c4c4</color>
+    <color name="color_bfbfbf">#bfbfbf</color>
+    <color name="color_fe7081">#fe7081</color>
+    <color name="color_FE7081">#FE7081</color>
+    <color name="color_FF4FA6">#FF4FA6</color>
+    <color name="color_e9eff5">#ffe9eff5</color>
+    <color name="color_14131b">#14131b</color>
+    <color name="color_ffffff">#ffffff</color>
+    <color name="color_deb0e8">#deb0e8</color>
+    <color name="color_b3b7bc">#b3b7bc</color>
+    <color name="color_eff1f4">#eff1f4</color>
+    <color name="color_e9e9ea">#e9e9ea</color>
+    <color name="color_101113">#101113</color>
+    <color name="color_ededed">#EDEDED</color>
+    <color name="color_5a5a5a">#5a5a5a</color>
+
+</resources>

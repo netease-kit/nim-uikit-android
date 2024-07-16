@@ -13,9 +13,8 @@ import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
-import com.netease.yunxin.kit.chatkit.ui.R;
-import com.netease.yunxin.kit.chatkit.ui.common.ChatUserCache;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatUtils;
+import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.chatkit.ui.custom.MultiForwardAttachment;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.normal.ChatMessageForwardConfirmDialog;
@@ -33,7 +32,6 @@ public class ChatPinActivity extends ChatPinBaseActivity {
   @Override
   protected void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    changeStatusBarColor(R.color.color_eef1f4);
   }
 
   @Override
@@ -103,9 +101,9 @@ public class ChatPinActivity extends ChatPinBaseActivity {
     }
     String sendName =
         TextUtils.isEmpty(mSessionName)
-            ? ChatUserCache.getInstance()
-                .getFriendInfo(forwardMessage.getMessageData().getMessage().getSenderId())
-                .getAvatarName()
+            ? MessageHelper.getChatMessageUserNameByAccount(
+                forwardMessage.getSenderId(),
+                forwardMessage.getMessageData().getMessage().getConversationType())
             : mSessionName;
     ChatMessageForwardConfirmDialog confirmDialog =
         ChatMessageForwardConfirmDialog.createForwardConfirmDialog(

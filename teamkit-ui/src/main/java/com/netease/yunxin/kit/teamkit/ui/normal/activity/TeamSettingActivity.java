@@ -10,6 +10,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
 import com.netease.yunxin.kit.chatkit.model.TeamMemberWithUserInfo;
 import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.teamkit.ui.activity.BaseTeamSettingActivity;
@@ -55,7 +56,11 @@ public class TeamSettingActivity extends BaseTeamSettingActivity {
   }
 
   protected String getContactSelectorRouterPath() {
-    return RouterConstant.PATH_CONTACT_SELECTOR_PAGE;
+    String path = RouterConstant.PATH_CONTACT_SELECTOR_PAGE;
+    if (IMKitConfigCenter.getEnableAIUser()) {
+      path = RouterConstant.PATH_CONTACT_AI_SELECTOR_PAGE;
+    }
+    return path;
   }
 
   protected String getPinRouterPath() {

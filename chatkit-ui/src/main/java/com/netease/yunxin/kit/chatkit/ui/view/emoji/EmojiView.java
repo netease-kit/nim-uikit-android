@@ -18,6 +18,7 @@ import androidx.annotation.NonNull;
 import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 import androidx.viewpager.widget.ViewPager.OnPageChangeListener;
+import com.netease.yunxin.kit.chatkit.emoji.ChatEmojiManager;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import java.util.ArrayList;
 import java.util.List;
@@ -91,7 +92,7 @@ public class EmojiView {
   }
 
   private int getCategoryPageCount() {
-    return (int) Math.ceil(EmojiManager.getDisplayCount() / (float) EMOJI_PER_PAGE);
+    return (int) Math.ceil(ChatEmojiManager.INSTANCE.getDisplayCount() / (float) EMOJI_PER_PAGE);
   }
 
   private void setCurPage(int page, int pageCount) {
@@ -125,7 +126,8 @@ public class EmojiView {
 
   private void showEmojiGridView() {
     initData();
-    pageCount = (int) Math.ceil(EmojiManager.getDisplayCount() / (float) EMOJI_PER_PAGE);
+    pageCount =
+        (int) Math.ceil(ChatEmojiManager.INSTANCE.getDisplayCount() / (float) EMOJI_PER_PAGE);
     pagerAdapter.notifyDataSetChanged();
     resetEmotionPager();
   }
@@ -152,11 +154,11 @@ public class EmojiView {
           int index = arg2 + pos * EMOJI_PER_PAGE;
 
           if (listener != null) {
-            int count = EmojiManager.getDisplayCount();
+            int count = ChatEmojiManager.INSTANCE.getDisplayCount();
             if (arg2 == EMOJI_PER_PAGE || index >= count) {
               listener.onEmojiSelected("/DEL");
             } else {
-              String text = EmojiManager.getDisplayText((int) arg3);
+              String text = ChatEmojiManager.INSTANCE.getDisplayText((int) arg3);
               if (!TextUtils.isEmpty(text)) {
                 listener.onEmojiSelected(text);
               }

@@ -28,7 +28,7 @@ public class ChatCustom {
 
     V2NIMMessage msg = messageInfo.getMessage();
     switch (msg.getMessageType()) {
-      case V2NIM_MESSAGE_TYPE_AVCHAT:
+      case V2NIM_MESSAGE_TYPE_CALL:
         int type = getMessageCallType(messageInfo.getMessage().getAttachment());
         if (type == 1) {
           return IMKitClient.getApplicationContext().getString(R.string.msg_type_rtc_audio);

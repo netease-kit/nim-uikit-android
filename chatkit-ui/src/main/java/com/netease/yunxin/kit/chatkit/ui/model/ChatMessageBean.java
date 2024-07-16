@@ -8,10 +8,13 @@ import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
 import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.KEY_REVOKE_EDIT_TAG;
 import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.KEY_REVOKE_TAG;
 
+import android.text.TextUtils;
 import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessagePin;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessageRefer;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessageReferBuilder;
+import com.netease.nimlib.sdk.v2.message.config.V2NIMMessageAIConfig;
+import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageAIStatus;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
 import com.netease.nimlib.sdk.v2.utils.V2NIMConversationIdUtil;
 import com.netease.yunxin.kit.alog.ALog;
@@ -68,6 +71,14 @@ public class ChatMessageBean implements Serializable {
   }
 
   public String getSenderId() {
+    if (messageData != null) {
+      V2NIMMessageAIConfig aiConfig = messageData.getMessage().getAIConfig();
+      if (aiConfig != null
+          && !TextUtils.isEmpty(aiConfig.getAccountId())
+          && aiConfig.getAIStatus() == V2NIMMessageAIStatus.V2NIM_MESSAGE_AI_STATUS_RESPONSE) {
+        return aiConfig.getAccountId();
+      }
+    }
     return messageData == null ? "" : messageData.getMessage().getSenderId();
   }
 
@@ -93,6 +104,10 @@ public class ChatMessageBean implements Serializable {
     if (messageData == null) {
       return null;
     }
+    // 优先取threadReply
+    if (messageData.getMessage().getThreadReply() != null) {
+      return messageData.getMessage().getThreadReply();
+    }
     Map<String, Object> serverExtensionMap =
         MessageExtensionHelper.parseJsonStringToMap(messageData.getMessage().getServerExtension());
 
@@ -115,7 +130,10 @@ public class ChatMessageBean implements Serializable {
             serverId = (String) replyMap.get(ChatKitUIConstant.REPLY_SERVER_ID_KEY);
             time = (long) replyMap.get(ChatKitUIConstant.REPLY_TIME_KEY);
             conversationId = (String) replyMap.get(ChatKitUIConstant.REPLY_TO_KEY);
-            receiveId = V2NIMConversationIdUtil.conversationTargetId(conversationId);
+            receiveId =
+                replyMap.get(ChatKitUIConstant.REPLY_RECEIVE_ID_KEY) == null
+                    ? V2NIMConversationIdUtil.conversationTargetId(conversationId)
+                    : (String) replyMap.get(ChatKitUIConstant.REPLY_RECEIVE_ID_KEY);
             conversationType = V2NIMConversationIdUtil.conversationType(conversationId);
           }
         } catch (Exception e) {

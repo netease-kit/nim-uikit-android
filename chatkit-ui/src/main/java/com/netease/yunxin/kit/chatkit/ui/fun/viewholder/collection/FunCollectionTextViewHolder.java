@@ -4,6 +4,7 @@
 
 package com.netease.yunxin.kit.chatkit.ui.fun.viewholder.collection;
 
+import android.text.style.ImageSpan;
 import android.view.LayoutInflater;
 import androidx.annotation.NonNull;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
@@ -36,8 +37,9 @@ public class FunCollectionTextViewHolder extends FunCollectionBaseViewHolder {
 
     if (message.getMessageData() != null
         && message.getMessageData().getMessageType() == V2NIMMessageType.V2NIM_MESSAGE_TYPE_TEXT) {
-      MessageHelper.identifyExpression(
-          textBinding.getRoot().getContext(), textBinding.messageText, message.getMessageData());
+      MessageHelper.identifyFaceExpression(
+          textBinding.getRoot().getContext(), textBinding.messageText,
+          message.getMessageData().getText(), ImageSpan.ALIGN_BOTTOM);
     } else {
       //文件消息暂不支持所以展示提示信息
       textBinding.messageText.setText(

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?><!-- Copyright (c) 2022 NetEase, Inc. All rights reserved. -->
+<!-- Use of this source code is governed by a MIT license that can be -->
+<!-- found in the LICENSE file. -->
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_centerInParent="true"
+    android:background="@drawable/rectangle_white_reduce_bg">
+
+    <TextView
+        android:id="@+id/tv_dialog_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="@dimen/dimen_19_dp"
+        android:textColor="@color/color_black"
+        android:textSize="@dimen/text_size_17" />
+
+    <TextView
+        android:id="@+id/tv_dialog_content"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tv_dialog_title"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="@dimen/dimen_4_dp"
+        android:paddingStart="@dimen/dimen_10_dp"
+        android:gravity="center"
+        android:paddingEnd="@dimen/dimen_10_dp"
+        android:textColor="@color/color_333333"
+        android:textSize="@dimen/text_size_13" />
+
+    <TextView
+        android:id="@+id/tv_dialog_positive"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dimen_43_dp"
+        android:layout_below="@+id/line_bottom"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:gravity="center"
+        android:textColor="@color/color_007aff"
+        android:textSize="@dimen/text_size_17" />
+
+
+    <View
+        android:id="@+id/line_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dimen_05_dp"
+        android:layout_below="@+id/tv_dialog_content"
+        android:layout_marginTop="@dimen/dimen_35_dp"
+        android:background="@color/color_0c000050" />
+
+
+</RelativeLayout>

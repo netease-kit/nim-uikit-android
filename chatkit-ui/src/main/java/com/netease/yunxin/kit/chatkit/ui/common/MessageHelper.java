@@ -4,6 +4,7 @@
 
 package com.netease.yunxin.kit.chatkit.ui.common;
 
+import static com.netease.nimlib.sdk.ResponseCode.RES_IN_BLACK_LIST;
 import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
 import static com.netease.yunxin.kit.chatkit.ui.model.CollectionBean.COLLECTION_TYPE_START;
 import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.KEY_REVOKE_CONTENT_TAG;
@@ -15,6 +16,8 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.SystemClock;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -27,6 +30,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.netease.nimlib.sdk.NIMClient;
+import com.netease.nimlib.sdk.v2.ai.model.V2NIMAIUser;
+import com.netease.nimlib.sdk.v2.ai.params.V2NIMAIModelCallContent;
 import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessage;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessageConverter;
@@ -35,32 +40,44 @@ import com.netease.nimlib.sdk.v2.message.V2NIMMessageRefer;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessageRevokeNotification;
 import com.netease.nimlib.sdk.v2.message.attachment.V2NIMMessageFileAttachment;
 import com.netease.nimlib.sdk.v2.message.attachment.V2NIMMessageNotificationAttachment;
+import com.netease.nimlib.sdk.v2.message.config.V2NIMMessageAIConfig;
+import com.netease.nimlib.sdk.v2.message.config.V2NIMMessageConfig;
+import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageAIStatus;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageNotificationType;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
 import com.netease.nimlib.sdk.v2.message.params.V2NIMAddCollectionParams;
+import com.netease.nimlib.sdk.v2.message.params.V2NIMMessageAIConfigParams;
+import com.netease.nimlib.sdk.v2.message.params.V2NIMSendMessageParams;
+import com.netease.nimlib.sdk.v2.message.result.V2NIMSendMessageResult;
 import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamChatBannedMode;
 import com.netease.nimlib.sdk.v2.team.model.V2NIMUpdatedTeamInfo;
+import com.netease.nimlib.sdk.v2.utils.V2NIMConversationIdUtil;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.ChatCustomMsgFactory;
-import com.netease.yunxin.kit.chatkit.cache.FriendUserCache;
+import com.netease.yunxin.kit.chatkit.emoji.ChatEmojiManager;
+import com.netease.yunxin.kit.chatkit.manager.AIUserManager;
 import com.netease.yunxin.kit.chatkit.model.CustomAttachment;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
+import com.netease.yunxin.kit.chatkit.model.RecentForward;
 import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
+import com.netease.yunxin.kit.chatkit.repo.SettingRepo;
 import com.netease.yunxin.kit.chatkit.ui.ChatCustom;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitClient;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant;
 import com.netease.yunxin.kit.chatkit.ui.R;
+import com.netease.yunxin.kit.chatkit.ui.cache.TeamUserManager;
 import com.netease.yunxin.kit.chatkit.ui.custom.MultiForwardAttachment;
 import com.netease.yunxin.kit.chatkit.ui.custom.RichTextAttachment;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.model.ait.AitBlock;
 import com.netease.yunxin.kit.chatkit.ui.model.ait.AtContactsModel;
-import com.netease.yunxin.kit.chatkit.ui.view.emoji.EmojiManager;
+import com.netease.yunxin.kit.chatkit.utils.AIErrorCode;
+import com.netease.yunxin.kit.chatkit.utils.ErrorUtils;
 import com.netease.yunxin.kit.chatkit.utils.MessageExtensionHelper;
 import com.netease.yunxin.kit.common.ui.utils.ToastX;
 import com.netease.yunxin.kit.corekit.im2.IMKitClient;
 import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
-import com.netease.yunxin.kit.corekit.im2.model.UserWithFriend;
+import com.netease.yunxin.kit.corekit.im2.extend.ProgressFetchCallback;
 import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -94,21 +111,22 @@ public class MessageHelper {
     if (account.equals(IMKitClient.account())) {
       return IMKitClient.getApplicationContext().getString(R.string.chat_you);
     }
-    return ChatUserCache.getInstance().getName(account);
+    return TeamUserManager.getInstance().getNickname(account, true);
   }
 
   /**
    * 获取标记中的昵称展示
    *
    * @param account 操作者账号ID
+   * @param type 会话类型
    * @return UI展示昵称
    */
-  public static String getChatPinDisplayName(String account) {
+  public static String getChatPinDisplayName(String account, V2NIMConversationType type) {
     if (account.equals(IMKitClient.account())) {
       return IMKitClient.getApplicationContext().getString(R.string.chat_you);
     }
 
-    return ChatUserCache.getInstance().getName(account);
+    return ChatUserCache.getInstance().getNickname(account, type);
   }
 
   /**
@@ -120,7 +138,13 @@ public class MessageHelper {
     if (TextUtils.equals(IMKitClient.account(), account)) {
       return IMKitClient.getApplicationContext().getString(R.string.chat_you);
     }
-    return ChatUserCache.getInstance().getName(account);
+
+    //数字人直接返回
+    if (AIUserManager.getAIUserById(account) != null) {
+      return AIUserManager.getAIUserById(account).getName();
+    }
+
+    return TeamUserManager.getInstance().getNickname(account, true);
   }
 
   /**
@@ -133,6 +157,10 @@ public class MessageHelper {
     if (TextUtils.equals(IMKitClient.account(), user)) {
       return "";
     }
+    //数字人直接返回
+    if (AIUserManager.getAIUserById(user) != null) {
+      return AIUserManager.getAIUserById(user).getName();
+    }
     return ChatUserCache.getInstance().getAitName(user);
   }
 
@@ -140,14 +168,32 @@ public class MessageHelper {
    * 获取消息发送者昵称
    *
    * @param account 发送者账号ID
+   * @param type 会话类型
    * @return UI展示昵称
    */
-  public static String getChatMessageUserNameByAccount(String account) {
-    String name = ChatUserCache.getInstance().getName(account);
-    if (TextUtils.isEmpty(name)) {
-      name = account;
+  public static String getChatMessageUserNameByAccount(String account, V2NIMConversationType type) {
+    //数字人直接返回
+    if (AIUserManager.getAIUserById(account) != null) {
+      V2NIMAIUser aiUser = AIUserManager.getAIUserById(account);
+      return TextUtils.isEmpty(aiUser.getName()) ? account : aiUser.getName();
     }
-    return name;
+    return ChatUserCache.getInstance().getNickname(account, type);
+  }
+
+  /**
+   * 获取消息发送者昵称，只显示user 信息中的nick，忽略备注，群昵称等
+   *
+   * @param account 发送者账号ID
+   * @param type 会话类型
+   * @return UI展示昵称
+   */
+  public static String getUserNickByAccount(String account, V2NIMConversationType type) {
+    //数字人直接返回
+    if (AIUserManager.getAIUserById(account) != null) {
+      V2NIMAIUser aiUser = AIUserManager.getAIUserById(account);
+      return TextUtils.isEmpty(aiUser.getName()) ? account : aiUser.getName();
+    }
+    return ChatUserCache.getInstance().getUserNick(account, type);
   }
 
   /**
@@ -156,38 +202,39 @@ public class MessageHelper {
    * @param account 发送者账号ID
    * @return 头像地址
    */
-  public static String getChatCacheAvatar(String account) {
+  public static String getChatCacheAvatar(String account, V2NIMConversationType type) {
     if (account == null) {
       return null;
+    }
+    //数字人直接返回
+    if (AIUserManager.getAIUserById(account) != null) {
+      return AIUserManager.getAIUserById(account).getAvatar();
     }
     if (account.equals(IMKitClient.account()) && IMKitClient.currentUser() != null) {
       return IMKitClient.currentUser().getAvatar();
     }
-    UserWithFriend friendInfo = ChatUserCache.getInstance().getFriendInfo(account);
-    if (friendInfo != null && !TextUtils.isEmpty(friendInfo.getAvatar())) {
-      return friendInfo.getAvatar();
-    }
-    return null;
+    return ChatUserCache.getInstance().getAvatar(account, type);
   }
 
   /**
    * 获取消息发送者头像名称，用于当用户头像不存在时展示
    *
    * @param account 发送者账号ID
+   * @param type 会话类型
    * @return 头像名称
    */
-  public static String getChatCacheAvatarName(String account) {
+  public static String getChatCacheAvatarName(String account, V2NIMConversationType type) {
+    //数字人直接返回
+    if (AIUserManager.getAIUserById(account) != null) {
+      V2NIMAIUser aiUser = AIUserManager.getAIUserById(account);
+      return TextUtils.isEmpty(aiUser.getName()) ? account : aiUser.getName();
+    }
     if (account.equals(IMKitClient.account())) {
       return TextUtils.isEmpty(IMKitClient.currentUser().getName())
           ? account
           : IMKitClient.currentUser().getName();
     }
-    //头像名称不取群昵称和好友备注
-    UserWithFriend friendInfo = ChatUserCache.getInstance().getFriendInfo(account);
-    if (friendInfo != null) {
-      return friendInfo.getAvatarName();
-    }
-    return account;
+    return ChatUserCache.getInstance().getNickname(account, type);
   }
 
   /**
@@ -199,7 +246,7 @@ public class MessageHelper {
   public static String getChatSearchMessageUserName(V2NIMMessage message) {
     String name = null;
     if (message != null) {
-      name = ChatUserCache.getInstance().getName(message.getSenderId());
+      name = getChatMessageUserNameByAccount(message.getSenderId(), message.getConversationType());
     }
     return name;
   }
@@ -214,7 +261,10 @@ public class MessageHelper {
     if (messageInfo == null) {
       return "...";
     }
-    String nickName = getChatMessageUserNameByAccount(messageInfo.getMessage().getSenderId());
+    String nickName =
+        getChatMessageUserNameByAccount(
+            getRealMessageSenderId(messageInfo.getMessage()),
+            messageInfo.getMessage().getConversationType());
     String content = getMsgBrief(messageInfo, false);
     return nickName + ": " + content;
   }
@@ -364,7 +414,10 @@ public class MessageHelper {
       SpannableString spannableString =
           replaceEmoticons(context, content, DEF_SCALE, ImageSpan.ALIGN_BOTTOM);
       int color = context.getResources().getColor(AT_HIGHLIGHT);
-      identifyAtExpression(context, spannableString, color, content, message);
+      // 如果是AI消息，不需要高亮@
+      if (!MessageHelper.isReceivedMessageFromAi(message)) {
+        identifyAtExpression(context, spannableString, color, content, message);
+      }
       viewSetText(textView, spannableString);
     }
   }
@@ -505,14 +558,48 @@ public class MessageHelper {
   }
 
   /**
-   * 判断消息是否为接受到的消息（非自己发送消息）
+   * 判断消息是否为接受到的消息（非自己发送消息） 如果是AI消息，也认为是接受到的消息
    *
    * @param message 消息体
    * @return 是否为接受到的消息
    */
   public static boolean isReceivedMessage(ChatMessageBean message) {
+    if (isReceivedMessageFromAi(message.getMessageData().getMessage())) {
+      return true;
+    }
     return !message.getMessageData().getMessage().isSelf()
         && !TextUtils.isEmpty(message.getSenderId());
+  }
+
+  /**
+   * 是否是数字人发送的消息
+   *
+   * @param message 消息
+   * @return 是否是数字人发送的消息
+   */
+  public static boolean isReceivedMessageFromAi(V2NIMMessage message) {
+    V2NIMMessageAIConfig aiConfig = message.getAIConfig();
+    if (aiConfig != null) {
+      return aiConfig.getAIStatus() == V2NIMMessageAIStatus.V2NIM_MESSAGE_AI_STATUS_RESPONSE
+          && !TextUtils.isEmpty(aiConfig.getAccountId());
+    }
+    return false;
+  }
+
+  /**
+   * 获取真正的消息发送ID
+   *
+   * @param message 消息体
+   * @return 消息发送ID
+   */
+  public static String getRealMessageSenderId(V2NIMMessage message) {
+    V2NIMMessageAIConfig aiConfig = message.getAIConfig();
+    if (aiConfig != null
+        && aiConfig.getAIStatus() == V2NIMMessageAIStatus.V2NIM_MESSAGE_AI_STATUS_RESPONSE
+        && !TextUtils.isEmpty(aiConfig.getAccountId())) {
+      return aiConfig.getAccountId();
+    }
+    return message.getSenderId();
   }
 
   /**
@@ -557,12 +644,12 @@ public class MessageHelper {
     }
 
     SpannableString mSpannableString = new SpannableString(value);
-    Matcher matcher = EmojiManager.getPattern().matcher(value);
+    Matcher matcher = ChatEmojiManager.INSTANCE.getPattern().matcher(value);
     while (matcher.find()) {
       int start = matcher.start();
       int end = matcher.end();
       String emote = value.substring(start, end);
-      Drawable d = EmojiManager.getEmoteDrawable(context, emote, scale);
+      Drawable d = ChatEmojiManager.INSTANCE.getEmoteDrawable(emote, scale);
       if (d != null) {
         ImageSpan span = new ImageSpan(d, align);
         mSpannableString.setSpan(span, start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -586,12 +673,12 @@ public class MessageHelper {
 
     boolean result = false;
     CharSequence s = spannableString.subSequence(start, start + count);
-    Matcher matcher = EmojiManager.getPattern().matcher(s);
+    Matcher matcher = ChatEmojiManager.INSTANCE.getPattern().matcher(s);
     while (matcher.find()) {
       int from = start + matcher.start();
       int to = start + matcher.end();
       String emote = spannableString.subSequence(from, to).toString();
-      Drawable d = EmojiManager.getEmoteDrawable(context, emote, SMALL_SCALE);
+      Drawable d = ChatEmojiManager.INSTANCE.getEmoteDrawable(emote, SMALL_SCALE);
       if (d != null) {
         ImageSpan span = new ImageSpan(d, ImageSpan.ALIGN_CENTER);
         spannableString.setSpan(span, from, to, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -613,6 +700,7 @@ public class MessageHelper {
       replyInfo.put(ChatKitUIConstant.REPLY_TYPE_KEY, replyMsg.getConversationType().getValue());
       replyInfo.put(ChatKitUIConstant.REPLY_FROM_KEY, replyMsg.getSenderId());
       replyInfo.put(ChatKitUIConstant.REPLY_TO_KEY, replyMsg.getConversationId());
+      replyInfo.put(ChatKitUIConstant.REPLY_RECEIVE_ID_KEY, replyMsg.getReceiverId());
       replyInfo.put(ChatKitUIConstant.REPLY_SERVER_ID_KEY, replyMsg.getMessageServerId());
       replyInfo.put(ChatKitUIConstant.REPLY_TIME_KEY, replyMsg.getCreateTime());
       remote.put(ChatKitUIConstant.REPLY_REMOTE_EXTENSION_KEY, replyInfo);
@@ -632,25 +720,46 @@ public class MessageHelper {
     }
   }
 
+  /**
+   * 复制消息内容到剪切板
+   *
+   * @param messageInfo 消息体
+   * @param showToast 是否显示Toast提示
+   */
   public static void copyTextMessage(IMMessageInfo messageInfo, boolean showToast) {
-    ClipboardManager cmb =
-        (ClipboardManager)
-            IMKitClient.getApplicationContext().getSystemService(Context.CLIPBOARD_SERVICE);
-    ClipData clipData = null;
+    String text = null;
     if (messageInfo.getMessage().getMessageType() == V2NIMMessageType.V2NIM_MESSAGE_TYPE_TEXT) {
-      clipData = ClipData.newPlainText(null, messageInfo.getMessage().getText());
+      text = messageInfo.getMessage().getText();
     } else if (messageInfo.getMessage().getMessageType()
         == V2NIMMessageType.V2NIM_MESSAGE_TYPE_CUSTOM) {
       // 复制换行消息
       CustomAttachment attachment = messageInfo.getAttachment();
       if (attachment instanceof RichTextAttachment) {
-        String data = ((RichTextAttachment) attachment).body;
-        if (TextUtils.isEmpty(data)) {
-          data = ((RichTextAttachment) attachment).title;
+        text = ((RichTextAttachment) attachment).body;
+        if (TextUtils.isEmpty(text)) {
+          text = ((RichTextAttachment) attachment).title;
         }
-        clipData = ClipData.newPlainText(null, data);
       }
     }
+    if (text != null) {
+      copyText(text, showToast);
+    }
+  }
+
+  /**
+   * 复制文本到剪切板
+   *
+   * @param text 文本内容
+   * @param showToast 是否显示Toast提示
+   */
+  public static void copyText(String text, boolean showToast) {
+    if (TextUtils.isEmpty(text)) {
+      return;
+    }
+    ClipboardManager cmb =
+        (ClipboardManager)
+            IMKitClient.getApplicationContext().getSystemService(Context.CLIPBOARD_SERVICE);
+    ClipData clipData = ClipData.newPlainText(null, text);
     if (clipData != null) {
       cmb.setPrimaryClip(clipData);
       if (showToast) {
@@ -779,26 +888,18 @@ public class MessageHelper {
       }
       String name = null;
       String avatar = null;
-      if (info.getMessage().getSenderId().equals(IMKitClient.account())
+      if (MessageHelper.getRealMessageSenderId(info.getMessage()).equals(IMKitClient.account())
           && IMKitClient.currentUser() != null) {
         //自己
         name = IMKitClient.currentUser().getName();
         avatar = IMKitClient.currentUser().getAvatar();
       } else {
-        if (conversationType == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_TEAM) {
-          name = ChatUserCache.getInstance().getUserNick(info.getMessage().getSenderId());
-          avatar =
-              ChatUserCache.getInstance()
-                  .getTeamMember(info.getMessage().getSenderId())
-                  .getAvatar();
-        } else {
-          UserWithFriend friend =
-              FriendUserCache.getFriendByAccount(info.getMessage().getSenderId());
-          if (friend != null) {
-            name = friend.getUserName();
-            avatar = friend.getAvatar();
-          }
-        }
+        name =
+            MessageHelper.getUserNickByAccount(
+                MessageHelper.getRealMessageSenderId(info.getMessage()), conversationType);
+        avatar =
+            MessageHelper.getChatCacheAvatar(
+                MessageHelper.getRealMessageSenderId(info.getMessage()), conversationType);
       }
 
       extension.put(
@@ -940,15 +1041,10 @@ public class MessageHelper {
         }
       }
       if (abstractsList.size() < ChatKitUIConstant.CHAT_FORWARD_ABSTRACTS_LIMIT) {
-        UserWithFriend contactInfo;
-        //自己发送的消息取自己的信息
-        if (info.getMessage().isSelf() || TextUtils.isEmpty(info.getMessage().getSenderId())) {
-          contactInfo = new UserWithFriend(IMKitClient.account(), null);
-          contactInfo.setUserInfo(IMKitClient.currentUser());
-        } else {
-          contactInfo = ChatUserCache.getInstance().getFriendInfo(info.getMessage().getSenderId());
-        }
-        String nick = contactInfo.getUserName();
+        String nick =
+            MessageHelper.getUserNickByAccount(
+                MessageHelper.getRealMessageSenderId(info.getMessage()),
+                info.getMessage().getConversationType());
         MultiForwardAttachment.Abstracts abstracts =
             new MultiForwardAttachment.Abstracts(
                 nick, getMsgBrief(info, false), info.getMessage().getSenderId());
@@ -972,7 +1068,7 @@ public class MessageHelper {
     RichTextAttachment attachment = new RichTextAttachment();
     attachment.body = content;
     attachment.title = title;
-    if (attachment.toJsonStr() != null) {
+    if (!TextUtils.isEmpty(attachment.toJsonStr())) {
       return V2NIMMessageCreator.createCustomMessage(null, attachment.toJsonStr());
     }
     return null;
@@ -1182,8 +1278,11 @@ public class MessageHelper {
       String conversationName, V2NIMMessage message) {
     int type = message.getMessageType().getValue() + COLLECTION_TYPE_START;
     String data = V2NIMMessageConverter.messageSerialization(message);
-    String senderName = ChatUserCache.getInstance().getName(message.getSenderId());
-    String senderAvatar = getChatCacheAvatar(message.getSenderId());
+    String senderName =
+        getChatMessageUserNameByAccount(
+            getRealMessageSenderId(message), message.getConversationType());
+    String senderAvatar =
+        getChatCacheAvatar(getRealMessageSenderId(message), message.getConversationType());
     JSONObject paramJson = new JSONObject();
     try {
       paramJson.put("message", data);
@@ -1199,5 +1298,242 @@ public class MessageHelper {
             .build();
 
     return params;
+  }
+
+  /**
+   * 获取消息文本，用于AI内容识别
+   *
+   * @param message 消息体
+   * @return 消息文本
+   */
+  public static String getAIContentMsg(V2NIMMessage message) {
+    if (message == null) {
+      return null;
+    }
+    if (message.getMessageType() == V2NIMMessageType.V2NIM_MESSAGE_TYPE_TEXT) {
+      return message.getText();
+    }
+    if (message.getMessageType() == V2NIMMessageType.V2NIM_MESSAGE_TYPE_CUSTOM) {
+      RichTextAttachment attachment = isRichTextMsg(message);
+      if (attachment != null) {
+        return attachment.title + attachment.body;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * 获取Tips消息提示内容
+   *
+   * @param context 上下文
+   * @param message 消息体
+   * @return 提示内容
+   */
+  public static String getTipsMessageContent(Context context, V2NIMMessage message) {
+    switch (message.getMessageStatus().getErrorCode()) {
+      case AIErrorCode.AI_ERROR_TIPS_CODE:
+        return context.getString(R.string.chat_ai_message_type_unsupport);
+      case AIErrorCode.V2NIM_ERROR_CODE_FAILED_TO_REQUEST_LLM:
+        return context.getString(R.string.chat_ai_error_failed_request_to_the_llm);
+      case AIErrorCode.V2NIM_ERROR_CODE_AI_MESSAGES_FUNCTION_DISABLED:
+        return context.getString(R.string.chat_ai_error_ai_messages_function_disabled);
+      case AIErrorCode.V2NIM_ERROR_CODE_IS_NOT_AI_ACCOUNT:
+        return context.getString(R.string.chat_ai_error_not_an_ai_account);
+      case AIErrorCode.V2NIM_ERROR_CODE_AI_ACCOUNT_BLOCKLIST_OPERATION_NOT_ALLOWED:
+        return context.getString(R.string.chat_ai_error_cannot_blocklist_an_ai_account);
+      case AIErrorCode.V2NIM_ERROR_CODE_PARAMETER_ERROR:
+        return context.getString(R.string.chat_ai_error_parameter);
+      case AIErrorCode.V2NIM_ERROR_CODE_ACCOUNT_NOT_EXIST:
+      case AIErrorCode.V2NIM_ERROR_CODE_FRIEND_NOT_EXIST:
+        return context.getString(R.string.chat_ai_error_user_not_exist);
+      case AIErrorCode.V2NIM_ERROR_CODE_ACCOUNT_BANNED:
+        return context.getString(R.string.chat_ai_error_user_banned);
+      case AIErrorCode.V2NIM_ERROR_CODE_ACCOUNT_CHAT_BANNED:
+        return context.getString(R.string.chat_ai_error_user_chat_banned);
+      case AIErrorCode.V2NIM_ERROR_CODE_MESSAGE_HIT_ANTISPAM:
+        return context.getString(R.string.chat_ai_error_message_hit_antispam);
+      case AIErrorCode.V2NIM_ERROR_CODE_TEAM_MEMBER_NOT_EXIST:
+        return context.getString(R.string.chat_ai_error_team_member_not_exist);
+      case AIErrorCode.V2NIM_ERROR_CODE_TEAM_NORMAL_MEMBER_CHAT_BANNED:
+        return context.getString(R.string.chat_ai_error_team_normal_member_chat_banned);
+      case AIErrorCode.V2NIM_ERROR_CODE_TEAM_MEMBER_CHAT_BANNED:
+        return context.getString(R.string.chat_ai_error_team_member_chat_banned);
+      case AIErrorCode.V2NIM_ERROR_CODE_RATE_LIMIT:
+        return context.getString(R.string.chat_ai_error_rate_limit_exceeded);
+      default:
+        break;
+    }
+    return message.getText();
+  }
+
+  /**
+   * 发送附言消息
+   *
+   * @param inputMsg 输入的脚本消息
+   * @param conversationIds 会话ID列表
+   */
+  public static void sendNoteMessage(
+      String inputMsg, List<String> conversationIds, boolean readReceiptEnabled) {
+    if (TextUtils.isEmpty(inputMsg) || TextUtils.getTrimmedLength(inputMsg) <= 0) {
+      return;
+    }
+    //delay 500ms 发送
+    new Handler(Looper.getMainLooper())
+        .postDelayed(
+            () -> {
+              for (String sessionId : conversationIds) {
+                V2NIMMessage textMessage = V2NIMMessageCreator.createTextMessage(inputMsg);
+                forwardMessageImpl(textMessage, sessionId, false, readReceiptEnabled);
+              }
+            },
+            500);
+  }
+
+  /**
+   * 转发消息实现
+   *
+   * @param message 消息体
+   * @param conversationId 会话ID
+   * @param showToasts 是否显示提示
+   * @param readReceiptEnabled 是否开启已读回执
+   */
+  public static void forwardMessageImpl(
+      V2NIMMessage message, String conversationId, boolean showToasts, boolean readReceiptEnabled) {
+    if (message != null) {
+
+      V2NIMMessageConfig.V2NIMMessageConfigBuilder configBuilder =
+          V2NIMMessageConfig.V2NIMMessageConfigBuilder.builder();
+      configBuilder.withReadReceiptEnabled(readReceiptEnabled);
+      V2NIMSendMessageParams.V2NIMSendMessageParamsBuilder paramsBuilder =
+          V2NIMSendMessageParams.V2NIMSendMessageParamsBuilder.builder()
+              .withMessageConfig(configBuilder.build());
+
+      //@ AI机器人代理设置
+      V2NIMMessageAIConfigParams aiConfigParams = null;
+      String chatId = V2NIMConversationIdUtil.conversationTargetId(conversationId);
+      V2NIMAIUser aiAgent = AIUserManager.getAIUserById(chatId);
+      if (aiAgent != null) {
+        aiConfigParams = new V2NIMMessageAIConfigParams(aiAgent.getAccountId());
+        if (!TextUtils.isEmpty(MessageHelper.getAIContentMsg(message))) {
+          V2NIMAIModelCallContent content =
+              new V2NIMAIModelCallContent(
+                  MessageHelper.getAIContentMsg(message),
+                  V2NIMMessageType.V2NIM_MESSAGE_TYPE_TEXT.getValue());
+          aiConfigParams.setContent(content);
+        }
+      }
+      if (aiConfigParams != null) {
+        paramsBuilder.withAIConfig(aiConfigParams);
+      }
+      ChatRepo.sendMessage(
+          message,
+          conversationId,
+          paramsBuilder.build(),
+          new ProgressFetchCallback<>() {
+
+            @Override
+            public void onProgress(int progress) {
+              // do nothing
+            }
+
+            @Override
+            public void onSuccess(@Nullable V2NIMSendMessageResult data) {
+              ALog.d(LIB_TAG, TAG, "sendMessage onSuccess -->> ");
+              if (showToasts) {
+                ToastX.showShortToast(R.string.chat_message_forward_success_tips);
+              }
+            }
+
+            @Override
+            public void onError(int errorCode, @Nullable String errorMsg) {
+              ALog.d(
+                  LIB_TAG, TAG, "sendMessage onError -->> " + errorCode + " errorMsg:" + errorMsg);
+              if (showToasts) {
+                ErrorUtils.showErrorCodeToast(IMKitClient.getApplicationContext(), errorCode);
+              }
+              if (errorCode == RES_IN_BLACK_LIST) {
+                MessageHelper.saveLocalBlackTipMessage(conversationId, IMKitClient.account());
+              }
+            }
+          });
+    }
+  }
+
+  // 发送转发消息(单条转发)
+  public static void sendForwardMessage(
+      ChatMessageBean message,
+      String inputMsg,
+      List<String> conversationIds,
+      boolean showToasts,
+      boolean readReceiptEnabled) {
+    ALog.d(LIB_TAG, TAG, "sendForwardMessage:" + conversationIds.size());
+    if (message != null && !message.isRevoked()) {
+      List<RecentForward> recentForwards = new ArrayList<>();
+      for (String conversationId : conversationIds) {
+        // 转发消息
+        V2NIMMessage forwardMessage =
+            V2NIMMessageCreator.createForwardMessage(message.getMessageData().getMessage());
+        MessageHelper.clearAitAndReplyInfo(forwardMessage);
+        forwardMessageImpl(forwardMessage, conversationId, showToasts, readReceiptEnabled);
+        sendNoteMessage(inputMsg, Collections.singletonList(conversationId), readReceiptEnabled);
+        //保存到最新转发
+        String sessionId = V2NIMConversationIdUtil.conversationTargetId(conversationId);
+        V2NIMConversationType sessionType =
+            V2NIMConversationIdUtil.conversationType(conversationId);
+        recentForwards.add(new RecentForward(sessionId, sessionType));
+      }
+      SettingRepo.saveRecentForward(recentForwards);
+    } else {
+      ToastX.showShortToast(R.string.chat_message_removed_tip);
+    }
+  }
+  // 发送转发消息（逐条转发）
+  public static void sendForwardMessages(
+      String inputMsg,
+      List<String> conversationIds,
+      List<ChatMessageBean> messages,
+      boolean showToasts,
+      boolean readReceiptEnabled) {
+    if (conversationIds == null
+        || conversationIds.isEmpty()
+        || messages == null
+        || messages.isEmpty()) {
+      return;
+    }
+
+    boolean hasError = false;
+
+    //记录转发的最新会话
+    List<RecentForward> recentForwards = new ArrayList<>();
+    // 合并转发消息需要逆序的，所以获取消息列表是逆序。逐条转发需要正序，所以要倒序遍历
+    for (int index = messages.size() - 1; index >= 0; index--) {
+      ChatMessageBean message = messages.get(index);
+      if (message.isRevoked()) {
+        continue;
+      }
+      if (message.getMessageData().getMessage().getMessageType()
+          == V2NIMMessageType.V2NIM_MESSAGE_TYPE_AUDIO) {
+        hasError = true;
+        continue;
+      }
+      for (String conversationId : conversationIds) {
+        //转发
+        V2NIMMessage forwardMessage =
+            V2NIMMessageCreator.createForwardMessage(message.getMessageData().getMessage());
+        MessageHelper.clearAitAndReplyInfo(forwardMessage);
+        forwardMessageImpl(forwardMessage, conversationId, showToasts, readReceiptEnabled);
+        if (recentForwards.isEmpty()) {
+          String sessionId = V2NIMConversationIdUtil.conversationTargetId(conversationId);
+          V2NIMConversationType sessionType =
+              V2NIMConversationIdUtil.conversationType(conversationId);
+          recentForwards.add(new RecentForward(sessionId, sessionType));
+        }
+      }
+    }
+    SettingRepo.saveRecentForward(recentForwards);
+    if (hasError) {
+      ToastX.showLongToast(R.string.msg_multi_forward_error_tips);
+    }
+    sendNoteMessage(inputMsg, conversationIds, readReceiptEnabled);
   }
 }

@@ -10,7 +10,7 @@ import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 /** 消息长按菜单按钮点击事件 */
 public interface IChatPopMenuClickListener {
   // 点击复制
-  default boolean onCopy(ChatMessageBean messageInfo) {
+  default boolean onCopy(String text) {
     return false;
   }
 

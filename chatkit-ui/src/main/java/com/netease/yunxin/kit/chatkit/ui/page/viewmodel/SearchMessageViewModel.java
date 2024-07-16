@@ -7,27 +7,20 @@ package com.netease.yunxin.kit.chatkit.ui.page.viewmodel;
 import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
 
 import android.text.TextUtils;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
 import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
 import com.netease.nimlib.sdk.v2.message.params.V2NIMMessageSearchParams;
-import com.netease.nimlib.sdk.v2.team.V2NIMTeamListener;
-import com.netease.nimlib.sdk.v2.team.model.V2NIMTeamMember;
 import com.netease.yunxin.kit.alog.ALog;
-import com.netease.yunxin.kit.chatkit.impl.TeamListenerImpl;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
-import com.netease.yunxin.kit.chatkit.repo.ContactRepo;
-import com.netease.yunxin.kit.chatkit.repo.TeamRepo;
-import com.netease.yunxin.kit.chatkit.ui.common.ChatUserCache;
+import com.netease.yunxin.kit.chatkit.ui.cache.TeamUserChangedListener;
+import com.netease.yunxin.kit.chatkit.ui.cache.TeamUserManager;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatSearchBean;
 import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
-import com.netease.yunxin.kit.corekit.im2.listener.V2UserListener;
-import com.netease.yunxin.kit.corekit.im2.model.V2UserInfo;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,41 +51,21 @@ public class SearchMessageViewModel extends BaseViewModel {
 
   private boolean haveAddListener = false;
 
-  /** 用户变更监听 */
-  private V2UserListener userListener =
-      new V2UserListener() {
-        @Override
-        public void onUserChanged(@NonNull List<V2UserInfo> userList) {
-          List<String> accounts = new ArrayList<>();
-          for (V2UserInfo userInfo : userList) {
-            accounts.add(userInfo.getAccountId());
-          }
-          ChatUserCache.getInstance().addUserInfo(userList);
-          FetchResult<List<String>> result = new FetchResult<>(LoadStatus.Success);
-          result.setData(accounts);
-          userChangeLiveData.setValue(result);
-        }
-      };
-
-  /** 群组成员变更监听 */
-  private final V2NIMTeamListener teamListener =
-      new TeamListenerImpl() {
+  private final TeamUserChangedListener cacheUserChangedListener =
+      new TeamUserChangedListener() {
 
         @Override
-        public void onTeamMemberInfoUpdated(@Nullable List<V2NIMTeamMember> teamMembers) {
-          super.onTeamMemberInfoUpdated(teamMembers);
-          if (teamMembers == null) {
-            return;
-          }
-          ChatUserCache.getInstance().addTeamMember(teamMembers);
-          List<String> accounts = new ArrayList<>();
-          for (V2NIMTeamMember teamMember : teamMembers) {
-            accounts.add(teamMember.getAccountId());
-          }
+        public void onUsersChanged(List<String> accountIds) {
           FetchResult<List<String>> result = new FetchResult<>(LoadStatus.Success);
-          result.setData(accounts);
+          result.setData(accountIds);
           userChangeLiveData.postValue(result);
         }
+
+        @Override
+        public void onUserDelete(List<String> accountIds) {}
+
+        @Override
+        public void onUsersAdd(List<String> accountIds) {}
       };
 
   public void searchMessage(String keyword, V2NIMConversationType type, String sessionId) {
@@ -152,15 +125,13 @@ public class SearchMessageViewModel extends BaseViewModel {
     if (haveAddListener) {
       return;
     }
-    ContactRepo.addUserListener(userListener);
-    TeamRepo.addTeamListener(teamListener);
+    TeamUserManager.getInstance().addMemberChangedListener(cacheUserChangedListener);
     haveAddListener = true;
   }
 
   @Override
   protected void onCleared() {
     super.onCleared();
-    ContactRepo.removeUserListener(userListener);
-    TeamRepo.removeTeamListener(teamListener);
+    TeamUserManager.getInstance().removeMemberChangedListener(cacheUserChangedListener);
   }
 }

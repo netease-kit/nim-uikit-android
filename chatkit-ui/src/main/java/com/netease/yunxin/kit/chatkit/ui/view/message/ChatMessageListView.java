@@ -422,6 +422,13 @@ public class ChatMessageListView extends RecyclerView implements IMessageData {
         }
       }
       refreshTeamMessageReceipt();
+      if (onListViewEventListener != null) {
+        onListViewEventListener.onListViewScrollEnd();
+      }
+    } else {
+      if (onListViewEventListener != null) {
+        onListViewEventListener.onListViewScrolling();
+      }
     }
   }
 
@@ -536,5 +543,9 @@ public class ChatMessageListView extends RecyclerView implements IMessageData {
     void onListViewStartScroll();
 
     void onListViewTouched();
+
+    void onListViewScrolling();
+
+    void onListViewScrollEnd();
   }
 }

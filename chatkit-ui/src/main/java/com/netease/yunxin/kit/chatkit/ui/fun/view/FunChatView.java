@@ -13,6 +13,7 @@ import android.text.TextWatcher;
 import android.text.style.ImageSpan;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.FrameLayout;
@@ -36,11 +37,13 @@ import com.netease.yunxin.kit.chatkit.ui.interfaces.IMessageLoadHandler;
 import com.netease.yunxin.kit.chatkit.ui.interfaces.IMessageProxy;
 import com.netease.yunxin.kit.chatkit.ui.interfaces.IMessageReader;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
+import com.netease.yunxin.kit.chatkit.ui.textSelectionHelper.SelectableTextHelper;
 import com.netease.yunxin.kit.chatkit.ui.view.ait.AitManager;
 import com.netease.yunxin.kit.chatkit.ui.view.ait.AitTextChangeListener;
 import com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants;
 import com.netease.yunxin.kit.chatkit.ui.view.message.ChatMessageListView;
 import com.netease.yunxin.kit.common.ui.widgets.BackTitleBar;
+import com.netease.yunxin.kit.common.utils.ScreenUtils;
 import com.netease.yunxin.kit.corekit.im2.model.IMMessageProgress;
 import java.util.List;
 
@@ -85,6 +88,16 @@ public class FunChatView extends LinearLayout implements IChatView, AitTextChang
           @Override
           public void onListViewTouched() {
             binding.chatBottomInputLayout.collapse(true);
+          }
+
+          @Override
+          public void onListViewScrolling() {
+            SelectableTextHelper.getInstance().hideSelectView();
+          }
+
+          @Override
+          public void onListViewScrollEnd() {
+            SelectableTextHelper.getInstance().resumeSelection();
           }
         });
     binding.getRoot().setOnClickListener(v -> binding.chatBottomInputLayout.collapse(true));
@@ -156,6 +169,25 @@ public class FunChatView extends LinearLayout implements IChatView, AitTextChang
           }
           return true;
         });
+
+    binding.chatBottomInputLayout.setActionClickListener(
+        new MessageBottomLayout.ActionClickListener() {
+          @Override
+          public void onActionClick(View view, String action) {
+            if (TextUtils.equals(action, ActionConstants.ACTION_TYPE_TRANSLATE)) {
+              switchTranslateView(false);
+            } else if (TextUtils.equals(action, ActionConstants.ACTION_TYPE_RECORD)) {
+              switchTranslateView(true);
+            }
+          }
+
+          @Override
+          public void sendMessage(String msg, boolean sendResult) {
+            if (TextUtils.getTrimmedLength(msg) < 1 || sendResult) {
+              binding.chatAITranslateView.resetView();
+            }
+          }
+        });
   }
 
   private void clearInvalidInputContent() {
@@ -166,6 +198,21 @@ public class FunChatView extends LinearLayout implements IChatView, AitTextChang
     }
     if (TextUtils.getTrimmedLength(msg) < 1) {
       binding.chatRichContentEt.setText("");
+    }
+  }
+
+  // AI翻译功能
+  public void switchTranslateView(boolean hide) {
+    if (binding.chatAITranslateView.getVisibility() == VISIBLE || hide) {
+      binding.chatAITranslateView.resetView();
+      binding.chatAITranslateView.setVisibility(GONE);
+    } else {
+      if (binding.chatRichLayout.getVisibility() == VISIBLE) {
+        binding.chatAITranslateView.bindEditText(binding.chatRichContentEt);
+      } else {
+        binding.chatAITranslateView.bindEditText(binding.chatBottomInputLayout.getInputEditText());
+      }
+      binding.chatAITranslateView.setVisibility(VISIBLE);
     }
   }
 
@@ -203,6 +250,10 @@ public class FunChatView extends LinearLayout implements IChatView, AitTextChang
       }
       binding.chatRichContentEt.removeTextChangedListener(richBodyInputTextWatcher);
       binding.chatRichTitleEt.removeTextChangedListener(richTitleInputTextWatcher);
+      // 如果AI翻译正在使用则切换输入框
+      if (binding.chatAITranslateView.getVisibility() == VISIBLE) {
+        binding.chatAITranslateView.bindEditText(binding.chatBottomInputLayout.getInputEditText());
+      }
     }
   }
 
@@ -223,9 +274,13 @@ public class FunChatView extends LinearLayout implements IChatView, AitTextChang
     }
     binding.chatRichContentEt.addTextChangedListener(richBodyInputTextWatcher);
     binding.chatRichTitleEt.addTextChangedListener(richTitleInputTextWatcher);
-    binding.chatBottomInputLayout.clearInputEditTextChange();
+    binding.chatBottomInputLayout.clearEditTextChangeListener();
     binding.chatBottomInputLayout.hideCurrentInput();
     binding.chatBottomInputLayout.hideAndClearRichInput();
+    // 如果AI翻译正在使用则切换输入框
+    if (binding.chatAITranslateView.getVisibility() == VISIBLE) {
+      binding.chatAITranslateView.bindEditText(binding.chatRichContentEt);
+    }
   }
 
   public BackTitleBar getTitleBar() {
@@ -303,16 +358,25 @@ public class FunChatView extends LinearLayout implements IChatView, AitTextChang
 
   @Override
   public void setReeditMessage(String content) {
+    aitTextManager.setIgnoreTextChange(true);
     hideRichInputPanel();
-    binding.chatBottomInputLayout.switchRichInput(false, "", "");
-    binding.chatBottomInputLayout.setReEditMessage(content);
+    binding.chatBottomInputLayout.setInputEditTextContent(content);
+    aitTextManager.setIgnoreTextChange(false);
   }
 
   @Override
-  public void setReEditRichMessage(String title, String body) {
+  public void setReeditRichMessage(String title, String body) {
+    aitTextManager.setIgnoreTextChange(true);
     showRichInputPanel();
     binding.chatRichTitleEt.setText(title);
-    binding.chatRichContentEt.setText(body);
+    if (aitTextManager != null
+        && !aitTextManager.getAitContactsModel().getAtBlockList().isEmpty()) {
+      MessageHelper.identifyExpressionForRichTextMsg(
+          getContext(), binding.chatRichContentEt, body, aitTextManager.getAitContactsModel());
+    } else {
+      binding.chatRichContentEt.setText(body);
+    }
+    aitTextManager.setIgnoreTextChange(false);
   }
 
   @Override
@@ -437,7 +501,7 @@ public class FunChatView extends LinearLayout implements IChatView, AitTextChang
 
   @Override
   public void updateInputHintInfo(String content) {
-    binding.chatBottomInputLayout.updateInputHintInfo(content);
+    binding.chatBottomInputLayout.setInputEditTextHint(content);
     binding.chatRichContentEt.setHint(content);
   }
 
@@ -543,6 +607,9 @@ public class FunChatView extends LinearLayout implements IChatView, AitTextChang
         private int start;
         private int count;
 
+        //保存输入框的内容，和之后的做对比
+        private String editable;
+
         @Override
         public void beforeTextChanged(CharSequence s, int start, int count, int after) {
           if (!canRender) {
@@ -570,6 +637,8 @@ public class FunChatView extends LinearLayout implements IChatView, AitTextChang
 
         @Override
         public void afterTextChanged(Editable s) {
+          //隐藏文本选择器选择框
+          SelectableTextHelper.getInstance().dismiss();
           if (!canRender) {
             canRender = true;
             return;
@@ -580,12 +649,47 @@ public class FunChatView extends LinearLayout implements IChatView, AitTextChang
             binding.chatRichContentEt.setText(spannableString);
             binding.chatRichContentEt.setSelection(spannableString.length());
           }
-          if (aitTextManager != null) {
+          if (aitTextManager != null && !TextUtils.equals(editable, s.toString())) {
             aitTextManager.afterTextChanged(s);
           }
           if (TextUtils.isEmpty(s.toString()) && binding.chatRichContentEt.isEnabled()) {
-            binding.chatRichContentEt.setHint(binding.chatBottomInputLayout.getInputHit());
+            binding.chatRichContentEt.setHint(binding.chatBottomInputLayout.getInputEditTextHint());
           }
+          editable = s.toString();
         }
       };
+
+  @Override
+  public boolean onInterceptTouchEvent(MotionEvent ev) {
+    if (ev.getAction() == MotionEvent.ACTION_UP
+        || ev.getAction() == MotionEvent.ACTION_CANCEL
+        || ev.getAction() == MotionEvent.ACTION_MOVE) {
+
+      float x = ev.getX();
+      float y = ev.getY() + ScreenUtils.getStatusBarHeight();
+
+      View selectView = SelectableTextHelper.getInstance().getSelectView();
+      if (selectView != null
+          && selectView.getVisibility() == VISIBLE
+          && isViewUnder(selectView, x, y)) {
+        return super.onInterceptTouchEvent(ev);
+      }
+      //非选择文本状态下，点击其他区域，隐藏选择框
+      SelectableTextHelper.getInstance().dismiss();
+    }
+    return super.onInterceptTouchEvent(ev);
+  }
+
+  //判断点击的位置是否在view内
+  private boolean isViewUnder(View view, float x, float y) {
+    int[] location = new int[2];
+    view.getLocationOnScreen(location);
+    int viewX = location[0];
+    int viewY = location[1];
+
+    return (x > viewX
+        && x < (viewX + view.getWidth())
+        && y > viewY
+        && y < (viewY + view.getHeight()));
+  }
 }

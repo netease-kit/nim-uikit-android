@@ -9,7 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewbinding.ViewBinding;
 import com.netease.yunxin.kit.contactkit.ui.model.ContactFriendBean;
-import com.netease.yunxin.kit.contactkit.ui.selector.forward.BaseSelectableViewHolder;
+import com.netease.yunxin.kit.contactkit.ui.selector.BaseSelectableViewHolder;
 import java.util.LinkedList;
 import java.util.List;
 

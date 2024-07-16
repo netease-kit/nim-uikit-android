@@ -69,4 +69,6 @@ public class ConversationUIConfig {
   public ConversationCustom conversationCustom;
   // 会话列表定制能力，页面加载时，回调该接口，并传入当前Fragment
   public IConversationViewLayout customLayout;
+
+  public boolean showConversationTopAIList = true;
 }

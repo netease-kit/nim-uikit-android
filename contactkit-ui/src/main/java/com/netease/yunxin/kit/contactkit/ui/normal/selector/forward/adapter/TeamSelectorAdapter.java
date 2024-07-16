@@ -14,7 +14,7 @@ import com.netease.nimlib.sdk.v2.team.model.V2NIMTeam;
 import com.netease.yunxin.kit.contactkit.ui.R;
 import com.netease.yunxin.kit.contactkit.ui.databinding.ForwardTeamSelectorViewHolderBinding;
 import com.netease.yunxin.kit.contactkit.ui.model.SelectableBean;
-import com.netease.yunxin.kit.contactkit.ui.selector.forward.BaseSelectableViewHolder;
+import com.netease.yunxin.kit.contactkit.ui.selector.BaseSelectableViewHolder;
 import com.netease.yunxin.kit.contactkit.ui.selector.forward.adapter.BaseTeamSelectorAdapter;
 
 public class TeamSelectorAdapter

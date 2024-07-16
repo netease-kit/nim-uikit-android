@@ -13,9 +13,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import com.netease.lava.nertc.sdk.NERtcOption;
-import com.netease.nimlib.sdk.StatusCode;
 import com.netease.nimlib.sdk.avsignalling.constant.ChannelType;
 import com.netease.nimlib.sdk.v2.V2NIMError;
+import com.netease.nimlib.sdk.v2.ai.model.V2NIMAIUser;
 import com.netease.nimlib.sdk.v2.auth.V2NIMLoginListener;
 import com.netease.nimlib.sdk.v2.auth.enums.V2NIMLoginClientChange;
 import com.netease.nimlib.sdk.v2.auth.enums.V2NIMLoginStatus;
@@ -33,6 +33,8 @@ import com.netease.yunxin.app.im.welcome.WelcomeActivity;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.call.p2p.NECallEngine;
 import com.netease.yunxin.kit.call.p2p.model.NECallInitRtcMode;
+import com.netease.yunxin.kit.chatkit.manager.AIUserAgentProvider;
+import com.netease.yunxin.kit.chatkit.manager.AIUserManager;
 import com.netease.yunxin.kit.chatkit.repo.SettingRepo;
 import com.netease.yunxin.kit.chatkit.ui.custom.ChatConfigManager;
 import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
@@ -61,6 +63,12 @@ public class MainActivity extends BaseActivity {
   private View mCurrentTab;
   private BaseContactFragment mContactFragment;
   private ConversationBaseFragment mConversationFragment;
+
+  // AI搜索数字人账号
+  private static final String AI_SEARCH_USER_ACCOUNT = "search";
+
+  // AI翻译数字人账号
+  private static final String AI_TRANSLATION_USER_ACCOUNT = "translation";
 
   //皮肤变更事件，切换皮肤后重新加载页面
   EventNotify<SkinEvent> skinNotify =
@@ -109,6 +117,37 @@ public class MainActivity extends BaseActivity {
           public void onSuccess(@Nullable Boolean param) {
             // 设置是否展示已读未读状态
             ChatConfigManager.showReadStatus = param;
+          }
+        });
+
+    //设置功能数字人信息
+    AIUserManager.setProvider(
+        new AIUserAgentProvider() {
+
+          @NonNull
+          @Override
+          public List<String> getAiTranslateLanguages(@NonNull List<? extends V2NIMAIUser> users) {
+            return new ArrayList<>();
+          }
+
+          @Override
+          public V2NIMAIUser getAiTranslateUser(@NonNull List<? extends V2NIMAIUser> users) {
+            for (V2NIMAIUser user : users) {
+              if (AI_TRANSLATION_USER_ACCOUNT.equals(user.getAccountId())) {
+                return user;
+              }
+            }
+            return null;
+          }
+
+          @Override
+          public V2NIMAIUser getAiSearchUser(@NonNull List<? extends V2NIMAIUser> users) {
+            for (V2NIMAIUser user : users) {
+              if (AI_SEARCH_USER_ACCOUNT.equals(user.getAccountId())) {
+                return user;
+              }
+            }
+            return null;
           }
         });
   }

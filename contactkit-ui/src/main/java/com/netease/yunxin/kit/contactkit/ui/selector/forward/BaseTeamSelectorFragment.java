@@ -22,6 +22,7 @@ import com.netease.yunxin.kit.common.ui.fragments.BaseFragment;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.contactkit.ui.R;
 import com.netease.yunxin.kit.contactkit.ui.model.SelectableBean;
+import com.netease.yunxin.kit.contactkit.ui.selector.SelectableListener;
 import com.netease.yunxin.kit.contactkit.ui.selector.forward.adapter.BaseTeamSelectorAdapter;
 
 public abstract class BaseTeamSelectorFragment extends BaseFragment {

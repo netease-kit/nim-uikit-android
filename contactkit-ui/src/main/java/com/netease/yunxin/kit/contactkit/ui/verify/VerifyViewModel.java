@@ -19,8 +19,8 @@ import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.contactkit.ui.model.ContactVerifyInfoBean;
 import com.netease.yunxin.kit.corekit.im2.IMKitClient;
 import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
+import com.netease.yunxin.kit.corekit.im2.listener.ContactChangeType;
 import com.netease.yunxin.kit.corekit.im2.listener.ContactListener;
-import com.netease.yunxin.kit.corekit.im2.listener.V2FriendChangeType;
 import com.netease.yunxin.kit.corekit.im2.model.FriendAddApplicationInfo;
 import com.netease.yunxin.kit.corekit.im2.model.FriendAddApplicationResult;
 import com.netease.yunxin.kit.corekit.im2.model.UserWithFriend;
@@ -57,14 +57,14 @@ public class VerifyViewModel extends BaseViewModel {
     infoObserver =
         new ContactListener() {
           @Override
-          public void onFriendChange(
-              @NonNull V2FriendChangeType friendChangeType,
-              @NonNull List<? extends UserWithFriend> friendList) {
-            if (friendChangeType == V2FriendChangeType.Add && friendList.size() > 0) {
+          public void onContactChange(
+              @NonNull ContactChangeType changeType,
+              @NonNull List<? extends UserWithFriend> contactList) {
+            if (changeType == ContactChangeType.AddFriend && contactList.size() > 0) {
               List<ContactVerifyInfoBean> update = new ArrayList<>(updateList);
-              List<UserWithFriend> newFriends = new ArrayList<>(friendList);
+              List<UserWithFriend> newFriends = new ArrayList<>(contactList);
               for (ContactVerifyInfoBean verifyInfoBean : verifyBeanList) {
-                for (UserWithFriend friend : friendList) {
+                for (UserWithFriend friend : contactList) {
                   if (TextUtils.equals(friend.getAccount(), agreeUserId)) {
                     newFriends.remove(friend);
                   } else if (TextUtils.equals(
@@ -162,7 +162,7 @@ public class VerifyViewModel extends BaseViewModel {
             resultLiveData.setValue(fetchResult);
           }
         };
-    ContactRepo.addFriendListener(infoObserver);
+    ContactRepo.addContactListener(infoObserver);
   }
 
   public void fetchVerifyList(boolean nextPage) {
@@ -307,6 +307,6 @@ public class VerifyViewModel extends BaseViewModel {
   @Override
   protected void onCleared() {
     super.onCleared();
-    ContactRepo.removeFriendListener(infoObserver);
+    ContactRepo.removeContactListener(infoObserver);
   }
 }

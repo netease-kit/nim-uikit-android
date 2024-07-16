@@ -19,7 +19,7 @@ import com.netease.yunxin.kit.contactkit.ui.view.viewholder.BaseContactViewHolde
 public class FunTeamListViewHolder extends BaseContactViewHolder {
   private final int cornerSize = SizeUtils.dp2px(4);
 
-  private itemClickListener itemClickListener;
+  private ItemClickListener itemClickListener;
 
   private FunTeamListViewHolderBinding binding;
 
@@ -67,11 +67,11 @@ public class FunTeamListViewHolder extends BaseContactViewHolder {
     }
   }
 
-  public void setItemClickListener(FunTeamListViewHolder.itemClickListener itemClickListener) {
+  public void setItemClickListener(ItemClickListener itemClickListener) {
     this.itemClickListener = itemClickListener;
   }
 
-  public interface itemClickListener {
+  public interface ItemClickListener {
     void onClick(ContactTeamBean data);
   }
 }

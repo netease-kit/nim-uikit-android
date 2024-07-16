@@ -72,9 +72,10 @@ public class LocationPageActivity extends BaseActivity {
   protected void onPostCreate(@Nullable Bundle savedInstanceState) {
     super.onPostCreate(savedInstanceState);
     if (launchType == RouterConstant.KEY_LOCATION_TYPE_SEND) {
-      ActivityWorkaround.assistActivity(this, true)
+      // 发送位置消息时候，根据输入框的弹出来动态变更View的高度
+      LocationPageLayoutHelper.assistActivity(this, true)
           .setOnKeyboardStateChangeListener(
-              new ActivityWorkaround.OnKeyboardStateChangeListener() {
+              new LocationPageLayoutHelper.OnKeyboardStateChangeListener() {
                 @Override
                 public void showKeyboard(int visibleHeight) {
                   binding.locationSearchCancel.setVisibility(View.VISIBLE);

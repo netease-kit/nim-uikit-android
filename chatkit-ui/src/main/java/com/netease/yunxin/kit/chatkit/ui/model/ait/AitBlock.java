@@ -16,6 +16,9 @@ public class AitBlock {
   /** text = "@" + name */
   public String text;
 
+  //账号
+  private String accountId;
+
   /** position in text */
   public List<AitSegment> segments = new ArrayList<>();
 
@@ -29,6 +32,14 @@ public class AitBlock {
     } else {
       this.text = name;
     }
+  }
+
+  public void setAccountId(String accountId) {
+    this.accountId = accountId;
+  }
+
+  public String getAccountId() {
+    return accountId;
   }
 
   public void addSegment(int start) {
@@ -123,6 +134,7 @@ public class AitBlock {
   public JSONObject toJson() throws JSONException {
     JSONObject data = new JSONObject();
     data.put("text", text);
+    data.put("accountId", accountId);
     JSONArray segmentList = new JSONArray();
     for (AitSegment segment : segments) {
       segmentList.put(segment.toJson());
@@ -133,8 +145,10 @@ public class AitBlock {
 
   public static AitBlock parseFromJson(JSONObject jsonObject) throws JSONException {
     if (jsonObject != null && jsonObject.has("text")) {
-      String text = jsonObject.getString("text");
+      String text = jsonObject.optString("text");
+      String accountId = jsonObject.optString("accountId");
       AitBlock aitBlock = new AitBlock(text, false);
+      aitBlock.setAccountId(accountId);
       JSONArray jsonArray = jsonObject.getJSONArray("segments");
       if (jsonArray.length() > 0) {
         for (int index = 0; index < jsonArray.length(); index++) {

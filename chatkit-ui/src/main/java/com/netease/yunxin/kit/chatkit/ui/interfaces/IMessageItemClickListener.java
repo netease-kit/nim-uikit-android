@@ -39,7 +39,7 @@ public interface IMessageItemClickListener {
     return false;
   }
 
-  default boolean onReEditRevokeMessage(View view, int position, ChatMessageBean messageInfo) {
+  default boolean onReeditRevokeMessage(View view, int position, ChatMessageBean messageInfo) {
     return false;
   }
 
@@ -51,7 +51,8 @@ public interface IMessageItemClickListener {
     return false;
   }
 
-  default boolean onTextSelected(View view, int position, ChatMessageBean messageInfo) {
+  default boolean onTextSelected(
+      View view, int position, ChatMessageBean messageInfo, String text, boolean isSelectAll) {
     return false;
   }
 

@@ -23,12 +23,10 @@ import com.netease.yunxin.kit.chatkit.repo.ContactRepo;
 import com.netease.yunxin.kit.chatkit.repo.TeamRepo;
 import com.netease.yunxin.kit.corekit.im2.IMKitClient;
 import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
+import com.netease.yunxin.kit.corekit.im2.listener.ContactChangeType;
 import com.netease.yunxin.kit.corekit.im2.listener.ContactListener;
-import com.netease.yunxin.kit.corekit.im2.listener.V2FriendChangeType;
-import com.netease.yunxin.kit.corekit.im2.listener.V2UserListener;
 import com.netease.yunxin.kit.corekit.im2.model.FriendAddApplicationInfo;
 import com.netease.yunxin.kit.corekit.im2.model.UserWithFriend;
-import com.netease.yunxin.kit.corekit.im2.model.V2UserInfo;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -135,28 +133,6 @@ public class TeamMemberCache {
     }
   }
 
-  // 用户信息变化监听，根据用户信息的变化，修改缓存数据（头像昵称等）
-  private V2UserListener userListener =
-      new V2UserListener() {
-        @Override
-        public void onUserChanged(List<V2UserInfo> userInfoList) {
-          if (userInfoList == null || userInfoList.size() < 1) {
-            return;
-          }
-          List<TeamMemberWithUserInfo> updateList = new ArrayList<>();
-          for (V2UserInfo userInfo : userInfoList) {
-            TeamMemberWithUserInfo teamMember = teamMemberMap.get(userInfo.getAccountId());
-            if (teamMember != null) {
-              teamMember.setUserInfo(userInfo.getNIMUserInfo());
-              updateList.add(teamMember);
-            }
-          }
-          if (updateList.size() > 0) {
-            notifyTeamMemberCacheUpdate(updateList);
-          }
-        }
-      };
-
   // 好友信息变化监听，根据好友信息的变化，修改缓存数据（好友昵称）
   private ContactListener friendListener =
       new ContactListener() {
@@ -168,18 +144,19 @@ public class TeamMemberCache {
         public void onFriendAddApplication(@NonNull FriendAddApplicationInfo friendApplication) {}
 
         @Override
-        public void onFriendChange(
-            @NonNull V2FriendChangeType friendChangeType,
-            @NonNull List<? extends UserWithFriend> friendList) {
+        public void onContactChange(
+            @NonNull ContactChangeType changeType,
+            @NonNull List<? extends UserWithFriend> contactList) {
           List<TeamMemberWithUserInfo> updateList = new ArrayList<>();
-          for (UserWithFriend userInfo : friendList) {
+          for (UserWithFriend userInfo : contactList) {
             TeamMemberWithUserInfo teamMember = teamMemberMap.get(userInfo.getAccount());
             if (teamMember != null) {
-              if (friendChangeType == V2FriendChangeType.Add
-                  || friendChangeType == V2FriendChangeType.Update) {
+              if (changeType == ContactChangeType.AddFriend
+                  || changeType == ContactChangeType.Update) {
                 teamMember.setFriendInfo(userInfo.getFriend());
+                teamMember.setUserInfo(userInfo.getUserInfo());
                 updateList.add(teamMember);
-              } else if (friendChangeType == V2FriendChangeType.Delete) {
+              } else if (changeType == ContactChangeType.DeleteFriend) {
                 teamMember.setFriendInfo(null);
                 updateList.add(teamMember);
               }
@@ -219,8 +196,7 @@ public class TeamMemberCache {
     clear();
     loadTeamMemberList(cacheTeamId);
     TeamRepo.addTeamListener(teamListener);
-    ContactRepo.addUserListener(userListener);
-    ContactRepo.addFriendListener(friendListener);
+    ContactRepo.addContactListener(friendListener);
     IMKitClient.addLoginDetailListener(loginDetailListener);
   }
 
@@ -374,8 +350,7 @@ public class TeamMemberCache {
     teamMemberMap.clear();
     cacheTeamId = "";
     TeamRepo.removeTeamListener(teamListener);
-    ContactRepo.removeUserListener(userListener);
-    ContactRepo.removeFriendListener(friendListener);
+    ContactRepo.removeContactListener(friendListener);
     IMKitClient.removeLoginDetailListener(loginDetailListener);
   }
 

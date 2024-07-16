@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2022 NetEase, Inc. All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be
+  ~ found in the LICENSE file.
+  -->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="@color/color_ededed"
+    android:orientation="vertical">
+
+    <com.netease.yunxin.kit.common.ui.widgets.BackTitleBar
+        android:id="@+id/title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:titleText="@string/select" />
+
+    <RelativeLayout
+        android:id="@+id/selectedLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dimen_4_dp"
+        android:layout_marginBottom="@dimen/dimen_12_dp"
+        android:layout_marginStart="@dimen/dimen_15_dp"
+        android:layout_marginEnd="@dimen/dimen_20_dp"
+        android:visibility="gone">
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvSelected"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/dimen_20_dp"/>
+
+    </RelativeLayout>
+
+    <View
+        android:id="@+id/divider"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dimen_3_dp"
+        android:visibility="gone"
+        android:background="@color/color_ededed"/>
+
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tabLayout"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dimen_40_dp"
+        app:tabSelectedTextColor="@color/color_58be6b"
+        app:tabIndicatorColor="@color/color_58be6b"
+        android:background="@color/color_white"
+        app:tabRippleColor="@null"
+        app:tabBackground="@null"
+        app:tabIndicatorHeight="@dimen/dimen_2_dp"
+        app:tabTextColor="@color/color_333333" />
+
+
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/viewPager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/color_white"/>
+
+
+</LinearLayout>

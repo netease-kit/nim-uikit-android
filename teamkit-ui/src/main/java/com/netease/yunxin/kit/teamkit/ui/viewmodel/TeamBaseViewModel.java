@@ -14,13 +14,14 @@ import com.netease.yunxin.kit.chatkit.impl.TeamListenerImpl;
 import com.netease.yunxin.kit.chatkit.model.TeamMemberWithUserInfo;
 import com.netease.yunxin.kit.chatkit.model.TeamWithCurrentMember;
 import com.netease.yunxin.kit.chatkit.repo.TeamRepo;
+import com.netease.yunxin.kit.chatkit.ui.cache.TeamUserChangedListener;
+import com.netease.yunxin.kit.chatkit.ui.cache.TeamUserManager;
 import com.netease.yunxin.kit.chatkit.utils.ErrorUtils;
 import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
+import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.corekit.im2.IMKitClient;
 import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
-import com.netease.yunxin.kit.teamkit.ui.utils.TeamMemberCache;
-import com.netease.yunxin.kit.teamkit.ui.utils.TeamMemberCacheListener;
 import java.util.List;
 import java.util.Objects;
 
@@ -31,24 +32,24 @@ public class TeamBaseViewModel extends BaseViewModel {
 
   protected String teamId;
 
-  protected boolean hasMore = false;
-
-  protected String nextPageTag = null;
-
   // 复合查询，查询当前群信息(V2NIMTeam)和当前账户的群成员信息(V2NIMTeamMember)
-  private final MutableLiveData<FetchResult<TeamWithCurrentMember>> teamWithMemberData =
+  protected final MutableLiveData<FetchResult<TeamWithCurrentMember>> teamWithMemberData =
       new MutableLiveData<>();
 
   // 获取群成员信息列表
-  private final MutableLiveData<FetchResult<List<TeamMemberWithUserInfo>>> teamMemberWithUserData =
+  protected final MutableLiveData<FetchResult<List<TeamMemberWithUserInfo>>>
+      teamMemberWithUserData = new MutableLiveData<>();
+
+  // 获取群成员信息列表
+  protected final MutableLiveData<FetchResult<List<String>>> teamMemberData =
       new MutableLiveData<>();
 
   // 添加删除成员
-  private final MutableLiveData<FetchResult<List<String>>> removeMembersData =
+  protected final MutableLiveData<FetchResult<List<String>>> removeMembersData =
       new MutableLiveData<>();
 
   // 群信息包括主动请求获取和群信息变更
-  private final MutableLiveData<FetchResult<V2NIMTeam>> teamUpdateData = new MutableLiveData<>();
+  protected final MutableLiveData<FetchResult<V2NIMTeam>> teamUpdateData = new MutableLiveData<>();
 
   public MutableLiveData<FetchResult<TeamWithCurrentMember>> getTeamWitheMemberData() {
     return teamWithMemberData;
@@ -57,6 +58,10 @@ public class TeamBaseViewModel extends BaseViewModel {
   public MutableLiveData<FetchResult<List<TeamMemberWithUserInfo>>>
       getTeamMemberListWithUserData() {
     return teamMemberWithUserData;
+  }
+
+  public MutableLiveData<FetchResult<List<String>>> getTeamMemberListData() {
+    return teamMemberData;
   }
 
   public MutableLiveData<FetchResult<List<String>>> getRemoveMembersData() {
@@ -90,7 +95,8 @@ public class TeamBaseViewModel extends BaseViewModel {
     if (!TextUtils.isEmpty(teamId)) {
       this.teamId = teamId;
       TeamRepo.addTeamListener(teamListener);
-      TeamMemberCache.Instance().addTeamMemberCacheListener(teamMemberListener);
+      TeamUserManager.getInstance().init(teamId);
+      TeamUserManager.getInstance().addMemberChangedListener(teamUserChangedListener);
     }
   }
 
@@ -121,55 +127,59 @@ public class TeamBaseViewModel extends BaseViewModel {
 
   public void loadTeamMember() {
     ALog.d(LIB_TAG, TAG, "loadTeamMemberFromCache");
-    TeamMemberCache.Instance().initTeamId(teamId);
-    List<TeamMemberWithUserInfo> memberList = TeamMemberCache.Instance().getTeamMemberList(teamId);
-    if (!memberList.isEmpty()) {
-      teamMemberWithUserData.setValue(new FetchResult<>(memberList));
-    } else {
-      TeamMemberCache.Instance().loadTeamMemberList(teamId);
-    }
+    TeamUserManager.getInstance()
+        .getAllTeamMembers(
+            true,
+            new FetchCallback<List<TeamMemberWithUserInfo>>() {
+              @Override
+              public void onSuccess(@Nullable List<TeamMemberWithUserInfo> param) {
+                ALog.d(
+                    LIB_TAG,
+                    TAG,
+                    "loadTeamMember,onSuccess:" + (param != null ? param.size() : "null"));
+                FetchResult<List<TeamMemberWithUserInfo>> fetchResult =
+                    new FetchResult<>(LoadStatus.Success);
+                fetchResult.setData(param);
+                teamMemberWithUserData.setValue(fetchResult);
+              }
+
+              @Override
+              public void onError(int errorCode, String errorMsg) {
+                ALog.d(LIB_TAG, TAG, "loadTeamMember,onFailed:" + errorCode);
+                teamMemberWithUserData.setValue(new FetchResult<>(errorCode, errorMsg));
+              }
+            });
   }
 
-  private final TeamMemberCacheListener teamMemberListener =
-      new TeamMemberCacheListener() {
-
+  private final TeamUserChangedListener teamUserChangedListener =
+      new TeamUserChangedListener() {
         @Override
-        public void onTeamMemberCacheUpdate(
-            String teamId, List<TeamMemberWithUserInfo> teamMemberList) {
-          ALog.d(LIB_TAG, TAG, "onTeamMemberCacheUpdate:" + teamId);
+        public void onUsersChanged(List<String> accountIds) {
           if (TextUtils.equals(teamId, TeamBaseViewModel.this.teamId)) {
+            ALog.d(LIB_TAG, TAG, "teamUserChangedListener,onUsersChanged:" + accountIds.size());
             FetchResult<List<TeamMemberWithUserInfo>> userData =
-                new FetchResult<>(FetchResult.FetchType.Update, teamMemberList);
+                new FetchResult<>(
+                    FetchResult.FetchType.Update,
+                    TeamUserManager.getInstance().getTeamMembersFromCache(accountIds));
             teamMemberWithUserData.setValue(userData);
           }
         }
 
         @Override
-        public void onTeamMemberCacheRemove(String teamId, List<String> accountList) {
-          ALog.d(LIB_TAG, TAG, "onTeamMemberCacheRemove:" + teamId);
+        public void onUsersAdd(List<String> accountIds) {
           if (TextUtils.equals(teamId, TeamBaseViewModel.this.teamId)
-              && accountList != null
-              && !accountList.isEmpty()) {
-            notifyRemoveMember(accountList);
+              && accountIds != null
+              && accountIds.size() > 0) {
+            ALog.d(LIB_TAG, TAG, "teamUserChangedListener,onUsersAdd:" + accountIds.size());
+            notifyAddMember(TeamUserManager.getInstance().getTeamMembersFromCache(accountIds));
           }
         }
 
         @Override
-        public void onTeamMemberCacheLoad(
-            String teamId, List<TeamMemberWithUserInfo> teamMemberList) {
-          ALog.d(LIB_TAG, TAG, "onTeamMemberCacheLoad:" + teamId);
-          if (TextUtils.equals(teamId, TeamBaseViewModel.this.teamId)) {
-            teamMemberWithUserData.setValue(new FetchResult<>(teamMemberList));
-          }
-        }
-
-        @Override
-        public void onTeamMemberCacheAdd(
-            String teamId, List<TeamMemberWithUserInfo> teamMemberList) {
-          if (TextUtils.equals(teamId, TeamBaseViewModel.this.teamId)
-              && teamMemberList != null
-              && !teamMemberList.isEmpty()) {
-            notifyAddMember(teamMemberList);
+        public void onUserDelete(List<String> accountIds) {
+          if (accountIds != null) {
+            ALog.d(LIB_TAG, TAG, "teamUserChangedListener,onUserDeleter:" + accountIds.size());
+            notifyRemoveMember(accountIds);
           }
         }
       };
@@ -237,15 +247,17 @@ public class TeamBaseViewModel extends BaseViewModel {
 
   protected void notifyRemoveMember(List<String> removeList) {
     if (removeList.size() > 0) {
+      ALog.d(LIB_TAG, TAG, "notifyRemoveMember:" + removeList.size());
       FetchResult<List<String>> result = new FetchResult<>(removeList);
       result.setType(FetchResult.FetchType.Remove);
       removeMembersData.setValue(result);
     }
   }
 
-  protected void notifyAddMember(List<TeamMemberWithUserInfo> removeList) {
-    if (removeList.size() > 0) {
-      FetchResult<List<TeamMemberWithUserInfo>> result = new FetchResult<>(removeList);
+  protected void notifyAddMember(List<TeamMemberWithUserInfo> addList) {
+    if (addList.size() > 0) {
+      ALog.d(LIB_TAG, TAG, "notifyAddMember:" + addList.size());
+      FetchResult<List<TeamMemberWithUserInfo>> result = new FetchResult<>(addList);
       result.setType(FetchResult.FetchType.Add);
       teamMemberWithUserData.setValue(result);
     }
@@ -256,7 +268,7 @@ public class TeamBaseViewModel extends BaseViewModel {
     super.onCleared();
     if (!TextUtils.isEmpty(teamId)) {
       TeamRepo.removeTeamListener(teamListener);
-      TeamMemberCache.Instance().removeTeamMemberCacheListener(teamMemberListener);
+      TeamUserManager.getInstance().removeMemberChangedListener(teamUserChangedListener);
     }
   }
 }

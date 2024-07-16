@@ -16,22 +16,27 @@ public class SelectedViewBean {
   private final String name;
 
   // id，不可空
-  private final String conversationId;
+  private final String targetId;
+
+  // 账号，群ID或者账号ID
+  private final String accountId;
 
   // 成员数量
   private int memberCount;
 
-  public SelectedViewBean(String avatar, String name, String id, int memberCount) {
+  public SelectedViewBean(String avatar, String name, String id, String account, int memberCount) {
     this.avatar = avatar;
     this.name = name;
-    this.conversationId = id;
+    this.targetId = id;
+    this.accountId = account;
     this.memberCount = memberCount;
   }
 
-  public SelectedViewBean(String avatar, String name, String id) {
+  public SelectedViewBean(String avatar, String name, String id, String account) {
     this.avatar = avatar;
     this.name = name;
-    this.conversationId = id;
+    this.targetId = id;
+    this.accountId = account;
     this.memberCount = 0;
   }
 
@@ -43,12 +48,16 @@ public class SelectedViewBean {
     return name;
   }
 
-  public String getConversationId() {
-    return conversationId;
+  public String getTargetId() {
+    return targetId;
   }
 
   public int getMemberCount() {
     return memberCount;
+  }
+
+  public String getAccountId() {
+    return accountId;
   }
 
   @Override
@@ -57,13 +66,13 @@ public class SelectedViewBean {
       return false;
     }
     if (obj instanceof SelectedViewBean) {
-      return conversationId.equals(((SelectedViewBean) obj).conversationId);
+      return targetId.equals(((SelectedViewBean) obj).targetId);
     }
     return false;
   }
 
   @Override
   public int hashCode() {
-    return conversationId.hashCode();
+    return targetId.hashCode();
   }
 }

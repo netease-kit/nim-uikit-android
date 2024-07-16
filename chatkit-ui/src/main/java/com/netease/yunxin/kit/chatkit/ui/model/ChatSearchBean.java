@@ -10,10 +10,8 @@ import android.text.style.ForegroundColorSpan;
 import androidx.annotation.Nullable;
 import com.netease.nimlib.sdk.search.model.RecordHitInfo;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessage;
-import com.netease.yunxin.kit.chatkit.ui.common.ChatUserCache;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.common.ui.viewholder.BaseBean;
-import com.netease.yunxin.kit.corekit.im2.model.V2UserInfo;
 import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +36,7 @@ public class ChatSearchBean extends BaseBean {
 
   public String getAccount() {
     if (msgRecord != null) {
-      return msgRecord.getSenderId();
+      return MessageHelper.getRealMessageSenderId(msgRecord);
     }
     return null;
   }
@@ -51,9 +49,9 @@ public class ChatSearchBean extends BaseBean {
   }
 
   public String getAvatar() {
-    V2UserInfo userInfo = ChatUserCache.getInstance().getUserInfo(msgRecord.getSenderId());
-    if (userInfo != null) {
-      return userInfo.getAvatar();
+    if (msgRecord != null) {
+      return MessageHelper.getChatCacheAvatar(
+          MessageHelper.getRealMessageSenderId(msgRecord), msgRecord.getConversationType());
     }
     return null;
   }

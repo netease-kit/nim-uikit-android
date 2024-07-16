@@ -14,6 +14,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
+import com.netease.yunxin.kit.chatkit.manager.AIUserManager;
 import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
 import com.netease.yunxin.kit.common.ui.dialog.BottomConfirmDialog;
 import com.netease.yunxin.kit.common.ui.dialog.ConfirmListener;
@@ -26,7 +27,7 @@ import com.netease.yunxin.kit.contactkit.ui.model.ContactUserInfoBean;
 import com.netease.yunxin.kit.contactkit.ui.view.ContactInfoView;
 import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
 import com.netease.yunxin.kit.corekit.im2.model.FriendVerifyType;
-import com.netease.yunxin.kit.corekit.im2.model.V2UserInfo;
+import com.netease.yunxin.kit.corekit.im2.model.UserWithFriend;
 import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 import java.util.Objects;
@@ -159,7 +160,11 @@ public abstract class BaseUserInfoActivity extends BaseActivity {
   }
 
   protected void goChat() {
-    XKitRouter.withKey(RouterConstant.PATH_CHAT_P2P_PAGE)
+    String path = RouterConstant.PATH_CHAT_P2P_PAGE;
+    if (AIUserManager.isAIUser(userInfoData.data.getAccountId())) {
+      path = RouterConstant.PATH_CHAT_AI_P2P_PAGE;
+    }
+    XKitRouter.withKey(path)
         .withParam(RouterConstant.CHAT_ID_KRY, userInfoData.data.getAccountId())
         .withContext(BaseUserInfoActivity.this)
         .navigate();
@@ -224,28 +229,7 @@ public abstract class BaseUserInfoActivity extends BaseActivity {
                 }
               }
             });
-    viewModel
-        .getUserInfoLiveData()
-        .observe(
-            this,
-            userInfoResult -> {
-              if (userInfoResult.getLoadStatus() == LoadStatus.Finish
-                  && userInfoResult.getData() != null) {
-                for (V2UserInfo userInfo : userInfoResult.getData()) {
-                  if (TextUtils.equals(userInfo.getAccountId(), accId)) {
-                    if (userInfoData != null) {
-                      userInfoData.data = userInfo;
-                      contactInfoView.setData(userInfoData);
-                    }
-                  }
-                }
-              } else {
-                if (!NetworkUtils.isConnected()) {
-                  Toast.makeText(this, R.string.contact_network_error_tip, Toast.LENGTH_SHORT)
-                      .show();
-                }
-              }
-            });
+
     viewModel
         .getFriendChangeLiveData()
         .observe(
@@ -253,8 +237,23 @@ public abstract class BaseUserInfoActivity extends BaseActivity {
             result -> {
               if (result.getLoadStatus() == LoadStatus.Finish) {
                 if (result.getType() == FetchResult.FetchType.Update) {
-                  userInfoData.friendInfo = result.getData();
-                  contactInfoView.setData(userInfoData);
+                  UserWithFriend userWithFriend = result.getData();
+                  if (userWithFriend != null && userWithFriend.getUserInfo() != null) {
+                    if (userInfoData == null) {
+                      userInfoData = new ContactUserInfoBean(userWithFriend.getUserInfo());
+                    } else {
+                      if (userWithFriend.getFriend() != null) {
+                        userInfoData.friendInfo = result.getData();
+                        userInfoData.data = result.getData().getUserInfo();
+                      } else {
+                        userInfoData.data = userWithFriend.getUserInfo();
+                      }
+                    }
+
+                    contactInfoView.setData(userInfoData);
+                  } else {
+                    viewModel.getUserWithFriend(accId);
+                  }
                 } else {
                   viewModel.getUserWithFriend(accId);
                 }

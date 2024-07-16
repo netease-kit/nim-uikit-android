@@ -15,6 +15,10 @@ import android.util.Pair;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
+import com.netease.nimlib.sdk.v2.ai.enums.V2NIMAIModelRoleType;
+import com.netease.nimlib.sdk.v2.ai.model.V2NIMAIUser;
+import com.netease.nimlib.sdk.v2.ai.params.V2NIMAIModelCallContent;
+import com.netease.nimlib.sdk.v2.ai.params.V2NIMAIModelCallMessage;
 import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
 import com.netease.nimlib.sdk.v2.message.V2NIMClearHistoryNotification;
 import com.netease.nimlib.sdk.v2.message.V2NIMCollection;
@@ -27,6 +31,7 @@ import com.netease.nimlib.sdk.v2.message.V2NIMMessageQuickCommentNotification;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessageRefer;
 import com.netease.nimlib.sdk.v2.message.V2NIMP2PMessageReadReceipt;
 import com.netease.nimlib.sdk.v2.message.V2NIMTeamMessageReadReceipt;
+import com.netease.nimlib.sdk.v2.message.config.V2NIMMessageAIConfig;
 import com.netease.nimlib.sdk.v2.message.config.V2NIMMessageConfig;
 import com.netease.nimlib.sdk.v2.message.config.V2NIMMessagePushConfig;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessagePinState;
@@ -34,20 +39,21 @@ import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageQueryDirection;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
 import com.netease.nimlib.sdk.v2.message.option.V2NIMMessageListOption;
 import com.netease.nimlib.sdk.v2.message.params.V2NIMAddCollectionParams;
+import com.netease.nimlib.sdk.v2.message.params.V2NIMMessageAIConfigParams;
 import com.netease.nimlib.sdk.v2.message.params.V2NIMSendMessageParams;
 import com.netease.nimlib.sdk.v2.message.result.V2NIMSendMessageResult;
 import com.netease.nimlib.sdk.v2.utils.V2NIMConversationIdUtil;
 import com.netease.yunxin.kit.alog.ALog;
-import com.netease.yunxin.kit.chatkit.cache.FriendUserCache;
 import com.netease.yunxin.kit.chatkit.listener.ChatListener;
 import com.netease.yunxin.kit.chatkit.listener.MessageRevokeNotification;
 import com.netease.yunxin.kit.chatkit.listener.MessageUpdateType;
+import com.netease.yunxin.kit.chatkit.manager.AIUserManager;
 import com.netease.yunxin.kit.chatkit.map.ChatLocationBean;
 import com.netease.yunxin.kit.chatkit.media.ImageUtil;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.model.RecentForward;
 import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
-import com.netease.yunxin.kit.chatkit.repo.ContactRepo;
+import com.netease.yunxin.kit.chatkit.repo.ConversationRepo;
 import com.netease.yunxin.kit.chatkit.repo.ResourceRepo;
 import com.netease.yunxin.kit.chatkit.repo.SettingRepo;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant;
@@ -73,13 +79,8 @@ import com.netease.yunxin.kit.common.utils.UriUtils;
 import com.netease.yunxin.kit.corekit.im2.IMKitClient;
 import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
 import com.netease.yunxin.kit.corekit.im2.extend.ProgressFetchCallback;
-import com.netease.yunxin.kit.corekit.im2.listener.ContactListener;
-import com.netease.yunxin.kit.corekit.im2.listener.V2FriendChangeType;
-import com.netease.yunxin.kit.corekit.im2.listener.V2UserListener;
-import com.netease.yunxin.kit.corekit.im2.model.FriendAddApplicationInfo;
 import com.netease.yunxin.kit.corekit.im2.model.IMMessageProgress;
 import com.netease.yunxin.kit.corekit.im2.model.UserWithFriend;
-import com.netease.yunxin.kit.corekit.im2.model.V2UserInfo;
 import com.netease.yunxin.kit.corekit.im2.provider.V2MessageProvider;
 import java.io.File;
 import java.io.IOException;
@@ -115,7 +116,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
       new MutableLiveData<>();
 
   // 用户信息变更，只有点击到用户个人信息页面才会远端拉取，如果有变更本地同步刷新
-  private final MutableLiveData<FetchResult<List<String>>> userChangeLiveData =
+  protected final MutableLiveData<FetchResult<List<String>>> userChangeLiveData =
       new MutableLiveData<>();
 
   // 标记消息LiveData
@@ -356,70 +357,6 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
   //点对点消息处理已读回执
   protected void onP2PMessageReadReceipts(List<V2NIMP2PMessageReadReceipt> readReceipts) {}
 
-  // 好友信息变更监听
-  private final ContactListener friendListener =
-      new ContactListener() {
-        @Override
-        public void onFriendChange(
-            @NonNull V2FriendChangeType friendChangeType,
-            @NonNull List<? extends UserWithFriend> friendList) {
-
-          List<UserWithFriend> needFriendList = new ArrayList<>();
-          List<String> accountList = new ArrayList<>();
-          for (UserWithFriend friendInfo : friendList) {
-            if (friendInfo != null && FriendUserCache.isFriend(friendInfo.getAccount())) {
-              needFriendList.add(friendInfo);
-              accountList.add(friendInfo.getAccount());
-            }
-          }
-
-          if (needFriendList.size() > 0) {
-            FetchResult<List<String>> userInfoFetchResult = new FetchResult<>(LoadStatus.Finish);
-            userInfoFetchResult.setData(accountList);
-            userInfoFetchResult.setType(FetchResult.FetchType.Update);
-            userChangeLiveData.setValue(userInfoFetchResult);
-          }
-          if (friendChangeType == V2FriendChangeType.Update) {
-            for (UserWithFriend friend : friendList) {
-              if (friend.getAccount().equals(mChatAccountId)) {
-                notifyFriendChange(friend);
-              }
-            }
-          }
-        }
-
-        @Override
-        public void onFriendAddApplication(@NonNull FriendAddApplicationInfo friendApplication) {}
-
-        @Override
-        public void onFriendAddRejected(@NonNull FriendAddApplicationInfo rejectionInfo) {}
-      };
-
-  // 用户信息变更，非好友关系SDK不会主动回调，只有进入当当前用户的个人信息页面，会主动调用远端拉取。
-  private final V2UserListener userListener =
-      users -> {
-        if (users.isEmpty()) {
-          return;
-        }
-        List<V2UserInfo> needCache = new ArrayList<>();
-        List<String> needCacheAccount = new ArrayList<>();
-        for (V2UserInfo user : users) {
-          if (ChatUserCache.getInstance().containsUser(user.getAccountId())) {
-            needCache.add(user);
-            needCacheAccount.add(user.getAccountId());
-          }
-        }
-
-        if (needCache.size() > 0) {
-          ChatUserCache.getInstance().addUserInfo(needCache);
-
-          FetchResult<List<String>> userInfoFetchResult = new FetchResult<>(LoadStatus.Finish);
-          userInfoFetchResult.setData(needCacheAccount);
-          userInfoFetchResult.setType(FetchResult.FetchType.Update);
-          userChangeLiveData.setValue(userInfoFetchResult);
-        }
-      };
-
   // 获取撤回消息LiveData
   public MutableLiveData<FetchResult<List<MessageRevokeInfo>>> getRevokeMessageLiveData() {
     return revokeMessageLiveData;
@@ -621,10 +558,18 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
 
   // 初始化，缓存清理、已读未读开关获取
   public void init(String accountId, V2NIMConversationType sessionType) {
-    ALog.d(LIB_TAG, TAG, "init accountId:" + accountId + " sessionType:" + sessionType);
     this.mChatAccountId = accountId;
     this.mConversationId = V2NIMConversationIdUtil.conversationId(accountId, sessionType);
     this.mSessionType = sessionType;
+    ALog.d(
+        LIB_TAG,
+        TAG,
+        "init accountId:"
+            + accountId
+            + " sessionType:"
+            + sessionType
+            + " conversationId:"
+            + mConversationId);
     ChatUserCache.getInstance().clear();
     SettingRepo.getShowReadStatus(
         new FetchCallback<>() {
@@ -641,8 +586,10 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
   // 设置当前会话账号，清理未读数
   public void setChattingAccount() {
     ALog.d(LIB_TAG, TAG, "setChattingAccount sessionId:" + mConversationId);
-    ChatRepo.setChattingId(mConversationId, mSessionType);
-    AitService.getInstance().clearAitInfo(mConversationId);
+    if (!TextUtils.isEmpty(mConversationId)) {
+      ChatRepo.setChattingId(mConversationId, mSessionType);
+      AitService.getInstance().clearAitInfo(mConversationId);
+    }
   }
 
   // 设置是否群聊
@@ -668,10 +615,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
   // 注册监听
   public void addListener() {
     ALog.d(LIB_TAG, TAG, "registerObservers ");
-
     ChatRepo.addMessageListener(messageListener);
-    ContactRepo.addFriendListener(friendListener);
-    ContactRepo.addUserListener(userListener);
   }
 
   // 移除监听
@@ -679,8 +623,6 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
     ALog.d(LIB_TAG, TAG, "unregisterObservers ");
     ChatUserCache.getInstance().clear();
     ChatRepo.removeMessageListener(messageListener);
-    ContactRepo.removeFriendListener(friendListener);
-    ContactRepo.removeUserListener(userListener);
   }
 
   // 发送文本消息
@@ -695,6 +637,33 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
     ALog.d(LIB_TAG, TAG, "sendTextMessage:" + (content != null ? content.length() : "null"));
     V2NIMMessage textMessage = V2NIMMessageCreator.createTextMessage(content);
     sendMessage(textMessage, pushList, remoteExtension);
+  }
+
+  /**
+   * 发送文本消息
+   *
+   * @param content 文本内容
+   * @param pushList push 列表
+   * @param remoteExtension 扩展字段
+   * @param aiUser AI 用户
+   * @param aiMessages AI消息上下文
+   */
+  public void sendTextMessage(
+      String content,
+      List<String> pushList,
+      Map<String, Object> remoteExtension,
+      V2NIMAIUser aiUser,
+      List<V2NIMAIModelCallMessage> aiMessages) {
+    ALog.d(LIB_TAG, TAG, "sendTextMessage:" + (content != null ? content.length() : "null"));
+    V2NIMMessage textMessage = V2NIMMessageCreator.createTextMessage(content);
+    //        sendMessage(textMessage, pushList, remoteExtension);
+    if (remoteExtension != null) {
+      JSONObject jsonObject = new JSONObject(remoteExtension);
+      sendMessageStrExtension(
+          textMessage, mConversationId, pushList, jsonObject.toString(), aiUser, aiMessages);
+    } else {
+      sendMessageStrExtension(textMessage, mConversationId, pushList, null, aiUser, aiMessages);
+    }
   }
 
   // 添加收藏
@@ -758,70 +727,24 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
   public void sendForwardMessage(
       ChatMessageBean message, String inputMsg, List<String> conversationIds) {
     ALog.d(LIB_TAG, TAG, "sendForwardMessage:" + conversationIds.size());
-    if (message != null && !message.isRevoked()) {
-      List<RecentForward> recentForwards = new ArrayList<>();
-      for (String conversationId : conversationIds) {
-        // 转发消息
-        V2NIMMessage forwardMessage =
-            V2NIMMessageCreator.createForwardMessage(message.getMessageData().getMessage());
-        MessageHelper.clearAitAndReplyInfo(forwardMessage);
-        sendMessageStrExtension(forwardMessage, conversationId, null, null);
-        sendNoteMessage(inputMsg, Collections.singletonList(conversationId));
-        //保存到最新转发
-        String sessionId = V2NIMConversationIdUtil.conversationTargetId(conversationId);
-        V2NIMConversationType sessionType =
-            V2NIMConversationIdUtil.conversationType(conversationId);
-        recentForwards.add(new RecentForward(sessionId, sessionType));
-      }
-      SettingRepo.saveRecentForward(recentForwards);
-    } else {
-      ToastX.showShortToast(R.string.chat_message_removed_tip);
-    }
+    MessageHelper.sendForwardMessage(message, inputMsg, conversationIds, false, needACK);
   }
   // 发送转发消息（逐条转发）
   public void sendForwardMessages(
       String inputMsg, List<String> conversationIds, List<ChatMessageBean> messages) {
-    if (conversationIds == null
-        || conversationIds.isEmpty()
-        || messages == null
-        || messages.isEmpty()) {
+    MessageHelper.sendForwardMessages(inputMsg, conversationIds, messages, false, needACK);
+  }
+
+  /** AI 消息本地保存一个欢迎语 */
+  public void saveWelcomeMessage() {
+    String content = AIUserManager.getWelcomeText(mChatAccountId);
+    if (TextUtils.isEmpty(content)) {
       return;
     }
-
-    boolean hasError = false;
-
-    //记录转发的最新会话
-    List<RecentForward> recentForwards = new ArrayList<>();
-    // 合并转发消息需要逆序的，所以获取消息列表是逆序。逐条转发需要正序，所以要倒序遍历
-    for (int index = messages.size() - 1; index >= 0; index--) {
-      ChatMessageBean message = messages.get(index);
-      if (message.isRevoked()) {
-        continue;
-      }
-      if (message.getMessageData().getMessage().getMessageType()
-          == V2NIMMessageType.V2NIM_MESSAGE_TYPE_AUDIO) {
-        hasError = true;
-        continue;
-      }
-      for (String conversationId : conversationIds) {
-        //转发
-        V2NIMMessage forwardMessage =
-            V2NIMMessageCreator.createForwardMessage(message.getMessageData().getMessage());
-        MessageHelper.clearAitAndReplyInfo(forwardMessage);
-        sendMessageStrExtension(forwardMessage, conversationId, null, null);
-        if (recentForwards.isEmpty()) {
-          String sessionId = V2NIMConversationIdUtil.conversationTargetId(conversationId);
-          V2NIMConversationType sessionType =
-              V2NIMConversationIdUtil.conversationType(conversationId);
-          recentForwards.add(new RecentForward(sessionId, sessionType));
-        }
-      }
-    }
-    SettingRepo.saveRecentForward(recentForwards);
-    if (hasError) {
-      ToastX.showLongToast(R.string.msg_multi_forward_error_tips);
-    }
-    sendNoteMessage(inputMsg, conversationIds);
+    V2NIMMessage welcomeMessage = V2NIMMessageCreator.createTextMessage(content);
+    ChatRepo.insertMessageToLocal(
+        welcomeMessage, mConversationId, mChatAccountId, System.currentTimeMillis(), null);
+    ConversationRepo.createConversation(mConversationId, null);
   }
 
   // 发送合并转发消息
@@ -881,7 +804,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
                 }
                 SettingRepo.saveRecentForward(recentForwards);
 
-                sendNoteMessage(inputMsg, conversationIds);
+                MessageHelper.sendNoteMessage(inputMsg, conversationIds, needACK);
               }
             }
           });
@@ -889,28 +812,6 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
     } catch (IOException e) {
       ALog.e(LIB_TAG, TAG, "sendMultiForwardMessage IOException:" + e.getMessage());
     }
-  }
-
-  /**
-   * 发送脚本消息
-   *
-   * @param inputMsg 输入的脚本消息
-   * @param conversationIds 会话ID列表
-   */
-  private void sendNoteMessage(String inputMsg, List<String> conversationIds) {
-    if (TextUtils.isEmpty(inputMsg) || TextUtils.getTrimmedLength(inputMsg) <= 0) {
-      return;
-    }
-    //delay 500ms 发送
-    new Handler(Looper.getMainLooper())
-        .postDelayed(
-            () -> {
-              for (String sessionId : conversationIds) {
-                V2NIMMessage textMessage = V2NIMMessageCreator.createTextMessage(inputMsg);
-                sendMessageStrExtension(textMessage, sessionId, null, null);
-              }
-            },
-            500);
   }
 
   // 发送位置消息
@@ -964,44 +865,39 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
       }
     }
     if (ImageUtil.isValidPictureFile(mimeType)) {
-      SendMediaHelper.handleImage(uri, true, this::sendImageMessage);
+      File file = UriUtils.uri2File(uri);
+      sendImageMessage(file);
     } else if (ImageUtil.isValidVideoFile(mimeType)) {
-      SendMediaHelper.handleVideo(
-          uri,
-          file -> {
-            MediaMetadataRetriever mmr = new MediaMetadataRetriever();
-            try {
-              mmr.setDataSource(file.getPath());
-              String duration = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
-              String width = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH);
-              String height = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT);
-              String orientation =
-                  mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION);
-              if (TextUtils.equals(orientation, Orientation_Vertical)) {
-                String local = width;
-                width = height;
-                height = local;
-              }
-              ALog.d(
-                  LIB_TAG,
-                  TAG,
-                  "width:" + width + "height" + height + "orientation:" + orientation);
-              sendVideoMessage(
-                  file,
-                  Integer.parseInt(duration),
-                  Integer.parseInt(width),
-                  Integer.parseInt(height),
-                  file.getName());
-            } catch (Exception e) {
-              e.printStackTrace();
-            } finally {
-              try {
-                mmr.release();
-              } catch (IOException e) {
-                e.printStackTrace();
-              }
-            }
-          });
+      File file = UriUtils.uri2File(uri);
+      MediaMetadataRetriever mmr = new MediaMetadataRetriever();
+      try {
+        mmr.setDataSource(file.getPath());
+        String duration = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+        String width = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH);
+        String height = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT);
+        String orientation =
+            mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION);
+        if (TextUtils.equals(orientation, Orientation_Vertical)) {
+          String local = width;
+          width = height;
+          height = local;
+        }
+        ALog.d(LIB_TAG, TAG, "width:" + width + "height" + height + "orientation:" + orientation);
+        sendVideoMessage(
+            file,
+            Integer.parseInt(duration),
+            Integer.parseInt(width),
+            Integer.parseInt(height),
+            file.getName());
+      } catch (Exception e) {
+        e.printStackTrace();
+      } finally {
+        try {
+          mmr.release();
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+      }
     } else {
       ToastX.showShortToast(R.string.chat_message_type_not_support_tips);
       ALog.d(LIB_TAG, TAG, "invalid file type");
@@ -1045,17 +941,46 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
   // 发送消息
   public void sendMessage(
       V2NIMMessage message, List<String> pushList, Map<String, Object> remoteExtension) {
+    sendMessage(message, pushList, remoteExtension, null, null);
+  }
+
+  /**
+   * 发送消息
+   *
+   * @param message 消息
+   * @param pushList 推送列表
+   * @param remoteExtension 扩展字段
+   * @param aiUser AI用户
+   * @param aiMessages AI消息上下文
+   */
+  public void sendMessage(
+      V2NIMMessage message,
+      List<String> pushList,
+      Map<String, Object> remoteExtension,
+      V2NIMAIUser aiUser,
+      List<V2NIMAIModelCallMessage> aiMessages) {
     if (remoteExtension != null) {
       JSONObject jsonObject = new JSONObject(remoteExtension);
-      sendMessageStrExtension(message, mConversationId, pushList, jsonObject.toString());
+      sendMessageStrExtension(
+          message, mConversationId, pushList, jsonObject.toString(), aiUser, aiMessages);
     } else {
-      sendMessageStrExtension(message, mConversationId, pushList, null);
+      sendMessageStrExtension(message, mConversationId, pushList, null, aiUser, aiMessages);
     }
+  }
+
+  public void sendMessageStrExtension(
+      V2NIMMessage message, String conversationId, List<String> pushList, String remoteExtension) {
+    sendMessageStrExtension(message, conversationId, pushList, remoteExtension, null, null);
   }
 
   // 发送消息，附带扩展字段
   public void sendMessageStrExtension(
-      V2NIMMessage message, String conversationId, List<String> pushList, String remoteExtension) {
+      V2NIMMessage message,
+      String conversationId,
+      List<String> pushList,
+      String remoteExtension,
+      V2NIMAIUser aiAgent,
+      List<V2NIMAIModelCallMessage> aiMessage) {
     if (message != null) {
       ALog.d(
           LIB_TAG,
@@ -1075,19 +1000,41 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
       if (pushList != null && !pushList.isEmpty()) {
         pushConfigBuilder.withForcePush(true).withForcePushAccountIds(pushList);
       }
-      V2NIMSendMessageParams params =
+      V2NIMSendMessageParams.V2NIMSendMessageParamsBuilder paramsBuilder =
           V2NIMSendMessageParams.V2NIMSendMessageParamsBuilder.builder()
               .withMessageConfig(configBuilder.build())
-              .withPushConfig(pushConfigBuilder.build())
-              .build();
+              .withPushConfig(pushConfigBuilder.build());
+
       //remoteExtension设置
       if (!TextUtils.isEmpty(remoteExtension)) {
         message.setServerExtension(remoteExtension);
       }
+
+      //@ AI机器人代理设置
+      V2NIMMessageAIConfigParams aiConfigParams = null;
+      String chatId = V2NIMConversationIdUtil.conversationTargetId(conversationId);
+      if (aiAgent == null && AIUserManager.isAIUser(chatId)) {
+        aiAgent = AIUserManager.getAIUserById(chatId);
+      }
+      if (aiAgent != null) {
+        aiConfigParams = new V2NIMMessageAIConfigParams(aiAgent.getAccountId());
+        if (!TextUtils.isEmpty(MessageHelper.getAIContentMsg(message))) {
+          V2NIMAIModelCallContent content =
+              new V2NIMAIModelCallContent(MessageHelper.getAIContentMsg(message), 0);
+          aiConfigParams.setContent(content);
+        }
+      }
+      //AI消息上下文设置
+      if (aiConfigParams != null && aiMessage != null && !aiMessage.isEmpty()) {
+        aiConfigParams.setMessages(aiMessage);
+      }
+      if (aiConfigParams != null) {
+        paramsBuilder.withAIConfig(aiConfigParams);
+      }
       ChatRepo.sendMessage(
           message,
           conversationId,
-          params,
+          paramsBuilder.build(),
           new ProgressFetchCallback<>() {
 
             @Override
@@ -1110,6 +1057,10 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
                   && TextUtils.equals(data.getMessage().getConversationId(), mConversationId)) {
                 ALog.d(LIB_TAG, TAG, "sendingObserver onSuccess -->> " + mConversationId);
                 postMessageSend(new IMMessageInfo(data.getMessage()), false);
+                V2NIMMessageAIConfig aiConfig = data.getMessage().getAIConfig();
+                if (aiConfig != null) {
+                  ToastX.showShortToast(R.string.chat_ai_message_progressing);
+                }
               }
             }
 
@@ -1246,6 +1197,10 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
         direction == V2NIMMessageQueryDirection.V2NIM_QUERY_DIRECTION_DESC ? 0 : -1);
     messageLiveData.setValue(messageFetchResult);
     if (anchorMsg == null) {
+      //AI用户首次加载消息，如果消息为空则本地保存一条欢迎语
+      if (AIUserManager.isAIUser(mChatAccountId) && (param == null || param.isEmpty())) {
+        saveWelcomeMessage();
+      }
       //首次加载消息，获取消息的发送者信息
       getTeamMemberInfoWithMessage(param);
     }
@@ -1277,7 +1232,8 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
       V2NIMMessage message,
       V2NIMMessage replyMsg,
       List<String> pushList,
-      Map<String, Object> remoteExtension) {
+      Map<String, Object> remoteExtension,
+      V2NIMAIUser aiUser) {
     ALog.d(
         LIB_TAG,
         TAG,
@@ -1286,21 +1242,38 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
       return;
     }
     //设置remoteExtension
+    V2NIMAIModelCallMessage aiMessage = null;
+    if (aiUser != null
+        && replyMsg != null
+        && !TextUtils.isEmpty(MessageHelper.getAIContentMsg(replyMsg))) {
+      aiMessage =
+          new V2NIMAIModelCallMessage(
+              V2NIMAIModelRoleType.V2NIM_AI_MODEL_ROLE_TYPE_USER,
+              MessageHelper.getAIContentMsg(replyMsg),
+              0);
+    }
     Map<String, Object> remote = MessageHelper.createReplyExtension(remoteExtension, replyMsg);
-    sendMessage(message, pushList, remote);
+
+    sendMessage(
+        message,
+        pushList,
+        remote,
+        aiUser,
+        aiMessage == null ? null : Collections.singletonList(aiMessage));
   }
 
   public void replyTextMessage(
       String content,
       V2NIMMessage message,
       List<String> pushList,
-      Map<String, Object> remoteExtension) {
+      Map<String, Object> remoteExtension,
+      V2NIMAIUser aiUser) {
     ALog.d(
         LIB_TAG,
         TAG,
         "replyTextMessage,message" + (message == null ? "null" : message.getMessageClientId()));
     V2NIMMessage textMessage = V2NIMMessageCreator.createTextMessage(content);
-    replyMessage(textMessage, message, pushList, remoteExtension);
+    replyMessage(textMessage, message, pushList, remoteExtension, aiUser);
   }
 
   // ********************Message Pin********************

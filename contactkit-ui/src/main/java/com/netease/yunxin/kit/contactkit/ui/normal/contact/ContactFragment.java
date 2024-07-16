@@ -129,13 +129,18 @@ public class ContactFragment extends BaseContactFragment {
     contactDataList.add(verifyBean);
     contactDataList.add(blackBean);
     // my group
-    if (IMKitConfigCenter.getTeamEnable()) {
+    if (IMKitConfigCenter.getEnableTeam()) {
       ContactEntranceBean groupBean =
           new ContactEntranceBean(
               R.mipmap.ic_contact_my_group, context.getString(R.string.contact_list_my_group));
       groupBean.router = RouterConstant.PATH_MY_TEAM_PAGE;
       contactDataList.add(groupBean);
     }
+    ContactEntranceBean aiUserBean =
+        new ContactEntranceBean(
+            R.mipmap.ic_contact_ai_user, context.getString(R.string.contact_ai_user_title));
+    aiUserBean.router = RouterConstant.PATH_MY_AI_USER_PAGE;
+    contactDataList.add(aiUserBean);
 
     return contactDataList;
   }

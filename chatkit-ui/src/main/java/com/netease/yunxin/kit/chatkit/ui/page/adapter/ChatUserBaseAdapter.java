@@ -46,6 +46,20 @@ public class ChatUserBaseAdapter extends RecyclerView.Adapter<BaseViewHolder> {
     }
   }
 
+  /**
+   * 更新用户信息
+   *
+   * @param accIds 用户ID列表
+   */
+  public void updateUserInfo(List<String> accIds) {
+    for (int i = 0; i < dataList.size(); i++) {
+      ChatReadUserBean bean = dataList.get(i);
+      if (accIds.contains(bean.userInfo.getAccount())) {
+        notifyItemChanged(i);
+      }
+    }
+  }
+
   public void removeData(ChatReadUserBean data) {
     if (data == null) {
       return;

@@ -12,6 +12,7 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import com.netease.yunxin.kit.chatkit.ui.R;
+import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatBaseMessageViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.databinding.FunChatMessageTipViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
@@ -77,7 +78,9 @@ public class ChatTipsMessageViewHolder extends FunChatBaseMessageViewHolder {
   @Override
   public void bindData(ChatMessageBean message, ChatMessageBean lastMessage) {
     super.bindData(message, lastMessage);
-    String content = message.getMessageData().getMessage().getText();
+    String content =
+        MessageHelper.getTipsMessageContent(
+            parent.getContext(), message.getMessageData().getMessage());
     if (content == null || content.isEmpty()) {
       // create team tip
       Map<String, Object> extension =

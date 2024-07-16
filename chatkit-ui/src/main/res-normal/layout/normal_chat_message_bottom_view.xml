@@ -105,7 +105,7 @@
                 android:background="@null"
                 android:ellipsize="end"
                 android:imeOptions="actionSend"
-                android:inputType="text"
+                android:inputType="textNoSuggestions"
                 android:maxLength="2000"
                 android:paddingStart="@dimen/dimen_12_dp"
                 android:textColorHint="@color/color_b3b7bc"

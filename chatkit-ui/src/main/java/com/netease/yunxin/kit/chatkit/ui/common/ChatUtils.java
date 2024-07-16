@@ -36,6 +36,7 @@ import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitClient;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant;
 import com.netease.yunxin.kit.chatkit.ui.R;
+import com.netease.yunxin.kit.chatkit.ui.cache.TeamUserManager;
 import com.netease.yunxin.kit.chatkit.ui.custom.MultiForwardAttachment;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.page.WatchImageActivity;
@@ -543,21 +544,28 @@ public class ChatUtils {
       if (o1 == null || o2 == null) {
         return 0;
       }
+      if (o1.getTeamMember().getMemberRole() == o2.getTeamMember().getMemberRole()) {
+        return Long.compare(o1.getTeamMember().getJoinTime(), o2.getTeamMember().getJoinTime());
+      }
+
       if (o1.getTeamMember().getMemberRole() == V2NIMTeamMemberRole.V2NIM_TEAM_MEMBER_ROLE_OWNER) {
         return -1;
-      } else if (o2.getTeamMember().getMemberRole()
-          == V2NIMTeamMemberRole.V2NIM_TEAM_MEMBER_ROLE_OWNER) {
-        return 1;
-      } else if (o1.getTeamMember().getMemberRole() == o2.getTeamMember().getMemberRole()) {
-        return o1.getTeamMember().getJoinTime() < o2.getTeamMember().getJoinTime() ? -1 : 1;
-      } else {
-        if (o1.getTeamMember().getMemberRole()
-            == V2NIMTeamMemberRole.V2NIM_TEAM_MEMBER_ROLE_MANAGER) {
-          return -1;
-        } else {
-          return 1;
-        }
       }
+      if (o2.getTeamMember().getMemberRole() == V2NIMTeamMemberRole.V2NIM_TEAM_MEMBER_ROLE_OWNER) {
+        return 1;
+      }
+
+      if (o1.getTeamMember().getMemberRole()
+          == V2NIMTeamMemberRole.V2NIM_TEAM_MEMBER_ROLE_MANAGER) {
+        return -1;
+      }
+
+      if (o2.getTeamMember().getMemberRole()
+          == V2NIMTeamMemberRole.V2NIM_TEAM_MEMBER_ROLE_MANAGER) {
+        return 1;
+      }
+
+      return Long.compare(o1.getTeamMember().getJoinTime(), o2.getTeamMember().getJoinTime());
     };
   }
 
@@ -567,7 +575,7 @@ public class ChatUtils {
    * @return 是否有置顶权限
    */
   public static boolean havePermissionForTopSticky() {
-    V2NIMTeam team = ChatUserCache.getInstance().getCurrentTeam();
+    V2NIMTeam team = TeamUserManager.getInstance().getCurrentTeam();
     boolean isAllAllow = false;
     if (team != null && team.getServerExtension() != null) {
       String teamExtension = team.getServerExtension();
@@ -591,10 +599,9 @@ public class ChatUtils {
         return true;
       }
     }
-    V2NIMTeamMember teamMember =
-        ChatUserCache.getInstance().getTeamMemberOnly(IMKitClient.account());
+    V2NIMTeamMember teamMember = TeamUserManager.getInstance().getCurTeamMember();
     if (teamMember == null) {
-      teamMember = ChatUserCache.getInstance().getCurTeamMember();
+      teamMember = TeamUserManager.getInstance().getCurTeamMember();
     }
     return teamMember != null
         && (teamMember.getMemberRole() == V2NIMTeamMemberRole.V2NIM_TEAM_MEMBER_ROLE_OWNER

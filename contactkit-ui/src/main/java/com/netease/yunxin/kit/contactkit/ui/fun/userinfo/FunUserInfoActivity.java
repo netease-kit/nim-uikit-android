@@ -8,6 +8,7 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
+import com.netease.yunxin.kit.chatkit.manager.AIUserManager;
 import com.netease.yunxin.kit.common.utils.NetworkUtils;
 import com.netease.yunxin.kit.common.utils.SizeUtils;
 import com.netease.yunxin.kit.contactkit.ui.R;
@@ -55,7 +56,11 @@ public class FunUserInfoActivity extends BaseUserInfoActivity {
   }
 
   protected void goChat() {
-    XKitRouter.withKey(RouterConstant.PATH_FUN_CHAT_P2P_PAGE)
+    String path = RouterConstant.PATH_FUN_CHAT_P2P_PAGE;
+    if (AIUserManager.isAIUser(userInfoData.data.getAccountId())) {
+      path = RouterConstant.PATH_FUN_CHAT_AI_PAGE;
+    }
+    XKitRouter.withKey(path)
         .withParam(RouterConstant.CHAT_ID_KRY, userInfoData.data.getAccountId())
         .withContext(FunUserInfoActivity.this)
         .navigate();

@@ -20,8 +20,8 @@ import com.netease.yunxin.kit.contactkit.ui.R;
 import com.netease.yunxin.kit.contactkit.ui.model.ContactBlackListBean;
 import com.netease.yunxin.kit.corekit.im2.IMKitClient;
 import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
+import com.netease.yunxin.kit.corekit.im2.listener.ContactChangeType;
 import com.netease.yunxin.kit.corekit.im2.listener.ContactListener;
-import com.netease.yunxin.kit.corekit.im2.listener.V2FriendChangeType;
 import com.netease.yunxin.kit.corekit.im2.model.FriendAddApplicationInfo;
 import com.netease.yunxin.kit.corekit.im2.model.UserWithFriend;
 import com.netease.yunxin.kit.corekit.im2.model.V2UserInfo;
@@ -51,17 +51,17 @@ public class BlackListViewModel extends BaseViewModel {
     friendListener =
         new ContactListener() {
           @Override
-          public void onFriendChange(
-              @NonNull V2FriendChangeType friendChangeType,
-              @NonNull List<? extends UserWithFriend> friendList) {
+          public void onContactChange(
+              @NonNull ContactChangeType changeType,
+              @NonNull List<? extends UserWithFriend> contactList) {
 
             // 移除黑名单黑名单
-            if (friendChangeType == V2FriendChangeType.RemoveBlack) {
-              removeBlackData(friendList);
+            if (changeType == ContactChangeType.RemoveBlack) {
+              removeBlackData(contactList);
             }
             // 添加黑名单
-            else if (friendChangeType == V2FriendChangeType.AddBlack) {
-              addBlackData(friendList);
+            else if (changeType == ContactChangeType.AddBlack) {
+              addBlackData(contactList);
             }
           }
 
@@ -71,7 +71,7 @@ public class BlackListViewModel extends BaseViewModel {
           @Override
           public void onFriendAddRejected(@NonNull FriendAddApplicationInfo rejectionInfo) {}
         };
-    ContactRepo.addFriendListener(friendListener);
+    ContactRepo.addContactListener(friendListener);
   }
 
   public void getBlackList() {
@@ -221,6 +221,6 @@ public class BlackListViewModel extends BaseViewModel {
   @Override
   protected void onCleared() {
     super.onCleared();
-    ContactRepo.removeFriendListener(friendListener);
+    ContactRepo.removeContactListener(friendListener);
   }
 }

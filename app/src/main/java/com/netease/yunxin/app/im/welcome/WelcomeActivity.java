@@ -4,6 +4,9 @@
 
 package com.netease.yunxin.app.im.welcome;
 
+import static com.netease.yunxin.app.im.IMApplication.LOGIN_PARENT_SCOPE;
+import static com.netease.yunxin.app.im.IMApplication.LOGIN_SCOPE;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -20,47 +23,46 @@ import com.netease.yunxin.app.im.databinding.ActivityWelcomeBinding;
 import com.netease.yunxin.app.im.main.MainActivity;
 import com.netease.yunxin.app.im.utils.Constant;
 import com.netease.yunxin.kit.alog.ALog;
+import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
 import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
 import com.netease.yunxin.kit.common.ui.utils.ToastX;
 import com.netease.yunxin.kit.corekit.im2.IMKitClient;
 import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
 
-/**
- * 启动页面 如果没有登录则展示登录按钮，点击登录按钮进入登录页面 如果已经登录则直接进入主页面
- */
+/** 启动页面 如果没有登录则展示登录按钮，点击登录按钮进入登录页面 如果已经登录则直接进入主页面 */
 public class WelcomeActivity extends BaseActivity {
 
-    private static final String TAG = "WelcomeActivity";
-    private ActivityWelcomeBinding activityWelcomeBinding;
+  private static final String TAG = "WelcomeActivity";
+  private ActivityWelcomeBinding activityWelcomeBinding;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        ALog.d(Constant.PROJECT_TAG, TAG, "onCreateView");
-        IMApplication.setColdStart(true);
-        activityWelcomeBinding = ActivityWelcomeBinding.inflate(getLayoutInflater());
-        setContentView(activityWelcomeBinding.getRoot());
-        // 判断是否已经登录
-        if (TextUtils.isEmpty(NIMClient.getCurrentAccount())) {
-            startLogin();
-        } else {
-            showMainActivityAndFinish();
-        }
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    ALog.d(Constant.PROJECT_TAG, TAG, "onCreateView");
+    IMApplication.setColdStart(true);
+    activityWelcomeBinding = ActivityWelcomeBinding.inflate(getLayoutInflater());
+    setContentView(activityWelcomeBinding.getRoot());
+    // 判断是否已经登录
+    if (TextUtils.isEmpty(NIMClient.getCurrentAccount())) {
+      startLogin();
+    } else {
+      showMainActivityAndFinish();
     }
+  }
 
-    // 进入主页面并结束当前页面
-    private void showMainActivityAndFinish() {
-        ALog.d(Constant.PROJECT_TAG, TAG, "showMainActivityAndFinish");
-        Intent intent = new Intent();
-        intent.setClass(this, MainActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        this.startActivity(intent);
-        finish();
-    }
+  // 进入主页面并结束当前页面
+  private void showMainActivityAndFinish() {
+    ALog.d(Constant.PROJECT_TAG, TAG, "showMainActivityAndFinish");
+    Intent intent = new Intent();
+    intent.setClass(this, MainActivity.class);
+    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+    this.startActivity(intent);
+    finish();
+  }
 
-    // 开始登录
-    private void startLogin() {
-        ALog.d(Constant.PROJECT_TAG, TAG, "startLogin");
+  // 开始登录
+  private void startLogin() {
+    ALog.d(Constant.PROJECT_TAG, TAG, "startLogin");
 
         //填入你的 account and token
         String account = "";

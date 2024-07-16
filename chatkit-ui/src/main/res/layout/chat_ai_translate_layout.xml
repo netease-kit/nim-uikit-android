@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:background="#f5f5f5">
+    
+    <FrameLayout android:id="@+id/topLayout"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dimen_35_dp">
+        <TextView android:id="@+id/aiLanguageTv"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/dimen_18_dp"
+            android:textSize="@dimen/text_size_10"
+            android:layout_gravity="center_vertical"
+            android:gravity="center"
+            android:paddingStart="@dimen/dimen_6_dp"
+            android:paddingEnd="@dimen/dimen_6_dp"
+            android:background="@drawable/bg_corner_white_stroke_4"
+            android:text="@string/chat_ai_translate_target_language"
+            android:layout_marginLeft="@dimen/dimen_12_dp"/>
+
+        <ImageView android:id="@+id/aiCloseIv"
+            android:layout_width="@dimen/dimen_20_dp"
+            android:layout_height="@dimen/dimen_20_dp"
+            android:src="@drawable/chat_ic_close"
+            android:layout_gravity="center_vertical|end"
+            android:layout_marginEnd="@dimen/dimen_12_dp"/>
+    </FrameLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dimen_1_dp"
+        android:layout_marginStart="@dimen/dimen_12_dp"
+        android:layout_marginEnd="@dimen/dimen_12_dp"
+        android:background="@color/color_ededed"/>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView android:id="@+id/aiTipTv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="@dimen/dimen_18_dp"
+            android:textSize="@dimen/text_size_14"
+            android:textColor="#aaaaaa"
+            android:layout_marginEnd="@dimen/dimen_68_dp"
+            android:layout_marginStart="@dimen/dimen_12_dp"
+            android:layout_marginTop="@dimen/dimen_12_dp"
+            android:layout_marginBottom="@dimen/dimen_6_dp"
+            android:text="@string/chat_ai_translate_tips"
+            android:layout_gravity="top|left"/>
+
+        <TextView android:id="@+id/aiResultTv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="@dimen/dimen_18_dp"
+            android:textSize="@dimen/text_size_14"
+            android:maxLines="3"
+            android:textColor="@color/color_333333"
+            android:layout_marginEnd="@dimen/dimen_68_dp"
+            android:layout_marginStart="@dimen/dimen_12_dp"
+            android:layout_marginTop="@dimen/dimen_12_dp"
+            android:layout_marginBottom="@dimen/dimen_6_dp"
+            android:background="#f5f5f5"
+            android:layout_gravity="top|left"
+            android:visibility="gone"/>
+
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/aiLoadingLv"
+            android:layout_width="@dimen/dimen_18_dp"
+            android:layout_height="@dimen/dimen_18_dp"
+            android:layout_gravity="top|right"
+            app:lottie_fileName="lottie/lottie_loading.json"
+            android:layout_marginEnd="@dimen/dimen_60_dp"
+            android:layout_marginTop="@dimen/dimen_12_dp"
+            app:lottie_loop="true"
+            android:visibility="gone"/>
+
+        <TextView android:id="@+id/aiOperateTv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/text_size_14"
+            android:textColor="@color/color_337eff"
+            android:layout_marginEnd="@dimen/dimen_12_dp"
+            android:layout_marginTop="@dimen/dimen_12_dp"
+            android:text="@string/chat_ai_translate"
+            android:letterSpacing="0.1"
+            android:drawablePadding="@dimen/dimen_4_dp"
+            android:layout_gravity="top|right" />
+
+        <TextView android:id="@+id/aiOperateResultTv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/text_size_14"
+            android:textColor="@color/color_337eff"
+            android:layout_marginEnd="@dimen/dimen_12_dp"
+            android:layout_marginTop="@dimen/dimen_12_dp"
+            android:text="@string/chat_use_ai_translate"
+            android:letterSpacing="0.1"
+            android:drawablePadding="@dimen/dimen_4_dp"
+            android:layout_gravity="top|right"
+            android:background="#f5f5f5"
+            android:visibility="gone"
+            app:drawableEndCompat="@drawable/ic_arrow_down_blue" />
+    </FrameLayout>
+
+</LinearLayout>

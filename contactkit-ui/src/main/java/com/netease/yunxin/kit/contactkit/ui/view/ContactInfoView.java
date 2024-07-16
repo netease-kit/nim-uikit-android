@@ -12,6 +12,7 @@ import android.widget.FrameLayout;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import com.netease.yunxin.kit.chatkit.manager.AIUserManager;
 import com.netease.yunxin.kit.common.utils.NetworkUtils;
 import com.netease.yunxin.kit.contactkit.ui.R;
 import com.netease.yunxin.kit.contactkit.ui.databinding.UserInfoLayoutBinding;
@@ -49,7 +50,7 @@ public class ContactInfoView extends FrameLayout {
   }
 
   public void setData(ContactUserInfoBean userInfo) {
-    String name = userInfo.data.getUserInfoName();
+    String name = userInfo.getUserName();
     String nickName = null;
     if (userInfo.friendInfo != null) {
       nickName = userInfo.friendInfo.getAlias();
@@ -104,7 +105,7 @@ public class ContactInfoView extends FrameLayout {
             userCallback.addBlackList(isChecked);
           }
         });
-    setIsFriend(userInfo.isFriend);
+    setFriendOptions(userInfo);
   }
 
   public void setCommentClickListener(OnClickListener onClickListener) {
@@ -115,8 +116,8 @@ public class ContactInfoView extends FrameLayout {
     binding.tvDelete.setOnClickListener(clickListener);
   }
 
-  private void setIsFriend(boolean isFriend) {
-    if (isFriend) {
+  private void setFriendOptions(ContactUserInfoBean userInfo) {
+    if (userInfo.isFriend) {
       binding.llyFriend.setVisibility(VISIBLE);
       binding.rlyComment.setVisibility(VISIBLE);
       binding.tvChat.setOnClickListener(
@@ -127,6 +128,19 @@ public class ContactInfoView extends FrameLayout {
           });
       binding.tvChat.setText(R.string.chat);
       binding.tvDelete.setVisibility(VISIBLE);
+      return;
+    }
+    if (AIUserManager.isAIUser(userInfo.data.getAccountId())) {
+      binding.llyFriend.setVisibility(GONE);
+      binding.rlyComment.setVisibility(GONE);
+      binding.tvChat.setText(R.string.chat);
+      binding.tvDelete.setVisibility(GONE);
+      binding.tvChat.setOnClickListener(
+          v -> {
+            if (userCallback != null) {
+              userCallback.goChat();
+            }
+          });
     } else {
       binding.llyFriend.setVisibility(GONE);
       binding.rlyComment.setVisibility(GONE);

@@ -12,7 +12,7 @@ import com.netease.yunxin.kit.chatkit.model.RecentForward;
 import com.netease.yunxin.kit.common.ui.utils.AvatarColor;
 import com.netease.yunxin.kit.contactkit.ui.databinding.ForwardRecentSelectorViewHolderBinding;
 import com.netease.yunxin.kit.contactkit.ui.model.SelectableBean;
-import com.netease.yunxin.kit.contactkit.ui.selector.forward.BaseSelectableViewHolder;
+import com.netease.yunxin.kit.contactkit.ui.selector.BaseSelectableViewHolder;
 import com.netease.yunxin.kit.contactkit.ui.selector.forward.adapter.BaseRecentForwardSelectorAdapter;
 
 public class RecentForwardAdapter

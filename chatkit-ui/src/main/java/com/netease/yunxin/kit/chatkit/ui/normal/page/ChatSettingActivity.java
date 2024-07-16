@@ -9,6 +9,7 @@ import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.CHAT_P2P_INVIT
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
@@ -21,6 +22,7 @@ import com.netease.yunxin.kit.chatkit.ui.page.viewmodel.ChatSettingViewModel;
 import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
 import com.netease.yunxin.kit.common.ui.utils.AvatarColor;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
+import com.netease.yunxin.kit.common.utils.NetworkUtils;
 import com.netease.yunxin.kit.corekit.event.EventCenter;
 import com.netease.yunxin.kit.corekit.event.EventNotify;
 import com.netease.yunxin.kit.corekit.im2.model.UserWithFriend;
@@ -76,7 +78,7 @@ public class ChatSettingActivity extends BaseActivity {
       return;
     }
     refreshView();
-    if (IMKitConfigCenter.getTeamEnable()) {
+    if (IMKitConfigCenter.getEnableTeam()) {
       binding.addIv.setVisibility(View.VISIBLE);
       binding.noTeamNameTv.setVisibility(View.GONE);
       binding.nameTv.setVisibility(View.VISIBLE);
@@ -88,21 +90,38 @@ public class ChatSettingActivity extends BaseActivity {
     }
 
     binding.stickTopLayout.setOnClickListener(
-        v -> viewModel.stickTop(accId, !binding.stickTopSC.isChecked()));
+        v -> {
+          if (!NetworkUtils.isConnected()) {
+            Toast.makeText(this, R.string.chat_network_error_tip, Toast.LENGTH_SHORT).show();
+            return;
+          }
+          viewModel.stickTop(accId, !binding.stickTopSC.isChecked());
+        });
 
-    binding.pinLayout.setOnClickListener(
-        v ->
-            XKitRouter.withKey(RouterConstant.PATH_CHAT_PIN_PAGE)
-                .withParam(
-                    RouterConstant.KEY_SESSION_TYPE,
-                    V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P.getValue())
-                .withParam(RouterConstant.KEY_SESSION_ID, accId)
-                .withParam(RouterConstant.KEY_SESSION_NAME, getName())
-                .withContext(ChatSettingActivity.this)
-                .navigate());
+    if (IMKitConfigCenter.getEnablePinMessage()) {
+      binding.pinLayout.setVisibility(View.VISIBLE);
+      binding.pinLayout.setOnClickListener(
+          v ->
+              XKitRouter.withKey(RouterConstant.PATH_CHAT_PIN_PAGE)
+                  .withParam(
+                      RouterConstant.KEY_SESSION_TYPE,
+                      V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P.getValue())
+                  .withParam(RouterConstant.KEY_SESSION_ID, accId)
+                  .withParam(RouterConstant.KEY_SESSION_NAME, getName())
+                  .withContext(ChatSettingActivity.this)
+                  .navigate());
+    } else {
+      binding.pinLayout.setVisibility(View.GONE);
+    }
 
     binding.notifyLayout.setOnClickListener(
-        v -> viewModel.setMute(accId, binding.notifySC.isChecked()));
+        v -> {
+          if (!NetworkUtils.isConnected()) {
+            Toast.makeText(this, R.string.chat_network_error_tip, Toast.LENGTH_SHORT).show();
+            return;
+          }
+          viewModel.setMute(accId, binding.notifySC.isChecked());
+        });
   }
 
   private void refreshView() {
@@ -132,6 +151,7 @@ public class ChatSettingActivity extends BaseActivity {
                 refreshView();
               }
             });
+
     viewModel
         .getStickTopLiveData()
         .observe(
@@ -164,6 +184,45 @@ public class ChatSettingActivity extends BaseActivity {
                 }
               }
             });
+    if (IMKitConfigCenter.getEnableAIUser()) {
+      viewModel
+          .getAIUserPinLiveData()
+          .observe(
+              this,
+              result -> {
+                if (result.getData() != null) {
+                  if (result.getLoadStatus() == LoadStatus.Success) {
+                    if (result.getData() != binding.aiPinSC.isChecked()) {
+                      binding.aiPinSC.setChecked(result.getData());
+                    }
+                  } else {
+                    binding.aiPinSC.setChecked(!binding.aiPinSC.isChecked());
+                  }
+                }
+              });
+      viewModel
+          .getIsAIPinLiveData()
+          .observe(
+              this,
+              result -> {
+                if (result.getLoadStatus() == LoadStatus.Success) {
+                  if (IMKitConfigCenter.getEnableAIUser() && result.getData()) {
+                    binding.aiPinLayout.setVisibility(View.VISIBLE);
+                    binding.aiPinDivider.setVisibility(View.VISIBLE);
+                    binding.aiPinLayout.setOnClickListener(
+                        new View.OnClickListener() {
+                          @Override
+                          public void onClick(View v) {
+                            viewModel.switchPinAIUser(!binding.aiPinSC.isChecked(), accId);
+                          }
+                        });
+                  } else {
+                    binding.aiPinLayout.setVisibility(View.GONE);
+                    binding.aiPinDivider.setVisibility(View.GONE);
+                  }
+                }
+              });
+    }
     viewModel.requestData(accId);
   }
 

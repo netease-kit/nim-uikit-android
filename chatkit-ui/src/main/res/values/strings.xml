@@ -24,6 +24,7 @@
     <string name="chat_message_signal">标记</string>
     <string name="chat_message_open_message_notice">开启消息提醒</string>
     <string name="chat_message_set_top">聊天置顶</string>
+    <string name="chat_message_set_ai_pin">PIN置顶</string>
     <string name="chat_message_add_to_black_list">加入黑名单</string>
     <string name="chat_message_delete">删除</string>
     <string name="chat_setting">聊天设置</string>
@@ -62,6 +63,7 @@
     <string name="chat_message_video_call">音视频通话</string>
     <string name="chat_message_video_call_action">视频通话</string>
     <string name="chat_message_audio_call_action">语音通话</string>
+    <string name="chat_message_translate_action">翻译</string>
 
     <string name="chat_message_audio_call_text">[语音通话]</string>
     <string name="chat_message_video_call_text">[视频通话]</string>
@@ -194,6 +196,7 @@
     <!-- error -->
     <string name="chat_message_reply_error">获取回复消息错误</string>
     <string name="chat_network_error_tip">当前网络不可用，请检查你的网络设置。</string>
+    <string name="chat_kit_no_permission_error">您暂无操作权限</string>
 
     <!-- tips -->
     <string name="chat_message_not_support_tips">[未知消息体]</string>
@@ -265,5 +268,29 @@
     <string name="msg_type_tip">[提醒消息]</string>
     <string name="msg_type_custom">[自定义消息]</string>
     <string name="msg_type_no_tips">[未知消息体]</string>
+
+    <!-- AI -->
+    <string name="chat_ai_translate">AI处理</string>
+    <string name="chat_use_ai_translate">使用</string>
+    <string name="chat_ai_translate_tips">翻译为...</string>
+    <string name="chat_ai_translate_language_title">将输入内容翻译为</string>
+    <string name="chat_ai_translate_target_language">翻译语言</string>
+    <string name="chat_ai_search_error">模型请求异常</string>
+    <string name="chat_ai_message_progressing">大模型请求响应中...</string>
+    <!-- AI 请求错误处理 -->
+    <string name="chat_ai_message_type_unsupport">暂不支持该格式</string>
+    <string name="chat_ai_error_user_not_exist">用户不存在</string>
+    <string name="chat_ai_error_failed_request_to_the_llm">请求大语言模型失败</string>
+    <string name="chat_ai_error_ai_messages_function_disabled">AI消息功能未开通</string>
+    <string name="chat_ai_error_user_banned">用户被禁用</string>
+    <string name="chat_ai_error_user_chat_banned">用户被禁言</string>
+    <string name="chat_ai_error_message_hit_antispam">消息命中反垃圾</string>
+    <string name="chat_ai_error_not_an_ai_account">不是数字人账号</string>
+    <string name="chat_ai_error_team_member_not_exist">群成员不存在</string>
+    <string name="chat_ai_error_team_normal_member_chat_banned">群普通成员禁言</string>
+    <string name="chat_ai_error_team_member_chat_banned">群成员被禁言</string>
+    <string name="chat_ai_error_cannot_blocklist_an_ai_account">不允许对数字人进行黑名单操作</string>
+    <string name="chat_ai_error_rate_limit_exceeded">频率超限</string>
+    <string name="chat_ai_error_parameter">参数错误</string>
 
 </resources>

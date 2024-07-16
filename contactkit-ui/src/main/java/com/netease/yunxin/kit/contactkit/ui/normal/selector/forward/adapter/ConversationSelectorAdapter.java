@@ -16,7 +16,7 @@ import com.netease.yunxin.kit.common.ui.utils.AvatarColor;
 import com.netease.yunxin.kit.contactkit.ui.R;
 import com.netease.yunxin.kit.contactkit.ui.databinding.ForwardConversationSelectorViewHolderBinding;
 import com.netease.yunxin.kit.contactkit.ui.model.SelectableBean;
-import com.netease.yunxin.kit.contactkit.ui.selector.forward.BaseSelectableViewHolder;
+import com.netease.yunxin.kit.contactkit.ui.selector.BaseSelectableViewHolder;
 import com.netease.yunxin.kit.contactkit.ui.selector.forward.adapter.BaseConversationSelectorAdapter;
 
 public class ConversationSelectorAdapter

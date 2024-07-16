@@ -1,7 +1,7 @@
+
 /*
- * Copyright (c) 2022 NetEase, Inc. All rights reserved.
- * Use of this source code is governed by a MIT license that can be
- * found in the LICENSE file.
+ * Copyright (c) 2022 NetEase, Inc.  All rights reserved.
+ * Use of this source code is governed by a MIT license that can be found in the LICENSE file.
  */
 
 plugins {
@@ -16,7 +16,7 @@ android {
     defaultConfig {
         minSdk = 24
         consumerProguardFiles("consumer-rules.pro")
-        buildConfigField("String", "versionName", "\"10.2.0\"")
+        buildConfigField("String", "versionName", "\"10.3.0\"")
     }
 
     buildTypes {
@@ -40,7 +40,7 @@ android {
 dependencies {
 
     implementation(project(":chatkit-ui"))
-    api("com.netease.yunxin.kit.common:common-ui:1.3.5")
+    api("com.netease.yunxin.kit.common:common-ui:1.3.6")
     api("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.22")
     implementation("androidx.appcompat:appcompat:1.5.0")
     implementation("com.google.android.material:material:1.11.0")
