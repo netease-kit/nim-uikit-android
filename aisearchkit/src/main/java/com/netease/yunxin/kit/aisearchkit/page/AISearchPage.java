@@ -116,7 +116,7 @@ public class AISearchPage extends BaseActivity {
             viewModel.aiSearch(searchKey);
             binding.aiSearchEdit.setText("");
           } else {
-            ToastX.showShortToast(R.string.chat_kit_network_error);
+            ToastX.showShortToast(R.string.ai_search_network_error_tip);
           }
         });
 

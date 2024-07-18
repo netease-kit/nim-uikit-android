@@ -9,5 +9,7 @@
     <string name="ai_more_info">Additional information</string>
     <string name="ai_search_hint">Please provide more information.</string>
     <string name="ai_searching">AI Word Search…</string>
-
+    <string name="ai_search_error">AI Server Model Error</string>
+    <string name="ai_search_sure">Sure</string>
+    <string name="ai_search_network_error_tip">No Internet</string>
 </resources>

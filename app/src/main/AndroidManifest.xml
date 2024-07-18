@@ -133,10 +133,6 @@
             android:screenOrientation="portrait"
             android:exported="false" />
 
-        <activity android:name=".main.mine.setting.ServerConfigActivity"
-            android:screenOrientation="portrait"
-            android:exported="false" />
-
         <!-- 云信 NIM SDK 进程间通信provider-->
         <provider
             android:authorities="com.netease.yunxin.app.im.ipc.provider"
