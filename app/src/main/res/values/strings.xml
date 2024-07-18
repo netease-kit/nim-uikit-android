@@ -92,16 +92,4 @@
     <string name="base_type">基础皮肤</string>
     <string name="common_skin">通用皮肤</string>
 
-    <!-- server config -->
-    <string name="server_config_title">私有化配置</string>
-    <string name="server_config_siwtch_content">私有化环境配置生效</string>
-    <string name="server_config_param_title">私有化环境配置参数</string>
-    <string name="server_config_param_type">配置方式</string>
-    <string name="server_config_param_link_title">服务器Link地址</string>
-    <string name="server_config_param_lbs_title">LBS服务器地址</string>
-    <string name="server_config_param_nos_title">NOS上传LBS服务器地址</string>
-    <string name="server_config_param_nos_link_title">NOS上传LBS默认Link服务器地址</string>
-    <string name="server_config_param_nos_download_title">NOS拼接下载地址</string>
-    <string name="server_config_param_save">保存配置</string>
-
 </resources>

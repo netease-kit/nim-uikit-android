@@ -11,4 +11,5 @@
     <string name="ai_searching">AI划词搜索中...</string>
     <string name="ai_search_error">模型请求异常</string>
     <string name="ai_search_sure">确认</string>
+    <string name="ai_search_network_error_tip">当前网络不可用，请检查你的网络设置。</string>
 </resources>
