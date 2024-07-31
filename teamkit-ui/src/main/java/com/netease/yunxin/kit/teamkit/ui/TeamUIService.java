@@ -238,7 +238,7 @@ public class TeamUIService extends ChatService {
           accIdList,
           null,
           null,
-          new FetchCallback<>() {
+          new FetchCallback<V2NIMCreateTeamResult>() {
             @Override
             public void onError(int errorCode, @Nullable String errorMsg) {
               if (observer != null) {

@@ -439,7 +439,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
           messageList.get(0).getMessageData().getMessage(),
           null,
           false,
-          new FetchCallback<>() {
+          new FetchCallback<Void>() {
             @Override
             public void onError(int errorCode, @Nullable String errorMsg) {
               FetchResult<List<V2NIMMessageRefer>> fetchResult =
@@ -468,7 +468,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
           deleteList,
           null,
           onlyDeleteLocal,
-          new FetchCallback<>() {
+          new FetchCallback<Void>() {
             @Override
             public void onError(int errorCode, @Nullable String errorMsg) {
               FetchResult<List<V2NIMMessageRefer>> fetchResult =
@@ -513,7 +513,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
       ChatRepo.revokeMessage(
           messageBean.getMessageData().getMessage(),
           null,
-          new FetchCallback<>() {
+          new FetchCallback<Void>() {
             @Override
             public void onError(int errorCode, @Nullable String errorMsg) {
               FetchResult<List<MessageRevokeInfo>> fetchResult =
@@ -572,7 +572,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
             + mConversationId);
     ChatUserCache.getInstance().clear();
     SettingRepo.getShowReadStatus(
-        new FetchCallback<>() {
+        new FetchCallback<Boolean>() {
           @Override
           public void onError(int errorCode, @Nullable String errorMsg) {}
 
@@ -775,7 +775,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
       ResourceRepo.writeLocalFileAndUploadNOS(
           localFile,
           msgInfo,
-          new FetchCallback<>() {
+          new FetchCallback<String>() {
             @Override
             public void onError(int errorCode, @Nullable String errorMsg) {
               ALog.e(
@@ -1035,7 +1035,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
           message,
           conversationId,
           paramsBuilder.build(),
-          new ProgressFetchCallback<>() {
+          new ProgressFetchCallback<V2NIMSendMessageResult>() {
 
             @Override
             public void onProgress(int progress) {
@@ -1087,7 +1087,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
     if (anchor == null) {
       ChatRepo.getMessageList(
           optionBuilder.build(),
-          new FetchCallback<>() {
+          new FetchCallback<List<IMMessageInfo>>() {
             @Override
             public void onError(int errorCode, @Nullable String errorMsg) {}
 
@@ -1132,7 +1132,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
 
     ChatRepo.getMessageList(
         optionBuilder.build(),
-        new FetchCallback<>() {
+        new FetchCallback<List<IMMessageInfo>>() {
           @Override
           public void onError(int errorCode, @Nullable String errorMsg) {
             onListFetchFailed(errorCode);
@@ -1299,7 +1299,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
     ChatRepo.pinMessage(
         messageInfo.getMessage(),
         ext,
-        new FetchCallback<>() {
+        new FetchCallback<Void>() {
           @Override
           public void onError(int errorCode, @Nullable String errorMsg) {
             if (errorCode == ChatKitUIConstant.ERROR_CODE_PIN_MSG_LIMIT) {

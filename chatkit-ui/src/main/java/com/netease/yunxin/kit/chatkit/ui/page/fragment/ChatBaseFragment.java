@@ -570,9 +570,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
                       }
                     } else if (TextUtils.equals(
                             permission, Manifest.permission.READ_EXTERNAL_STORAGE)
-                        || TextUtils.equals(permission, Manifest.permission.READ_MEDIA_IMAGES)
-                        || TextUtils.equals(
-                            permission, Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED)) {
+                        || TextUtils.equals(permission, Manifest.permission.READ_MEDIA_IMAGES)) {
                       if (currentRequest == REQUEST_READ_EXTERNAL_STORAGE_PERMISSION_ALBUM) {
                         startPickMedia();
                       } else if (currentRequest == REQUEST_READ_EXTERNAL_STORAGE_PERMISSION_FILE) {
@@ -756,14 +754,6 @@ public abstract class ChatBaseFragment extends BaseFragment {
             permission =
                 new String[] {
                   Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_MEDIA_VIDEO
-                };
-          }
-          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            permission =
-                new String[] {
-                  Manifest.permission.READ_MEDIA_IMAGES,
-                  Manifest.permission.READ_MEDIA_VIDEO,
-                  Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED
                 };
           }
           if (PermissionUtils.hasPermissions(ChatBaseFragment.this.getContext(), permission)) {
@@ -1295,7 +1285,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
     refers.add(refer);
     ChatRepo.getMessageListByRefers(
         refers,
-        new FetchCallback<>() {
+        new FetchCallback<List<IMMessageInfo>>() {
           @Override
           public void onError(int errorCode, @Nullable String errorMsg) {}
 

@@ -86,7 +86,7 @@ public class ChatForwardMsgViewModel extends BaseViewModel {
       ChatRepo.downloadMultiMsg(
           attachment.url,
           filePath + fileName,
-          new FetchCallback<>() {
+          new FetchCallback<List<IMMessageInfo>>() {
             @Override
             public void onError(int errorCode, @Nullable String errorMsg) {
               FetchResult<List<ChatMessageBean>> result = new FetchResult<>(LoadStatus.Error, null);

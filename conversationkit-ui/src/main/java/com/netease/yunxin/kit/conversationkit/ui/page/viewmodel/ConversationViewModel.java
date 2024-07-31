@@ -281,7 +281,7 @@ public class ConversationViewModel extends BaseViewModel {
     ConversationRepo.getConversationList(
         offSet,
         PAGE_LIMIT,
-        new FetchCallback<>() {
+        new FetchCallback<V2NIMConversationResult>() {
           @Override
           public void onError(int errorCode, @Nullable String errorMsg) {
             ALog.e(LIB_TAG, TAG, "queryConversation,onError:" + errorCode + "," + errorMsg);
@@ -376,7 +376,7 @@ public class ConversationViewModel extends BaseViewModel {
     ConversationRepo.deleteConversation(
         conversationId,
         false,
-        new FetchCallback<>() {
+        new FetchCallback<Void>() {
           @Override
           public void onError(int errorCode, @Nullable String errorMsg) {
             ALog.d(LIB_TAG, TAG, "deleteConversation,onError:" + errorCode + "," + errorMsg);

@@ -194,7 +194,7 @@ public class ChatKitClient {
                   textMessage,
                   conversationId,
                   null,
-                  new ProgressFetchCallback<>() {
+                  new ProgressFetchCallback<V2NIMSendMessageResult>() {
                     @Override
                     public void onError(int errorCode, @NonNull String errorMsg) {
                       if (observer != null) {

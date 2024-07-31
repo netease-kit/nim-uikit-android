@@ -60,7 +60,7 @@ public class TeamInfoViewModel extends BaseViewModel {
     ALog.d(LIB_TAG, TAG, "getTeamInfo:" + teamId);
     TeamRepo.getTeamInfo(
         teamId,
-        new FetchCallback<>() {
+        new FetchCallback<V2NIMTeam>() {
           @Override
           public void onSuccess(@Nullable V2NIMTeam param) {
             ALog.d(LIB_TAG, TAG, "getTeamInfo,onSuccess:" + (param == null));

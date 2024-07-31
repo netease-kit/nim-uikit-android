@@ -10,14 +10,14 @@ plugins {
 }
 
 android {
-    compileSdk = 34
+    compileSdk = 33
     namespace = "com.netease.yunxin.kit.teamkit.ui"
 
     defaultConfig {
         minSdk = 24
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
-        buildConfigField("String", "versionName", "\"10.3.0\"")
+        buildConfigField("String", "versionName", "\"10.3.1\"")
     }
 
     buildTypes {
@@ -33,8 +33,8 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
     }
 
     sourceSets["main"].res.srcDirs("src/main/res","src/main/res-fun","src/main/res-normal")
@@ -43,11 +43,11 @@ android {
 dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
     implementation(project(":chatkit-ui"))
-    api("com.netease.yunxin.kit.common:common-ui:1.3.6")
-    api("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.22")
-    implementation("androidx.appcompat:appcompat:1.5.0")
-    implementation("com.google.android.material:material:1.11.0")
-    implementation("androidx.recyclerview:recyclerview:1.3.2")
+    api("com.netease.yunxin.kit.common:common-ui:1.3.7")
+    api("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.21")
+    implementation("androidx.appcompat:appcompat:1.4.2")
+    implementation("com.google.android.material:material:1.5.0")
+    implementation("androidx.recyclerview:recyclerview:1.2.1")
     implementation("com.github.bumptech.glide:glide:4.13.1")
 
 }

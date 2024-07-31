@@ -141,7 +141,7 @@ public class EditUserInfoActivity extends BaseActivity {
     }
     ContactRepo.getUserInfo(
         Collections.singletonList(account),
-        new FetchCallback<>() {
+        new FetchCallback<List<V2NIMUser>>() {
           @Override
           public void onSuccess(@Nullable List<V2NIMUser> data) {
             if (data != null && !data.isEmpty()) {

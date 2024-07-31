@@ -152,7 +152,7 @@ public class ChatMessageAudioControl extends BaseAudioControl<IMMessageInfo> {
         ChatRepo.downloadAttachment(
             message.getMessage(),
             path,
-            new ProgressFetchCallback<>() {
+            new ProgressFetchCallback<String>() {
               @Override
               public void onError(int errorCode, @NonNull String errorMsg) {}
 

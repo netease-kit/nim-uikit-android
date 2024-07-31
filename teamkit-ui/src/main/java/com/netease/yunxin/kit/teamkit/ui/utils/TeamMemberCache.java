@@ -50,8 +50,8 @@ public class TeamMemberCache {
     return TeamMemberCacheHolder.INSTANCE;
   }
 
-  protected class TeamMemberCacheHolder {
-    private static final TeamMemberCache INSTANCE = new TeamMemberCache();
+  protected static class TeamMemberCacheHolder {
+    private static TeamMemberCache INSTANCE = new TeamMemberCache();
   }
 
   // 群成员变化监听，根据群成员的变化，修改缓存数据
@@ -113,7 +113,7 @@ public class TeamMemberCache {
           cacheTeamId,
           V2NIMTeamType.V2NIM_TEAM_TYPE_NORMAL,
           removeList,
-          new FetchCallback<>() {
+          new FetchCallback<List<TeamMemberWithUserInfo>>() {
             @Override
             public void onSuccess(@Nullable List<TeamMemberWithUserInfo> param) {
               if (param != null) {
@@ -225,7 +225,7 @@ public class TeamMemberCache {
     }
     TeamRepo.queryAllTeamMemberListWithUserInfo(
         teamId,
-        new FetchCallback<>() {
+        new FetchCallback<List<TeamMemberWithUserInfo>>() {
           @Override
           public void onSuccess(@Nullable List<TeamMemberWithUserInfo> param) {
             ALog.d(

@@ -41,7 +41,7 @@ public class FunChatSettingActivity extends BaseActivity {
   String accId;
 
   protected final EventNotify<CloseChatPageEvent> closeEventNotify =
-      new EventNotify<>() {
+      new EventNotify<CloseChatPageEvent>() {
         @Override
         public void onNotify(@NonNull CloseChatPageEvent message) {
           finish();
