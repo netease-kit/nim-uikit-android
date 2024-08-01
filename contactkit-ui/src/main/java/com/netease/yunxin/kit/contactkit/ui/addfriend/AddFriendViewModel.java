@@ -40,7 +40,7 @@ public class AddFriendViewModel extends BaseViewModel {
     ContactRepo.getFriendUserInfo(
         account,
         false,
-        new FetchCallback<>() {
+        new FetchCallback<UserWithFriend>() {
           @Override
           public void onError(int errorCode, String errorMsg) {
             ALog.d(LIB_TAG, TAG, "getUser,onError,onFailed:" + errorCode);

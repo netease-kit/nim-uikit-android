@@ -102,7 +102,7 @@ public class ChatSettingViewModel extends BaseViewModel {
     accountList.add(accountId);
     ContactRepo.getFriendInfoList(
         accountList,
-        new FetchCallback<>() {
+        new FetchCallback<List<UserWithFriend>>() {
           @Override
           public void onError(int errorCode, @Nullable String errorMsg) {
             ALog.d(LIB_TAG, TAG, "getUserInfo,onError:" + errorCode + "," + errorMsg);
@@ -135,7 +135,7 @@ public class ChatSettingViewModel extends BaseViewModel {
             accountId, V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P);
     ConversationRepo.getConversation(
         conversationId,
-        new FetchCallback<>() {
+        new FetchCallback<V2NIMConversation>() {
           @Override
           public void onError(int errorCode, @Nullable String errorMsg) {
             ALog.d(LIB_TAG, TAG, "getConversationInfo,onError:" + errorCode + "," + errorMsg);
@@ -157,7 +157,7 @@ public class ChatSettingViewModel extends BaseViewModel {
 
     SettingRepo.getP2PMessageMuteMode(
         accountId,
-        new FetchCallback<>() {
+        new FetchCallback<Boolean>() {
           @Override
           public void onError(int errorCode, @Nullable String errorMsg) {
             ALog.d(LIB_TAG, TAG, "getP2PMessageMuteMode,onError:" + errorCode + "," + errorMsg);
@@ -329,7 +329,7 @@ public class ChatSettingViewModel extends BaseViewModel {
     ConversationRepo.setStickTop(
         conversationId,
         isStickTop,
-        new FetchCallback<>() {
+        new FetchCallback<Void>() {
           @Override
           public void onError(int errorCode, @Nullable String errorMsg) {
             ALog.d(LIB_TAG, TAG, "stickTop,onError:" + errorCode + "," + errorMsg);
@@ -358,7 +358,7 @@ public class ChatSettingViewModel extends BaseViewModel {
     SettingRepo.setP2PMessageMuteMode(
         accountId,
         isMute,
-        new FetchCallback<>() {
+        new FetchCallback<Void>() {
           @Override
           public void onError(int errorCode, @Nullable String errorMsg) {
             ALog.d(LIB_TAG, TAG, "setNotify,onError:" + errorCode + "," + errorMsg);

@@ -253,7 +253,7 @@ public class TeamManagerViewModel extends TeamBaseViewModel {
         team.getTeamId(),
         V2NIMTeamType.V2NIM_TEAM_TYPE_NORMAL,
         extension,
-        new FetchCallback<>() {
+        new FetchCallback<Void>() {
           @Override
           public void onSuccess(@Nullable Void param) {
             ALog.d(LIB_TAG, TAG, "updateTopStickyPrivilege,onSuccess");

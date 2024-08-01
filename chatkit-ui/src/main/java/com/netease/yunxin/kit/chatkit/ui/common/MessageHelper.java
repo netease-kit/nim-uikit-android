@@ -284,7 +284,7 @@ public class MessageHelper {
     refers.add(replyMessage);
     ChatRepo.getMessageListByRefers(
         refers,
-        new FetchCallback<>() {
+        new FetchCallback<List<IMMessageInfo>>() {
           @Override
           public void onError(int errorCode, @Nullable String errorMsg) {
             callback.onError(errorCode, errorMsg);
@@ -1429,7 +1429,7 @@ public class MessageHelper {
           message,
           conversationId,
           paramsBuilder.build(),
-          new ProgressFetchCallback<>() {
+          new ProgressFetchCallback<V2NIMSendMessageResult>() {
 
             @Override
             public void onProgress(int progress) {

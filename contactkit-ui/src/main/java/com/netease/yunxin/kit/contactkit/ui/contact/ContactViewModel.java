@@ -96,7 +96,7 @@ public class ContactViewModel extends BaseViewModel {
     }
     ContactRepo.getContactList(
         clearCache,
-        new FetchCallback<>() {
+        new FetchCallback<List<UserWithFriend>>() {
           @Override
           public void onError(int errorCode, String errorMsg) {
             ALog.d(LIB_TAG, TAG, "fetchContactList,onFailed:" + errorCode);
@@ -130,7 +130,7 @@ public class ContactViewModel extends BaseViewModel {
 
   private void requestApplicationUnreadCount() {
     ContactRepo.getUnreadApplicationCount(
-        new FetchCallback<>() {
+        new FetchCallback<Integer>() {
           @Override
           public void onError(int errorCode, @Nullable String errorMsg) {
             ALog.d(

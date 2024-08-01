@@ -322,7 +322,7 @@ public class FunChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
       if (replyMsg != null) {
         MessageHelper.getReplyMessageInfo(
             replyMsg,
-            new FetchCallback<>() {
+            new FetchCallback<IMMessageInfo>() {
               @Override
               public void onError(int errorCode, @Nullable String errorMsg) {
                 baseViewBinding.messageTopGroup.removeAllViews();
@@ -369,7 +369,7 @@ public class FunChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
     addReplayViewToBottomGroup();
     MessageHelper.getReplyMessageInfo(
         threadOption,
-        new FetchCallback<>() {
+        new FetchCallback<IMMessageInfo>() {
 
           @Override
           public void onError(int errorCode, @Nullable String errorMsg) {

@@ -71,7 +71,7 @@ public class ChatReadStateViewModel extends BaseViewModel {
     ChatRepo.getTeamMessageReceiptDetail(
         message,
         null,
-        new FetchCallback<>() {
+        new FetchCallback<IMTeamMsgAckInfo>() {
           @Override
           public void onError(int errorCode, @Nullable String errorMsg) {
             ALog.d(LIB_TAG, TAG, "fetchTeamAckInfo error:" + errorCode + " errorMsg:" + errorMsg);

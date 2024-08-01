@@ -124,7 +124,7 @@ public class TeamSettingViewModel extends TeamBaseViewModel {
     ALog.d(LIB_TAG, TAG, "requestStickAndNotify:" + teamId);
     ConversationRepo.getConversation(
         V2NIMConversationIdUtil.teamConversationId(teamId),
-        new FetchCallback<>() {
+        new FetchCallback<V2NIMConversation>() {
           @Override
           public void onError(int errorCode, @Nullable String errorMsg) {
             ALog.d(LIB_TAG, TAG, "requestStickAndNotify,onFailed:" + errorCode);
@@ -163,7 +163,7 @@ public class TeamSettingViewModel extends TeamBaseViewModel {
         teamId,
         V2NIMTeamType.V2NIM_TEAM_TYPE_NORMAL,
         name,
-        new FetchCallback<>() {
+        new FetchCallback<Void>() {
           @Override
           public void onSuccess(@Nullable Void param) {
             ALog.d(LIB_TAG, TAG, "updateName,onSuccess");
@@ -190,7 +190,7 @@ public class TeamSettingViewModel extends TeamBaseViewModel {
         teamId,
         V2NIMTeamType.V2NIM_TEAM_TYPE_NORMAL,
         introduce,
-        new FetchCallback<>() {
+        new FetchCallback<Void>() {
           @Override
           public void onSuccess(@Nullable Void param) {
             ALog.d(LIB_TAG, TAG, "updateIntroduce,onSuccess");
@@ -218,7 +218,7 @@ public class TeamSettingViewModel extends TeamBaseViewModel {
         V2NIMTeamType.V2NIM_TEAM_TYPE_NORMAL,
         Objects.requireNonNull(IMKitClient.account()),
         nickname,
-        new FetchCallback<>() {
+        new FetchCallback<Void>() {
           @Override
           public void onSuccess(@Nullable Void param) {
             ALog.d(LIB_TAG, TAG, "updateNickname,onSuccess");
@@ -245,7 +245,7 @@ public class TeamSettingViewModel extends TeamBaseViewModel {
         teamId,
         V2NIMTeamType.V2NIM_TEAM_TYPE_NORMAL,
         iconUrl,
-        new FetchCallback<>() {
+        new FetchCallback<Void>() {
           @Override
           public void onSuccess(@Nullable Void param) {
             ALog.d(LIB_TAG, TAG, "updateIcon,onSuccess");
@@ -287,7 +287,7 @@ public class TeamSettingViewModel extends TeamBaseViewModel {
 
     TeamRepo.getTeamMemberListWithUserInfo(
         teamId,
-        new FetchCallback<>() {
+        new FetchCallback<TeamMemberListResult>() {
           @Override
           public void onSuccess(@Nullable TeamMemberListResult param) {
             String account = IMKitClient.account();
@@ -353,7 +353,7 @@ public class TeamSettingViewModel extends TeamBaseViewModel {
     TeamRepo.leaveTeam(
         teamId,
         V2NIMTeamType.V2NIM_TEAM_TYPE_NORMAL,
-        new FetchCallback<>() {
+        new FetchCallback<Void>() {
           @Override
           public void onSuccess(@Nullable Void param) {
             ALog.d(LIB_TAG, TAG, "quitTeam,onSuccess");
@@ -415,7 +415,7 @@ public class TeamSettingViewModel extends TeamBaseViewModel {
         teamId,
         V2NIMTeamType.V2NIM_TEAM_TYPE_NORMAL,
         muteMode,
-        new FetchCallback<>() {
+        new FetchCallback<Void>() {
           @Override
           public void onSuccess(@Nullable Void param) {
             ALog.d(LIB_TAG, TAG, "setTeamNotify,onSuccess");

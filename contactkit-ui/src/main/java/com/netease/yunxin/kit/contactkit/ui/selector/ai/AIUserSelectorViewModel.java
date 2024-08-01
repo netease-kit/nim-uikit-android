@@ -86,7 +86,7 @@ public class AIUserSelectorViewModel extends BaseViewModel {
   public void loadFriends() {
     ContactRepo.getContactList(
         false,
-        new FetchCallback<>() {
+        new FetchCallback<List<UserWithFriend>>() {
           @Override
           public void onError(int errorCode, @Nullable String errorMsg) {
             ALog.d(LIB_TAG, TAG, "getContactList,onFailed:" + errorCode);

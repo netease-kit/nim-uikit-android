@@ -128,7 +128,7 @@ public class ContactSelectorViewModel extends BaseViewModel {
   public void loadFriends() {
     ContactRepo.getContactList(
         false,
-        new FetchCallback<>() {
+        new FetchCallback<List<UserWithFriend>>() {
           @Override
           public void onError(int errorCode, @Nullable String errorMsg) {
             ALog.d(LIB_TAG, TAG, "getContactList,onFailed:" + errorCode);
@@ -203,7 +203,7 @@ public class ContactSelectorViewModel extends BaseViewModel {
     ConversationRepo.getConversationList(
         0,
         CONVERSATION_PAGE_LIMIT,
-        new FetchCallback<>() {
+        new FetchCallback<V2NIMConversationResult>() {
           @Override
           public void onError(int errorCode, @Nullable String errorMsg) {
             ALog.d(LIB_TAG, TAG, "getConversationList,onFailed:" + errorCode);
@@ -296,7 +296,7 @@ public class ContactSelectorViewModel extends BaseViewModel {
     teamListResult.setStatus(LoadStatus.Loading);
     teamListLiveData.postValue(teamListResult);
     TeamRepo.getTeamList(
-        new FetchCallback<>() {
+        new FetchCallback<List<V2NIMTeam>>() {
           @Override
           public void onError(int errorCode, @Nullable String errorMsg) {
             ALog.d(LIB_TAG, TAG, "getTeamList,onFailed:" + errorCode);
@@ -388,7 +388,7 @@ public class ContactSelectorViewModel extends BaseViewModel {
   /** 加载最近转发 */
   public void loadRecentForward() {
     SettingRepo.getRecentForward(
-        new FetchCallback<>() {
+        new FetchCallback<List<RecentForward>>() {
           @Override
           public void onError(int errorCode, @Nullable String errorMsg) {
             ALog.d(LIB_TAG, TAG, "getRecentForward,onFailed:" + errorCode);
@@ -872,7 +872,7 @@ public class ContactSelectorViewModel extends BaseViewModel {
     SearchRepo.searchConversationByName(
         searchKey,
         conversations,
-        new FetchCallback<>() {
+        new FetchCallback<List<ConversationSearchInfo>>() {
           @Override
           public void onError(int errorCode, @Nullable String errorMsg) {
             searchConversationResult.setStatus(LoadStatus.Error);

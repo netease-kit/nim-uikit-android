@@ -15,7 +15,7 @@ android {
     defaultConfig {
         minSdk = 24
         consumerProguardFiles("consumer-rules.pro")
-        buildConfigField("String", "versionName", "\"1.3.6\"")
+        buildConfigField("String", "versionName", "\"1.3.7\"")
     }
 
     buildTypes {
@@ -38,15 +38,18 @@ android {
 
 dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
-    api("com.netease.yunxin.kit.common:common:1.3.6") 
-    api("org.jetbrains.kotlin:kotlin-stdlib:1.9.22") 
-    implementation("androidx.core:core-ktx:1.12.0") 
-    implementation("androidx.appcompat:appcompat:1.6.1") 
-    implementation("com.google.android.material:material:1.11.0") 
-    implementation("com.github.bumptech.glide:glide:4.13.1") 
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0") 
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3") 
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3") 
+    api("com.netease.yunxin.kit.common:common:1.3.7")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.1")
+    api("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.21")
+    implementation("androidx.appcompat:appcompat:1.4.2")
+    implementation("com.google.android.material:material:1.5.0")
+    implementation("androidx.recyclerview:recyclerview:1.2.1")
+    implementation("com.airbnb.android:lottie:5.0.3")
+    implementation("com.github.bumptech.glide:glide:4.13.1")
+
+    implementation("androidx.core:core-ktx:1.7.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
 
 }
 

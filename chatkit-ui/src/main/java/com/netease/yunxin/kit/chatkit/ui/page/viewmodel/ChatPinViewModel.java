@@ -154,7 +154,7 @@ public class ChatPinViewModel extends BaseViewModel {
   public void getPinMessageList() {
     ChatRepo.getPinnedMessageList(
         V2NIMConversationIdUtil.conversationId(mSessionId, mSessionType),
-        new FetchCallback<>() {
+        new FetchCallback<List<IMMessageInfo>>() {
           @Override
           public void onError(int errorCode, @Nullable String errorMsg) {
             ALog.d(LIB_TAG, TAG, "getPinMessage , onError:" + errorCode + "errorMsg:" + errorMsg);
@@ -180,7 +180,7 @@ public class ChatPinViewModel extends BaseViewModel {
     }
     ChatRepo.unpinMessage(
         messageInfo.getPinOption().getMessageRefer(),
-        new FetchCallback<>() {
+        new FetchCallback<Void>() {
           @Override
           public void onError(int errorCode, @Nullable String errorMsg) {
             ALog.d(LIB_TAG, TAG, "removePin , onError:" + errorCode + "errorMsg:" + errorMsg);
@@ -443,7 +443,7 @@ public class ChatPinViewModel extends BaseViewModel {
       refers.add(notification.getPin().getMessageRefer());
       ChatRepo.getMessageListByRefers(
           refers,
-          new FetchCallback<>() {
+          new FetchCallback<List<IMMessageInfo>>() {
 
             @Override
             public void onSuccess(@Nullable List<IMMessageInfo> data) {

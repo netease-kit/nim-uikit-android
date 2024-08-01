@@ -176,7 +176,7 @@ public class VerifyViewModel extends BaseViewModel {
     ContactRepo.getNotificationList(
         index,
         PAGE_LIMIT,
-        new FetchCallback<>() {
+        new FetchCallback<FriendAddApplicationResult>() {
           @Override
           public void onError(int errorCode, @Nullable String errorMsg) {
             ALog.d(LIB_TAG, TAG, "fetchVerifyList,onError:" + errorCode);

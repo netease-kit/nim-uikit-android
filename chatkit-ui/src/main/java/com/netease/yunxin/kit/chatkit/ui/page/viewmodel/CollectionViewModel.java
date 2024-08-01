@@ -127,7 +127,7 @@ public class CollectionViewModel extends BaseViewModel {
     }
     ChatRepo.removeCollections(
         Collections.singletonList(collection),
-        new FetchCallback<>() {
+        new FetchCallback<Void>() {
           @Override
           public void onError(int errorCode, @Nullable String errorMsg) {
             ALog.d(

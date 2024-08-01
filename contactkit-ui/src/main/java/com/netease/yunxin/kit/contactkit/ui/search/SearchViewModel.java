@@ -69,7 +69,7 @@ public class SearchViewModel extends BaseViewModel {
     if (!TextUtils.isEmpty(text)) {
       SearchRepo.searchFriend(
           text,
-          new FetchCallback<>() {
+          new FetchCallback<List<FriendSearchInfo>>() {
             @Override
             public void onError(int errorCode, @Nullable String errorMsg) {
               ALog.d(LIB_TAG, TAG, "searchFriend,onFailed:" + errorCode);

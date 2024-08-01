@@ -95,7 +95,7 @@ public class TeamListViewModel extends BaseViewModel {
     fetchResult.setStatus(LoadStatus.Loading);
     resultLiveData.postValue(fetchResult);
     TeamRepo.getTeamList(
-        new FetchCallback<>() {
+        new FetchCallback<List<V2NIMTeam>>() {
           @Override
           public void onError(int errorCode, @Nullable String errorMsg) {
             ALog.d(LIB_TAG, TAG, "getTeamList,onFailed:" + errorCode);

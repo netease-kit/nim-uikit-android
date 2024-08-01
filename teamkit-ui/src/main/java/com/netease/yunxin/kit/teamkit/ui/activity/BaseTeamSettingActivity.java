@@ -106,7 +106,7 @@ public abstract class BaseTeamSettingActivity extends BaseActivity {
 
   // 监听关闭页面事件，用于群解散或者被踢出群，相关页面需要关闭
   protected final EventNotify<BaseEvent> closeEventNotify =
-      new EventNotify<>() {
+      new EventNotify<BaseEvent>() {
         @Override
         public void onNotify(@NonNull BaseEvent message) {
           finish();

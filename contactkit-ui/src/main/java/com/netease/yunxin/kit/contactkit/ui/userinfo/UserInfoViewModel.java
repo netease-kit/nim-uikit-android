@@ -99,7 +99,7 @@ public class UserInfoViewModel extends BaseViewModel {
     ContactRepo.getFriendUserInfo(
         account,
         false,
-        new FetchCallback<>() {
+        new FetchCallback<UserWithFriend>() {
           @Override
           public void onError(int errorCode, String errorMsg) {
             ALog.d(LIB_TAG, TAG, "getUserWithFriend,onError:" + errorCode + "," + errorMsg);
@@ -152,7 +152,7 @@ public class UserInfoViewModel extends BaseViewModel {
     ALog.d(LIB_TAG, TAG, "addBlack:" + account);
     ContactRepo.addBlockList(
         account,
-        new FetchCallback<>() {
+        new FetchCallback<Void>() {
           @Override
           public void onError(int errorCode, @Nullable String errorMsg) {
             ALog.d(LIB_TAG, TAG, "addBlack,onError:" + errorCode + "," + errorMsg);
@@ -171,7 +171,7 @@ public class UserInfoViewModel extends BaseViewModel {
     ALog.d(LIB_TAG, TAG, "removeBlack:" + account);
     ContactRepo.removeBlockList(
         account,
-        new FetchCallback<>() {
+        new FetchCallback<Void>() {
           @Override
           public void onError(int errorCode, @Nullable String errorMsg) {
             ALog.d(LIB_TAG, TAG, "removeBlack,onFailed:" + errorCode + "," + errorMsg);
@@ -191,7 +191,7 @@ public class UserInfoViewModel extends BaseViewModel {
     ContactRepo.deleteFriend(
         account,
         true,
-        new FetchCallback<>() {
+        new FetchCallback<Void>() {
           @Override
           public void onError(int errorCode, @Nullable String errorMsg) {
             ALog.d(LIB_TAG, TAG, "deleteFriend,onFailed:" + errorCode + "," + errorMsg);
@@ -215,7 +215,7 @@ public class UserInfoViewModel extends BaseViewModel {
       ALog.d(LIB_TAG, TAG, "addFriend，account in blacklist:" + account);
       removeBlackList(
           account,
-          new FetchCallback<>() {
+          new FetchCallback<Void>() {
             @Override
             public void onError(int errorCode, @Nullable String errorMsg) {
               ALog.d(

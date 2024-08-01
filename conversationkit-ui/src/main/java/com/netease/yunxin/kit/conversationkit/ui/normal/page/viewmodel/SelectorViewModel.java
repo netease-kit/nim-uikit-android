@@ -57,7 +57,7 @@ public class SelectorViewModel extends BaseViewModel {
     ConversationRepo.getConversationList(
         offset,
         PAGE_LIMIT,
-        new FetchCallback<>() {
+        new FetchCallback<V2NIMConversationResult>() {
           @Override
           public void onError(int errorCode, @Nullable String errorMsg) {}
 

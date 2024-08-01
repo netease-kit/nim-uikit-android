@@ -94,7 +94,7 @@ public class SearchMessageViewModel extends BaseViewModel {
     }
     ChatRepo.searchMessages(
         params,
-        new FetchCallback<>() {
+        new FetchCallback<List<IMMessageInfo>>() {
 
           @Override
           public void onSuccess(@Nullable List<IMMessageInfo> data) {

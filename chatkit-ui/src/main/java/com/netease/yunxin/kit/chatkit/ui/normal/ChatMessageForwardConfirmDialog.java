@@ -151,7 +151,7 @@ public class ChatMessageForwardConfirmDialog extends BaseDialog {
       if (forwardType == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P) {
         ContactRepo.getFriendUserInfo(
             V2NIMConversationIdUtil.conversationTargetId(item),
-            new FetchCallback<>() {
+            new FetchCallback<UserWithFriend>() {
               @Override
               public void onError(int errorCode, @Nullable String errorMsg) {
                 ALog.e(LIB_TAG, TAG, "fetchFriend error: " + errorCode + " " + errorMsg);

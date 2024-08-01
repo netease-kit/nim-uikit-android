@@ -196,7 +196,7 @@ public class NormalChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
       if (refer != null) {
         MessageHelper.getReplyMessageInfo(
             refer,
-            new FetchCallback<>() {
+            new FetchCallback<IMMessageInfo>() {
               @Override
               public void onError(int errorCode, @Nullable String errorMsg) {
                 baseViewBinding.messageTopGroup.removeAllViews();
@@ -267,7 +267,7 @@ public class NormalChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
 
     MessageHelper.getReplyMessageInfo(
         threadOption,
-        new FetchCallback<>() {
+        new FetchCallback<IMMessageInfo>() {
           @Override
           public void onError(int errorCode, @Nullable String errorMsg) {
             replayBinding.tvReply.setVisibility(View.GONE);

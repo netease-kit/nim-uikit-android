@@ -169,7 +169,7 @@ public class ChatP2PViewModel extends ChatBaseViewModel {
     ContactRepo.getFriendUserInfo(
         accId,
         false,
-        new FetchCallback<>() {
+        new FetchCallback<UserWithFriend>() {
 
           @Override
           public void onSuccess(@Nullable UserWithFriend data) {

@@ -110,7 +110,7 @@ public class TeamBaseViewModel extends BaseViewModel {
     TeamRepo.getTeamWithMember(
         teamId,
         Objects.requireNonNull(IMKitClient.account()),
-        new FetchCallback<>() {
+        new FetchCallback<TeamWithCurrentMember>() {
           @Override
           public void onSuccess(@Nullable TeamWithCurrentMember param) {
             ALog.d(LIB_TAG, TAG, "requestTeamData,onSuccess:" + (param == null));
@@ -199,7 +199,7 @@ public class TeamBaseViewModel extends BaseViewModel {
         teamId,
         V2NIMTeamType.V2NIM_TEAM_TYPE_NORMAL,
         members,
-        new FetchCallback<>() {
+        new FetchCallback<List<String>>() {
           @Override
           public void onSuccess(@Nullable List<String> param) {
             ALog.d(
@@ -231,7 +231,7 @@ public class TeamBaseViewModel extends BaseViewModel {
         teamId,
         V2NIMTeamType.V2NIM_TEAM_TYPE_NORMAL,
         members,
-        new FetchCallback<>() {
+        new FetchCallback<Void>() {
           @Override
           public void onSuccess(@Nullable Void param) {
             ALog.d(LIB_TAG, TAG, "removeMember,onSuccess");
