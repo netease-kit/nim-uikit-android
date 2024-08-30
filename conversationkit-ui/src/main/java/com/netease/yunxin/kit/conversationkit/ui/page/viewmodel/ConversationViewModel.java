@@ -359,7 +359,7 @@ public class ConversationViewModel extends BaseViewModel {
                   aiRobotLiveData.setValue(result);
 
                 } catch (JSONException e) {
-                  throw new RuntimeException(e);
+                  ALog.e(LIB_TAG, TAG, "ServerExtension format error");
                 }
               }
             }
@@ -615,6 +615,9 @@ public class ConversationViewModel extends BaseViewModel {
     ALog.d(LIB_TAG, TAG, "onCleared:");
     ConversationRepo.removeConversationListener(conversationListener);
     TeamRepo.removeTeamListener(teamListener);
+    // 注册@信息监听,业务层逻辑
+    EventCenter.unregisterEventNotify(aitNotify);
+    EventCenter.unregisterEventNotify(dismissTeamEvent);
     IMKitClient.removeLoginDetailListener(loginDetailListener);
     if (IMKitConfigCenter.getEnableAIUser()) {
       ContactRepo.removeContactListener(contactListener);

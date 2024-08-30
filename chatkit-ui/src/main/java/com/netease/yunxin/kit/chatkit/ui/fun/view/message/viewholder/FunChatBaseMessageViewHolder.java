@@ -318,27 +318,37 @@ public class FunChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
     } else if (messageBean.hasReply()) {
       // 自定义回复实现
       addReplayViewToBottomGroup();
-      V2NIMMessageRefer replyMsg = messageBean.getReplyMessage();
+      V2NIMMessageRefer replyMsg = messageBean.getReplyMessageRefer();
       if (replyMsg != null) {
-        MessageHelper.getReplyMessageInfo(
-            replyMsg,
-            new FetchCallback<IMMessageInfo>() {
-              @Override
-              public void onError(int errorCode, @Nullable String errorMsg) {
-                baseViewBinding.messageTopGroup.removeAllViews();
-              }
+        if (messageBean.getReplyMessage() == null) {
+          MessageHelper.getReplyMessageInfo(
+              replyMsg,
+              new FetchCallback<IMMessageInfo>() {
+                @Override
+                public void onError(int errorCode, @Nullable String errorMsg) {
+                  baseViewBinding.messageTopGroup.removeAllViews();
+                }
 
-              @Override
-              public void onSuccess(@Nullable IMMessageInfo param) {
-                replyMessage = param;
-                String content = MessageHelper.getReplyContent(replyMessage);
-                MessageHelper.identifyFaceExpression(
-                    replayBinding.tvReply.getContext(),
-                    replayBinding.tvReply,
-                    content,
-                    ImageSpan.ALIGN_BOTTOM);
-              }
-            });
+                @Override
+                public void onSuccess(@Nullable IMMessageInfo param) {
+                  replyMessage = param;
+                  String content = MessageHelper.getReplyContent(replyMessage);
+                  MessageHelper.identifyFaceExpression(
+                      replayBinding.tvReply.getContext(),
+                      replayBinding.tvReply,
+                      content,
+                      ImageSpan.ALIGN_BOTTOM);
+                }
+              });
+        } else {
+          replyMessage = messageBean.getReplyMessage();
+          String content = MessageHelper.getReplyContent(replyMessage);
+          MessageHelper.identifyFaceExpression(
+              replayBinding.tvReply.getContext(),
+              replayBinding.tvReply,
+              content,
+              ImageSpan.ALIGN_BOTTOM);
+        }
       }
 
       if (itemClickListener != null) {

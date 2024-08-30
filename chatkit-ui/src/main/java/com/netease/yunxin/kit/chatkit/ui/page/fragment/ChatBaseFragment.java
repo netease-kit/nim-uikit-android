@@ -570,7 +570,9 @@ public abstract class ChatBaseFragment extends BaseFragment {
                       }
                     } else if (TextUtils.equals(
                             permission, Manifest.permission.READ_EXTERNAL_STORAGE)
-                        || TextUtils.equals(permission, Manifest.permission.READ_MEDIA_IMAGES)) {
+                        || TextUtils.equals(permission, Manifest.permission.READ_MEDIA_IMAGES)
+                        || TextUtils.equals(
+                            permission, Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED)) {
                       if (currentRequest == REQUEST_READ_EXTERNAL_STORAGE_PERMISSION_ALBUM) {
                         startPickMedia();
                       } else if (currentRequest == REQUEST_READ_EXTERNAL_STORAGE_PERMISSION_FILE) {
@@ -754,6 +756,14 @@ public abstract class ChatBaseFragment extends BaseFragment {
             permission =
                 new String[] {
                   Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_MEDIA_VIDEO
+                };
+          }
+          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            permission =
+                new String[] {
+                  Manifest.permission.READ_MEDIA_IMAGES,
+                  Manifest.permission.READ_MEDIA_VIDEO,
+                  Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED
                 };
           }
           if (PermissionUtils.hasPermissions(ChatBaseFragment.this.getContext(), permission)) {
@@ -1173,7 +1183,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
                 chatView.setReeditMessage(revokeContent);
               }
               if (messageBean.hasReply()) {
-                loadReplyInfo(messageBean.getReplyMessage(), false);
+                loadReplyInfo(messageBean.getReplyMessageRefer(), false);
               }
 
             } else {

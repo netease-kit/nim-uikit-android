@@ -368,15 +368,21 @@ public class ChatView extends LinearLayout implements IChatView, AitTextChangeLi
 
   @Override
   public void setReeditMessage(String content) {
-    aitTextManager.setIgnoreTextChange(true);
+    if (aitTextManager != null) {
+      aitTextManager.setIgnoreTextChange(true);
+    }
     hideRichInputPanel();
     binding.chatBottomInputLayout.setInputEditTextContent(content);
-    aitTextManager.setIgnoreTextChange(false);
+    if (aitTextManager != null) {
+      aitTextManager.setIgnoreTextChange(false);
+    }
   }
 
   @Override
   public void setReeditRichMessage(String title, String body) {
-    aitTextManager.setIgnoreTextChange(true);
+    if (aitTextManager != null) {
+      aitTextManager.setIgnoreTextChange(true);
+    }
     showRichInputPanel();
     binding.chatRichTitleEt.setText(title);
     if (aitTextManager != null
@@ -386,7 +392,9 @@ public class ChatView extends LinearLayout implements IChatView, AitTextChangeLi
     } else {
       binding.chatRichContentEt.setText(body);
     }
-    aitTextManager.setIgnoreTextChange(false);
+    if (aitTextManager != null) {
+      aitTextManager.setIgnoreTextChange(false);
+    }
   }
 
   @Override

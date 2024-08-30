@@ -36,6 +36,7 @@ import com.netease.nimlib.sdk.v2.message.config.V2NIMMessageConfig;
 import com.netease.nimlib.sdk.v2.message.config.V2NIMMessagePushConfig;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessagePinState;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageQueryDirection;
+import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageSendingState;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
 import com.netease.nimlib.sdk.v2.message.option.V2NIMMessageListOption;
 import com.netease.nimlib.sdk.v2.message.params.V2NIMAddCollectionParams;
@@ -193,7 +194,10 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
             ALog.d(LIB_TAG, TAG, "onSendMessage -->> " + message.getMessageClientId());
             IMMessageInfo messageInfo = new IMMessageInfo(message);
             setSentMessageReadCount(messageInfo);
-            postMessageSend(messageInfo, true);
+            boolean isSending =
+                message.getSendingState()
+                    == V2NIMMessageSendingState.V2NIM_MESSAGE_SENDING_STATE_SENDING;
+            postMessageSend(messageInfo, isSending);
           }
         }
 
@@ -924,7 +928,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
 
   // 同步发送消息
   private void postMessageSend(IMMessageInfo message, boolean sending) {
-    ALog.d(LIB_TAG, TAG, "postMessageSend");
+    ALog.d(LIB_TAG, TAG, "postMessageSend:" + sending);
     sendMessageFetchResult.setLoadStatus(LoadStatus.Success);
     if (!sending) {
       sendMessageFetchResult.setType(FetchResult.FetchType.Update);
@@ -1055,8 +1059,8 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
               ALog.d(LIB_TAG, TAG, "sendMessage onSuccess -->> ");
               if (data != null
                   && TextUtils.equals(data.getMessage().getConversationId(), mConversationId)) {
-                ALog.d(LIB_TAG, TAG, "sendingObserver onSuccess -->> " + mConversationId);
-                postMessageSend(new IMMessageInfo(data.getMessage()), false);
+                ALog.d(LIB_TAG, TAG, "sendMessage onSuccess -->> " + mConversationId);
+                //                postMessageSend(new IMMessageInfo(data.getMessage()), false);
                 V2NIMMessageAIConfig aiConfig = data.getMessage().getAIConfig();
                 if (aiConfig != null) {
                   ToastX.showShortToast(R.string.chat_ai_message_progressing);

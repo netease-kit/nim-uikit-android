@@ -192,28 +192,39 @@ public class NormalChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
     } else if (messageBean.hasReply()) {
       //自定义回复实现
       addReplayViewToTopGroup();
-      V2NIMMessageRefer refer = messageBean.getReplyMessage();
+      V2NIMMessageRefer refer = messageBean.getReplyMessageRefer();
       if (refer != null) {
-        MessageHelper.getReplyMessageInfo(
-            refer,
-            new FetchCallback<IMMessageInfo>() {
-              @Override
-              public void onError(int errorCode, @Nullable String errorMsg) {
-                baseViewBinding.messageTopGroup.removeAllViews();
-              }
+        if (messageBean.getReplyMessage() == null) {
+          MessageHelper.getReplyMessageInfo(
+              refer,
+              new FetchCallback<IMMessageInfo>() {
+                @Override
+                public void onError(int errorCode, @Nullable String errorMsg) {
+                  baseViewBinding.messageTopGroup.removeAllViews();
+                }
 
-              @Override
-              public void onSuccess(@Nullable IMMessageInfo param) {
-                replyMessage = param;
-                String content = "| " + MessageHelper.getReplyContent(replyMessage);
-                MessageHelper.identifyFaceExpression(
-                    replayBinding.tvReply.getContext(),
-                    replayBinding.tvReply,
-                    content,
-                    ImageSpan.ALIGN_BOTTOM);
-                updateReplayInfoLayoutWidth(messageBean);
-              }
-            });
+                @Override
+                public void onSuccess(@Nullable IMMessageInfo param) {
+                  replyMessage = param;
+                  String content = "| " + MessageHelper.getReplyContent(replyMessage);
+                  MessageHelper.identifyFaceExpression(
+                      replayBinding.tvReply.getContext(),
+                      replayBinding.tvReply,
+                      content,
+                      ImageSpan.ALIGN_BOTTOM);
+                  updateReplayInfoLayoutWidth(messageBean);
+                }
+              });
+        } else {
+          replyMessage = messageBean.getReplyMessage();
+          String content = "| " + MessageHelper.getReplyContent(replyMessage);
+          MessageHelper.identifyFaceExpression(
+              replayBinding.tvReply.getContext(),
+              replayBinding.tvReply,
+              content,
+              ImageSpan.ALIGN_BOTTOM);
+          updateReplayInfoLayoutWidth(messageBean);
+        }
       }
 
       if (itemClickListener != null) {
