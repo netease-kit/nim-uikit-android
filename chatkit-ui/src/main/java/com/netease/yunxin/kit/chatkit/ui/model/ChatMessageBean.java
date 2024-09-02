@@ -34,6 +34,9 @@ public class ChatMessageBean implements Serializable {
 
   public ChatMessageBean(IMMessageInfo messageData) {
     this.messageData = messageData;
+    if (messageData == null) {
+      return;
+    }
     Map<String, Object> localExtensionMap =
         MessageExtensionHelper.parseJsonStringToMap(messageData.getMessage().getLocalExtension());
 
@@ -48,6 +51,8 @@ public class ChatMessageBean implements Serializable {
         revokeMsgEdit = (Boolean) revokeEdit;
       }
     }
+
+    initReplyMessage();
   }
 
   IMMessageInfo messageData;
@@ -65,6 +70,11 @@ public class ChatMessageBean implements Serializable {
 
   // 上传进度 % 0-100
   public int progress;
+
+  boolean hasReply = false;
+  V2NIMMessageRefer replyMessageRefer;
+
+  IMMessageInfo replyMessage;
 
   public IMMessageInfo getMessageData() {
     return messageData;
@@ -88,72 +98,103 @@ public class ChatMessageBean implements Serializable {
 
   public void setMessageData(IMMessageInfo messageData) {
     this.messageData = messageData;
+    if (messageData == null) {
+      return;
+    }
+    Map<String, Object> localExtensionMap =
+        MessageExtensionHelper.parseJsonStringToMap(messageData.getMessage().getLocalExtension());
+
+    if (localExtensionMap != null && localExtensionMap.containsKey(KEY_REVOKE_TAG)) {
+      Object revokeLocal = localExtensionMap.get(KEY_REVOKE_TAG);
+      Object revokeEdit = localExtensionMap.get(KEY_REVOKE_EDIT_TAG);
+      if (revokeLocal instanceof Boolean) {
+        isRevoked = (Boolean) revokeLocal;
+      }
+
+      if (revokeEdit instanceof Boolean) {
+        revokeMsgEdit = (Boolean) revokeEdit;
+      }
+    }
+
+    initReplyMessage();
   }
 
   public boolean hasReply() {
-    if (messageData == null) {
-      return false;
-    }
-    Map<String, Object> serverExtensionMap =
-        MessageExtensionHelper.parseJsonStringToMap(messageData.getMessage().getServerExtension());
-    return serverExtensionMap != null
-        && serverExtensionMap.containsKey(ChatKitUIConstant.REPLY_REMOTE_EXTENSION_KEY);
+    return hasReply;
   }
 
-  public V2NIMMessageRefer getReplyMessage() {
-    if (messageData == null) {
-      return null;
-    }
-    // 优先取threadReply
-    if (messageData.getMessage().getThreadReply() != null) {
-      return messageData.getMessage().getThreadReply();
-    }
-    Map<String, Object> serverExtensionMap =
-        MessageExtensionHelper.parseJsonStringToMap(messageData.getMessage().getServerExtension());
+  public V2NIMMessageRefer getReplyMessageRefer() {
+    return replyMessageRefer;
+  }
 
-    if (serverExtensionMap != null
-        && serverExtensionMap.containsKey(ChatKitUIConstant.REPLY_REMOTE_EXTENSION_KEY)) {
-      Object replyInfo = serverExtensionMap.get(ChatKitUIConstant.REPLY_REMOTE_EXTENSION_KEY);
-      if (replyInfo instanceof Map) {
-        String clientId = "";
-        String senderId = "";
-        String serverId = "";
-        long time = 0;
-        String conversationId = "";
-        String receiveId = "";
-        V2NIMConversationType conversationType = V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P;
-        try {
-          Map<String, Object> replyMap = (Map<String, Object>) replyInfo;
-          if (replyMap.containsKey(ChatKitUIConstant.REPLY_UUID_KEY)) {
-            clientId = (String) replyMap.get(ChatKitUIConstant.REPLY_UUID_KEY);
-            senderId = (String) replyMap.get(ChatKitUIConstant.REPLY_FROM_KEY);
-            serverId = (String) replyMap.get(ChatKitUIConstant.REPLY_SERVER_ID_KEY);
-            time = (long) replyMap.get(ChatKitUIConstant.REPLY_TIME_KEY);
-            conversationId = (String) replyMap.get(ChatKitUIConstant.REPLY_TO_KEY);
-            receiveId =
-                replyMap.get(ChatKitUIConstant.REPLY_RECEIVE_ID_KEY) == null
-                    ? V2NIMConversationIdUtil.conversationTargetId(conversationId)
-                    : (String) replyMap.get(ChatKitUIConstant.REPLY_RECEIVE_ID_KEY);
-            conversationType = V2NIMConversationIdUtil.conversationType(conversationId);
+  public IMMessageInfo getReplyMessage() {
+    return replyMessage;
+  }
+
+  public void setReplyMessage(IMMessageInfo msg) {
+    replyMessage = msg;
+  }
+
+  private void initReplyMessage() {
+    if (messageData != null) {
+      // 优先取threadReply
+      if (messageData.getMessage().getThreadReply() != null) {
+        replyMessageRefer = messageData.getMessage().getThreadReply();
+        hasReply = true;
+      }
+      Map<String, Object> serverExtensionMap =
+          MessageExtensionHelper.parseJsonStringToMap(
+              messageData.getMessage().getServerExtension());
+      hasReply =
+          serverExtensionMap != null
+              && serverExtensionMap.containsKey(ChatKitUIConstant.REPLY_REMOTE_EXTENSION_KEY);
+      if (serverExtensionMap != null
+          && serverExtensionMap.containsKey(ChatKitUIConstant.REPLY_REMOTE_EXTENSION_KEY)) {
+        Object replyInfo = serverExtensionMap.get(ChatKitUIConstant.REPLY_REMOTE_EXTENSION_KEY);
+        if (replyInfo instanceof Map) {
+          String clientId = "";
+          String senderId = "";
+          String serverId = "";
+          long time = 0;
+          String conversationId = "";
+          String receiveId = "";
+          V2NIMConversationType conversationType =
+              V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P;
+          try {
+            Map<String, Object> replyMap = (Map<String, Object>) replyInfo;
+            if (replyMap.containsKey(ChatKitUIConstant.REPLY_UUID_KEY)) {
+              clientId = (String) replyMap.get(ChatKitUIConstant.REPLY_UUID_KEY);
+              senderId = (String) replyMap.get(ChatKitUIConstant.REPLY_FROM_KEY);
+              serverId = (String) replyMap.get(ChatKitUIConstant.REPLY_SERVER_ID_KEY);
+              time = (long) replyMap.get(ChatKitUIConstant.REPLY_TIME_KEY);
+              conversationId = (String) replyMap.get(ChatKitUIConstant.REPLY_TO_KEY);
+              receiveId =
+                  replyMap.get(ChatKitUIConstant.REPLY_RECEIVE_ID_KEY) == null
+                      ? V2NIMConversationIdUtil.conversationTargetId(conversationId)
+                      : (String) replyMap.get(ChatKitUIConstant.REPLY_RECEIVE_ID_KEY);
+              conversationType = V2NIMConversationIdUtil.conversationType(conversationId);
+            }
+          } catch (Exception e) {
+            ALog.e(
+                LIB_TAG,
+                "V2ChatMessageBean",
+                "getReplyUUid,error message"
+                    + (messageData == null
+                        ? "null"
+                        : messageData.getMessage().getMessageClientId()));
           }
-        } catch (Exception e) {
-          ALog.e(
-              LIB_TAG,
-              "V2ChatMessageBean",
-              "getReplyUUid,error message"
-                  + (messageData == null ? "null" : messageData.getMessage().getMessageClientId()));
+          replyMessageRefer =
+              V2NIMMessageReferBuilder.builder()
+                  .withMessageClientId(clientId)
+                  .withSenderId(senderId)
+                  .withReceiverId(receiveId)
+                  .withConversationType(conversationType)
+                  .withMessageServerId(serverId)
+                  .withCreateTime(time)
+                  .build();
         }
-        return V2NIMMessageReferBuilder.builder()
-            .withMessageClientId(clientId)
-            .withSenderId(senderId)
-            .withReceiverId(receiveId)
-            .withConversationType(conversationType)
-            .withMessageServerId(serverId)
-            .withCreateTime(time)
-            .build();
       }
     }
-    return null;
   }
 
   public boolean isRevoked() {

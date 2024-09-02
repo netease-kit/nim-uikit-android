@@ -9,7 +9,6 @@ import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
 import android.text.TextUtils;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
-import com.netease.nimlib.sdk.msg.attachment.FileAttachment;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessage;
 import com.netease.nimlib.sdk.v2.message.attachment.V2NIMMessageFileAttachment;
 import com.netease.yunxin.kit.alog.ALog;
@@ -87,10 +86,7 @@ public class WatchImageVideoViewModel extends BaseViewModel {
   }
 
   private void onDownloadFail(V2NIMMessage message) {
-    ALog.d(
-        LIB_TAG,
-        TAG,
-        "on download fail -->> " + (((FileAttachment) message.getAttachment()).getPath()));
+    ALog.d(LIB_TAG, TAG, "on download fail ");
     statusMessageResult.setLoadStatus(LoadStatus.Error);
     statusMessageResult.setData(message);
     statusMessageResult.setType(FetchResult.FetchType.Update);

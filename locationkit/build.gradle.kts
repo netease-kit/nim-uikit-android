@@ -16,7 +16,7 @@ android {
     defaultConfig {
         minSdk = 24
         consumerProguardFiles("consumer-rules.pro")
-        buildConfigField("String", "versionName", "\"10.3.1\"")
+        buildConfigField("String", "versionName", "\"10.3.2\"")
     }
 
     buildTypes {

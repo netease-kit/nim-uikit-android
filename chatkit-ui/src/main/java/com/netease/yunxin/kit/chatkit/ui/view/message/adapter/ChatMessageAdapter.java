@@ -4,6 +4,7 @@
 
 package com.netease.yunxin.kit.chatkit.ui.view.message.adapter;
 
+import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
 import static com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants.PAYLOAD_PROGRESS;
 import static com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants.PAYLOAD_REPLY;
 import static com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants.PAYLOAD_SIGNAL;
@@ -17,9 +18,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.netease.nimlib.sdk.uinfo.model.UserInfo;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessagePin;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessageRefer;
-import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageSendingState;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
 import com.netease.nimlib.sdk.v2.team.model.V2NIMTeam;
+import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.model.MessagePinInfo;
 import com.netease.yunxin.kit.chatkit.ui.ChatMessageType;
@@ -43,6 +44,7 @@ import java.util.Set;
 /** chat message adapter for message list */
 public class ChatMessageAdapter extends RecyclerView.Adapter<CommonBaseMessageViewHolder> {
 
+  private final String TAG = "ChatMessageAdapter";
   IChatFactory viewHolderFactory;
 
   private IMessageItemClickListener itemClickListener;
@@ -64,6 +66,7 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<CommonBaseMessageVi
   }
 
   private final List<ChatMessageBean> messageList = new ArrayList<>();
+  private final Map<String, ChatMessageBean> messagesMap = new HashMap<>();
 
   public void setItemClickListener(IMessageItemClickListener itemClickListener) {
     this.itemClickListener = itemClickListener;
@@ -163,14 +166,42 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<CommonBaseMessageVi
     super.onViewDetachedFromWindow(holder);
   }
 
-  public void appendMessages(List<ChatMessageBean> message) {
-    removeSameMessage(message);
+  public void appendMessages(List<ChatMessageBean> messages) {
+    removeSameMessage(messages);
     int pos = messageList.size();
-    messageList.addAll(message);
-    notifyItemRangeInserted(pos, message.size());
-    if (pos + message.size() < messageList.size()) {
+    messageList.addAll(messages);
+    for (ChatMessageBean messageBean : messages) {
+      messagesMap.put(messageBean.getMsgClientId(), messageBean);
+    }
+    loadReplyInfo(messages);
+    notifyItemRangeInserted(pos, messages.size());
+    if (pos + messages.size() < messageList.size()) {
       //刷新消息之间的时间是否需要展示
-      notifyItemChanged(pos + message.size());
+      notifyItemChanged(pos + messages.size());
+    }
+  }
+
+  private void loadReplyInfo(List<ChatMessageBean> messages) {
+    for (ChatMessageBean messageBean : messages) {
+      if (messageBean.hasReply()
+          && messageBean.getReplyMessageRefer() != null
+          && messageBean.getReplyMessage() == null
+          && messagesMap.containsKey(messageBean.getReplyMessageRefer().getMessageClientId())) {
+        messageBean.setReplyMessage(
+            messagesMap
+                .get(messageBean.getReplyMessageRefer().getMessageClientId())
+                .getMessageData());
+      }
+    }
+  }
+
+  private void loadReplyInfo(ChatMessageBean message) {
+    if (message.hasReply()
+        && message.getReplyMessageRefer() != null
+        && message.getReplyMessage() == null
+        && messagesMap.containsKey(message.getReplyMessageRefer().getMessageClientId())) {
+      message.setReplyMessage(
+          messagesMap.get(message.getReplyMessageRefer().getMessageClientId()).getMessageData());
     }
   }
 
@@ -197,6 +228,8 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<CommonBaseMessageVi
     int pos = messageList.size();
     int deletePos = getMessageIndex(message);
     messageList.add(message);
+    messagesMap.put(message.getMsgClientId(), message);
+    loadReplyInfo(message);
     if (deletePos >= 0) {
       messageList.remove(deletePos);
       notifyItemRangeChanged(deletePos, pos - deletePos);
@@ -208,6 +241,7 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<CommonBaseMessageVi
   public void clearMessageList() {
     int size = messageList.size();
     messageList.clear();
+    messagesMap.clear();
     notifyItemRangeRemoved(0, size);
   }
 
@@ -223,24 +257,19 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<CommonBaseMessageVi
 
   public int updateMessageStatus(ChatMessageBean message) {
     int index = getMessageIndex(message);
+    ALog.d(LIB_TAG, TAG, "updateMessageStatus,index:" + String.valueOf(index));
     if (index >= 0 && index < messageList.size()) {
       ChatMessageBean origin = messageList.get(index);
-      //发送成功的消息，直接替换
-      if (origin.getMessageData().getMessage().getSendingState()
-          == V2NIMMessageSendingState.V2NIM_MESSAGE_SENDING_STATE_SUCCEEDED) {
-        messageList.remove(index);
-        notifyItemRemoved(index);
-        origin.getMessageData().setMessage(message.getMessageData().getMessage());
-        return insertMessageSortByTime(origin);
-      } else {
-        origin.getMessageData().setMessage(message.getMessageData().getMessage());
-        updateMessage(origin, PAYLOAD_STATUS);
-      }
+      origin.setMessageData(message.getMessageData());
+      updateMessage(origin, PAYLOAD_STATUS);
+    } else {
+      insertMessageSortByTime(message);
     }
     return index;
   }
 
   public void reloadMessages(List<ChatMessageBean> messageList, Object payload) {
+    ALog.d(LIB_TAG, TAG, "reloadMessages");
     for (ChatMessageBean message : messageList) {
       int index = getMessageIndex(message);
       if (index >= 0 && index < this.messageList.size()) {
@@ -250,6 +279,7 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<CommonBaseMessageVi
   }
 
   public void revokeMessage(V2NIMMessageRefer message) {
+    ALog.d(LIB_TAG, TAG, "revokeMessage");
     removeMessageByClientId(message.getMessageClientId());
     clearReply(message.getMessageClientId());
     //撤回消息后，清除选中的消息
@@ -265,11 +295,15 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<CommonBaseMessageVi
     if (TextUtils.isEmpty(clientId)) {
       return;
     }
+    ALog.d(LIB_TAG, TAG, "clearReply");
+
     for (int i = 0; i < messageList.size(); i++) {
       ChatMessageBean messageInfo = messageList.get(i);
       if (messageInfo != null
-          && messageInfo.getReplyMessage() != null
-          && TextUtils.equals(clientId, messageInfo.getReplyMessage().getMessageClientId())) {
+          && messageInfo.getReplyMessageRefer() != null
+          && TextUtils.equals(clientId, messageInfo.getReplyMessageRefer().getMessageClientId())) {
+        messageInfo.setReplyMessage(null);
+        loadReplyInfo(messageInfo);
         notifyItemChanged(i, PAYLOAD_REPLY);
       }
     }
@@ -279,6 +313,8 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<CommonBaseMessageVi
     if (userInfoList == null || userInfoList.size() < 1) {
       return;
     }
+    ALog.d(LIB_TAG, TAG, "updateUserInfo");
+
     Map<String, UserInfo> accountSet = new HashMap<>();
     for (int index = 0; index < userInfoList.size(); index++) {
       accountSet.put(userInfoList.get(index).getAccount(), userInfoList.get(index));
@@ -296,6 +332,7 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<CommonBaseMessageVi
       return;
     }
     Set<String> accountSet = new HashSet<>(userInfoList);
+    ALog.d(LIB_TAG, TAG, "notifyUserInfoChange");
 
     for (int i = 0; i < messageList.size(); i++) {
       IMMessageInfo messageInfo = messageList.get(i).getMessageData();
@@ -332,6 +369,7 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<CommonBaseMessageVi
   }
 
   public void updateMessagePin(Map<String, V2NIMMessagePin> pinOptionMap) {
+    ALog.d(LIB_TAG, TAG, "updateMessagePin");
     for (int i = 0; i < messageList.size(); i++) {
       IMMessageInfo messageInfo = messageList.get(i).getMessageData();
       String uuId = messageInfo.getMessage().getMessageClientId();
@@ -370,6 +408,7 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<CommonBaseMessageVi
     int pos = getMessageIndex(message);
     if (pos >= 0) {
       messageList.set(pos, message);
+      messagesMap.put(message.getMsgClientId(), message);
       notifyItemChanged(pos, payload);
     }
   }
@@ -393,6 +432,8 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<CommonBaseMessageVi
         break;
       }
     }
+    messagesMap.put(message.getMsgClientId(), message);
+    loadReplyInfo(message);
     if (index >= 0) {
       messageList.add(index, message);
       notifyItemInserted(index);
@@ -422,6 +463,7 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<CommonBaseMessageVi
     }
     if (index >= 0) {
       messageList.remove(index);
+      messagesMap.remove(clientId);
       notifyItemRemoved(index);
     }
   }
@@ -451,6 +493,10 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<CommonBaseMessageVi
   public void forwardMessages(List<ChatMessageBean> message) {
     removeSameMessage(message);
     messageList.addAll(0, message);
+    for (ChatMessageBean messageBean : message) {
+      messagesMap.put(messageBean.getMsgClientId(), messageBean);
+    }
+    loadReplyInfo(message);
     notifyItemRangeInserted(0, message.size());
     if (messageList.size() > message.size()) {
       notifyItemChanged(message.size());
@@ -475,6 +521,7 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<CommonBaseMessageVi
     int pos = messageList.indexOf(message);
     if (pos >= 0) {
       messageList.remove(message);
+      messagesMap.remove(message.getMsgClientId());
       notifyItemRemoved(pos);
     }
     clearReply(message.getMsgClientId());

@@ -230,7 +230,7 @@ public class ChatTeamFragment extends NormalChatFragment {
           }
           ALog.d(LIB_TAG, TAG, "TeamMessageReceiptLiveData,observer,msgList:" + messageList.size());
           for (ChatMessageBean message : updateMessage) {
-            chatView.getMessageListView().updateMessageStatus(message);
+            chatView.updateMessageStatus(message);
           }
         };
     // 监听群聊消息已读回执

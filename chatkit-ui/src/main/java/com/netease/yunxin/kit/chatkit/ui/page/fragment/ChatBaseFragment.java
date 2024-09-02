@@ -1173,7 +1173,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
                 chatView.setReeditMessage(revokeContent);
               }
               if (messageBean.hasReply()) {
-                loadReplyInfo(messageBean.getReplyMessage(), false);
+                loadReplyInfo(messageBean.getReplyMessageRefer(), false);
               }
 
             } else {

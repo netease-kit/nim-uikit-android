@@ -15,7 +15,7 @@ android {
     defaultConfig {
         minSdk = 24
         consumerProguardFiles("consumer-rules.pro")
-        buildConfigField("String", "versionName", "\"10.3.1\"")
+        buildConfigField("String", "versionName", "\"10.3.2\"")
     }
 
     buildTypes {
@@ -40,7 +40,7 @@ android {
 
 dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
-    api("com.netease.yunxin.kit.chat:chatkit:10.3.1")
+    api("com.netease.yunxin.kit.chat:chatkit:10.3.2")
     api("com.netease.yunxin.kit.common:common-ui:1.3.7")
     api("com.netease.yunxin.kit.core:corekit-plugin:1.1.2-rc01")
     api("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.21")

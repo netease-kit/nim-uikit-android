@@ -312,7 +312,11 @@ public class MessageHelper {
     if (messageInfo == null) {
       result = IMKitClient.getApplicationContext().getString(R.string.chat_message_removed_tip);
     } else {
-      String nickName = messageInfo.getFromUserName();
+      String nickName =
+          getChatMessageUserNameByAccount(
+              messageInfo.getMessage().getSenderId(),
+              messageInfo.getMessage().getConversationType());
+      //messageInfo.getFromUserName();
       String content = getMsgBrief(messageInfo, false);
       result = nickName + ": " + content;
     }
