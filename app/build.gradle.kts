@@ -46,20 +46,20 @@ dependencies {
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation("androidx.multidex:multidex:2.0.1")
     //本地代码依赖
-    implementation(project(":contactkit-ui"))
-    implementation(project(":conversationkit-ui"))
-    implementation(project(":teamkit-ui"))
-    implementation(project(":chatkit-ui"))
-    implementation(project(":locationkit"))
-    implementation(project(":aisearchkit"))
+//    implementation(project(":contactkit-ui"))
+//    implementation(project(":conversationkit-ui"))
+//    implementation(project(":teamkit-ui"))
+//    implementation(project(":chatkit-ui"))
+//    implementation(project(":locationkit"))
+//    implementation(project(":aisearchkit"))
 
     //远端aar依赖
-//    implementation("com.netease.yunxin.kit.contact:contactkit-ui:10.4.0")
-//    implementation("com.netease.yunxin.kit.conversation:conversationkit-ui:10.4.0")
-//    implementation("com.netease.yunxin.kit.team:teamkit-ui:10.4.0")
-//    implementation("com.netease.yunxin.kit.chat:chatkit-ui:10.4.0")
-//    implementation("com.netease.yunxin.kit.locationkit:locationkit:10.4.0")
-//    implementation("com.netease.yunxin.kit.aisearchkit:aisearchkit:10.4.0")
+    implementation("com.netease.yunxin.kit.contact:contactkit-ui:10.4.0")
+    implementation("com.netease.yunxin.kit.conversation:conversationkit-ui:10.4.0")
+    implementation("com.netease.yunxin.kit.team:teamkit-ui:10.4.0")
+    implementation("com.netease.yunxin.kit.chat:chatkit-ui:10.4.0")
+    implementation("com.netease.yunxin.kit.locationkit:locationkit:10.4.0")
+    implementation("com.netease.yunxin.kit.aisearchkit:aisearchkit:10.4.0")
 
 
     implementation("com.netease.yunxin.kit.call:call-ui:2.2.0") //呼叫组件 UI 包
