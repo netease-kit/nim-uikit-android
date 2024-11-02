@@ -166,7 +166,7 @@ public class MainActivity extends BaseActivity {
     boolean isCommonSkin =
         AppSkinConfig.getInstance().getAppSkinStyle() == AppSkinConfig.AppSkin.commonSkin;
     ALog.d(Constant.PROJECT_TAG, "MainActivity:initView");
-    //    loadConfig();
+//        loadConfig();
     List<Fragment> fragments = new ArrayList<>();
 
     // 根据皮肤类型加载不同的Fragment

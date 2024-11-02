@@ -20,6 +20,7 @@ import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.text.style.ImageSpan;
 import android.util.Pair;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -99,6 +100,7 @@ import com.netease.yunxin.kit.chatkit.ui.view.popmenu.IChatPopMenuClickListener;
 import com.netease.yunxin.kit.chatkit.utils.SendMediaHelper;
 import com.netease.yunxin.kit.common.ui.dialog.ChoiceListener;
 import com.netease.yunxin.kit.common.ui.dialog.CommonChoiceDialog;
+import com.netease.yunxin.kit.common.ui.dialog.TopPopupWindow;
 import com.netease.yunxin.kit.common.ui.fragments.BaseFragment;
 import com.netease.yunxin.kit.common.ui.utils.ToastX;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
@@ -161,6 +163,8 @@ public abstract class ChatBaseFragment extends BaseFragment {
 
   // 当前要转发的消息
   protected ChatMessageBean forwardMessage;
+
+  protected TopPopupWindow permissionPop;
 
   // 多媒体文件选择Launcher
   protected ActivityResultLauncher<String> pickMediaLauncher;
@@ -557,6 +561,9 @@ public abstract class ChatBaseFragment extends BaseFragment {
         registerForActivityResult(
             new ActivityResultContracts.RequestMultiplePermissions(),
             result -> {
+              if (permissionPop != null) {
+                permissionPop.dismiss();
+              }
               if (result != null) {
                 for (Map.Entry<String, Boolean> entry : result.entrySet()) {
                   String permission = entry.getKey();
@@ -759,7 +766,11 @@ public abstract class ChatBaseFragment extends BaseFragment {
           if (PermissionUtils.hasPermissions(ChatBaseFragment.this.getContext(), permission)) {
             startPickMedia();
           } else {
-            requestCameraPermission(permission, REQUEST_READ_EXTERNAL_STORAGE_PERMISSION_ALBUM);
+            requestSystemPermission(
+                permission,
+                REQUEST_READ_EXTERNAL_STORAGE_PERMISSION_ALBUM,
+                R.string.chat_permission_storage_title,
+                R.string.chat_permission_storage_content);
           }
         }
 
@@ -769,7 +780,11 @@ public abstract class ChatBaseFragment extends BaseFragment {
               ChatBaseFragment.this.getContext(), Manifest.permission.CAMERA)) {
             startTakePicture();
           } else {
-            requestCameraPermission(Manifest.permission.CAMERA, REQUEST_CAMERA_PERMISSION);
+            requestSystemPermission(
+                Manifest.permission.CAMERA,
+                REQUEST_CAMERA_PERMISSION,
+                R.string.chat_permission_camera_title,
+                R.string.chat_permission_camera_content);
           }
         }
 
@@ -779,7 +794,11 @@ public abstract class ChatBaseFragment extends BaseFragment {
               ChatBaseFragment.this.getContext(), Manifest.permission.CAMERA)) {
             startCaptureVideo();
           } else {
-            requestCameraPermission(Manifest.permission.CAMERA, REQUEST_VIDEO_PERMISSION);
+            requestSystemPermission(
+                Manifest.permission.CAMERA,
+                REQUEST_VIDEO_PERMISSION,
+                R.string.chat_permission_camera_title,
+                R.string.chat_permission_camera_content);
           }
         }
 
@@ -796,7 +815,11 @@ public abstract class ChatBaseFragment extends BaseFragment {
           if (PermissionUtils.hasPermissions(ChatBaseFragment.this.getContext(), permission)) {
             startPickFile();
           } else {
-            requestCameraPermission(permission, REQUEST_READ_EXTERNAL_STORAGE_PERMISSION_FILE);
+            requestSystemPermission(
+                permission,
+                REQUEST_READ_EXTERNAL_STORAGE_PERMISSION_FILE,
+                R.string.chat_permission_storage_title,
+                R.string.chat_permission_storage_content);
           }
           return true;
         }
@@ -827,14 +850,27 @@ public abstract class ChatBaseFragment extends BaseFragment {
         }
 
         @Override
-        public boolean hasPermission(String permission) {
-          if (TextUtils.isEmpty(permission)) {
+        public boolean hasPermission(String[] permission) {
+          if (permission == null || permission.length < 1) {
             return false;
           }
           if (PermissionUtils.hasPermissions(ChatBaseFragment.this.getContext(), permission)) {
             return true;
           } else {
-            requestCameraPermission(permission, REQUEST_PERMISSION);
+            int titleRes = R.string.chat_permission_storage_title;
+            int contentRes = R.string.chat_permission_storage_content;
+            for (String s : permission) {
+              if (s.equals(Manifest.permission.RECORD_AUDIO)) {
+                titleRes = R.string.chat_permission_audio_title;
+                contentRes = R.string.chat_permission_audio_content;
+                break;
+              } else if (s.equals(Manifest.permission.ACCESS_COARSE_LOCATION)) {
+                titleRes = R.string.chat_permission_location_title;
+                contentRes = R.string.chat_permission_location_content;
+                break;
+              }
+            }
+            requestSystemPermission(permission, REQUEST_PERMISSION, titleRes, contentRes);
             return false;
           }
         }
@@ -964,19 +1000,41 @@ public abstract class ChatBaseFragment extends BaseFragment {
     return aiMessages;
   }
 
-  private void requestCameraPermission(String permission, int request) {
+  private void requestSystemPermission(
+      String permission, int request, int permissionTitleRes, int permissionContentRes) {
     currentRequest = request;
     if (chatConfig != null && chatConfig.permissionListener != null) {
       chatConfig.permissionListener.onPermissionRequest(
           this.getActivity(), new String[] {permission});
     }
+    if (chatConfig == null
+        || chatConfig.showPermissionPop == null
+        || chatConfig.showPermissionPop == Boolean.TRUE) {
+      permissionPop =
+          new TopPopupWindow(
+              ChatBaseFragment.this.requireContext(), permissionTitleRes, permissionContentRes);
+      permissionPop.showAtLocation(
+          ChatBaseFragment.this.chatView.getMessageListView(), Gravity.TOP, 0, 100);
+    }
+
     permissionLauncher.launch(new String[] {permission});
   }
 
-  private void requestCameraPermission(String[] permission, int request) {
+  private void requestSystemPermission(
+      String[] permission, int request, int permissionTitleRes, int permissionContentRes) {
     currentRequest = request;
     if (chatConfig != null && chatConfig.permissionListener != null) {
       chatConfig.permissionListener.onPermissionRequest(this.getActivity(), permission);
+    }
+    if (chatConfig == null
+        || chatConfig.showPermissionPop == null
+        || chatConfig.showPermissionPop == Boolean.TRUE) {
+
+      permissionPop =
+          new TopPopupWindow(
+              ChatBaseFragment.this.requireContext(), permissionTitleRes, permissionContentRes);
+      permissionPop.showAtLocation(
+          ChatBaseFragment.this.chatView.getMessageListView(), Gravity.TOP, 0, 100);
     }
     permissionLauncher.launch(permission);
   }
@@ -1074,6 +1132,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
               || !delegateListener.onMessageClick(view, position, messageBean)) {
             clickMessage(messageBean.getMessageData(), false);
           }
+
           return true;
         }
 
@@ -1558,7 +1617,30 @@ public abstract class ChatBaseFragment extends BaseFragment {
               && chatConfig.popMenuClickListener.onRecall(messageBean)) {
             return true;
           }
-          showRevokeConfirmDialog(messageBean);
+          long revokeTime = 0;
+          if (ChatKitClient.getChatUIConfig() != null
+              && ChatKitClient.getChatUIConfig().revokeTimeGap != null) {
+            // 将分钟转换为毫秒
+            long timeGap = ChatKitClient.getChatUIConfig().revokeTimeGap;
+            if (timeGap < ChatKitUIConstant.MESSAGE_REVOKE_TIME_MIN) {
+              timeGap = ChatKitUIConstant.MESSAGE_REVOKE_TIME_MIN;
+            } else if (timeGap > ChatKitUIConstant.MESSAGE_REVOKE_TIME_MAX) {
+              timeGap = ChatKitUIConstant.MESSAGE_REVOKE_TIME_MAX;
+            }
+            revokeTime = timeGap * 6000;
+          }
+          if (revokeTime <= 0
+              || System.currentTimeMillis()
+                      - messageBean.getMessageData().getMessage().getCreateTime()
+                  < revokeTime) {
+            showRevokeConfirmDialog(messageBean);
+          } else {
+            Toast.makeText(
+                    ChatBaseFragment.this.getContext(),
+                    R.string.chat_message_revoke_over_time,
+                    Toast.LENGTH_SHORT)
+                .show();
+          }
           return true;
         }
 

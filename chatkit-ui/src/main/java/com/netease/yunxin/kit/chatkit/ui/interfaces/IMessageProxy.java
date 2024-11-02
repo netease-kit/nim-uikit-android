@@ -30,7 +30,7 @@ public interface IMessageProxy {
 
   void onTypeStateChange(boolean isTyping);
 
-  boolean hasPermission(String permission);
+  boolean hasPermission(String[] permission);
 
   void onCustomAction(View view, String action);
 

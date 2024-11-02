@@ -7,6 +7,7 @@ package com.netease.yunxin.kit.chatkit.ui.model;
 import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
 import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.KEY_REVOKE_EDIT_TAG;
 import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.KEY_REVOKE_TAG;
+import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.KEY_REVOKE_TIME_TAG;
 
 import android.text.TextUtils;
 import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
@@ -43,12 +44,19 @@ public class ChatMessageBean implements Serializable {
     if (localExtensionMap != null && localExtensionMap.containsKey(KEY_REVOKE_TAG)) {
       Object revokeLocal = localExtensionMap.get(KEY_REVOKE_TAG);
       Object revokeEdit = localExtensionMap.get(KEY_REVOKE_EDIT_TAG);
+      Object revokeTime = localExtensionMap.get(KEY_REVOKE_TIME_TAG);
       if (revokeLocal instanceof Boolean) {
         isRevoked = (Boolean) revokeLocal;
       }
 
       if (revokeEdit instanceof Boolean) {
         revokeMsgEdit = (Boolean) revokeEdit;
+      }
+
+      if (revokeTime instanceof Integer) {
+        revokeMsgTime = (Integer) revokeTime;
+      } else if (revokeTime instanceof Long) {
+        revokeMsgTime = (Long) revokeTime;
       }
     }
 
@@ -67,6 +75,7 @@ public class ChatMessageBean implements Serializable {
   boolean isRevoked;
 
   public boolean revokeMsgEdit = true;
+  public long revokeMsgTime = 0;
 
   // 上传进度 % 0-100
   public int progress;
@@ -107,12 +116,20 @@ public class ChatMessageBean implements Serializable {
     if (localExtensionMap != null && localExtensionMap.containsKey(KEY_REVOKE_TAG)) {
       Object revokeLocal = localExtensionMap.get(KEY_REVOKE_TAG);
       Object revokeEdit = localExtensionMap.get(KEY_REVOKE_EDIT_TAG);
+      Object revokeTime = localExtensionMap.get(KEY_REVOKE_TIME_TAG);
+
       if (revokeLocal instanceof Boolean) {
         isRevoked = (Boolean) revokeLocal;
       }
 
       if (revokeEdit instanceof Boolean) {
         revokeMsgEdit = (Boolean) revokeEdit;
+      }
+
+      if (revokeTime instanceof Integer) {
+        revokeMsgTime = (Integer) revokeTime;
+      } else if (revokeTime instanceof Long) {
+        revokeMsgTime = (Long) revokeTime;
       }
     }
 

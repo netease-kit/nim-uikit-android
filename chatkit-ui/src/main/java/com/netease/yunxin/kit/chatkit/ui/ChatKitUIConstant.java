@@ -71,4 +71,8 @@ public class ChatKitUIConstant {
   public static final String KEY_COLLECTION_SENDER_AVATAR = "avatar";
   public static final String KEY_COLLECTION_CONVERSATION_NAME = "conversationName";
   public static final String KEY_COLLECTION_MESSAGE = "message";
+  //消息可撤回的最小时间限制
+  public static final long MESSAGE_REVOKE_TIME_MIN = 2;
+  //消息可撤回的最大时间限制
+  public static final long MESSAGE_REVOKE_TIME_MAX = 10080;
 }

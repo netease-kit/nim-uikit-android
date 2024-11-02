@@ -192,7 +192,14 @@
     <string name="permission_camera">请在设置页面添加相机权限</string>
     <string name="permission_audio">请在设置页面添加麦克风权限</string>
     <string name="permission_storage">请在设置页面添加读写手机存储权限</string>
-
+    <string name="chat_permission_camera_title">相机权限使用说明</string>
+    <string name="chat_permission_camera_content">用户拍照，视频录制， 视频通话等场景</string>
+    <string name="chat_permission_audio_title">麦克风权限使用说明</string>
+    <string name="chat_permission_audio_content">用户录制， 音频通话等场景</string>
+    <string name="chat_permission_storage_title">存储权限使用说明</string>
+    <string name="chat_permission_storage_content">用户发送文件、图片、视频等场景</string>
+    <string name="chat_permission_location_title">地理位置使用说明</string>
+    <string name="chat_permission_location_content">用户发送地理位置消息， 查看地址位置等场景</string>
     <!-- error -->
     <string name="chat_message_reply_error">获取回复消息错误</string>
     <string name="chat_network_error_tip">当前网络不可用，请检查你的网络设置。</string>

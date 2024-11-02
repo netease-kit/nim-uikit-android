@@ -26,7 +26,6 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -54,13 +53,10 @@ import com.netease.yunxin.kit.chatkit.ui.view.input.InputState;
 import com.netease.yunxin.kit.chatkit.ui.view.message.audio.ChatMessageAudioControl;
 import com.netease.yunxin.kit.common.ui.action.ActionItem;
 import com.netease.yunxin.kit.common.ui.dialog.BottomChoiceDialog;
-import com.netease.yunxin.kit.common.ui.utils.Permission;
 import com.netease.yunxin.kit.common.ui.utils.ToastX;
 import com.netease.yunxin.kit.common.utils.KeyboardUtils;
 import com.netease.yunxin.kit.common.utils.NetworkUtils;
-import com.netease.yunxin.kit.common.utils.PermissionUtils;
 import com.netease.yunxin.kit.common.utils.XKitUtils;
-import com.netease.yunxin.kit.corekit.im2.IMKitClient;
 import java.io.File;
 import java.util.List;
 
@@ -115,7 +111,7 @@ public class MessageBottomLayout extends FrameLayout
     mBinding.chatMessageRecordView.setRecordCallback(this);
     mBinding.chatMessageRecordView.setPermissionRequest(
         permission -> {
-          return mProxy.hasPermission(Manifest.permission.RECORD_AUDIO);
+          return mProxy.hasPermission(new String[] {Manifest.permission.RECORD_AUDIO});
         });
     emojiSelectedListener =
         new IEmojiSelectedListener() {
@@ -608,30 +604,8 @@ public class MessageBottomLayout extends FrameLayout
     String[] permissions = {
       Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION
     };
-    if (PermissionUtils.hasPermissions(IMKitClient.getApplicationContext(), permissions)) {
+    if (mProxy.hasPermission(permissions)) {
       mProxy.sendLocationLaunch();
-    } else {
-      Permission.requirePermissions(IMKitClient.getApplicationContext(), permissions)
-          .request(
-              new Permission.PermissionCallback() {
-                @Override
-                public void onGranted(List<String> permissionsGranted) {
-                  mProxy.sendLocationLaunch();
-                }
-
-                @Override
-                public void onDenial(
-                    List<String> permissionsDenial, List<String> permissionDenialForever) {
-                  Toast.makeText(getContext(), R.string.permission_default, Toast.LENGTH_SHORT)
-                      .show();
-                }
-
-                @Override
-                public void onException(Exception exception) {
-                  Toast.makeText(getContext(), R.string.permission_default, Toast.LENGTH_SHORT)
-                      .show();
-                }
-              });
     }
   }
 

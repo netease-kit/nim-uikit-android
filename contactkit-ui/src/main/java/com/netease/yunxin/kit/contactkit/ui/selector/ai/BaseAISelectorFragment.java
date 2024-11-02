@@ -4,8 +4,6 @@
 
 package com.netease.yunxin.kit.contactkit.ui.selector.ai;
 
-import static com.netease.yunxin.kit.contactkit.ui.ContactUIConfig.DEFAULT_SESSION_MAX_SELECT_COUNT;
-
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -128,7 +126,7 @@ public abstract class BaseAISelectorFragment extends BaseFragment {
                           getActivity(),
                           getString(
                               R.string.contact_selector_session_max_count,
-                              String.valueOf(DEFAULT_SESSION_MAX_SELECT_COUNT)),
+                              String.valueOf(viewModel.getMaxSelectorCount())),
                           Toast.LENGTH_SHORT)
                       .show();
                 } else {
