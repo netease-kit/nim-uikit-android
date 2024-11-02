@@ -163,6 +163,10 @@ public class AIUserSelectorViewModel extends BaseViewModel {
     this.maxSelectorCount = count;
   }
 
+  public int getMaxSelectorCount() {
+    return this.maxSelectorCount;
+  }
+
   public boolean isMultiSelectMode() {
     return isMultiSelectMode;
   }

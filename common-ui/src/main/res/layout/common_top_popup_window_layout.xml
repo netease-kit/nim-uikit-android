@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:minHeight="@dimen/dimen_100_dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_marginStart="@dimen/dimen_32_dp"
+    android:layout_marginEnd="@dimen/dimen_32_dp"
+    android:minWidth="300dp"
+    android:background="@drawable/bg_shape_top_popup">
+
+    <TextView android:id="@+id/commonPopTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:textColor="@color/color_black"
+        android:textSize="@dimen/text_size_16"
+        android:maxLines="1"
+        android:gravity="center"
+        android:layout_marginTop="@dimen/dimen_16_dp"
+        android:textStyle="bold"
+        tools:ignore="SpUsage" />
+
+    <TextView android:id="@+id/commonPopContent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/commonPopTitle"
+        android:textColor="@color/color_333333"
+        android:textSize="@dimen/text_size_14"
+        android:layout_marginTop="@dimen/dimen_16_dp"
+        android:layout_marginStart="@dimen/dimen_16_dp"
+        android:layout_marginEnd="@dimen/dimen_16_dp"
+        tools:ignore="SpUsage" />
+</androidx.constraintlayout.widget.ConstraintLayout>

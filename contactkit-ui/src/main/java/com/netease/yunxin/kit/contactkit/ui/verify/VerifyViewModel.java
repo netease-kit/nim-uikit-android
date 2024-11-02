@@ -60,26 +60,30 @@ public class VerifyViewModel extends BaseViewModel {
           public void onContactChange(
               @NonNull ContactChangeType changeType,
               @NonNull List<? extends UserWithFriend> contactList) {
-            if (changeType == ContactChangeType.AddFriend && contactList.size() > 0) {
+            if (changeType == ContactChangeType.AddFriend && !contactList.isEmpty()) {
+              ALog.d(LIB_TAG, TAG, "onContactChange: size" + contactList.size());
               List<ContactVerifyInfoBean> update = new ArrayList<>(updateList);
               List<UserWithFriend> newFriends = new ArrayList<>(contactList);
-              for (ContactVerifyInfoBean verifyInfoBean : verifyBeanList) {
-                for (UserWithFriend friend : contactList) {
-                  if (TextUtils.equals(friend.getAccount(), agreeUserId)) {
-                    newFriends.remove(friend);
-                  } else if (TextUtils.equals(
-                          verifyInfoBean.data.getApplicantAccountId(), friend.getAccount())
-                      || TextUtils.equals(
-                          verifyInfoBean.data.getRecipientAccountId(), friend.getAccount())) {
-                    //接收者是自己，表明是自己在其他端接受了申请，不更新
-                    if (!TextUtils.equals(
-                        verifyInfoBean.data.getRecipientAccountId(), IMKitClient.account())) {
-                      verifyInfoBean.updateStatus(
-                          V2NIMFriendAddApplicationStatus
-                              .V2NIM_FRIEND_ADD_APPLICATION_STATUS_AGREED);
-                      update.add(verifyInfoBean);
+              for (UserWithFriend friend : contactList) {
+                if (TextUtils.equals(friend.getAccount(), agreeUserId)) {
+                  ALog.d(LIB_TAG, TAG, "onContactChange:  agreeUserId" + agreeUserId);
+                  newFriends.remove(friend);
+                } else {
+                  for (ContactVerifyInfoBean verifyInfoBean : verifyBeanList) {
+                    if (TextUtils.equals(
+                            verifyInfoBean.data.getApplicantAccountId(), friend.getAccount())
+                        || TextUtils.equals(
+                            verifyInfoBean.data.getRecipientAccountId(), friend.getAccount())) {
+                      //接收者是自己，表明是自己在其他端接受了申请，不更新
+                      if (!TextUtils.equals(
+                          verifyInfoBean.data.getRecipientAccountId(), IMKitClient.account())) {
+                        verifyInfoBean.updateStatus(
+                            V2NIMFriendAddApplicationStatus
+                                .V2NIM_FRIEND_ADD_APPLICATION_STATUS_AGREED);
+                        update.add(verifyInfoBean);
+                      }
+                      newFriends.remove(friend);
                     }
-                    newFriends.remove(friend);
                   }
                 }
               }
@@ -127,9 +131,9 @@ public class VerifyViewModel extends BaseViewModel {
 
             List<FriendAddApplicationInfo> list = new ArrayList<>();
             list.add(friendApplication);
-            add = mergeSystemMessageList(list);
+            add = mergeSystemMessageList(list, true);
             // 如果有新的消息合并，需要更新原有消息
-            if (updateList.size() > 0) {
+            if (!updateList.isEmpty()) {
               List<ContactVerifyInfoBean> update = new ArrayList<>(updateList);
               updateList.clear();
               fetchResult.setLoadStatus(LoadStatus.Finish);
@@ -138,7 +142,7 @@ public class VerifyViewModel extends BaseViewModel {
               resultLiveData.setValue(fetchResult);
             }
             //update
-            if (add.size() > 0) {
+            if (!add.isEmpty()) {
               fetchResult.setLoadStatus(LoadStatus.Finish);
               fetchResult.setData(add);
               fetchResult.setFetchType(FetchResult.FetchType.Add);
@@ -192,7 +196,8 @@ public class VerifyViewModel extends BaseViewModel {
               hasMore = !data.getFinished();
               index = data.getOffset();
               resetMessageStatus(data.getApplications());
-              List<ContactVerifyInfoBean> add = mergeSystemMessageList(data.getApplications());
+              List<ContactVerifyInfoBean> add =
+                  mergeSystemMessageList(data.getApplications(), false);
               fetchResult.setData(add);
             } else {
               hasMore = false;
@@ -218,11 +223,11 @@ public class VerifyViewModel extends BaseViewModel {
   }
 
   public void agree(ContactVerifyInfoBean bean, FetchCallback<Void> callback) {
-    ALog.d(LIB_TAG, TAG, "agree:");
     if (bean == null) {
       return;
     }
     agreeUserId = bean.data.getApplicantAccountId();
+    ALog.d(LIB_TAG, TAG, "agree: agreeUserId" + agreeUserId);
     FriendAddApplicationInfo info = bean.data;
     V2NIMFriendAddApplicationStatus status = info.getStatus();
     String account = info.getOperatorAccountId();
@@ -281,7 +286,7 @@ public class VerifyViewModel extends BaseViewModel {
   }
 
   private List<ContactVerifyInfoBean> mergeSystemMessageList(
-      List<FriendAddApplicationInfo> infoList) {
+      List<FriendAddApplicationInfo> infoList, boolean needUpdate) {
     List<ContactVerifyInfoBean> add = new ArrayList<>();
     updateList.clear();
     if (infoList != null) {
@@ -290,7 +295,10 @@ public class VerifyViewModel extends BaseViewModel {
         for (ContactVerifyInfoBean bean : verifyBeanList) {
           if (bean.pushMessageIfSame(infoList.get(index))) {
             hasInsert = true;
-            updateList.add(bean);
+            if (needUpdate) {
+              updateList.add(bean);
+            }
+
             break;
           }
         }

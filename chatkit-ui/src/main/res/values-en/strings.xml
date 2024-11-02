@@ -22,9 +22,9 @@
     <string name="chat_message_voice_in"> Release to send</string>
     <string name="chat_message_signal">Pin</string> 
     <string name="chat_message_open_message_notice">Notification</string> 
-    <string name="chat_message_set_top">Sticky on Top</string> 
-    <string name="chat_message_add_to_black_list">Block</string>
-    <string name="chat_message_set_ai_pin">PIN StickTop</string>
+    <string name="chat_message_set_top">Sticky on Top</string>
+    <string name="chat_message_set_ai_pin">PIN on Top</string>
+    <string name="chat_message_add_to_black_list">Block</string> 
     <string name="chat_message_delete">Yes</string>
     <string name="chat_setting">Settings</string> 
     <string name="chat_read_status">Read Status</string> 
@@ -63,6 +63,7 @@
     <string name="chat_message_video_call_action">Video Call</string>
     <string name="chat_message_audio_call_action">Voice Call</string>
     <string name="chat_message_translate_action">Translate</string>
+
 
     <string name="chat_message_audio_call_text">[Voice Call]</string>
     <string name="chat_message_video_call_text">[Video Call]</string>
@@ -177,6 +178,7 @@
     <string name="chat_message_is_typing">Typing...</string> 
     <string name="chat_message_is_typing_fun">Typing...</string>
 
+
     <!-- search -->
     <string name="message_search_title">History</string> 
     <string name="message_search_hint">Search History</string>
@@ -192,7 +194,14 @@
     <string name="permission_camera">Please give your phone camera permission</string>
     <string name="permission_audio">Please give your phone micro permission</string>
     <string name="permission_storage">Please give your phone storage permission</string>
-
+    <string name="chat_permission_camera_title">Camera permission usage instructions</string>
+    <string name="chat_permission_camera_content">Scenarios such as taking photos, recording videos, and video calling</string>
+    <string name="chat_permission_audio_title">Microphone permission usage instructions</string>
+    <string name="chat_permission_audio_content">Scenarios such as recording, audio calls, etc.</string>
+    <string name="chat_permission_storage_title">Storage permission usage instructions</string>
+    <string name="chat_permission_storage_content">The scenario of users sending files, pictures, videos, etc.</string>
+    <string name="chat_permission_location_title">Geolocation usage instructions</string>
+    <string name="chat_permission_location_content">The scenario of users sending location messages, and viewing address locations.</string>
     <!-- error -->
     <string name="chat_message_reply_error">error</string>
     <string name="chat_network_error_tip">No Internet</string>
@@ -273,18 +282,13 @@
     <string name="msg_type_no_tips">[Unknown Message]</string>
 
     <!-- AI -->
-    <string name="chat_ai_translate">AI processing</string>
-    <string name="chat_use_ai_translate">to Use</string>
-    <string name="chat_ai_translate_tips">The translation of...</string>
-    <string name="chat_ai_translate_language_title">translate to</string>
-    <string name="chat_ai_translate_target_language">Translate Language</string>
-    <string name="chat_ai_search_error">Model request abnormal</string>
-    <string name="chat_ai_message_progressing">Model request...</string>
-
-    <string name="chat_ai_message_type_unsupport">Unsupported type</string>
-    <string name="chat_ai_error_user_not_exist">User Not Exist</string>
-    <string name="chat_ai_error_failed_request_to_the_llm">Model request abnormal</string>
-    <string name="chat_ai_error_ai_messages_function_disabled">AI disable</string>
+    <string name="chat_ai_translate">AI</string>
+    <string name="chat_use_ai_translate">To use</string>
+    <string name="chat_ai_translate_tips">Translate to…</string>
+    <string name="chat_ai_translate_language_title">Translate to</string>
+    <string name="chat_ai_translate_target_language">Language</string>
+    <string name="chat_ai_search_error">AI error</string>
+    <string name="chat_ai_message_progressing">AI Progressing…</string>
     <string name="chat_ai_error_user_banned">User banned</string>
     <string name="chat_ai_error_user_chat_banned">User banned</string>
     <string name="chat_ai_error_message_hit_antispam">Hit antispam</string>
@@ -295,5 +299,4 @@
     <string name="chat_ai_error_cannot_blocklist_an_ai_account">not allow</string>
     <string name="chat_ai_error_rate_limit_exceeded">Rate limited</string>
     <string name="chat_ai_error_parameter">parameter error</string>
-
 </resources>

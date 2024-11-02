@@ -45,4 +45,13 @@ public class ChatUIConfig {
 
   //输入框定制
   public InputProperties inputProperties;
+
+  // 撤回操作时间限制，单位分钟，客户端限制，需要小于云信控制台配置时间才有用
+  public Long revokeTimeGap;
+
+  //撤回重新编辑时间,时间单位分钟，默认为两分钟
+  public Long revokeEditTimeGap;
+
+  //是否使用权限说明弹窗
+  public Boolean showPermissionPop;
 }

@@ -91,7 +91,8 @@ import org.json.JSONObject;
 /** 消息相关工具类，主要用于创建消息，消息内容解析等 */
 public class MessageHelper {
 
-  public static final int REVOKE_TIME_INTERVAL = 2 * 60 * 1000;
+  //撤回可编辑时间，单位毫秒
+  public static final long REVOKE_TIME_INTERVAL = 2 * 60 * 1000;
 
   public static final float DEF_SCALE = 0.6f;
   public static final float SMALL_SCALE = 0.4F;
@@ -555,9 +556,15 @@ public class MessageHelper {
    */
   public static boolean revokeMsgIsEdit(ChatMessageBean data) {
     V2NIMMessage message = data.getMessageData().getMessage();
+    long gapTime = REVOKE_TIME_INTERVAL;
+    if (ChatKitClient.getChatUIConfig() != null
+        && ChatKitClient.getChatUIConfig().revokeEditTimeGap != null) {
+      // 分钟转换为毫秒
+      gapTime = ChatKitClient.getChatUIConfig().revokeEditTimeGap * 60000;
+    }
     return !isReceivedMessage(data)
         && canRevokeEdit(data.getMessageData().getMessage())
-        && (System.currentTimeMillis() - message.getCreateTime() < REVOKE_TIME_INTERVAL)
+        && (SystemClock.elapsedRealtime() - data.revokeMsgTime < gapTime)
         && data.revokeMsgEdit;
   }
 
@@ -1491,6 +1498,7 @@ public class MessageHelper {
       ToastX.showShortToast(R.string.chat_message_removed_tip);
     }
   }
+
   // 发送转发消息（逐条转发）
   public static void sendForwardMessages(
       String inputMsg,
