@@ -54,12 +54,12 @@ dependencies {
 //    implementation(project(":aisearchkit"))
 
     //远端aar依赖
-    implementation("com.netease.yunxin.kit.contact:contactkit-ui:10.4.0")
-    implementation("com.netease.yunxin.kit.conversation:conversationkit-ui:10.4.0")
-    implementation("com.netease.yunxin.kit.team:teamkit-ui:10.4.0")
-    implementation("com.netease.yunxin.kit.chat:chatkit-ui:10.4.0")
-    implementation("com.netease.yunxin.kit.locationkit:locationkit:10.4.0")
-    implementation("com.netease.yunxin.kit.aisearchkit:aisearchkit:10.4.0")
+    implementation("com.netease.yunxin.kit.contact:contactkit-ui:10.4.1")
+    implementation("com.netease.yunxin.kit.conversation:conversationkit-ui:10.4.1")
+    implementation("com.netease.yunxin.kit.team:teamkit-ui:10.4.1")
+    implementation("com.netease.yunxin.kit.chat:chatkit-ui:10.4.1")
+    implementation("com.netease.yunxin.kit.locationkit:locationkit:10.4.1")
+    implementation("com.netease.yunxin.kit.aisearchkit:aisearchkit:10.4.1")
 
 
     implementation("com.netease.yunxin.kit.call:call-ui:2.2.0") //呼叫组件 UI 包
