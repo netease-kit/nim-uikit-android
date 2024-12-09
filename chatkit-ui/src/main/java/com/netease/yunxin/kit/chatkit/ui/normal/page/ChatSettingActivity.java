@@ -19,7 +19,7 @@ import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.databinding.NormalChatSettingActivityBinding;
 import com.netease.yunxin.kit.chatkit.ui.model.CloseChatPageEvent;
 import com.netease.yunxin.kit.chatkit.ui.page.viewmodel.ChatSettingViewModel;
-import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
+import com.netease.yunxin.kit.common.ui.activities.BaseLocalActivity;
 import com.netease.yunxin.kit.common.ui.utils.AvatarColor;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.common.utils.NetworkUtils;
@@ -31,7 +31,7 @@ import com.netease.yunxin.kit.corekit.route.XKitRouter;
 import java.util.ArrayList;
 
 /** 标准皮肤，单聊会话设置页面。 */
-public class ChatSettingActivity extends BaseActivity {
+public class ChatSettingActivity extends BaseLocalActivity {
   private static final String TAG = "ChatSettingActivity";
 
   NormalChatSettingActivityBinding binding;

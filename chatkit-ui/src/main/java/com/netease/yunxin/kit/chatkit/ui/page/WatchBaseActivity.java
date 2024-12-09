@@ -11,10 +11,10 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ActivityWatchImageVideoBinding;
 import com.netease.yunxin.kit.chatkit.ui.page.viewmodel.WatchImageVideoViewModel;
-import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
+import com.netease.yunxin.kit.common.ui.activities.BaseLocalActivity;
 
 /** BaseActivity for Watch picture or video */
-public abstract class WatchBaseActivity extends BaseActivity {
+public abstract class WatchBaseActivity extends BaseLocalActivity {
 
   WatchImageVideoViewModel viewModel;
   ActivityWatchImageVideoBinding binding;

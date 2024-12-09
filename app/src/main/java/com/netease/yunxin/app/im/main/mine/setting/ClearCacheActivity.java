@@ -10,11 +10,11 @@ import androidx.lifecycle.ViewModelProvider;
 import com.netease.yunxin.app.im.R;
 import com.netease.yunxin.app.im.databinding.ActivityClearCacheBinding;
 import com.netease.yunxin.app.im.utils.DataUtils;
-import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
+import com.netease.yunxin.kit.common.ui.activities.BaseLocalActivity;
 import com.netease.yunxin.kit.common.ui.utils.ToastX;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 
-public class ClearCacheActivity extends BaseActivity {
+public class ClearCacheActivity extends BaseLocalActivity {
 
   private ActivityClearCacheBinding viewBinding;
   private ClearCacheViewModel viewModel;

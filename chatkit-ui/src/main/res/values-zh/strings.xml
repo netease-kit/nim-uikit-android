@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2022 NetEase, Inc. All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be
+  ~ found in the LICENSE file.
+  -->
+
+<resources>
+    <string name="cancel">取消</string>
+    <string name="chat_dialog_sure">确定</string>
+    <string name="chat_pressed_to_speak">按住说话</string>
+    <string name="chat_record_failed">录音失败，请重试</string>
+    <string name="chat_message_send_hint">发送给 %s</string>
+    <string name="chat_message_send_error">消息发送失败</string>
+    <string name="chat_message_fetch_error">消息获取失败，请重试</string>
+    <string name="chat_message_revoke_error">撤回失败</string>
+    <string name="chat_message_delete_error">删除失败</string>
+    <string name="chat_message_audio_to_short">录制时间过短</string>
+    <string name="chat_message_revoke_content">此消息已撤回</string>
+    <string name="chat_message_revoke_over_time">已超过时间无法撤回</string>
+    <string name="chat_message_revoked">此消息已撤回</string>
+    <string name="chat_message_re_edit">重新编辑 </string>
+    <string name="chat_message_voice_in">松开发送，按住滑到空白区域取消</string>
+    <string name="chat_message_signal">标记</string>
+    <string name="chat_message_open_message_notice">开启消息提醒</string>
+    <string name="chat_message_set_top">聊天置顶</string>
+    <string name="chat_message_set_ai_pin">PIN置顶</string>
+    <string name="chat_message_add_to_black_list">加入黑名单</string>
+    <string name="chat_message_delete">删除</string>
+    <string name="chat_setting">聊天设置</string>
+    <string name="chat_read_status">消息阅读状态</string>
+    <string name="chat_read_with_num">已读（%d）</string>
+    <string name="chat_unread_with_num">未读（%d）</string>
+    <string name="chat_all_user_have_read">全部成员已读</string>
+    <string name="chat_all_user_have_unread">全部成员未读</string>
+    <string name="chat_message_ait_contact_title">选择提醒</string>
+    <string name="chat_message_rich_title_hint">请输入标题</string>
+    <string name="chat_message_rich_body_hint">请输入内容</string>
+
+    <string name="chat_no_permission">操作无权限</string>
+    <string name="chat_server_request_fail">操作失败</string>
+    <string name="chat_server_request_success">操作成功</string>
+
+    <string name="chat_message_take_photo">拍照</string>
+    <string name="chat_message_take_video">摄像</string>
+    <string name="chat_message_pick_image">从相册选择</string>
+    <string name="chat_message_copy_image">获取图片出错</string>
+    <string name="chat_message_image_save">图片已保存到手机</string>
+    <string name="chat_message_video_save">视频已保存到手机</string>
+    <string name="chat_message_image_save_fail">图片保存失败</string>
+    <string name="chat_message_video_save_fail">视频保存失败</string>
+    <string name="chat_message_video_download_fail">视频下载失败</string>
+    <string name="chat_message_video_send_fail">视频发送失败</string>
+    <string name="chat_message_video_fail_try_again">暂时无法播放视频，请重试</string>
+    <string name="chat_message_video_time">%02d:%02d</string>
+    <string name="chat_message_send">发送</string>
+    <string name="chat_message_video_error">无法播放该视频</string>
+
+    <string name="chat_message_more_shoot">拍摄</string>
+    <string name="chat_message_camera_unavailable">相机不可用</string>
+    <string name="chat_message_location">位置</string>
+    <string name="chat_message_file">文件</string>
+    <string name="chat_message_video_call">音视频通话</string>
+    <string name="chat_message_video_call_action">视频通话</string>
+    <string name="chat_message_audio_call_action">语音通话</string>
+    <string name="chat_message_translate_action">翻译</string>
+
+    <string name="chat_message_audio_call_text">[语音通话]</string>
+    <string name="chat_message_video_call_text">[视频通话]</string>
+    <string name="chat_message_call_canceled">已取消</string>
+    <string name="chat_message_in_call_canceled">已取消</string>
+    <string name="chat_message_in_call_canceled_self">已取消</string>
+    <string name="chat_message_call_refused">已拒绝</string>
+    <string name="chat_message_call_refused_self">已拒绝</string>
+    <string name="chat_message_call_timeout">未接听</string>
+    <string name="chat_message_call_busy">忙线未接听</string>
+    <string name="chat_message_call_busy_self">忙线未接听</string>
+    <string name="chat_message_call_completed">通话时长 &#8195; %s</string>
+    <string name="chat_message_multi_record">聊天记录</string>
+    <string name="chat_message_multi_record_title">%s的消息</string>
+    <string name="chat_message_multi_record_content">%s：%s</string>
+
+    <string name="chat_message_action_copy">复制</string>
+    <string name="chat_message_action_reply">回复</string>
+    <string name="chat_message_action_transmit">转发</string>
+    <string name="chat_message_action_pin">标记</string>
+    <string name="chat_message_action_pin_cancel">取消标记</string>
+    <string name="chat_message_action_multi_select">多选</string>
+    <string name="chat_message_action_delete">删除</string>
+    <string name="chat_message_action_recall">撤回</string>
+    <string name="chat_message_positive_recall">撤回</string>
+    <string name="chat_message_action_collection">收藏</string>
+    <string name="chat_message_action_top">置顶</string>
+    <string name="chat_message_action_cancel_top">取消置顶</string>
+
+    <string name="chat_message_action_revoke_this_message">撤回此消息</string>
+    <string name="chat_message_action_delete_this_message">删除此消息</string>
+    <string name="chat_message_removed_tip">该消息已撤回或删除</string>
+
+    <string name="chat_message_reply_someone">回复 %s</string>
+    <string name="chat_message_action_copy_success">复制成功！</string>
+
+    <string name="chat_enter_team">%s进入群聊</string>
+    <string name="chat_exit_team">%s退出群聊</string>
+
+    <string name="chat_team_need_authentication">需要身份验证</string>
+    <string name="chat_team_allow_anyone_join">允许任何人加入</string>
+    <string name="chat_team_not_allow_anyone_join">不允许任何人申请加入</string>
+    <string name="chat_team_admin_invite">管理员邀请</string>
+
+    <string name="chat_invite">邀请 </string>
+    <string name="chat_join_team"> 加入群聊</string>
+    <string name="chat_join_discuss_team"> 加入群聊</string>
+    <string name="chat_removed_team"> 被移出了群聊</string>
+    <string name="chat_removed_discuss_team"> 被移出了群聊</string>
+    <string name="chat_left_team">退出了群聊</string>
+    <string name="chat_left_discuss_team">退出了群聊</string>
+    <string name="chat_dismiss_team">解散了群</string>
+    <string name="chat_name_update">更新群名称为\"%s\"</string>
+    <string name="chat_team_extension_update">更新了群扩展字段 </string>
+    <string name="chat_team_introduce_update">更新了群介绍</string>
+    <string name="chat_team_notice_update">更新了群公告</string>
+    <string name="chat_team_accept_ones_invent">接受了%s的入群邀请</string>
+    <string name="chat_team_verify_update">更新群身份验证权限为</string>
+    <string name="chat_team_manager_pass_ones_application">管理员通过用户%s的入群申请</string>
+    <string name="chat_team_remove_to_another">将群转移给</string>
+    <string name="chat_team_operate_by_manager">被管理员</string>
+    <string name="chat_team_mute">禁言</string>
+    <string name="chat_team_un_mute">解除禁言</string>
+    <string name="chat_team_removed_manager">%s被撤销管理员身份</string>
+    <string name="chat_team_appoint_manager">%s被任命为管理员</string>
+    <string name="chat_team_add_top_message">置顶了一条消息</string>
+    <string name="chat_team_remove_top_message">移除了置顶消息</string>
+    <string name="chat_team_extension_server_update">群扩展字段(服务器)被更新为</string>
+    <string name="chat_you">你</string>
+    <string name="chat_team_avatar_update">更新了群头像</string>
+    <string name="chat_team_invitation_permission_update">更新了群权限\"邀请他人权限\"为</string>
+    <string name="chat_team_invitation_permission_all">\"所有人\"</string>
+    <string name="chat_team_invitation_permission_manager">\"群主和管理员\"</string>
+    <string name="chat_team_modify_resource_permission_update">更新了群权限\"群资料修改权限\"为</string>
+    <string name="chat_team_modify_permission_all">\"所有人\"</string>
+    <string name="chat_team_modify_permission_manager">\"群主和管理员\"</string>
+    <string name="chat_team_invited_id_verify_permission_update">更新了群权限\"邀请人身份验证权限\"为</string>
+    <string name="chat_team_invited_permission_need">\"需要被邀请方同意\"</string>
+    <string name="chat_team_invited_permission_no">\"不需要被邀请方同意\"</string>
+    <string name="chat_team_modify_extension_permission_update">更新群权限\"扩展字段修改\"为</string>
+    <string name="chat_team_cancel_all_mute">群禁言已关闭</string>
+    <string name="chat_team_full_mute">群禁言已开启</string>
+    <string name="chat_team_update">群%s被更新为%s</string>
+    <string name="chat_team_at_permission_manager_tips">\@所有人权限更新为群主和管理员</string>
+    <string name="chat_team_at_permission_all_tips">\@所有人权限更新为所有人</string>
+    <string name="chat_team_top_sticky_permission_manager_tips">置顶消息权限更新为群主和管理员</string>
+    <string name="chat_team_top_sticky_permission_all_tips">置顶消息权限更新为所有人</string>
+    <string name="chat_team_unknown_notification">未知通知</string>
+    <string name="chat_team_ait_all">所有人</string>
+    <string name="chat_team_be_removed_title">提示</string>
+    <string name="chat_team_be_removed_content">该群聊已被解散</string>
+    <string name="chat_team_invalid_content">该群聊已不存在</string>
+    <string name="chat_team_be_kick_content">您已被移出群聊</string>
+    <string name="chat_team_error_tip_content">您已被移出群聊或该群聊已被解散</string>
+
+    <string name="chat_reply_message_brief_image">[图片消息]</string>
+    <string name="chat_reply_message_brief_audio">[语音消息]</string>
+    <string name="chat_reply_message_brief_video">[视频消息]</string>
+    <string name="chat_reply_message_brief_location">[地理位置]</string>
+    <string name="chat_reply_message_brief_file">[文件消息]</string>
+    <string name="chat_reply_message_brief_custom">[自定义消息]</string>
+    <string name="chat_reply_message_brief_robot">[机器人消息]</string>
+    <string name="chat_reply_message_call">[音视频通话]</string>
+
+    <string name="chat_message_signal_tip">%s标记了这条信息</string>
+    <string name="chat_message_signal_tip_for_team">%s标记了这条信息</string>
+
+    <string name="chat_message_forward_to_team">转发到群组</string>
+    <string name="chat_message_forward_to_person">转发到个人</string>
+    <string name="chat_message_forward_to">发送给</string>
+    <string name="chat_message_is_typing">正在输入中...</string>
+    <string name="chat_message_is_typing_fun">对方正在输入中...</string>
+
+    <!-- search -->
+    <string name="message_search_title">历史记录</string>
+    <string name="message_search_hint">搜索聊天内容</string>
+    <string name="message_search_empty">暂无聊天记录</string>
+
+    <string name="chat_team_all_mute">当前群主设置为禁言</string>
+    <string name="chat_message_forward_tips">[转发]%s的会话记录</string>
+    <string name="chat_message_multi_forward_tips">[合并转发]%s的会话记录</string>
+    <string name="chat_message_single_forward_tips">[逐条转发]%s的会话记录</string>
+
+    <string name="permission_deny_tips">您拒绝了权限申请，该功能将无法使用</string>
+    <string name="permission_default">请在设置页面添加相关权限</string>
+    <string name="permission_camera">请在设置页面添加相机权限</string>
+    <string name="permission_audio">请在设置页面添加麦克风权限</string>
+    <string name="permission_storage">请在设置页面添加读写手机存储权限</string>
+    <string name="chat_permission_camera_title">相机权限使用说明</string>
+    <string name="chat_permission_camera_content">用户拍照，视频录制， 视频通话等场景</string>
+    <string name="chat_permission_audio_title">麦克风权限使用说明</string>
+    <string name="chat_permission_audio_content">用户录制， 音频通话等场景</string>
+    <string name="chat_permission_storage_title">存储权限使用说明</string>
+    <string name="chat_permission_storage_content">用户发送文件、图片、视频等场景</string>
+    <string name="chat_permission_location_title">地理位置使用说明</string>
+    <string name="chat_permission_location_content">用户发送地理位置消息， 查看地址位置等场景</string>
+    <!-- error -->
+    <string name="chat_message_reply_error">获取回复消息错误</string>
+    <string name="chat_network_error_tip">当前网络不可用，请检查你的网络设置。</string>
+
+    <!-- tips -->
+    <string name="chat_message_not_support_tips">[未知消息体]</string>
+    <string name="chat_message_not_call_tips">[音视频通话]</string>
+    <string name="chat_message_type_not_support_tips">暂不支持该格式</string>
+    <string name="chat_message_file_size_limit_tips">当前文件大小超出%sM发送限制，请重新选择</string>
+    <string name="chat_message_type_resource_error">资源不支持读取</string>
+    <string name="chat_message_revoke_eidt_error">已超过可编辑时间</string>
+    <string name="chat_message_multi_forward_limit_tips">合并转发限制100条消息</string>
+    <string name="chat_message_single_forward_limit_tips">逐条转发限制10条消息</string>
+    <string name="chat_message_multi_delete_limit_tips">批量删除限制50条消息</string>
+    <string name="chat_message_download_tips">正在下载中...</string>
+    <string name="chat_message_send_message_when_in_black">"对方把你拉黑，发送消息失败"</string>
+    <string name="chat_message_not_friend_send_call">"非好友暂不支持音视频通话"</string>
+    <string name="chat_message_forward_success_tips">转发成功</string>
+
+    <!-- location -->
+    <string name="chat_location_mine">定位</string>
+    <string name="chat_location_nav">导航</string>
+    <string name="chat_location_search_hint">搜索地点</string>
+    <string name="chat_location_search_empty">未找到你要搜的地址</string>
+    <string name="chat_location_empty">暂无位置信息</string>
+    <string name="chat_location_disable">无定位信息，请开启定位</string>
+    <string name="chat_location_send_empty">请选择你要发送的位置信息</string>
+
+    <!-- Pin -->
+    <string name="chat_pin_title">标记</string>
+    <string name="chat_pin_empty_tips">暂无标记消息</string>
+    <string name="chat_remove_pin_error_tips">取消标记失败</string>
+    <string name="chat_remove_tips">已取消标记</string>
+    <string name="chat_pin_limit_tips">已超出pin数量上限</string>
+
+    <!-- 收藏消息 -->
+    <string name="chat_collection_title">收藏</string>
+    <string name="chat_collection_empty_tips">暂无收藏消息</string>
+    <string name="chat_remove_collection_tips">删除成功</string>
+    <string name="chat_collection_p2p_name_tip">来自于 与%s的会话</string>
+    <string name="chat_collection_team_name_tip">来自于 %s</string>
+    <string name="chat_collection_p2p_transmit_tip">[转发]来自于 与%s的收藏消息</string>
+    <string name="chat_collection_team_transmit_tip">[转发]来自于 %s的收藏消息</string>
+    <string name="chat_delete_collection_content">确认要删除该收藏吗？</string>
+    <string name="chat_message_collection_tip">已收藏</string>
+    <string name="chat_send_null_message_tips">发送内容不能为空</string>
+    <string name="chat_send_null_title_tips">发送内容标题不能为空</string>
+    <string name="chat_collection_message_empty_tips">收藏消息解析失败</string>
+    <string name="chat_collection_message_not_support_tips">暂不支持该自定义消息</string>
+
+    <!-- 合并转发相关文案-->
+    <string name="chat_message_multi_transmit_input_hint">留言</string>
+    <string name="chat_message_multi_transmit">合并转发</string>
+    <string name="chat_message_single_transmit">逐条转发</string>
+    <string name="msg_type_multi_tips">[聊天记录]</string>
+    <string name="msg_multi_detail_title">聊天记录</string>
+    <string name="msg_multi_forward_error_tips">存在不可转发的消息体</string>
+    <string name="msg_multi_forward_download_error_tips">信息获取失败</string>
+    <string name="msg_forward_error_dialog_title">异常说明</string>
+    <string name="msg_forward_error_dialog_content">存在不可转发的消息体，是否去除后发送？</string>
+
+    <!-- message type-->
+    <string name="msg_type_location">[地理位置]</string>
+    <string name="msg_type_rtc_video">[视频通话]</string>
+    <string name="msg_type_rtc_audio">[语音通话]</string>
+    <string name="msg_type_image">[图片消息]</string>
+    <string name="msg_type_audio">[语音消息]</string>
+    <string name="msg_type_video">[视频消息]</string>
+    <string name="msg_type_file">[文件消息]</string>
+    <string name="msg_type_notification">[通知消息]</string>
+    <string name="msg_type_tip">[提醒消息]</string>
+    <string name="msg_type_custom">[自定义消息]</string>
+    <string name="msg_type_no_tips">[未知消息体]</string>
+
+    <!-- AI -->
+    <string name="chat_ai_translate">AI处理</string>
+    <string name="chat_use_ai_translate">使用</string>
+    <string name="chat_ai_translate_tips">翻译为...</string>
+    <string name="chat_ai_translate_language_title">将输入内容翻译为</string>
+    <string name="chat_ai_translate_target_language">翻译语言</string>
+    <string name="chat_ai_search_error">模型请求异常</string>
+    <string name="chat_ai_message_progressing">大模型请求响应中...</string>
+    <string name="chat_ai_message_type_unsupport">暂不支持该格式</string>
+    <string name="chat_ai_error_user_not_exist">用户不存在</string>
+    <string name="chat_ai_error_failed_request_to_the_llm">请求大语言模型失败</string>
+    <string name="chat_ai_error_ai_messages_function_disabled">AI消息功能未开通</string>
+    <string name="chat_ai_error_user_banned">用户被禁用</string>
+    <string name="chat_ai_error_user_chat_banned">用户被禁言</string>
+    <string name="chat_ai_error_message_hit_antispam">消息命中反垃圾</string>
+    <string name="chat_ai_error_not_an_ai_account">不是数字人账号</string>
+    <string name="chat_ai_error_team_member_not_exist">群成员不存在</string>
+    <string name="chat_ai_error_team_normal_member_chat_banned">群普通成员禁言</string>
+    <string name="chat_ai_error_team_member_chat_banned">群成员被禁言</string>
+    <string name="chat_ai_error_cannot_blocklist_an_ai_account">不允许对数字人进行黑名单操作</string>
+    <string name="chat_ai_error_rate_limit_exceeded">频率超限</string>
+    <string name="chat_ai_error_parameter">参数错误</string>
+
+    <string name="chat_voice_to_text">转文字</string>
+    <string name="chat_voice_to_text_failed">转文字失败</string>
+
+
+</resources>

@@ -25,7 +25,7 @@
     <string name="dialog_disagree">Disagree</string>
     <string name="dialog_read_agree">Have read and agree</string>
     <string name="dialog_tips_title">Tips</string>
-    <string name="dialog_permission_tips">Please give your permission</string>
+    <string name="dialog_permission_tips">Shall grant your permission</string>
 
     <string name="common_take_photo">Camera</string>
     <string name="common_get_from_album">Album</string>

@@ -27,7 +27,7 @@ import com.netease.nimlib.sdk.v2.team.model.V2NIMTeam;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.model.TeamMemberWithUserInfo;
 import com.netease.yunxin.kit.chatkit.ui.cache.TeamUserManager;
-import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
+import com.netease.yunxin.kit.common.ui.activities.BaseLocalActivity;
 import com.netease.yunxin.kit.common.ui.dialog.ChoiceListener;
 import com.netease.yunxin.kit.common.ui.dialog.CommonChoiceDialog;
 import com.netease.yunxin.kit.common.ui.utils.ToastX;
@@ -51,7 +51,7 @@ import java.util.List;
 import java.util.Objects;
 
 /** 群管理员列表页面, 包含添加管理员和删除管理员功能 子类需要实现{@link #initViewAndGetRootView(Bundle)}方法, 并在其中初始化页面布局 */
-public abstract class BaseTeamManagerListActivity extends BaseActivity {
+public abstract class BaseTeamManagerListActivity extends BaseLocalActivity {
 
   private final String TAG = "BaseTeamManagerListActivity";
 
@@ -184,7 +184,9 @@ public abstract class BaseTeamManagerListActivity extends BaseActivity {
                               V2NIMTeamMemberRole.V2NIM_TEAM_MEMBER_ROLE_MANAGER);
                   managerList.clear();
                   managerList.addAll(updateData);
-                  Collections.sort(managerList, TeamUtils.teamManagerComparator());
+                  if (managerList.size() > 1) {
+                    Collections.sort(managerList, TeamUtils.teamManagerComparator());
+                  }
                   adapter.setDataList(managerList);
                 }
                 if (adapter.getItemCount() > 0) {

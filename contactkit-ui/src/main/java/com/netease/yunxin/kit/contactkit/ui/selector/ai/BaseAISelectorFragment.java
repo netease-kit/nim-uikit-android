@@ -125,7 +125,7 @@ public abstract class BaseAISelectorFragment extends BaseFragment {
                   Toast.makeText(
                           getActivity(),
                           getString(
-                              R.string.contact_selector_session_max_count,
+                              R.string.contact_selector_max_count,
                               String.valueOf(viewModel.getMaxSelectorCount())),
                           Toast.LENGTH_SHORT)
                       .show();

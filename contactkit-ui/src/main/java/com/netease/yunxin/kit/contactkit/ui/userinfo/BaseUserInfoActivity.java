@@ -15,7 +15,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 import com.netease.yunxin.kit.chatkit.manager.AIUserManager;
-import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
+import com.netease.yunxin.kit.common.ui.activities.BaseLocalActivity;
 import com.netease.yunxin.kit.common.ui.dialog.BottomConfirmDialog;
 import com.netease.yunxin.kit.common.ui.dialog.ConfirmListener;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
@@ -32,7 +32,7 @@ import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 import java.util.Objects;
 
-public abstract class BaseUserInfoActivity extends BaseActivity {
+public abstract class BaseUserInfoActivity extends BaseLocalActivity {
   protected UserInfoViewModel viewModel;
   protected ContactUserInfoBean userInfoData;
   protected String accId;

@@ -104,7 +104,6 @@ public class MineFragment extends BaseFragment {
               updateUI(param.get(0));
             }
           }
-
         });
   }
 

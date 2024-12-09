@@ -28,7 +28,7 @@ import com.netease.nimlib.sdk.v2.team.model.V2NIMTeam;
 import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
 import com.netease.yunxin.kit.chatkit.manager.AIUserManager;
 import com.netease.yunxin.kit.chatkit.model.TeamMemberWithUserInfo;
-import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
+import com.netease.yunxin.kit.common.ui.activities.BaseLocalActivity;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.utils.NetworkUtils;
 import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
@@ -45,7 +45,7 @@ import java.util.Objects;
 import java.util.Set;
 
 /** 群成员选择界面基类 子类需要实现{@link #initViewAndGetRootView(Bundle)}方法，返回界面的根布局 */
-public abstract class BaseTeamMemberSelectActivity extends BaseActivity {
+public abstract class BaseTeamMemberSelectActivity extends BaseLocalActivity {
 
   protected TeamSettingViewModel viewModel;
   protected String teamId;
@@ -232,7 +232,7 @@ public abstract class BaseTeamMemberSelectActivity extends BaseActivity {
     List<TeamMemberWithUserInfo> memberList =
         TeamUtils.filterMemberListFromInfoList(teamMemberList, filterAccounts);
     filterAIUser(memberList);
-    if (!memberList.isEmpty()) {
+    if (!memberList.isEmpty() && memberList.size() > 1) {
       Collections.sort(memberList, TeamUtils.teamManagerComparator());
     }
     adapter.setDataAndSaveSelect(memberList);

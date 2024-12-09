@@ -14,11 +14,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
-import com.netease.yunxin.kit.common.ui.viewholder.BaseBean;
-import com.netease.yunxin.kit.common.ui.viewholder.ViewHolderClickListener;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.common.ui.widgets.ContentListPopView;
@@ -29,7 +25,7 @@ import com.netease.yunxin.kit.conversationkit.ui.R;
 import com.netease.yunxin.kit.conversationkit.ui.common.ConversationConstant;
 import com.netease.yunxin.kit.conversationkit.ui.databinding.ConversationFragmentBinding;
 import com.netease.yunxin.kit.conversationkit.ui.model.AIUserBean;
-import com.netease.yunxin.kit.conversationkit.ui.normal.ConversationTopAdapter;
+import com.netease.yunxin.kit.conversationkit.ui.model.ConversationHeaderBean;
 import com.netease.yunxin.kit.conversationkit.ui.normal.PopItemFactory;
 import com.netease.yunxin.kit.conversationkit.ui.normal.ViewHolderFactory;
 import com.netease.yunxin.kit.conversationkit.ui.page.ConversationBaseFragment;
@@ -41,11 +37,8 @@ import java.util.List;
 public class ConversationFragment extends ConversationBaseFragment {
 
   private final String TAG = "ConversationFragment";
-  protected ConversationFragmentBinding viewBinding;
 
-  // 顶部横向滚动列表
-  protected RecyclerView topRecyclerView;
-  protected ConversationTopAdapter topAdapter;
+  protected ConversationFragmentBinding viewBinding;
 
   @Override
   public View initViewAndGetRootView(
@@ -62,7 +55,6 @@ public class ConversationFragment extends ConversationBaseFragment {
     titleBarView = viewBinding.titleBar;
     networkErrorView = viewBinding.errorTv;
     emptyView = viewBinding.emptyLayout;
-    topRecyclerView = viewBinding.horizontalRecyclerView;
 
     setViewHolderFactory(new ViewHolderFactory());
     loadUIConfig();
@@ -109,27 +101,6 @@ public class ConversationFragment extends ConversationBaseFragment {
               .withContext(requireContext())
               .navigate();
         });
-
-    if (IMKitConfigCenter.getEnableAIUser() && topRecyclerView != null) {
-      LinearLayoutManager layoutManager =
-          new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
-      topRecyclerView.setLayoutManager(layoutManager);
-      topAdapter = new ConversationTopAdapter();
-      topRecyclerView.setAdapter(topAdapter);
-      topAdapter.setViewHolderClickListener(
-          new ViewHolderClickListener() {
-            @Override
-            public boolean onClick(View view, BaseBean data, int position) {
-              if (data instanceof AIUserBean) {
-                XKitRouter.withKey(RouterConstant.PATH_CHAT_P2P_PAGE)
-                    .withParam(RouterConstant.CHAT_ID_KRY, ((AIUserBean) data).getAccountId())
-                    .withContext(ConversationFragment.this.requireContext())
-                    .navigate();
-              }
-              return true;
-            }
-          });
-    }
   }
 
   // 加载AI用户数据, 用于展示顶部横向滚动列表。父类数据拉取之后回调
@@ -141,14 +112,10 @@ public class ConversationFragment extends ConversationBaseFragment {
     if (result.getLoadStatus() == LoadStatus.Success
         && result.getData() != null
         && result.getData().size() > 0) {
-      if (topAdapter != null) {
-        topAdapter.setData(result.getData());
-        viewBinding.horizontalRecyclerView.setVisibility(View.VISIBLE);
-      }
+      ConversationHeaderBean aiBean = new ConversationHeaderBean(result.getData());
+      conversationView.setHeaderData(List.of(aiBean));
     } else {
-      if (topRecyclerView != null) {
-        viewBinding.horizontalRecyclerView.setVisibility(View.GONE);
-      }
+      conversationView.setHeaderData(null);
     }
   }
 
@@ -207,13 +174,6 @@ public class ConversationFragment extends ConversationBaseFragment {
 
       if (config.customLayout != null) {
         config.customLayout.customizeConversationLayout(this);
-      }
-
-      if (config.showConversationTopAIList) {
-        viewBinding.horizontalRecyclerView.setVisibility(View.VISIBLE);
-      } else {
-        viewBinding.horizontalRecyclerView.setVisibility(View.GONE);
-        topRecyclerView = null;
       }
     }
   }

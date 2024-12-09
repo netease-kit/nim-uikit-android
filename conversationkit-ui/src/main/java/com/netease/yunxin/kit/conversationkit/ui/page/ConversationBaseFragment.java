@@ -375,7 +375,7 @@ public abstract class ConversationBaseFragment extends BaseFragment implements I
 
   public void updateEmptyView() {
     if (emptyView != null) {
-      if (conversationView.getDataSize() > 0) {
+      if (conversationView.getContentDataSize() > 0) {
         emptyView.setVisibility(View.GONE);
       } else {
         emptyView.setVisibility(View.VISIBLE);

@@ -20,7 +20,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
+import com.netease.yunxin.kit.common.ui.activities.BaseLocalActivity;
 import com.netease.yunxin.kit.common.ui.viewholder.BaseBean;
 import com.netease.yunxin.kit.common.ui.viewholder.ViewHolderClickListener;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
@@ -34,7 +34,7 @@ import com.netease.yunxin.kit.corekit.route.XKitRouter;
 import java.util.Objects;
 
 /** 搜索好友、群组 */
-public abstract class BaseSearchActivity extends BaseActivity {
+public abstract class BaseSearchActivity extends BaseLocalActivity {
   protected RecyclerView searchRv;
 
   private View rootView;

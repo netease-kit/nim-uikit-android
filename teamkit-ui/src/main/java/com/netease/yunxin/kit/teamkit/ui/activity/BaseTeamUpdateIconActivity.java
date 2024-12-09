@@ -23,7 +23,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.Group;
 import com.netease.yunxin.kit.chatkit.repo.ResourceRepo;
-import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
+import com.netease.yunxin.kit.common.ui.activities.BaseLocalActivity;
 import com.netease.yunxin.kit.common.ui.photo.BasePhotoChoiceDialog;
 import com.netease.yunxin.kit.common.ui.photo.PhotoChoiceDialog;
 import com.netease.yunxin.kit.common.ui.utils.CommonCallback;
@@ -38,7 +38,7 @@ import java.io.File;
 import java.util.Objects;
 
 /** 群头像修改界面基类 子类需要实现{@link #initViewAndGetRootView(Bundle)}方法，返回界面的根布局 */
-public abstract class BaseTeamUpdateIconActivity extends BaseActivity {
+public abstract class BaseTeamUpdateIconActivity extends BaseLocalActivity {
   protected final TeamSettingViewModel model = new TeamSettingViewModel();
 
   private View rootView;

@@ -1,0 +1,135 @@
+<!--
+  ~ Copyright (c) 2022 NetEase, Inc. All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be
+  ~ found in the LICENSE file.
+  -->
+
+<resources>
+    <string name="app_name">云信IM</string>
+    <string name="yunxin_name">网易云信</string>
+    <string name="yunxin_desc">真正稳定的IM 云服务</string>
+    <string name="yunxin_tips">仅用于体验云信IM产品功能，请勿轻信汇款、中奖等涉及钱款的信息，勿轻易拨打陌生电话，谨防上当受骗。</string>
+
+    <string name="welcome_button">注册/登录</string>
+    <string name="email_login">邮箱登录</string>
+    <string name="login_text">登录</string>
+    <string name="server_config">节点选择</string>
+    <string name="tab_session_tab_text">消息</string>
+    <string name="tab_contact_tab_text">通讯录</string>
+    <string name="tab_qchat_tab_text">圈组</string>
+    <string name="tab_live_tab_text">直播</string>
+    <string name="tab_mine_tab_text">我</string>
+    <string name="tab_mine_logout">退出登录</string>
+    <string name="user_info_title">个人信息</string>
+    <string name="tab_mine_account">账号:%s</string>
+    <string name="user_info_avatar">头像</string>
+    <string name="user_info_account">账号</string>
+    <string name="user_info_nickname">昵称</string>
+    <string name="user_info_sexual">性别</string>
+    <string name="user_info_birthday">生日</string>
+    <string name="user_info_phone">手机</string>
+    <string name="user_info_email">邮箱</string>
+    <string name="user_info_sign">个性签名</string>
+    <string name="action_copy_success">复制成功！</string>
+    <string name="server_config_china_text">国内节点配置</string>
+    <string name="server_config_oversea_text">海外节点配置</string>
+    <string name="server_config_dialog_title">更改配置节点</string>
+    <string name="server_config_dialog_content">切换节点后应用将退出并在重新开启后生效</string>
+    <string name="server_config_dialog_positive">重启</string>
+    <string name="server_config_dialog_cancel">取消</string>
+    <string name="incoming_call_notify_audio">【语音通话】</string>
+    <string name="incoming_call_notify_video">【视频通话】</string>
+
+
+    <string name="mine_collect">收藏</string>
+    <string name="mine_about">关于云信</string>
+    <string name="mine_setting">设置</string>
+    <string name="mine_version">版本号</string>
+    <string name="mine_im_version">NIM版本号</string>
+    <string name="mine_product">产品介绍</string>
+
+    <!-- setting -->
+    <string name="setting_notify">消息提醒</string>
+    <string name="setting_clear_cache">清理缓存</string>
+    <string name="setting_server_config">私有化配置</string>
+    <string name="setting_kit_config">全局配置</string>
+    <string name="setting_play_mode">听筒模式</string>
+    <string name="setting_filter_notify">过滤通知</string>
+    <string name="setting_friend_delete_mode">删除好友是否同步删除备注</string>
+    <string name="setting_message_read_mode">消息已读未读功能</string>
+    <string name="setting_complete">完成</string>
+    <string name="setting_skin">外观</string>
+    <string name="setting_language">语言</string>
+    <string name="setting_chinese">中文</string>
+    <string name="setting_english">English</string>
+    <string name="setting_save">保存</string>
+
+    <!-- notify setting-->
+    <string name="setting_notify_info">新消息通知</string>
+    <string name="setting_notify_mode">消息提醒方式</string>
+    <string name="setting_notify_other">消息提醒方式</string>
+    <string name="setting_notify_mode_ring">响铃模式</string>
+    <string name="setting_notify_mode_shake">震动模式</string>
+    <string name="setting_notify_push">推送设置</string>
+    <string name="setting_notify_push_sync">PC/Web同步接收推送</string>
+    <string name="setting_notify_push_detail">通知栏显示消息详情</string>
+
+    <!-- clear cache -->
+    <string name="clear_message">清理所有聊天记录</string>
+    <string name="clear_sdk_cache">清理SDK文件缓存</string>
+    <string name="clear_message_tips">聊天记录已清理</string>
+    <string name="cache_size_text">%.2f &#8197;M</string>
+    <string name="cache_size_null_text">0.00 &#8197;M</string>
+
+    <string name="sexual_male">男</string>
+    <string name="sexual_female">女</string>
+    <string name="sexual_unknown">未知</string>
+
+    <!-- toast -->
+    <string name="not_usable">功能暂未开放</string>
+    <string name="setting_fail">设置失败</string>
+    <string name="setting_success">设置成功</string>
+    <string name="login_fail">登录失败:%d</string>
+    <string name="request_fail">操作失败</string>
+    <string name="user_fail">用户信息获取失败</string>
+    <string name="imkit_email_fail">邮箱格式错误，请检查</string>
+    <string name="network_error">当前网络不可用，请检查你的网络设置。</string>
+    <string name="anti_error">存在不安全内容，请重新输入。</string>
+
+    <!--    skin-->
+    <string name="base_type">基础皮肤</string>
+    <string name="common_skin">通用皮肤</string>
+
+    <!-- server config -->
+    <string name="server_config_title">私有化配置</string>
+    <string name="server_config_siwtch_content">私有化环境配置生效</string>
+    <string name="server_config_param_title">私有化环境配置参数</string>
+    <string name="server_config_param_type">配置方式</string>
+    <string name="server_config_param_type_desc">手动填写</string>
+    <string name="server_config_param_type_parse_desc">一键自动解析</string>
+    <string name="server_config_param_link_title">服务器Link地址</string>
+    <string name="server_config_param_app_key_title">NIM APP Key</string>
+    <string name="server_config_param_parse_desc">填写私有化配置内容</string>
+    <string name="server_config_param_lbs_title">LBS服务器地址</string>
+    <string name="server_config_param_nos_title">NOS上传LBS服务器地址</string>
+    <string name="server_config_param_nos_link_title">NOS上传LBS默认Link服务器地址</string>
+    <string name="server_config_param_nos_upload_title">NOS上传服务器主机地址</string>
+    <string name="server_config_param_nos_download_title">NOS拼接下载地址</string>
+    <string name="server_config_param_module_title">连接云信服务器加密数据通道的公钥参数1</string>
+    <string name="server_config_param_save">保存配置</string>
+
+    <!-- login -->
+    <string name="uikit_account_login_page_title">账号登录</string>
+    <string name="uikit_account_login_hint">登录账号</string>
+    <string name="uikit_token_login_hint">登录Token</string>
+
+ <!-- 功能配置 -->
+    <string name="uikit_function_title">功能配置</string>
+    <string name="uikit_team_switch_title">群聊功能</string>
+    <string name="uikit_collect_switch_title">收藏功能</string>
+    <string name="uikit_pin_switch_title">标记功能</string>
+    <string name="uikit_stick_top_switch_title">消息置顶功能</string>
+    <string name="uikit_online_switch_title">正在输入功能</string>
+    <string name="uikit_call_switch_title">禁止陌生人音视频通话</string>
+
+</resources>

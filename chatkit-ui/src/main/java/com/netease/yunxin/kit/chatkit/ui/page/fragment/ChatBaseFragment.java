@@ -308,7 +308,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
   }
 
   private void handleTopMessage() {
-    if (viewModel instanceof ChatTeamViewModel) {
+    if (IMKitConfigCenter.getEnableTopMessage() && viewModel instanceof ChatTeamViewModel) {
       ((ChatTeamViewModel) viewModel)
           .getTopMessagePermissionLiveData()
           .observeForever(
@@ -577,7 +577,9 @@ public abstract class ChatBaseFragment extends BaseFragment {
                       }
                     } else if (TextUtils.equals(
                             permission, Manifest.permission.READ_EXTERNAL_STORAGE)
-                        || TextUtils.equals(permission, Manifest.permission.READ_MEDIA_IMAGES)) {
+                        || TextUtils.equals(permission, Manifest.permission.READ_MEDIA_IMAGES)
+                        || TextUtils.equals(
+                            permission, Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED)) {
                       if (currentRequest == REQUEST_READ_EXTERNAL_STORAGE_PERMISSION_ALBUM) {
                         startPickMedia();
                       } else if (currentRequest == REQUEST_READ_EXTERNAL_STORAGE_PERMISSION_FILE) {
@@ -761,6 +763,14 @@ public abstract class ChatBaseFragment extends BaseFragment {
             permission =
                 new String[] {
                   Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_MEDIA_VIDEO
+                };
+          }
+          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            permission =
+                new String[] {
+                  Manifest.permission.READ_MEDIA_IMAGES,
+                  Manifest.permission.READ_MEDIA_VIDEO,
+                  Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED
                 };
           }
           if (PermissionUtils.hasPermissions(ChatBaseFragment.this.getContext(), permission)) {
@@ -1121,7 +1131,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
             //            popMenu.setDismissListener(() -> SelectableTextHelper.getInstance().dismiss());
             int[] location = new int[2];
             chatView.getMessageListView().getLocationOnScreen(location);
-            popMenu.show(view, messageBean, location[1]);
+            popMenu.show(getContext(), view, messageBean, location[1]);
           }
           return true;
         }
@@ -1305,10 +1315,14 @@ public abstract class ChatBaseFragment extends BaseFragment {
             int[] location = new int[2];
             chatView.getMessageListView().getLocationOnScreen(location);
             if (isSelectAll) {
-              popMenu.show(view, messageInfo, location[1]);
+              popMenu.show(getContext(), view, messageInfo, location[1]);
             } else {
               popMenu.show(
-                  view, text, messageInfo.getMessageData().getMessage().isSelf(), location[1]);
+                  getContext(),
+                  view,
+                  text,
+                  messageInfo.getMessageData().getMessage().isSelf(),
+                  location[1]);
             }
           }
           return true;
@@ -1407,8 +1421,19 @@ public abstract class ChatBaseFragment extends BaseFragment {
         Toast.makeText(getContext(), R.string.chat_network_error_tip, Toast.LENGTH_SHORT).show();
         return;
       }
-      if (messageInfo.getCustomData() instanceof NERTCCallAttachment) {
-        NERTCCallAttachment attachment = (NERTCCallAttachment) messageInfo.getCustomData();
+      //解决取消的消息首次点击不能呼叫的问题
+      NERTCCallAttachment attachment = (NERTCCallAttachment) messageInfo.getCustomData();
+      if (attachment == null && messageInfo.getMessage().getAttachment() != null) {
+        // 此处只处理话单消息
+        String attachmentRaw = messageInfo.getMessage().getAttachment().getRaw();
+        if (TextUtils.isEmpty(attachmentRaw)) {
+          return;
+        }
+        attachment =
+            new NERTCCallAttachment(messageInfo.getMessage().getMessageClientId(), attachmentRaw);
+        messageInfo.setCustomData(attachment);
+      }
+      if (attachment != null) {
         startCall(attachment.callType);
       }
     } else if (messageInfo.getMessage().getMessageType()
@@ -1584,7 +1609,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
             return true;
           }
           if (!ChatUtils.havePermissionForTopSticky()) {
-            ToastX.showShortToast(R.string.chat_kit_no_permission_error);
+            ToastX.showShortToast(R.string.chat_no_permission);
             return true;
           }
 
@@ -1641,6 +1666,17 @@ public abstract class ChatBaseFragment extends BaseFragment {
                     Toast.LENGTH_SHORT)
                 .show();
           }
+          return true;
+        }
+
+        @Override
+        public boolean onTransferToText(ChatMessageBean messageBean) {
+          if (chatConfig != null
+              && chatConfig.popMenuClickListener != null
+              && chatConfig.popMenuClickListener.onRecall(messageBean)) {
+            return true;
+          }
+          viewModel.voiceToText(messageBean);
           return true;
         }
 
@@ -1870,9 +1906,16 @@ public abstract class ChatBaseFragment extends BaseFragment {
       String payload = null;
       if (fetchResult.getData().first == MessageUpdateType.Pin) {
         payload = ActionConstants.PAYLOAD_SIGNAL;
+      } else if (fetchResult.getData().first == MessageUpdateType.VoiceToText) {
+        payload = ActionConstants.PAYLOAD_VOICE_TO_TEXT;
       }
       for (ChatMessageBean messageBean : fetchResult.getData().second) {
         chatView.getMessageListView().updateMessage(messageBean, payload);
+      }
+    } else if (fetchResult.getLoadStatus() == LoadStatus.Error) {
+      String toast = fetchResult.getErrorMsg(getContext());
+      if (!TextUtils.isEmpty(toast)) {
+        ToastX.showShortToast(toast);
       }
     }
   }
@@ -2021,7 +2064,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
     for (int i = 0; i < pickList.size(); ++i) {
       Uri uri = pickList.get(i);
       ALog.d(LIB_TAG, LOG_TAG, "pick media result uri(" + i + ") -->> " + uri);
-      mHandler.postDelayed(() -> viewModel.sendImageOrVideoMessage(uri), 100);
+      mHandler.postDelayed(() -> viewModel.sendImageOrVideoMessage(uri, getContext()), 100);
     }
   }
 
@@ -2046,7 +2089,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
       File f = new File(captureTempImagePath);
       Uri contentUri = Uri.fromFile(f);
       ALog.d(LIB_TAG, LOG_TAG, "take picture contentUri -->> " + contentUri);
-      viewModel.sendImageOrVideoMessage(contentUri);
+      viewModel.sendImageOrVideoMessage(contentUri, getContext());
       captureTempImagePath = "";
     }
   }
@@ -2056,7 +2099,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
       File f = new File(captureTempVideoPath);
       Uri contentUri = Uri.fromFile(f);
       ALog.d(LIB_TAG, LOG_TAG, "capture video contentUri -->> " + contentUri);
-      viewModel.sendImageOrVideoMessage(contentUri);
+      viewModel.sendImageOrVideoMessage(contentUri, getContext());
       captureTempVideoPath = "";
     }
   }

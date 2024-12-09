@@ -19,7 +19,7 @@ import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.databinding.FunChatSettingActivityBinding;
 import com.netease.yunxin.kit.chatkit.ui.model.CloseChatPageEvent;
 import com.netease.yunxin.kit.chatkit.ui.page.viewmodel.ChatSettingViewModel;
-import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
+import com.netease.yunxin.kit.common.ui.activities.BaseLocalActivity;
 import com.netease.yunxin.kit.common.ui.utils.AvatarColor;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.common.utils.NetworkUtils;
@@ -31,7 +31,7 @@ import com.netease.yunxin.kit.corekit.route.XKitRouter;
 import java.util.ArrayList;
 
 /** Fun皮肤单聊聊天设置页面 */
-public class FunChatSettingActivity extends BaseActivity {
+public class FunChatSettingActivity extends BaseLocalActivity {
   private static final String TAG = "ChatSettingActivity";
 
   FunChatSettingActivityBinding binding;
@@ -80,9 +80,11 @@ public class FunChatSettingActivity extends BaseActivity {
     if (IMKitConfigCenter.getEnableTeam()) {
       binding.addIv.setVisibility(View.VISIBLE);
       binding.noTeamNameTv.setVisibility(View.GONE);
+      binding.nameTv.setVisibility(View.VISIBLE);
       binding.addIv.setOnClickListener(v -> selectUsersCreateGroup());
     } else {
       binding.noTeamNameTv.setVisibility(View.VISIBLE);
+      binding.nameTv.setVisibility(View.GONE);
       binding.addIv.setVisibility(View.GONE);
     }
 

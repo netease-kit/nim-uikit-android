@@ -8,13 +8,13 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentManager;
-import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
+import com.netease.yunxin.kit.common.ui.activities.BaseLocalActivity;
 import com.netease.yunxin.kit.conversationkit.ui.R;
 import com.netease.yunxin.kit.conversationkit.ui.databinding.ConversationActivityBinding;
 import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 
 /** 普通版会话页面Activity，可以直接使用 跳转链接：{@link RouterConstant#PATH_CONVERSATION_PAGE} */
-public class ConversationActivity extends BaseActivity {
+public class ConversationActivity extends BaseLocalActivity {
 
   private ConversationActivityBinding viewBinding;
 

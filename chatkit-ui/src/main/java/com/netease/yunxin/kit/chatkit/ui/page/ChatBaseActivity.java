@@ -10,12 +10,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatActivityLayoutBinding;
 import com.netease.yunxin.kit.chatkit.ui.model.CloseChatPageEvent;
-import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
+import com.netease.yunxin.kit.common.ui.activities.BaseLocalActivity;
 import com.netease.yunxin.kit.corekit.event.EventCenter;
 import com.netease.yunxin.kit.corekit.event.EventNotify;
 
 /** BaseActivity for Chat include P2P chat page and Team chat page */
-public abstract class ChatBaseActivity extends BaseActivity {
+public abstract class ChatBaseActivity extends BaseLocalActivity {
 
   ChatActivityLayoutBinding binding;
 

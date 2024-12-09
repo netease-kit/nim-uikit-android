@@ -93,39 +93,16 @@
             android:textSize="14dp"
             android:visibility="gone"
             app:drawableStartCompat="@drawable/ic_error" />
-        <androidx.core.widget.NestedScrollView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:fillViewport="true">
+
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <LinearLayout
-                android:id="@+id/contentLayout"
+
+            <com.netease.yunxin.kit.conversationkit.ui.view.ConversationView
+                android:id="@+id/conversationView"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical">
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/horizontalRecyclerView"
-                    android:layout_width="match_parent"
-                    android:layout_height="@dimen/dimen_89_dp"
-                    android:layout_marginStart="@dimen/dimen_8_dp"
-                    android:layout_marginEnd="@dimen/dimen_8_dp"
-                    android:visibility="gone"/>
-
-                <View android:id="@+id/horizontalLine"
-                    android:layout_width="match_parent"
-                    android:layout_height="@dimen/dimen_1_dp"
-                    android:background="@color/color_ededed"
-                    android:visibility="gone"/>
-
-                <com.netease.yunxin.kit.conversationkit.ui.view.ConversationView
-                    android:id="@+id/conversationView"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
-            </LinearLayout>
+                android:layout_height="match_parent" />
 
             <LinearLayout
                 android:id="@+id/emptyLayout"
@@ -150,7 +127,6 @@
 
             </LinearLayout>
         </FrameLayout>
-        </androidx.core.widget.NestedScrollView>
     </LinearLayout>
 
     <FrameLayout

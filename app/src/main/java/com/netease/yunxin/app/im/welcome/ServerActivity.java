@@ -14,10 +14,10 @@ import com.netease.yunxin.app.im.databinding.ServerConfigActivityBinding;
 import com.netease.yunxin.app.im.utils.Constant;
 import com.netease.yunxin.app.im.utils.DataUtils;
 import com.netease.yunxin.kit.alog.ALog;
-import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
+import com.netease.yunxin.kit.common.ui.activities.BaseLocalActivity;
 import com.netease.yunxin.kit.common.ui.dialog.CommonConfirmDialog;
 
-public class ServerActivity extends BaseActivity {
+public class ServerActivity extends BaseLocalActivity {
 
   private static final String TAG = "ServerActivity";
   private ServerConfigActivityBinding viewBinding;

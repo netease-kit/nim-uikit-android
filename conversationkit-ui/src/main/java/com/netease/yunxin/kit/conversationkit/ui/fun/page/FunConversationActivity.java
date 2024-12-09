@@ -8,12 +8,12 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentManager;
-import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
+import com.netease.yunxin.kit.common.ui.activities.BaseLocalActivity;
 import com.netease.yunxin.kit.conversationkit.ui.R;
 import com.netease.yunxin.kit.conversationkit.ui.databinding.FunConversationActivityBinding;
 
 /** 娱乐版会话列表Activity, 用于展示娱乐版会话列表 可以作为独立页面使用 */
-public class FunConversationActivity extends BaseActivity {
+public class FunConversationActivity extends BaseLocalActivity {
 
   private FunConversationActivityBinding viewBinding;
 

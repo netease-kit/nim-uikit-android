@@ -20,13 +20,13 @@ import android.widget.EditText;
 import android.widget.TextView;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.Nullable;
-import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
+import com.netease.yunxin.kit.common.ui.activities.BaseLocalActivity;
 import com.netease.yunxin.kit.teamkit.ui.R;
 import com.netease.yunxin.kit.teamkit.ui.viewmodel.TeamSettingViewModel;
 import java.util.Objects;
 
 /** 群昵称修改界面基类 子类需要实现{@link #initViewAndGetRootView(Bundle)}方法，返回界面的根布局 */
-public abstract class BaseTeamUpdateNicknameActivity extends BaseActivity {
+public abstract class BaseTeamUpdateNicknameActivity extends BaseLocalActivity {
   public static final String KEY_TEAM_MY_NICKNAME = "my_team_nickname";
   protected static final String MAX_COUNT_STR = "/30";
   protected final TeamSettingViewModel model = new TeamSettingViewModel();

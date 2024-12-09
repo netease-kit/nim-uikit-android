@@ -182,7 +182,7 @@
 
     </FrameLayout>
 
-    <FrameLayout
+    <LinearLayout
         android:id="@+id/chatMsgMultiSelectLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -194,9 +194,9 @@
 
         <FrameLayout
             android:id="@+id/chatMsgMultiTransmitLayout"
-            android:layout_width="@dimen/dimen_48_dp"
-            android:layout_height="67dp"
-            android:layout_marginStart="@dimen/dimen_62_dp"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/dimen_13_dp"
             android:orientation="vertical">
 
@@ -204,6 +204,7 @@
                 android:id="@+id/chatMsgMultiTransmitIv"
                 android:layout_width="@dimen/dimen_48_dp"
                 android:layout_height="@dimen/dimen_48_dp"
+                android:layout_gravity="center_horizontal"
                 android:src="@drawable/chat_multi_transmit_selector" />
 
             <TextView
@@ -219,9 +220,9 @@
 
         <FrameLayout
             android:id="@+id/chatMsgSingleTransmitLayout"
-            android:layout_width="@dimen/dimen_48_dp"
-            android:layout_height="67dp"
-            android:layout_gravity="center_horizontal"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/dimen_13_dp"
             android:orientation="vertical">
 
@@ -229,6 +230,7 @@
                 android:id="@+id/chatMsgSingleTransmitIv"
                 android:layout_width="@dimen/dimen_48_dp"
                 android:layout_height="@dimen/dimen_48_dp"
+                android:layout_gravity="center_horizontal"
                 android:src="@drawable/chat_single_transmit_selector" />
 
             <TextView
@@ -244,17 +246,17 @@
 
         <FrameLayout
             android:id="@+id/chatMsgMultiDeleteLayout"
-            android:layout_width="@dimen/dimen_48_dp"
-            android:layout_height="67dp"
-            android:layout_gravity="end"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/dimen_13_dp"
-            android:layout_marginEnd="@dimen/dimen_62_dp"
             android:orientation="vertical">
 
             <ImageView
                 android:id="@+id/chatMsgMultiDeleteIv"
                 android:layout_width="@dimen/dimen_48_dp"
                 android:layout_height="@dimen/dimen_48_dp"
+                android:layout_gravity="center_horizontal"
                 android:src="@drawable/chat_multi_delete_selector" />
 
             <TextView
@@ -268,5 +270,5 @@
 
         </FrameLayout>
 
-    </FrameLayout>
+    </LinearLayout>
 </LinearLayout>

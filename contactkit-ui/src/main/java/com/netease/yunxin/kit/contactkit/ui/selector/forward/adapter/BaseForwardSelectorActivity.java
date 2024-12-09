@@ -29,7 +29,7 @@ import com.google.android.material.tabs.TabLayoutMediator;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
 import com.netease.yunxin.kit.chatkit.model.RecentForward;
-import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
+import com.netease.yunxin.kit.common.ui.activities.BaseLocalActivity;
 import com.netease.yunxin.kit.common.ui.adapter.BaseFragmentAdapter;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.common.ui.widgets.BackTitleBar;
@@ -43,7 +43,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public abstract class BaseForwardSelectorActivity extends BaseActivity {
+public abstract class BaseForwardSelectorActivity extends BaseLocalActivity {
 
   private static final String TAG = "BaseForwardSelectorActivity";
 

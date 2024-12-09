@@ -17,10 +17,13 @@ import com.netease.yunxin.kit.chatkit.ui.interfaces.ChatBaseViewHolder;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants;
 import com.netease.yunxin.kit.chatkit.ui.view.message.MessageProperties;
+import com.netease.yunxin.kit.common.ui.utils.AppLanguageConfig;
 import com.netease.yunxin.kit.common.ui.utils.AvatarColor;
-import com.netease.yunxin.kit.common.ui.utils.TimeFormatUtils;
 import com.netease.yunxin.kit.common.utils.SizeUtils;
+import com.netease.yunxin.kit.corekit.im2.IMKitClient;
+import com.netease.yunxin.kit.corekit.im2.utils.TimeFormatLocalUtils;
 import java.util.List;
+import java.util.Locale;
 
 /** base message view holder for chat message item */
 public abstract class ChatBasePinViewHolder extends ChatBaseViewHolder<ChatMessageBean> {
@@ -140,7 +143,12 @@ public abstract class ChatBasePinViewHolder extends ChatBaseViewHolder<ChatMessa
       baseViewBinding.tvTime.setTextSize(properties.getTimeTextSize());
     }
     baseViewBinding.tvTime.setText(
-        TimeFormatUtils.formatMillisecond(itemView.getContext(), createTime));
+        TimeFormatLocalUtils.formatMillisecond(
+            itemView.getContext(),
+            createTime,
+            new Locale(
+                AppLanguageConfig.getInstance()
+                    .getAppLanguage(IMKitClient.getApplicationContext()))));
   }
 
   public void setTeamInfo(Team teamInfo) {

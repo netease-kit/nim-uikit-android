@@ -6,27 +6,48 @@ package com.netease.yunxin.app.im.main.mine.setting;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
 import androidx.lifecycle.ViewModelProvider;
 import com.netease.yunxin.app.im.AppSkinConfig;
+import com.netease.yunxin.app.im.BuildConfig;
 import com.netease.yunxin.app.im.IMApplication;
 import com.netease.yunxin.app.im.R;
 import com.netease.yunxin.app.im.databinding.ActivityMineSettingBinding;
+import com.netease.yunxin.app.im.utils.MultiLanguageUtils;
 import com.netease.yunxin.app.im.welcome.WelcomeActivity;
 import com.netease.yunxin.kit.chatkit.ui.custom.ChatConfigManager;
-import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
+import com.netease.yunxin.kit.common.ui.activities.BaseLocalActivity;
 import com.netease.yunxin.kit.common.utils.SizeUtils;
+import com.netease.yunxin.kit.corekit.event.EventCenter;
+import com.netease.yunxin.kit.corekit.event.EventNotify;
 import com.netease.yunxin.kit.corekit.im2.IMKitClient;
 import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
 
-public class SettingActivity extends BaseActivity {
+public class SettingActivity extends BaseLocalActivity {
 
   private ActivityMineSettingBinding viewBinding;
   private SettingViewModel viewModel;
+
+  //语言变更事件，切换语言后重新加载页面
+  EventNotify<MultiLanguageUtils.LangEvent> langeNotify =
+      new EventNotify<MultiLanguageUtils.LangEvent>() {
+        @Override
+        public void onNotify(@NonNull MultiLanguageUtils.LangEvent message) {
+          ActivityCompat.recreate(SettingActivity.this);
+        }
+
+        @NonNull
+        @Override
+        public String getEventType() {
+          return "langEvent";
+        }
+      };
 
   @Override
   protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -36,6 +57,7 @@ public class SettingActivity extends BaseActivity {
     viewModel = new ViewModelProvider(this).get(SettingViewModel.class);
     setContentView(viewBinding.getRoot());
     initView();
+    EventCenter.registerEventNotify(langeNotify);
   }
 
   private void initView() {
@@ -64,8 +86,14 @@ public class SettingActivity extends BaseActivity {
     viewBinding.skinFl.setOnClickListener(
         v -> startActivity(new Intent(SettingActivity.this, SkinActivity.class)));
 
+    viewBinding.appLanguageLayout.setOnClickListener(
+        view -> startActivity(new Intent(SettingActivity.this, SettingLanguageActivity.class)));
+
     viewBinding.clearFl.setOnClickListener(
         v -> startActivity(new Intent(SettingActivity.this, ClearCacheActivity.class)));
+
+    viewBinding.serverConfigLayout.setOnClickListener(
+        v -> startActivity(new Intent(SettingActivity.this, ServerConfigActivity.class)));
 
     viewBinding.tvLogout.setOnClickListener(
         v ->
@@ -92,8 +120,8 @@ public class SettingActivity extends BaseActivity {
                         }));
     viewBinding.settingTitleBar.setOnBackIconClickListener(v -> onBackPressed());
     if (AppSkinConfig.getInstance().getAppSkinStyle() == AppSkinConfig.AppSkin.commonSkin) {
-      changeStatusBarColor(R.color.fun_page_bg_color);
-      viewBinding.clRoot.setBackgroundResource(R.color.fun_page_bg_color);
+      changeStatusBarColor(R.color.color_ededed);
+      viewBinding.clRoot.setBackgroundResource(R.color.color_ededed);
       viewBinding.nextGroupLl.setBackgroundResource(R.color.color_white);
       ViewGroup.MarginLayoutParams layoutParams =
           (ViewGroup.MarginLayoutParams) viewBinding.nextGroupLl.getLayoutParams();
@@ -130,5 +158,11 @@ public class SettingActivity extends BaseActivity {
 
     viewBinding.playModeSc.setThumbResource(thumbRes);
     viewBinding.playModeSc.setTrackResource(trackRes);
+  }
+
+  @Override
+  protected void onDestroy() {
+    super.onDestroy();
+    EventCenter.unregisterEventNotify(langeNotify);
   }
 }

@@ -46,7 +46,7 @@ public class ConversationBean extends BaseBean {
   }
 
   public String getConversationId() {
-    return infoData.getConversationId();
+    return infoData != null ? infoData.getConversationId() : "";
   }
 
   public Boolean isStickTop() {

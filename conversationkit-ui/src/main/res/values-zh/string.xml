@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2022 NetEase, Inc. All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be
+  ~ found in the LICENSE file.
+  -->
+
+<resources>
+    <string name="conversation_title">云信IM</string>
+    <string name="add_friend">添加好友</string>
+    <string name="create_group_team">创建讨论组</string>
+    <string name="create_advanced_team">创建高级群</string>
+    <string name="create_advanced_team_success">成功创建了群聊</string>
+
+    <string name="stick_title">置顶该聊天</string>
+    <string name="cancel_stick_title">取消置顶</string>
+    <string name="delete_title">删除该聊天</string>
+    <string name="recent_title">最近聊天</string>
+    <string name="cancel_title">取消</string>
+    <string name="sure_title">确定</string>
+    <string name="sure_count_title">确定(%d)</string>
+
+    <string name="conversation_network_error_tip">当前网络不可用，请检查你的网络设置。</string>
+    <string name="conversation_empty_tip">暂无会话</string>
+    <string name="conversation_ait_tip">[有人@我]</string>
+
+    <!-- message type-->
+    <string name="msg_type_location">[地理位置]</string>
+    <string name="msg_type_rtc_video">[视频通话]</string>
+    <string name="msg_type_rtc_audio">[语音通话]</string>
+    <string name="msg_type_image">[图片消息]</string>
+    <string name="msg_type_audio">[语音消息]</string>
+    <string name="msg_type_video">[视频消息]</string>
+    <string name="msg_type_file">[文件消息]</string>
+    <string name="msg_type_notification">[通知消息]</string>
+    <string name="msg_type_tip">[提醒消息]</string>
+    <string name="msg_type_custom">[自定义消息]</string>
+    <string name="msg_type_no_tips">[未知消息体]</string>
+    <string name="msg_type_revoke_tips">此消息已撤回</string>
+</resources>

@@ -10,14 +10,14 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
-import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
+import com.netease.yunxin.kit.common.ui.activities.BaseLocalActivity;
 import com.netease.yunxin.kit.common.ui.widgets.BackTitleBar;
 import com.netease.yunxin.kit.common.ui.widgets.CleanableEditText;
 import com.netease.yunxin.kit.common.utils.NetworkUtils;
 import com.netease.yunxin.kit.contactkit.ui.R;
 import java.util.Objects;
 
-public abstract class BaseCommentActivity extends BaseActivity {
+public abstract class BaseCommentActivity extends BaseLocalActivity {
 
   public static final String REQUEST_COMMENT_NAME_KEY = "comment";
 

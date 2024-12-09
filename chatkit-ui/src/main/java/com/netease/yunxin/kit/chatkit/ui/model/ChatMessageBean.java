@@ -85,6 +85,17 @@ public class ChatMessageBean implements Serializable {
 
   IMMessageInfo replyMessage;
 
+  //语音转文字结果，默认是空
+  private String voiceToText;
+
+  public void setVoiceToText(String voiceToText) {
+    this.voiceToText = voiceToText;
+  }
+
+  public String getVoiceToText() {
+    return voiceToText;
+  }
+
   public IMMessageInfo getMessageData() {
     return messageData;
   }

@@ -115,5 +115,41 @@
             android:text="@string/server_config"
             android:visibility="gone"
             android:textSize="@dimen/text_size_12"/>
+
+        <View android:id="@+id/v_server_line"
+            android:layout_width="@dimen/dimen_1_dp"
+            android:layout_height="@dimen/dimen_12_dp"
+            android:background="@color/color_999999"
+            android:layout_marginStart="@dimen/dimen_12_dp"
+            android:layout_gravity="center_vertical"
+            android:visibility="gone" />
+
+        <TextView android:id="@+id/tv_account_login"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:layout_marginStart="@dimen/dimen_12_dp"
+            android:textColor="@color/color_333333"
+            android:text="@string/uikit_account_login_page_title"
+            android:visibility="gone"
+            android:textSize="@dimen/text_size_12"/>
+
+        <View android:id="@+id/v_account_login_line"
+            android:layout_width="@dimen/dimen_1_dp"
+            android:layout_height="@dimen/dimen_12_dp"
+            android:background="@color/color_999999"
+            android:layout_marginStart="@dimen/dimen_12_dp"
+            android:layout_gravity="center_vertical"
+            android:visibility="gone" />
+
+        <TextView android:id="@+id/tv_server_private_config"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:layout_marginStart="@dimen/dimen_12_dp"
+            android:textColor="@color/color_333333"
+            android:text="@string/server_config_title"
+            android:visibility="gone"
+            android:textSize="@dimen/text_size_12"/>
     </androidx.appcompat.widget.LinearLayoutCompat>
 </androidx.constraintlayout.widget.ConstraintLayout>

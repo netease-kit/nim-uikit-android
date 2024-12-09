@@ -11,11 +11,14 @@ import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatSearchItemLayoutBinding;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatSearchBean;
 import com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants;
+import com.netease.yunxin.kit.common.ui.utils.AppLanguageConfig;
 import com.netease.yunxin.kit.common.ui.utils.AvatarColor;
 import com.netease.yunxin.kit.common.ui.utils.EllipsizeUtils;
-import com.netease.yunxin.kit.common.ui.utils.TimeFormatUtils;
 import com.netease.yunxin.kit.common.ui.viewholder.BaseViewHolder;
+import com.netease.yunxin.kit.corekit.im2.IMKitClient;
+import com.netease.yunxin.kit.corekit.im2.utils.TimeFormatLocalUtils;
 import java.util.List;
+import java.util.Locale;
 
 public class SearchMessageViewHolder extends BaseViewHolder<ChatSearchBean> {
 
@@ -42,7 +45,12 @@ public class SearchMessageViewHolder extends BaseViewHolder<ChatSearchBean> {
           true,
           true);
       viewBinding.tvTime.setText(
-          TimeFormatUtils.formatMillisecond(viewBinding.getRoot().getContext(), data.getTime()));
+          TimeFormatLocalUtils.formatMillisecond(
+              viewBinding.getRoot().getContext(),
+              data.getTime(),
+              new Locale(
+                  AppLanguageConfig.getInstance()
+                      .getAppLanguage(IMKitClient.getApplicationContext()))));
 
       viewBinding.getRoot().setOnClickListener(v -> itemListener.onClick(v, data, position));
     }

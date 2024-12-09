@@ -29,7 +29,7 @@ import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamType;
 import com.netease.nimlib.sdk.v2.team.model.V2NIMTeam;
 import com.netease.yunxin.kit.chatkit.model.TeamMemberWithUserInfo;
 import com.netease.yunxin.kit.chatkit.model.TeamWithCurrentMember;
-import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
+import com.netease.yunxin.kit.common.ui.activities.BaseLocalActivity;
 import com.netease.yunxin.kit.common.ui.dialog.ChoiceListener;
 import com.netease.yunxin.kit.common.ui.dialog.CommonChoiceDialog;
 import com.netease.yunxin.kit.common.ui.utils.ToastX;
@@ -51,7 +51,7 @@ import java.util.List;
 import java.util.Objects;
 
 /** 群成员列表基类 子类需要实现{@link #initViewAndGetRootView(Bundle)}方法，返回布局的根View */
-public abstract class BaseTeamMemberListActivity extends BaseActivity {
+public abstract class BaseTeamMemberListActivity extends BaseLocalActivity {
 
   private final String TAG = "BaseTeamMemberListActivity";
   protected TeamBaseViewModel viewModel;

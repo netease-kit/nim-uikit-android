@@ -198,21 +198,25 @@ public class FunChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
     if (baseViewBinding.messageContainer.getChildCount() <= 0) {
       return;
     }
-    View firstChild = baseViewBinding.messageContainer.getChildAt(0);
+    View backgroundView = getMessageBackgroundView();
     if (type == ChatMessageType.LOCATION_MESSAGE_VIEW_TYPE) {
-      firstChild.setBackgroundResource(R.drawable.fun_bg_message_location);
+      backgroundView.setBackgroundResource(R.drawable.fun_bg_message_location);
       return;
     }
 
     if (isReceivedMsg) {
-      firstChild.setBackgroundResource(R.drawable.fun_bg_message_receive);
+      backgroundView.setBackgroundResource(R.drawable.fun_bg_message_receive);
     } else {
       if (messageBean.getMessageData().getAttachment() instanceof MultiForwardAttachment) {
-        firstChild.setBackgroundResource(R.drawable.fun_forward_message_send_bg);
+        backgroundView.setBackgroundResource(R.drawable.fun_forward_message_send_bg);
       } else {
-        firstChild.setBackgroundResource(R.drawable.fun_bg_message_send);
+        backgroundView.setBackgroundResource(R.drawable.fun_bg_message_send);
       }
     }
+  }
+
+  protected View getMessageBackgroundView() {
+    return baseViewBinding.messageContainer.getChildAt(0);
   }
 
   @Override

@@ -58,6 +58,8 @@ public class ActionConstants {
   public static final String POP_ACTION_DELETE = "POP_ACTION_DELETE";
   //消息长按菜单-转发
   public static final String POP_ACTION_TRANSMIT = "POP_ACTION_TRANSMIT";
+  //消息长按菜单-语音转文字
+  public static final String POP_ACTION_VOICE_TO_TEXT = "POP_ACTION_VOICE_TO_TEXT";
 
   //消息长按菜单-置顶
   public static final String POP_ACTION_TOP_STICK = "POP_ACTION_TOP_STICK";
@@ -69,6 +71,7 @@ public class ActionConstants {
   public static final String PAYLOAD_REPLY = "messageReply";
   public static final String PAYLOAD_REVOKE_STATUS = "messageRevokeStatus";
   public static final String PAYLOAD_SIGNAL = "messageSignal";
+  public static final String PAYLOAD_VOICE_TO_TEXT = "messageVoiceToText";
   public static final String PAYLOAD_USERINFO = "userInfo";
   public static final String PAYLOAD_REFRESH_AUDIO_ANIM = "refreshAudioAnim";
 

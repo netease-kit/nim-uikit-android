@@ -7,10 +7,10 @@ package com.netease.yunxin.kit.contactkit.ui.activity;
 import android.os.Bundle;
 import android.view.View;
 import androidx.annotation.Nullable;
-import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
+import com.netease.yunxin.kit.common.ui.activities.BaseLocalActivity;
 import com.netease.yunxin.kit.contactkit.ui.databinding.BaseListActivityLayoutBinding;
 
-public abstract class BaseListActivity extends BaseActivity {
+public abstract class BaseListActivity extends BaseLocalActivity {
 
   protected BaseListActivityLayoutBinding binding;
 

@@ -8,11 +8,11 @@ import android.os.Bundle;
 import android.view.View;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentManager;
-import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
+import com.netease.yunxin.kit.common.ui.activities.BaseLocalActivity;
 import com.netease.yunxin.kit.contactkit.ui.R;
 import java.util.Objects;
 
-public abstract class BaseContactActivity extends BaseActivity {
+public abstract class BaseContactActivity extends BaseLocalActivity {
 
   private View rootView;
 

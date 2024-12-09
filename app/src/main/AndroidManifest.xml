@@ -120,6 +120,11 @@
             android:exported="false" />
 
         <activity
+            android:name=".main.mine.setting.SettingLanguageActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+
+        <activity
             android:name=".main.mine.setting.SettingNotifyActivity"
             android:screenOrientation="portrait"
             android:exported="false" />
@@ -133,16 +138,64 @@
             android:screenOrientation="portrait"
             android:exported="false" />
 
+        <activity android:name=".main.mine.setting.ServerConfigActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+
+        <activity android:name=".main.mine.setting.ServerConfigParseActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+
+        <activity android:name=".main.AccountLoginActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+
+        <activity android:name=".main.mine.setting.SettingUIKitActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+
         <!-- 云信 NIM SDK 进程间通信provider-->
-        <provider
-            android:authorities="com.netease.yunxin.app.im.ipc.provider"
-            android:exported="false"
-            android:name="com.netease.nimlib.ipc.NIMContentProvider"
+        <!-- 云信后台服务，请使用独立进程。 -->
+        <service
+            android:name="com.netease.nimlib.service.NimService"
             android:process=":core"/>
-        <provider
-            android:authorities="com.netease.yunxin.app.im.ipc.provider.preference"
+        <!-- 云信后台服务，使用 V10 接口需要添加以下代码。 -->
+        <service
+            android:name="com.netease.nimlib.service.NimServiceV2" />
+
+        <!-- 云信后台辅助服务 -->
+        <service
+            android:name="com.netease.nimlib.service.NimService$Aux"
+            android:process=":core"/>
+
+        <!-- 云信后台辅助服务 -->
+        <service
+            android:name="com.netease.nimlib.job.NIMJobService"
             android:exported="false"
-            android:name="com.netease.nimlib.ipc.cp.provider.PreferenceContentProvider"/>
+            android:permission="android.permission.BIND_JOB_SERVICE"
+            android:process=":core"/>
+
+        <!-- 云信监视系统启动和网络变化的广播接收器，保持和 NimService 同一进程 -->
+        <receiver android:name="com.netease.nimlib.service.NimReceiver"
+            android:process=":core"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE"/>
+            </intent-filter>
+        </receiver>
+
+        <!-- 云信进程间通信 Receiver -->
+        <receiver android:name="com.netease.nimlib.service.ResponseReceiver"/>
+
+        <!-- 云信进程间通信 service -->
+        <service android:name="com.netease.nimlib.service.ResponseService"/>
+
+        <!-- 云信进程间通信 provider，使用 V10 接口需要添加以下代码。-->
+        <provider
+            android:name="com.netease.nimlib.ipc.NIMContentProviderV2"
+            android:authorities="${applicationId}.ipc.provider.v2"
+            android:exported="false" />
+
 
         <!-- 小米推送配置 -->
         <service

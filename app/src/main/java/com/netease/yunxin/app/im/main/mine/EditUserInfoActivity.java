@@ -28,7 +28,7 @@ import com.netease.yunxin.app.im.databinding.ActivityEditNicknameBinding;
 import com.netease.yunxin.app.im.utils.AppUtils;
 import com.netease.yunxin.app.im.utils.Constant;
 import com.netease.yunxin.kit.chatkit.repo.ContactRepo;
-import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
+import com.netease.yunxin.kit.common.ui.activities.BaseLocalActivity;
 import com.netease.yunxin.kit.common.ui.utils.ToastX;
 import com.netease.yunxin.kit.common.utils.SizeUtils;
 import com.netease.yunxin.kit.corekit.im2.IMKitClient;
@@ -36,7 +36,7 @@ import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
 import java.util.Collections;
 import java.util.List;
 
-public class EditUserInfoActivity extends BaseActivity {
+public class EditUserInfoActivity extends BaseLocalActivity {
   private ActivityEditNicknameBinding binding;
   private String editType = Constant.EDIT_NAME;
   private V2NIMUser userInfo;

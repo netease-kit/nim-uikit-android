@@ -19,6 +19,7 @@ import com.netease.yunxin.kit.common.ui.viewholder.ViewHolderClickListener;
 import com.netease.yunxin.kit.conversationkit.ui.IConversationFactory;
 import com.netease.yunxin.kit.conversationkit.ui.R;
 import com.netease.yunxin.kit.conversationkit.ui.model.ConversationBean;
+import com.netease.yunxin.kit.conversationkit.ui.model.ConversationHeaderBean;
 import com.netease.yunxin.kit.conversationkit.ui.page.interfaces.ILoadListener;
 import java.util.Comparator;
 import java.util.List;
@@ -45,6 +46,10 @@ public class ConversationView extends FrameLayout {
   public ConversationView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
     super(context, attrs, defStyleAttr);
     init(attrs);
+  }
+
+  public RecyclerView getRecyclerView() {
+    return this.recyclerView;
   }
 
   private void init(AttributeSet attrs) {
@@ -114,10 +119,22 @@ public class ConversationView extends FrameLayout {
     }
   }
 
+  public void setHeaderData(List<ConversationHeaderBean> data) {
+    if (adapter != null) {
+      adapter.setHeaderData(data);
+    }
+  }
+
   // 添加数据，追加到列表末尾
   public void addData(List<ConversationBean> data) {
     if (adapter != null) {
       adapter.appendData(data);
+    }
+  }
+
+  public void addForwardData(List<ConversationBean> data) {
+    if (adapter != null) {
+      adapter.addForwardData(data);
     }
   }
 
@@ -156,6 +173,13 @@ public class ConversationView extends FrameLayout {
   public int getDataSize() {
     if (adapter != null) {
       return adapter.getItemCount();
+    }
+    return 0;
+  }
+
+  public int getContentDataSize() {
+    if (adapter != null) {
+      return adapter.getContentCount();
     }
     return 0;
   }

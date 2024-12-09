@@ -19,7 +19,7 @@ import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.page.fragment.ChatReaderBaseFragment;
 import com.netease.yunxin.kit.chatkit.ui.page.viewmodel.ChatReadStateViewModel;
-import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
+import com.netease.yunxin.kit.common.ui.activities.BaseLocalActivity;
 import com.netease.yunxin.kit.common.ui.adapter.BaseFragmentAdapter;
 import com.netease.yunxin.kit.common.ui.widgets.BackTitleBar;
 import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /** chat message read state page */
-public abstract class ChatReaderBaseActivity extends BaseActivity {
+public abstract class ChatReaderBaseActivity extends BaseLocalActivity {
 
   private static final String TAG = "ChatReaderBaseActivity";
 

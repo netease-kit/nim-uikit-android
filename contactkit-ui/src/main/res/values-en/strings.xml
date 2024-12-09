@@ -6,78 +6,81 @@
 
 <resources>
     <!-- contact list -->
-    <string name="contact_title">Contacts</string>  
-    <string name="contact_list_verify_msg">Verifications</string> 
-    <string name="contact_list_black_list">Blacklist</string>
-    <string name="contact_list_my_group">My Groups</string> 
-    <string name="contact_list_my_computer">My Computer</string> 
+    <string name="contact_title">Contacts</string>
+    <string name="contact_list_verify_msg">Verifications</string>
+    <string name="contact_list_black_list">Blocklist</string>
+    <string name="contact_list_my_group">My Groups</string>
+    <string name="contact_list_my_computer">My Computer</string>
 
     <!-- add friend page-->
-    <string name="add_friend_title">Add Contact</string> 
-    <string name="add_friend_search_hint">Enter Account</string> 
-    <string name="add_friend_search_empty_tips">No exist</string> 
+    <string name="add_friend_title">Add Contacts</string>
+    <string name="add_friend_search_hint">Enter Account</string>
+    <string name="add_friend_search_empty_tips">User not found</string>
 
     <!-- verify page -->
-    <string name="contact_verify_agree">Approve</string> 
-    <string name="contact_verify_reject">Reject</string> 
-    <string name="contact_verify_agreed">Approved</string> 
-    <string name="contact_verify_rejected"> Rejected</string>
-    <string name="contact_verify_expired"> Expired</string>
-    <string name="friend_apply">Friend Apply</string> 
-    <string name="invited_to_join_group">invite you to groups&#160;%s</string> 
-    <string name="apply_to_join_group">Apply to join group%s</string>
-    <string name="accept_your_friend_apply">Approved your apply</string>
-    <string name="direct_add_your_friend_apply">add your contact</string>
-    <string name="reject_your_friend_apply">reject your apply</string>
-    <string name="verify_msg">Verifications</string>  
+    <string name="contact_verify_agree">Accept</string>
+    <string name="contact_verify_reject">Decline</string>
+    <string name="contact_verify_agreed">Added</string>
+    <string name="contact_verify_rejected">Declined</string>
+    <string name="contact_verify_expired">Expired</string>
+    <string name="friend_apply">New Friends</string>
+    <string name="invited_to_join_group">invite you to groups&#160;%s</string>
+    <string name="apply_to_join_group">request to join group%s</string>
+    <string name="accept_your_friend_apply">accepted your request</string>
+    <string name="direct_add_your_friend_apply">added your contact</string>
+    <string name="reject_your_friend_apply">declined your invitation</string>
+    <string name="verify_msg">Verifications</string>
     <string name="verify_max_count_text">99+</string>
-    <string name="verify_agree_message_text">Nice to meet you，let\'s chat</string>
+    <string name="verify_agree_message_text">I\'ve accepted your friend request. Now let\'s
+        chat</string>
     <string name="verify_empty_text">Verifications Empty</string>
 
     <!-- my team page -->
-    <string name="my_team">My Groups</string> 
+    <string name="my_team">My Groups</string>
 
     <!-- black page -->
-    <string name="black_list">Blacklist</string> 
-    <string name="black_list_tips">You won\'t receive any messages</string>
-    <string name="contact_black_list_relieve">Release</string> 
-    <string name="add_black_error">%s Failed to block</string>
+    <string name="black_list">Blocklist </string>
+    <string name="black_list_tips">You won\'t receive any messages from them</string>
+    <string name="contact_black_list_relieve">Release</string>
+    <string name="add_black_error">%s not blocked</string>
 
     <!-- userinfo page -->
-    <string name="clear_all">Clear</string> 
-    <string name="birthday">Birthday</string> 
-    <string name="phone">Mobile</string> 
-    <string name="email">Mail</string> 
+    <string name="clear_all">Clear</string>
+    <string name="birthday">Birthday</string>
+    <string name="phone">Mobile</string>
+    <string name="email">Email </string>
     <string name="personal_signature">What’s up</string>
-    <string name="comment_name">Nick Name</string> 
-    <string name="notify_message">Message Notification</string> 
+    <string name="comment_name">Alias</string>
+    <string name="notify_message">Notification</string>
     <string name="add_black_list">Block</string>
-    <string name="chat">Chat</string> 
-    <string name="delete_friend">Delete Contact</string> 
-    <string name="add_friend">Add Contact</string> 
-    <string name="contact_user_info_account">Account:%s</string> 
-    <string name="contact_user_info_nickname">Nick Name:%s</string>
-    <string name="delete_contact_account">Dlete “%s”</string> 
-    <string name="save">Save</string> 
-    <string name="add_friend_operate_success">Sent Contact apply</string> 
-    <string name="add_friend_operate_fail">Failed to apply contact %s</string> 
+    <string name="chat">Chat</string>
+    <string name="delete_friend">Delete Contacts</string>
+    <string name="add_friend">Add Contacts</string>
+    <string name="contact_user_info_account">Account:%s</string>
+    <string name="contact_user_info_nickname">Alias:%s</string>
+    <string name="delete_contact_account">Delete “%s”</string>
+    <string name="save">Save</string>
+    <string name="add_friend_operate_success">Friend request sent</string>
+    <string name="add_friend_operate_fail">Friend request failed: %s</string>
 
     <!--添加好友页面 -->
-    <string name="add_friend_search_error">Failed to search</string> 
+    <string name="add_friend_search_error">Failed to search</string>
 
 
     <!-- error toast -->
-    <string name="agree_add_friend_fail">Failed</string> 
-    <string name="disagree_add_friend_fail">Failed</string> 
-    <string name="agree_apply_join_team_fail">Failed</string> 
+    <string name="agree_add_friend_fail">Failed</string>
+    <string name="disagree_add_friend_fail">Failed</string>
+    <string name="agree_apply_join_team_fail">Failed</string>
     <string name="disagree_apply_join_team_fail">Failed</string>
-    <string name="agree_invite_team_fail">Failed</string> 
+    <string name="agree_invite_team_fail">Failed</string>
     <string name="disagree_invite_team_fail">Failed</string>
 
-    <string name="remove_black_fail">Failed to remove blacklist</string>
+    <string name="remove_black_fail">Failed to remove blocklist</string>
     <string name="verify_duplicate_fail">Already done on other devices</string>
     <string name="contact_error_tips">Data error</string>
-    <string name="contact_selector_session_max_count">Can only choose %s sessions</string>
+    <string name="contact_team_be_removed_title">Notice</string>
+    <string name="contact_team_be_removed_content">You\'re removed from the group, or the group
+        got dissolved</string>
 
     <!--    selector-->
     <string name="select">Select</string>
@@ -86,34 +89,39 @@
     <string name="selector_finish">Yes(%d)</string>
     <string name="selector_finish_without_number">Yes</string>
     <string name="selector_sure_without_num">Yes</string>
-    <string name="contact_selector_max_count">select up to %s friends</string>
-    <string name="contact_selector_over_count">exceeding the maximum capacity</string>
+    <string name="contact_selector_max_count">select up to %s contacts</string>
+    <string name="contact_selector_over_count"> exceed the max limit</string>
+    <string name="selector_friend_empty">No Contact</string>
     <string name="selector_conversation_empty">No Chat</string>
-    <string name="selector_team_empty">No Team</string>
-    <string name="selector_friend_empty">No Member</string>
-    <string name="select_empty_tips">No Member</string>
+    <string name="selector_team_empty">No Group</string>
+    <string name="select_empty_tips">Select contacts</string>
     <string name="fun_selector_close">Close</string>
     <string name="fun_contact_search">Search</string>
+    <string name="contact_selector_session_max_count">Choose at most %s chats</string>
 
     <!-- search -->
 
-    <string name="global_search_hint"> Enter keywords</string>
+    <string name="global_search_hint"> Enter and search...</string>
     <string name="global_search_title">Search</string>
+    <string name="global_search_no_result">No result containing "%s"</string>
 
     <string name="global_search_friend_title">Contacts</string>
     <string name="global_search_group_title">Temperature Group</string>
     <string name="global_search_team_title">Group</string>
-    <string name="global_search_empty">No exist</string>
-    <string name="global_search_no_result">No results related to "%s"</string>
+    <string name="global_search_empty">User not found</string>
+
+    <!--    AI数字人 -->
+    <string name="ai_user_title">AI User</string>
+    <string name="contact_ai_user_title">My AI User</string>
+    <string name="contact_ai_user_empty_tips">No AI User</string>
 
     <!--    common-->
     <string name="cancel"> Cancel </string>
-    <string name="contact_network_error_tip">No Internet</string>
-
-    <string name="recent_conversation">Conversation</string>
-    <string name="my_friend">My Friend</string>
+    <string name="contact_network_error_tip">No Network</string>
+    <string name="recent_conversation">Latest Chat</string>
+    <string name="my_friend">My Friends</string>
     <string name="recent_forward">Forwarded</string>
+    <string name="contact_selector_multi_select">Multiselect</string>
 
-    <string name="contact_selector_multi_select">MultiSelect</string>
 
 </resources>

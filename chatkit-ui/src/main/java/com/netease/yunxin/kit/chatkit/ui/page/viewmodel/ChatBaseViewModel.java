@@ -6,6 +6,7 @@ package com.netease.yunxin.kit.chatkit.ui.page.viewmodel;
 
 import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
 
+import android.content.Context;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Handler;
@@ -20,6 +21,7 @@ import com.netease.nimlib.sdk.v2.ai.model.V2NIMAIUser;
 import com.netease.nimlib.sdk.v2.ai.params.V2NIMAIModelCallContent;
 import com.netease.nimlib.sdk.v2.ai.params.V2NIMAIModelCallMessage;
 import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
+import com.netease.nimlib.sdk.v2.conversation.model.V2NIMConversation;
 import com.netease.nimlib.sdk.v2.message.V2NIMClearHistoryNotification;
 import com.netease.nimlib.sdk.v2.message.V2NIMCollection;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessage;
@@ -31,6 +33,7 @@ import com.netease.nimlib.sdk.v2.message.V2NIMMessageQuickCommentNotification;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessageRefer;
 import com.netease.nimlib.sdk.v2.message.V2NIMP2PMessageReadReceipt;
 import com.netease.nimlib.sdk.v2.message.V2NIMTeamMessageReadReceipt;
+import com.netease.nimlib.sdk.v2.message.attachment.V2NIMMessageAudioAttachment;
 import com.netease.nimlib.sdk.v2.message.config.V2NIMMessageAIConfig;
 import com.netease.nimlib.sdk.v2.message.config.V2NIMMessageConfig;
 import com.netease.nimlib.sdk.v2.message.config.V2NIMMessagePushConfig;
@@ -42,6 +45,7 @@ import com.netease.nimlib.sdk.v2.message.option.V2NIMMessageListOption;
 import com.netease.nimlib.sdk.v2.message.params.V2NIMAddCollectionParams;
 import com.netease.nimlib.sdk.v2.message.params.V2NIMMessageAIConfigParams;
 import com.netease.nimlib.sdk.v2.message.params.V2NIMSendMessageParams;
+import com.netease.nimlib.sdk.v2.message.params.V2NIMVoiceToTextParams;
 import com.netease.nimlib.sdk.v2.message.result.V2NIMSendMessageResult;
 import com.netease.nimlib.sdk.v2.utils.V2NIMConversationIdUtil;
 import com.netease.yunxin.kit.alog.ALog;
@@ -550,6 +554,68 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
     }
   }
 
+  //语音转文字
+  public void voiceToText(ChatMessageBean messageBean) {
+    if (messageBean != null
+        && messageBean.getMessageData() != null
+        && messageBean.getMessageData().getMessage().getMessageType()
+            == V2NIMMessageType.V2NIM_MESSAGE_TYPE_AUDIO) {
+      V2NIMMessageAudioAttachment audioAttachment =
+          (V2NIMMessageAudioAttachment) messageBean.getMessageData().getMessage().getAttachment();
+      V2NIMVoiceToTextParams.V2NIMVoiceToTextParamsBuilder paramsBuilder =
+          V2NIMVoiceToTextParams.V2NIMVoiceToTextParamsBuilder.builder(
+              audioAttachment.getDuration());
+      String path = audioAttachment.getPath();
+      if (!TextUtils.isEmpty(audioAttachment.getUrl())) {
+        paramsBuilder.withVoiceUrl(audioAttachment.getUrl());
+      } else if (!TextUtils.isEmpty(path) && FileUtils.isFileExists(path)) {
+        paramsBuilder.withVoicePath(path);
+      } else {
+        ALog.d(
+            LIB_TAG,
+            TAG,
+            "voiceToText,param error path = " + path + " url = " + audioAttachment.getUrl());
+        return;
+      }
+      paramsBuilder.withSceneName(audioAttachment.getSceneName());
+      V2NIMVoiceToTextParams params = paramsBuilder.build();
+      ChatRepo.voiceToText(
+          params,
+          new FetchCallback<String>() {
+            @Override
+            public void onSuccess(@Nullable String data) {
+              if (!TextUtils.isEmpty(data)) {
+                FetchResult<Pair<MessageUpdateType, List<ChatMessageBean>>> messageUpdateResult =
+                    new FetchResult<>(LoadStatus.Success);
+                List<ChatMessageBean> messageList = new ArrayList<>();
+                messageBean.setVoiceToText(data);
+                messageList.add(messageBean);
+                messageUpdateResult.setData(new Pair<>(MessageUpdateType.VoiceToText, messageList));
+                messageUpdateResult.setType(FetchResult.FetchType.Update);
+                messageUpdateResult.setTypeIndex(-1);
+                updateMessageLiveData.setValue(messageUpdateResult);
+              } else {
+                FetchResult<Pair<MessageUpdateType, List<ChatMessageBean>>> messageUpdateResult =
+                    new FetchResult<>(LoadStatus.Error);
+                messageUpdateResult.setError(0, R.string.chat_voice_to_text_failed);
+                messageUpdateResult.setData(null);
+                updateMessageLiveData.setValue(messageUpdateResult);
+              }
+            }
+
+            @Override
+            public void onError(int errorCode, @Nullable String errorMsg) {
+              FetchResult<Pair<MessageUpdateType, List<ChatMessageBean>>> messageUpdateResult =
+                  new FetchResult<>(LoadStatus.Error);
+              messageUpdateResult.setError(0, R.string.chat_voice_to_text_failed);
+              messageUpdateResult.setData(null);
+              updateMessageLiveData.setValue(messageUpdateResult);
+              ALog.d(LIB_TAG, TAG, "voiceToText,onFailed:" + errorCode + " errorMsg:" + errorMsg);
+            }
+          });
+    }
+  }
+
   // 获取发送消息LiveData
   public MutableLiveData<FetchResult<ChatMessageBean>> getSendMessageLiveData() {
     return sendMessageLiveData;
@@ -746,9 +812,21 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
       return;
     }
     V2NIMMessage welcomeMessage = V2NIMMessageCreator.createTextMessage(content);
-    ChatRepo.insertMessageToLocal(
-        welcomeMessage, mConversationId, mChatAccountId, System.currentTimeMillis(), null);
-    ConversationRepo.createConversation(mConversationId, null);
+    ConversationRepo.createConversation(
+        mConversationId,
+        new FetchCallback<V2NIMConversation>() {
+          @Override
+          public void onError(int errorCode, @Nullable String errorMsg) {
+            ALog.e(TAG, "createConversation onError:" + errorCode + " errorMsg:" + errorMsg);
+          }
+
+          @Override
+          public void onSuccess(@Nullable V2NIMConversation data) {
+            //成功之后插入
+            ChatRepo.insertMessageToLocal(
+                welcomeMessage, mConversationId, mChatAccountId, System.currentTimeMillis(), null);
+          }
+        });
   }
 
   // 发送合并转发消息
@@ -853,11 +931,13 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
     }
   }
 
-  public void sendImageOrVideoMessage(Uri uri) {
+  public void sendImageOrVideoMessage(Uri uri, Context context) {
     ALog.d(LIB_TAG, TAG, "sendImageOrVideoMessage:" + uri);
     if (uri == null) {
       return;
     }
+    //文件大小限制，单位字节
+    long limitSize = ChatUtils.getFileLimitSize() * 1024 * 1024;
     String mimeType = FileUtils.getFileExtension(uri.getPath());
     if (TextUtils.isEmpty(mimeType)) {
       try {
@@ -870,9 +950,25 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
     }
     if (ImageUtil.isValidPictureFile(mimeType)) {
       File file = UriUtils.uri2File(uri);
+      if (file != null && file.length() > limitSize) {
+        String fileSizeLimit = String.valueOf(ChatUtils.getFileLimitSize());
+        String limitText =
+            String.format(
+                context.getString(R.string.chat_message_file_size_limit_tips), fileSizeLimit);
+        ToastX.showShortToast(limitText);
+        return;
+      }
       sendImageMessage(file);
     } else if (ImageUtil.isValidVideoFile(mimeType)) {
       File file = UriUtils.uri2File(uri);
+      if (file != null && file.length() > limitSize) {
+        String fileSizeLimit = String.valueOf(ChatUtils.getFileLimitSize());
+        String limitText =
+            String.format(
+                context.getString(R.string.chat_message_file_size_limit_tips), fileSizeLimit);
+        ToastX.showShortToast(limitText);
+        return;
+      }
       MediaMetadataRetriever mmr = new MediaMetadataRetriever();
       try {
         mmr.setDataSource(file.getPath());

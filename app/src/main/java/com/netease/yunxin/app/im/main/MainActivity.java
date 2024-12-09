@@ -9,6 +9,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -23,24 +26,31 @@ import com.netease.nimlib.sdk.v2.auth.model.V2NIMKickedOfflineDetail;
 import com.netease.nimlib.sdk.v2.auth.model.V2NIMLoginClient;
 import com.netease.nimlib.sdk.v2.user.V2NIMUser;
 import com.netease.yunxin.app.im.AppSkinConfig;
-import com.netease.yunxin.app.im.CustomConfig;
+import com.netease.yunxin.app.im.BuildConfig;
 import com.netease.yunxin.app.im.R;
 import com.netease.yunxin.app.im.databinding.ActivityMainBinding;
 import com.netease.yunxin.app.im.main.mine.MineFragment;
 import com.netease.yunxin.app.im.utils.Constant;
 import com.netease.yunxin.app.im.utils.DataUtils;
+import com.netease.yunxin.app.im.utils.MultiLanguageUtils;
 import com.netease.yunxin.app.im.welcome.WelcomeActivity;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.call.p2p.NECallEngine;
 import com.netease.yunxin.kit.call.p2p.model.NECallInitRtcMode;
+import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
 import com.netease.yunxin.kit.chatkit.manager.AIUserAgentProvider;
 import com.netease.yunxin.kit.chatkit.manager.AIUserManager;
 import com.netease.yunxin.kit.chatkit.repo.SettingRepo;
 import com.netease.yunxin.kit.chatkit.ui.custom.ChatConfigManager;
-import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
+import com.netease.yunxin.kit.common.ui.activities.BaseLocalActivity;
+import com.netease.yunxin.kit.common.ui.utils.AppLanguageConfig;
+import com.netease.yunxin.kit.common.utils.SizeUtils;
 import com.netease.yunxin.kit.contactkit.ui.contact.BaseContactFragment;
 import com.netease.yunxin.kit.contactkit.ui.fun.contact.FunContactFragment;
 import com.netease.yunxin.kit.contactkit.ui.normal.contact.ContactFragment;
+import com.netease.yunxin.kit.conversationkit.ui.ConversationKitClient;
+import com.netease.yunxin.kit.conversationkit.ui.ConversationUIConfig;
+import com.netease.yunxin.kit.conversationkit.ui.IConversationViewLayout;
 import com.netease.yunxin.kit.conversationkit.ui.fun.page.FunConversationFragment;
 import com.netease.yunxin.kit.conversationkit.ui.normal.page.ConversationFragment;
 import com.netease.yunxin.kit.conversationkit.ui.page.ConversationBaseFragment;
@@ -54,12 +64,28 @@ import com.netease.yunxin.nertc.ui.CallKitUI;
 import com.netease.yunxin.nertc.ui.CallKitUIOptions;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /** Demo 主页面 */
-public class MainActivity extends BaseActivity {
+public class MainActivity extends BaseLocalActivity {
 
   private ActivityMainBinding activityMainBinding;
+  // 当前页面index 的key
+  private static final String CURRENT_INDEX = "currentIndex";
+  // 会话列表小红点 的key
+  private static final String CONVERSATION_POT = "conversationPOT";
+  // 联系人列表小红点 的key
+  private static final String CONTACT_POT = "contactPOT";
+  // 底部导航栏的三个tab
   private static final int START_INDEX = 0;
+  private static final int CONTACT_INDEX = 1;
+  private static final int MINE_INDEX = 2;
+  //当前tab的 Index
+  private int currentIndex = START_INDEX;
+  //有未读消息的会话列表
+  private boolean haveUnreadConversation = false;
+  //有未读消息的联系人列表
+  private boolean haveUnreadContact = false;
   private View mCurrentTab;
   private BaseContactFragment mContactFragment;
   private ConversationBaseFragment mConversationFragment;
@@ -88,6 +114,21 @@ public class MainActivity extends BaseActivity {
         }
       };
 
+  //语音变更事件，切换语言后重新加载页面
+  EventNotify<MultiLanguageUtils.LangEvent> langeNotify =
+      new EventNotify<MultiLanguageUtils.LangEvent>() {
+        @Override
+        public void onNotify(@NonNull MultiLanguageUtils.LangEvent message) {
+          recreate();
+        }
+
+        @NonNull
+        @Override
+        public String getEventType() {
+          return "langEvent";
+        }
+      };
+
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -98,11 +139,27 @@ public class MainActivity extends BaseActivity {
       finish();
       return;
     }
+    if (savedInstanceState != null) {
+      currentIndex = savedInstanceState.getInt(CURRENT_INDEX, START_INDEX);
+      haveUnreadConversation = savedInstanceState.getBoolean(CONVERSATION_POT, false);
+      haveUnreadContact = savedInstanceState.getBoolean(CONTACT_POT, false);
+    }
+    initLanguage();
     activityMainBinding = ActivityMainBinding.inflate(getLayoutInflater());
     setContentView(activityMainBinding.getRoot());
     initView();
     initData();
     EventCenter.registerEventNotify(skinNotify);
+    EventCenter.registerEventNotify(langeNotify);
+    initContactFragment(mContactFragment);
+    initConversationFragment(mConversationFragment);
+  }
+
+  private void initLanguage() {
+    String language = AppLanguageConfig.getInstance().getAppLanguage(this);
+    //设置应用语言
+    Locale locale = new Locale(language);
+    MultiLanguageUtils.setApplicationLocal(locale);
   }
 
   // 初始化数据
@@ -165,8 +222,8 @@ public class MainActivity extends BaseActivity {
     // 判断是否是通用皮肤
     boolean isCommonSkin =
         AppSkinConfig.getInstance().getAppSkinStyle() == AppSkinConfig.AppSkin.commonSkin;
-    ALog.d(Constant.PROJECT_TAG, "MainActivity:initView");
-//        loadConfig();
+    ALog.d(Constant.PROJECT_TAG, "MainActivity:initView currentIndex = " + currentIndex);
+    loadCustomConfig();
     List<Fragment> fragments = new ArrayList<>();
 
     // 根据皮肤类型加载不同的Fragment
@@ -192,25 +249,45 @@ public class MainActivity extends BaseActivity {
     fragmentAdapter.setFragmentList(fragments);
     activityMainBinding.viewPager.setUserInputEnabled(false);
     activityMainBinding.viewPager.setAdapter(fragmentAdapter);
-    activityMainBinding.viewPager.setCurrentItem(START_INDEX, false);
+    activityMainBinding.viewPager.setCurrentItem(currentIndex, false);
     activityMainBinding.viewPager.setOffscreenPageLimit(fragments.size());
-    mCurrentTab = activityMainBinding.conversationBtnGroup;
+    if (currentIndex == START_INDEX) {
+      mCurrentTab = activityMainBinding.conversationBtnGroup;
+    } else if (currentIndex == MINE_INDEX) {
+      mCurrentTab = activityMainBinding.myselfBtnGroup;
+    } else if (currentIndex == CONTACT_INDEX) {
+      mCurrentTab = activityMainBinding.contactBtnGroup;
+    }
     changeStatusBarColor(R.color.color_white);
     resetTabStyle();
     resetTabSkin(isCommonSkin);
+    if (haveUnreadConversation) {
+      activityMainBinding.conversationDot.setVisibility(View.VISIBLE);
+    }
+    if (haveUnreadContact) {
+      activityMainBinding.contactDot.setVisibility(View.VISIBLE);
+    }
+  }
+
+  @Override
+  public void onSaveInstanceState(@NonNull Bundle outState) {
+    super.onSaveInstanceState(outState);
+    ALog.d(Constant.PROJECT_TAG, "MainActivity:onSaveInstanceState currentIndex = " + currentIndex);
+    outState.putInt(CURRENT_INDEX, currentIndex);
+    outState.putBoolean(CONVERSATION_POT, haveUnreadConversation);
+    outState.putBoolean(CONTACT_POT, haveUnreadContact);
   }
 
   @Override
   protected void onResume() {
     super.onResume();
-    initContactFragment(mContactFragment);
-    initConversationFragment(mConversationFragment);
   }
 
   @Override
   protected void onDestroy() {
     ALog.d(Constant.PROJECT_TAG, "MainActivity:onDestroy");
     EventCenter.unregisterEventNotify(skinNotify);
+    EventCenter.unregisterEventNotify(langeNotify);
     super.onDestroy();
   }
 
@@ -230,13 +307,14 @@ public class MainActivity extends BaseActivity {
   private void resetTabSkin(boolean isCommonSkin) {
     // 重置tab样式，设置选中的tab样式以及皮肤对应的图标
     if (mCurrentTab == activityMainBinding.contactBtnGroup) {
+      currentIndex = CONTACT_INDEX;
       activityMainBinding.viewPager.setCurrentItem(1, false);
       if (isCommonSkin) {
         activityMainBinding.contact.setTextColor(
             getResources().getColor(R.color.fun_tab_checked_color));
         activityMainBinding.contact.setCompoundDrawablesWithIntrinsicBounds(
             null, getResources().getDrawable(R.mipmap.ic_contact_tab_checked_fun), null, null);
-        changeStatusBarColor(R.color.fun_page_bg_color);
+        changeStatusBarColor(R.color.color_ededed);
       } else {
         activityMainBinding.contact.setTextColor(
             getResources().getColor(R.color.tab_checked_color));
@@ -245,6 +323,7 @@ public class MainActivity extends BaseActivity {
         changeStatusBarColor(R.color.color_white);
       }
     } else if (mCurrentTab == activityMainBinding.myselfBtnGroup) {
+      currentIndex = MINE_INDEX;
       activityMainBinding.viewPager.setCurrentItem(2, false);
       if (isCommonSkin) {
         activityMainBinding.mine.setTextColor(
@@ -258,13 +337,14 @@ public class MainActivity extends BaseActivity {
       }
       changeStatusBarColor(R.color.color_white);
     } else if (mCurrentTab == activityMainBinding.conversationBtnGroup) {
+      currentIndex = START_INDEX;
       activityMainBinding.viewPager.setCurrentItem(0, false);
       if (isCommonSkin) {
         activityMainBinding.conversation.setTextColor(
             getResources().getColor(R.color.fun_tab_checked_color));
         activityMainBinding.conversation.setCompoundDrawablesWithIntrinsicBounds(
             null, getResources().getDrawable(R.mipmap.ic_conversation_tab_checked_fun), null, null);
-        changeStatusBarColor(R.color.fun_page_bg_color);
+        changeStatusBarColor(R.color.color_ededed);
       } else {
         activityMainBinding.conversation.setTextColor(
             getResources().getColor(R.color.tab_checked_color));
@@ -283,8 +363,10 @@ public class MainActivity extends BaseActivity {
             ALog.d("mainActivity,initConversationFragment", "unread count:" + count);
             if (count > 0) {
               activityMainBinding.conversationDot.setVisibility(View.VISIBLE);
+              haveUnreadConversation = true;
             } else {
               activityMainBinding.conversationDot.setVisibility(View.INVISIBLE);
+              haveUnreadConversation = false;
             }
           });
     }
@@ -297,8 +379,10 @@ public class MainActivity extends BaseActivity {
           count -> {
             if (count > 0) {
               activityMainBinding.contactDot.setVisibility(View.VISIBLE);
+              haveUnreadContact = true;
             } else {
               activityMainBinding.contactDot.setVisibility(View.INVISIBLE);
+              haveUnreadContact = false;
             }
           });
     }
@@ -391,13 +475,51 @@ public class MainActivity extends BaseActivity {
   }
 
   // 加载配置，示例代码，CustomConfig展示如何通过接口来设置界面UI
-  private void loadConfig() {
-    // 配置通讯录页面，如何使用参考示例代码
-    CustomConfig.configContactKit(this);
-    // 配置会话页面，如何使用参考示例代码
-    CustomConfig.configConversation(this);
-    // 配置聊天页面，如何使用参考示例代码
-    CustomConfig.configChatKit(this);
+  private void loadCustomConfig() {
+    ConversationUIConfig conversationUIConfig = new ConversationUIConfig();
+    conversationUIConfig.customLayout =
+        new IConversationViewLayout() {
+          @Override
+          public void customizeConversationLayout(ConversationBaseFragment fragment) {
+
+            if (fragment instanceof ConversationFragment) {
+              ConversationFragment conversationFragment = (ConversationFragment) fragment;
+              TextView textView = new TextView(conversationFragment.getContext());
+              textView.setText(R.string.yunxin_tips);
+              ViewGroup.LayoutParams layoutParams =
+                  new FrameLayout.LayoutParams(
+                      ViewGroup.LayoutParams.MATCH_PARENT, SizeUtils.dp2px(50));
+              conversationFragment.getBodyTopLayout().setBackgroundResource(R.color.color_FFF5E1);
+              textView.setTextColor(
+                  conversationFragment.getResources().getColor(R.color.color_EB9718));
+              textView.setMaxLines(2);
+              textView.setTextSize(13);
+              textView.setLineSpacing(1, 1.2f);
+              textView.setEllipsize(TextUtils.TruncateAt.END);
+              textView.setPadding(
+                  SizeUtils.dp2px(16), SizeUtils.dp2px(6), SizeUtils.dp2px(16), SizeUtils.dp2px(4));
+              conversationFragment.getBodyTopLayout().addView(textView, layoutParams);
+            } else if (fragment instanceof FunConversationFragment) {
+              FunConversationFragment conversationFragment = (FunConversationFragment) fragment;
+              TextView textView = new TextView(conversationFragment.getContext());
+              textView.setText(R.string.yunxin_tips);
+              ViewGroup.LayoutParams layoutParams =
+                  new FrameLayout.LayoutParams(
+                      ViewGroup.LayoutParams.MATCH_PARENT, SizeUtils.dp2px(50));
+              conversationFragment.getBodyTopLayout().setBackgroundResource(R.color.color_FFF5E1);
+              textView.setTextColor(
+                  conversationFragment.getResources().getColor(R.color.color_EB9718));
+              textView.setMaxLines(2);
+              textView.setEllipsize(TextUtils.TruncateAt.END);
+              textView.setTextSize(13);
+              textView.setLineSpacing(1, 1.2f);
+              textView.setPadding(
+                  SizeUtils.dp2px(16), SizeUtils.dp2px(6), SizeUtils.dp2px(16), SizeUtils.dp2px(4));
+              conversationFragment.getBodyTopLayout().addView(textView, layoutParams);
+            }
+          }
+        };
+    ConversationKitClient.setConversationUIConfig(conversationUIConfig);
   }
 
   //皮肤变更事件

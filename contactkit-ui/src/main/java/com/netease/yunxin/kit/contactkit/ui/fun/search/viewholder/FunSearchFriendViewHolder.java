@@ -41,41 +41,41 @@ public class FunSearchFriendViewHolder extends BaseViewHolder<SearchFriendBean> 
           friendInfo.getFriendInfo().getName(),
           AvatarColor.avatarColor(friendInfo.getFriendInfo().getAccount()));
       if (friendInfo.getHitType() == HitType.Alias) {
-        viewBinding.nickTv.setText(
+        viewBinding.tvNickName.setText(
             getSelectSpanText(friendInfo.getFriendInfo().getAlias(), friendInfo.getHitInfo()));
-        viewBinding.nameTv.setVisibility(View.GONE);
+        viewBinding.tvName.setVisibility(View.GONE);
       } else if (friendInfo.getHitType() == HitType.UserName) {
 
         if (!TextUtils.isEmpty(friendInfo.getFriendInfo().getAlias())) {
-          viewBinding.nickTv.setText(friendInfo.getFriendInfo().getAlias());
-          viewBinding.nickTv.setVisibility(View.VISIBLE);
-          viewBinding.nameTv.setText(
+          viewBinding.tvNickName.setText(friendInfo.getFriendInfo().getAlias());
+          viewBinding.tvNickName.setVisibility(View.VISIBLE);
+          viewBinding.tvName.setText(
               getSelectSpanText(
                   friendInfo.getFriendInfo().getUserInfo().getName(), friendInfo.getHitInfo()));
-          viewBinding.nameTv.setVisibility(View.VISIBLE);
+          viewBinding.tvName.setVisibility(View.VISIBLE);
         } else {
-          viewBinding.nickTv.setText(
+          viewBinding.tvNickName.setText(
               getSelectSpanText(
                   friendInfo.getFriendInfo().getUserInfo().getName(), friendInfo.getHitInfo()));
-          viewBinding.nickTv.setVisibility(View.VISIBLE);
-          viewBinding.nameTv.setVisibility(View.GONE);
+          viewBinding.tvNickName.setVisibility(View.VISIBLE);
+          viewBinding.tvName.setVisibility(View.GONE);
         }
       } else {
-        viewBinding.nickTv.setVisibility(View.VISIBLE);
+        viewBinding.tvNickName.setVisibility(View.VISIBLE);
         if (!TextUtils.isEmpty(friendInfo.getFriendInfo().getAlias())) {
-          viewBinding.nickTv.setText(friendInfo.getFriendInfo().getAlias());
-          viewBinding.nameTv.setText(
+          viewBinding.tvNickName.setText(friendInfo.getFriendInfo().getAlias());
+          viewBinding.tvName.setText(
               getSelectSpanText(friendInfo.getFriendInfo().getAccount(), friendInfo.getHitInfo()));
-          viewBinding.nameTv.setVisibility(View.VISIBLE);
+          viewBinding.tvName.setVisibility(View.VISIBLE);
         } else if (!TextUtils.isEmpty(friendInfo.getFriendInfo().getUserInfo().getName())) {
-          viewBinding.nickTv.setText(friendInfo.getFriendInfo().getUserInfo().getName());
-          viewBinding.nameTv.setText(
+          viewBinding.tvNickName.setText(friendInfo.getFriendInfo().getUserInfo().getName());
+          viewBinding.tvName.setText(
               getSelectSpanText(friendInfo.getFriendInfo().getAccount(), friendInfo.getHitInfo()));
-          viewBinding.nameTv.setVisibility(View.VISIBLE);
+          viewBinding.tvName.setVisibility(View.VISIBLE);
         } else {
-          viewBinding.nickTv.setText(
+          viewBinding.tvNickName.setText(
               getSelectSpanText(friendInfo.getFriendInfo().getAccount(), friendInfo.getHitInfo()));
-          viewBinding.nameTv.setVisibility(View.GONE);
+          viewBinding.tvName.setVisibility(View.GONE);
         }
       }
       viewBinding.getRoot().setOnClickListener(v -> itemListener.onClick(v, data, position));

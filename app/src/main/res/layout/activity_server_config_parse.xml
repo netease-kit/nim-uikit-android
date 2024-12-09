@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/cl_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/color_e9eff5"
+    android:orientation="vertical"
+    tools:ignore="MissingDefaultResource">
+            <com.netease.yunxin.kit.common.ui.widgets.BackTitleBar
+                android:id="@+id/setting_title_bar"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dimen_46_dp"
+                app:titleText="@string/server_config_title"
+                tools:ignore="MissingConstraints" />
+
+            <RelativeLayout
+                android:id="@+id/serverConfigSwitchLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/dimen_20_dp"
+                android:layout_marginTop="@dimen/dimen_16_dp"
+                android:layout_marginRight="@dimen/dimen_20_dp"
+                android:background="@drawable/app_white_round_bg"
+                android:orientation="vertical"
+                app:layout_constraintTop_toBottomOf="@id/next_group_ll">
+
+                <TextView
+                    android:id="@+id/serverConfigTv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/dimen_46_dp"
+                    android:layout_marginStart="@dimen/dimen_16_dp"
+                    android:gravity="center"
+                    android:text="@string/server_config_siwtch_content"
+                    android:textColor="@color/color_333333"
+                    android:textSize="@dimen/dimen_16_dp"
+                    tools:ignore="SpUsage" />
+
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/serverConfigSC"
+                    android:layout_width="@dimen/dimen_60_dp"
+                    android:layout_height="@dimen/dimen_20_dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="@dimen/dimen_16_dp"
+                    android:clickable="false"
+                    android:thumb="@drawable/switch_thumb_selector"
+                    app:track="@drawable/switch_track_selector" />
+            </RelativeLayout>
+
+            <TextView
+                android:id="@+id/serverConfigTitleTv"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/dimen_28_dp"
+                android:layout_marginTop="@dimen/dimen_16_dp"
+                android:layout_marginRight="@dimen/dimen_20_dp"
+                android:text="@string/server_config_param_title"
+                android:textColor="@color/color_666666"
+                android:textSize="@dimen/text_size_12"
+                app:layout_constraintTop_toBottomOf="@id/notify_ll"
+                tools:ignore="MissingConstraints" />
+
+            <LinearLayout
+                android:id="@+id/serverConfigLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="@dimen/dimen_20_dp"
+                android:layout_marginLeft="@dimen/dimen_20_dp"
+                android:layout_marginTop="@dimen/dimen_16_dp"
+                android:background="@drawable/app_white_round_bg"
+                android:orientation="vertical"
+                app:layout_constraintTop_toBottomOf="@id/serverConfigTitleTv">
+                <FrameLayout android:id="@+id/notify_fl"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/dimen_46_dp">
+
+                    <TextView
+                        android:id="@+id/configTypeTv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="@dimen/dimen_46_dp"
+                        android:layout_marginStart="@dimen/dimen_16_dp"
+                        android:gravity="center"
+                        android:text="@string/server_config_param_type"
+                        android:textColor="@color/color_333333"
+                        android:textSize="@dimen/dimen_16_dp" />
+                    <TextView
+                        android:id="@+id/configTypeDescTv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="@dimen/dimen_46_dp"
+                        android:layout_marginEnd="@dimen/dimen_46_dp"
+                        android:gravity="center"
+                        android:layout_gravity="center_vertical|end"
+                        android:text="@string/server_config_param_type_parse_desc"
+                        android:textColor="@color/color_333333"
+                        android:textSize="@dimen/dimen_16_dp" />
+                    <ImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:layout_marginEnd="24dp"
+                        android:src="@drawable/ic_frame_mine_right_arrow"
+                        android:layout_gravity="end|center_vertical"/>
+                </FrameLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="20dp"
+                    android:background="@color/color_f5f8fc"/>
+
+                <TextView
+                    android:id="@+id/configLinkTv"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/dimen_16_dp"
+                    android:layout_marginTop="@dimen/dimen_16_dp"
+                    android:layout_marginRight="@dimen/dimen_20_dp"
+                    android:text="@string/server_config_param_link_title"
+                    android:textColor="@color/color_333333"
+                    android:textSize="@dimen/text_size_14"
+                    app:layout_constraintTop_toBottomOf="@id/notify_ll"
+                    tools:ignore="MissingConstraints" />
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="@dimen/dimen_6_dp"
+                    android:paddingBottom="@dimen/dimen_12_dp">
+
+                    <EditText
+                        android:id="@+id/configEt"
+                        android:layout_width="match_parent"
+                        android:layout_height="400dp"
+                        android:layout_marginTop="5dp"
+                        android:background="@drawable/app_gray_round_bg"
+                        android:layout_marginLeft="@dimen/dimen_16_dp"
+                        android:layout_marginRight="@dimen/dimen_16_dp"
+                        android:gravity="center_vertical"
+                        android:paddingStart="17dp"
+                        android:textColor="@color/color_333333"
+                        android:paddingEnd="35dp"
+                        android:textSize="16dp"
+                        tools:ignore="SpUsage" />
+
+                    <ImageView
+                        android:id="@+id/configClearIv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="@dimen/dimen_26_dp"
+                        android:visibility="visible"
+                        android:layout_gravity="end|center_vertical"
+                        android:src="@drawable/ic_clear"/>
+
+                </FrameLayout>
+            </LinearLayout>
+            <TextView
+                android:id="@+id/tvSaveConfig"
+                android:layout_width="match_parent"
+                android:layout_height="46dp"
+                android:gravity="center"
+                android:singleLine="true"
+                android:text="@string/server_config_param_save"
+                android:textColor="@color/color_f24957"
+                android:textSize="@dimen/dimen_16_dp"
+                android:background="@drawable/rectangle_white_reduce_bg"
+                android:layout_marginLeft="@dimen/dimen_20_dp"
+                android:layout_marginRight="@dimen/dimen_20_dp"
+                android:layout_marginTop="@dimen/dimen_16_dp"
+                android:layout_marginBottom="@dimen/dimen_16_dp" />
+
+</LinearLayout>

@@ -16,6 +16,7 @@ import com.netease.yunxin.kit.common.ui.viewholder.BaseViewHolder;
 import com.netease.yunxin.kit.common.ui.viewholder.ViewHolderClickListener;
 import com.netease.yunxin.kit.conversationkit.ui.IConversationFactory;
 import com.netease.yunxin.kit.conversationkit.ui.model.ConversationBean;
+import com.netease.yunxin.kit.conversationkit.ui.model.ConversationHeaderBean;
 import com.netease.yunxin.kit.conversationkit.ui.page.DefaultViewHolderFactory;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -29,6 +30,7 @@ public class ConversationAdapter extends RecyclerView.Adapter<BaseViewHolder> {
   private IConversationFactory viewHolderFactory = new DefaultViewHolderFactory();
   // 会话列表数据
   private final List<ConversationBean> conversationList = new ArrayList<>();
+  private final List<ConversationHeaderBean> conversationHeaderList = new ArrayList<>();
   // 数据比较器
   private Comparator<ConversationBean> dataComparator;
   // 点击事件监听
@@ -49,6 +51,14 @@ public class ConversationAdapter extends RecyclerView.Adapter<BaseViewHolder> {
       conversationList.addAll(data);
       notifyDataSetChanged();
     }
+  }
+
+  public void setHeaderData(List<ConversationHeaderBean> data) {
+    conversationHeaderList.clear();
+    if (data != null) {
+      conversationHeaderList.addAll(data);
+    }
+    notifyDataSetChanged();
   }
 
   public void setShowTag(boolean show) {
@@ -73,7 +83,8 @@ public class ConversationAdapter extends RecyclerView.Adapter<BaseViewHolder> {
         int insertIndex = searchComparatorIndex(bean, false);
         conversationList.add(insertIndex, bean);
         if (isShow) {
-          notifyItemInserted(insertIndex);
+          int listIndex = insertIndex + conversationHeaderList.size();
+          notifyItemInserted(listIndex);
         }
       }
     }
@@ -110,15 +121,13 @@ public class ConversationAdapter extends RecyclerView.Adapter<BaseViewHolder> {
           TAG,
           "update, insertIndex:" + insertIndex + "unread:" + data.infoData.getUnreadCount());
       conversationList.add(insertIndex, data);
-      if (isShow) {
-        notifyItemMoved(removeIndex, insertIndex);
-        notifyItemChanged(insertIndex);
-      }
+      notifyDataSetChanged();
     } else {
       int insertIndex = searchComparatorIndex(data, addStickTop);
       conversationList.add(insertIndex, data);
       if (isShow) {
-        notifyItemInserted(insertIndex);
+        int listIndex = insertIndex + conversationHeaderList.size();
+        notifyItemInserted(listIndex);
       }
     }
     layoutManager.scrollToPosition(position);
@@ -126,10 +135,6 @@ public class ConversationAdapter extends RecyclerView.Adapter<BaseViewHolder> {
 
   private int searchComparatorIndex(ConversationBean data, boolean addStickTop) {
     int index = conversationList.size();
-    // add stick must be insert 0
-    if (addStickTop && data.infoData.isStickTop()) {
-      return 0;
-    }
     for (int i = 0; i < conversationList.size(); i++) {
       if (dataComparator != null && dataComparator.compare(data, conversationList.get(i)) < 1) {
         index = i;
@@ -153,6 +158,7 @@ public class ConversationAdapter extends RecyclerView.Adapter<BaseViewHolder> {
         }
       }
       if (index > -1) {
+        index = index + conversationHeaderList.size();
         removeData(index);
       }
     }
@@ -160,6 +166,7 @@ public class ConversationAdapter extends RecyclerView.Adapter<BaseViewHolder> {
 
   public void removeAll() {
     conversationList.clear();
+    conversationHeaderList.clear();
     notifyDataSetChanged();
   }
 
@@ -172,14 +179,19 @@ public class ConversationAdapter extends RecyclerView.Adapter<BaseViewHolder> {
       }
     }
     if (index > -1) {
+      index = index + conversationHeaderList.size();
       removeData(index);
     }
   }
 
   public void removeData(int position) {
-    if (position >= 0 && position < conversationList.size()) {
-      ALog.d(LIB_TAG, TAG, "removeData" + conversationList.get(position).getConversationId());
-      conversationList.remove(position);
+    if (position >= 0) {
+      if (position < conversationHeaderList.size()) {
+        conversationHeaderList.remove(position);
+      } else {
+        ALog.d(LIB_TAG, TAG, "removeData" + conversationList.get(position).getConversationId());
+        conversationList.remove(position - conversationHeaderList.size());
+      }
       if (isShow) {
         notifyItemRemoved(position);
       }
@@ -188,16 +200,11 @@ public class ConversationAdapter extends RecyclerView.Adapter<BaseViewHolder> {
 
   // 更新@信息
   public void updateAit(List<String> idList) {
-    int index = -1;
     for (String id : idList) {
       for (int j = 0; j < conversationList.size(); j++) {
         if (TextUtils.equals(conversationList.get(j).getConversationId(), id)) {
-          index = j;
-          break;
+          notifyItemChanged(j + conversationHeaderList.size());
         }
-      }
-      if (index > -1) {
-        notifyItemChanged(index);
       }
     }
   }
@@ -214,10 +221,12 @@ public class ConversationAdapter extends RecyclerView.Adapter<BaseViewHolder> {
     if (index > -1) {
       conversationList.get(index).setStickTop(true);
       ConversationBean data = conversationList.remove(index);
-      conversationList.add(0, data);
+      int insertIndex = searchComparatorIndex(data, true);
+      conversationList.add(insertIndex, data);
+      int listIndex = insertIndex + conversationHeaderList.size();
       if (isShow) {
-        notifyItemMoved(index, 0);
-        notifyItemChanged(0);
+        notifyItemMoved(index, listIndex);
+        notifyItemChanged(listIndex);
       }
     }
   }
@@ -236,9 +245,11 @@ public class ConversationAdapter extends RecyclerView.Adapter<BaseViewHolder> {
       data.setStickTop(false);
       int insertIndex = searchComparatorIndex(data, false);
       conversationList.add(insertIndex, data);
+      int listIndex = insertIndex + conversationHeaderList.size();
+      int listRemoveIndex = index + conversationHeaderList.size();
       if (isShow) {
-        notifyItemMoved(index, insertIndex);
-        notifyItemChanged(insertIndex);
+        notifyItemMoved(listRemoveIndex, listIndex);
+        notifyItemChanged(listIndex);
       }
     }
   }
@@ -267,23 +278,30 @@ public class ConversationAdapter extends RecyclerView.Adapter<BaseViewHolder> {
 
   @Override
   public void onBindViewHolder(@NonNull BaseViewHolder holder, int position) {
-    holder.onBindData(conversationList.get(position), position);
+    holder.onBindData(this.getData(position), position);
     holder.setItemOnClickListener(clickListener);
   }
 
   @Override
   public int getItemViewType(int position) {
-    return viewHolderFactory.getItemViewType(conversationList.get(position));
+    return viewHolderFactory.getItemViewType(this.getData(position));
   }
 
   @Override
   public int getItemCount() {
+    return conversationList.size() + conversationHeaderList.size();
+  }
+
+  public int getContentCount() {
     return conversationList.size();
   }
 
   public ConversationBean getData(int index) {
-    if (index >= 0 && index < conversationList.size()) {
-      return conversationList.get(index);
+    if (index >= 0 && index < conversationHeaderList.size()) {
+      return conversationHeaderList.get(index);
+    } else if (index >= conversationHeaderList.size()
+        && index < conversationList.size() + conversationHeaderList.size()) {
+      return conversationList.get(index - conversationHeaderList.size());
     }
     return null;
   }

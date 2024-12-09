@@ -36,7 +36,7 @@ import com.netease.yunxin.kit.chatkit.ui.page.adapter.CollectionMessageAdapter;
 import com.netease.yunxin.kit.chatkit.ui.page.viewmodel.CollectionViewModel;
 import com.netease.yunxin.kit.chatkit.ui.view.message.audio.ChatMessageAudioControl;
 import com.netease.yunxin.kit.common.ui.action.ActionItem;
-import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
+import com.netease.yunxin.kit.common.ui.activities.BaseLocalActivity;
 import com.netease.yunxin.kit.common.ui.dialog.BaseBottomChoiceDialog;
 import com.netease.yunxin.kit.common.ui.dialog.BottomChoiceDialog;
 import com.netease.yunxin.kit.common.ui.dialog.ChoiceListener;
@@ -49,7 +49,7 @@ import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 import java.util.ArrayList;
 
-public abstract class CollectionBaseActivity extends BaseActivity {
+public abstract class CollectionBaseActivity extends BaseLocalActivity {
 
   public static final String TAG = "ChatCollectionsBaseActivity";
   protected ChatCollectionActivityBinding viewBinding;
