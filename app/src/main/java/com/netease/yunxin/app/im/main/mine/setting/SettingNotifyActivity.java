@@ -11,11 +11,11 @@ import androidx.lifecycle.ViewModelProvider;
 import com.netease.yunxin.app.im.AppSkinConfig;
 import com.netease.yunxin.app.im.R;
 import com.netease.yunxin.app.im.databinding.ActivityMineSettingNotifyBinding;
-import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
+import com.netease.yunxin.kit.common.ui.activities.BaseLocalActivity;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.common.utils.SizeUtils;
 
-public class SettingNotifyActivity extends BaseActivity {
+public class SettingNotifyActivity extends BaseLocalActivity {
 
   private ActivityMineSettingNotifyBinding viewBinding;
   private SettingNotifyViewModel viewModel;
@@ -75,8 +75,8 @@ public class SettingNotifyActivity extends BaseActivity {
   }
 
   private void updateCommonView() {
-    changeStatusBarColor(R.color.fun_page_bg_color);
-    viewBinding.clRoot.setBackgroundResource(R.color.fun_page_bg_color);
+    changeStatusBarColor(R.color.color_ededed);
+    viewBinding.clRoot.setBackgroundResource(R.color.color_ededed);
 
     viewBinding.notifyLl.setBackgroundResource(R.color.color_white);
     ViewGroup.MarginLayoutParams layoutParamsN =

@@ -6,6 +6,7 @@ package com.netease.yunxin.app.im;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.text.TextUtils;
 import com.netease.nimlib.sdk.NotificationFoldStyle;
 import com.netease.nimlib.sdk.SDKOptions;
 import com.netease.nimlib.sdk.ServerAddresses;
@@ -13,25 +14,44 @@ import com.netease.nimlib.sdk.StatusBarNotificationConfig;
 import com.netease.nimlib.sdk.StatusBarNotificationFilter;
 import com.netease.nimlib.sdk.mixpush.MixPushConfig;
 import com.netease.yunxin.app.im.main.MainActivity;
+import com.netease.yunxin.app.im.main.mine.setting.ServerConfigUtils;
 import com.netease.yunxin.app.im.push.PushUserInfoProvider;
 import com.netease.yunxin.app.im.utils.Constant;
 import com.netease.yunxin.app.im.utils.DataUtils;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.common.utils.ScreenUtils;
+import org.json.JSONObject;
 
 /** Nim SDK config info */
 public class NimSDKOptionConfig {
 
+  private static final String TAG = "NimSDKOptionConfig";
   // 通知音频
   public static final String NOTIFY_SOUND_KEY =
       "android.resource://com.netease.yunxin.app.im/raw/msg";
   public static final int LED_ON_MS = 1000;
   public static final int LED_OFF_MS = 1500;
 
+  public static boolean privateConfigServer = false;
+
   // 初始化SDK配置，参数还以可以参考官网 IM SDK接口文档中有详细说明每个字段含义
-  static SDKOptions getSDKOptions(Context context, String appKey) {
+  static SDKOptions getSDKOptions(Context context) {
     SDKOptions options = new SDKOptions();
-    options.appKey = appKey;
+    privateConfigServer = DataUtils.getServerPrivateConfigSwitch(context);
+    if (privateConfigServer) {
+      String serverConfig = DataUtils.getServerConfig(context);
+      ALog.d(TAG, "getSDKOptions", "ServerConfig:" + serverConfig);
+      try {
+        JSONObject configJson = new JSONObject(serverConfig);
+        options.appKey = configJson.getString("appkey");
+        ALog.d(TAG, "getSDKOptions", "ServerConfig appkey:" + options.appKey);
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
+    if (TextUtils.isEmpty(options.appKey)) {
+      options.appKey = DataUtils.readAppKey(context);
+    }
     initStatusBarNotificationConfig(options);
     options.preloadAttach = true;
     options.thumbnailSize = (int) (222.0 / 375.0 * ScreenUtils.getDisplayWidth());
@@ -55,6 +75,12 @@ public class NimSDKOptionConfig {
 
   // 配置海外节点，用户可以参考配置，来进行海外节点配置或者私有化配置
   public static ServerAddresses configServer(Context context) {
+
+    if (DataUtils.getServerPrivateConfigSwitch(context)) {
+      String serverConfig = DataUtils.getServerConfig(context);
+      ALog.d(TAG, "ServerConfig", "ServerConfig:" + serverConfig);
+      return ServerConfigUtils.parseAddresses(serverConfig);
+    }
 
     if (DataUtils.getServerConfigType(context) == Constant.OVERSEA_CONFIG) {
       ServerAddresses serverAddresses = new ServerAddresses();

@@ -104,14 +104,16 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
             ChatRepo.setCurrentTeam(team);
             if (!TextUtils.isEmpty(team.getServerExtension())) {
               try {
+
+                //处理置顶消息
+                handleTopMessage(team.getServerExtension());
+
                 //处理最后一次操作类型
                 JSONObject jsonTeam = new JSONObject(team.getServerExtension());
                 if (jsonTeam.has(ChatConstants.KEY_EXTENSION_LAST_OPT_TYPE)) {
                   String lastOptType =
                       jsonTeam.optString(ChatConstants.KEY_EXTENSION_LAST_OPT_TYPE);
-                  if (TextUtils.equals(lastOptType, ChatConstants.KEY_EXTENSION_STICKY)) {
-                    handleTopMessage(team.getServerExtension());
-                  } else if (TextUtils.equals(
+                  if (TextUtils.equals(
                       lastOptType, ChatConstants.KEY_EXTENSION_STICKY_PERMISSION)) {
                     handleTopMessagePermission(team.getServerExtension());
                   }

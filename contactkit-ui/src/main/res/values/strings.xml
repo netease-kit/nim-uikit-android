@@ -1,121 +1,127 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2022 NetEase, Inc. All rights reserved.
-  ~ Use of this source code is governed by a MIT license that can be
-  ~ found in the LICENSE file.
+  ~ Copyright (c) 2022 NetEase, Inc.  All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be found in the LICENSE file.
   -->
 
 <resources>
     <!-- contact list -->
-    <string name="contact_title">通讯录</string>
-    <string name="contact_list_verify_msg">验证消息</string>
-    <string name="contact_list_black_list">黑名单</string>
-    <string name="contact_list_my_group">我的群聊</string>
-    <string name="contact_list_my_computer">我的电脑</string>
+    <string name="contact_title">Contacts</string>  
+    <string name="contact_list_verify_msg">Verifications</string> 
+    <string name="contact_list_black_list">Blocklist</string>
+    <string name="contact_list_my_group">My Groups</string> 
+    <string name="contact_list_my_computer">My Computer</string> 
 
     <!-- add friend page-->
-    <string name="add_friend_title">添加好友</string>
-    <string name="add_friend_search_hint">请输入账号</string>
-    <string name="add_friend_search_empty_tips">该用户不存在</string>
+    <string name="add_friend_title">Add Contacts</string>
+    <string name="add_friend_search_hint">Enter Account</string> 
+    <string name="add_friend_search_empty_tips">User not found</string>
 
     <!-- verify page -->
-    <string name="contact_verify_agree">同意</string>
-    <string name="contact_verify_reject">拒绝</string>
-    <string name="contact_verify_agreed">已同意</string>
-    <string name="contact_verify_rejected">已拒绝</string>
-    <string name="contact_verify_expired">已过期</string>
-    <string name="friend_apply">好友申请</string>
-    <string name="invited_to_join_group">邀请你加入群&#160;%s</string>
-    <string name="apply_to_join_group">申请加入%s群</string>
-    <string name="accept_your_friend_apply">同意了你的好友请求</string>
-    <string name="direct_add_your_friend_apply">直接添加你为好友</string>
-    <string name="reject_your_friend_apply">拒绝了你的好友请求</string>
-    <string name="verify_msg">验证消息</string>
+    <string name="contact_verify_agree">Accept</string>
+    <string name="contact_verify_reject">Decline</string>
+    <string name="contact_verify_agreed">Added</string>
+    <string name="contact_verify_rejected">Declined</string>
+    <string name="contact_verify_expired">Expired</string>
+    <string name="friend_apply">New Friends</string>
+    <string name="invited_to_join_group">invite you to groups&#160;%s</string> 
+    <string name="apply_to_join_group">request to join group%s</string>
+    <string name="accept_your_friend_apply">accepted your request</string>
+    <string name="direct_add_your_friend_apply">added your contact</string>
+    <string name="reject_your_friend_apply">declined your invitation</string>
+    <string name="verify_msg">Verifications</string>  
     <string name="verify_max_count_text">99+</string>
-    <string name="verify_agree_message_text">我已经同意了你的申请，现在开始聊天吧~</string>
-    <string name="verify_empty_text">暂无验证消息</string>
+    <string name="verify_agree_message_text">I\'ve accepted your friend request. Now let\'s
+        chat</string>
+    <string name="verify_empty_text">Verifications Empty</string>
 
     <!-- my team page -->
-    <string name="my_team">我的群聊</string>
+    <string name="my_team">My Groups</string> 
 
     <!-- black page -->
-    <string name="black_list">黑名单</string>
-    <string name="black_list_tips">你不会收到列表中任何联系人的消息</string>
-    <string name="contact_black_list_relieve">解除</string>
-    <string name="add_black_error">%s加入黑名单失败</string>
+    <string name="black_list">Blocklist </string>
+    <string name="black_list_tips">You won\'t receive any messages from them</string>
+    <string name="contact_black_list_relieve">Release</string> 
+    <string name="add_black_error">%s not blocked</string>
 
     <!-- userinfo page -->
-    <string name="clear_all">清空</string>
-    <string name="birthday">生日</string>
-    <string name="phone">手机</string>
-    <string name="email">邮箱</string>
-    <string name="personal_signature">个性签名</string>
-    <string name="comment_name">备注名</string>
-    <string name="notify_message">消息通知</string>
-    <string name="add_black_list">加入黑名单</string>
-    <string name="chat">聊天</string>
-    <string name="delete_friend">删除好友</string>
-    <string name="add_friend">添加好友</string>
-    <string name="contact_user_info_account">账号:%s</string>
-    <string name="contact_user_info_nickname">昵称:%s</string>
-    <string name="delete_contact_account">将联系人“%s”删除</string>
-    <string name="save">保存</string>
-    <string name="add_friend_operate_success">好友申请已发送</string>
-    <string name="add_friend_operate_fail">好友申请失败 %s</string>
+    <string name="clear_all">Clear</string> 
+    <string name="birthday">Birthday</string> 
+    <string name="phone">Mobile</string> 
+    <string name="email">Email </string>
+    <string name="personal_signature">What’s up</string>
+    <string name="comment_name">Alias</string>
+    <string name="notify_message">Notification</string>
+    <string name="add_black_list">Block</string>
+    <string name="chat">Chat</string> 
+    <string name="delete_friend">Delete Contacts</string>
+    <string name="add_friend">Add Contacts</string>
+    <string name="contact_user_info_account">Account:%s</string> 
+    <string name="contact_user_info_nickname">Alias:%s</string>
+    <string name="delete_contact_account">Delete “%s”</string>
+    <string name="save">Save</string> 
+    <string name="add_friend_operate_success">Friend request sent</string>
+    <string name="add_friend_operate_fail">Friend request failed: %s</string>
 
     <!--添加好友页面 -->
-    <string name="add_friend_search_error">搜索失败</string>
+    <string name="add_friend_search_error">Failed to search</string> 
 
 
     <!-- error toast -->
-    <string name="agree_add_friend_fail">同意好友申请失败</string>
-    <string name="disagree_add_friend_fail">拒绝好友申请失败</string>
-    <string name="agree_apply_join_team_fail">同意入群申请失败</string>
-    <string name="disagree_apply_join_team_fail">拒绝入群申请失败</string>
-    <string name="agree_invite_team_fail">同意入群邀请失败</string>
-    <string name="disagree_invite_team_fail">拒绝入群邀请失败</string>
-    <string name="remove_black_fail">黑名单移除失败</string>
-    <string name="verify_duplicate_fail">该验证消息已在其他端处理</string>
-    <string name="contact_error_tips">信息获取失败</string>
-    <string name="contact_team_be_removed_title">提示</string>
-    <string name="contact_team_be_removed_content">您已被移除群聊或该群聊已被解散</string>
+    <string name="agree_add_friend_fail">Failed</string> 
+    <string name="disagree_add_friend_fail">Failed</string> 
+    <string name="agree_apply_join_team_fail">Failed</string> 
+    <string name="disagree_apply_join_team_fail">Failed</string>
+    <string name="agree_invite_team_fail">Failed</string> 
+    <string name="disagree_invite_team_fail">Failed</string>
+
+    <string name="remove_black_fail">Failed to remove blocklist</string>
+    <string name="verify_duplicate_fail">Already done on other devices</string>
+    <string name="contact_error_tips">Data error</string>
+    <string name="contact_team_be_removed_title">Notice</string>
+    <string name="contact_team_be_removed_content">You\'re removed from the group, or the group
+        got dissolved</string>
+
     <!--    selector-->
-    <string name="select">选择</string>
-    <string name="selected">已选</string>
-    <string name="selector_sure">确定(%d)</string>
-    <string name="selector_finish">完成(%d)</string>
-    <string name="selector_finish_without_number">完成</string>
-    <string name="selector_sure_without_num">确定</string>
-    <string name="contact_selector_max_count">最多选择%s个好友</string>
-    <string name="contact_selector_over_count">超出人数限制</string>
-    <string name="selector_friend_empty">暂无好友</string>
-    <string name="selector_conversation_empty">暂无会话</string>
-    <string name="selector_team_empty">暂无群聊</string>
-    <string name="select_empty_tips">请选择联系人</string>
-    <string name="fun_selector_close">关闭</string>
-    <string name="fun_contact_search">搜索</string>
-    <string name="contact_selector_session_max_count">最多只能选择%s个会话</string>
+    <string name="select">Select</string>
+    <string name="selected">Selected</string>
+    <string name="selector_sure">Yes(%d)</string>
+    <string name="selector_finish">Yes(%d)</string>
+    <string name="selector_finish_without_number">Yes</string>
+    <string name="selector_sure_without_num">Yes</string>
+    <string name="contact_selector_max_count">select up to %s contacts</string>
+    <string name="contact_selector_over_count"> exceed the max limit</string>
+    <string name="selector_friend_empty">No Contact</string>
+    <string name="selector_conversation_empty">No Chat</string>
+    <string name="selector_team_empty">No Group</string>
+    <string name="select_empty_tips">Select contacts</string>
+    <string name="fun_selector_close">Close</string>
+    <string name="fun_contact_search">Search</string>
+    <string name="contact_selector_session_max_count">Choose at most %s chats</string>
 
     <!-- search -->
-    <string name="global_search_hint">请输入你要搜索的关键字</string>
-    <string name="global_search_title">搜索</string>
-    <string name="global_search_no_result">未搜索到“%s”相关结果</string>
 
-    <string name="global_search_friend_title">好友</string>
-    <string name="global_search_group_title">讨论组</string>
-    <string name="global_search_team_title">高级群</string>
-    <string name="global_search_empty">该用户不存在</string>
+    <string name="global_search_hint"> Enter and search...</string>
+    <string name="global_search_title">Search</string>
+    <string name="global_search_no_result">No result containing "%s"</string>
+
+    <string name="global_search_friend_title">Contacts</string>
+    <string name="global_search_group_title">Temperature Group</string>
+    <string name="global_search_team_title">Group</string>
+    <string name="global_search_empty">User not found</string>
 
     <!--    AI数字人 -->
-    <string name="ai_user_title">数字人</string>
-    <string name="contact_ai_user_title">我的数字人</string>
-    <string name="contact_ai_user_empty_tips">暂无数字人</string>
+    <string name="ai_user_title">AI User</string>
+    <string name="contact_ai_user_title">My AI User</string>
+    <string name="contact_ai_user_empty_tips">No AI User</string>
 
     <!--    common-->
-    <string name="cancel">取消</string>
-    <string name="contact_network_error_tip">当前网络不可用，请检查你当网络设置。</string>
-    <string name="recent_conversation">最近会话</string>
-    <string name="my_friend">我的好友</string>
-    <string name="recent_forward">最近转发</string>
-    <string name="contact_selector_multi_select">多选</string>
+    <string name="cancel"> Cancel </string>
+    <string name="contact_network_error_tip">No Network</string>
+    <string name="recent_conversation">Latest Chat</string>
+    <string name="my_friend">My Friends</string>
+    <string name="recent_forward">Forwarded</string>
+    <string name="contact_selector_multi_select">Multiselect</string>
+
+
 </resources>

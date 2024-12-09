@@ -19,6 +19,7 @@ public class ConversationConstant {
     public static final int CHAT_VIEW = 1;
     //team chat view
     public static final int TEAM_VIEW = 2;
+    public static final int HORIZON_VIEW = 3;
   }
 
   // 会话弹窗操作按钮Action，区分点击事件使用

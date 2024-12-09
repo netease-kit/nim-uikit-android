@@ -5,37 +5,55 @@
   ~ found in the LICENSE file.
   -->
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/container"
-    android:layout_width="wrap_content"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/llyContainer"
     android:layout_height="wrap_content"
-    android:paddingVertical="@dimen/dimen_8_dp"
+    android:layout_width="wrap_content"
     android:layout_marginStart="@dimen/dimen_5_dp"
     android:layout_marginEnd="@dimen/dimen_5_dp"
-    android:paddingHorizontal="@dimen/dimen_16_dp">
-
-    <ImageView
-        android:id="@+id/animation"
-        android:layout_width="@dimen/dimen_28_dp"
-        android:layout_height="@dimen/dimen_28_dp" />
-
-    <TextView
-        android:id="@+id/tvTime"
+    android:orientation="vertical">
+    <RelativeLayout
+        android:id="@+id/container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@color/color_333333"
-        android:textSize="@dimen/text_size_14"
-        android:maxLines="1"
-        android:layout_centerVertical="true" />
+        android:paddingVertical="@dimen/dimen_8_dp"
+        android:paddingHorizontal="@dimen/dimen_16_dp">
+
+        <ImageView
+            android:id="@+id/animation"
+            android:layout_width="@dimen/dimen_28_dp"
+            android:layout_height="@dimen/dimen_28_dp" />
+
+        <TextView
+            android:id="@+id/tvTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/color_333333"
+            android:textSize="@dimen/text_size_14"
+            android:maxLines="1"
+            android:layout_centerVertical="true" />
+
+        <TextView
+            android:id="@+id/messageText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/text_size_16"
+            android:paddingVertical="@dimen/dimen_3_dp"
+            android:text="@string/msg_type_audio"
+            android:visibility="gone"
+            android:textColor="@color/color_333333"/>
+
+    </RelativeLayout>
 
     <TextView
-        android:id="@+id/messageText"
-        android:layout_width="wrap_content"
+        android:id="@+id/tvVoice"
+         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dimen_4_dp"
         android:textSize="@dimen/text_size_16"
-        android:paddingVertical="@dimen/dimen_3_dp"
-        android:text="@string/msg_type_audio"
         android:visibility="gone"
-        android:textColor="@color/color_333333"/>
+        android:textColor="@color/color_333333"
+        android:paddingHorizontal="@dimen/dimen_12_dp"
+        android:paddingVertical="@dimen/dimen_9_dp"/>
+</LinearLayout>
 
-</RelativeLayout>

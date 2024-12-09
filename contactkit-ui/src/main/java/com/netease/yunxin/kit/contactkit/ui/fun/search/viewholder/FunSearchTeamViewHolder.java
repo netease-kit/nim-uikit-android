@@ -39,10 +39,10 @@ public class FunSearchTeamViewHolder extends BaseViewHolder<SearchTeamBean> {
           searchInfo.getTeam().getAvatar(),
           searchInfo.getTeam().getName(),
           AvatarColor.avatarColor(searchInfo.getTeam().getTeamId()));
-      viewBinding.nickTv.setText(
+      viewBinding.tvNickName.setText(
           getSelectSpanText(searchInfo.getTeam().getName(), searchInfo.getHitInfo()));
-      viewBinding.nickTv.setVisibility(View.VISIBLE);
-      viewBinding.nameTv.setVisibility(View.GONE);
+      viewBinding.tvNickName.setVisibility(View.VISIBLE);
+      viewBinding.tvName.setVisibility(View.GONE);
       viewBinding.getRoot().setOnClickListener(v -> itemListener.onClick(v, data, position));
     }
   }

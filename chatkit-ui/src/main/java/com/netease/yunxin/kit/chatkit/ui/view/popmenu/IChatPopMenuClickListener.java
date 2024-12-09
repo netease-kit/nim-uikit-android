@@ -54,6 +54,11 @@ public interface IChatPopMenuClickListener {
     return false;
   }
 
+  // 点击语音转文字
+  default boolean onTransferToText(ChatMessageBean messageInfo) {
+    return false;
+  }
+
   // 自定义按钮点击
   default boolean onCustom(View view, ChatMessageBean messageInfo, String action) {
     return false;

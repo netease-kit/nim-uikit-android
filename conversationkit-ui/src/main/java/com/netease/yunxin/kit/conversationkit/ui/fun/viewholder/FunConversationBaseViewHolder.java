@@ -7,7 +7,7 @@ package com.netease.yunxin.kit.conversationkit.ui.fun.viewholder;
 import android.graphics.drawable.Drawable;
 import android.view.View;
 import androidx.annotation.NonNull;
-import com.netease.yunxin.kit.common.ui.utils.TimeFormatUtils;
+import com.netease.yunxin.kit.common.ui.utils.AppLanguageConfig;
 import com.netease.yunxin.kit.common.ui.viewholder.BaseViewHolder;
 import com.netease.yunxin.kit.conversationkit.ui.ConversationKitClient;
 import com.netease.yunxin.kit.conversationkit.ui.ConversationUIConfig;
@@ -15,6 +15,9 @@ import com.netease.yunxin.kit.conversationkit.ui.R;
 import com.netease.yunxin.kit.conversationkit.ui.common.ConversationUtils;
 import com.netease.yunxin.kit.conversationkit.ui.databinding.FunConversationViewHolderBinding;
 import com.netease.yunxin.kit.conversationkit.ui.model.ConversationBean;
+import com.netease.yunxin.kit.corekit.im2.IMKitClient;
+import com.netease.yunxin.kit.corekit.im2.utils.TimeFormatLocalUtils;
+import java.util.Locale;
 
 /** 会话列表基础ViewHolder，用于加载通用的UI 置顶、未读、免打扰、头像、会话名称、最后一条消息、时间 */
 public class FunConversationBaseViewHolder extends BaseViewHolder<ConversationBean> {
@@ -61,9 +64,12 @@ public class FunConversationBaseViewHolder extends BaseViewHolder<ConversationBe
     // 最近一条消息
     viewBinding.messageTv.setText(
         ConversationUtils.getConversationText(itemView.getContext(), data.infoData));
+    Locale locale =
+        new Locale(
+            AppLanguageConfig.getInstance().getAppLanguage(IMKitClient.getApplicationContext()));
     viewBinding.timeTv.setText(
-        TimeFormatUtils.formatMillisecond(
-            viewBinding.getRoot().getContext(), data.getLastMsgTime()));
+        TimeFormatLocalUtils.formatMillisecond(
+            viewBinding.getRoot().getContext(), data.getLastMsgTime(), locale));
     viewBinding.getRoot().setOnClickListener(v -> itemListener.onClick(v, data, position));
     viewBinding.getRoot().setOnLongClickListener(v -> itemListener.onLongClick(v, data, position));
     viewBinding.avatarLayout.setOnClickListener(v -> itemListener.onAvatarClick(v, data, position));

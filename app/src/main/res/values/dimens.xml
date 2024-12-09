@@ -9,6 +9,7 @@
     <dimen name="dimen_8_dp">8dp</dimen>
     <dimen name="dimen_15_dp">15dp</dimen>
     <dimen name="dimen_16_dp">16dp</dimen>
+    <dimen name="dimen_26_dp">26dp</dimen>
     <dimen name="dimen_21_dp">21dp</dimen>
     <dimen name="dimen_22_dp">22dp</dimen>
     <dimen name="dimen_48_dp">48dp</dimen>
@@ -23,4 +24,5 @@
     <dimen name="dimen_315_dp">315dp</dimen>
 
     <dimen name="text_size_24">24sp</dimen>
+    <dimen name="text_size_26">26sp</dimen>
 </resources>

@@ -12,9 +12,10 @@ import static com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants.PAYLO
 
 import android.graphics.drawable.AnimationDrawable;
 import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import androidx.annotation.NonNull;
 import com.netease.nimlib.sdk.v2.message.attachment.V2NIMMessageAudioAttachment;
@@ -105,7 +106,7 @@ public class ChatAudioMessageViewHolder extends FunChatBaseMessageViewHolder {
   }
 
   private void updateTime(long milliseconds) {
-    long seconds = milliseconds / 1000;
+    long seconds = Math.round((double) milliseconds / 1000);
 
     if (seconds <= 0) {
       seconds = 1;
@@ -147,6 +148,7 @@ public class ChatAudioMessageViewHolder extends FunChatBaseMessageViewHolder {
     currentMessage = message;
     playControl(message);
     setAudioLayout(message);
+    setVoiceToText(message);
     audioBinding.container.setOnClickListener(
         v -> {
           if (isMultiSelect) {
@@ -158,6 +160,32 @@ public class ChatAudioMessageViewHolder extends FunChatBaseMessageViewHolder {
           }
         });
     checkAudioPlayAndRefreshAnim();
+  }
+
+  @Override
+  protected void setVoiceToText(ChatMessageBean message) {
+    if (!TextUtils.isEmpty(message.getVoiceToText())) {
+      audioBinding.tvVoice.setVisibility(View.VISIBLE);
+      audioBinding.tvVoice.setText(message.getVoiceToText());
+      LinearLayout.LayoutParams layoutParams =
+          (LinearLayout.LayoutParams) audioBinding.tvVoice.getLayoutParams();
+      if (MessageHelper.isReceivedMessage(message)) {
+        audioBinding.tvVoice.setBackgroundResource(
+            R.drawable.fun_bg_message_voice_to_text_received);
+        layoutParams.setMarginStart(SizeUtils.dp2px(7));
+      } else {
+        audioBinding.tvVoice.setBackgroundResource(R.drawable.fun_bg_message_voice_to_text_send);
+        layoutParams.setMarginEnd(SizeUtils.dp2px(7));
+      }
+      audioBinding.tvVoice.setLayoutParams(layoutParams);
+    } else {
+      audioBinding.tvVoice.setVisibility(View.GONE);
+    }
+  }
+
+  @Override
+  protected View getMessageBackgroundView() {
+    return audioBinding.container;
   }
 
   @Override
@@ -193,7 +221,8 @@ public class ChatAudioMessageViewHolder extends FunChatBaseMessageViewHolder {
       return;
     }
     long len = audioAttachment.getDuration() / 1000;
-    ViewGroup.LayoutParams layoutParams = audioBinding.getRoot().getLayoutParams();
+    LinearLayout.LayoutParams layoutParams =
+        (LinearLayout.LayoutParams) audioBinding.container.getLayoutParams();
     if (len <= 2) {
       layoutParams.width = SizeUtils.dp2px(MIN_LENGTH_FOR_AUDIO);
     } else {
@@ -202,7 +231,6 @@ public class ChatAudioMessageViewHolder extends FunChatBaseMessageViewHolder {
               SizeUtils.dp2px(MAX_LENGTH_FOR_AUDIO),
               SizeUtils.dp2px(MIN_LENGTH_FOR_AUDIO + (len - 2) * 8));
     }
-    audioBinding.getRoot().setLayoutParams(layoutParams);
     RelativeLayout.LayoutParams aniLp =
         (RelativeLayout.LayoutParams) audioBinding.animation.getLayoutParams();
     RelativeLayout.LayoutParams timeLp =
@@ -213,13 +241,16 @@ public class ChatAudioMessageViewHolder extends FunChatBaseMessageViewHolder {
       timeLp.removeRule(START_OF);
       timeLp.addRule(END_OF, R.id.animation);
       audioBinding.animation.setImageResource(R.drawable.ic_message_from_audio);
+      layoutParams.gravity = Gravity.START;
     } else {
       aniLp.removeRule(ALIGN_PARENT_LEFT);
       aniLp.addRule(ALIGN_PARENT_RIGHT);
       timeLp.removeRule(END_OF);
       timeLp.addRule(START_OF, R.id.animation);
       audioBinding.animation.setImageResource(R.drawable.ic_message_to_audio);
+      layoutParams.gravity = Gravity.END;
     }
+    audioBinding.container.setLayoutParams(layoutParams);
     audioBinding.animation.setLayoutParams(aniLp);
     audioBinding.tvTime.setLayoutParams(timeLp);
   }

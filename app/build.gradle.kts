@@ -8,16 +8,22 @@ plugins {
 }
 
 android {
-    compileSdk = 33
+    compileSdk = 34
     namespace = "com.netease.yunxin.app.im"
 
     defaultConfig {
         applicationId = "com.netease.yunxin.app.im"
         minSdk = 24
+        targetSdk = 34
         versionCode = 1
-        versionName = "10.4.0"
+        versionName = "10.5.0"
         multiDexEnabled = true
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        ndk {
+            abiFilters.add("armeabi-v7a")
+            abiFilters.add("arm64-v8a")
+        }
     }
 
     buildTypes {
@@ -25,6 +31,7 @@ android {
             isMinifyEnabled = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
+
     }
 
     buildFeatures {
@@ -32,38 +39,50 @@ android {
         buildConfig = true
     }
 
+    packagingOptions {
+        jniLibs.pickFirsts.add("lib/arm64-v8a/libc++_shared.so")
+        jniLibs.pickFirsts.add("lib/armeabi-v7a/libc++_shared.so")
+    }
+
+    splits {
+        abi {
+            reset()
+            include("armeabi-v7a", "arm64-v8a")
+        }
+    }
+
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
 }
 
 dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar","*.aar"))))
-    implementation("androidx.appcompat:appcompat:1.4.2")
-    implementation("com.google.android.material:material:1.5.0")
+    implementation("androidx.appcompat:appcompat:1.6.1")
+    implementation("com.google.android.material:material:1.11.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation("androidx.multidex:multidex:2.0.1")
     //本地代码依赖
-//    implementation(project(":contactkit-ui"))
-//    implementation(project(":conversationkit-ui"))
-//    implementation(project(":teamkit-ui"))
-//    implementation(project(":chatkit-ui"))
-//    implementation(project(":locationkit"))
-//    implementation(project(":aisearchkit"))
+    implementation(project(":contactkit-ui"))
+    implementation(project(":conversationkit-ui"))
+    implementation(project(":teamkit-ui"))
+    implementation(project(":chatkit-ui"))
+    implementation(project(":locationkit"))
+    implementation(project(":aisearchkit"))
 
     //远端aar依赖
-    implementation("com.netease.yunxin.kit.contact:contactkit-ui:10.4.1")
-    implementation("com.netease.yunxin.kit.conversation:conversationkit-ui:10.4.1")
-    implementation("com.netease.yunxin.kit.team:teamkit-ui:10.4.1")
-    implementation("com.netease.yunxin.kit.chat:chatkit-ui:10.4.1")
-    implementation("com.netease.yunxin.kit.locationkit:locationkit:10.4.1")
-    implementation("com.netease.yunxin.kit.aisearchkit:aisearchkit:10.4.1")
+//    implementation("com.netease.yunxin.kit.contact:contactkit-ui:10.5.0")
+//    implementation("com.netease.yunxin.kit.conversation:conversationkit-ui:10.5.0")
+//    implementation("com.netease.yunxin.kit.team:teamkit-ui:10.5.0")
+//    implementation("com.netease.yunxin.kit.chat:chatkit-ui:10.5.0")
+//    implementation("com.netease.yunxin.kit.locationkit:locationkit:10.5.0")
+//    implementation("com.netease.yunxin.kit.aisearchkit:aisearchkit:10.5.0")
 
 
-    implementation("com.netease.yunxin.kit.call:call-ui:2.2.0") //呼叫组件 UI 包
-    implementation("com.netease.nimlib:avsignalling:10.5.0") //信令组件
+    implementation("com.netease.yunxin.kit.call:call-ui:3.0.0") //呼叫组件 UI 包
+    implementation("com.netease.nimlib:avsignalling:10.6.0") //信令组件
     implementation("com.airbnb.android:lottie:5.0.3")
     implementation("com.github.bumptech.glide:glide:4.13.1")
     implementation("com.squareup.retrofit2:retrofit:2.9.0")

@@ -5,12 +5,17 @@
   ~ found in the LICENSE file.
   -->
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/llyContainer"
+    android:layout_height="wrap_content"
+    android:layout_width="wrap_content"
+    android:paddingVertical="@dimen/dimen_9_dp"
+    android:paddingHorizontal="@dimen/dimen_16_dp"
+    android:orientation="vertical">
+    <RelativeLayout
     android:id="@+id/container"
     android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:paddingVertical="@dimen/dimen_9_dp"
-    android:paddingHorizontal="@dimen/dimen_16_dp">
+    android:layout_height="wrap_content">
 
     <ImageView
         android:id="@+id/animation"
@@ -36,3 +41,13 @@
         android:textColor="@color/color_333333"/>
 
 </RelativeLayout>
+
+    <TextView
+        android:id="@+id/tvVoice"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dimen_9_dp"
+        android:textSize="@dimen/text_size_16"
+        android:visibility="gone"
+        android:textColor="@color/color_333333"/>
+</LinearLayout>

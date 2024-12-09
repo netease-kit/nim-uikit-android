@@ -21,7 +21,7 @@ import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.page.adapter.SearchMessageAdapter;
 import com.netease.yunxin.kit.chatkit.ui.page.viewmodel.SearchMessageViewModel;
 import com.netease.yunxin.kit.chatkit.utils.ChatKitConstant;
-import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
+import com.netease.yunxin.kit.common.ui.activities.BaseLocalActivity;
 import com.netease.yunxin.kit.common.ui.utils.ToastX;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.common.ui.widgets.BackTitleBar;
@@ -32,7 +32,7 @@ import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
  * History message search page for Team chat search history message and jump back to the team chat
  * page
  */
-public class ChatSearchBaseActivity extends BaseActivity {
+public class ChatSearchBaseActivity extends BaseLocalActivity {
   private static final String TAG = "ChatSearchActivity";
   protected RecyclerView searchRV;
 

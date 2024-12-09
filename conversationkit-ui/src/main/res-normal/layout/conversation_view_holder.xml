@@ -21,7 +21,8 @@
             android:layout_width="@dimen/dimen_42_dp"
             android:layout_height="@dimen/dimen_42_dp" />
 
-        <TextView android:id="@+id/unreadTv"
+        <TextView
+            android:id="@+id/unreadTv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="top|end"
@@ -59,25 +60,27 @@
             android:layout_marginTop="@dimen/dimen_35_dp"
             android:layout_marginEnd="@dimen/dimen_18_dp"
             android:orientation="horizontal">
-        <TextView
-            android:id="@+id/aitTv"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:layout_marginEnd="@dimen/dimen_4_dp"
-            android:textColor="@color/color_f24957"
-            android:visibility="gone"
-            android:text="@string/conversation_ait_tip"/>
 
-        <TextView
-            android:id="@+id/messageTv"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:textColor="@color/color_999999"/>
+            <TextView
+                android:id="@+id/aitTv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/dimen_4_dp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="@string/conversation_ait_tip"
+                android:textColor="@color/color_f24957"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/messageTv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textColor="@color/color_999999" />
         </LinearLayout>
+
         <TextView
             android:id="@+id/timeTv"
             android:layout_width="wrap_content"
@@ -90,14 +93,13 @@
             android:textColor="@color/color_cccccc"
             android:textSize="@dimen/text_size_12" />
 
-        <ImageView android:id="@+id/muteIv"
+        <ImageView
+            android:id="@+id/muteIv"
             android:layout_width="@dimen/dimen_12_dp"
             android:layout_height="@dimen/dimen_12_dp"
             android:layout_gravity="end"
             android:layout_marginTop="@dimen/dimen_38_dp"
             android:src="@drawable/ic_conversation_mute"
-            android:visibility="gone"
-            />
+            android:visibility="gone" />
     </FrameLayout>
-
 </FrameLayout>

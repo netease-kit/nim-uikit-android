@@ -22,7 +22,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
-import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
+import com.netease.yunxin.kit.common.ui.activities.BaseLocalActivity;
 import com.netease.yunxin.kit.common.ui.adapter.BaseFragmentAdapter;
 import com.netease.yunxin.kit.common.ui.widgets.BackTitleBar;
 import com.netease.yunxin.kit.common.utils.NetworkUtils;
@@ -34,7 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public abstract class BaseAIContactSelectorActivity extends BaseActivity {
+public abstract class BaseAIContactSelectorActivity extends BaseLocalActivity {
 
   private static final String TAG = "BaseForwardSelectorActivity";
   public static final int DEFAULT_MAX_SELECT_COUNT = 200;

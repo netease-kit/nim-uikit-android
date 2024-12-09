@@ -20,12 +20,12 @@ import com.netease.yunxin.app.im.R;
 import com.netease.yunxin.app.im.databinding.TypeSelectActivityBinding;
 import com.netease.yunxin.app.im.utils.Constant;
 import com.netease.yunxin.kit.alog.ALog;
-import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
+import com.netease.yunxin.kit.common.ui.activities.BaseLocalActivity;
 import com.netease.yunxin.kit.common.utils.SizeUtils;
 import java.util.ArrayList;
 
 /** channel type select page choice list should be transfer by intent */
-public class TypeSelectActivity extends BaseActivity {
+public class TypeSelectActivity extends BaseLocalActivity {
 
   private static final String TAG = "TypeSelectActivity";
   private TypeSelectActivityBinding viewBinding;
@@ -77,8 +77,8 @@ public class TypeSelectActivity extends BaseActivity {
   }
 
   private void setCommonSkin() {
-    changeStatusBarColor(R.color.fun_page_bg_color);
-    viewBinding.llyRoot.setBackgroundResource(R.color.fun_page_bg_color);
+    changeStatusBarColor(R.color.color_ededed);
+    viewBinding.llyRoot.setBackgroundResource(R.color.color_ededed);
 
     viewBinding.rfLayout.setBackgroundResource(R.color.color_white);
     ViewGroup.MarginLayoutParams layoutParamsS =

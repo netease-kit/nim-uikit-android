@@ -33,10 +33,10 @@ public class FunSearchActivity extends BaseSearchActivity {
   protected View initViewAndGetRootView() {
     FunSearchActivityBinding viewBinding = FunSearchActivityBinding.inflate(getLayoutInflater());
     searchRv = viewBinding.searchRv;
-    clearView = viewBinding.clearIv;
-    emptyView = viewBinding.emptyLayout;
-    searchEditText = viewBinding.searchEt;
-    backView = viewBinding.cancelBtn;
+    clearView = viewBinding.ivClear;
+    emptyView = viewBinding.emptyLl;
+    searchEditText = viewBinding.etSearch;
+    backView = viewBinding.ivBack;
     searchRv.addItemDecoration(getItemDecoration());
     return viewBinding.getRoot();
   }

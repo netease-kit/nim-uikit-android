@@ -6,6 +6,7 @@ package com.netease.yunxin.kit.chatkit.ui.factory;
 
 import static com.netease.yunxin.kit.corekit.plugin.PluginConstantsKt.CHAT_POP_MENU_ACTION;
 
+import android.content.Context;
 import android.text.TextUtils;
 import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
 import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
@@ -23,7 +24,6 @@ import com.netease.yunxin.kit.chatkit.ui.view.popmenu.IChatPopMenu;
 import com.netease.yunxin.kit.chatkit.ui.view.popmenu.IChatPopMenuClickListener;
 import com.netease.yunxin.kit.common.ui.utils.ToastX;
 import com.netease.yunxin.kit.common.utils.NetworkUtils;
-import com.netease.yunxin.kit.corekit.im2.IMKitClient;
 import com.netease.yunxin.kit.corekit.model.PluginAction;
 import com.netease.yunxin.kit.corekit.plugin.PluginService;
 import java.lang.ref.WeakReference;
@@ -66,12 +66,12 @@ public class ChatPopActionFactory {
    * @param text 长按的文本
    * @return 弹窗中的内容列表
    */
-  public List<PluginAction> getTextActions(String text) {
+  public List<PluginAction> getTextActions(Context context, String text) {
     List<PluginAction> actions = new ArrayList<>();
     if (customPopMenu == null
         || customPopMenu.get() == null
         || customPopMenu.get().showDefaultPopMenu()) {
-      actions.add(getCopyAction(text));
+      actions.add(getCopyAction(context, text));
       actions.addAll(PluginService.getMenuActions(CHAT_POP_MENU_ACTION, text));
     }
     if (customPopMenu != null && customPopMenu.get() != null) {
@@ -86,7 +86,7 @@ public class ChatPopActionFactory {
    * @param message 长按的消息
    * @return 弹窗中的内容
    */
-  public List<PluginAction> getMessageActions(ChatMessageBean message) {
+  public List<PluginAction> getMessageActions(Context context, ChatMessageBean message) {
     List<PluginAction> actions = new ArrayList<>();
     if (message.getMessageData() == null) {
       return actions;
@@ -99,41 +99,47 @@ public class ChatPopActionFactory {
           || message.getMessageData().getMessage().getSendingState()
               == V2NIMMessageSendingState.V2NIM_MESSAGE_SENDING_STATE_SENDING
           || message.getViewType() == V2NIMMessageType.V2NIM_MESSAGE_TYPE_INVALID.getValue()) {
-        addCopyActionIfNeed(actions, message);
-        actions.add(getDeleteAction(message));
-        actions.add(getMultiSelectAction(message));
+        addCopyActionIfNeed(context, actions, message);
+        actions.add(getDeleteAction(context, message));
+        actions.add(getMultiSelectAction(context, message));
         addPluginTextActionIfNeed(actions, message);
         return actions;
       }
 
       if (message.getViewType() == MsgTypeEnum.nrtc_netcall.getValue()) {
         // call
-        actions.add(getDeleteAction(message));
-        actions.add(getMultiSelectAction(message));
+        actions.add(getDeleteAction(context, message));
+        actions.add(getMultiSelectAction(context, message));
         return actions;
       }
       // 基础消息类型都在MsgTypeEnum中定义,自定义消息类型都是MsgTypeEnum.custom，
       // 自定义消息，根据自定义消息的Type区分IMUIKIt内置从101开始，客户定义从1000开始
-      addCopyActionIfNeed(actions, message);
-      actions.add(getReplyAction(message));
+      addCopyActionIfNeed(context, actions, message);
+      actions.add(getReplyAction(context, message));
       if (message.getViewType() != MsgTypeEnum.audio.getValue()) {
-        actions.add(getTransmitAction(message));
+        actions.add(getTransmitAction(context, message));
       }
       if (IMKitConfigCenter.getEnablePinMessage()) {
-        actions.add(getPinAction(message));
+        actions.add(getPinAction(context, message));
       }
-      actions.add(getDeleteAction(message));
+      actions.add(getDeleteAction(context, message));
       if (!MessageHelper.isReceivedMessage(message)) {
-        actions.add(getRecallAction(message));
+        actions.add(getRecallAction(context, message));
       }
-      actions.add(getMultiSelectAction(message));
+      actions.add(getMultiSelectAction(context, message));
       if (IMKitConfigCenter.getEnableCollectionMessage()) {
-        actions.add(getCollectionAction(message));
+        actions.add(getCollectionAction(context, message));
       }
       if (IMKitConfigCenter.getEnableTopMessage()
           && message.getMessageData().getMessage().getConversationType()
               == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_TEAM) {
-        actions.add(getTopStickyAction(message));
+        actions.add(getTopStickyAction(context, message));
+      }
+      if (IMKitConfigCenter.getEnableVoiceToText()
+          && message.getMessageData().getMessage().getMessageType()
+              == V2NIMMessageType.V2NIM_MESSAGE_TYPE_AUDIO
+          && TextUtils.isEmpty(message.getVoiceToText())) {
+        actions.add(getVoiceToTextAction(context, message));
       }
       addPluginTextActionIfNeed(actions, message);
     }
@@ -149,15 +155,16 @@ public class ChatPopActionFactory {
    * @param actions 弹窗操作列表
    * @param message 消息
    */
-  private void addCopyActionIfNeed(List<PluginAction> actions, ChatMessageBean message) {
+  private void addCopyActionIfNeed(
+      Context context, List<PluginAction> actions, ChatMessageBean message) {
     if (message.getViewType() == V2NIMMessageType.V2NIM_MESSAGE_TYPE_TEXT.getValue()
         && !TextUtils.isEmpty(message.getMessageData().getMessage().getText())) {
-      actions.add(getCopyAction(message.getMessageData().getMessage().getText()));
+      actions.add(getCopyAction(context, message.getMessageData().getMessage().getText()));
     }
     if (message.getViewType() == ChatMessageType.RICH_TEXT_ATTACHMENT) {
       RichTextAttachment attachment = (RichTextAttachment) message.getMessageData().getAttachment();
       if (attachment != null && !TextUtils.isEmpty(attachment.body)) {
-        actions.add(getCopyAction(attachment.body));
+        actions.add(getCopyAction(context, attachment.body));
       }
     }
   }
@@ -183,10 +190,10 @@ public class ChatPopActionFactory {
   }
 
   // 构建回复按钮
-  private PluginAction<ChatMessageBean> getReplyAction(ChatMessageBean message) {
+  private PluginAction<ChatMessageBean> getReplyAction(Context context, ChatMessageBean message) {
     return new PluginAction<>(
         ActionConstants.POP_ACTION_REPLY,
-        IMKitClient.getApplicationContext().getString(R.string.chat_message_action_reply),
+        context.getString(R.string.chat_message_action_reply),
         R.drawable.ic_message_reply,
         (view, messageInfo) -> {
           if (actionListener != null) {
@@ -196,10 +203,10 @@ public class ChatPopActionFactory {
         message);
   }
   // 构建复制按钮
-  private PluginAction<String> getCopyAction(String text) {
+  private PluginAction<String> getCopyAction(Context context, String text) {
     return new PluginAction<>(
         ActionConstants.POP_ACTION_COPY,
-        IMKitClient.getApplicationContext().getString(R.string.chat_message_action_copy),
+        context.getString(R.string.chat_message_action_copy),
         R.drawable.ic_message_copy,
         (view, messageInfo) -> {
           if (actionListener != null) {
@@ -209,10 +216,10 @@ public class ChatPopActionFactory {
         text);
   }
   // 构建撤回按钮
-  private PluginAction<ChatMessageBean> getRecallAction(ChatMessageBean message) {
+  private PluginAction<ChatMessageBean> getRecallAction(Context context, ChatMessageBean message) {
     return new PluginAction<>(
         ActionConstants.POP_ACTION_RECALL,
-        IMKitClient.getApplicationContext().getString(R.string.chat_message_action_recall),
+        context.getString(R.string.chat_message_action_recall),
         R.drawable.ic_message_recall,
         (view, messageInfo) -> {
           if (!NetworkUtils.isConnected()) {
@@ -225,13 +232,31 @@ public class ChatPopActionFactory {
         },
         message);
   }
+  // 构建语音转文字按钮
+  private PluginAction<ChatMessageBean> getVoiceToTextAction(
+      Context context, ChatMessageBean message) {
+    return new PluginAction<>(
+        ActionConstants.POP_ACTION_VOICE_TO_TEXT,
+        context.getString(R.string.chat_voice_to_text),
+        R.drawable.ic_voice_to_text,
+        (view, messageInfo) -> {
+          if (!NetworkUtils.isConnected()) {
+            ToastX.showShortToast(R.string.chat_network_error_tip);
+            return;
+          }
+          if (actionListener != null) {
+            actionListener.get().onTransferToText(messageInfo);
+          }
+        },
+        message);
+  }
   // 构建标记按钮
-  private PluginAction<ChatMessageBean> getPinAction(ChatMessageBean message) {
+  private PluginAction<ChatMessageBean> getPinAction(Context context, ChatMessageBean message) {
     return new PluginAction<>(
         ActionConstants.POP_ACTION_PIN,
         !TextUtils.isEmpty(message.getPinAccid())
-            ? IMKitClient.getApplicationContext().getString(R.string.chat_message_action_pin_cancel)
-            : IMKitClient.getApplicationContext().getString(R.string.chat_message_action_pin),
+            ? context.getString(R.string.chat_message_action_pin_cancel)
+            : context.getString(R.string.chat_message_action_pin),
         R.drawable.ic_message_sign,
         (view, messageInfo) -> {
           if (!NetworkUtils.isConnected()) {
@@ -247,10 +272,11 @@ public class ChatPopActionFactory {
         message);
   }
   // 构建多选按钮
-  private PluginAction<ChatMessageBean> getMultiSelectAction(ChatMessageBean message) {
+  private PluginAction<ChatMessageBean> getMultiSelectAction(
+      Context context, ChatMessageBean message) {
     return new PluginAction<>(
         ActionConstants.POP_ACTION_MULTI_SELECT,
-        IMKitClient.getApplicationContext().getString(R.string.chat_message_action_multi_select),
+        context.getString(R.string.chat_message_action_multi_select),
         R.drawable.ic_message_multi_select,
         (view, messageInfo) -> {
           if (actionListener != null) {
@@ -261,7 +287,8 @@ public class ChatPopActionFactory {
   }
 
   // 构建置顶按钮
-  private PluginAction<ChatMessageBean> getTopStickyAction(ChatMessageBean message) {
+  private PluginAction<ChatMessageBean> getTopStickyAction(
+      Context context, ChatMessageBean message) {
     boolean isAdd;
     if (ChatUserCache.getInstance().getTopMessage() != null) {
       isAdd = !ChatUserCache.getInstance().getTopMessage().equals(message.getMessageData());
@@ -271,9 +298,8 @@ public class ChatPopActionFactory {
     return new PluginAction<>(
         ActionConstants.POP_ACTION_TOP_STICK,
         isAdd
-            ? IMKitClient.getApplicationContext().getString(R.string.chat_message_action_top)
-            : IMKitClient.getApplicationContext()
-                .getString(R.string.chat_message_action_cancel_top),
+            ? context.getString(R.string.chat_message_action_top)
+            : context.getString(R.string.chat_message_action_cancel_top),
         isAdd ? R.drawable.ic_pop_top_sticky : R.drawable.ic_pop_untop_sticky,
         (view, messageInfo) -> {
           if (!NetworkUtils.isConnected()) {
@@ -288,10 +314,11 @@ public class ChatPopActionFactory {
   }
 
   // 构建收藏按钮
-  private PluginAction<ChatMessageBean> getCollectionAction(ChatMessageBean message) {
+  private PluginAction<ChatMessageBean> getCollectionAction(
+      Context context, ChatMessageBean message) {
     return new PluginAction<>(
         ActionConstants.POP_ACTION_COLLECTION,
-        IMKitClient.getApplicationContext().getString(R.string.chat_message_action_collection),
+        context.getString(R.string.chat_message_action_collection),
         R.drawable.ic_message_collection,
         (view, messageInfo) -> {
           if (!NetworkUtils.isConnected()) {
@@ -306,10 +333,10 @@ public class ChatPopActionFactory {
   }
 
   // 构建删除按钮
-  private PluginAction<ChatMessageBean> getDeleteAction(ChatMessageBean message) {
+  private PluginAction<ChatMessageBean> getDeleteAction(Context context, ChatMessageBean message) {
     return new PluginAction<>(
         ActionConstants.POP_ACTION_DELETE,
-        IMKitClient.getApplicationContext().getString(R.string.chat_message_action_delete),
+        context.getString(R.string.chat_message_action_delete),
         R.drawable.ic_message_delete,
         (view, messageInfo) -> {
           if (!NetworkUtils.isConnected()) {
@@ -324,10 +351,11 @@ public class ChatPopActionFactory {
   }
 
   // 构建转发按钮
-  private PluginAction<ChatMessageBean> getTransmitAction(ChatMessageBean message) {
+  private PluginAction<ChatMessageBean> getTransmitAction(
+      Context context, ChatMessageBean message) {
     return new PluginAction<>(
         ActionConstants.POP_ACTION_TRANSMIT,
-        IMKitClient.getApplicationContext().getString(R.string.chat_message_action_transmit),
+        context.getString(R.string.chat_message_action_transmit),
         R.drawable.ic_message_transmit,
         (view, messageInfo) -> {
           if (!NetworkUtils.isConnected()) {

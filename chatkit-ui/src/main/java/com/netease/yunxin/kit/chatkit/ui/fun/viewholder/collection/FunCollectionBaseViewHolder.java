@@ -16,10 +16,13 @@ import com.netease.yunxin.kit.chatkit.ui.databinding.FunCollectionBaseViewHolder
 import com.netease.yunxin.kit.chatkit.ui.interfaces.ChatBaseViewHolder;
 import com.netease.yunxin.kit.chatkit.ui.model.CollectionBean;
 import com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants;
+import com.netease.yunxin.kit.common.ui.utils.AppLanguageConfig;
 import com.netease.yunxin.kit.common.ui.utils.AvatarColor;
-import com.netease.yunxin.kit.common.ui.utils.TimeFormatUtils;
 import com.netease.yunxin.kit.common.utils.SizeUtils;
+import com.netease.yunxin.kit.corekit.im2.IMKitClient;
+import com.netease.yunxin.kit.corekit.im2.utils.TimeFormatLocalUtils;
 import java.util.List;
+import java.util.Locale;
 
 /** 消息收藏列表 基础ViewHolder 提供收藏消息的基础UI和点击事件以及数据绑定 */
 public abstract class FunCollectionBaseViewHolder extends ChatBaseViewHolder<CollectionBean> {
@@ -116,8 +119,11 @@ public abstract class FunCollectionBaseViewHolder extends ChatBaseViewHolder<Col
     long createTime =
         message.getCreateTime() == 0 ? System.currentTimeMillis() : message.getCreateTime();
     baseViewBinding.timeTv.setVisibility(View.VISIBLE);
+    Locale locale =
+        new Locale(
+            AppLanguageConfig.getInstance().getAppLanguage(IMKitClient.getApplicationContext()));
     baseViewBinding.timeTv.setText(
-        TimeFormatUtils.formatMillisecond(itemView.getContext(), createTime));
+        TimeFormatLocalUtils.formatMillisecond(itemView.getContext(), createTime, locale));
   }
 
   /** set click listener for ivStatus */

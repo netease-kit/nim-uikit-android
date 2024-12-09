@@ -18,7 +18,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewbinding.ViewBinding;
-import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
+import com.netease.yunxin.kit.common.ui.activities.BaseLocalActivity;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.common.ui.widgets.BackTitleBar;
 import com.netease.yunxin.kit.common.utils.NetworkUtils;
@@ -33,7 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public abstract class BaseContactSelectorActivity extends BaseActivity {
+public abstract class BaseContactSelectorActivity extends BaseLocalActivity {
 
   public static final int DEFAULT_MAX_SELECT_COUNT = 10;
 
@@ -90,7 +90,7 @@ public abstract class BaseContactSelectorActivity extends BaseActivity {
         IViewTypeConstant.CONTACT_FRIEND,
         (selector, data) -> {
           if (selector) {
-            if (selectedListAdapter.getItemCount() > maxSelectCount
+            if (selectedListAdapter.getItemCount() >= maxSelectCount
                 && !selectFinalCheckCountEnable) {
               Toast.makeText(
                       this,
@@ -146,6 +146,7 @@ public abstract class BaseContactSelectorActivity extends BaseActivity {
         .setOnBackIconClickListener(v -> onBackPressed())
         .setTitle(R.string.select)
         .setActionText(getString(R.string.selector_sure_without_num))
+        .setLeftText(R.string.fun_selector_close)
         .setActionTextColor(getResources().getColor(R.color.color_337eff))
         .setActionListener(
             v -> {

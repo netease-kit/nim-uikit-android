@@ -11,11 +11,14 @@ import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.chatkit.ui.databinding.FunChatSearchViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatSearchBean;
 import com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants;
+import com.netease.yunxin.kit.common.ui.utils.AppLanguageConfig;
 import com.netease.yunxin.kit.common.ui.utils.AvatarColor;
 import com.netease.yunxin.kit.common.ui.utils.EllipsizeUtils;
-import com.netease.yunxin.kit.common.ui.utils.TimeFormatUtils;
 import com.netease.yunxin.kit.common.ui.viewholder.BaseViewHolder;
+import com.netease.yunxin.kit.corekit.im2.IMKitClient;
+import com.netease.yunxin.kit.corekit.im2.utils.TimeFormatLocalUtils;
 import java.util.List;
+import java.util.Locale;
 
 public class FunSearchMessageViewHolder extends BaseViewHolder<ChatSearchBean> {
 
@@ -36,7 +39,7 @@ public class FunSearchMessageViewHolder extends BaseViewHolder<ChatSearchBean> {
       setUserInfo(data);
 
       EllipsizeUtils.ellipsizeAndHighlight(
-          viewBinding.messageTv,
+          viewBinding.tvMessage,
           data.getMessage().getText(),
           data.getKeyword(),
           viewBinding
@@ -47,8 +50,12 @@ public class FunSearchMessageViewHolder extends BaseViewHolder<ChatSearchBean> {
           true,
           true);
 
-      viewBinding.timeTv.setText(
-          TimeFormatUtils.formatMillisecond(viewBinding.getRoot().getContext(), data.getTime()));
+      Locale locale =
+          new Locale(
+              AppLanguageConfig.getInstance().getAppLanguage(IMKitClient.getApplicationContext()));
+      viewBinding.tvTime.setText(
+          TimeFormatLocalUtils.formatMillisecond(
+              viewBinding.getRoot().getContext(), data.getTime(), locale));
 
       viewBinding.getRoot().setOnClickListener(v -> itemListener.onClick(v, data, position));
     }
@@ -77,6 +84,6 @@ public class FunSearchMessageViewHolder extends BaseViewHolder<ChatSearchBean> {
         MessageHelper.getChatCacheAvatarName(
             data.getAccount(), data.getMessage().getConversationType());
     viewBinding.avatarView.setData(avatar, avatarName, AvatarColor.avatarColor(data.getAccount()));
-    viewBinding.nameTv.setText(name);
+    viewBinding.tvNickName.setText(name);
   }
 }

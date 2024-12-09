@@ -14,7 +14,7 @@ import android.widget.EditText;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 import com.netease.yunxin.kit.chatkit.utils.ErrorUtils;
-import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
+import com.netease.yunxin.kit.common.ui.activities.BaseLocalActivity;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.corekit.im2.IMKitClient;
@@ -29,7 +29,7 @@ import java.util.Objects;
  *
  * <p>
  */
-public abstract class BaseAddFriendActivity extends BaseActivity {
+public abstract class BaseAddFriendActivity extends BaseLocalActivity {
 
   protected AddFriendViewModel viewModel;
 

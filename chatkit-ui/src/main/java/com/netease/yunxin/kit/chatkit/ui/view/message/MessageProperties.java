@@ -43,6 +43,7 @@ public class MessageProperties {
   //文件图标格式对应图片
   public Map<String, Drawable> fileDrawable;
 
+  //发送文件的大小限制，单位MB，默认200MB
   public long sendFileLimit = ChatKitUIConstant.FILE_LIMIT;
 
   @Deprecated

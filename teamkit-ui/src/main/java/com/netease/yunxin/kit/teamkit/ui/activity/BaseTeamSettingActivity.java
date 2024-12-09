@@ -40,8 +40,9 @@ import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamType;
 import com.netease.nimlib.sdk.v2.team.model.V2NIMTeam;
 import com.netease.nimlib.sdk.v2.team.model.V2NIMTeamMember;
 import com.netease.yunxin.kit.alog.ALog;
+import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
 import com.netease.yunxin.kit.chatkit.model.TeamMemberWithUserInfo;
-import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
+import com.netease.yunxin.kit.common.ui.activities.BaseLocalActivity;
 import com.netease.yunxin.kit.common.ui.dialog.ChoiceListener;
 import com.netease.yunxin.kit.common.ui.dialog.CommonChoiceDialog;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
@@ -66,7 +67,7 @@ import java.util.List;
 import java.util.Objects;
 
 /** 群设置界面基类 子类需要实现{@link #initViewAndGetRootView(Bundle)}方法，返回界面的根布局 */
-public abstract class BaseTeamSettingActivity extends BaseActivity {
+public abstract class BaseTeamSettingActivity extends BaseLocalActivity {
 
   private static final String TAG = "BaseTeamSettingActivity";
   protected TeamSettingViewModel settingViewModel;
@@ -371,7 +372,9 @@ public abstract class BaseTeamSettingActivity extends BaseActivity {
 
   public void refreshTeamMemberList(List<TeamMemberWithUserInfo> memberList) {
     teamMemberInfoList = memberList;
-    Collections.sort(teamMemberInfoList, TeamUtils.teamSettingMemberComparator());
+    if (memberList.size() > 1) {
+      Collections.sort(teamMemberInfoList, TeamUtils.teamSettingMemberComparator());
+    }
     if (adapter != null) {
       adapter.setDataList(teamMemberInfoList);
     }
@@ -393,6 +396,11 @@ public abstract class BaseTeamSettingActivity extends BaseActivity {
     ivBack.setOnClickListener(v -> finish());
     ivIcon.setData(teamIcon, teamName, ColorUtils.avatarColor(teamId));
     tvName.setText(team.getName());
+    if (IMKitConfigCenter.getEnablePinMessage()) {
+      tvMark.setVisibility(View.VISIBLE);
+    } else {
+      tvMark.setVisibility(View.GONE);
+    }
     boolean hasPrivilegeToUpdateInfo = TeamUtils.hasUpdateTeamInfoPermission(team, teamMember);
     tvName.setOnClickListener(
         v -> {
@@ -564,6 +572,10 @@ public abstract class BaseTeamSettingActivity extends BaseActivity {
     swTeamMute.setChecked(
         teamInfo.getChatBannedMode() != V2NIMTeamChatBannedMode.V2NIM_TEAM_CHAT_BANNED_MODE_UNBAN);
 
+    //进群之后群成员信息还未返回，但是群信息变更也会刷新UI，此时需要判断群成员信息是否返回
+    if (teamMember == null) {
+      return;
+    }
     V2NIMTeamMemberRole type = teamMember.getMemberRole();
     if (type == V2NIMTeamMemberRole.V2NIM_TEAM_MEMBER_ROLE_OWNER) {
       initForOwner();

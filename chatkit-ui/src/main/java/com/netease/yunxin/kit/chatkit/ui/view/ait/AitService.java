@@ -14,6 +14,7 @@ import com.netease.nimlib.sdk.v2.auth.V2NIMLoginDetailListener;
 import com.netease.nimlib.sdk.v2.auth.enums.V2NIMConnectStatus;
 import com.netease.nimlib.sdk.v2.auth.enums.V2NIMDataSyncState;
 import com.netease.nimlib.sdk.v2.auth.enums.V2NIMDataSyncType;
+import com.netease.nimlib.sdk.v2.message.V2NIMMessageRefer;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
 import com.netease.yunxin.kit.chatkit.listener.ChatListener;
@@ -203,12 +204,21 @@ public class AitService {
             if (revokeNotifications == null || !IMKitConfigCenter.getEnableAtMessage()) {
               return;
             }
-            for (MessageRevokeNotification notification : revokeNotifications) {
-              if (notification.getMessage() != null && mContext != null) {
-                List<IMMessageInfo> msgList = new ArrayList<>();
-                msgList.add(new IMMessageInfo(notification.getMessage()));
-                removeAitInfo(parseMessage(msgList));
+            if (mContext != null) {
+              Map<String, AitInfo> clearInfo = new HashMap<>();
+              for (MessageRevokeNotification notification : revokeNotifications) {
+                V2NIMMessageRefer msgRefer = notification.getNimNotification().getMessageRefer();
+                if (clearInfo.containsKey(msgRefer.getConversationId())) {
+                  clearInfo
+                      .get(msgRefer.getConversationId())
+                      .addMsgUid(msgRefer.getMessageClientId());
+                } else {
+                  AitInfo aitInfo = new AitInfo();
+                  aitInfo.addMsgUid(msgRefer.getMessageClientId());
+                  clearInfo.put(msgRefer.getConversationId(), aitInfo);
+                }
               }
+              removeAitInfo(clearInfo);
             }
           }
         };
@@ -308,7 +318,7 @@ public class AitService {
       if (aitInfoMapCache.containsKey(conversationId)) {
         AitInfo cacheAitInfo = aitInfoMapCache.get(conversationId);
         if (cacheAitInfo != null) {
-          cacheAitInfo.removeMsgUid(newAitInfo.getMsgUidList());
+          boolean hasRemove = cacheAitInfo.removeMsgUid(newAitInfo.getMsgUidList());
           ALog.d(
               ChatKitUIConstant.LIB_TAG,
               TAG,
@@ -317,20 +327,25 @@ public class AitService {
             deleteList.add(cacheAitInfo);
             notifyDelete.add(cacheAitInfo);
             aitInfoMapCache.remove(conversationId);
-          } else {
+          } else if (hasRemove) {
             updateList.add(cacheAitInfo);
           }
         }
-      } else {
-        deleteList.add(newAitInfo);
-        notifyDelete.add(newAitInfo);
       }
+      //      else {
+      //        deleteList.add(newAitInfo);
+      //        notifyDelete.add(newAitInfo);
+      //      }
     }
     if (notifyDelete.size() > 0) {
       sendAitEvent(notifyDelete, AitEvent.AitEventType.Clear);
     }
-    CoroutineUtils.runIO(updateCoroutine);
-    CoroutineUtils.runIO(deleteCoroutine);
+    if (updateList.size() > 0) {
+      CoroutineUtils.runIO(updateCoroutine);
+    }
+    if (deleteList.size() > 0) {
+      CoroutineUtils.runIO(deleteCoroutine);
+    }
   }
 
   // 删除本地数据库中@信息

@@ -14,7 +14,7 @@ import android.view.View;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 import com.netease.yunxin.kit.alog.ALog;
-import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
+import com.netease.yunxin.kit.common.ui.activities.BaseLocalActivity;
 import com.netease.yunxin.kit.common.ui.viewholder.BaseBean;
 import com.netease.yunxin.kit.common.ui.viewholder.ViewHolderClickListener;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
@@ -29,7 +29,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 
 /** conversation select activity to select a conversation */
-public class ConversationSelectActivity extends BaseActivity implements ILoadListener {
+public class ConversationSelectActivity extends BaseLocalActivity implements ILoadListener {
   private final String TAG = "ConversationSelectActivity";
   private ConversationSelectActivityBinding viewBinding;
   private SelectorViewModel viewModel;

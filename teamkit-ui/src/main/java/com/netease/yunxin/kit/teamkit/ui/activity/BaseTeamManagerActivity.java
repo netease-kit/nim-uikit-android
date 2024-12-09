@@ -25,7 +25,7 @@ import com.netease.nimlib.sdk.v2.team.model.V2NIMTeam;
 import com.netease.nimlib.sdk.v2.team.model.V2NIMTeamMember;
 import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
 import com.netease.yunxin.kit.chatkit.model.TeamWithCurrentMember;
-import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
+import com.netease.yunxin.kit.common.ui.activities.BaseLocalActivity;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.corekit.im2.IMKitClient;
 import com.netease.yunxin.kit.teamkit.ui.R;
@@ -37,7 +37,7 @@ import java.util.List;
 import java.util.Objects;
 
 /** 群管理页面基类 , 包含修改编辑权限、邀请权限、@所有人权限以及管理员管理入口 子类需要重写initViewAndGetRootView方法，返回对应的View */
-public abstract class BaseTeamManagerActivity extends BaseActivity {
+public abstract class BaseTeamManagerActivity extends BaseLocalActivity {
   protected TeamManagerViewModel viewModel;
 
   protected String teamId;

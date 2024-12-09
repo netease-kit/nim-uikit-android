@@ -8,9 +8,11 @@
     <string name="app_name">Netease IM</string>
     <string name="yunxin_name">Netease CommsEase</string>
     <string name="yunxin_desc">Stable instant messaging service</string>
+    <string name="yunxin_tips">For test only. Beware of money transfer, lottery winnings strange call scams.</string>
 
     <string name="welcome_button">register/login</string>
     <string name="email_login">Email Login</string>
+    <string name="login_text">Login</string>
     <string name="server_config">Select Node</string>
     <string name="tab_session_tab_text">Chats</string>
     <string name="tab_contact_tab_text">Contacts</string>
@@ -43,10 +45,11 @@
     <string name="mine_collect">Favorites</string>
     <string name="mine_about">About CommSEase</string>
     <string name="mine_setting">Settings</string>
+    <string name="setting_server_config">Server config</string>
+    <string name="setting_kit_config">Ability config</string>
     <string name="mine_version">Version</string>
     <string name="mine_im_version">NIM Version</string>
     <string name="mine_product">introduce</string>
-
     <!-- setting -->
     <string name="setting_notify">Notification</string>
     <string name="setting_clear_cache">Clear Cache</string>
@@ -54,6 +57,7 @@
     <string name="setting_filter_notify">Filter notifications</string>
     <string name="setting_friend_delete_mode">Delete Remark</string>
     <string name="setting_message_read_mode">Read/Unread</string>
+    <string name="setting_save">Save</string>
 
     <!-- notify setting-->
     <string name="setting_notify_info">New Message Notification</string>
@@ -66,6 +70,9 @@
     <string name="setting_notify_push_detail">Message Notification Banner</string>
     <string name="setting_complete">Done</string>
     <string name="setting_skin">Skin</string>
+    <string name="setting_language">Language</string>
+    <string name="setting_chinese">中文</string>
+    <string name="setting_english">English</string>
 
     <!-- clear cache -->
     <string name="clear_message">Clear message history</string>
@@ -87,8 +94,41 @@
     <string name="user_fail">Failed</string>
     <string name="imkit_email_fail">The email format is incorrect. Please check.</string>
     <string name="network_error">No internet</string>
+    <string name="anti_error">Unsafe content detected. Please rephrase.</string>
 
     <!--    skin-->
     <string name="base_type">Base Skin</string>
     <string name="common_skin">Common Skin</string>
+
+    <!-- server config -->
+    <string name="server_config_title">Server config</string>
+    <string name="server_config_siwtch_content">Open config</string>
+    <string name="server_config_param_title">Server config param</string>
+    <string name="server_config_param_type">Config Type</string>
+    <string name="server_config_param_type_desc">manual input</string>
+    <string name="server_config_param_type_parse_desc">automatic translation</string>
+    <string name="server_config_param_link_title">Server Link Address</string>
+    <string name="server_config_param_app_key_title">NIM APP Key</string>
+    <string name="server_config_param_parse_desc">Server Config</string>
+    <string name="server_config_param_lbs_title">LBS Server Address</string>
+    <string name="server_config_param_nos_title">NOS UpLoad LBS Address</string>
+    <string name="server_config_param_nos_link_title">NOS UpLoad LBS Link Address</string>
+    <string name="server_config_param_nos_upload_title">NOS UpLoad Server Address</string>
+    <string name="server_config_param_nos_download_title">NOS Download Address</string>
+    <string name="server_config_param_module_title">connect server param 1</string>
+    <string name="server_config_param_save">Save</string>
+
+    <!-- login -->
+    <string name="uikit_account_login_page_title">Login</string>
+    <string name="uikit_account_login_hint">Account</string>
+    <string name="uikit_token_login_hint">token</string>
+
+    <!-- uikit config -->
+    <string name="uikit_function_title">UIKit Config</string>
+    <string name="uikit_team_switch_title">Team</string>
+    <string name="uikit_collect_switch_title">Collect Message</string>
+    <string name="uikit_pin_switch_title">Pin Message</string>
+    <string name="uikit_stick_top_switch_title">Stick top message</string>
+    <string name="uikit_online_switch_title">Message Typing Status</string>
+    <string name="uikit_call_switch_title">Prohibit strangers from making calls</string>
 </resources>

@@ -7,6 +7,7 @@ package com.netease.yunxin.kit.chatkit.ui.view.popmenu;
 import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -90,9 +91,9 @@ public class ChatPopMenu {
    * @param isSelf 是否是自己
    * @param minY 最小Y值
    */
-  public void show(View anchorView, String text, boolean isSelf, int minY) {
+  public void show(Context context, View anchorView, String text, boolean isSelf, int minY) {
     ALog.d(LIB_TAG, TAG, "show text");
-    initStringAction(text);
+    initStringAction(context, text);
     if (chatPopMenuActionList.size() < 1) {
       return;
     }
@@ -106,9 +107,9 @@ public class ChatPopMenu {
    * @param message 消息
    * @param minY 最小Y值
    */
-  public void show(View anchorView, ChatMessageBean message, int minY) {
+  public void show(Context context, View anchorView, ChatMessageBean message, int minY) {
     ALog.d(LIB_TAG, TAG, "show message");
-    initDefaultAction(message);
+    initDefaultAction(context, message);
     if (chatPopMenuActionList.size() < 1) {
       return;
     }
@@ -174,9 +175,10 @@ public class ChatPopMenu {
   }
 
   @SuppressLint("NotifyDataSetChanged")
-  private void initDefaultAction(ChatMessageBean message) {
+  private void initDefaultAction(Context context, ChatMessageBean message) {
     chatPopMenuActionList.clear();
-    chatPopMenuActionList.addAll(ChatPopActionFactory.getInstance().getMessageActions(message));
+    chatPopMenuActionList.addAll(
+        ChatPopActionFactory.getInstance().getMessageActions(context, message));
     adapter.notifyDataSetChanged();
   }
 
@@ -185,9 +187,9 @@ public class ChatPopMenu {
    *
    * @param text 选中文本
    */
-  private void initStringAction(String text) {
+  private void initStringAction(Context context, String text) {
     chatPopMenuActionList.clear();
-    chatPopMenuActionList.addAll(ChatPopActionFactory.getInstance().getTextActions(text));
+    chatPopMenuActionList.addAll(ChatPopActionFactory.getInstance().getTextActions(context, text));
     adapter.notifyDataSetChanged();
   }
 
@@ -210,7 +212,12 @@ public class ChatPopMenu {
     @Override
     public void onBindViewHolder(@NonNull MenuAdapter.MenuItemViewHolder holder, int position) {
       PluginAction chatPopMenuAction = getChatPopMenuAction(position);
-      holder.title.setText(chatPopMenuAction.getTitle());
+      if (chatPopMenuAction.getTitleRes() != 0) {
+        holder.title.setText(
+            IMKitClient.getApplicationContext().getString(chatPopMenuAction.getTitleRes()));
+      } else {
+        holder.title.setText(chatPopMenuAction.getTitle());
+      }
       Drawable drawable =
           ResourcesCompat.getDrawable(
               IMKitClient.getApplicationContext().getResources(),

@@ -5,8 +5,10 @@
 package com.netease.yunxin.app.im;
 
 import android.app.Activity;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.text.TextUtils;
+import androidx.annotation.NonNull;
 import androidx.multidex.MultiDexApplication;
 import com.heytap.msp.push.HeytapPushManager;
 import com.huawei.hms.support.common.ActivityMgr;
@@ -20,6 +22,7 @@ import com.netease.yunxin.app.im.utils.DataUtils;
 import com.netease.yunxin.app.im.welcome.WelcomeActivity;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.repo.SettingRepo;
+import com.netease.yunxin.kit.common.ui.utils.AppLanguageConfig;
 import com.netease.yunxin.kit.corekit.im2.IMKitClient;
 import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
@@ -29,6 +32,7 @@ import com.vivo.push.PushClient;
 import com.vivo.push.util.VivoPushException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /** IM application 包含IM UIKit(IM SDK)的初始化，crash异常捕获等 */
 public class IMApplication extends MultiDexApplication {
@@ -54,11 +58,18 @@ public class IMApplication extends MultiDexApplication {
     XKitRouter.registerRouter(RouterConstant.PATH_MINE_INFO_PAGE, MineInfoActivity.class);
   }
 
+  @Override
+  public void onConfigurationChanged(@NonNull Configuration newConfig) {
+    super.onConfigurationChanged(newConfig);
+  }
+
   private void initUIKit() {
     // 设置IM SDK的配置项，包括AppKey，推送配置和一些全局配置等
-    SDKOptions options = NimSDKOptionConfig.getSDKOptions(this, DataUtils.readAppKey(this));
+    SDKOptions options = NimSDKOptionConfig.getSDKOptions(this);
     // 初始化IM UIKit，初始化Kit层和IM SDK，将配置信息透传给IM SDK。无需再次初始化IM SDK
-    IMKitClient.init(this, options);
+    //设置语言
+    String localeStr = AppLanguageConfig.getInstance().getAppLanguage(this);
+    IMKitClient.init(this, options, new Locale(localeStr));
     ALog.d(Constant.PROJECT_TAG, TAG, "initUIKit");
 
     // 如果是主进程，初始化地图组件，推送组件，crash组件

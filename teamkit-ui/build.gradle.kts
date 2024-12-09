@@ -10,7 +10,7 @@ plugins {
 }
 
 android {
-    compileSdk = 33
+    compileSdk = 34
     namespace = "com.netease.yunxin.kit.teamkit.ui"
 
     defaultConfig {
@@ -33,8 +33,8 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     sourceSets["main"].res.srcDirs("src/main/res","src/main/res-fun","src/main/res-normal")
@@ -43,12 +43,12 @@ android {
 dependencies {
     // imuikit 底层库
     implementation(project(":chatkit-ui"))
-    api("com.netease.yunxin.kit.common:common-ui:1.3.8")
+    api("com.netease.yunxin.kit.common:common-ui:1.3.9")
 
-    api("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.21")
-    implementation("androidx.appcompat:appcompat:1.4.2")
-    implementation("com.google.android.material:material:1.5.0")
-    implementation("androidx.recyclerview:recyclerview:1.2.1")
+    api("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.22")
+    implementation("androidx.appcompat:appcompat:1.6.1")
+    implementation("com.google.android.material:material:1.11.0")
+    implementation("androidx.recyclerview:recyclerview:1.3.2")
     implementation("com.github.bumptech.glide:glide:4.13.1")
 
 }

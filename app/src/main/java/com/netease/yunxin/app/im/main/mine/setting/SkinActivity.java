@@ -10,16 +10,16 @@ import com.netease.yunxin.app.im.AppSkinConfig;
 import com.netease.yunxin.app.im.R;
 import com.netease.yunxin.app.im.databinding.ActivitySkinSettingBinding;
 import com.netease.yunxin.app.im.main.MainActivity;
-import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
+import com.netease.yunxin.kit.common.ui.activities.BaseLocalActivity;
 import com.netease.yunxin.kit.corekit.event.EventCenter;
 
-public class SkinActivity extends BaseActivity {
+public class SkinActivity extends BaseLocalActivity {
 
   private ActivitySkinSettingBinding viewBinding;
 
   @Override
   protected void onCreate(@Nullable Bundle savedInstanceState) {
-    changeStatusBarColor(R.color.fun_page_bg_color);
+    changeStatusBarColor(R.color.color_ededed);
     super.onCreate(savedInstanceState);
     viewBinding = ActivitySkinSettingBinding.inflate(getLayoutInflater());
     setContentView(viewBinding.getRoot());

@@ -8,12 +8,18 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.text.TextUtils;
+import com.netease.yunxin.app.im.main.SettingKitConfig;
 
 public class DataUtils {
 
   private static String appKey = null;
   private static String aMapServerKey = null;
-  private static int serverConfig = -1;
+  private static int serverConfigType = -1;
+  private static String serverConfig = null;
+  private static Boolean serverConfigSwitch = null;
+
+  private static SettingKitConfig kitConfig = null;
 
   /** read appKey from manifest */
   public static String readAppKey(Context context) {
@@ -68,17 +74,71 @@ public class DataUtils {
     return aMapServerKey;
   }
 
+  // 获取是否采用海外节点配置
   public static int getServerConfigType(Context context) {
-    if (serverConfig < 0) {
-      serverConfig = getConfigShared(context).getInt(Constant.SERVER_CONFIG, Constant.CHINA_CONFIG);
+    if (serverConfigType < 0) {
+      serverConfigType =
+          getConfigShared(context).getInt(Constant.SERVER_CONFIG, Constant.CHINA_CONFIG);
+    }
+    return serverConfigType;
+  }
+
+  // 获取私有化配置开关
+  public static boolean getServerPrivateConfigSwitch(Context context) {
+    if (serverConfigSwitch == null) {
+      SharedPreferences sharedPreferences =
+          context.getSharedPreferences(
+              Constant.SERVER_PRIVATE_CONFIG_SWITCH_FILE, Context.MODE_MULTI_PROCESS);
+      serverConfigSwitch = sharedPreferences.getBoolean(Constant.SERVER_CONFIG_SWITCH_PARAM, false);
+    }
+    return serverConfigSwitch;
+  }
+
+  // 保存私有化配置开关
+  public static void saveServerPrivateConfigSwitch(Context context, boolean configSwitch) {
+    SharedPreferences.Editor editor =
+        context
+            .getSharedPreferences(
+                Constant.SERVER_PRIVATE_CONFIG_SWITCH_FILE, Context.MODE_MULTI_PROCESS)
+            .edit();
+    editor.putBoolean(Constant.SERVER_CONFIG_SWITCH_PARAM, configSwitch);
+    serverConfigSwitch = configSwitch;
+    editor.commit();
+  }
+
+  // 获取私有化配置内容
+  public static String getServerConfig(Context context) {
+    if (TextUtils.isEmpty(serverConfig)) {
+      SharedPreferences sharedPreferences =
+          context.getSharedPreferences(
+              Constant.SERVER_PRIVATE_CONFIG_FILE, Context.MODE_MULTI_PROCESS);
+      serverConfig = sharedPreferences.getString(Constant.SERVER_CONFIG_PARAM, "");
     }
     return serverConfig;
+  }
+
+  // 保存私有化配置
+  public static void saveServerConfig(Context context, String content) {
+    SharedPreferences.Editor editor =
+        context
+            .getSharedPreferences(Constant.SERVER_PRIVATE_CONFIG_FILE, Context.MODE_MULTI_PROCESS)
+            .edit();
+    editor.putString(Constant.SERVER_CONFIG_PARAM, content);
+    serverConfig = content;
+    editor.commit();
   }
 
   public static SharedPreferences getConfigShared(Context context) {
     SharedPreferences sharedPreferences =
         context.getSharedPreferences(Constant.SERVER_CONFIG_FILE, Context.MODE_MULTI_PROCESS);
     return sharedPreferences;
+  }
+
+  public static SettingKitConfig getSettingKitConfig() {
+    if (kitConfig == null) {
+      kitConfig = new SettingKitConfig();
+    }
+    return kitConfig;
   }
 
   public static float getSizeToM(long size) {

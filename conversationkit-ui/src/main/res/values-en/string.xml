@@ -8,31 +8,31 @@
     <string name="conversation_title">CommsEase IM</string>
     <string name="add_friend">Add Contacts</string> 
     <string name="create_group_team">Create Temp Group</string>
-    <string name="create_advanced_team"> Create Group</string>
-    <string name="create_advanced_team_success">Create group successfully</string> 
+    <string name="create_advanced_team">Create Group</string>
+    <string name="create_advanced_team_success">Group is created</string>
 
     <string name="stick_title">Sticky on Top</string> 
     <string name="cancel_stick_title">Unpin</string>
-    <string name="delete_title">Delete this chat</string>
-    <string name="recent_title">Last chat</string> 
+    <string name="delete_title">Delete the chat</string>
+    <string name="recent_title">Latest chat </string>
     <string name="cancel_title">Cancel </string> 
     <string name="sure_title">Yes</string> 
     <string name="sure_count_title">Yes(%d)</string> 
 
-    <string name="conversation_network_error_tip">No Internet</string>
+    <string name="conversation_network_error_tip">No Network</string>
     <string name="conversation_empty_tip">No Chat</string>
-    <string name="conversation_ait_tip">[You were mentioned]</string>
+    <string name="conversation_ait_tip">[You\'re mentioned]</string>
 
     <!-- message type-->
-    <string name="msg_type_location">[Location Message]</string>
+    <string name="msg_type_location">[Location]</string>
     <string name="msg_type_rtc_video">[Video Call]</string>
     <string name="msg_type_rtc_audio">[Audio Call]</string>
-    <string name="msg_type_image">[Photo Message]</string>
-    <string name="msg_type_audio">[Voice Message]</string>
-    <string name="msg_type_video">[Video Message]</string>
-    <string name="msg_type_file">[File Message]</string>
-    <string name="msg_type_notification">[Notification Message]</string>
-    <string name="msg_type_tip">[Tip Message]</string>
+    <string name="msg_type_image">[Photo]</string>
+    <string name="msg_type_audio">[Audio]</string>
+    <string name="msg_type_video">[Video]</string>
+    <string name="msg_type_file">[File]</string>
+    <string name="msg_type_notification">[Notification]</string>
+    <string name="msg_type_tip">[Reminder]</string>
     <string name="msg_type_custom">[Custom Message]</string>
     <string name="msg_type_no_tips">[Unknown Message]</string>
     <string name="msg_type_revoke_tips">Message Recalled</string>

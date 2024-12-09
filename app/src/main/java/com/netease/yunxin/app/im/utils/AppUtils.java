@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.text.TextUtils;
+import com.netease.yunxin.app.im.BuildConfig;
 
 public class AppUtils {
 

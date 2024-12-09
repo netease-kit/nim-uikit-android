@@ -48,18 +48,18 @@ public class FunContactBottomConfirmDialog extends Dialog {
   /** render page */
   private void renderRootView() {
     binding = FunContactBottomConfirmDialogBinding.inflate(getLayoutInflater());
-    binding.tvDelete.setOnClickListener(
+    binding.tvPositive.setOnClickListener(
         v -> {
           if (confirmRunnable != null) {
             confirmRunnable.run();
           }
           dismiss();
         });
-    binding.tvCancel.setOnClickListener(v -> dismiss());
+    binding.tvNegative.setOnClickListener(v -> dismiss());
   }
 
   public FunContactBottomConfirmDialog configTip(String tip) {
-    binding.tvTip.setText(tip);
+    binding.tvTitle.setText(tip);
     return this;
   }
 

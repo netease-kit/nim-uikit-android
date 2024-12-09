@@ -14,13 +14,13 @@
 
 
     <TextView
-        android:id="@+id/tvTip"
+        android:id="@+id/tv_title"
         android:layout_width="0dp"
         android:layout_height="51dp"
         android:gravity="center"
         android:textColor="@color/color_8f8f8f"
         android:textSize="13dp"
-        app:layout_constraintBottom_toTopOf="@+id/tvDelete"
+        app:layout_constraintBottom_toTopOf="@+id/tv_positive"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         tools:ignore="SpUsage" />
@@ -29,10 +29,10 @@
         android:layout_width="match_parent"
         android:layout_height="0.5dp"
         android:background="@color/color_ededed"
-        app:layout_constraintTop_toBottomOf="@id/tvTip" />
+        app:layout_constraintTop_toBottomOf="@id/tv_title" />
 
     <TextView
-        android:id="@+id/tvDelete"
+        android:id="@+id/tv_positive"
         android:layout_width="0dp"
         android:layout_height="51dp"
         android:layout_marginBottom="12dp"
@@ -40,7 +40,7 @@
         android:text="@string/delete_friend"
         android:textColor="@color/color_e6605c"
         android:textSize="16dp"
-        app:layout_constraintBottom_toTopOf="@id/tvCancel"
+        app:layout_constraintBottom_toTopOf="@id/tv_negative"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         tools:ignore="SpUsage" />
@@ -49,10 +49,10 @@
         android:layout_width="match_parent"
         android:layout_height="6dp"
         android:background="@color/color_f7f7f7"
-        app:layout_constraintTop_toBottomOf="@id/tvDelete" />
+        app:layout_constraintTop_toBottomOf="@id/tv_positive" />
 
     <TextView
-        android:id="@+id/tvCancel"
+        android:id="@+id/tv_negative"
         android:layout_width="0dp"
         android:layout_height="42dp"
         android:gravity="center"

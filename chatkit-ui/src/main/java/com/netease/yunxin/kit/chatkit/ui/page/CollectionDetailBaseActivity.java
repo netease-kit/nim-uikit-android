@@ -23,14 +23,14 @@ import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.model.CollectionBean;
 import com.netease.yunxin.kit.chatkit.ui.page.viewmodel.ChatForwardMsgViewModel;
 import com.netease.yunxin.kit.chatkit.ui.view.message.adapter.ChatMessageAdapter;
-import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
+import com.netease.yunxin.kit.common.ui.activities.BaseLocalActivity;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.corekit.im2.model.IMMessageProgress;
 import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 import java.util.ArrayList;
 
-public class CollectionDetailBaseActivity extends BaseActivity {
+public class CollectionDetailBaseActivity extends BaseLocalActivity {
 
   protected ChatForwardBaseActBinding viewBinding;
 

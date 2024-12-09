@@ -8,7 +8,7 @@ import android.graphics.drawable.Drawable;
 import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.core.content.res.ResourcesCompat;
-import com.netease.yunxin.kit.common.ui.utils.TimeFormatUtils;
+import com.netease.yunxin.kit.common.ui.utils.AppLanguageConfig;
 import com.netease.yunxin.kit.common.ui.viewholder.BaseViewHolder;
 import com.netease.yunxin.kit.conversationkit.ui.ConversationKitClient;
 import com.netease.yunxin.kit.conversationkit.ui.ConversationUIConfig;
@@ -16,6 +16,9 @@ import com.netease.yunxin.kit.conversationkit.ui.R;
 import com.netease.yunxin.kit.conversationkit.ui.common.ConversationUtils;
 import com.netease.yunxin.kit.conversationkit.ui.databinding.ConversationViewHolderBinding;
 import com.netease.yunxin.kit.conversationkit.ui.model.ConversationBean;
+import com.netease.yunxin.kit.corekit.im2.IMKitClient;
+import com.netease.yunxin.kit.corekit.im2.utils.TimeFormatLocalUtils;
+import java.util.Locale;
 
 /** 普通版会话列表基础ViewHolder 加载会话列表的基础UI，包括头像、名称、消息内容、时间、未读数、置顶状态等 */
 public class ConversationBaseViewHolder extends BaseViewHolder<ConversationBean> {
@@ -43,9 +46,12 @@ public class ConversationBaseViewHolder extends BaseViewHolder<ConversationBean>
 
     viewBinding.messageTv.setText(
         ConversationUtils.getConversationText(viewBinding.getRoot().getContext(), data.infoData));
+    Locale locale =
+        new Locale(
+            AppLanguageConfig.getInstance().getAppLanguage(IMKitClient.getApplicationContext()));
     viewBinding.timeTv.setText(
-        TimeFormatUtils.formatMillisecond(
-            viewBinding.getRoot().getContext(), data.getLastMsgTime()));
+        TimeFormatLocalUtils.formatMillisecond(
+            viewBinding.getRoot().getContext(), data.getLastMsgTime(), locale));
 
     if (data.infoData.isMute()) {
       viewBinding.muteIv.setVisibility(View.VISIBLE);

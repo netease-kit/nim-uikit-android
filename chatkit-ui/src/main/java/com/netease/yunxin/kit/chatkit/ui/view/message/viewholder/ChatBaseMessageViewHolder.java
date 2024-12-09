@@ -30,13 +30,15 @@ import com.netease.yunxin.kit.chatkit.ui.view.message.viewholder.options.Message
 import com.netease.yunxin.kit.chatkit.ui.view.message.viewholder.options.SignalUIOption;
 import com.netease.yunxin.kit.chatkit.ui.view.message.viewholder.options.UserInfoUIOption;
 import com.netease.yunxin.kit.chatkit.utils.MessageExtensionHelper;
+import com.netease.yunxin.kit.common.ui.utils.AppLanguageConfig;
 import com.netease.yunxin.kit.common.ui.utils.AvatarColor;
-import com.netease.yunxin.kit.common.ui.utils.TimeFormatUtils;
 import com.netease.yunxin.kit.common.utils.SizeUtils;
 import com.netease.yunxin.kit.corekit.im2.IMKitClient;
 import com.netease.yunxin.kit.corekit.im2.model.V2UserInfo;
 import com.netease.yunxin.kit.corekit.im2.provider.V2MessageProvider;
+import com.netease.yunxin.kit.corekit.im2.utils.TimeFormatLocalUtils;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /** base message view holder for chat message item */
@@ -125,6 +127,8 @@ public abstract class ChatBaseMessageViewHolder extends CommonBaseMessageViewHol
           setReplyInfo(message);
         } else if (TextUtils.equals(payloadItem, ActionConstants.PAYLOAD_SELECT_STATUS)) {
           setSelectStatus(message);
+        } else if (TextUtils.equals(payloadItem, ActionConstants.PAYLOAD_VOICE_TO_TEXT)) {
+          setVoiceToText(message);
         }
         onCommonViewVisibleConfig(message);
         onMessageBackgroundConfig(message);
@@ -520,6 +524,13 @@ public abstract class ChatBaseMessageViewHolder extends CommonBaseMessageViewHol
   }
 
   /**
+   * 语音转文字
+   *
+   * @param message 消息
+   */
+  protected void setVoiceToText(ChatMessageBean message) {}
+
+  /**
    * 设置消息展示的时间以及展示时间的间隔控制
    *
    * @param message 当前待展示的消息体
@@ -549,7 +560,12 @@ public abstract class ChatBaseMessageViewHolder extends CommonBaseMessageViewHol
         baseViewBinding.tvTime.setText(String.format(commonUIOption.timeFormat, createTime));
       } else {
         baseViewBinding.tvTime.setText(
-            TimeFormatUtils.formatMillisecond(itemView.getContext(), createTime));
+            TimeFormatLocalUtils.formatMillisecond(
+                itemView.getContext(),
+                createTime,
+                new Locale(
+                    AppLanguageConfig.getInstance()
+                        .getAppLanguage(IMKitClient.getApplicationContext()))));
       }
       // 自定义设置时间文本颜色
       if (commonUIOption.timeColor != null) {

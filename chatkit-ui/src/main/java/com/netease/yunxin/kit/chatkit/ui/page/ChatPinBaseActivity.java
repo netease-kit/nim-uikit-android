@@ -37,7 +37,7 @@ import com.netease.yunxin.kit.chatkit.ui.page.viewmodel.ChatPinViewModel;
 import com.netease.yunxin.kit.chatkit.ui.view.message.audio.ChatMessageAudioControl;
 import com.netease.yunxin.kit.chatkit.utils.ChatKitConstant;
 import com.netease.yunxin.kit.common.ui.action.ActionItem;
-import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
+import com.netease.yunxin.kit.common.ui.activities.BaseLocalActivity;
 import com.netease.yunxin.kit.common.ui.dialog.BaseBottomChoiceDialog;
 import com.netease.yunxin.kit.common.ui.dialog.BottomChoiceDialog;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
@@ -48,7 +48,7 @@ import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 import java.util.ArrayList;
 
-public abstract class ChatPinBaseActivity extends BaseActivity {
+public abstract class ChatPinBaseActivity extends BaseLocalActivity {
 
   public static final String TAG = "ChatPinBaseActivity";
   protected ChatPinActivityBinding viewBinding;

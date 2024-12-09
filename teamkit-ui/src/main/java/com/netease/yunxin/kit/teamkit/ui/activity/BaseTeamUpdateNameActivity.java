@@ -26,13 +26,13 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamType;
-import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
+import com.netease.yunxin.kit.common.ui.activities.BaseLocalActivity;
 import com.netease.yunxin.kit.teamkit.ui.R;
 import com.netease.yunxin.kit.teamkit.ui.viewmodel.TeamSettingViewModel;
 import java.util.Objects;
 
 /** 群名称修改界面基类 子类需要实现{@link #initViewAndGetRootView(Bundle)}方法，返回界面的根布局 */
-public abstract class BaseTeamUpdateNameActivity extends BaseActivity {
+public abstract class BaseTeamUpdateNameActivity extends BaseLocalActivity {
   protected static final String MAX_COUNT_STR = "/30";
   protected TeamSettingViewModel viewModel;
   protected boolean canUpdate = false;

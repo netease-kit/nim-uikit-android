@@ -164,13 +164,13 @@ public class MessageBottomLayout extends FrameLayout
         new IEmojiSelectedListener() {
           @Override
           public void onEmojiSelected(String key) {
-            Editable mEditable = mBinding.inputEt.getText();
+            Editable mEditable = mBinding.chatMessageInputEt.getText();
             if (key.equals("/DEL")) {
-              mBinding.inputEt.dispatchKeyEvent(
+              mBinding.chatMessageInputEt.dispatchKeyEvent(
                   new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL));
             } else {
-              int start = mBinding.inputEt.getSelectionStart();
-              int end = mBinding.inputEt.getSelectionEnd();
+              int start = mBinding.chatMessageInputEt.getSelectionStart();
+              int end = mBinding.chatMessageInputEt.getSelectionEnd();
               start = Math.max(start, 0);
               mEditable.replace(start, end, key);
             }
@@ -225,9 +225,10 @@ public class MessageBottomLayout extends FrameLayout
         };
     mEditHintText = getContext().getResources().getString(R.string.fun_chat_input_hint_tips);
     mBinding.replyLayout.setVisibility(GONE);
-    mBinding.inputEt.setOnFocusChangeListener(
+    mBinding.chatMessageInputEt.setOnFocusChangeListener(
         (v, hasFocus) ->
-            mProxy.onTypeStateChange(!TextUtils.isEmpty(mBinding.inputEt.getText()) && hasFocus));
+            mProxy.onTypeStateChange(
+                !TextUtils.isEmpty(mBinding.chatMessageInputEt.getText()) && hasFocus));
   }
 
   public FunChatMessageBottomViewBinding getViewBinding() {
@@ -236,7 +237,7 @@ public class MessageBottomLayout extends FrameLayout
 
   // 获取输入框
   public EditText getInputEditText() {
-    return mBinding.inputEt;
+    return mBinding.chatMessageInputEt;
   }
 
   public void setActionClickListener(ActionClickListener listener) {
@@ -296,7 +297,7 @@ public class MessageBottomLayout extends FrameLayout
   // 设置输入框Hint
   public void setInputEditTextHint(String content) {
     mEditHintText = content;
-    mBinding.inputEt.setHint(mEditHintText);
+    mBinding.chatMessageInputEt.setHint(mEditHintText);
   }
 
   // 显示语音输入对话框
@@ -366,16 +367,16 @@ public class MessageBottomLayout extends FrameLayout
               }
             });
     // input view
-    mBinding.inputEt.addTextChangedListener(msgInputTextWatcher);
+    mBinding.chatMessageInputEt.addTextChangedListener(msgInputTextWatcher);
 
-    mBinding.inputEt.setOnTouchListener(
+    mBinding.chatMessageInputEt.setOnTouchListener(
         (v, event) -> {
           if (event.getAction() == MotionEvent.ACTION_DOWN) {
             switchInput();
           }
           return false;
         });
-    mBinding.inputEt.setOnEditorActionListener(
+    mBinding.chatMessageInputEt.setOnEditorActionListener(
         (v, actionId, event) -> {
           if (actionId == EditorInfo.IME_ACTION_SEND) {
             sendText(replyMessage);
@@ -403,7 +404,7 @@ public class MessageBottomLayout extends FrameLayout
           public void afterTextChanged(Editable s) {
             if (TextUtils.isEmpty(s.toString()) && !keepRichEt) {
               mBinding.chatRichEt.setVisibility(GONE);
-              mBinding.inputEt.requestFocus();
+              mBinding.chatMessageInputEt.requestFocus();
             }
             keepRichEt = false;
           }
@@ -455,27 +456,27 @@ public class MessageBottomLayout extends FrameLayout
           SpannableString spannableString = new SpannableString(s);
           if (MessageHelper.replaceEmoticons(getContext(), spannableString, start, count)) {
             canRender = false;
-            mBinding.inputEt.setText(spannableString);
-            mBinding.inputEt.setSelection(spannableString.length());
+            mBinding.chatMessageInputEt.setText(spannableString);
+            mBinding.chatMessageInputEt.setSelection(spannableString.length());
           }
 
           if (aitTextWatcher != null && !TextUtils.equals(s, editable)) {
             aitTextWatcher.afterTextChanged(s);
           }
           if (TextUtils.isEmpty(s.toString())) {
-            mBinding.inputEt.setHint(mEditHintText);
+            mBinding.chatMessageInputEt.setHint(mEditHintText);
           }
           editable = s.toString();
         }
       };
 
   public void clearEditTextChangeListener() {
-    mBinding.inputEt.removeTextChangedListener(msgInputTextWatcher);
+    mBinding.chatMessageInputEt.removeTextChangedListener(msgInputTextWatcher);
   }
 
   public void sendText(ChatMessageBean replyMessage) {
     if (mProxy != null) {
-      String msg = mBinding.inputEt.getEditableText().toString();
+      String msg = mBinding.chatMessageInputEt.getEditableText().toString();
       String title = mBinding.chatRichEt.getEditableText().toString();
       boolean sendMsg;
       if (!TextUtils.isEmpty(title) && TextUtils.getTrimmedLength(title) > 0) {
@@ -494,13 +495,13 @@ public class MessageBottomLayout extends FrameLayout
   public void clearEditTextInput(boolean force) {
     if (force) {
       mBinding.chatRichEt.setText("");
-      mBinding.inputEt.setText("");
+      mBinding.chatMessageInputEt.setText("");
       clearReplyMsg();
     } else {
-      String msg = mBinding.inputEt.getEditableText().toString();
+      String msg = mBinding.chatMessageInputEt.getEditableText().toString();
       String title = mBinding.chatRichEt.getEditableText().toString();
       if (TextUtils.getTrimmedLength(msg) < 1) {
-        mBinding.inputEt.setText("");
+        mBinding.chatMessageInputEt.setText("");
       }
       if (TextUtils.getTrimmedLength(title) < 1) {
         keepRichEt = true;
@@ -538,7 +539,7 @@ public class MessageBottomLayout extends FrameLayout
 
   // 获取富文本内容，非富文本状态则返回普通小心文本
   public String getRichInputContent() {
-    return mBinding.inputEt.getText().toString();
+    return mBinding.chatMessageInputEt.getText().toString();
   }
 
   // 切换富文本输入模式
@@ -556,13 +557,13 @@ public class MessageBottomLayout extends FrameLayout
     }
     MessageHelper.identifyExpressionForRichTextMsg(
         getContext(),
-        mBinding.inputEt,
+        mBinding.chatMessageInputEt,
         content,
         aitTextWatcher != null ? aitTextWatcher.getAitContactsModel() : null);
     if (!TextUtils.isEmpty(content)) {
-      mBinding.inputEt.setSelection(content.length());
+      mBinding.chatMessageInputEt.setSelection(content.length());
     }
-    mBinding.inputEt.addTextChangedListener(msgInputTextWatcher);
+    mBinding.chatMessageInputEt.addTextChangedListener(msgInputTextWatcher);
   }
 
   //切换到文本输入模式
@@ -594,7 +595,7 @@ public class MessageBottomLayout extends FrameLayout
   // 显示语音输入
   public void recordShow(boolean show, long delay) {
     mBinding.inputAudioTv.setVisibility(show ? VISIBLE : GONE);
-    mBinding.inputEt.setVisibility(show ? GONE : VISIBLE);
+    mBinding.chatMessageInputEt.setVisibility(show ? GONE : VISIBLE);
     mBinding.chatMsgInputSwitchLayout.setVisibility(show ? GONE : VISIBLE);
   }
 
@@ -776,9 +777,9 @@ public class MessageBottomLayout extends FrameLayout
   public void setMute(boolean mute) {
     if (mute != mMute) {
       mMute = mute;
-      mBinding.inputEt.setEnabled(!mute);
+      mBinding.chatMessageInputEt.setEnabled(!mute);
       mBinding.chatinputMuteLayout.setVisibility(mute ? VISIBLE : GONE);
-      mBinding.inputEt.setText("");
+      mBinding.chatMessageInputEt.setText("");
       mBinding.chatRichEt.setText("");
       if (mute) {
         // 禁言时，如果是语音输入状态，切换到文本输入状态
@@ -828,11 +829,11 @@ public class MessageBottomLayout extends FrameLayout
     tips = String.format(getContext().getString(R.string.chat_message_reply_someone), tips);
     MessageHelper.identifyFaceExpression(
         getContext(),
-        mBinding.replyContentTv,
+        mBinding.tvReplyContent,
         tips,
         ImageSpan.ALIGN_BOTTOM,
         MessageHelper.SMALL_SCALE);
-    mBinding.replyCloseIv.setOnClickListener(v -> clearReplyMsg());
+    mBinding.ivReplyClose.setOnClickListener(v -> clearReplyMsg());
     switchInput();
   }
 
@@ -841,12 +842,15 @@ public class MessageBottomLayout extends FrameLayout
     if (aitTextWatcher != null
         && !aitTextWatcher.getAitContactsModel().getAtBlockList().isEmpty()) {
       MessageHelper.identifyExpressionForRichTextMsg(
-          getContext(), mBinding.inputEt, msgContent, aitTextWatcher.getAitContactsModel());
+          getContext(),
+          mBinding.chatMessageInputEt,
+          msgContent,
+          aitTextWatcher.getAitContactsModel());
     } else {
-      mBinding.inputEt.setText(msgContent);
+      mBinding.chatMessageInputEt.setText(msgContent);
     }
-    mBinding.inputEt.requestFocus();
-    mBinding.inputEt.setSelection(mBinding.inputEt.getText().length());
+    mBinding.chatMessageInputEt.requestFocus();
+    mBinding.chatMessageInputEt.setSelection(mBinding.chatMessageInputEt.getText().length());
     switchInput();
   }
 
@@ -864,15 +868,15 @@ public class MessageBottomLayout extends FrameLayout
 
   // 隐藏键盘
   private void hideKeyboard() {
-    KeyboardUtils.hideKeyboard(mBinding.inputEt);
-    mBinding.inputEt.clearFocus();
+    KeyboardUtils.hideKeyboard(mBinding.chatMessageInputEt);
+    mBinding.chatMessageInputEt.clearFocus();
   }
 
   // 显示键盘
   private void showKeyboard() {
-    mBinding.inputEt.requestFocus();
-    mBinding.inputEt.setSelection(mBinding.inputEt.getText().length());
-    KeyboardUtils.showKeyboard(mBinding.inputEt);
+    mBinding.chatMessageInputEt.requestFocus();
+    mBinding.chatMessageInputEt.setSelection(mBinding.chatMessageInputEt.getText().length());
+    KeyboardUtils.showKeyboard(mBinding.chatMessageInputEt);
   }
 
   // @功能中，插入输入框内容回调
@@ -882,7 +886,10 @@ public class MessageBottomLayout extends FrameLayout
       postDelayed(this::switchInput, SHOW_DELAY_TIME);
     }
     SpannableString spannable = MessageHelper.generateAtSpanString(hasAt ? content : "@" + content);
-    mBinding.inputEt.getEditableText().replace(hasAt ? start : start - 1, start, spannable);
+    mBinding
+        .chatMessageInputEt
+        .getEditableText()
+        .replace(hasAt ? start : start - 1, start, spannable);
   }
 
   // @功能中，删除输入框内容回调
@@ -892,7 +899,7 @@ public class MessageBottomLayout extends FrameLayout
       postDelayed(this::switchInput, SHOW_DELAY_TIME);
     }
     int end = start + length - 1;
-    mBinding.inputEt.getEditableText().replace(start, end, "");
+    mBinding.chatMessageInputEt.getEditableText().replace(start, end, "");
   }
 
   public void loadConfig() {
@@ -915,15 +922,15 @@ public class MessageBottomLayout extends FrameLayout
       }
 
       if (inputProperties.inputReplyTextColor != null) {
-        mBinding.replyContentTv.setTextColor(inputProperties.inputReplyTextColor);
+        mBinding.tvReplyContent.setTextColor(inputProperties.inputReplyTextColor);
       }
 
       if (inputProperties.inputEditTextColor != null) {
-        mBinding.inputEt.setTextColor(inputProperties.inputEditTextColor);
+        mBinding.chatMessageInputEt.setTextColor(inputProperties.inputEditTextColor);
       }
 
       if (inputProperties.inputEditHintTextColor != null) {
-        mBinding.inputEt.setHintTextColor(inputProperties.inputEditHintTextColor);
+        mBinding.chatMessageInputEt.setHintTextColor(inputProperties.inputEditHintTextColor);
       }
     }
   }

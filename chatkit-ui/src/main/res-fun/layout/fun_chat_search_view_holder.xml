@@ -38,7 +38,7 @@
         android:gravity="center_vertical"
         tools:ignore="MissingConstraints">
         <TextView
-            android:id="@+id/nameTv"
+            android:id="@+id/tv_nick_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:maxLines="1"
@@ -50,7 +50,7 @@
             tools:ignore="SpUsage" />
 
         <TextView
-            android:id="@+id/messageTv"
+            android:id="@+id/tv_message"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginEnd="20dp"
@@ -64,7 +64,7 @@
     </LinearLayout>
 
     <TextView
-        android:id="@+id/timeTv"
+        android:id="@+id/tv_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/dimen_12_dp"

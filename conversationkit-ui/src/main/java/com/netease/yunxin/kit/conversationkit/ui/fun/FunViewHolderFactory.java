@@ -13,7 +13,9 @@ import com.netease.nimlib.sdk.v2.utils.V2NIMConversationIdUtil;
 import com.netease.yunxin.kit.common.ui.viewholder.BaseViewHolder;
 import com.netease.yunxin.kit.conversationkit.ui.IConversationFactory;
 import com.netease.yunxin.kit.conversationkit.ui.common.ConversationConstant;
+import com.netease.yunxin.kit.conversationkit.ui.databinding.ConversationHeaderLayoutBinding;
 import com.netease.yunxin.kit.conversationkit.ui.databinding.FunConversationViewHolderBinding;
+import com.netease.yunxin.kit.conversationkit.ui.fun.viewholder.FunConversationHeaderViewHolder;
 import com.netease.yunxin.kit.conversationkit.ui.fun.viewholder.FunConversationP2PViewHolder;
 import com.netease.yunxin.kit.conversationkit.ui.fun.viewholder.FunConversationTeamViewHolder;
 import com.netease.yunxin.kit.conversationkit.ui.model.ConversationBean;
@@ -54,12 +56,22 @@ public class FunViewHolderFactory implements IConversationFactory {
   @Override
   public BaseViewHolder<ConversationBean> createViewHolder(
       @NonNull ViewGroup parent, int viewType) {
-    FunConversationViewHolderBinding binding =
-        FunConversationViewHolderBinding.inflate(
-            LayoutInflater.from(parent.getContext()), parent, false);
-    if (viewType == ConversationConstant.ViewType.TEAM_VIEW) {
+
+    if (viewType == ConversationConstant.ViewType.HORIZON_VIEW) {
+      ConversationHeaderLayoutBinding viewBinding =
+          ConversationHeaderLayoutBinding.inflate(
+              LayoutInflater.from(parent.getContext()), parent, false);
+      return new FunConversationHeaderViewHolder(viewBinding);
+
+    } else if (viewType == ConversationConstant.ViewType.TEAM_VIEW) {
+      FunConversationViewHolderBinding binding =
+          FunConversationViewHolderBinding.inflate(
+              LayoutInflater.from(parent.getContext()), parent, false);
       return new FunConversationTeamViewHolder(binding);
     } else {
+      FunConversationViewHolderBinding binding =
+          FunConversationViewHolderBinding.inflate(
+              LayoutInflater.from(parent.getContext()), parent, false);
       return new FunConversationP2PViewHolder(binding);
     }
   }
