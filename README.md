@@ -3,7 +3,7 @@
 IM UIKit 简化了基于 NIM SDK 的应用开发过程。它不仅能助您快速实现 UI 功能，也支持调用 NIM SDK 相应的接口实现即时通讯业务逻辑和数据处理。因此，您在使用 IM UIKit
 时仅需关注自身业务或个性化扩展。
 
-im-uikit-uniapp 界面效果如下图所示：
+IM UIKit 界面效果如下图所示：
 
 <img src="https://yx-web-nosdn.netease.im/common/7ffe6a8afe28b48405b41fb3313d1fa2/uniapp.png" width="800" height="550" />
 <br>
