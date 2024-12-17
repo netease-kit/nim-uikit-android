@@ -53,18 +53,21 @@
             android:name="com.netease.yunxin.kit.chatkit.ui.normal.page.ChatP2PActivity"
             android:screenOrientation="portrait"
             android:launchMode="singleTask"
+            android:configChanges="orientation|keyboardHidden"
             />
 
         <activity
             android:name="com.netease.yunxin.kit.chatkit.ui.normal.page.ChatAIActivity"
             android:screenOrientation="portrait"
             android:launchMode="singleTask"
+            android:configChanges="orientation|keyboardHidden"
             />
 
         <activity
             android:name="com.netease.yunxin.kit.chatkit.ui.normal.page.ChatTeamActivity"
             android:screenOrientation="portrait"
             android:launchMode="singleTask"
+            android:configChanges="orientation|keyboardHidden"
             />
 
         <activity
@@ -119,16 +122,19 @@
         <activity android:name=".fun.page.FunChatP2PActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize"
+            android:configChanges="orientation|keyboardHidden"
             android:launchMode="singleTask"/>
 
         <activity android:name=".fun.page.FunChatAIActivity"
             android:screenOrientation="portrait"
             android:launchMode="singleTask"
+            android:configChanges="orientation|keyboardHidden"
             android:windowSoftInputMode="adjustResize"/>
 
         <activity android:name=".fun.page.FunChatTeamActivity"
             android:screenOrientation="portrait"
             android:launchMode="singleTask"
+            android:configChanges="orientation|keyboardHidden"
             android:windowSoftInputMode="adjustResize"/>
 
         <activity android:name=".fun.page.FunChatPinActivity"

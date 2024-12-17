@@ -44,7 +44,7 @@ IM UIKit 采用 （Model–View–ViewModel）MVVM 架构模型，实现 UI 展�
 - UIKit UI 层的 `ContactKit`、`ChatKit` `ConversationKit` 和 `QChatKit`，对应上述工作原理图中的 Repository。
 - UIKitCore 层对应上述工作原理图中的 Provider。
 
-详见[IM UIKit介绍](https://doc.yunxin.163.com/docs/TM5MzM5Njk/zMxMTgxMjE?platformId=60002)。
+详见[IM UIKit介绍](https://doc.yunxin.163.com/messaging-uikit/concept/TI3NTgyNDA?platform=client)。
 
 ## IM UIKit 集成
 

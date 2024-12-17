@@ -4,6 +4,7 @@
 
 package com.netease.yunxin.kit.chatkit.ui.page.fragment;
 
+import static androidx.core.content.PermissionChecker.PERMISSION_GRANTED;
 import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
 import static com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants.PAYLOAD_REFRESH_AUDIO_ANIM;
 import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.KEY_FORWARD_SELECTED_CONVERSATIONS;
@@ -16,7 +17,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.text.style.ImageSpan;
 import android.util.Pair;
@@ -29,9 +29,11 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.PickVisualMediaRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -167,7 +169,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
   protected TopPopupWindow permissionPop;
 
   // 多媒体文件选择Launcher
-  protected ActivityResultLauncher<String> pickMediaLauncher;
+  ActivityResultLauncher<PickVisualMediaRequest> pickMediaLauncher;
   // 文件选择Launcher
   protected ActivityResultLauncher<String[]> pickFileLauncher;
   // 拍照图片存储地址
@@ -176,7 +178,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
   protected ActivityResultLauncher<Uri> takePictureLauncher;
   private String captureTempVideoPath = "";
   // 视频拍摄Launcher
-  protected ActivityResultLauncher<Intent> captureVideoLauncher;
+  protected ActivityResultLauncher<Uri> captureVideoLauncher;
 
   // 转发选择Launcher
   protected ActivityResultLauncher<Intent> forwardLauncher;
@@ -357,8 +359,9 @@ public abstract class ChatBaseFragment extends BaseFragment {
                   } else {
                     topMessageViewBinding.rlyTopThumb.setVisibility(View.GONE);
                   }
-                  topMessageViewBinding.tvNickname.setText(
-                      ChatUtils.getEllipsizeMiddleNick(getTopMessageNick(topMessage)) + ":");
+                  String text =
+                      ChatUtils.getEllipsizeMiddleNick(getTopMessageNick(topMessage)) + ":";
+                  topMessageViewBinding.tvNickname.setText(text);
                   MessageHelper.identifyFaceExpression(
                       getContext(),
                       topMessageViewBinding.tvTopContent,
@@ -445,10 +448,11 @@ public abstract class ChatBaseFragment extends BaseFragment {
                         userId,
                         MessageHelper.getRealMessageSenderId(
                             ChatUserCache.getInstance().getTopMessage().getMessage()))) {
-                      topMessageViewBinding.tvNickname.setText(
+                      String text =
                           ChatUtils.getEllipsizeMiddleNick(
                                   getTopMessageNick(ChatUserCache.getInstance().getTopMessage()))
-                              + ":");
+                              + ":";
+                      topMessageViewBinding.tvNickname.setText(text);
                       break;
                     }
                   }
@@ -466,10 +470,11 @@ public abstract class ChatBaseFragment extends BaseFragment {
                     if (Objects.equals(
                         userId,
                         ChatUserCache.getInstance().getTopMessage().getMessage().getSenderId())) {
-                      topMessageViewBinding.tvNickname.setText(
+                      String text =
                           ChatUtils.getEllipsizeMiddleNick(
                                   getTopMessageNick(ChatUserCache.getInstance().getTopMessage()))
-                              + ":");
+                              + ":";
+                      topMessageViewBinding.tvNickname.setText(text);
                       break;
                     }
                   }
@@ -565,43 +570,55 @@ public abstract class ChatBaseFragment extends BaseFragment {
                 permissionPop.dismiss();
               }
               if (result != null) {
-                for (Map.Entry<String, Boolean> entry : result.entrySet()) {
-                  String permission = entry.getKey();
-                  boolean grant = entry.getValue();
-                  if (grant) {
-                    if (TextUtils.equals(permission, Manifest.permission.CAMERA)) {
-                      if (currentRequest == REQUEST_CAMERA_PERMISSION) {
-                        startTakePicture();
-                      } else if (currentRequest == REQUEST_VIDEO_PERMISSION) {
-                        startCaptureVideo();
-                      }
-                    } else if (TextUtils.equals(
-                            permission, Manifest.permission.READ_EXTERNAL_STORAGE)
-                        || TextUtils.equals(permission, Manifest.permission.READ_MEDIA_IMAGES)
-                        || TextUtils.equals(
-                            permission, Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED)) {
-                      if (currentRequest == REQUEST_READ_EXTERNAL_STORAGE_PERMISSION_ALBUM) {
-                        startPickMedia();
-                      } else if (currentRequest == REQUEST_READ_EXTERNAL_STORAGE_PERMISSION_FILE) {
-                        startPickFile();
-                      }
+                boolean hasPermission = true;
+                String permission = "";
+                if (currentRequest == REQUEST_CAMERA_PERMISSION) {
+                  if (PermissionUtils.hasPermissions(
+                      ChatBaseFragment.this.getContext(), Manifest.permission.CAMERA)) {
+                    startTakePicture();
+                  } else {
+                    hasPermission = false;
+                    permission = Manifest.permission.CAMERA;
+                  }
+                } else if (currentRequest == REQUEST_VIDEO_PERMISSION) {
+                  if (PermissionUtils.hasPermissions(
+                      ChatBaseFragment.this.getContext(), Manifest.permission.CAMERA)) {
+                    startCaptureVideo();
+                  } else {
+                    hasPermission = false;
+                    permission = Manifest.permission.CAMERA;
+                  }
+                } else if (currentRequest == REQUEST_READ_EXTERNAL_STORAGE_PERMISSION_ALBUM) {
+                  if (this.checkImageOrFilePermission()) {
+                    startPickMedia();
+                  } else {
+                    hasPermission = false;
+                    permission = Manifest.permission.READ_MEDIA_IMAGES;
+                  }
+                } else if (currentRequest == REQUEST_READ_EXTERNAL_STORAGE_PERMISSION_FILE) {
+                  if (this.checkImageOrFilePermission()) {
+                    startPickFile();
+                  } else {
+                    hasPermission = false;
+                    permission = Manifest.permission.READ_EXTERNAL_STORAGE;
+                  }
+                }
+
+                if (!hasPermission) {
+                  if (shouldShowRequestPermissionRationale(permission)) {
+                    if (chatConfig == null
+                        || chatConfig.permissionListener == null
+                        || !chatConfig.permissionListener.requestPermissionDenied(
+                            ChatBaseFragment.this.getActivity(), permission)) {
+                      ToastX.showShortToast(
+                          getResources().getString(R.string.permission_deny_tips));
                     }
                   } else {
-                    if (shouldShowRequestPermissionRationale(permission)) {
-                      if (chatConfig == null
-                          || chatConfig.permissionListener == null
-                          || !chatConfig.permissionListener.requestPermissionDenied(
-                              ChatBaseFragment.this.getActivity(), permission)) {
-                        ToastX.showShortToast(
-                            getResources().getString(R.string.permission_deny_tips));
-                      }
-                    } else {
-                      if (chatConfig == null
-                          || chatConfig.permissionListener == null
-                          || !chatConfig.permissionListener.permissionDeniedForever(
-                              ChatBaseFragment.this.getActivity(), permission)) {
-                        ToastX.showShortToast(getPermissionText(permission));
-                      }
+                    if (chatConfig == null
+                        || chatConfig.permissionListener == null
+                        || !chatConfig.permissionListener.permissionDeniedForever(
+                            ChatBaseFragment.this.getActivity(), permission)) {
+                      ToastX.showShortToast(getPermissionText(permission));
                     }
                   }
                 }
@@ -618,6 +635,35 @@ public abstract class ChatBaseFragment extends BaseFragment {
                 }
               }
             });
+  }
+
+  /** 检查是否有本地图片、视频或者文件读取权限 适配 Android不同版本的权限 */
+  private boolean checkImageOrFilePermission() {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE
+        && ContextCompat.checkSelfPermission(
+                ChatBaseFragment.this.requireContext(),
+                Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED)
+            == PERMISSION_GRANTED) {
+      // Android 14及以上部分照片和视频访问权限
+      return true;
+    } else if (Build.VERSION.SDK_INT == Build.VERSION_CODES.TIRAMISU
+        && (ContextCompat.checkSelfPermission(
+                    ChatBaseFragment.this.requireContext(), Manifest.permission.READ_MEDIA_IMAGES)
+                == PERMISSION_GRANTED
+            || ContextCompat.checkSelfPermission(
+                    ChatBaseFragment.this.requireContext(), Manifest.permission.READ_MEDIA_VIDEO)
+                == PERMISSION_GRANTED)) {
+      // Android 13及以上完整照片和视频访问权限
+      return true;
+    } else if (ContextCompat.checkSelfPermission(
+            ChatBaseFragment.this.requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE)
+        == PERMISSION_GRANTED) {
+      // Android 12及以下完整本地读写访问权限
+      return true;
+    } else {
+      // 无本地读写访问权限
+      return false;
+    }
   }
 
   // 加载UI的个性化配置
@@ -758,19 +804,19 @@ public abstract class ChatBaseFragment extends BaseFragment {
         @Override
         public void pickMedia() {
           String[] permission = new String[] {Manifest.permission.READ_EXTERNAL_STORAGE};
-          // 根据系统版本判断，如果是Android13则采用Manifest.permission.READ_MEDIA_IMAGES
-          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            permission =
-                new String[] {
-                  Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_MEDIA_VIDEO
-                };
-          }
+
           if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             permission =
                 new String[] {
                   Manifest.permission.READ_MEDIA_IMAGES,
                   Manifest.permission.READ_MEDIA_VIDEO,
                   Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED
+                };
+            // 根据系统版本判断，如果是Android13则采用Manifest.permission.READ_MEDIA_IMAGES
+          } else if (Build.VERSION.SDK_INT == Build.VERSION_CODES.TIRAMISU) {
+            permission =
+                new String[] {
+                  Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_MEDIA_VIDEO
                 };
           }
           if (PermissionUtils.hasPermissions(ChatBaseFragment.this.getContext(), permission)) {
@@ -1076,7 +1122,10 @@ public abstract class ChatBaseFragment extends BaseFragment {
   }
 
   protected void startPickMedia() {
-    pickMediaLauncher.launch("image/*;video/*");
+    pickMediaLauncher.launch(
+        new PickVisualMediaRequest.Builder()
+            .setMediaType(ActivityResultContracts.PickVisualMedia.ImageAndVideo.INSTANCE)
+            .build());
   }
 
   protected void startPickFile() {
@@ -1096,9 +1145,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
     }
     if (tempVideoFile != null) {
       Uri videoUri = SendMediaHelper.getUriForFile(tempVideoFile);
-      Intent intent =
-          new Intent(MediaStore.ACTION_VIDEO_CAPTURE).putExtra(MediaStore.EXTRA_OUTPUT, videoUri);
-      captureVideoLauncher.launch(intent);
+      captureVideoLauncher.launch(videoUri);
     }
   }
 
@@ -1284,7 +1331,6 @@ public abstract class ChatBaseFragment extends BaseFragment {
         public boolean onSendFailBtnClick(View view, int position, ChatMessageBean messageBean) {
           if (delegateListener == null
               || !delegateListener.onSendFailBtnClick(view, position, messageBean)) {
-            //            messageBean.getMessageData().getMessage().setStatus(V2NIMMessageSendingState.V2NIM_MESSAGE_SENDING_STATE_SENDING);
             viewModel.sendMessageStrExtension(
                 messageBean.getMessageData().getMessage(),
                 V2NIMConversationIdUtil.conversationId(accountId, conversationType),
@@ -1764,13 +1810,6 @@ public abstract class ChatBaseFragment extends BaseFragment {
   //登录状态变化时更新数据
   protected abstract void updateDataWhenLogin();
 
-  /** 更新我在群中的成员信息 */
-  //  protected void updateMyTeamMember() {
-  //    if (viewModel instanceof ChatTeamViewModel) {
-  //      ((ChatTeamViewModel) viewModel).updateMyTeamMember();
-  //    }
-  //  };
-
   protected void initDataObserver() {
     ALog.d(LIB_TAG, LOG_TAG, "initDataObserver");
 
@@ -1823,7 +1862,18 @@ public abstract class ChatBaseFragment extends BaseFragment {
     // 系统图片&视频选择器，选择结果处理
     pickMediaLauncher =
         registerForActivityResult(
-            new ActivityResultContracts.GetMultipleContents(), this::onPickMedia);
+            new ActivityResultContracts.PickVisualMedia(),
+            uri -> {
+              // Callback is invoked after the user selects a media item or closes the
+              // photo picker.
+              if (uri != null) {
+                ALog.d(LIB_TAG, LOG_TAG, "pick media result uri -->> " + uri);
+                mHandler.postDelayed(
+                    () -> viewModel.sendImageOrVideoMessage(uri, getContext()), 100);
+              } else {
+                ALog.d(LIB_TAG, LOG_TAG, "PhotoPicker No media selected");
+              }
+            });
 
     // 系统文件选择器，选择结果处理
     pickFileLauncher =
@@ -1835,8 +1885,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
 
     // 发送录像的视频
     captureVideoLauncher =
-        registerForActivityResult(
-            new ActivityResultContracts.StartActivityForResult(), this::onCaptureVideo);
+        registerForActivityResult(new ActivityResultContracts.CaptureVideo(), this::onCaptureVideo);
 
     forwardLauncher =
         registerForActivityResult(
@@ -1920,11 +1969,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
     }
   }
 
-  /**
-   * PIN 消息列表变化处理
-   *
-   * @param pinedList
-   */
+  /** PIN 消息列表变化处理 */
   protected void onPinedMessageListChange(FetchResult<List<V2NIMMessagePin>> pinedList) {
     if (pinedList.getLoadStatus() == LoadStatus.Success && pinedList.getData() != null) {
       for (ChatMessageBean messageBean : chatView.getMessageList()) {
@@ -2059,15 +2104,6 @@ public abstract class ChatBaseFragment extends BaseFragment {
     chatView.getMessageListView().removePinMessage(uuid);
   }
 
-  protected void onPickMedia(List<Uri> pickList) {
-    if (pickList == null) return;
-    for (int i = 0; i < pickList.size(); ++i) {
-      Uri uri = pickList.get(i);
-      ALog.d(LIB_TAG, LOG_TAG, "pick media result uri(" + i + ") -->> " + uri);
-      mHandler.postDelayed(() -> viewModel.sendImageOrVideoMessage(uri, getContext()), 100);
-    }
-  }
-
   protected void onPickFile(Uri pickFile) {
     ALog.d(LIB_TAG, LOG_TAG, "pick file result uri:" + pickFile);
     if (pickFile == null) {
@@ -2094,8 +2130,8 @@ public abstract class ChatBaseFragment extends BaseFragment {
     }
   }
 
-  protected void onCaptureVideo(ActivityResult result) {
-    if (result.getResultCode() == Activity.RESULT_OK && !TextUtils.isEmpty(captureTempVideoPath)) {
+  protected void onCaptureVideo(boolean sure) {
+    if (sure && !TextUtils.isEmpty(captureTempVideoPath)) {
       File f = new File(captureTempVideoPath);
       Uri contentUri = Uri.fromFile(f);
       ALog.d(LIB_TAG, LOG_TAG, "capture video contentUri -->> " + contentUri);

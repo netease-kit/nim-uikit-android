@@ -938,15 +938,13 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
     }
     //文件大小限制，单位字节
     long limitSize = ChatUtils.getFileLimitSize() * 1024 * 1024;
-    String mimeType = FileUtils.getFileExtension(uri.getPath());
-    if (TextUtils.isEmpty(mimeType)) {
-      try {
-        String realPath = UriUtils.uri2FileRealPath(uri);
-        mimeType = FileUtils.getFileExtension(realPath);
-      } catch (IllegalStateException e) {
-        ToastX.showShortToast(R.string.chat_message_type_resource_error);
-        return;
-      }
+    String mimeType = "";
+    try {
+      String realPath = UriUtils.uri2FileRealPath(uri);
+      mimeType = FileUtils.getFileExtension(realPath);
+    } catch (IllegalStateException e) {
+      ToastX.showShortToast(R.string.chat_message_type_resource_error);
+      return;
     }
     if (ImageUtil.isValidPictureFile(mimeType)) {
       File file = UriUtils.uri2File(uri);

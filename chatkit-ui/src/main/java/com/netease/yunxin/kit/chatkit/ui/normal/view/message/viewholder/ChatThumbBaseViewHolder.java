@@ -105,7 +105,8 @@ public abstract class ChatThumbBaseViewHolder extends NormalChatBaseMessageViewH
         //视频消息拼接第一帧
         String videoUrl = attachment.getUrl();
         String thumbUrl = ThumbHelper.makeVideoThumbUrl(videoUrl);
-        loadThumbnailImage(thumbUrl);
+        // CDN的问题，图片加载出错重试
+        loadThumbnailImage(thumbUrl, thumbUrl);
       } else {
         loadThumbnailImage(null);
       }
@@ -115,6 +116,11 @@ public abstract class ChatThumbBaseViewHolder extends NormalChatBaseMessageViewH
   private void loadThumbnailImage(String path) {
     int[] bounds = getBounds(path);
     loadThumbnailInternal(path, null, bounds);
+  }
+
+  private void loadThumbnailImage(String path, String backupUrl) {
+    int[] bounds = getBounds(path);
+    loadThumbnailInternal(path, backupUrl, bounds);
   }
 
   private void loadThumbnailInternal(String path, String backupUrl, int[] bounds) {
@@ -168,7 +174,7 @@ public abstract class ChatThumbBaseViewHolder extends NormalChatBaseMessageViewH
       shapeBuilder.setSolid(Color.BLACK);
     }
     binding.getRoot().setBackground(shapeBuilder.build());
-    Context context = binding.thumbnail.getContext();
+    Context context = binding.getRoot().getContext();
 
     if (path != null && context != null) {
       if (context instanceof Activity) {
@@ -176,7 +182,7 @@ public abstract class ChatThumbBaseViewHolder extends NormalChatBaseMessageViewH
           return;
         }
       }
-      Glide.with(binding.thumbnail.getContext())
+      Glide.with(context)
           .load(path)
           .apply(
               new RequestOptions()

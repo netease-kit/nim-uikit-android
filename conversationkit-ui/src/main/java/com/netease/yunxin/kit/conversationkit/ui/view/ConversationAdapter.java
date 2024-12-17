@@ -188,8 +188,7 @@ public class ConversationAdapter extends RecyclerView.Adapter<BaseViewHolder> {
     if (position >= 0) {
       if (position < conversationHeaderList.size()) {
         conversationHeaderList.remove(position);
-      } else {
-        ALog.d(LIB_TAG, TAG, "removeData" + conversationList.get(position).getConversationId());
+      } else if (position - conversationHeaderList.size() < conversationList.size()) {
         conversationList.remove(position - conversationHeaderList.size());
       }
       if (isShow) {
