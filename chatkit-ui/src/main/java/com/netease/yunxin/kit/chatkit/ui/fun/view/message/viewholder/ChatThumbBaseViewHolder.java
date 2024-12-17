@@ -86,7 +86,7 @@ public abstract class ChatThumbBaseViewHolder extends FunChatBaseMessageViewHold
       if (!TextUtils.isEmpty(path)) {
         loadThumbnailImage(thumbFromSourceFile(path));
       } else if (attachment.getUrl() != null) {
-        //              没有本地图片，加载缩略图url
+        // 没有本地图片，加载缩略图url
         String thumbUrl =
             ThumbHelper.makeImageThumbUrl(
                 attachment.getUrl(), imageAttachment.getWidth(), imageAttachment.getHeight());
@@ -97,7 +97,7 @@ public abstract class ChatThumbBaseViewHolder extends FunChatBaseMessageViewHold
         //视频消息拼接第一帧
         String videoUrl = attachment.getUrl();
         String thumbUrl = ThumbHelper.makeVideoThumbUrl(videoUrl);
-        loadThumbnailImage(thumbUrl);
+        loadThumbnailImage(thumbUrl, thumbUrl);
       } else {
         loadThumbnailImage(null);
       }
@@ -107,6 +107,11 @@ public abstract class ChatThumbBaseViewHolder extends FunChatBaseMessageViewHold
   private void loadThumbnailImage(String path) {
     int[] bounds = getBounds(path);
     loadThumbnailInternal(path, null, bounds);
+  }
+
+  private void loadThumbnailImage(String path, String backupUrl) {
+    int[] bounds = getBounds(path);
+    loadThumbnailInternal(path, backupUrl, bounds);
   }
 
   @Override
@@ -168,7 +173,7 @@ public abstract class ChatThumbBaseViewHolder extends FunChatBaseMessageViewHold
       shapeBuilder.setSolid(Color.BLACK);
     }
     binding.getRoot().setBackground(shapeBuilder.build());
-    Context context = binding.thumbnail.getContext();
+    Context context = binding.getRoot().getContext();
 
     if (path != null && context != null) {
       if (context instanceof Activity) {
@@ -176,7 +181,7 @@ public abstract class ChatThumbBaseViewHolder extends FunChatBaseMessageViewHold
           return;
         }
       }
-      Glide.with(binding.thumbnail.getContext())
+      Glide.with(context)
           .load(path)
           .apply(
               new RequestOptions()

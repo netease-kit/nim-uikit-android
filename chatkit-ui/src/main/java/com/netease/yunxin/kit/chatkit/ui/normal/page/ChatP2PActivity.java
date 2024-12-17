@@ -7,8 +7,10 @@ package com.netease.yunxin.kit.chatkit.ui.normal.page;
 import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
 
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.text.TextUtils;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentManager;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
@@ -29,6 +31,11 @@ public class ChatP2PActivity extends ChatBaseActivity {
   protected void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     changeStatusBarColor(R.color.color_white);
+  }
+
+  @Override
+  public void onConfigurationChanged(@NonNull Configuration newConfig) {
+    super.onConfigurationChanged(newConfig);
   }
 
   @Override
