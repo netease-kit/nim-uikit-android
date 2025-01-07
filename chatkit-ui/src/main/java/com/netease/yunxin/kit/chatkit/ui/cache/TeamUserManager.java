@@ -121,33 +121,33 @@ public class TeamUserManager {
     }
 
     TeamRepo.getTeamMember(
-        teamId,
-        V2NIMTeamType.V2NIM_TEAM_TYPE_NORMAL,
-        account,
-        new FetchCallback<V2NIMTeamMember>() {
-          @Override
-          public void onError(int errorCode, String errorMsg) {
-            ALog.e(
-                TAG,
-                "get team member error, errorCode = " + errorCode + ", errorMsg = " + errorMsg);
-          }
-
-          @Override
-          public void onSuccess(V2NIMTeamMember data) {
-            if (data == null || !TextUtils.equals(data.getTeamId(), teamId)) {
-              return;
-            }
-            teamMemberMap.put(data.getAccountId(), data);
-            for (TeamUserChangedListener listener : userChangedListeners) {
-              if (isAdd) {
-                listener.onUsersAdd(Collections.singletonList(data.getAccountId()));
-              } else {
-
-                listener.onUsersChanged(Collections.singletonList(data.getAccountId()));
+            teamId,
+            V2NIMTeamType.V2NIM_TEAM_TYPE_NORMAL,
+            account,
+            new FetchCallback<V2NIMTeamMember>() {
+              @Override
+              public void onError(int errorCode, String errorMsg) {
+                ALog.e(
+                        TAG,
+                        "get team member error, errorCode = " + errorCode + ", errorMsg = " + errorMsg);
               }
-            }
-          }
-        });
+
+              @Override
+              public void onSuccess(V2NIMTeamMember data) {
+                if (data == null || !TextUtils.equals(data.getTeamId(), teamId)) {
+                  return;
+                }
+                teamMemberMap.put(data.getAccountId(), data);
+                for (TeamUserChangedListener listener : userChangedListeners) {
+                  if (isAdd) {
+                    listener.onUsersAdd(Collections.singletonList(data.getAccountId()));
+                  } else {
+
+                    listener.onUsersChanged(Collections.singletonList(data.getAccountId()));
+                  }
+                }
+              }
+            });
   }
 
   //刷新群信息
@@ -156,22 +156,22 @@ public class TeamUserManager {
       return;
     }
     TeamRepo.getTeamInfo(
-        teamId,
-        new FetchCallback<V2NIMTeam>() {
-          @Override
-          public void onError(int errorCode, String errorMsg) {
-            ALog.e(
-                TAG, "get team info error, errorCode = " + errorCode + ", errorMsg = " + errorMsg);
-          }
+            teamId,
+            new FetchCallback<V2NIMTeam>() {
+              @Override
+              public void onError(int errorCode, String errorMsg) {
+                ALog.e(
+                        TAG, "get team info error, errorCode = " + errorCode + ", errorMsg = " + errorMsg);
+              }
 
-          @Override
-          public void onSuccess(V2NIMTeam data) {
-            currentTeam = data;
-            for (TeamChangeListener listener : teamChangedListeners) {
-              listener.onTeamUpdate(data);
-            }
-          }
-        });
+              @Override
+              public void onSuccess(V2NIMTeam data) {
+                currentTeam = data;
+                for (TeamChangeListener listener : teamChangedListeners) {
+                  listener.onTeamUpdate(data);
+                }
+              }
+            });
   }
 
   /**
@@ -246,15 +246,6 @@ public class TeamUserManager {
   }
 
   /**
-   * 移除群成员信息
-   *
-   * @param account 用户账号
-   */
-  private void removeTeamMember(String account) {
-    teamMemberMap.remove(account);
-  }
-
-  /**
    * 获取当前群信息
    *
    * @return 群信息，可能为空
@@ -272,14 +263,14 @@ public class TeamUserManager {
    * @param teamMembers 群成员
    */
   private void fetchMemberUserInfoAndNotify(
-      final List<V2NIMTeamMember> teamMembers, boolean isAdd) {
+          final List<V2NIMTeamMember> teamMembers, boolean isAdd) {
     List<String> accounts = new ArrayList<>();
     List<String> noCacheUsers = new ArrayList<>();
     for (V2NIMTeamMember teamMember : teamMembers) {
       teamMemberMap.put(teamMember.getAccountId(), teamMember);
       accounts.add(teamMember.getAccountId());
       if (FriendUserCache.getFriendByAccount(teamMember.getAccountId()) == null
-          || FriendUserCache.getFriendByAccount(teamMember.getAccountId()).getUserInfo() != null) {
+              || FriendUserCache.getFriendByAccount(teamMember.getAccountId()).getUserInfo() != null) {
         noCacheUsers.add(teamMember.getAccountId());
       }
     }
@@ -303,30 +294,30 @@ public class TeamUserManager {
    */
   private void getUserInfoAndNotify(List<String> accounts, boolean isAdd) {
     ContactRepo.getUserInfo(
-        accounts,
-        new FetchCallback<List<V2NIMUser>>() {
-          @Override
-          public void onError(int errorCode, @Nullable String errorMsg) {
-            ALog.e(
-                TAG, "get user info error, errorCode = " + errorCode + ", errorMsg = " + errorMsg);
-          }
+            accounts,
+            new FetchCallback<List<V2NIMUser>>() {
+              @Override
+              public void onError(int errorCode, @Nullable String errorMsg) {
+                ALog.e(
+                        TAG, "get user info error, errorCode = " + errorCode + ", errorMsg = " + errorMsg);
+              }
 
-          @Override
-          public void onSuccess(@Nullable List<V2NIMUser> data) {
-            if (data != null) {
-              for (V2NIMUser userInfo : data) {
-                userInfoMap.put(userInfo.getAccountId(), userInfo);
+              @Override
+              public void onSuccess(@Nullable List<V2NIMUser> data) {
+                if (data != null) {
+                  for (V2NIMUser userInfo : data) {
+                    userInfoMap.put(userInfo.getAccountId(), userInfo);
+                  }
+                }
+                for (TeamUserChangedListener listener : userChangedListeners) {
+                  if (isAdd) {
+                    listener.onUsersAdd(accounts);
+                  } else {
+                    listener.onUsersChanged(accounts);
+                  }
+                }
               }
-            }
-            for (TeamUserChangedListener listener : userChangedListeners) {
-              if (isAdd) {
-                listener.onUsersAdd(accounts);
-              } else {
-                listener.onUsersChanged(accounts);
-              }
-            }
-          }
-        });
+            });
   }
 
   /**
@@ -369,7 +360,7 @@ public class TeamUserManager {
 
   /** 获取群成员信息 */
   public void getTeamMembers(
-      List<String> accounts, final FetchCallback<List<TeamMemberWithUserInfo>> callback) {
+          List<String> accounts, final FetchCallback<List<TeamMemberWithUserInfo>> callback) {
     if (teamId == null || teamId.isEmpty()) {
       if (callback != null) {
         callback.onError(-1, "teamId is null");
@@ -382,7 +373,7 @@ public class TeamUserManager {
       V2NIMTeamMember teamMember = teamMemberMap.get(account);
       if (teamMember != null) {
         TeamMemberWithUserInfo teamMemberWithUserInfo =
-            new TeamMemberWithUserInfo(teamMember, null);
+                new TeamMemberWithUserInfo(teamMember, null);
         V2NIMUser userInfo = userInfoMap.get(account);
         UserWithFriend friend = FriendUserCache.getFriendByAccount(account);
         if (friend != null) {
@@ -406,36 +397,36 @@ public class TeamUserManager {
     }
 
     TeamRepo.getTeamMemberListWithUserInfoByIds(
-        teamId,
-        V2NIMTeamType.V2NIM_TEAM_TYPE_NORMAL,
-        noCacheAccIds,
-        new FetchCallback<List<TeamMemberWithUserInfo>>() {
-          @Override
-          public void onError(int errorCode, String errorMsg) {
-            if (callback != null) {
-              callback.onError(errorCode, errorMsg);
-            }
-          }
-
-          @Override
-          public void onSuccess(List<TeamMemberWithUserInfo> data) {
-            if (data != null) {
-              for (TeamMemberWithUserInfo member : data) {
-                teamMemberMap.put(member.getAccountId(), member.getTeamMember());
-                if (member.getUserInfo() != null
-                    && !FriendUserCache.isFriend(member.getAccountId())) {
-                  userInfoMap.put(member.getAccountId(), member.getUserInfo());
+            teamId,
+            V2NIMTeamType.V2NIM_TEAM_TYPE_NORMAL,
+            noCacheAccIds,
+            new FetchCallback<List<TeamMemberWithUserInfo>>() {
+              @Override
+              public void onError(int errorCode, String errorMsg) {
+                if (callback != null) {
+                  callback.onError(errorCode, errorMsg);
                 }
               }
-            }
-            if (data != null) {
-              teamMembers.addAll(data);
-            }
-            if (callback != null) {
-              callback.onSuccess(teamMembers);
-            }
-          }
-        });
+
+              @Override
+              public void onSuccess(List<TeamMemberWithUserInfo> data) {
+                if (data != null) {
+                  for (TeamMemberWithUserInfo member : data) {
+                    teamMemberMap.put(member.getAccountId(), member.getTeamMember());
+                    if (member.getUserInfo() != null
+                            && !FriendUserCache.isFriend(member.getAccountId())) {
+                      userInfoMap.put(member.getAccountId(), member.getUserInfo());
+                    }
+                  }
+                }
+                if (data != null) {
+                  teamMembers.addAll(data);
+                }
+                if (callback != null) {
+                  callback.onSuccess(teamMembers);
+                }
+              }
+            });
   }
 
   /** 获取群成员信息 */
@@ -448,7 +439,7 @@ public class TeamUserManager {
       V2NIMTeamMember teamMember = teamMemberMap.get(account);
       if (teamMember != null) {
         TeamMemberWithUserInfo teamMemberWithUserInfo =
-            new TeamMemberWithUserInfo(teamMember, null);
+                new TeamMemberWithUserInfo(teamMember, null);
         V2NIMUser userInfo = userInfoMap.get(account);
         UserWithFriend friend = FriendUserCache.getFriendByAccount(account);
         if (friend != null) {
@@ -473,16 +464,16 @@ public class TeamUserManager {
    * @return 群成员信息
    */
   public List<TeamMemberWithUserInfo> getTeamMemberWithRoleListFromCache(
-      String teamId, V2NIMTeamMemberRole role) {
+          String teamId, V2NIMTeamMemberRole role) {
     if (teamId == null || !teamId.equals(this.teamId)) {
       return new ArrayList<>();
     }
     List<TeamMemberWithUserInfo> teamMemberList = new ArrayList<>();
     if (role != null) {
       for (V2NIMTeamMember teamMember : teamMemberMap.values()) {
-        if (teamMember.getMemberRole() == role) {
+        if (teamMember.isInTeam() && teamMember.getMemberRole() == role) {
           TeamMemberWithUserInfo teamMemberWithUserInfo =
-              new TeamMemberWithUserInfo(teamMember, null);
+                  new TeamMemberWithUserInfo(teamMember, null);
           V2NIMUser userInfo = userInfoMap.get(teamMember.getAccountId());
           UserWithFriend friend = FriendUserCache.getFriendByAccount(teamMember.getAccountId());
           if (friend != null) {
@@ -522,7 +513,7 @@ public class TeamUserManager {
    * @param callback 回调
    */
   public void getAllTeamMembers(
-      boolean needSelf, FetchCallback<List<TeamMemberWithUserInfo>> callback) {
+          boolean needSelf, FetchCallback<List<TeamMemberWithUserInfo>> callback) {
     if (teamId == null || teamId.isEmpty()) {
       callback.onError(-1, "teamId is null");
       return;
@@ -539,7 +530,7 @@ public class TeamUserManager {
           continue;
         }
         TeamMemberWithUserInfo teamMemberWithUserInfo =
-            new TeamMemberWithUserInfo(teamMember, null);
+                new TeamMemberWithUserInfo(teamMember, null);
         V2NIMUser userInfo = userInfoMap.get(teamMember.getAccountId());
         UserWithFriend friend = FriendUserCache.getFriendByAccount(teamMember.getAccountId());
         if (friend != null) {
@@ -558,44 +549,44 @@ public class TeamUserManager {
       return;
     }
     TeamRepo.queryAllTeamMemberListWithUserInfo(
-        teamId,
-        V2NIMTeamType.V2NIM_TEAM_TYPE_NORMAL,
-        new FetchCallback<List<TeamMemberWithUserInfo>>() {
-          @Override
-          public void onError(int errorCode, String errorMsg) {
-            callback.onError(errorCode, errorMsg);
-          }
+            teamId,
+            V2NIMTeamType.V2NIM_TEAM_TYPE_NORMAL,
+            new FetchCallback<List<TeamMemberWithUserInfo>>() {
+              @Override
+              public void onError(int errorCode, String errorMsg) {
+                callback.onError(errorCode, errorMsg);
+              }
 
-          @Override
-          public void onSuccess(List<TeamMemberWithUserInfo> data) {
-            List<TeamMemberWithUserInfo> result = new ArrayList<>();
-            if (data != null) {
-              if (data.size() > 1) {
-                Collections.sort(data, ChatUtils.teamManagerComparator());
+              @Override
+              public void onSuccess(List<TeamMemberWithUserInfo> data) {
+                List<TeamMemberWithUserInfo> result = new ArrayList<>();
+                if (data != null) {
+                  if (data.size() > 1) {
+                    Collections.sort(data, ChatUtils.teamManagerComparator());
+                  }
+                  for (TeamMemberWithUserInfo member : data) {
+                    if (!member.getTeamMember().isInTeam()) {
+                      continue;
+                    }
+                    teamMemberMap.put(member.getAccountId(), member.getTeamMember());
+                    if (member.getUserInfo() != null
+                            && !FriendUserCache.isFriend(member.getAccountId())) {
+                      userInfoMap.put(member.getAccountId(), member.getUserInfo());
+                    }
+                    if (needSelf || !TextUtils.equals(member.getAccountId(), IMKitClient.account())) {
+                      result.add(member);
+                    }
+                  }
+                }
+                haveLoadAllTeamMembers = true;
+                //去除自己
+                if (!needSelf) {
+                  callback.onSuccess(result);
+                } else {
+                  callback.onSuccess(data);
+                }
               }
-              for (TeamMemberWithUserInfo member : data) {
-                if (!member.getTeamMember().isInTeam()) {
-                  continue;
-                }
-                teamMemberMap.put(member.getAccountId(), member.getTeamMember());
-                if (member.getUserInfo() != null
-                    && !FriendUserCache.isFriend(member.getAccountId())) {
-                  userInfoMap.put(member.getAccountId(), member.getUserInfo());
-                }
-                if (needSelf || !TextUtils.equals(member.getAccountId(), IMKitClient.account())) {
-                  result.add(member);
-                }
-              }
-            }
-            haveLoadAllTeamMembers = true;
-            //去除自己
-            if (!needSelf) {
-              callback.onSuccess(result);
-            } else {
-              callback.onSuccess(data);
-            }
-          }
-        });
+            });
   }
 
   /**
@@ -612,46 +603,44 @@ public class TeamUserManager {
       }
       return (IMKitClient.currentUser() != null
               && !TextUtils.isEmpty(IMKitClient.currentUser().getName()))
-          ? IMKitClient.currentUser().getName()
-          : account;
+              ? IMKitClient.currentUser().getName()
+              : account;
     }
     if (!account.isEmpty() && !TextUtils.isEmpty(teamId)) {
       if (userInfoMap.get(account) == null && teamMemberMap.get(account) == null) {
         TeamRepo.getTeamMemberListWithUserInfoByIds(
-            teamId,
-            V2NIMTeamType.V2NIM_TEAM_TYPE_NORMAL,
-            new ArrayList<String>() {
-              {
-                add(account);
-              }
-            },
-            new FetchCallback<List<TeamMemberWithUserInfo>>() {
-              @Override
-              public void onError(int errorCode, String errorMsg) {}
+                teamId,
+                V2NIMTeamType.V2NIM_TEAM_TYPE_NORMAL,
+                new ArrayList<String>() {
+                  {
+                    add(account);
+                  }
+                },
+                new FetchCallback<List<TeamMemberWithUserInfo>>() {
+                  @Override
+                  public void onError(int errorCode, String errorMsg) {}
 
-              @Override
-              public void onSuccess(List<TeamMemberWithUserInfo> data) {
-                if (data != null && !data.isEmpty()) {
-                  List<String> users = new ArrayList<>();
-                  for (TeamMemberWithUserInfo member : data) {
-                    if (member.getTeamMember().isInTeam()) {
-                      teamMemberMap.put(member.getAccountId(), member.getTeamMember());
+                  @Override
+                  public void onSuccess(List<TeamMemberWithUserInfo> data) {
+                    if (data != null && !data.isEmpty()) {
+                      List<String> users = new ArrayList<>();
+                      for (TeamMemberWithUserInfo member : data) {
+                        teamMemberMap.put(member.getAccountId(), member.getTeamMember());
+                        if (member.getUserInfo() != null
+                                && !FriendUserCache.isFriend(member.getAccountId())) {
+                          userInfoMap.put(member.getAccountId(), member.getUserInfo());
+                        }
+                        users.add(member.getAccountId());
+                      }
+                      for (TeamUserChangedListener listener : userChangedListeners) {
+                        listener.onUsersChanged(users);
+                      }
+                    } else {
+                      //非群成员，获取用户信息
+                      getUserInfoAndNotify(Collections.singletonList(account), false);
                     }
-                    if (member.getUserInfo() != null
-                        && !FriendUserCache.isFriend(member.getAccountId())) {
-                      userInfoMap.put(member.getAccountId(), member.getUserInfo());
-                    }
-                    users.add(member.getAccountId());
                   }
-                  for (TeamUserChangedListener listener : userChangedListeners) {
-                    listener.onUsersChanged(users);
-                  }
-                } else {
-                  //非群成员，获取用户信息
-                  getUserInfoAndNotify(Collections.singletonList(account), false);
-                }
-              }
-            });
+                });
       }
       UserWithFriend friendInfo = FriendUserCache.getFriendByAccount(account);
       if (needFriendAlias && friendInfo != null && !TextUtils.isEmpty(friendInfo.getAlias())) {
@@ -683,8 +672,8 @@ public class TeamUserManager {
     if (TextUtils.equals(account, IMKitClient.account())) {
       return (IMKitClient.currentUser() != null
               && !TextUtils.isEmpty(IMKitClient.currentUser().getName()))
-          ? IMKitClient.currentUser().getName()
-          : account;
+              ? IMKitClient.currentUser().getName()
+              : account;
     }
     if (!account.isEmpty()) {
       UserWithFriend friendInfo = FriendUserCache.getFriendByAccount(account);
@@ -724,164 +713,164 @@ public class TeamUserManager {
   }
 
   private TeamListenerImpl teamListener =
-      new TeamListenerImpl() {
-        @Override
-        public void onTeamInfoUpdated(V2NIMTeam team) {
-          ALog.d(TAG, "onTeamInfoUpdated:");
-          if (team == null || !TextUtils.equals(team.getTeamId(), teamId)) {
-            return;
-          }
-          currentTeam = team;
-          for (TeamChangeListener listener : teamChangedListeners) {
-            listener.onTeamUpdate(team);
-          }
-        }
-
-        @Override
-        public void onTeamMemberJoined(List<V2NIMTeamMember> teamMembers) {
-          ALog.d(TAG, "onTeamMemberJoined");
-          if (teamMembers == null || teamMembers.isEmpty()) {
-            return;
-          }
-          V2NIMTeamMember teamMember = teamMembers.get(0);
-          ALog.d(TAG, "onTeamMemberJoined, team member:" + teamMember.getAccountId());
-          if (TextUtils.equals(teamMember.getTeamId(), teamId)) {
-            fetchMemberUserInfoAndNotify(teamMembers, true);
-          }
-        }
-
-        @Override
-        public void onTeamMemberKicked(
-            String operatorAccountId, List<V2NIMTeamMember> teamMembers) {
-          ALog.d(TAG, "onTeamMemberKicked");
-          if (teamMembers == null || teamMembers.isEmpty()) {
-            return;
-          }
-          V2NIMTeamMember member = teamMembers.get(0);
-          if (!TextUtils.equals(member.getTeamId(), teamId)) {
-            return;
-          }
-          List<String> accounts = new ArrayList<>();
-          for (V2NIMTeamMember teamMember : teamMembers) {
-            removeTeamMember(teamMember.getAccountId());
-            accounts.add(teamMember.getAccountId());
-          }
-          for (TeamUserChangedListener listener : userChangedListeners) {
-            listener.onUserDelete(accounts);
-          }
-        }
-
-        @Override
-        public void onTeamMemberLeft(List<V2NIMTeamMember> teamMembers) {
-          ALog.d(TAG, "onTeamMemberLeft");
-          if (teamMembers == null || teamMembers.isEmpty()) {
-            return;
-          }
-          V2NIMTeamMember member = teamMembers.get(0);
-          if (!TextUtils.equals(member.getTeamId(), teamId)) {
-            return;
-          }
-          List<String> accounts = new ArrayList<>();
-          for (V2NIMTeamMember teamMember : teamMembers) {
-            removeTeamMember(teamMember.getAccountId());
-            accounts.add(teamMember.getAccountId());
-          }
-          for (TeamUserChangedListener listener : userChangedListeners) {
-            listener.onUserDelete(accounts);
-          }
-        }
-
-        @Override
-        public void onTeamMemberInfoUpdated(List<V2NIMTeamMember> teamMembers) {
-          ALog.d(TAG, "onTeamMemberInfoUpdated");
-          if (teamMembers == null || teamMembers.isEmpty()) {
-            return;
-          }
-          V2NIMTeamMember member = teamMembers.get(0);
-          if (!TextUtils.equals(member.getTeamId(), teamId)) {
-            return;
-          }
-          List<String> accounts = new ArrayList<>();
-          for (V2NIMTeamMember teamMember : teamMembers) {
-            updateTeamMember(teamMember);
-            accounts.add(teamMember.getAccountId());
-          }
-          for (TeamUserChangedListener listener : userChangedListeners) {
-            listener.onUsersChanged(accounts);
-          }
-        }
-
-        @Override
-        public void onTeamLeft(@Nullable V2NIMTeam team, boolean isKicked) {
-          if (!TextUtils.equals(team.getTeamId(), teamId)) {
-            return;
-          }
-          List<String> accounts = new ArrayList<>();
-          removeTeamMember(IMKitClient.account());
-          accounts.add(IMKitClient.account());
-          for (TeamUserChangedListener listener : userChangedListeners) {
-            listener.onUserDelete(accounts);
-          }
-        }
-
-        @Override
-        public void onTeamJoined(@Nullable V2NIMTeam team) {
-          if (!TextUtils.equals(team.getTeamId(), teamId)) {
-            return;
-          }
-          getTeamMemberAndNotify(IMKitClient.account(), true);
-        }
-      };
-
-  private ContactListener contactListener =
-      new ContactListener() {
-
-        @Override
-        public void onFriendAddRejected(@NonNull FriendAddApplicationInfo rejectionInfo) {}
-
-        @Override
-        public void onFriendAddApplication(@NonNull FriendAddApplicationInfo friendApplication) {}
-
-        @Override
-        public void onContactChange(
-            @NonNull ContactChangeType changeType,
-            @NonNull List<? extends UserWithFriend> contactList) {
-          List<String> accounts = new ArrayList<>();
-          for (UserWithFriend contact : contactList) {
-            accounts.add(contact.getAccount());
-            if (contact.getFriend() == null) {
-              userInfoMap.put(contact.getAccount(), contact.getUserInfo());
+          new TeamListenerImpl() {
+            @Override
+            public void onTeamInfoUpdated(V2NIMTeam team) {
+              ALog.d(TAG, "onTeamInfoUpdated:");
+              if (team == null || !TextUtils.equals(team.getTeamId(), teamId)) {
+                return;
+              }
+              currentTeam = team;
+              for (TeamChangeListener listener : teamChangedListeners) {
+                listener.onTeamUpdate(team);
+              }
             }
-          }
-          for (TeamUserChangedListener listener : userChangedListeners) {
-            listener.onUsersChanged(accounts);
-          }
-        }
-      };
 
-  private V2NIMLoginDetailListener loginDetailListener =
-      new V2NIMLoginDetailListener() {
-        @Override
-        public void onConnectStatus(V2NIMConnectStatus status) {}
+            @Override
+            public void onTeamMemberJoined(List<V2NIMTeamMember> teamMembers) {
+              ALog.d(TAG, "onTeamMemberJoined");
+              if (teamMembers == null || teamMembers.isEmpty()) {
+                return;
+              }
+              V2NIMTeamMember teamMember = teamMembers.get(0);
+              ALog.d(TAG, "onTeamMemberJoined, team member:" + teamMember.getAccountId());
+              if (TextUtils.equals(teamMember.getTeamId(), teamId)) {
+                fetchMemberUserInfoAndNotify(teamMembers, true);
+              }
+            }
 
-        @Override
-        public void onDisconnected(V2NIMError error) {}
+            @Override
+            public void onTeamMemberKicked(
+                    String operatorAccountId, List<V2NIMTeamMember> teamMembers) {
+              ALog.d(TAG, "onTeamMemberKicked");
+              if (teamMembers == null || teamMembers.isEmpty()) {
+                return;
+              }
+              V2NIMTeamMember member = teamMembers.get(0);
+              if (!TextUtils.equals(member.getTeamId(), teamId)) {
+                return;
+              }
+              List<String> accounts = new ArrayList<>();
+              for (V2NIMTeamMember teamMember : teamMembers) {
+                teamMemberMap.put(teamMember.getAccountId(), teamMember);
+                accounts.add(teamMember.getAccountId());
+              }
+              for (TeamUserChangedListener listener : userChangedListeners) {
+                listener.onUserDelete(accounts);
+              }
+            }
 
-        @Override
-        public void onConnectFailed(V2NIMError error) {}
+            @Override
+            public void onTeamMemberLeft(List<V2NIMTeamMember> teamMembers) {
+              ALog.d(TAG, "onTeamMemberLeft");
+              if (teamMembers == null || teamMembers.isEmpty()) {
+                return;
+              }
+              V2NIMTeamMember member = teamMembers.get(0);
+              if (!TextUtils.equals(member.getTeamId(), teamId)) {
+                return;
+              }
+              List<String> accounts = new ArrayList<>();
+              for (V2NIMTeamMember teamMember : teamMembers) {
+                // 更新群成员信息，成员离开但是消息展示还需要用到该成员信息
+                teamMemberMap.put(teamMember.getAccountId(), teamMember);
+                accounts.add(teamMember.getAccountId());
+              }
+              for (TeamUserChangedListener listener : userChangedListeners) {
+                listener.onUserDelete(accounts);
+              }
+            }
 
-        @Override
-        public void onDataSync(V2NIMDataSyncType type, V2NIMDataSyncState state, V2NIMError error) {
-          if (type == V2NIMDataSyncType.V2NIM_DATA_SYNC_MAIN
-              && state == V2NIMDataSyncState.V2NIM_DATA_SYNC_STATE_COMPLETED) {
-            getTeamInfoAndNotify();
-          }
-          if (type == V2NIMDataSyncType.V2NIM_DATA_SYNC_TEAM_MEMBER
-              && state == V2NIMDataSyncState.V2NIM_DATA_SYNC_STATE_COMPLETED) {
-            if (!TextUtils.isEmpty(IMKitClient.account())) {
+            @Override
+            public void onTeamMemberInfoUpdated(List<V2NIMTeamMember> teamMembers) {
+              ALog.d(TAG, "onTeamMemberInfoUpdated");
+              if (teamMembers == null || teamMembers.isEmpty()) {
+                return;
+              }
+              V2NIMTeamMember member = teamMembers.get(0);
+              if (!TextUtils.equals(member.getTeamId(), teamId)) {
+                return;
+              }
+              List<String> accounts = new ArrayList<>();
+              for (V2NIMTeamMember teamMember : teamMembers) {
+                updateTeamMember(teamMember);
+                accounts.add(teamMember.getAccountId());
+              }
+              for (TeamUserChangedListener listener : userChangedListeners) {
+                listener.onUsersChanged(accounts);
+              }
+            }
+
+            @Override
+            public void onTeamLeft(@Nullable V2NIMTeam team, boolean isKicked) {
+              if (!TextUtils.equals(team.getTeamId(), teamId)) {
+                return;
+              }
+              List<String> accounts = new ArrayList<>();
+              accounts.add(IMKitClient.account());
+              for (TeamUserChangedListener listener : userChangedListeners) {
+                listener.onUserDelete(accounts);
+              }
+            }
+
+            @Override
+            public void onTeamJoined(@Nullable V2NIMTeam team) {
+              if (!TextUtils.equals(team.getTeamId(), teamId)) {
+                return;
+              }
               getTeamMemberAndNotify(IMKitClient.account(), true);
             }
-          }
-        }
-      };
+          };
+
+  private ContactListener contactListener =
+          new ContactListener() {
+
+            @Override
+            public void onFriendAddRejected(@NonNull FriendAddApplicationInfo rejectionInfo) {}
+
+            @Override
+            public void onFriendAddApplication(@NonNull FriendAddApplicationInfo friendApplication) {}
+
+            @Override
+            public void onContactChange(
+                    @NonNull ContactChangeType changeType,
+                    @NonNull List<? extends UserWithFriend> contactList) {
+              List<String> accounts = new ArrayList<>();
+              for (UserWithFriend contact : contactList) {
+                accounts.add(contact.getAccount());
+                if (contact.getFriend() == null) {
+                  userInfoMap.put(contact.getAccount(), contact.getUserInfo());
+                }
+              }
+              for (TeamUserChangedListener listener : userChangedListeners) {
+                listener.onUsersChanged(accounts);
+              }
+            }
+          };
+
+  private V2NIMLoginDetailListener loginDetailListener =
+          new V2NIMLoginDetailListener() {
+            @Override
+            public void onConnectStatus(V2NIMConnectStatus status) {}
+
+            @Override
+            public void onDisconnected(V2NIMError error) {}
+
+            @Override
+            public void onConnectFailed(V2NIMError error) {}
+
+            @Override
+            public void onDataSync(V2NIMDataSyncType type, V2NIMDataSyncState state, V2NIMError error) {
+              if (type == V2NIMDataSyncType.V2NIM_DATA_SYNC_MAIN
+                      && state == V2NIMDataSyncState.V2NIM_DATA_SYNC_STATE_COMPLETED) {
+                getTeamInfoAndNotify();
+              }
+              if (type == V2NIMDataSyncType.V2NIM_DATA_SYNC_TEAM_MEMBER
+                      && state == V2NIMDataSyncState.V2NIM_DATA_SYNC_STATE_COMPLETED) {
+                if (!TextUtils.isEmpty(IMKitClient.account())) {
+                  getTeamMemberAndNotify(IMKitClient.account(), true);
+                }
+              }
+            }
+          };
 }
