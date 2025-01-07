@@ -16,7 +16,7 @@ android {
         minSdk = 24
         targetSdk = 34
         versionCode = 1
-        versionName = "10.5.1"
+        versionName = "10.5.2"
         multiDexEnabled = true
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -73,12 +73,12 @@ dependencies {
 //    implementation(project(":aisearchkit"))
 
     //远端aar依赖
-    implementation("com.netease.yunxin.kit.contact:contactkit-ui:10.5.1")
-    implementation("com.netease.yunxin.kit.conversation:conversationkit-ui:10.5.1")
-    implementation("com.netease.yunxin.kit.team:teamkit-ui:10.5.1")
-    implementation("com.netease.yunxin.kit.chat:chatkit-ui:10.5.1")
-    implementation("com.netease.yunxin.kit.locationkit:locationkit:10.5.1")
-    implementation("com.netease.yunxin.kit.aisearchkit:aisearchkit:10.5.1")
+    implementation("com.netease.yunxin.kit.contact:contactkit-ui:10.5.2")
+    implementation("com.netease.yunxin.kit.conversation:conversationkit-ui:10.5.2")
+    implementation("com.netease.yunxin.kit.team:teamkit-ui:10.5.2")
+    implementation("com.netease.yunxin.kit.chat:chatkit-ui:10.5.2")
+    implementation("com.netease.yunxin.kit.locationkit:locationkit:10.5.2")
+    implementation("com.netease.yunxin.kit.aisearchkit:aisearchkit:10.5.2")
 
 
     implementation("com.netease.yunxin.kit.call:call-ui:3.0.0") //呼叫组件 UI 包

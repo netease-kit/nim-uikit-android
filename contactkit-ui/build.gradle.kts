@@ -43,7 +43,7 @@ android {
 dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
     // imuikit 底层库
-    api("com.netease.yunxin.kit.chat:chatkit:10.5.1")
+    api("com.netease.yunxin.kit.chat:chatkit:10.5.2")
     api("com.netease.yunxin.kit.common:common-ui:1.3.9")
 
     api("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.22")
