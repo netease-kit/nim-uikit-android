@@ -71,4 +71,6 @@
     <string name="team_add_manager_empty_tip">Select member</string>
     <string name="team_add_manager_limit_tip">10 limit manager</string>
     <string name="team_operate_no_permission_tip">No permission</string>
+    <string name="team_file_permission_tips">Shall grant your permission</string>
+
 </resources>

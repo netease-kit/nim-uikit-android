@@ -7,9 +7,9 @@ package com.netease.yunxin.kit.teamkit.ui.fun.dialog;
 import android.app.Activity;
 import android.view.View;
 import androidx.annotation.NonNull;
-import com.netease.yunxin.kit.common.ui.photo.BasePhotoChoiceDialog;
 import com.netease.yunxin.kit.teamkit.ui.R;
 import com.netease.yunxin.kit.teamkit.ui.databinding.FunDialogPhotoChoiceBinding;
+import com.netease.yunxin.kit.teamkit.ui.dialog.BasePhotoChoiceDialog;
 
 /** This dialog supports to take photos or get a image from album and upload to nos service. */
 public class FunPhotoChoiceDialog extends BasePhotoChoiceDialog {

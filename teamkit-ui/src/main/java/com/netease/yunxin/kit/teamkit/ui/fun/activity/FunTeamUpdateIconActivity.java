@@ -7,10 +7,10 @@ package com.netease.yunxin.kit.teamkit.ui.fun.activity;
 import android.os.Bundle;
 import android.view.View;
 import androidx.annotation.Nullable;
-import com.netease.yunxin.kit.common.ui.photo.BasePhotoChoiceDialog;
 import com.netease.yunxin.kit.teamkit.ui.R;
 import com.netease.yunxin.kit.teamkit.ui.activity.BaseTeamUpdateIconActivity;
 import com.netease.yunxin.kit.teamkit.ui.databinding.FunTeamUpdateIconActivityBinding;
+import com.netease.yunxin.kit.teamkit.ui.dialog.BasePhotoChoiceDialog;
 import com.netease.yunxin.kit.teamkit.ui.fun.dialog.FunPhotoChoiceDialog;
 
 /** set team icon activity */
