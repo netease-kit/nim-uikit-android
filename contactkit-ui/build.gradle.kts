@@ -17,7 +17,7 @@ android {
         targetSdk = 33
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
-        buildConfigField("String", "versionName", "\"9.7.0\"")
+        buildConfigField("String", "versionName", "\"9.7.1\"")
     }
 
     buildTypes {
@@ -41,7 +41,7 @@ android {
 
 dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
-    api("com.netease.yunxin.kit.chat:chatkit:9.7.0")
+    api("com.netease.yunxin.kit.chat:chatkit:9.7.1")
     api("com.netease.yunxin.kit.common:common-ui:1.3.3")
     api("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.21")
     implementation("androidx.appcompat:appcompat:1.4.2") 
