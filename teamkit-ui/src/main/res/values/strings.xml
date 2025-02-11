@@ -70,4 +70,5 @@
     <string name="team_add_manager_empty_tip">请选择成员</string>
     <string name="team_add_manager_limit_tip">最多只能设置10个管理员</string>
     <string name="team_operate_no_permission_tip">您暂无操作权限</string>
+    <string name="team_file_permission_tips">请在设置页面添加相关权限</string>
 </resources>
