@@ -11,17 +11,20 @@ import com.netease.nimlib.sdk.v2.V2NIMError;
 import com.netease.nimlib.sdk.v2.auth.enums.V2NIMDataSyncState;
 import com.netease.nimlib.sdk.v2.auth.enums.V2NIMDataSyncType;
 import com.netease.nimlib.sdk.v2.conversation.model.V2NIMConversation;
+import com.netease.nimlib.sdk.v2.conversation.model.V2NIMLocalConversation;
 import com.netease.nimlib.sdk.v2.setting.enums.V2NIMTeamMessageMuteMode;
 import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamChatBannedMode;
 import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamType;
 import com.netease.nimlib.sdk.v2.team.model.V2NIMTeam;
 import com.netease.nimlib.sdk.v2.utils.V2NIMConversationIdUtil;
 import com.netease.yunxin.kit.alog.ALog;
+import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
 import com.netease.yunxin.kit.chatkit.impl.LoginDetailListenerImpl;
 import com.netease.yunxin.kit.chatkit.manager.AIUserManager;
 import com.netease.yunxin.kit.chatkit.model.TeamMemberListResult;
 import com.netease.yunxin.kit.chatkit.model.TeamMemberWithUserInfo;
 import com.netease.yunxin.kit.chatkit.repo.ConversationRepo;
+import com.netease.yunxin.kit.chatkit.repo.LocalConversationRepo;
 import com.netease.yunxin.kit.chatkit.repo.TeamRepo;
 import com.netease.yunxin.kit.chatkit.ui.cache.TeamUserManager;
 import com.netease.yunxin.kit.chatkit.utils.ChatKitConstant;
@@ -122,33 +125,63 @@ public class TeamSettingViewModel extends TeamBaseViewModel {
    */
   public void getStickAndNotifyData(String teamId) {
     ALog.d(LIB_TAG, TAG, "requestStickAndNotify:" + teamId);
-    ConversationRepo.getConversation(
-        V2NIMConversationIdUtil.teamConversationId(teamId),
-        new FetchCallback<V2NIMConversation>() {
-          @Override
-          public void onError(int errorCode, @Nullable String errorMsg) {
-            ALog.d(LIB_TAG, TAG, "requestStickAndNotify,onFailed:" + errorCode);
-          }
-
-          @Override
-          public void onSuccess(@Nullable V2NIMConversation data) {
-            if (data != null) {
-              FetchResult<Boolean> stickResult = new FetchResult<>(data.isStickTop());
-              stickResult.setType(FetchResult.FetchType.Update);
-              stickData.setValue(stickResult);
-              FetchResult<Boolean> notifyResult = new FetchResult<>(!data.isMute());
-              notifyResult.setType(FetchResult.FetchType.Update);
-              notifyData.setValue(notifyResult);
-              ALog.d(
-                  LIB_TAG,
-                  TAG,
-                  "requestStickAndNotify,onSuccess,isStickTop:"
-                      + data.isStickTop()
-                      + ",isMute:"
-                      + data.isMute());
+    if (IMKitConfigCenter.getEnableLocalConversation()) {
+      LocalConversationRepo.getConversation(
+          V2NIMConversationIdUtil.teamConversationId(teamId),
+          new FetchCallback<V2NIMLocalConversation>() {
+            @Override
+            public void onError(int errorCode, @Nullable String errorMsg) {
+              ALog.d(LIB_TAG, TAG, "requestStickAndNotify,onFailed:" + errorCode);
             }
-          }
-        });
+
+            @Override
+            public void onSuccess(@Nullable V2NIMLocalConversation data) {
+              if (data != null) {
+                FetchResult<Boolean> stickResult = new FetchResult<>(data.isStickTop());
+                stickResult.setType(FetchResult.FetchType.Update);
+                stickData.setValue(stickResult);
+                FetchResult<Boolean> notifyResult = new FetchResult<>(!data.isMute());
+                notifyResult.setType(FetchResult.FetchType.Update);
+                notifyData.setValue(notifyResult);
+                ALog.d(
+                    LIB_TAG,
+                    TAG,
+                    "requestStickAndNotify,onSuccess,isStickTop:"
+                        + data.isStickTop()
+                        + ",isMute:"
+                        + data.isMute());
+              }
+            }
+          });
+    } else {
+      ConversationRepo.getConversation(
+          V2NIMConversationIdUtil.teamConversationId(teamId),
+          new FetchCallback<V2NIMConversation>() {
+            @Override
+            public void onError(int errorCode, @Nullable String errorMsg) {
+              ALog.d(LIB_TAG, TAG, "requestStickAndNotify,onFailed:" + errorCode);
+            }
+
+            @Override
+            public void onSuccess(@Nullable V2NIMConversation data) {
+              if (data != null) {
+                FetchResult<Boolean> stickResult = new FetchResult<>(data.isStickTop());
+                stickResult.setType(FetchResult.FetchType.Update);
+                stickData.setValue(stickResult);
+                FetchResult<Boolean> notifyResult = new FetchResult<>(!data.isMute());
+                notifyResult.setType(FetchResult.FetchType.Update);
+                notifyData.setValue(notifyResult);
+                ALog.d(
+                    LIB_TAG,
+                    TAG,
+                    "requestStickAndNotify,onSuccess,isStickTop:"
+                        + data.isStickTop()
+                        + ",isMute:"
+                        + data.isMute());
+              }
+            }
+          });
+    }
   }
 
   /**
@@ -442,22 +475,41 @@ public class TeamSettingViewModel extends TeamBaseViewModel {
       stickData.setValue(new FetchResult<>(-1, ""));
       return;
     }
-    ConversationRepo.setStickTop(
-        V2NIMConversationIdUtil.teamConversationId(teamId),
-        stick,
-        new FetchCallback<Void>() {
-          @Override
-          public void onError(int errorCode, String errorMsg) {
-            ALog.d(LIB_TAG, TAG, "stickTop,onFailed:" + errorCode);
-            stickData.setValue(new FetchResult<>(!stick));
-          }
+    if (IMKitConfigCenter.getEnableLocalConversation()) {
+      LocalConversationRepo.setStickTop(
+          V2NIMConversationIdUtil.teamConversationId(teamId),
+          stick,
+          new FetchCallback<Void>() {
+            @Override
+            public void onError(int errorCode, String errorMsg) {
+              ALog.d(LIB_TAG, TAG, "stickTop,onFailed:" + errorCode);
+              stickData.setValue(new FetchResult<>(!stick));
+            }
 
-          @Override
-          public void onSuccess(@Nullable Void data) {
-            ALog.d(LIB_TAG, TAG, "configStick,onSuccess:" + stick);
-            stickData.setValue(new FetchResult<>(stick));
-          }
-        });
+            @Override
+            public void onSuccess(@Nullable Void data) {
+              ALog.d(LIB_TAG, TAG, "configStick,onSuccess:" + stick);
+              stickData.setValue(new FetchResult<>(stick));
+            }
+          });
+    } else {
+      ConversationRepo.setStickTop(
+          V2NIMConversationIdUtil.teamConversationId(teamId),
+          stick,
+          new FetchCallback<Void>() {
+            @Override
+            public void onError(int errorCode, String errorMsg) {
+              ALog.d(LIB_TAG, TAG, "stickTop,onFailed:" + errorCode);
+              stickData.setValue(new FetchResult<>(!stick));
+            }
+
+            @Override
+            public void onSuccess(@Nullable Void data) {
+              ALog.d(LIB_TAG, TAG, "configStick,onSuccess:" + stick);
+              stickData.setValue(new FetchResult<>(stick));
+            }
+          });
+    }
   }
 
   /**

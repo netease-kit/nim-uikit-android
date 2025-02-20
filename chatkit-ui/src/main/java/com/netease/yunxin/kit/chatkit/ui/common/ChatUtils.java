@@ -8,6 +8,7 @@ import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.CHAT_FORWARD_U
 import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.CHAT_MULTI_FORWARD_DEEP_LIMIT;
 import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
 
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -16,6 +17,7 @@ import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.text.TextUtils;
 import android.webkit.MimeTypeMap;
+import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import com.netease.nimlib.sdk.team.constant.TeamTypeEnum;
 import com.netease.nimlib.sdk.team.model.Team;
@@ -86,7 +88,11 @@ public class ChatUtils {
       fileIntent.addFlags(
           Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
       fileIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-      context.startActivity(fileIntent);
+      try {
+        context.startActivity(fileIntent);
+      } catch (ActivityNotFoundException exception) {
+        Toast.makeText(context, R.string.chat_message_open_fail_tips, Toast.LENGTH_SHORT).show();
+      }
     }
   }
 

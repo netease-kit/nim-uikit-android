@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (c) 2022 NetEase, Inc. All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be
+  ~ found in the LICENSE file.
+  -->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root_view"
+    android:layout_width="match_parent"
+    android:background="@drawable/conversation_common_view_holder_selector"
+    android:orientation="horizontal"
+    android:layout_height="@dimen/dimen_62_dp">
+
+    <androidx.appcompat.widget.AppCompatRadioButton
+        android:id="@+id/conversation_selector_cb"
+        android:layout_width="@dimen/dimen_18_dp"
+        android:layout_height="@dimen/dimen_18_dp"
+        android:layout_marginStart="@dimen/dimen_20_dp"
+        android:layout_gravity="center_vertical"
+        style="@style/ConversationSelectorRadioBtn"
+        android:clickable="false"/>
+
+    <FrameLayout
+        android:id="@+id/conversation_avatar_fl"
+        android:layout_width="@dimen/dimen_52_dp"
+        android:layout_height="@dimen/dimen_42_dp"
+        android:layout_marginVertical="@dimen/dimen_10_dp"
+        android:layout_marginStart="@dimen/dimen_20_dp">
+
+        <com.netease.yunxin.kit.common.ui.widgets.ContactAvatarView
+            android:id="@+id/avatar_view"
+            android:layout_width="@dimen/dimen_42_dp"
+            android:layout_height="@dimen/dimen_42_dp" />
+
+        <TextView android:id="@+id/conversation_unread_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|end"
+            android:layout_marginEnd="@dimen/dimen_5_dp"
+            android:background="@drawable/bg_conversation_red_dot"
+            android:gravity="center"
+            android:paddingStart="@dimen/dimen_5_dp"
+            android:paddingEnd="@dimen/dimen_5_dp"
+            android:textColor="@color/color_white"
+            android:textSize="@dimen/text_size_12"
+            android:visibility="gone" />
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/conversation_name_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dimen_10_dp"
+        android:layout_marginEnd="@dimen/dimen_100_dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textColor="@color/color_333333"
+        android:textSize="@dimen/text_size_16" />
+
+</LinearLayout>

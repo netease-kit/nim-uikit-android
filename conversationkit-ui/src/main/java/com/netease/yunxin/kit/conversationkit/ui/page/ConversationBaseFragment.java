@@ -19,6 +19,7 @@ import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.common.ui.action.ActionItem;
 import com.netease.yunxin.kit.common.ui.dialog.ListAlertDialog;
 import com.netease.yunxin.kit.common.ui.fragments.BaseFragment;
+import com.netease.yunxin.kit.common.ui.utils.ToastX;
 import com.netease.yunxin.kit.common.ui.viewholder.BaseBean;
 import com.netease.yunxin.kit.common.ui.viewholder.ViewHolderClickListener;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
@@ -397,13 +398,17 @@ public abstract class ConversationBaseFragment extends BaseFragment implements I
       alertDialog.setDialogWidth(getResources().getDimension(R.dimen.alert_dialog_width));
       alertDialog.setItemClickListener(
           action -> {
-            if (TextUtils.equals(action, ConversationConstant.Action.ACTION_DELETE)) {
-              viewModel.deleteConversation(dataBean.getConversationId());
-            } else if (TextUtils.equals(action, ConversationConstant.Action.ACTION_STICK)) {
-              if (dataBean.infoData.isStickTop()) {
-                viewModel.removeStick((ConversationBean) data);
-              } else {
-                viewModel.addStickTop((ConversationBean) data);
+            if (!NetworkUtils.isConnected()) {
+              ToastX.showShortToast(R.string.conversation_network_error_tip);
+            } else {
+              if (TextUtils.equals(action, ConversationConstant.Action.ACTION_DELETE)) {
+                viewModel.deleteConversation(dataBean.getConversationId(), true);
+              } else if (TextUtils.equals(action, ConversationConstant.Action.ACTION_STICK)) {
+                if (dataBean.infoData.isStickTop()) {
+                  viewModel.removeStick((ConversationBean) data);
+                } else {
+                  viewModel.addStickTop((ConversationBean) data);
+                }
               }
             }
             alertDialog.dismiss();

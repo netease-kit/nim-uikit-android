@@ -188,6 +188,7 @@
     <string name="chat_message_single_forward_tips">[逐条转发]%s的会话记录</string>
 
     <string name="permission_deny_tips">您拒绝了权限申请，该功能将无法使用</string>
+    <string name="permission_location_deny_tips">您关闭了系统定位服务，该功能将无法使用</string>
     <string name="permission_default">请在设置页面添加相关权限</string>
     <string name="permission_camera">请在设置页面添加相机权限</string>
     <string name="permission_audio">请在设置页面添加麦克风权限</string>
@@ -218,6 +219,8 @@
     <string name="chat_message_send_message_when_in_black">"对方把你拉黑，发送消息失败"</string>
     <string name="chat_message_not_friend_send_call">"非好友暂不支持音视频通话"</string>
     <string name="chat_message_forward_success_tips">转发成功</string>
+    <string name="chat_message_open_fail_tips">无法预览该文件，请安装相关应用</string>
+    <string name="chat_kit_no_permission_error">您暂无操作权限</string>
 
     <!-- location -->
     <string name="chat_location_mine">定位</string>

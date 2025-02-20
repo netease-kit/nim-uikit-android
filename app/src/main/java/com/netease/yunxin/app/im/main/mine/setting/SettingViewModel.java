@@ -4,6 +4,8 @@
 
 package com.netease.yunxin.app.im.main.mine.setting;
 
+import android.content.Context;
+import com.netease.yunxin.app.im.utils.DataUtils;
 import com.netease.yunxin.kit.chatkit.repo.SettingRepo;
 import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
 
@@ -15,6 +17,14 @@ public class SettingViewModel extends BaseViewModel {
 
   public void setShowReadStatus(boolean delete) {
     SettingRepo.setShowReadStatus(delete);
+  }
+
+  public boolean getLocalConversation(Context context) {
+    return DataUtils.getLocalConversationConfigSwitch(context);
+  }
+
+  public void setLocalConversation(Context context, boolean isLocal) {
+    DataUtils.saveLocalConversationConfigSwitch(context, isLocal);
   }
 
   public boolean getAudioPlayMode() {

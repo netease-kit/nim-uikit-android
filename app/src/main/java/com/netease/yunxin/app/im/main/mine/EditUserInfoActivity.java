@@ -122,8 +122,8 @@ public class EditUserInfoActivity extends BaseLocalActivity {
   }
 
   private void setCommonSkin() {
-    changeStatusBarColor(R.color.fun_page_bg_color);
-    binding.clyRoot.setBackgroundResource(R.color.fun_page_bg_color);
+    changeStatusBarColor(R.color.color_ededed);
+    binding.clyRoot.setBackgroundResource(R.color.color_ededed);
     binding.tvDone.setTextColor(getResources().getColor(R.color.color_58be6b));
 
     binding.etNickname.setBackgroundResource(R.color.color_white);

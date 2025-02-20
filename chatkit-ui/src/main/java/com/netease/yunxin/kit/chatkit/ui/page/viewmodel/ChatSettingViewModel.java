@@ -13,6 +13,7 @@ import androidx.lifecycle.MutableLiveData;
 import com.netease.nimlib.sdk.v2.ai.model.V2NIMAIUser;
 import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
 import com.netease.nimlib.sdk.v2.conversation.model.V2NIMConversation;
+import com.netease.nimlib.sdk.v2.conversation.model.V2NIMLocalConversation;
 import com.netease.nimlib.sdk.v2.user.V2NIMUser;
 import com.netease.nimlib.sdk.v2.user.params.V2NIMUserUpdateParams;
 import com.netease.nimlib.sdk.v2.utils.V2NIMConversationIdUtil;
@@ -22,6 +23,7 @@ import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
 import com.netease.yunxin.kit.chatkit.manager.AIUserManager;
 import com.netease.yunxin.kit.chatkit.repo.ContactRepo;
 import com.netease.yunxin.kit.chatkit.repo.ConversationRepo;
+import com.netease.yunxin.kit.chatkit.repo.LocalConversationRepo;
 import com.netease.yunxin.kit.chatkit.repo.SettingRepo;
 import com.netease.yunxin.kit.chatkit.utils.ErrorUtils;
 import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
@@ -133,27 +135,52 @@ public class ChatSettingViewModel extends BaseViewModel {
     String conversationId =
         V2NIMConversationIdUtil.conversationId(
             accountId, V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P);
-    ConversationRepo.getConversation(
-        conversationId,
-        new FetchCallback<V2NIMConversation>() {
-          @Override
-          public void onError(int errorCode, @Nullable String errorMsg) {
-            ALog.d(LIB_TAG, TAG, "getConversationInfo,onError:" + errorCode + "," + errorMsg);
-            if (errorCode == ERROR_CODE_CONVERSATION_NOT_EXIST) {
-              ConversationRepo.createConversation(conversationId, null);
+    if (IMKitConfigCenter.getEnableLocalConversation()) {
+      LocalConversationRepo.getConversation(
+          conversationId,
+          new FetchCallback<V2NIMLocalConversation>() {
+            @Override
+            public void onError(int errorCode, @Nullable String errorMsg) {
+              ALog.d(LIB_TAG, TAG, "getConversationInfo,onError:" + errorCode + "," + errorMsg);
+              if (errorCode == ERROR_CODE_CONVERSATION_NOT_EXIST) {
+                ConversationRepo.createConversation(conversationId, null);
+              }
             }
-          }
 
-          @Override
-          public void onSuccess(@Nullable V2NIMConversation data) {
-            if (data != null) {
-              ALog.d(LIB_TAG, TAG, "getConversationInfo,stickTop:" + data.isStickTop());
-              FetchResult<Boolean> stickTopResult = new FetchResult<>(LoadStatus.Success);
-              stickTopResult.setData(data.isStickTop());
-              stickTopLiveData.setValue(stickTopResult);
+            @Override
+            public void onSuccess(@Nullable V2NIMLocalConversation data) {
+              if (data != null) {
+                ALog.d(LIB_TAG, TAG, "getConversationInfo,stickTop:" + data.isStickTop());
+                FetchResult<Boolean> stickTopResult = new FetchResult<>(LoadStatus.Success);
+                stickTopResult.setData(data.isStickTop());
+                stickTopLiveData.setValue(stickTopResult);
+              }
             }
-          }
-        });
+          });
+
+    } else {
+      ConversationRepo.getConversation(
+          conversationId,
+          new FetchCallback<V2NIMConversation>() {
+            @Override
+            public void onError(int errorCode, @Nullable String errorMsg) {
+              ALog.d(LIB_TAG, TAG, "getConversationInfo,onError:" + errorCode + "," + errorMsg);
+              if (errorCode == ERROR_CODE_CONVERSATION_NOT_EXIST) {
+                ConversationRepo.createConversation(conversationId, null);
+              }
+            }
+
+            @Override
+            public void onSuccess(@Nullable V2NIMConversation data) {
+              if (data != null) {
+                ALog.d(LIB_TAG, TAG, "getConversationInfo,stickTop:" + data.isStickTop());
+                FetchResult<Boolean> stickTopResult = new FetchResult<>(LoadStatus.Success);
+                stickTopResult.setData(data.isStickTop());
+                stickTopLiveData.setValue(stickTopResult);
+              }
+            }
+          });
+    }
 
     SettingRepo.getP2PMessageMuteMode(
         accountId,
@@ -326,26 +353,52 @@ public class ChatSettingViewModel extends BaseViewModel {
     String conversationId =
         V2NIMConversationIdUtil.conversationId(
             accountId, V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P);
-    ConversationRepo.setStickTop(
-        conversationId,
-        isStickTop,
-        new FetchCallback<Void>() {
-          @Override
-          public void onError(int errorCode, @Nullable String errorMsg) {
-            ALog.d(LIB_TAG, TAG, "stickTop,onError:" + errorCode + "," + errorMsg);
-            FetchResult<Boolean> fetchResult = new FetchResult<>(LoadStatus.Error);
-            fetchResult.setData(!isStickTop);
-            stickTopLiveData.setValue(fetchResult);
-          }
+    if (IMKitConfigCenter.getEnableLocalConversation()) {
+      //本地会话
+      LocalConversationRepo.setStickTop(
+          conversationId,
+          isStickTop,
+          new FetchCallback<Void>() {
+            @Override
+            public void onError(int errorCode, @Nullable String errorMsg) {
+              ALog.d(LIB_TAG, TAG, "stickTop,onError:" + errorCode + "," + errorMsg);
+              FetchResult<Boolean> fetchResult = new FetchResult<>(LoadStatus.Error);
+              fetchResult.setData(!isStickTop);
+              stickTopLiveData.setValue(fetchResult);
+            }
 
-          @Override
-          public void onSuccess(@Nullable Void data) {
-            ALog.d(LIB_TAG, TAG, "stickTop,onSuccess:" + isStickTop);
-            FetchResult<Boolean> fetchResult = new FetchResult<>(LoadStatus.Success);
-            fetchResult.setData(isStickTop);
-            stickTopLiveData.setValue(fetchResult);
-          }
-        });
+            @Override
+            public void onSuccess(@Nullable Void data) {
+              ALog.d(LIB_TAG, TAG, "stickTop,onSuccess:" + isStickTop);
+              FetchResult<Boolean> fetchResult = new FetchResult<>(LoadStatus.Success);
+              fetchResult.setData(isStickTop);
+              stickTopLiveData.setValue(fetchResult);
+            }
+          });
+    } else {
+      //云端会话
+
+      ConversationRepo.setStickTop(
+          conversationId,
+          isStickTop,
+          new FetchCallback<Void>() {
+            @Override
+            public void onError(int errorCode, @Nullable String errorMsg) {
+              ALog.d(LIB_TAG, TAG, "stickTop,onError:" + errorCode + "," + errorMsg);
+              FetchResult<Boolean> fetchResult = new FetchResult<>(LoadStatus.Error);
+              fetchResult.setData(!isStickTop);
+              stickTopLiveData.setValue(fetchResult);
+            }
+
+            @Override
+            public void onSuccess(@Nullable Void data) {
+              ALog.d(LIB_TAG, TAG, "stickTop,onSuccess:" + isStickTop);
+              FetchResult<Boolean> fetchResult = new FetchResult<>(LoadStatus.Success);
+              fetchResult.setData(isStickTop);
+              stickTopLiveData.setValue(fetchResult);
+            }
+          });
+    }
   }
 
   /**

@@ -193,6 +193,7 @@
     <string name="chat_message_single_forward_tips">[Forward one by one]%s history</string>
 
     <string name="permission_deny_tips">Can\'t use this function when you closed</string>
+    <string name="permission_location_deny_tips">Can\'t use this function when you closed location service</string>
     <string name="permission_default">Please grant access...</string>
     <string name="permission_camera">Grant camera access in setting</string>
     <string name="permission_audio">Grant micro access in setting</string>
@@ -225,6 +226,9 @@
         message</string>
     <string name="chat_message_multi_delete_limit_tips">Delete limits 50 messages</string>
     <string name="chat_message_forward_success_tips">Forwarded</string>
+    <string name="chat_message_open_fail_tips">Unable to preview the file. Please install a compatible app</string>
+    <string name="chat_kit_no_permission_error">No permission</string>
+
     <!-- location -->
     <string name="chat_location_mine">Location</string>
     <string name="chat_location_nav">Navigation</string>

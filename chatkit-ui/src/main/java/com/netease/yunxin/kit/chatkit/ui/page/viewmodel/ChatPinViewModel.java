@@ -291,6 +291,11 @@ public class ChatPinViewModel extends BaseViewModel {
   private final ChatListener messageListener =
       new ChatListener() {
         @Override
+        public void onReceiveMessagesModified(@Nullable List<V2NIMMessage> messages) {
+          ALog.d(LIB_TAG, TAG, "onReceiveMessagesModified -->> ");
+        }
+
+        @Override
         public void onSendMessageFailed(
             int errorCode,
             @NonNull String errorMsg,

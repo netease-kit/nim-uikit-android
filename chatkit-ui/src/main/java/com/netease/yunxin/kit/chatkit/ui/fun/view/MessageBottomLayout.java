@@ -754,12 +754,7 @@ public class MessageBottomLayout extends FrameLayout
 
   // 发送位置信息
   public void onLocationClick() {
-    String[] permissions = {
-      Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION
-    };
-    if (mProxy.hasPermission(permissions)) {
-      mProxy.sendLocationLaunch();
-    }
+    mProxy.sendLocationLaunch();
   }
 
   // 发送文件

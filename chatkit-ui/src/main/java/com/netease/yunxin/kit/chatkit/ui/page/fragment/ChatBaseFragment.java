@@ -13,10 +13,12 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.Settings;
 import android.text.TextUtils;
 import android.text.style.ImageSpan;
 import android.util.Pair;
@@ -140,6 +142,8 @@ public abstract class ChatBaseFragment extends BaseFragment {
   private static final int REQUEST_READ_EXTERNAL_STORAGE_PERMISSION_ALBUM = 3;
   // 文件权限申请
   private static final int REQUEST_READ_EXTERNAL_STORAGE_PERMISSION_FILE = 4;
+  // 地理位置权限申请
+  private static final int REQUEST_LOCATION_PERMISSION = 5;
   // 音频消息最小长度(单位ms)
   private static final int AUDIO_MESSAGE_MIN_LENGTH = 1000;
 
@@ -602,6 +606,34 @@ public abstract class ChatBaseFragment extends BaseFragment {
                     hasPermission = false;
                     permission = Manifest.permission.READ_EXTERNAL_STORAGE;
                   }
+                } else if (currentRequest == REQUEST_LOCATION_PERMISSION) {
+                  if (PermissionUtils.hasPermissions(
+                      ChatBaseFragment.this.getContext(),
+                      Manifest.permission.ACCESS_COARSE_LOCATION)) {
+                    startLocationPage();
+                  } else {
+                    LocationManager locationManager =
+                        (LocationManager)
+                            ChatBaseFragment.this
+                                .getContext()
+                                .getSystemService(Context.LOCATION_SERVICE);
+                    try {
+                      int locationMode =
+                          Settings.Secure.getInt(
+                              ChatBaseFragment.this.getContext().getContentResolver(),
+                              Settings.Secure.LOCATION_MODE);
+                      // 位置服务关闭无法使用
+                      if (locationMode == Settings.Secure.LOCATION_MODE_OFF) {
+                        ToastX.showShortToast(
+                            getResources().getString(R.string.permission_location_deny_tips));
+                        return;
+                      }
+                    } catch (Exception e) {
+
+                    }
+                    hasPermission = false;
+                    permission = Manifest.permission.ACCESS_COARSE_LOCATION;
+                  }
                 }
 
                 if (!hasPermission) {
@@ -940,9 +972,18 @@ public abstract class ChatBaseFragment extends BaseFragment {
 
         @Override
         public void sendLocationLaunch() {
-          XKitRouter.withKey(RouterConstant.PATH_CHAT_LOCATION_PAGE)
-              .withContext(requireContext())
-              .navigate(locationLauncher);
+          String[] permissions = {
+            Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION
+          };
+          if (PermissionUtils.hasPermissions(ChatBaseFragment.this.getContext(), permissions)) {
+            startLocationPage();
+          } else {
+            requestSystemPermission(
+                permissions,
+                REQUEST_LOCATION_PERMISSION,
+                R.string.chat_permission_storage_title,
+                R.string.chat_permission_storage_content);
+          }
         }
 
         @Override
@@ -1130,6 +1171,12 @@ public abstract class ChatBaseFragment extends BaseFragment {
 
   protected void startPickFile() {
     pickFileLauncher.launch(new String[] {"*/*"});
+  }
+
+  protected void startLocationPage() {
+    XKitRouter.withKey(RouterConstant.PATH_CHAT_LOCATION_PAGE)
+        .withContext(requireContext())
+        .navigate(locationLauncher);
   }
 
   protected void startCaptureVideo() {
@@ -1655,7 +1702,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
             return true;
           }
           if (!ChatUtils.havePermissionForTopSticky()) {
-            ToastX.showShortToast(R.string.chat_no_permission);
+            ToastX.showShortToast(R.string.chat_kit_no_permission_error);
             return true;
           }
 

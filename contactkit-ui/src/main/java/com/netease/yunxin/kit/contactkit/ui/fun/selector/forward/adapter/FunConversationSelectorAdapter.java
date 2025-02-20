@@ -10,7 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
-import com.netease.nimlib.sdk.v2.conversation.model.V2NIMConversation;
+import com.netease.nimlib.sdk.v2.conversation.model.V2NIMBaseConversation;
 import com.netease.nimlib.sdk.v2.utils.V2NIMConversationIdUtil;
 import com.netease.yunxin.kit.common.ui.utils.AvatarColor;
 import com.netease.yunxin.kit.common.utils.SizeUtils;
@@ -33,7 +33,7 @@ public class FunConversationSelectorAdapter
   @Override
   protected void handleBindViewHolder(
       BaseSelectableViewHolder<FunForwardConversationSelectorViewHolderBinding> holder,
-      SelectableBean<V2NIMConversation> bean) {
+      SelectableBean<V2NIMBaseConversation> bean) {
     if (isMultiSelectMode) {
       holder.binding.rbSelector.setVisibility(View.VISIBLE);
       holder.binding.rbSelector.setChecked(bean.isSelected);

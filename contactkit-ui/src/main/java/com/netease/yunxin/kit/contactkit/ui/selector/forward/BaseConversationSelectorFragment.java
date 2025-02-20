@@ -17,6 +17,7 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import com.netease.nimlib.sdk.v2.conversation.model.V2NIMBaseConversation;
 import com.netease.nimlib.sdk.v2.conversation.model.V2NIMConversation;
 import com.netease.yunxin.kit.common.ui.fragments.BaseFragment;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
@@ -79,7 +80,7 @@ public abstract class BaseConversationSelectorFragment extends BaseFragment {
               recyclerView.setVisibility(View.VISIBLE);
               if (result.getLoadStatus() == LoadStatus.Finish) {
                 if (result.getData() != null && !result.getData().isEmpty()) {
-                  for (SelectableBean<V2NIMConversation> bean : result.getData()) {
+                  for (SelectableBean<V2NIMBaseConversation> bean : result.getData()) {
                     adapter.updateData(bean);
                   }
                 }
