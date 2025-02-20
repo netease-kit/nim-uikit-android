@@ -54,6 +54,7 @@
     <string name="setting_server_config">私有化配置</string>
     <string name="setting_kit_config">全局配置</string>
     <string name="setting_play_mode">听筒模式</string>
+    <string name="conversation_mode">本地会话</string>
     <string name="setting_filter_notify">过滤通知</string>
     <string name="setting_friend_delete_mode">删除好友是否同步删除备注</string>
     <string name="setting_message_read_mode">消息已读未读功能</string>

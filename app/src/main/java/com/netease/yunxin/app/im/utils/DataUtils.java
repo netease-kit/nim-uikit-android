@@ -10,6 +10,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.text.TextUtils;
 import com.netease.yunxin.app.im.main.SettingKitConfig;
+import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
 
 public class DataUtils {
 
@@ -20,6 +21,8 @@ public class DataUtils {
   private static Boolean serverConfigSwitch = null;
 
   private static SettingKitConfig kitConfig = null;
+
+  private static Boolean localConversation = null;
 
   /** read appKey from manifest */
   public static String readAppKey(Context context) {
@@ -92,6 +95,30 @@ public class DataUtils {
       serverConfigSwitch = sharedPreferences.getBoolean(Constant.SERVER_CONFIG_SWITCH_PARAM, false);
     }
     return serverConfigSwitch;
+  }
+
+  // 获取本地会话配置开关
+  public static boolean getLocalConversationConfigSwitch(Context context) {
+    if (localConversation == null) {
+      SharedPreferences sharedPreferences =
+          context.getSharedPreferences(
+              Constant.CONVERSATION_CONFIG_FILE, Context.MODE_MULTI_PROCESS);
+      localConversation = sharedPreferences.getBoolean(Constant.CONVERSATION_LOCAL_CONFIG, true);
+      IMKitConfigCenter.setEnableLocalConversation(localConversation);
+    }
+    return localConversation;
+  }
+
+  // 保存私有化配置开关
+  public static void saveLocalConversationConfigSwitch(Context context, boolean configSwitch) {
+    SharedPreferences.Editor editor =
+        context
+            .getSharedPreferences(Constant.CONVERSATION_CONFIG_FILE, Context.MODE_MULTI_PROCESS)
+            .edit();
+    editor.putBoolean(Constant.CONVERSATION_LOCAL_CONFIG, configSwitch);
+    localConversation = configSwitch;
+    IMKitConfigCenter.setEnableLocalConversation(localConversation);
+    editor.commit();
   }
 
   // 保存私有化配置开关

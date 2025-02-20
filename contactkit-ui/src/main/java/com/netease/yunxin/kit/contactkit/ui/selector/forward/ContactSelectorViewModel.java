@@ -11,17 +11,21 @@ import android.text.TextUtils;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
 import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
+import com.netease.nimlib.sdk.v2.conversation.model.V2NIMBaseConversation;
 import com.netease.nimlib.sdk.v2.conversation.model.V2NIMConversation;
 import com.netease.nimlib.sdk.v2.conversation.result.V2NIMConversationResult;
+import com.netease.nimlib.sdk.v2.conversation.result.V2NIMLocalConversationResult;
 import com.netease.nimlib.sdk.v2.team.model.V2NIMTeam;
 import com.netease.nimlib.sdk.v2.utils.V2NIMConversationIdUtil;
 import com.netease.yunxin.kit.alog.ALog;
+import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
 import com.netease.yunxin.kit.chatkit.model.ConversationSearchInfo;
 import com.netease.yunxin.kit.chatkit.model.FriendSearchInfo;
 import com.netease.yunxin.kit.chatkit.model.RecentForward;
 import com.netease.yunxin.kit.chatkit.model.TeamSearchInfo;
 import com.netease.yunxin.kit.chatkit.repo.ContactRepo;
 import com.netease.yunxin.kit.chatkit.repo.ConversationRepo;
+import com.netease.yunxin.kit.chatkit.repo.LocalConversationRepo;
 import com.netease.yunxin.kit.chatkit.repo.SearchRepo;
 import com.netease.yunxin.kit.chatkit.repo.SettingRepo;
 import com.netease.yunxin.kit.chatkit.repo.TeamRepo;
@@ -73,12 +77,12 @@ public class ContactSelectorViewModel extends BaseViewModel {
   private final List<ContactFriendBean> allFriendList = new ArrayList<>();
 
   // 群列表数据
-  private final MutableLiveData<FetchResult<List<SelectableBean<V2NIMConversation>>>>
+  private final MutableLiveData<FetchResult<List<SelectableBean<V2NIMBaseConversation>>>>
       conversationListLiveData = new MutableLiveData<>();
-  private final FetchResult<List<SelectableBean<V2NIMConversation>>> conversationListResult =
+  private final FetchResult<List<SelectableBean<V2NIMBaseConversation>>> conversationListResult =
       new FetchResult<>(LoadStatus.Finish);
   //所有会话数据
-  private final List<SelectableBean<V2NIMConversation>> allConversationList = new ArrayList<>();
+  private final List<SelectableBean<V2NIMBaseConversation>> allConversationList = new ArrayList<>();
 
   //最近转发数据
   private final MutableLiveData<FetchResult<List<SelectableBean<RecentForward>>>>
@@ -118,10 +122,10 @@ public class ContactSelectorViewModel extends BaseViewModel {
       new FetchResult<>(LoadStatus.Finish);
 
   //会话搜索结果
-  private final MutableLiveData<FetchResult<List<SelectableBean<V2NIMConversation>>>>
+  private final MutableLiveData<FetchResult<List<SelectableBean<V2NIMBaseConversation>>>>
       searchConversationResultLiveData = new MutableLiveData<>();
 
-  private final FetchResult<List<SelectableBean<V2NIMConversation>>> searchConversationResult =
+  private final FetchResult<List<SelectableBean<V2NIMBaseConversation>>> searchConversationResult =
       new FetchResult<>(LoadStatus.Finish);
 
   /** 加载联系人 */
@@ -200,56 +204,109 @@ public class ContactSelectorViewModel extends BaseViewModel {
 
   /** 拉取会话列表，在群列表请求完成之后进行 */
   private void queryConversationList() {
-    ConversationRepo.getConversationList(
-        0,
-        CONVERSATION_PAGE_LIMIT,
-        new FetchCallback<V2NIMConversationResult>() {
-          @Override
-          public void onError(int errorCode, @Nullable String errorMsg) {
-            ALog.d(LIB_TAG, TAG, "getConversationList,onFailed:" + errorCode);
-            conversationListResult.setError(errorCode, errorMsg);
-            conversationListResult.setStatus(LoadStatus.Error);
-            conversationListLiveData.postValue(conversationListResult);
-          }
+    if (IMKitConfigCenter.getEnableLocalConversation()) {
+      LocalConversationRepo.getConversationList(
+          0,
+          CONVERSATION_PAGE_LIMIT,
+          new FetchCallback<V2NIMLocalConversationResult>() {
+            @Override
+            public void onError(int errorCode, @Nullable String errorMsg) {
+              ALog.d(LIB_TAG, TAG, "getConversationList,onFailed:" + errorCode);
+              conversationListResult.setError(errorCode, errorMsg);
+              conversationListResult.setStatus(LoadStatus.Error);
+              conversationListLiveData.postValue(conversationListResult);
+            }
 
-          @Override
-          public void onSuccess(@Nullable V2NIMConversationResult data) {
-            ALog.d(
-                LIB_TAG,
-                TAG,
-                "getConversationList,onSuccess:"
-                    + (data == null ? "null" : data.getConversationList().size()));
-            if (data != null) {
-              allConversationList.clear();
-              conversationListResult.setStatus(LoadStatus.Success);
-              Set<SelectableBean<V2NIMConversation>> selectableConversation = new HashSet<>();
-              for (V2NIMConversation conversation : data.getConversationList()) {
-                SelectableBean<V2NIMConversation> selectableBean =
-                    new SelectableBean<>(conversation);
-                //群组会话填充人数
-                if (conversation.getType() == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_TEAM
-                    && !allTeamList.isEmpty()) {
-                  SelectableBean<V2NIMTeam> team =
-                      findTeamById(
-                          V2NIMConversationIdUtil.conversationTargetId(
-                              conversation.getConversationId()));
-                  if (team != null) {
-                    selectableBean.memberCount = team.data.getMemberCount();
+            @Override
+            public void onSuccess(@Nullable V2NIMLocalConversationResult data) {
+              ALog.d(
+                  LIB_TAG,
+                  TAG,
+                  "getConversationList,onSuccess:"
+                      + (data == null ? "null" : data.getConversationList().size()));
+              if (data != null) {
+                allConversationList.clear();
+                conversationListResult.setStatus(LoadStatus.Success);
+                Set<SelectableBean<V2NIMBaseConversation>> selectableConversation = new HashSet<>();
+                for (V2NIMBaseConversation conversation : data.getConversationList()) {
+                  SelectableBean<V2NIMBaseConversation> selectableBean =
+                      new SelectableBean<>(conversation);
+                  //群组会话填充人数
+                  if (conversation.getType() == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_TEAM
+                      && !allTeamList.isEmpty()) {
+                    SelectableBean<V2NIMTeam> team =
+                        findTeamById(
+                            V2NIMConversationIdUtil.conversationTargetId(
+                                conversation.getConversationId()));
+                    if (team != null) {
+                      selectableBean.memberCount = team.data.getMemberCount();
+                    }
+                  }
+                  if (!selectableConversation.contains(selectableBean)) {
+                    selectableConversation.add(selectableBean);
+                    allConversationList.add(selectableBean);
                   }
                 }
-                if (!selectableConversation.contains(selectableBean)) {
-                  selectableConversation.add(selectableBean);
-                  allConversationList.add(selectableBean);
-                }
+                conversationListResult.setData(allConversationList);
+              } else {
+                conversationListResult.setData(null);
+                conversationListResult.setStatus(LoadStatus.Error);
               }
-              conversationListResult.setData(allConversationList);
-            } else {
-              conversationListResult.setData(null);
-              conversationListResult.setStatus(LoadStatus.Error);
+              conversationListLiveData.postValue(conversationListResult);
             }
-            conversationListLiveData.postValue(conversationListResult);
-          }
-        });
+          });
+    } else {
+      ConversationRepo.getConversationList(
+          0,
+          CONVERSATION_PAGE_LIMIT,
+          new FetchCallback<V2NIMConversationResult>() {
+            @Override
+            public void onError(int errorCode, @Nullable String errorMsg) {
+              ALog.d(LIB_TAG, TAG, "getConversationList,onFailed:" + errorCode);
+              conversationListResult.setError(errorCode, errorMsg);
+              conversationListResult.setStatus(LoadStatus.Error);
+              conversationListLiveData.postValue(conversationListResult);
+            }
+
+            @Override
+            public void onSuccess(@Nullable V2NIMConversationResult data) {
+              ALog.d(
+                  LIB_TAG,
+                  TAG,
+                  "getConversationList,onSuccess:"
+                      + (data == null ? "null" : data.getConversationList().size()));
+              if (data != null) {
+                allConversationList.clear();
+                conversationListResult.setStatus(LoadStatus.Success);
+                Set<SelectableBean<V2NIMBaseConversation>> selectableConversation = new HashSet<>();
+                for (V2NIMConversation conversation : data.getConversationList()) {
+                  SelectableBean<V2NIMBaseConversation> selectableBean =
+                      new SelectableBean<>(conversation);
+                  //群组会话填充人数
+                  if (conversation.getType() == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_TEAM
+                      && !allTeamList.isEmpty()) {
+                    SelectableBean<V2NIMTeam> team =
+                        findTeamById(
+                            V2NIMConversationIdUtil.conversationTargetId(
+                                conversation.getConversationId()));
+                    if (team != null) {
+                      selectableBean.memberCount = team.data.getMemberCount();
+                    }
+                  }
+                  if (!selectableConversation.contains(selectableBean)) {
+                    selectableConversation.add(selectableBean);
+                    allConversationList.add(selectableBean);
+                  }
+                }
+                conversationListResult.setData(allConversationList);
+              } else {
+                conversationListResult.setData(null);
+                conversationListResult.setStatus(LoadStatus.Error);
+              }
+              conversationListLiveData.postValue(conversationListResult);
+            }
+          });
+    }
   }
 
   //根据ID查找群
@@ -263,8 +320,8 @@ public class ContactSelectorViewModel extends BaseViewModel {
   }
 
   //根据ID查找会话
-  private SelectableBean<V2NIMConversation> findConversationById(String conversationId) {
-    for (SelectableBean<V2NIMConversation> conversation : allConversationList) {
+  private SelectableBean<V2NIMBaseConversation> findConversationById(String conversationId) {
+    for (SelectableBean<V2NIMBaseConversation> conversation : allConversationList) {
       if (conversation.data.getConversationId().equals(conversationId)) {
         return conversation;
       }
@@ -360,7 +417,7 @@ public class ContactSelectorViewModel extends BaseViewModel {
    * @param conversation 会话
    * @return 是否选中
    */
-  private boolean isConversationSelected(V2NIMConversation conversation) {
+  private boolean isConversationSelected(V2NIMBaseConversation conversation) {
     for (SelectedViewBean selected : selectedList) {
       if (selected.getTargetId().equals(conversation.getConversationId())) {
         return true;
@@ -511,9 +568,9 @@ public class ContactSelectorViewModel extends BaseViewModel {
    * @param conversation 会话
    * @param isSelected 是否选中
    */
-  public void selectConversation(V2NIMConversation conversation, boolean isSelected) {
+  public void selectConversation(V2NIMBaseConversation conversation, boolean isSelected) {
     conversationListResult.setStatus(LoadStatus.Finish);
-    SelectableBean<V2NIMConversation> selectableBean =
+    SelectableBean<V2NIMBaseConversation> selectableBean =
         findConversationById(conversation.getConversationId());
     if (selectableBean == null) {
       selectableBean = new SelectableBean<>(conversation);
@@ -636,9 +693,9 @@ public class ContactSelectorViewModel extends BaseViewModel {
    */
   private void checkSelectConversation(
       String sessionId, V2NIMConversationType sessionType, boolean isSelected) {
-    SelectableBean<V2NIMConversation> selectableBean = null;
+    SelectableBean<V2NIMBaseConversation> selectableBean = null;
     //遍历会话列表，查找是否有选中状态变化的会话
-    for (SelectableBean<V2NIMConversation> conversation : allConversationList) {
+    for (SelectableBean<V2NIMBaseConversation> conversation : allConversationList) {
       if (sessionId.equals(
               V2NIMConversationIdUtil.conversationTargetId(conversation.data.getConversationId()))
           && sessionType == conversation.data.getType()) {
@@ -865,8 +922,8 @@ public class ContactSelectorViewModel extends BaseViewModel {
     if (TextUtils.isEmpty(searchKey) || allConversationList.isEmpty()) {
       return;
     }
-    List<V2NIMConversation> conversations = new ArrayList<>();
-    for (SelectableBean<V2NIMConversation> conversation : allConversationList) {
+    List<V2NIMBaseConversation> conversations = new ArrayList<>();
+    for (SelectableBean<V2NIMBaseConversation> conversation : allConversationList) {
       conversations.add(conversation.data);
     }
     SearchRepo.searchConversationByName(
@@ -882,10 +939,10 @@ public class ContactSelectorViewModel extends BaseViewModel {
           @Override
           public void onSuccess(@Nullable List<ConversationSearchInfo> data) {
             searchConversationResult.setStatus(LoadStatus.Success);
-            List<SelectableBean<V2NIMConversation>> searchConversationList = new ArrayList<>();
+            List<SelectableBean<V2NIMBaseConversation>> searchConversationList = new ArrayList<>();
             if (data != null && !data.isEmpty()) {
               for (ConversationSearchInfo conversation : data) {
-                SelectableBean<V2NIMConversation> conversationBean =
+                SelectableBean<V2NIMBaseConversation> conversationBean =
                     new SelectableBean<>(conversation.getConversation());
                 conversationBean.isSelected =
                     isConversationSelected(conversation.getConversation());
@@ -905,7 +962,7 @@ public class ContactSelectorViewModel extends BaseViewModel {
         });
   }
 
-  public MutableLiveData<FetchResult<List<SelectableBean<V2NIMConversation>>>>
+  public MutableLiveData<FetchResult<List<SelectableBean<V2NIMBaseConversation>>>>
       getConversationListLiveData() {
     return conversationListLiveData;
   }
@@ -949,7 +1006,7 @@ public class ContactSelectorViewModel extends BaseViewModel {
     return searchTeamResultLiveData;
   }
 
-  public MutableLiveData<FetchResult<List<SelectableBean<V2NIMConversation>>>>
+  public MutableLiveData<FetchResult<List<SelectableBean<V2NIMBaseConversation>>>>
       getSearchConversationResultLiveData() {
     return searchConversationResultLiveData;
   }

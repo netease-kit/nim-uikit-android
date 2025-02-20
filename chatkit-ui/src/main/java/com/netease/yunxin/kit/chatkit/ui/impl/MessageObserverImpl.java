@@ -69,4 +69,7 @@ public class MessageObserverImpl implements ChatListener {
       @NonNull String conversationId,
       @NonNull V2NIMConversationType conversationType,
       @Nullable V2NIMMessage data) {}
+
+  @Override
+  public void onReceiveMessagesModified(@Nullable List<V2NIMMessage> messages) {}
 }

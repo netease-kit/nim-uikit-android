@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewbinding.ViewBinding;
-import com.netease.nimlib.sdk.v2.conversation.model.V2NIMConversation;
+import com.netease.nimlib.sdk.v2.conversation.model.V2NIMBaseConversation;
 import com.netease.yunxin.kit.contactkit.ui.model.SelectableBean;
 import com.netease.yunxin.kit.contactkit.ui.selector.BaseSelectableViewHolder;
 import com.netease.yunxin.kit.contactkit.ui.selector.SelectableListener;
@@ -18,11 +18,11 @@ import java.util.List;
 public abstract class BaseConversationSelectorAdapter<R extends ViewBinding>
     extends RecyclerView.Adapter<BaseSelectableViewHolder<R>> {
 
-  protected SelectableListener<V2NIMConversation> selectableListener;
+  protected SelectableListener<V2NIMBaseConversation> selectableListener;
 
   protected abstract R provideViewBinding(@NonNull ViewGroup parent, int viewType);
 
-  protected LinkedList<SelectableBean<V2NIMConversation>> selectableBeans = new LinkedList<>();
+  protected LinkedList<SelectableBean<V2NIMBaseConversation>> selectableBeans = new LinkedList<>();
 
   //是否多选模式
   protected boolean isMultiSelectMode = false;
@@ -32,7 +32,7 @@ public abstract class BaseConversationSelectorAdapter<R extends ViewBinding>
    *
    * @param data 数据
    */
-  public void setData(List<SelectableBean<V2NIMConversation>> data) {
+  public void setData(List<SelectableBean<V2NIMBaseConversation>> data) {
     selectableBeans.clear();
     if (data != null) {
       selectableBeans.addAll(data);
@@ -45,7 +45,7 @@ public abstract class BaseConversationSelectorAdapter<R extends ViewBinding>
     notifyDataSetChanged();
   }
 
-  public void setSelectableListener(SelectableListener<V2NIMConversation> selectableListener) {
+  public void setSelectableListener(SelectableListener<V2NIMBaseConversation> selectableListener) {
     this.selectableListener = selectableListener;
   }
 
@@ -54,7 +54,7 @@ public abstract class BaseConversationSelectorAdapter<R extends ViewBinding>
    *
    * @param data 数据
    */
-  public void updateData(SelectableBean<V2NIMConversation> data) {
+  public void updateData(SelectableBean<V2NIMBaseConversation> data) {
     if (data != null) {
       int index = selectableBeans.indexOf(data);
       if (index != -1) {
@@ -72,7 +72,7 @@ public abstract class BaseConversationSelectorAdapter<R extends ViewBinding>
 
   @Override
   public void onBindViewHolder(@NonNull BaseSelectableViewHolder<R> holder, int position) {
-    SelectableBean<V2NIMConversation> bean = selectableBeans.get(position);
+    SelectableBean<V2NIMBaseConversation> bean = selectableBeans.get(position);
     if (bean == null) {
       return;
     }
@@ -94,5 +94,5 @@ public abstract class BaseConversationSelectorAdapter<R extends ViewBinding>
   }
 
   protected abstract void handleBindViewHolder(
-      BaseSelectableViewHolder<R> holder, SelectableBean<V2NIMConversation> bean);
+      BaseSelectableViewHolder<R> holder, SelectableBean<V2NIMBaseConversation> bean);
 }

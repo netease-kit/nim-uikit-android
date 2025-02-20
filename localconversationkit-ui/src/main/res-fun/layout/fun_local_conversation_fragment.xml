@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (c) 2022 NetEase, Inc. All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be
+  ~ found in the LICENSE file.
+  -->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/fun_conversation_page_bg_color"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/topLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        tools:ignore="MissingConstraints">
+
+        <com.netease.yunxin.kit.common.ui.widgets.TitleBarView
+            android:id="@+id/titleBar"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dimen_52_dp"
+            app:head_img_visible="visible"
+            app:head_title="@string/conversation_title"
+            app:head_title_color="@color/color_black"
+            tools:ignore="MissingConstraints" />
+
+
+        <com.netease.yunxin.kit.common.ui.widgets.RoundFrameLayout
+            android:id="@+id/searchLayout"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dimen_36_dp"
+            android:layout_marginStart="@dimen/dimen_8_dp"
+            android:layout_marginEnd="@dimen/dimen_8_dp"
+            android:background="@color/color_white"
+            app:corner_radius="@dimen/dimen_4_dp">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="@dimen/dimen_20_dp"
+                    android:layout_height="@dimen/dimen_20_dp"
+                    android:layout_gravity="center_vertical"
+                    android:src="@drawable/fun_ic_conversation_search" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/dimen_36_dp"
+                    android:layout_marginStart="@dimen/dimen_5_dp"
+                    android:gravity="center_vertical"
+                    android:text="@string/fun_conversation_search_text"
+                    android:textColor="@color/fun_conversation_search_text_color"
+                    android:textSize="@dimen/text_size_16" />
+
+            </LinearLayout>
+        </com.netease.yunxin.kit.common.ui.widgets.RoundFrameLayout>
+    </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/bodyTopLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:ignore="MissingConstraints" />
+
+    <LinearLayout
+        android:id="@+id/bodyLayout"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="@dimen/dimen_8_dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        tools:ignore="MissingConstraints">
+
+        <TextView
+            android:id="@+id/errorTv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/color_fceeee"
+            android:gravity="center"
+            android:paddingStart="@dimen/dimen_35_dp"
+            android:paddingTop="@dimen/dimen_10_dp"
+            android:paddingEnd="@dimen/dimen_5_dp"
+            android:paddingBottom="@dimen/dimen_10_dp"
+            android:text="@string/conversation_network_error_tip"
+            android:textColor="@color/color_50_000000"
+            android:textSize="14dp"
+            android:visibility="gone"
+            app:drawableStartCompat="@drawable/ic_error" />
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+
+            <com.netease.yunxin.kit.conversationkit.local.ui.view.ConversationView
+                android:id="@+id/conversationView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+            <LinearLayout
+                android:id="@+id/emptyLayout"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dimen_188_dp"
+                android:layout_marginTop="@dimen/dimen_150_dp"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <ImageView
+                    android:layout_width="@dimen/dimen_118_dp"
+                    android:layout_height="@dimen/dimen_96_dp"
+                    android:layout_gravity="center_horizontal"
+                    android:src="@drawable/fun_ic_conversation_empty" />
+
+                <TextView
+                    android:id="@+id/empty_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:text="@string/conversation_empty_tip" />
+
+            </LinearLayout>
+        </FrameLayout>
+    </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/bottomLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:ignore="MissingConstraints" />
+</LinearLayout>

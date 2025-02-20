@@ -49,6 +49,7 @@ import com.netease.nimlib.sdk.v2.message.params.V2NIMVoiceToTextParams;
 import com.netease.nimlib.sdk.v2.message.result.V2NIMSendMessageResult;
 import com.netease.nimlib.sdk.v2.utils.V2NIMConversationIdUtil;
 import com.netease.yunxin.kit.alog.ALog;
+import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
 import com.netease.yunxin.kit.chatkit.listener.ChatListener;
 import com.netease.yunxin.kit.chatkit.listener.MessageRevokeNotification;
 import com.netease.yunxin.kit.chatkit.listener.MessageUpdateType;
@@ -59,6 +60,7 @@ import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.model.RecentForward;
 import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
 import com.netease.yunxin.kit.chatkit.repo.ConversationRepo;
+import com.netease.yunxin.kit.chatkit.repo.LocalConversationRepo;
 import com.netease.yunxin.kit.chatkit.repo.ResourceRepo;
 import com.netease.yunxin.kit.chatkit.repo.SettingRepo;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant;
@@ -178,6 +180,11 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
   // 消息监听
   private final ChatListener messageListener =
       new ChatListener() {
+
+        @Override
+        public void onReceiveMessagesModified(@Nullable List<V2NIMMessage> messages) {
+          ALog.d(LIB_TAG, TAG, "onReceiveMessagesModified msg");
+        }
 
         @Override
         public void onSendMessageFailed(
@@ -679,6 +686,11 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
 
   // 清理
   public void clearChattingAccount() {
+    if (IMKitConfigCenter.getEnableLocalConversation()) {
+      LocalConversationRepo.clearUnreadCountByIds(Collections.singletonList(mConversationId), null);
+    } else {
+      ConversationRepo.clearUnreadCountByIds(Collections.singletonList(mConversationId), null);
+    }
     ChatRepo.clearChattingId();
   }
 

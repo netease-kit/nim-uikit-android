@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2022 NetEase, Inc. All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be
+  ~ found in the LICENSE file.
+  -->
+
+<selector xmlns:tools="http://schemas.android.com/tools" xmlns:android="http://schemas.android.com/apk/res/android" tools:ignore="MissingDefaultResource">
+
+    <item android:drawable="@color/color_white" android:state_pressed="false" />
+    <item android:drawable="@color/color_ededef" android:state_pressed="true" />
+</selector>

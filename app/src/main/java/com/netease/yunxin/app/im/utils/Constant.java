@@ -31,6 +31,8 @@ public class Constant {
   public static final String SERVER_PRIVATE_CONFIG_FILE = "imkit_private_config_info";
   public static final String SERVER_PRIVATE_CONFIG_SWITCH_FILE = "imkit_private_config_switch";
   public static final String SERVER_CONFIG_FILE = "imkit_config_info";
+  public static final String CONVERSATION_CONFIG_FILE = "imkit_conversation_info";
+  public static final String CONVERSATION_LOCAL_CONFIG = "local_conversation";
   public static final int CHINA_CONFIG = 0;
   public static final int OVERSEA_CONFIG = 1;
 

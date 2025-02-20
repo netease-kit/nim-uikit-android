@@ -54,6 +54,7 @@
     <string name="setting_notify">Notification</string>
     <string name="setting_clear_cache">Clear Cache</string>
     <string name="setting_play_mode">Handset Mode</string>
+    <string name="conversation_mode">Local Conversation Mode</string>
     <string name="setting_filter_notify">Filter notifications</string>
     <string name="setting_friend_delete_mode">Delete Remark</string>
     <string name="setting_message_read_mode">Read/Unread</string>

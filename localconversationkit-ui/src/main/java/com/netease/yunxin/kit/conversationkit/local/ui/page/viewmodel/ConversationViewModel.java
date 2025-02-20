@@ -1,0 +1,634 @@
+// Copyright (c) 2022 NetEase, Inc. All rights reserved.
+// Use of this source code is governed by a MIT license that can be
+// found in the LICENSE file.
+
+package com.netease.yunxin.kit.conversationkit.local.ui.page.viewmodel;
+
+import android.text.TextUtils;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.lifecycle.MutableLiveData;
+import com.netease.nimlib.sdk.v2.V2NIMError;
+import com.netease.nimlib.sdk.v2.ai.model.V2NIMAIUser;
+import com.netease.nimlib.sdk.v2.auth.enums.V2NIMDataSyncState;
+import com.netease.nimlib.sdk.v2.auth.enums.V2NIMDataSyncType;
+import com.netease.nimlib.sdk.v2.conversation.V2NIMLocalConversationListener;
+import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
+import com.netease.nimlib.sdk.v2.conversation.model.V2NIMLocalConversation;
+import com.netease.nimlib.sdk.v2.conversation.result.V2NIMLocalConversationResult;
+import com.netease.nimlib.sdk.v2.team.V2NIMTeamListener;
+import com.netease.nimlib.sdk.v2.team.model.V2NIMTeam;
+import com.netease.nimlib.sdk.v2.user.V2NIMUser;
+import com.netease.nimlib.sdk.v2.utils.V2NIMConversationIdUtil;
+import com.netease.yunxin.kit.alog.ALog;
+import com.netease.yunxin.kit.chatkit.ChatConstants;
+import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
+import com.netease.yunxin.kit.chatkit.impl.LocalConversationListenerImpl;
+import com.netease.yunxin.kit.chatkit.impl.LoginDetailListenerImpl;
+import com.netease.yunxin.kit.chatkit.impl.TeamListenerImpl;
+import com.netease.yunxin.kit.chatkit.manager.AIUserChangeListener;
+import com.netease.yunxin.kit.chatkit.manager.AIUserManager;
+import com.netease.yunxin.kit.chatkit.repo.ContactRepo;
+import com.netease.yunxin.kit.chatkit.repo.LocalConversationRepo;
+import com.netease.yunxin.kit.chatkit.repo.TeamRepo;
+import com.netease.yunxin.kit.chatkit.utils.ErrorUtils;
+import com.netease.yunxin.kit.common.ui.utils.ToastX;
+import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
+import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
+import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
+import com.netease.yunxin.kit.conversationkit.local.ui.ILocalConversationFactory;
+import com.netease.yunxin.kit.conversationkit.local.ui.R;
+import com.netease.yunxin.kit.conversationkit.local.ui.common.ConversationConstant;
+import com.netease.yunxin.kit.conversationkit.local.ui.common.ConversationUtils;
+import com.netease.yunxin.kit.conversationkit.local.ui.model.AIUserBean;
+import com.netease.yunxin.kit.conversationkit.local.ui.model.ConversationBean;
+import com.netease.yunxin.kit.conversationkit.local.ui.page.DefaultViewHolderFactory;
+import com.netease.yunxin.kit.corekit.event.EventCenter;
+import com.netease.yunxin.kit.corekit.event.EventNotify;
+import com.netease.yunxin.kit.corekit.im2.IMKitClient;
+import com.netease.yunxin.kit.corekit.im2.custom.AitEvent;
+import com.netease.yunxin.kit.corekit.im2.custom.AitInfo;
+import com.netease.yunxin.kit.corekit.im2.custom.TeamEvent;
+import com.netease.yunxin.kit.corekit.im2.custom.TeamEventAction;
+import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
+import com.netease.yunxin.kit.corekit.im2.listener.ContactChangeType;
+import com.netease.yunxin.kit.corekit.im2.listener.ContactListener;
+import com.netease.yunxin.kit.corekit.im2.model.FriendAddApplicationInfo;
+import com.netease.yunxin.kit.corekit.im2.model.UserWithFriend;
+import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
+import com.netease.yunxin.kit.corekit.route.XKitRouter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+/** 会话列表逻辑层ViewModel */
+public class ConversationViewModel extends BaseViewModel {
+
+  private final String TAG = "ConversationViewModel";
+  private final String LIB_TAG = "LocalConversationKit-UI";
+
+  // 未读数LiveData，用于通知未读数变化
+  private final MutableLiveData<FetchResult<Integer>> unreadCountLiveData = new MutableLiveData<>();
+  // 会话列表LiveData，用于通知会话列表查询结果
+  private final MutableLiveData<FetchResult<List<ConversationBean>>> queryLiveData =
+      new MutableLiveData<>();
+  // 会话变化LiveData，用于通知会话信息变化变更
+  private final MutableLiveData<FetchResult<List<ConversationBean>>> changeLiveData =
+      new MutableLiveData<>();
+  // @信息LiveData，用于通知@信息变更
+  private final MutableLiveData<FetchResult<List<String>>> aitLiveData = new MutableLiveData<>();
+  // 删除会话LiveData，用于通知会话删除结果
+  private final MutableLiveData<FetchResult<List<String>>> deleteLiveData = new MutableLiveData<>();
+
+  // 置顶AI机器人列表
+  private final MutableLiveData<FetchResult<List<AIUserBean>>> aiRobotLiveData =
+      new MutableLiveData<>();
+
+  // 会话列表排序比较器
+  private Comparator<ConversationBean> comparator;
+  private ILocalConversationFactory conversationFactory = new DefaultViewHolderFactory();
+  // 分页加载，每页加载数量
+  private static final int PAGE_LIMIT = 200;
+  // 分页加载，当前加载偏移量
+  private long mOffset = 0;
+  // 分页加载，是否还有更多数据
+  private boolean hasMore = true;
+  // 数据查询是否已经开始
+  private boolean hasStart = false;
+
+  public ConversationViewModel() {
+    // 注册会话监听
+    LocalConversationRepo.addConversationListener(conversationListener);
+    // 注册群组监听,用于监听群解散和退出
+    TeamRepo.addTeamListener(teamListener);
+    // 注册@信息监听,业务层逻辑
+    EventCenter.registerEventNotify(aitNotify);
+    EventCenter.registerEventNotify(dismissTeamEvent);
+    // 注册登录监听,用于同步数据完成后拉取数据，避免会话中会话名称和头像为空
+    IMKitClient.addLoginDetailListener(loginDetailListener);
+    if (IMKitConfigCenter.getEnableAIUser()) {
+      ContactRepo.addContactListener(contactListener);
+      AIUserManager.addAIUserChangeListener(aiUserChangeListener);
+    }
+  }
+
+  // @信息监听
+  private EventNotify<AitEvent> aitNotify =
+      new EventNotify<AitEvent>() {
+        @Override
+        public void onNotify(@NonNull AitEvent aitEvent) {
+          FetchResult<List<String>> result = new FetchResult<>(LoadStatus.Finish);
+          ALog.d(LIB_TAG, TAG, "aitNotify");
+          if (aitEvent.getAitInfoList() == null) {
+            return;
+          }
+          if (aitEvent.getEventType() == AitEvent.AitEventType.Arrive
+              || aitEvent.getEventType() == AitEvent.AitEventType.Load) {
+            result.setFetchType(FetchResult.FetchType.Add);
+          } else {
+            result.setFetchType(FetchResult.FetchType.Remove);
+          }
+          List<AitInfo> aitInfoList = aitEvent.getAitInfoList();
+          List<String> sessionIdList = new ArrayList<>();
+          for (AitInfo info : aitInfoList) {
+            sessionIdList.add(info.getConversationId());
+          }
+          result.setData(sessionIdList);
+          aitLiveData.setValue(result);
+        }
+
+        @NonNull
+        @Override
+        public String getEventType() {
+          return "AitEvent";
+        }
+      };
+
+  private EventNotify<TeamEvent> dismissTeamEvent =
+      new EventNotify<TeamEvent>() {
+        @Override
+        public void onNotify(@NonNull TeamEvent teamEvent) {
+          if (teamEvent != null && teamEvent.getAction() == TeamEventAction.ACTION_DISMISS) {
+            ALog.d(LIB_TAG, TAG, "dismissTeamEvent,teamId:" + teamEvent.getTeamId());
+            String id = teamEvent.getTeamId();
+            if (TextUtils.isEmpty(id)
+                || !IMKitConfigCenter.getEnableDismissTeamDeleteConversation()) {
+              return;
+            }
+            deleteConversation(
+                V2NIMConversationIdUtil.conversationId(
+                    id, V2NIMConversationType.V2NIM_CONVERSATION_TYPE_TEAM),
+                false);
+          }
+        }
+
+        @NonNull
+        @Override
+        public String getEventType() {
+          return "TeamEvent";
+        }
+      };
+
+  private LoginDetailListenerImpl loginDetailListener =
+      new LoginDetailListenerImpl() {
+        @Override
+        public void onDataSync(V2NIMDataSyncType type, V2NIMDataSyncState state, V2NIMError error) {
+          ALog.d(LIB_TAG, TAG, "onDataSync:" + type.name() + "," + state.name());
+          if (type == V2NIMDataSyncType.V2NIM_DATA_SYNC_MAIN
+              && state == V2NIMDataSyncState.V2NIM_DATA_SYNC_STATE_COMPLETED) {
+            getConversationData();
+          }
+        }
+      };
+
+  private ContactListener contactListener =
+      new ContactListener() {
+        @Override
+        public void onContactChange(
+            @NonNull ContactChangeType changeType,
+            @NonNull List<? extends UserWithFriend> contactList) {
+          if (changeType == ContactChangeType.Update) {
+            for (UserWithFriend user : contactList) {
+              ALog.d(LIB_TAG, TAG, "onUserProfileChanged:" + user.getAccount());
+              if (TextUtils.equals(user.getAccount(), IMKitClient.account())) {
+                getAiRobotUserList();
+              }
+            }
+          }
+        }
+
+        @Override
+        public void onFriendAddApplication(@NonNull FriendAddApplicationInfo friendApplication) {}
+
+        @Override
+        public void onFriendAddRejected(@NonNull FriendAddApplicationInfo rejectionInfo) {}
+      };
+
+  // 设置会话列表排序比较器
+  public void setComparator(Comparator<ConversationBean> comparator) {
+    this.comparator = comparator;
+  }
+
+  // 设置会话列表ViewHolder工厂
+  public void setConversationFactory(ILocalConversationFactory factory) {
+    this.conversationFactory = factory;
+  }
+
+  public MutableLiveData<FetchResult<Integer>> getUnreadCountLiveData() {
+    return unreadCountLiveData;
+  }
+
+  public MutableLiveData<FetchResult<List<ConversationBean>>> getQueryLiveData() {
+    return queryLiveData;
+  }
+
+  public MutableLiveData<FetchResult<List<ConversationBean>>> getChangeLiveData() {
+    return changeLiveData;
+  }
+
+  public MutableLiveData<FetchResult<List<String>>> getDeleteLiveData() {
+    return deleteLiveData;
+  }
+
+  public MutableLiveData<FetchResult<List<String>>> getAitLiveData() {
+    return aitLiveData;
+  }
+
+  public MutableLiveData<FetchResult<List<AIUserBean>>> getAiRobotLiveData() {
+    return aiRobotLiveData;
+  }
+
+  /** 获取未读数 */
+  public void getUnreadCount() {
+    int unreadCount = LocalConversationRepo.getTotalUnreadCount();
+    ALog.d(LIB_TAG, TAG, "getUnreadCount,onSuccess:" + unreadCount);
+    FetchResult<Integer> fetchResult = new FetchResult<>(LoadStatus.Success);
+    fetchResult.setData(unreadCount);
+    unreadCountLiveData.setValue(fetchResult);
+  }
+
+  /** 获取会话列表相关数据，包括会话列表数据和未读数 */
+  public void getConversationData() {
+    XKitRouter.withKey(RouterConstant.PATH_CHAT_AIT_NOTIFY_ACTION).navigate();
+    getConversationByPage(0);
+    getUnreadCount();
+    getAiRobotUserList();
+  }
+
+  /** 加载更多会话列表数据 */
+  public void loadMore() {
+    ALog.d(LIB_TAG, TAG, "loadMore:");
+    getConversationByPage(mOffset);
+  }
+
+  /**
+   * 查询会话列表
+   *
+   * @param offSet 偏移量
+   */
+  private void getConversationByPage(long offSet) {
+    ALog.d(LIB_TAG, TAG, "queryConversation:" + offSet);
+    if (hasStart) {
+      ALog.d(LIB_TAG, TAG, "queryConversation,has Started return");
+      return;
+    }
+    hasStart = true;
+    LocalConversationRepo.getConversationList(
+        offSet,
+        PAGE_LIMIT,
+        new FetchCallback<V2NIMLocalConversationResult>() {
+          @Override
+          public void onError(int errorCode, @Nullable String errorMsg) {
+            ALog.e(LIB_TAG, TAG, "queryConversation,onError:" + errorCode + "," + errorMsg);
+            hasStart = false;
+          }
+
+          @Override
+          public void onSuccess(@Nullable V2NIMLocalConversationResult data) {
+            ALog.d(
+                LIB_TAG,
+                TAG,
+                "queryConversation,onSuccess:"
+                    + ((data != null && data.getConversationList() != null)
+                        ? data.getConversationList().size()
+                        : 0));
+            FetchResult<List<ConversationBean>> result = new FetchResult<>(LoadStatus.Success);
+            result.setType(offSet > 0 ? FetchResult.FetchType.Add : FetchResult.FetchType.Init);
+
+            if (data != null && data.getConversationList() != null) {
+              checkConversationAndRemove(data.getConversationList());
+              List<ConversationBean> resultData =
+                  createConversationBean(data.getConversationList());
+              if (comparator != null) {
+                Collections.sort(resultData, comparator);
+              }
+              result.setData(resultData);
+              hasMore = resultData.size() == PAGE_LIMIT;
+              mOffset = data.getOffset();
+            }
+            queryLiveData.setValue(result);
+            hasStart = false;
+          }
+        });
+  }
+
+  public void getAiRobotUserList() {
+    if (!IMKitConfigCenter.getEnableAIUser()) {
+      return;
+    }
+    List<V2NIMAIUser> aiUserList = AIUserManager.getPinDefaultUserList();
+    if (aiUserList == null || aiUserList.isEmpty()) {
+      return;
+    }
+    ContactRepo.getUserInfo(
+        Collections.singletonList(IMKitClient.account()),
+        new FetchCallback<List<V2NIMUser>>() {
+          @Override
+          public void onError(int errorCode, @Nullable String errorMsg) {}
+
+          @Override
+          public void onSuccess(@Nullable List<V2NIMUser> data) {
+            if (data != null && data.size() > 0) {
+              V2NIMUser user = data.get(0);
+              if (user != null) {
+                ALog.d(LIB_TAG, TAG, "getAiRobotUserList,user:" + user.getServerExtension());
+                try {
+                  String userExtStr = user.getServerExtension();
+                  Set<String> userUnpinSet = null;
+                  if (!TextUtils.isEmpty(userExtStr)) {
+                    JSONObject userExtJson = new JSONObject(userExtStr);
+                    JSONArray userUnpinArray =
+                        userExtJson.optJSONArray(ChatConstants.KEY_UNPIN_AI_USERS);
+                    if (userUnpinArray != null) {
+                      userUnpinSet = ConversationUtils.toHashSet(userUnpinArray);
+                    }
+                  }
+                  List<AIUserBean> aiUserBeanList = new ArrayList<>();
+                  for (V2NIMAIUser aiUser : aiUserList) {
+                    if (userUnpinSet == null || !userUnpinSet.contains(aiUser.getAccountId())) {
+                      aiUserBeanList.add(new AIUserBean(aiUser));
+                    }
+                  }
+                  FetchResult<List<AIUserBean>> result = new FetchResult<>(LoadStatus.Success);
+                  result.setData(aiUserBeanList);
+                  aiRobotLiveData.setValue(result);
+
+                } catch (JSONException e) {
+                  ALog.e(LIB_TAG, TAG, "ServerExtension format error");
+                }
+              }
+            }
+          }
+        });
+  }
+
+  /**
+   * 删除会话
+   *
+   * @param conversationId 会话ID
+   */
+  public void deleteConversation(String conversationId, boolean showErrorToast) {
+    LocalConversationRepo.deleteConversation(
+        conversationId,
+        false,
+        new FetchCallback<Void>() {
+          @Override
+          public void onError(int errorCode, @Nullable String errorMsg) {
+            ALog.d(LIB_TAG, TAG, "deleteConversation,onError:" + errorCode + "," + errorMsg);
+            if (showErrorToast) {
+              ErrorUtils.showErrorCodeToast(IMKitClient.getApplicationContext(), errorCode);
+            }
+          }
+
+          @Override
+          public void onSuccess(@Nullable Void data) {
+            // 删除回调会走conversationListener.onConversationDeleted方法
+            ALog.d(LIB_TAG, TAG, "deleteConversation,onSuccess:" + conversationId);
+          }
+        });
+  }
+
+  /** 置顶会话 */
+  public void addStickTop(ConversationBean param) {
+    ALog.d(LIB_TAG, TAG, "addStickTop:" + param.getConversationId());
+    LocalConversationRepo.setStickTop(
+        param.getConversationId(),
+        true,
+        new FetchCallback<Void>() {
+          @Override
+          public void onError(int errorCode, @Nullable String errorMsg) {
+            ALog.d(LIB_TAG, TAG, "addStickTop,onFailed:" + errorCode);
+            ErrorUtils.showErrorCodeToast(IMKitClient.getApplicationContext(), errorCode);
+          }
+
+          @Override
+          public void onSuccess(@Nullable Void data) {
+            ALog.d(LIB_TAG, TAG, "addStickTop,onSuccess:" + param.getConversationId());
+          }
+        });
+  }
+
+  /**
+   * 取消置顶会话
+   *
+   * @param conversationBean 会话信息
+   */
+  public void removeStick(ConversationBean conversationBean) {
+    ALog.d(LIB_TAG, TAG, "removeStick:" + conversationBean.getConversationId());
+    LocalConversationRepo.setStickTop(
+        conversationBean.getConversationId(),
+        false,
+        new FetchCallback<Void>() {
+          @Override
+          public void onError(int errorCode, @Nullable String errorMsg) {
+            ALog.d(LIB_TAG, TAG, "removeStick,onFailed:" + errorCode);
+            if (errorCode == ConversationConstant.ERROR_CODE_NETWORK) {
+              ToastX.showShortToast(R.string.conversation_network_error_tip);
+            }
+          }
+
+          @Override
+          public void onSuccess(@Nullable Void data) {
+            ALog.d(LIB_TAG, TAG, "removeStick,onSuccess:" + conversationBean.getConversationId());
+          }
+        });
+  }
+
+  public void clearUnreadCount() {
+    LocalConversationRepo.clearTotalUnreadCount(null);
+  }
+
+  // 会话监听Listener
+  private final V2NIMLocalConversationListener conversationListener =
+      new LocalConversationListenerImpl() {
+
+        @Override
+        public void onSyncFinished() {
+          ALog.d(LIB_TAG, TAG, "conversationListener onSyncFinished:");
+        }
+
+        @Override
+        public void onSyncFailed(V2NIMError error) {
+          ALog.d(LIB_TAG, TAG, "conversationListener onSyncFailed:");
+        }
+
+        @Override
+        public void onConversationCreated(V2NIMLocalConversation conversation) {
+          ALog.d(
+              LIB_TAG,
+              TAG,
+              "conversationListener onConversationCreated,conversation:"
+                  + (conversation != null ? conversation.getConversationId() : "id is null"));
+          FetchResult<List<ConversationBean>> result = new FetchResult<>(LoadStatus.Success);
+          result.setType(FetchResult.FetchType.Add);
+          List<V2NIMLocalConversation> data = new ArrayList<>();
+          data.add(conversation);
+          convertAndNotify(result, data);
+        }
+
+        @Override
+        public void onConversationDeleted(List<String> conversationIds) {
+          FetchResult<List<String>> result = new FetchResult<>(LoadStatus.Success);
+          result.setData(conversationIds);
+          ALog.d(LIB_TAG, TAG, "conversationListener onConversationDeleted,onSuccess");
+          deleteLiveData.setValue(result);
+        }
+
+        @Override
+        public void onConversationChanged(List<V2NIMLocalConversation> conversationList) {
+          ALog.d(
+              LIB_TAG,
+              TAG,
+              "conversationListener onConversationChanged,conversation:"
+                  + (conversationList != null ? conversationList.size() : "0"));
+          if (conversationList == null || conversationList.isEmpty()) {
+            return;
+          }
+          List<V2NIMLocalConversation> changeList = new ArrayList<>();
+          List<String> deleteList = new ArrayList<>();
+          for (V2NIMLocalConversation conversation : conversationList) {
+            ALog.d(
+                LIB_TAG,
+                TAG,
+                "conversationListener onConversationChanged,conversation:"
+                    + (conversation != null ? conversation.getConversationId() : "id is null"));
+            if (conversation != null
+                && ConversationUtils.isDismissTeamMsg(conversation.getLastMessage())) {
+              deleteList.add(conversation.getConversationId());
+              deleteConversation(conversation.getConversationId(), false);
+            } else {
+              changeList.add(conversation);
+            }
+          }
+          if (changeList.size() > 0) {
+            ALog.d(
+                LIB_TAG,
+                TAG,
+                "conversationListener onConversationChanged,changeList:" + changeList.size());
+            FetchResult<List<ConversationBean>> result = new FetchResult<>(LoadStatus.Success);
+            result.setType(FetchResult.FetchType.Update);
+            convertAndNotify(result, changeList);
+          }
+          if (deleteList.size() > 0) {
+            ALog.d(
+                LIB_TAG,
+                TAG,
+                "conversationListener onConversationChanged,deleteList:" + deleteList.size());
+            FetchResult<List<String>> result = new FetchResult<>(LoadStatus.Success);
+            result.setData(deleteList);
+            deleteLiveData.setValue(result);
+          }
+        }
+
+        @Override
+        public void onTotalUnreadCountChanged(int unreadCount) {
+          ALog.d(LIB_TAG, TAG, "conversationListener onTotalUnreadCountChanged:" + unreadCount);
+          FetchResult<Integer> result = new FetchResult<>(LoadStatus.Success);
+          result.setData(unreadCount);
+          unreadCountLiveData.setValue(result);
+        }
+      };
+
+  // 群组监听Listener
+  private final V2NIMTeamListener teamListener =
+      new TeamListenerImpl() {
+
+        @Override
+        public void onTeamDismissed(@Nullable V2NIMTeam team) {
+          if (team == null || !IMKitConfigCenter.getEnableDismissTeamDeleteConversation()) {
+            return;
+          }
+          ALog.d(LIB_TAG, TAG, "teamListener onTeamDismissed:" + team.getTeamId());
+          String conversationId =
+              V2NIMConversationIdUtil.conversationId(
+                  team.getTeamId(), V2NIMConversationType.V2NIM_CONVERSATION_TYPE_TEAM);
+          deleteConversation(conversationId, false);
+        }
+
+        @Override
+        public void onTeamLeft(@Nullable V2NIMTeam team, boolean isKicked) {
+          if (team == null || !IMKitConfigCenter.getEnableDismissTeamDeleteConversation()) {
+            return;
+          }
+          ALog.d(LIB_TAG, TAG, "teamListener onTeamLeft:" + team.getTeamId());
+          String conversationId =
+              V2NIMConversationIdUtil.conversationId(
+                  team.getTeamId(), V2NIMConversationType.V2NIM_CONVERSATION_TYPE_TEAM);
+          deleteConversation(conversationId, false);
+        }
+      };
+
+  protected AIUserChangeListener aiUserChangeListener =
+      new AIUserChangeListener() {
+        @Override
+        public void onAIUserChanged(@NonNull List<? extends V2NIMAIUser> aiUsers) {
+          ALog.d(LIB_TAG, TAG, "onAIUserChanged:" + aiUsers.size());
+          getAiRobotUserList();
+        }
+      };
+
+  // 会话列表转换并通知LiveData
+  public void convertAndNotify(
+      FetchResult<List<ConversationBean>> result, List<V2NIMLocalConversation> conversationList) {
+    if (conversationList != null) {
+      List<ConversationBean> resultData = createConversationBean(conversationList);
+      result.setData(resultData);
+      changeLiveData.setValue(result);
+    }
+  }
+
+  //工具方法，将会话信息转换为会话列表数据
+  public List<ConversationBean> createConversationBean(List<V2NIMLocalConversation> data) {
+    List<ConversationBean> resultData = new ArrayList<>();
+    if (data != null) {
+      for (int index = 0; index < data.size(); index++) {
+        resultData.add(conversationFactory.CreateBean(data.get(index)));
+      }
+    }
+    return resultData;
+  }
+
+  //工具方法，去除重复会话
+  public void checkConversationAndRemove(List<V2NIMLocalConversation> data) {
+    Set<String> conversationIds = new HashSet<>();
+    if (data != null) {
+      ALog.d(LIB_TAG, TAG, "checkConversationAndRemove start:" + data.size());
+      for (int index = 0; index < data.size(); index++) {
+        if (conversationIds.contains(data.get(index).getConversationId())) {
+          data.remove(index);
+          index--;
+        } else {
+          conversationIds.add(data.get(index).getConversationId());
+        }
+      }
+      ALog.d(LIB_TAG, TAG, "checkConversationAndRemove end:" + data.size());
+    }
+  }
+
+  // 是否还有更多数据
+  public boolean hasMore() {
+    return hasMore;
+  }
+
+  @Override
+  protected void onCleared() {
+    super.onCleared();
+    ALog.d(LIB_TAG, TAG, "onCleared:");
+    LocalConversationRepo.removeConversationListener(conversationListener);
+    TeamRepo.removeTeamListener(teamListener);
+    // 注册@信息监听,业务层逻辑
+    EventCenter.unregisterEventNotify(aitNotify);
+    EventCenter.unregisterEventNotify(dismissTeamEvent);
+    IMKitClient.removeLoginDetailListener(loginDetailListener);
+    if (IMKitConfigCenter.getEnableAIUser()) {
+      ContactRepo.removeContactListener(contactListener);
+      AIUserManager.removeAIUserChangeListener(aiUserChangeListener);
+    }
+  }
+}

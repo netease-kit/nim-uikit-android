@@ -267,6 +267,7 @@ public class ChatMessageListView extends RecyclerView implements IMessageData {
   public void insertMessage(ChatMessageBean message) {
     if (messageAdapter != null) {
       int messageIndex = messageAdapter.searchMessagePosition(message.getMsgClientId());
+      // 失败重发，如果想要让重发消息展示在最下方，需要再这里remove，然后insertMessageSortByTime
       if (messageIndex >= 0) {
         messageAdapter.updateMessage(message, null);
         return;

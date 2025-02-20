@@ -27,7 +27,7 @@ import com.netease.yunxin.app.im.databinding.ActivityMineInfoBinding;
 import com.netease.yunxin.app.im.utils.Constant;
 import com.netease.yunxin.kit.chatkit.repo.ContactRepo;
 import com.netease.yunxin.kit.chatkit.repo.ResourceRepo;
-import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
+import com.netease.yunxin.kit.common.ui.activities.BaseLocalActivity;
 import com.netease.yunxin.kit.common.ui.photo.BasePhotoChoiceDialog;
 import com.netease.yunxin.kit.common.ui.photo.PhotoChoiceDialog;
 import com.netease.yunxin.kit.common.ui.utils.AvatarColor;
@@ -45,7 +45,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class MineInfoActivity extends BaseActivity {
+public class MineInfoActivity extends BaseLocalActivity {
   private ActivityMineInfoBinding binding;
   private ActivityResultLauncher<Intent> launcher;
   private V2NIMUser userInfo;
@@ -132,9 +132,9 @@ public class MineInfoActivity extends BaseActivity {
     int cornerRadius = SizeUtils.dp2px(4);
     binding.cavAvatar.setCornerRadius(cornerRadius);
 
-    changeStatusBarColor(R.color.fun_page_bg_color);
+    changeStatusBarColor(R.color.color_ededed);
 
-    binding.clRoot.setBackgroundResource(R.color.fun_page_bg_color);
+    binding.clRoot.setBackgroundResource(R.color.color_ededed);
 
     binding.llUserInfo.setBackgroundResource(R.color.color_white);
     ViewGroup.MarginLayoutParams layoutParamsN =

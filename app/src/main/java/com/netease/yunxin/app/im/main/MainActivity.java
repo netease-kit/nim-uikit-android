@@ -48,6 +48,12 @@ import com.netease.yunxin.kit.common.utils.SizeUtils;
 import com.netease.yunxin.kit.contactkit.ui.contact.BaseContactFragment;
 import com.netease.yunxin.kit.contactkit.ui.fun.contact.FunContactFragment;
 import com.netease.yunxin.kit.contactkit.ui.normal.contact.ContactFragment;
+import com.netease.yunxin.kit.conversationkit.local.ui.ILocalConversationViewLayout;
+import com.netease.yunxin.kit.conversationkit.local.ui.LocalConversationKitClient;
+import com.netease.yunxin.kit.conversationkit.local.ui.LocalConversationUIConfig;
+import com.netease.yunxin.kit.conversationkit.local.ui.fun.page.FunLocalConversationFragment;
+import com.netease.yunxin.kit.conversationkit.local.ui.normal.page.LocalConversationFragment;
+import com.netease.yunxin.kit.conversationkit.local.ui.page.LocalConversationBaseFragment;
 import com.netease.yunxin.kit.conversationkit.ui.ConversationKitClient;
 import com.netease.yunxin.kit.conversationkit.ui.ConversationUIConfig;
 import com.netease.yunxin.kit.conversationkit.ui.IConversationViewLayout;
@@ -88,6 +94,7 @@ public class MainActivity extends BaseLocalActivity {
   private boolean haveUnreadContact = false;
   private View mCurrentTab;
   private BaseContactFragment mContactFragment;
+  private LocalConversationBaseFragment mLocalConversationFragment;
   private ConversationBaseFragment mConversationFragment;
 
   // AI搜索数字人账号
@@ -152,7 +159,7 @@ public class MainActivity extends BaseLocalActivity {
     EventCenter.registerEventNotify(skinNotify);
     EventCenter.registerEventNotify(langeNotify);
     initContactFragment(mContactFragment);
-    initConversationFragment(mConversationFragment);
+    initConversationFragment();
   }
 
   private void initLanguage() {
@@ -223,24 +230,36 @@ public class MainActivity extends BaseLocalActivity {
     boolean isCommonSkin =
         AppSkinConfig.getInstance().getAppSkinStyle() == AppSkinConfig.AppSkin.commonSkin;
     ALog.d(Constant.PROJECT_TAG, "MainActivity:initView currentIndex = " + currentIndex);
-    loadCustomConfig();
     List<Fragment> fragments = new ArrayList<>();
-
+    boolean localConversation = DataUtils.getLocalConversationConfigSwitch(this);
     // 根据皮肤类型加载不同的Fragment
     if (isCommonSkin) {
       changeStatusBarColor(R.color.fun_page_bg_color);
       // 通用皮肤，使用FunConversationFragment和FunContactFragment
-      mConversationFragment = new FunConversationFragment();
+      if (localConversation) {
+        mLocalConversationFragment = new FunLocalConversationFragment();
+      } else {
+        mConversationFragment = new FunConversationFragment();
+      }
       mContactFragment = new FunContactFragment();
 
     } else {
       // 协同皮肤使用ConversationFragment和ContactFragment
       changeStatusBarColor(R.color.normal_page_bg_color);
-      mConversationFragment = new ConversationFragment();
+      if (localConversation) {
+        mLocalConversationFragment = new LocalConversationFragment();
+      } else {
+        mConversationFragment = new ConversationFragment();
+      }
       mContactFragment = new ContactFragment();
     }
+    loadCustomConfig();
+    if (mConversationFragment != null) {
+      fragments.add(mConversationFragment);
+    } else {
+      fragments.add(mLocalConversationFragment);
+    }
 
-    fragments.add(mConversationFragment);
     fragments.add(mContactFragment);
 
     fragments.add(new MineFragment());
@@ -281,6 +300,9 @@ public class MainActivity extends BaseLocalActivity {
   @Override
   protected void onResume() {
     super.onResume();
+    if (BuildConfig.DEBUG) {
+      loadSettingConfig();
+    }
   }
 
   @Override
@@ -356,9 +378,21 @@ public class MainActivity extends BaseLocalActivity {
   }
 
   // 初始化会话Fragment，设置未读消息的回调接口，当未读数变更，就会在该接口回调
-  private void initConversationFragment(ConversationBaseFragment conversationFragment) {
-    if (conversationFragment != null) {
-      conversationFragment.setConversationCallback(
+  private void initConversationFragment() {
+    if (mConversationFragment != null) {
+      mConversationFragment.setConversationCallback(
+          count -> {
+            ALog.d("mainActivity,initConversationFragment", "unread count:" + count);
+            if (count > 0) {
+              activityMainBinding.conversationDot.setVisibility(View.VISIBLE);
+              haveUnreadConversation = true;
+            } else {
+              activityMainBinding.conversationDot.setVisibility(View.INVISIBLE);
+              haveUnreadConversation = false;
+            }
+          });
+    } else {
+      mLocalConversationFragment.setConversationCallback(
           count -> {
             ALog.d("mainActivity,initConversationFragment", "unread count:" + count);
             if (count > 0) {
@@ -412,8 +446,6 @@ public class MainActivity extends BaseLocalActivity {
         new CallKitUIOptions.Builder()
             // 必要：音视频通话 sdk appKey，用于通话中使用
             .rtcAppKey(DataUtils.readAppKey(this))
-            // 必要：当前用户 AccId
-            .currentUserAccId(IMKitClient.account())
             // 通话接听成功的超时时间单位 毫秒，默认30s
             .timeOutMillisecond(30 * 1000L)
             // 此处为 收到来电时展示的 notification 相关配置，如图标，提示语等。
@@ -476,50 +508,121 @@ public class MainActivity extends BaseLocalActivity {
 
   // 加载配置，示例代码，CustomConfig展示如何通过接口来设置界面UI
   private void loadCustomConfig() {
-    ConversationUIConfig conversationUIConfig = new ConversationUIConfig();
-    conversationUIConfig.customLayout =
-        new IConversationViewLayout() {
-          @Override
-          public void customizeConversationLayout(ConversationBaseFragment fragment) {
+    if (mLocalConversationFragment != null) {
+      LocalConversationUIConfig conversationUIConfig = new LocalConversationUIConfig();
+      conversationUIConfig.customLayout =
+          new ILocalConversationViewLayout() {
+            @Override
+            public void customizeConversationLayout(LocalConversationBaseFragment fragment) {
 
-            if (fragment instanceof ConversationFragment) {
-              ConversationFragment conversationFragment = (ConversationFragment) fragment;
-              TextView textView = new TextView(conversationFragment.getContext());
-              textView.setText(R.string.yunxin_tips);
-              ViewGroup.LayoutParams layoutParams =
-                  new FrameLayout.LayoutParams(
-                      ViewGroup.LayoutParams.MATCH_PARENT, SizeUtils.dp2px(50));
-              conversationFragment.getBodyTopLayout().setBackgroundResource(R.color.color_FFF5E1);
-              textView.setTextColor(
-                  conversationFragment.getResources().getColor(R.color.color_EB9718));
-              textView.setMaxLines(2);
-              textView.setTextSize(13);
-              textView.setLineSpacing(1, 1.2f);
-              textView.setEllipsize(TextUtils.TruncateAt.END);
-              textView.setPadding(
-                  SizeUtils.dp2px(16), SizeUtils.dp2px(6), SizeUtils.dp2px(16), SizeUtils.dp2px(4));
-              conversationFragment.getBodyTopLayout().addView(textView, layoutParams);
-            } else if (fragment instanceof FunConversationFragment) {
-              FunConversationFragment conversationFragment = (FunConversationFragment) fragment;
-              TextView textView = new TextView(conversationFragment.getContext());
-              textView.setText(R.string.yunxin_tips);
-              ViewGroup.LayoutParams layoutParams =
-                  new FrameLayout.LayoutParams(
-                      ViewGroup.LayoutParams.MATCH_PARENT, SizeUtils.dp2px(50));
-              conversationFragment.getBodyTopLayout().setBackgroundResource(R.color.color_FFF5E1);
-              textView.setTextColor(
-                  conversationFragment.getResources().getColor(R.color.color_EB9718));
-              textView.setMaxLines(2);
-              textView.setEllipsize(TextUtils.TruncateAt.END);
-              textView.setTextSize(13);
-              textView.setLineSpacing(1, 1.2f);
-              textView.setPadding(
-                  SizeUtils.dp2px(16), SizeUtils.dp2px(6), SizeUtils.dp2px(16), SizeUtils.dp2px(4));
-              conversationFragment.getBodyTopLayout().addView(textView, layoutParams);
+              if (fragment instanceof LocalConversationFragment) {
+                LocalConversationFragment conversationFragment =
+                    (LocalConversationFragment) fragment;
+                TextView textView = new TextView(conversationFragment.getContext());
+                textView.setText(R.string.yunxin_tips);
+                ViewGroup.LayoutParams layoutParams =
+                    new FrameLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT, SizeUtils.dp2px(50));
+                conversationFragment.getBodyTopLayout().setBackgroundResource(R.color.color_FFF5E1);
+                textView.setTextColor(
+                    conversationFragment.getResources().getColor(R.color.color_EB9718));
+                textView.setMaxLines(2);
+                textView.setTextSize(13);
+                textView.setLineSpacing(1, 1.2f);
+                textView.setEllipsize(TextUtils.TruncateAt.END);
+                textView.setPadding(
+                    SizeUtils.dp2px(16),
+                    SizeUtils.dp2px(6),
+                    SizeUtils.dp2px(16),
+                    SizeUtils.dp2px(4));
+                conversationFragment.getBodyTopLayout().addView(textView, layoutParams);
+              } else if (fragment instanceof FunLocalConversationFragment) {
+                FunLocalConversationFragment conversationFragment =
+                    (FunLocalConversationFragment) fragment;
+                TextView textView = new TextView(conversationFragment.getContext());
+                textView.setText(R.string.yunxin_tips);
+                ViewGroup.LayoutParams layoutParams =
+                    new FrameLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT, SizeUtils.dp2px(50));
+                conversationFragment.getBodyTopLayout().setBackgroundResource(R.color.color_FFF5E1);
+                textView.setTextColor(
+                    conversationFragment.getResources().getColor(R.color.color_EB9718));
+                textView.setMaxLines(2);
+                textView.setEllipsize(TextUtils.TruncateAt.END);
+                textView.setTextSize(13);
+                textView.setLineSpacing(1, 1.2f);
+                textView.setPadding(
+                    SizeUtils.dp2px(16),
+                    SizeUtils.dp2px(6),
+                    SizeUtils.dp2px(16),
+                    SizeUtils.dp2px(4));
+                conversationFragment.getBodyTopLayout().addView(textView, layoutParams);
+              }
             }
-          }
-        };
-    ConversationKitClient.setConversationUIConfig(conversationUIConfig);
+          };
+      LocalConversationKitClient.setConversationUIConfig(conversationUIConfig);
+    } else {
+      ConversationUIConfig conversationUIConfig = new ConversationUIConfig();
+      conversationUIConfig.customLayout =
+          new IConversationViewLayout() {
+            @Override
+            public void customizeConversationLayout(ConversationBaseFragment fragment) {
+
+              if (fragment instanceof ConversationFragment) {
+                ConversationFragment conversationFragment = (ConversationFragment) fragment;
+                TextView textView = new TextView(conversationFragment.getContext());
+                textView.setText(R.string.yunxin_tips);
+                ViewGroup.LayoutParams layoutParams =
+                    new FrameLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT, SizeUtils.dp2px(50));
+                conversationFragment.getBodyTopLayout().setBackgroundResource(R.color.color_FFF5E1);
+                textView.setTextColor(
+                    conversationFragment.getResources().getColor(R.color.color_EB9718));
+                textView.setMaxLines(2);
+                textView.setTextSize(13);
+                textView.setLineSpacing(1, 1.2f);
+                textView.setEllipsize(TextUtils.TruncateAt.END);
+                textView.setPadding(
+                    SizeUtils.dp2px(16),
+                    SizeUtils.dp2px(6),
+                    SizeUtils.dp2px(16),
+                    SizeUtils.dp2px(4));
+                conversationFragment.getBodyTopLayout().addView(textView, layoutParams);
+              } else if (fragment instanceof FunConversationFragment) {
+                FunConversationFragment conversationFragment = (FunConversationFragment) fragment;
+                TextView textView = new TextView(conversationFragment.getContext());
+                textView.setText(R.string.yunxin_tips);
+                ViewGroup.LayoutParams layoutParams =
+                    new FrameLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT, SizeUtils.dp2px(50));
+                conversationFragment.getBodyTopLayout().setBackgroundResource(R.color.color_FFF5E1);
+                textView.setTextColor(
+                    conversationFragment.getResources().getColor(R.color.color_EB9718));
+                textView.setMaxLines(2);
+                textView.setEllipsize(TextUtils.TruncateAt.END);
+                textView.setTextSize(13);
+                textView.setLineSpacing(1, 1.2f);
+                textView.setPadding(
+                    SizeUtils.dp2px(16),
+                    SizeUtils.dp2px(6),
+                    SizeUtils.dp2px(16),
+                    SizeUtils.dp2px(4));
+                conversationFragment.getBodyTopLayout().addView(textView, layoutParams);
+              }
+            }
+          };
+      ConversationKitClient.setConversationUIConfig(conversationUIConfig);
+    }
+  }
+
+  private void loadSettingConfig() {
+    SettingKitConfig config = DataUtils.getSettingKitConfig();
+    IMKitConfigCenter.setEnableCollectionMessage(config.hasCollection);
+    IMKitConfigCenter.setEnableTeam(config.hasTeam);
+    IMKitConfigCenter.setEnableTopMessage(config.hasStickTopMsg);
+    IMKitConfigCenter.setEnableOnlyFriendCall(config.hasStrangeCallLimit);
+    IMKitConfigCenter.setEnablePinMessage(config.hasPin);
+    IMKitConfigCenter.setEnableTypingStatus(config.hasOnlineStatus);
   }
 
   //皮肤变更事件

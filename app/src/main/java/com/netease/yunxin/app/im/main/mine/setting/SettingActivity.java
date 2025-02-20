@@ -19,6 +19,7 @@ import com.netease.yunxin.app.im.BuildConfig;
 import com.netease.yunxin.app.im.IMApplication;
 import com.netease.yunxin.app.im.R;
 import com.netease.yunxin.app.im.databinding.ActivityMineSettingBinding;
+import com.netease.yunxin.app.im.main.MainActivity;
 import com.netease.yunxin.app.im.utils.MultiLanguageUtils;
 import com.netease.yunxin.app.im.welcome.WelcomeActivity;
 import com.netease.yunxin.kit.chatkit.ui.custom.ChatConfigManager;
@@ -80,6 +81,16 @@ public class SettingActivity extends BaseLocalActivity {
           viewModel.setAudioPlayMode(checked);
         });
 
+    // 本地会话
+    viewBinding.conversationModeSc.setChecked(viewModel.getLocalConversation(this));
+    viewBinding.conversationModeSc.setOnClickListener(
+        v -> {
+          boolean checked = viewBinding.conversationModeSc.isChecked();
+          viewModel.setLocalConversation(this, checked);
+          EventCenter.notifyEvent(new MainActivity.SkinEvent());
+          finish();
+        });
+
     viewBinding.notifyFl.setOnClickListener(
         v -> startActivity(new Intent(SettingActivity.this, SettingNotifyActivity.class)));
 
@@ -94,6 +105,13 @@ public class SettingActivity extends BaseLocalActivity {
 
     viewBinding.serverConfigLayout.setOnClickListener(
         v -> startActivity(new Intent(SettingActivity.this, ServerConfigActivity.class)));
+    if (BuildConfig.DEBUG) {
+      viewBinding.kitConfigLayout.setVisibility(View.VISIBLE);
+      viewBinding.kitConfigLayout.setOnClickListener(
+          v -> startActivity(new Intent(SettingActivity.this, SettingUIKitActivity.class)));
+    } else {
+      viewBinding.kitConfigLayout.setVisibility(View.GONE);
+    }
 
     viewBinding.tvLogout.setOnClickListener(
         v ->
@@ -158,6 +176,9 @@ public class SettingActivity extends BaseLocalActivity {
 
     viewBinding.playModeSc.setThumbResource(thumbRes);
     viewBinding.playModeSc.setTrackResource(trackRes);
+
+    viewBinding.conversationModeSc.setThumbResource(thumbRes);
+    viewBinding.conversationModeSc.setTrackResource(trackRes);
   }
 
   @Override

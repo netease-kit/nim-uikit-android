@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2022 NetEase, Inc. All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be
+  ~ found in the LICENSE file.
+  -->
+
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="@dimen/dimen_62_dp"
+    android:layout_height="@dimen/dimen_78_dp">
+
+    <com.netease.yunxin.kit.common.ui.widgets.ContactAvatarView
+        android:id="@+id/avatarView"
+        android:layout_width="42dp"
+        android:layout_height="42dp"
+        android:layout_marginStart="11dp"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="11dp"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/nameView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:singleLine="true"
+        android:textColor="@color/color_333333"
+        android:textSize="@dimen/text_size_12"
+        app:layout_constraintTop_toBottomOf="@id/avatarView"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="4dp"
+        android:paddingStart="6dp"
+        android:paddingEnd="6dp"
+        tools:ignore="SpUsage" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

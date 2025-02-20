@@ -8,8 +8,8 @@ import android.content.Context;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitClient;
 import com.netease.yunxin.kit.chatkit.ui.ChatUIConfig;
 import com.netease.yunxin.kit.contactkit.ui.ContactUIConfig;
-import com.netease.yunxin.kit.conversationkit.ui.ConversationKitClient;
-import com.netease.yunxin.kit.conversationkit.ui.ConversationUIConfig;
+import com.netease.yunxin.kit.conversationkit.local.ui.LocalConversationKitClient;
+import com.netease.yunxin.kit.conversationkit.local.ui.LocalConversationUIConfig;
 
 public class CustomConfig {
 
@@ -196,7 +196,7 @@ public class CustomConfig {
 
   // 个性化配置会话列表页面
   public static void configConversation(Context context) {
-    ConversationUIConfig conversationUIConfig = new ConversationUIConfig();
+    LocalConversationUIConfig conversationUIConfig = new LocalConversationUIConfig();
     //    conversationUIConfig.showTitleBarLeftIcon = false;
     //    conversationUIConfig.showTitleBarRight2Icon = false;
     //    conversationUIConfig.showTitleBarRightIcon = false;
@@ -289,6 +289,6 @@ public class CustomConfig {
     //          }
     //      };
 
-    ConversationKitClient.setConversationUIConfig(conversationUIConfig);
+    LocalConversationKitClient.setConversationUIConfig(conversationUIConfig);
   }
 }

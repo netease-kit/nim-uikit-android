@@ -17,10 +17,14 @@ import com.netease.nimlib.sdk.v2.auth.enums.V2NIMDataSyncType;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessageRefer;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
+import com.netease.yunxin.kit.chatkit.impl.ConversationListenerImpl;
+import com.netease.yunxin.kit.chatkit.impl.LocalConversationListenerImpl;
 import com.netease.yunxin.kit.chatkit.listener.ChatListener;
 import com.netease.yunxin.kit.chatkit.listener.MessageRevokeNotification;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
+import com.netease.yunxin.kit.chatkit.repo.ConversationRepo;
+import com.netease.yunxin.kit.chatkit.repo.LocalConversationRepo;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant;
 import com.netease.yunxin.kit.chatkit.ui.common.AitDBHelper;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
@@ -50,6 +54,8 @@ public class AitService {
   private boolean hasRegister;
 
   private ChatListener messageObserver;
+  private LocalConversationListenerImpl localConversationListener;
+  private ConversationListenerImpl conversationListener;
 
   private AitService() {}
 
@@ -223,6 +229,30 @@ public class AitService {
           }
         };
     ChatRepo.addMessageListener(messageObserver);
+
+    if (IMKitConfigCenter.getEnableLocalConversation()) {
+      localConversationListener =
+          new LocalConversationListenerImpl() {
+
+            @Override
+            public void onConversationReadTimeUpdated(
+                @Nullable String conversationId, long readTime) {
+              clearAitInfo(conversationId);
+            }
+          };
+      LocalConversationRepo.addConversationListener(localConversationListener);
+    } else {
+      conversationListener =
+          new ConversationListenerImpl() {
+
+            @Override
+            public void onConversationReadTimeUpdated(
+                @Nullable String conversationId, long readTime) {
+              clearAitInfo(conversationId);
+            }
+          };
+      ConversationRepo.addConversationListener(conversationListener);
+    }
   }
 
   // 取消注册消息监听
@@ -230,6 +260,12 @@ public class AitService {
     ALog.d(ChatKitUIConstant.LIB_TAG, TAG, "unRegisterObserver");
     if (messageObserver != null) {
       ChatRepo.removeMessageListener(messageObserver);
+    }
+    if (conversationListener != null) {
+      ConversationRepo.removeConversationListener(conversationListener);
+    }
+    if (localConversationListener != null) {
+      LocalConversationRepo.removeConversationListener(localConversationListener);
     }
   }
 

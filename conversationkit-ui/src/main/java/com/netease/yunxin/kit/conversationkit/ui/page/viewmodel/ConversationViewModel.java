@@ -163,7 +163,8 @@ public class ConversationViewModel extends BaseViewModel {
             }
             deleteConversation(
                 V2NIMConversationIdUtil.conversationId(
-                    id, V2NIMConversationType.V2NIM_CONVERSATION_TYPE_TEAM));
+                    id, V2NIMConversationType.V2NIM_CONVERSATION_TYPE_TEAM),
+                false);
           }
         }
 
@@ -372,7 +373,7 @@ public class ConversationViewModel extends BaseViewModel {
    *
    * @param conversationId 会话ID
    */
-  public void deleteConversation(String conversationId) {
+  public void deleteConversation(String conversationId, boolean showErrorToast) {
     ConversationRepo.deleteConversation(
         conversationId,
         false,
@@ -380,7 +381,9 @@ public class ConversationViewModel extends BaseViewModel {
           @Override
           public void onError(int errorCode, @Nullable String errorMsg) {
             ALog.d(LIB_TAG, TAG, "deleteConversation,onError:" + errorCode + "," + errorMsg);
-            ErrorUtils.showErrorCodeToast(IMKitClient.getApplicationContext(), errorCode);
+            if (showErrorToast) {
+              ErrorUtils.showErrorCodeToast(IMKitClient.getApplicationContext(), errorCode);
+            }
           }
 
           @Override
@@ -494,7 +497,7 @@ public class ConversationViewModel extends BaseViewModel {
             if (conversation != null
                 && ConversationUtils.isDismissTeamMsg(conversation.getLastMessage())) {
               deleteList.add(conversation.getConversationId());
-              deleteConversation(conversation.getConversationId());
+              deleteConversation(conversation.getConversationId(), false);
             } else {
               changeList.add(conversation);
             }
@@ -541,7 +544,7 @@ public class ConversationViewModel extends BaseViewModel {
           String conversationId =
               V2NIMConversationIdUtil.conversationId(
                   team.getTeamId(), V2NIMConversationType.V2NIM_CONVERSATION_TYPE_TEAM);
-          deleteConversation(conversationId);
+          deleteConversation(conversationId, false);
         }
 
         @Override
@@ -553,7 +556,7 @@ public class ConversationViewModel extends BaseViewModel {
           String conversationId =
               V2NIMConversationIdUtil.conversationId(
                   team.getTeamId(), V2NIMConversationType.V2NIM_CONVERSATION_TYPE_TEAM);
-          deleteConversation(conversationId);
+          deleteConversation(conversationId, false);
         }
       };
 
