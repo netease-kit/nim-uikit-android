@@ -230,18 +230,7 @@ public class AitService {
         };
     ChatRepo.addMessageListener(messageObserver);
 
-    if (IMKitConfigCenter.getEnableLocalConversation()) {
-      localConversationListener =
-          new LocalConversationListenerImpl() {
-
-            @Override
-            public void onConversationReadTimeUpdated(
-                @Nullable String conversationId, long readTime) {
-              clearAitInfo(conversationId);
-            }
-          };
-      LocalConversationRepo.addConversationListener(localConversationListener);
-    } else {
+    if (IMKitClient.enableV2CloudConversation()) {
       conversationListener =
           new ConversationListenerImpl() {
 
@@ -252,6 +241,17 @@ public class AitService {
             }
           };
       ConversationRepo.addConversationListener(conversationListener);
+    } else {
+      localConversationListener =
+          new LocalConversationListenerImpl() {
+
+            @Override
+            public void onConversationReadTimeUpdated(
+                @Nullable String conversationId, long readTime) {
+              clearAitInfo(conversationId);
+            }
+          };
+      LocalConversationRepo.addConversationListener(localConversationListener);
     }
   }
 

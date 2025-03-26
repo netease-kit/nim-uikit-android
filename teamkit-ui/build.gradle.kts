@@ -17,7 +17,7 @@ android {
         minSdk = 24
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
-        buildConfigField("String", "versionName", "\"10.6.1\"")
+        buildConfigField("String", "versionName", "\"10.6.2\"")
     }
 
     buildTypes {
@@ -31,12 +31,6 @@ android {
         viewBinding = true
         buildConfig = true
     }
-
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
-
     sourceSets["main"].res.srcDirs("src/main/res","src/main/res-fun","src/main/res-normal")
 }
 

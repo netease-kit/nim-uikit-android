@@ -18,7 +18,6 @@ import com.netease.nimlib.sdk.v2.conversation.result.V2NIMLocalConversationResul
 import com.netease.nimlib.sdk.v2.team.model.V2NIMTeam;
 import com.netease.nimlib.sdk.v2.utils.V2NIMConversationIdUtil;
 import com.netease.yunxin.kit.alog.ALog;
-import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
 import com.netease.yunxin.kit.chatkit.model.ConversationSearchInfo;
 import com.netease.yunxin.kit.chatkit.model.FriendSearchInfo;
 import com.netease.yunxin.kit.chatkit.model.RecentForward;
@@ -37,6 +36,7 @@ import com.netease.yunxin.kit.contactkit.ui.indexbar.helper.IndexBarDataHelperIm
 import com.netease.yunxin.kit.contactkit.ui.model.ContactFriendBean;
 import com.netease.yunxin.kit.contactkit.ui.model.SelectableBean;
 import com.netease.yunxin.kit.contactkit.ui.model.SelectedViewBean;
+import com.netease.yunxin.kit.corekit.im2.IMKitClient;
 import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
 import com.netease.yunxin.kit.corekit.im2.model.UserWithFriend;
 import java.util.ArrayList;
@@ -204,11 +204,11 @@ public class ContactSelectorViewModel extends BaseViewModel {
 
   /** 拉取会话列表，在群列表请求完成之后进行 */
   private void queryConversationList() {
-    if (IMKitConfigCenter.getEnableLocalConversation()) {
-      LocalConversationRepo.getConversationList(
+    if (IMKitClient.enableV2CloudConversation()) {
+      ConversationRepo.getConversationList(
           0,
           CONVERSATION_PAGE_LIMIT,
-          new FetchCallback<V2NIMLocalConversationResult>() {
+          new FetchCallback<V2NIMConversationResult>() {
             @Override
             public void onError(int errorCode, @Nullable String errorMsg) {
               ALog.d(LIB_TAG, TAG, "getConversationList,onFailed:" + errorCode);
@@ -218,7 +218,7 @@ public class ContactSelectorViewModel extends BaseViewModel {
             }
 
             @Override
-            public void onSuccess(@Nullable V2NIMLocalConversationResult data) {
+            public void onSuccess(@Nullable V2NIMConversationResult data) {
               ALog.d(
                   LIB_TAG,
                   TAG,
@@ -228,7 +228,7 @@ public class ContactSelectorViewModel extends BaseViewModel {
                 allConversationList.clear();
                 conversationListResult.setStatus(LoadStatus.Success);
                 Set<SelectableBean<V2NIMBaseConversation>> selectableConversation = new HashSet<>();
-                for (V2NIMBaseConversation conversation : data.getConversationList()) {
+                for (V2NIMConversation conversation : data.getConversationList()) {
                   SelectableBean<V2NIMBaseConversation> selectableBean =
                       new SelectableBean<>(conversation);
                   //群组会话填充人数
@@ -256,10 +256,10 @@ public class ContactSelectorViewModel extends BaseViewModel {
             }
           });
     } else {
-      ConversationRepo.getConversationList(
+      LocalConversationRepo.getConversationList(
           0,
           CONVERSATION_PAGE_LIMIT,
-          new FetchCallback<V2NIMConversationResult>() {
+          new FetchCallback<V2NIMLocalConversationResult>() {
             @Override
             public void onError(int errorCode, @Nullable String errorMsg) {
               ALog.d(LIB_TAG, TAG, "getConversationList,onFailed:" + errorCode);
@@ -269,7 +269,7 @@ public class ContactSelectorViewModel extends BaseViewModel {
             }
 
             @Override
-            public void onSuccess(@Nullable V2NIMConversationResult data) {
+            public void onSuccess(@Nullable V2NIMLocalConversationResult data) {
               ALog.d(
                   LIB_TAG,
                   TAG,
@@ -279,7 +279,7 @@ public class ContactSelectorViewModel extends BaseViewModel {
                 allConversationList.clear();
                 conversationListResult.setStatus(LoadStatus.Success);
                 Set<SelectableBean<V2NIMBaseConversation>> selectableConversation = new HashSet<>();
-                for (V2NIMConversation conversation : data.getConversationList()) {
+                for (V2NIMBaseConversation conversation : data.getConversationList()) {
                   SelectableBean<V2NIMBaseConversation> selectableBean =
                       new SelectableBean<>(conversation);
                   //群组会话填充人数

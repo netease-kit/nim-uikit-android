@@ -16,7 +16,7 @@ android {
         minSdk = 24
         targetSdk = 34
         versionCode = 1
-        versionName = "10.6.0"
+        versionName = "10.6.2"
         multiDexEnabled = true
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -50,12 +50,6 @@ android {
             include("armeabi-v7a", "arm64-v8a")
         }
     }
-
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
-
 }
 
 dependencies {
@@ -74,17 +68,17 @@ dependencies {
 //    implementation(project(":aisearchkit"))
 
     //远端aar依赖
-    implementation("com.netease.yunxin.kit.contact:contactkit-ui:10.6.1")
-    implementation("com.netease.yunxin.kit.conversation:conversationkit-ui:10.6.1")
-    implementation("com.netease.yunxin.kit.localconversation:localconversationkit-ui:10.6.1")
-    implementation("com.netease.yunxin.kit.team:teamkit-ui:10.6.1")
-    implementation("com.netease.yunxin.kit.chat:chatkit-ui:10.6.1")
-    implementation("com.netease.yunxin.kit.locationkit:locationkit:10.6.1")
-    implementation("com.netease.yunxin.kit.aisearchkit:aisearchkit:10.6.1")
+    implementation("com.netease.yunxin.kit.contact:contactkit-ui:10.6.2")
+    implementation("com.netease.yunxin.kit.conversation:conversationkit-ui:10.6.2")
+    implementation("com.netease.yunxin.kit.localconversation:localconversationkit-ui:10.6.2")
+    implementation("com.netease.yunxin.kit.team:teamkit-ui:10.6.2")
+    implementation("com.netease.yunxin.kit.chat:chatkit-ui:10.6.2")
+    implementation("com.netease.yunxin.kit.locationkit:locationkit:10.6.2")
+    implementation("com.netease.yunxin.kit.aisearchkit:aisearchkit:10.6.2")
 
 
     implementation("com.netease.yunxin.kit.call:call-ui:3.5.0") //呼叫组件 UI 包
-    implementation("com.netease.nimlib:avsignalling:10.8.0") //信令组件
+    implementation("com.netease.nimlib:avsignalling:10.8.21") //信令组件
     implementation("com.airbnb.android:lottie:5.0.3")
     implementation("com.github.bumptech.glide:glide:4.13.1")
     implementation("com.squareup.retrofit2:retrofit:2.9.0")

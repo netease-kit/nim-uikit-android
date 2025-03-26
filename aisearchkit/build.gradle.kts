@@ -15,7 +15,7 @@ android {
     defaultConfig {
         minSdk = 24
         consumerProguardFiles("consumer-rules.pro")
-        buildConfigField("String", "versionName", "\"10.6.1\"")
+        buildConfigField("String", "versionName", "\"10.6.2\"")
     }
 
     buildTypes {
@@ -28,11 +28,6 @@ android {
     buildFeatures {
         viewBinding = true
         buildConfig = true
-    }
-
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
     }
 }
 

@@ -27,7 +27,7 @@ public class LocalConversationUIService extends ChatService {
   @NonNull
   @Override
   public String getServiceName() {
-    return "ConversationUIKit";
+    return "LocalConversationUIKit";
   }
 
   @NonNull

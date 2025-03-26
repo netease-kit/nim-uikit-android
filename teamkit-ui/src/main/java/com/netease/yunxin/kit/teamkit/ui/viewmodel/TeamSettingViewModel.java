@@ -18,7 +18,6 @@ import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamType;
 import com.netease.nimlib.sdk.v2.team.model.V2NIMTeam;
 import com.netease.nimlib.sdk.v2.utils.V2NIMConversationIdUtil;
 import com.netease.yunxin.kit.alog.ALog;
-import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
 import com.netease.yunxin.kit.chatkit.impl.LoginDetailListenerImpl;
 import com.netease.yunxin.kit.chatkit.manager.AIUserManager;
 import com.netease.yunxin.kit.chatkit.model.TeamMemberListResult;
@@ -125,17 +124,17 @@ public class TeamSettingViewModel extends TeamBaseViewModel {
    */
   public void getStickAndNotifyData(String teamId) {
     ALog.d(LIB_TAG, TAG, "requestStickAndNotify:" + teamId);
-    if (IMKitConfigCenter.getEnableLocalConversation()) {
-      LocalConversationRepo.getConversation(
+    if (IMKitClient.enableV2CloudConversation()) {
+      ConversationRepo.getConversation(
           V2NIMConversationIdUtil.teamConversationId(teamId),
-          new FetchCallback<V2NIMLocalConversation>() {
+          new FetchCallback<V2NIMConversation>() {
             @Override
             public void onError(int errorCode, @Nullable String errorMsg) {
               ALog.d(LIB_TAG, TAG, "requestStickAndNotify,onFailed:" + errorCode);
             }
 
             @Override
-            public void onSuccess(@Nullable V2NIMLocalConversation data) {
+            public void onSuccess(@Nullable V2NIMConversation data) {
               if (data != null) {
                 FetchResult<Boolean> stickResult = new FetchResult<>(data.isStickTop());
                 stickResult.setType(FetchResult.FetchType.Update);
@@ -154,16 +153,16 @@ public class TeamSettingViewModel extends TeamBaseViewModel {
             }
           });
     } else {
-      ConversationRepo.getConversation(
+      LocalConversationRepo.getConversation(
           V2NIMConversationIdUtil.teamConversationId(teamId),
-          new FetchCallback<V2NIMConversation>() {
+          new FetchCallback<V2NIMLocalConversation>() {
             @Override
             public void onError(int errorCode, @Nullable String errorMsg) {
               ALog.d(LIB_TAG, TAG, "requestStickAndNotify,onFailed:" + errorCode);
             }
 
             @Override
-            public void onSuccess(@Nullable V2NIMConversation data) {
+            public void onSuccess(@Nullable V2NIMLocalConversation data) {
               if (data != null) {
                 FetchResult<Boolean> stickResult = new FetchResult<>(data.isStickTop());
                 stickResult.setType(FetchResult.FetchType.Update);
@@ -475,8 +474,8 @@ public class TeamSettingViewModel extends TeamBaseViewModel {
       stickData.setValue(new FetchResult<>(-1, ""));
       return;
     }
-    if (IMKitConfigCenter.getEnableLocalConversation()) {
-      LocalConversationRepo.setStickTop(
+    if (IMKitClient.enableV2CloudConversation()) {
+      ConversationRepo.setStickTop(
           V2NIMConversationIdUtil.teamConversationId(teamId),
           stick,
           new FetchCallback<Void>() {
@@ -493,7 +492,7 @@ public class TeamSettingViewModel extends TeamBaseViewModel {
             }
           });
     } else {
-      ConversationRepo.setStickTop(
+      LocalConversationRepo.setStickTop(
           V2NIMConversationIdUtil.teamConversationId(teamId),
           stick,
           new FetchCallback<Void>() {

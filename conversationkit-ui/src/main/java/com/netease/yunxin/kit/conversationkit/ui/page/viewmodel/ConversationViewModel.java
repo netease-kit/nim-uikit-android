@@ -94,7 +94,7 @@ public class ConversationViewModel extends BaseViewModel {
   private Comparator<ConversationBean> comparator;
   private IConversationFactory conversationFactory = new DefaultViewHolderFactory();
   // 分页加载，每页加载数量
-  private static final int PAGE_LIMIT = 200;
+  private static final int PAGE_LIMIT = 100;
   // 分页加载，当前加载偏移量
   private long mOffset = 0;
   // 分页加载，是否还有更多数据

@@ -49,7 +49,6 @@ import com.netease.nimlib.sdk.v2.message.params.V2NIMVoiceToTextParams;
 import com.netease.nimlib.sdk.v2.message.result.V2NIMSendMessageResult;
 import com.netease.nimlib.sdk.v2.utils.V2NIMConversationIdUtil;
 import com.netease.yunxin.kit.alog.ALog;
-import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
 import com.netease.yunxin.kit.chatkit.listener.ChatListener;
 import com.netease.yunxin.kit.chatkit.listener.MessageRevokeNotification;
 import com.netease.yunxin.kit.chatkit.listener.MessageUpdateType;
@@ -686,10 +685,10 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
 
   // 清理
   public void clearChattingAccount() {
-    if (IMKitConfigCenter.getEnableLocalConversation()) {
-      LocalConversationRepo.clearUnreadCountByIds(Collections.singletonList(mConversationId), null);
-    } else {
+    if (IMKitClient.enableV2CloudConversation()) {
       ConversationRepo.clearUnreadCountByIds(Collections.singletonList(mConversationId), null);
+    } else {
+      LocalConversationRepo.clearUnreadCountByIds(Collections.singletonList(mConversationId), null);
     }
     ChatRepo.clearChattingId();
   }

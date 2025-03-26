@@ -841,6 +841,10 @@ public class TeamUserManager {
             if (contact.getFriend() == null) {
               userInfoMap.put(contact.getAccount(), contact.getUserInfo());
             }
+            if (TextUtils.equals(contact.getAccount(), IMKitClient.account())
+                && contact.getUserInfo() != null) {
+              IMKitClient.setCurrentUser(contact.getUserInfo());
+            }
           }
           for (TeamUserChangedListener listener : userChangedListeners) {
             listener.onUsersChanged(accounts);

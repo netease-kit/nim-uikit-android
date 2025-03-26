@@ -22,7 +22,6 @@ import com.netease.nimlib.sdk.v2.notification.config.V2NIMNotificationRouteConfi
 import com.netease.nimlib.sdk.v2.notification.params.V2NIMSendCustomNotificationParams;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
-import com.netease.yunxin.kit.chatkit.cache.FriendUserCache;
 import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
 import com.netease.yunxin.kit.chatkit.repo.ContactRepo;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatUserCache;
@@ -116,9 +115,15 @@ public class ChatP2PViewModel extends ChatBaseViewModel {
           List<UserWithFriend> needFriendList = new ArrayList<>();
           List<String> accountList = new ArrayList<>();
           for (UserWithFriend friendInfo : contactList) {
-            if (friendInfo != null && FriendUserCache.isFriend(friendInfo.getAccount())) {
+            if (friendInfo != null
+                && (TextUtils.equals(friendInfo.getAccount(), mChatAccountId)
+                    || TextUtils.equals(friendInfo.getAccount(), IMKitClient.account()))) {
               needFriendList.add(friendInfo);
               accountList.add(friendInfo.getAccount());
+              if (TextUtils.equals(friendInfo.getAccount(), IMKitClient.account())
+                  && friendInfo.getUserInfo() != null) {
+                IMKitClient.setCurrentUser(friendInfo.getUserInfo());
+              }
             }
           }
 
