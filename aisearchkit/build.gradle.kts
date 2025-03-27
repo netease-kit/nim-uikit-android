@@ -15,7 +15,7 @@ android {
     defaultConfig {
         minSdk = 24
         consumerProguardFiles("consumer-rules.pro")
-        buildConfigField("String", "versionName", "\"10.6.2\"")
+        buildConfigField("String", "versionName", "\"10.6.3\"")
     }
 
     buildTypes {
@@ -34,7 +34,7 @@ android {
 dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
     implementation(project(":chatkit-ui"))
-    api("com.netease.yunxin.kit.core:corekit-plugin:1.2.0")
+    api("com.netease.yunxin.kit.core:corekit-plugin:1.4.0")
     api("com.netease.yunxin.kit.common:common-ui:1.3.9")
 
 

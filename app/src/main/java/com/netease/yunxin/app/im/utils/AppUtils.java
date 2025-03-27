@@ -31,11 +31,6 @@ public class AppUtils {
     return TextUtils.isEmpty(email) || email.matches(EMAIL);
   }
 
-  //是否线上环境，用于登录配置
-  public static boolean isOnline() {
-    return TextUtils.equals(BuildConfig.ENV, "online");
-  }
-
   public static void restartApp() {
     try {
       android.os.Process.killProcess(android.os.Process.myPid());
