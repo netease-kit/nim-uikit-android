@@ -30,4 +30,14 @@ public class AppUtils {
   public static boolean checkEmail(String email) {
     return TextUtils.isEmpty(email) || email.matches(EMAIL);
   }
+
+  public static void restartApp() {
+    try {
+      android.os.Process.killProcess(android.os.Process.myPid());
+      System.exit(0);
+      System.gc();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
 }

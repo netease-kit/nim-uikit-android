@@ -351,7 +351,8 @@ public abstract class ChatBaseMessageViewHolder extends CommonBaseMessageViewHol
     // 设置当前用户头像
     String avatar = myUserInfo.getAvatar();
     String avatarName = myUserInfo.getUserInfoName();
-    baseViewBinding.myAvatar.setData(avatar, avatarName, AvatarColor.avatarColor(avatarName));
+    baseViewBinding.myAvatar.setData(
+        avatar, avatarName, AvatarColor.avatarColor(myUserInfo.getAccountId()));
     // 自定义设置是否展示当前用户头像
     if (userInfoUIOption.myAvatarVisible != null) {
       baseViewBinding.myAvatar.setVisibility(

@@ -28,6 +28,7 @@ import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.normal.view.MessageBottomLayout;
 import com.netease.yunxin.kit.chatkit.ui.page.viewmodel.ChatP2PViewModel;
 import com.netease.yunxin.kit.chatkit.ui.view.ait.AitManager;
+import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.corekit.im2.model.UserWithFriend;
 import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
@@ -231,6 +232,18 @@ public class ChatP2PFragment extends NormalChatFragment {
       return friendInfo.getName();
     }
     return super.getConversationName();
+  }
+
+  @Override
+  protected void onUserInfoChanged(FetchResult<List<String>> fetchResult) {
+    super.onUserInfoChanged(fetchResult);
+    if (fetchResult.getLoadStatus() == LoadStatus.Finish && fetchResult.getData() != null) {
+      for (String userId : fetchResult.getData()) {
+        if (TextUtils.equals(userId, accountId)) {
+          updateCurrentUserInfo();
+        }
+      }
+    }
   }
 
   @Override

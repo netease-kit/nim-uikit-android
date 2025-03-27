@@ -439,51 +439,6 @@ public abstract class ChatBaseFragment extends BaseFragment {
                   }
                 }
               });
-      //置顶消息昵称
-      viewModel
-          .getUserChangeLiveData()
-          .observeForever(
-              fetchResult -> {
-                if (ChatUserCache.getInstance().getTopMessage() != null
-                    && fetchResult.getData() != null
-                    && !fetchResult.getData().isEmpty()) {
-                  for (String userId : fetchResult.getData()) {
-                    if (Objects.equals(
-                        userId,
-                        MessageHelper.getRealMessageSenderId(
-                            ChatUserCache.getInstance().getTopMessage().getMessage()))) {
-                      String text =
-                          ChatUtils.getEllipsizeMiddleNick(
-                                  getTopMessageNick(ChatUserCache.getInstance().getTopMessage()))
-                              + ":";
-                      topMessageViewBinding.tvNickname.setText(text);
-                      break;
-                    }
-                  }
-                }
-              });
-      //置顶消息昵称监听群成员变化
-      ((ChatTeamViewModel) viewModel)
-          .getUserChangeLiveData()
-          .observeForever(
-              fetchResult -> {
-                if (ChatUserCache.getInstance().getTopMessage() != null
-                    && fetchResult.getData() != null
-                    && !fetchResult.getData().isEmpty()) {
-                  for (String userId : fetchResult.getData()) {
-                    if (Objects.equals(
-                        userId,
-                        ChatUserCache.getInstance().getTopMessage().getMessage().getSenderId())) {
-                      String text =
-                          ChatUtils.getEllipsizeMiddleNick(
-                                  getTopMessageNick(ChatUserCache.getInstance().getTopMessage()))
-                              + ":";
-                      topMessageViewBinding.tvNickname.setText(text);
-                      break;
-                    }
-                  }
-                }
-              });
     }
   }
 
@@ -2124,13 +2079,24 @@ public abstract class ChatBaseFragment extends BaseFragment {
   protected void onUserInfoChanged(FetchResult<List<String>> fetchResult) {
     if (fetchResult.getLoadStatus() == LoadStatus.Finish
         && fetchResult.getType() == FetchResult.FetchType.Update) {
-      chatView.getMessageListView().notifyUserInfoChanged(fetchResult.getData());
-      if (conversationType == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P
-          && fetchResult.getData() != null) {
-        for (String account : fetchResult.getData()) {
-          if (TextUtils.equals(account, accountId)) {
-            updateCurrentUserInfo();
-          }
+      chatView.notifyUserInfoChanged(fetchResult.getData());
+    }
+
+    // 更新置顶消息
+    if (ChatUserCache.getInstance().getTopMessage() != null
+        && fetchResult.getData() != null
+        && !fetchResult.getData().isEmpty()) {
+      for (String userId : fetchResult.getData()) {
+        if (Objects.equals(
+            userId,
+            MessageHelper.getRealMessageSenderId(
+                ChatUserCache.getInstance().getTopMessage().getMessage()))) {
+          String text =
+              ChatUtils.getEllipsizeMiddleNick(
+                      getTopMessageNick(ChatUserCache.getInstance().getTopMessage()))
+                  + ":";
+          topMessageViewBinding.tvNickname.setText(text);
+          break;
         }
       }
     }

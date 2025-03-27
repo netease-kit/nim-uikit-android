@@ -243,24 +243,20 @@ public class FunChatTeamFragment extends FunChatFragment {
                 refreshView();
               }
             });
+  }
 
-    // 监听群成员数量变化
-    ((ChatTeamViewModel) viewModel)
-        .getUserChangeLiveData()
-        .observe(
-            getViewLifecycleOwner(),
-            result -> {
-              ALog.d(LIB_TAG, TAG, "TeamMemberChangeData,observe");
-              if (result.getLoadStatus() == LoadStatus.Finish && result.getData() != null) {
-                for (String userId : result.getData()) {
-                  if (TextUtils.equals(userId, IMKitClient.account())) {
-                    currentMember = TeamUserManager.getInstance().getCurTeamMember();
-                    refreshView();
-                  }
-                }
-                chatView.getMessageListView().notifyUserInfoChanged(result.getData());
-              }
-            });
+  @Override
+  protected void onUserInfoChanged(FetchResult<List<String>> fetchResult) {
+    super.onUserInfoChanged(fetchResult);
+    ALog.d(LIB_TAG, TAG, "onUserInfoChanged");
+    if (fetchResult.getLoadStatus() == LoadStatus.Finish && fetchResult.getData() != null) {
+      for (String userId : fetchResult.getData()) {
+        if (TextUtils.equals(userId, IMKitClient.account())) {
+          currentMember = TeamUserManager.getInstance().getCurTeamMember();
+          refreshView();
+        }
+      }
+    }
   }
 
   //  处理群聊解散，如果配置不删除会话，则不进行弹窗，输入隐藏即可

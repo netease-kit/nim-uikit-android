@@ -4,9 +4,9 @@
 
 package com.netease.yunxin.app.im.crash;
 
-import android.os.Process;
 import androidx.annotation.NonNull;
 import com.netease.yunxin.app.im.IMApplication;
+import com.netease.yunxin.app.im.utils.AppUtils;
 
 public class AppCrashHandler implements Thread.UncaughtExceptionHandler {
 
@@ -32,8 +32,6 @@ public class AppCrashHandler implements Thread.UncaughtExceptionHandler {
   @Override
   public void uncaughtException(@NonNull Thread t, @NonNull Throwable e) {
     imApplication.clearActivity(null);
-    Process.killProcess(Process.myPid());
-    System.exit(0);
-    System.gc();
+    AppUtils.restartApp();
   }
 }

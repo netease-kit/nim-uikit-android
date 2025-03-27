@@ -135,30 +135,7 @@ public class ChatSettingViewModel extends BaseViewModel {
     String conversationId =
         V2NIMConversationIdUtil.conversationId(
             accountId, V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P);
-    if (IMKitConfigCenter.getEnableLocalConversation()) {
-      LocalConversationRepo.getConversation(
-          conversationId,
-          new FetchCallback<V2NIMLocalConversation>() {
-            @Override
-            public void onError(int errorCode, @Nullable String errorMsg) {
-              ALog.d(LIB_TAG, TAG, "getConversationInfo,onError:" + errorCode + "," + errorMsg);
-              if (errorCode == ERROR_CODE_CONVERSATION_NOT_EXIST) {
-                ConversationRepo.createConversation(conversationId, null);
-              }
-            }
-
-            @Override
-            public void onSuccess(@Nullable V2NIMLocalConversation data) {
-              if (data != null) {
-                ALog.d(LIB_TAG, TAG, "getConversationInfo,stickTop:" + data.isStickTop());
-                FetchResult<Boolean> stickTopResult = new FetchResult<>(LoadStatus.Success);
-                stickTopResult.setData(data.isStickTop());
-                stickTopLiveData.setValue(stickTopResult);
-              }
-            }
-          });
-
-    } else {
+    if (IMKitClient.enableV2CloudConversation()) {
       ConversationRepo.getConversation(
           conversationId,
           new FetchCallback<V2NIMConversation>() {
@@ -172,6 +149,28 @@ public class ChatSettingViewModel extends BaseViewModel {
 
             @Override
             public void onSuccess(@Nullable V2NIMConversation data) {
+              if (data != null) {
+                ALog.d(LIB_TAG, TAG, "getConversationInfo,stickTop:" + data.isStickTop());
+                FetchResult<Boolean> stickTopResult = new FetchResult<>(LoadStatus.Success);
+                stickTopResult.setData(data.isStickTop());
+                stickTopLiveData.setValue(stickTopResult);
+              }
+            }
+          });
+    } else {
+      LocalConversationRepo.getConversation(
+          conversationId,
+          new FetchCallback<V2NIMLocalConversation>() {
+            @Override
+            public void onError(int errorCode, @Nullable String errorMsg) {
+              ALog.d(LIB_TAG, TAG, "getConversationInfo,onError:" + errorCode + "," + errorMsg);
+              if (errorCode == ERROR_CODE_CONVERSATION_NOT_EXIST) {
+                ConversationRepo.createConversation(conversationId, null);
+              }
+            }
+
+            @Override
+            public void onSuccess(@Nullable V2NIMLocalConversation data) {
               if (data != null) {
                 ALog.d(LIB_TAG, TAG, "getConversationInfo,stickTop:" + data.isStickTop());
                 FetchResult<Boolean> stickTopResult = new FetchResult<>(LoadStatus.Success);
@@ -353,9 +352,9 @@ public class ChatSettingViewModel extends BaseViewModel {
     String conversationId =
         V2NIMConversationIdUtil.conversationId(
             accountId, V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P);
-    if (IMKitConfigCenter.getEnableLocalConversation()) {
-      //本地会话
-      LocalConversationRepo.setStickTop(
+    if (IMKitClient.enableV2CloudConversation()) {
+      //云端会话
+      ConversationRepo.setStickTop(
           conversationId,
           isStickTop,
           new FetchCallback<Void>() {
@@ -376,9 +375,8 @@ public class ChatSettingViewModel extends BaseViewModel {
             }
           });
     } else {
-      //云端会话
-
-      ConversationRepo.setStickTop(
+      //本地会话
+      LocalConversationRepo.setStickTop(
           conversationId,
           isStickTop,
           new FetchCallback<Void>() {

@@ -28,10 +28,13 @@ import com.netease.yunxin.kit.chatkit.ui.fun.view.MessageBottomLayout;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.page.viewmodel.ChatP2PViewModel;
 import com.netease.yunxin.kit.chatkit.ui.view.ait.AitManager;
+import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.corekit.im2.model.UserWithFriend;
 import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Fun皮肤单聊聊天界面Fragment，继承自FunChatFragment
@@ -104,6 +107,10 @@ public class FunChatP2PFragment extends FunChatFragment {
       name = friendInfo.getName();
     }
     chatView.getTitleBar().setTitle(name);
+    chatView.updateInputHintInfo(name);
+    List<String> accountList = new ArrayList<>();
+    accountList.add(accountId);
+    chatView.notifyUserInfoChanged(accountList);
   }
 
   @Override
@@ -232,6 +239,18 @@ public class FunChatP2PFragment extends FunChatFragment {
   }
 
   @Override
+  protected void onUserInfoChanged(FetchResult<List<String>> fetchResult) {
+    super.onUserInfoChanged(fetchResult);
+    if (fetchResult.getLoadStatus() == LoadStatus.Finish && fetchResult.getData() != null) {
+      for (String userId : fetchResult.getData()) {
+        if (TextUtils.equals(userId, accountId)) {
+          updateCurrentUserInfo();
+        }
+      }
+    }
+  }
+
+  @Override
   public void updateCurrentUserInfo() {
     UserWithFriend friendInfo = FriendUserCache.getFriendByAccount(accountId);
     if (friendInfo != null) {
@@ -246,7 +265,6 @@ public class FunChatP2PFragment extends FunChatFragment {
         this.friendInfo = friendInfo;
       }
     }
-
     refreshView();
   }
 }

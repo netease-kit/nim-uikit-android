@@ -10,7 +10,6 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.text.TextUtils;
 import com.netease.yunxin.app.im.main.SettingKitConfig;
-import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
 
 public class DataUtils {
 
@@ -104,7 +103,6 @@ public class DataUtils {
           context.getSharedPreferences(
               Constant.CONVERSATION_CONFIG_FILE, Context.MODE_MULTI_PROCESS);
       localConversation = sharedPreferences.getBoolean(Constant.CONVERSATION_LOCAL_CONFIG, true);
-      IMKitConfigCenter.setEnableLocalConversation(localConversation);
     }
     return localConversation;
   }
@@ -117,7 +115,6 @@ public class DataUtils {
             .edit();
     editor.putBoolean(Constant.CONVERSATION_LOCAL_CONFIG, configSwitch);
     localConversation = configSwitch;
-    IMKitConfigCenter.setEnableLocalConversation(localConversation);
     editor.commit();
   }
 

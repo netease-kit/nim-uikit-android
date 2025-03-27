@@ -162,9 +162,8 @@ public class TeamNotificationHelper {
       subStr.append(
           IMKitClient.getApplicationContext().getString(R.string.chat_team_introduce_update));
     } else if (field.getAnnouncement() != null) {
-      subStr
-          .append(MessageHelper.getTeamNotifyDisplayName(fromAccount))
-          .append(IMKitClient.getApplicationContext().getString(R.string.chat_team_notice_update));
+      subStr.append(
+          IMKitClient.getApplicationContext().getString(R.string.chat_team_notice_update));
     } else if (field.getJoinMode() != null) {
       V2NIMTeamJoinMode type = field.getJoinMode();
       String auth = IMKitClient.getApplicationContext().getString(R.string.chat_team_verify_update);
