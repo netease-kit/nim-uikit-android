@@ -16,7 +16,7 @@ android {
         minSdk = 21
         targetSdk = 33
         consumerProguardFiles("consumer-rules.pro")
-        buildConfigField("String", "versionName", "\"9.7.1\"")
+        buildConfigField("String", "versionName", "\"9.7.5\"")
     }
 
     buildTypes {

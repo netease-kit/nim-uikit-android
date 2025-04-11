@@ -55,11 +55,11 @@ dependencies {
 //    implementation(project(":chatkit-ui"))
 //    implementation(project(":locationkit"))
 
-    implementation("com.netease.yunxin.kit.contact:contactkit-ui:9.7.1")
-    implementation("com.netease.yunxin.kit.conversation:conversationkit-ui:9.7.1")
-    implementation("com.netease.yunxin.kit.team:teamkit-ui:9.7.1")
-    implementation("com.netease.yunxin.kit.chat:chatkit-ui:9.7.1")
-    implementation("com.netease.yunxin.kit.locationkit:locationkit:9.7.1")
+    implementation("com.netease.yunxin.kit.contact:contactkit-ui:9.7.5")
+    implementation("com.netease.yunxin.kit.conversation:conversationkit-ui:9.7.5")
+    implementation("com.netease.yunxin.kit.team:teamkit-ui:9.7.5")
+    implementation("com.netease.yunxin.kit.chat:chatkit-ui:9.7.5")
+    implementation("com.netease.yunxin.kit.locationkit:locationkit:9.7.5")
     implementation("com.netease.yunxin.kit.call:call-ui:2.2.0") //呼叫组件 UI 包
     implementation("com.netease.nimlib:avsignalling:9.14.2") //信令组件
     implementation("com.airbnb.android:lottie:5.0.3")

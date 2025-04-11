@@ -4,12 +4,12 @@
 
 package com.netease.yunxin.kit.chatkit.ui.page.fragment;
 
+import static android.app.Activity.RESULT_OK;
 import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
 import static com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants.PAYLOAD_REFRESH_AUDIO_ANIM;
 import static com.netease.yunxin.kit.corekit.im.utils.RouterConstant.REQUEST_CONTACT_SELECTOR_KEY;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -24,7 +24,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
+
 import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -32,6 +34,7 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.StatusCode;
 import com.netease.nimlib.sdk.auth.AuthServiceObserver;
@@ -93,6 +96,7 @@ import com.netease.yunxin.kit.corekit.im.model.UserInfo;
 import com.netease.yunxin.kit.corekit.im.provider.FetchCallback;
 import com.netease.yunxin.kit.corekit.im.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -126,7 +130,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
 
   protected ChatMessageBean forwardMessage;
 
-  protected ActivityResultLauncher<String> pickMediaLauncher;
+  protected ActivityResultLauncher pickMediaLauncher;
   protected ActivityResultLauncher<String[]> pickFileLauncher;
   private String captureTempImagePath = "";
   protected ActivityResultLauncher<Uri> takePictureLauncher;
@@ -617,7 +621,9 @@ public abstract class ChatBaseFragment extends BaseFragment {
   }
 
   protected void startPickMedia() {
-    pickMediaLauncher.launch("image/*;video/*");
+    Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+    intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+    pickMediaLauncher.launch(intent);
   }
 
   protected void startPickFile() {
@@ -1221,7 +1227,27 @@ public abstract class ChatBaseFragment extends BaseFragment {
     // 系统图片&视频选择器，选择结果处理
     pickMediaLauncher =
         registerForActivityResult(
-            new ActivityResultContracts.GetMultipleContents(), this::onPickMedia);
+            new ActivityResultContracts.StartActivityForResult(),
+            new ActivityResultCallback<ActivityResult>() {
+              @Override
+              public void onActivityResult(ActivityResult result) {
+                if (result.getResultCode() == RESULT_OK) {
+                  Intent data = result.getData();
+                  if (data != null && data.getClipData() != null) {
+                    // 处理多张图片选择
+                    int count = data.getClipData().getItemCount();
+                    for (int i = 0; i < count; i++) {
+                      Uri imageUri = data.getClipData().getItemAt(i).getUri();
+                      mHandler.postDelayed(() -> viewModel.sendImageOrVideoMessage(imageUri), 100);
+                    }
+                  } else if (data != null && data.getData() != null) {
+                    // 处理单张图片选择
+                    Uri imageUri = data.getData();
+                    mHandler.postDelayed(() -> viewModel.sendImageOrVideoMessage(imageUri), 100);
+                  }
+                }
+              }
+            });
 
     // 系统文件选择器，选择结果处理
     pickFileLauncher =
@@ -1407,7 +1433,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
   }
 
   protected void onCaptureVideo(ActivityResult result) {
-    if (result.getResultCode() == Activity.RESULT_OK && !TextUtils.isEmpty(captureTempVideoPath)) {
+    if (result.getResultCode() == RESULT_OK && !TextUtils.isEmpty(captureTempVideoPath)) {
       File f = new File(captureTempVideoPath);
       Uri contentUri = Uri.fromFile(f);
       ALog.d(LIB_TAG, LOG_TAG, "capture video contentUri -->> " + contentUri);
@@ -1417,7 +1443,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
   }
 
   protected void onForwardMessage(ActivityResult result, SessionTypeEnum sessionType) {
-    if (result.getResultCode() != Activity.RESULT_OK) {
+    if (result.getResultCode() != RESULT_OK) {
       return;
     }
     ALog.d(LIB_TAG, LOG_TAG, "forward Team result");
@@ -1439,7 +1465,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
   }
 
   protected void onSelectLocation(ActivityResult result) {
-    if (result.getResultCode() != Activity.RESULT_OK) {
+    if (result.getResultCode() != RESULT_OK) {
       return;
     }
     ALog.d(LIB_TAG, LOG_TAG, "send location result");
