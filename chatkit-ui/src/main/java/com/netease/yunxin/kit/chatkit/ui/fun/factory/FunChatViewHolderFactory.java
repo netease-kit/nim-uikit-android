@@ -4,6 +4,8 @@
 
 package com.netease.yunxin.kit.chatkit.ui.fun.factory;
 
+import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
+
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -67,8 +69,14 @@ public class FunChatViewHolderFactory extends ChatMessageViewHolderFactory
         CustomAttachment attachment =
             (CustomAttachment) messageBean.getMessageData().getAttachment();
         if (attachment != null) {
+          ALog.d(LIB_TAG, TAG, "CustomMessage getCustomViewType:" + attachment.getType());
           return attachment.getType();
         }
+        String raw = "";
+        if (messageBean.getMessageData().getMessage().getAttachment() != null) {
+          raw = messageBean.getMessageData().getMessage().getAttachment().getRaw();
+        }
+        ALog.d(LIB_TAG, TAG, "CustomMessage getCustomViewType attachment null :" + raw);
       }
     }
     return -1;

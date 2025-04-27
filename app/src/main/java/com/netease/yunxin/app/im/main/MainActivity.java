@@ -214,6 +214,7 @@ public class MainActivity extends BaseLocalActivity {
             return null;
           }
         });
+    IMKitConfigCenter.setEnableAIStream(DataUtils.getAIStreamConfigSwitch(this));
   }
 
   @Override
@@ -231,25 +232,25 @@ public class MainActivity extends BaseLocalActivity {
         AppSkinConfig.getInstance().getAppSkinStyle() == AppSkinConfig.AppSkin.commonSkin;
     ALog.d(Constant.PROJECT_TAG, "MainActivity:initView currentIndex = " + currentIndex);
     List<Fragment> fragments = new ArrayList<>();
-    boolean localConversation = DataUtils.getLocalConversationConfigSwitch(this);
+    boolean cloudConversation = DataUtils.getCloudConversationConfigSwitch(this);
     // 根据皮肤类型加载不同的Fragment
     if (isCommonSkin) {
       changeStatusBarColor(R.color.fun_page_bg_color);
       // 通用皮肤，使用FunConversationFragment和FunContactFragment
-      if (localConversation) {
-        mLocalConversationFragment = new FunLocalConversationFragment();
-      } else {
+      if (cloudConversation) {
         mConversationFragment = new FunConversationFragment();
+      } else {
+        mLocalConversationFragment = new FunLocalConversationFragment();
       }
       mContactFragment = new FunContactFragment();
 
     } else {
       // 协同皮肤使用ConversationFragment和ContactFragment
       changeStatusBarColor(R.color.normal_page_bg_color);
-      if (localConversation) {
-        mLocalConversationFragment = new LocalConversationFragment();
-      } else {
+      if (cloudConversation) {
         mConversationFragment = new ConversationFragment();
+      } else {
+        mLocalConversationFragment = new LocalConversationFragment();
       }
       mContactFragment = new ContactFragment();
     }

@@ -12,6 +12,7 @@ import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatBasePinViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatPinTextViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
+import com.netease.yunxin.kit.chatkit.ui.view.MarkDownViwUtils;
 
 /** view holder for Text message */
 public class ChatPinTextViewHolder extends ChatBasePinViewHolder {
@@ -42,10 +43,17 @@ public class ChatPinTextViewHolder extends ChatBasePinViewHolder {
     }
     if (message.getMessageData().getMessage().getMessageType()
         == V2NIMMessageType.V2NIM_MESSAGE_TYPE_TEXT) {
-      MessageHelper.identifyExpression(
-          textBinding.getRoot().getContext(),
-          textBinding.messageText,
-          message.getMessageData().getMessage());
+      if (MessageHelper.isAIResponseMessage(message.getMessageData())) {
+        MarkDownViwUtils.makeMarkDown(
+            textBinding.getRoot().getContext(),
+            textBinding.messageText,
+            message.getMessageData().getMessage().getText());
+      } else {
+        MessageHelper.identifyExpression(
+            textBinding.getRoot().getContext(),
+            textBinding.messageText,
+            message.getMessageData().getMessage());
+      }
     } else {
       //文件消息暂不支持所以展示提示信息
       textBinding.messageText.setText(

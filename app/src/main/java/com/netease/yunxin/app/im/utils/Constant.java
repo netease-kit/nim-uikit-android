@@ -33,6 +33,8 @@ public class Constant {
   public static final String SERVER_CONFIG_FILE = "imkit_config_info";
   public static final String CONVERSATION_CONFIG_FILE = "imkit_conversation_info";
   public static final String CONVERSATION_LOCAL_CONFIG = "local_conversation";
+  public static final String AI_STREAM_CONFIG_FILE = "imkit_ai_stream_info";
+  public static final String AI_STREAM_CONFIG = "ai_stream";
   public static final int CHINA_CONFIG = 0;
   public static final int OVERSEA_CONFIG = 1;
 

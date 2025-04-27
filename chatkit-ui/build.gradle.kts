@@ -16,7 +16,7 @@ android {
     defaultConfig {
         minSdk = 24
         consumerProguardFiles("consumer-rules.pro")
-        buildConfigField("String", "versionName", "\"10.6.3\"")
+        buildConfigField("String", "versionName", "\"10.8.0\"")
     }
 
     buildTypes {
@@ -37,16 +37,19 @@ android {
 dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
     // imuikit 底层库
-    api("com.netease.yunxin.kit.chat:chatkit:10.6.3")
-    api("com.netease.yunxin.kit.common:common-ui:1.3.9")
-    api("com.netease.yunxin.kit.core:corekit-plugin:1.4.0")
+    api("com.netease.yunxin.kit.chat:chatkit:10.8.0")
+    api("com.netease.yunxin.kit.common:common-ui:1.4.0")
+    api("com.netease.yunxin.kit.core:corekit-plugin:1.5.0")
 
     api("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.22")
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.11.0")
     implementation("androidx.recyclerview:recyclerview:1.3.2")
     implementation("com.airbnb.android:lottie:5.0.3")
-    implementation("com.github.bumptech.glide:glide:4.13.1") 
-
+    implementation("com.github.bumptech.glide:glide:4.13.1")
+    implementation("io.noties.markwon:core:4.6.2")
+    implementation("io.noties.markwon:ext-tables:4.6.2")
+    implementation("io.noties.markwon:ext-tasklist:4.6.2")
+    implementation("io.noties.markwon:linkify:4.6.2")
 }
 

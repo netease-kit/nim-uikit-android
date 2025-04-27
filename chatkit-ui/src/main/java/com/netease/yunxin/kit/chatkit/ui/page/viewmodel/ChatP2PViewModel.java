@@ -120,10 +120,6 @@ public class ChatP2PViewModel extends ChatBaseViewModel {
                     || TextUtils.equals(friendInfo.getAccount(), IMKitClient.account()))) {
               needFriendList.add(friendInfo);
               accountList.add(friendInfo.getAccount());
-              if (TextUtils.equals(friendInfo.getAccount(), IMKitClient.account())
-                  && friendInfo.getUserInfo() != null) {
-                IMKitClient.setCurrentUser(friendInfo.getUserInfo());
-              }
             }
           }
 

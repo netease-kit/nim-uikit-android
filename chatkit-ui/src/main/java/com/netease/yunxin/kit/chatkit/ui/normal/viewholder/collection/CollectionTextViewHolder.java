@@ -13,6 +13,7 @@ import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.chatkit.ui.databinding.CollectionBaseViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.databinding.CollectionTextViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.model.CollectionBean;
+import com.netease.yunxin.kit.chatkit.ui.view.MarkDownViwUtils;
 
 /** 收藏消息文本消息view holder */
 public class CollectionTextViewHolder extends CollectionBaseViewHolder {
@@ -33,14 +34,20 @@ public class CollectionTextViewHolder extends CollectionBaseViewHolder {
   @Override
   public void onBindData(CollectionBean message, int position) {
     super.onBindData(message, position);
-
     if (message.getMessageData() != null
         && message.getMessageData().getMessageType() == V2NIMMessageType.V2NIM_MESSAGE_TYPE_TEXT) {
-      MessageHelper.identifyFaceExpression(
-          textBinding.getRoot().getContext(),
-          textBinding.messageText,
-          message.getMessageData().getText(),
-          ImageSpan.ALIGN_BOTTOM);
+      if (MessageHelper.isAIResponseMessage(message.getMessageInfo())) {
+        MarkDownViwUtils.makeMarkDown(
+            textBinding.getRoot().getContext(),
+            textBinding.messageText,
+            message.getMessageData().getText());
+      } else {
+        MessageHelper.identifyFaceExpression(
+            textBinding.getRoot().getContext(),
+            textBinding.messageText,
+            message.getMessageData().getText(),
+            ImageSpan.ALIGN_BOTTOM);
+      }
     } else {
       //文件消息暂不支持所以展示提示信息
       textBinding.messageText.setText(

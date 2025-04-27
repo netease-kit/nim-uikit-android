@@ -16,7 +16,7 @@ android {
     defaultConfig {
         minSdk = 24
         consumerProguardFiles("consumer-rules.pro")
-        buildConfigField("String", "versionName", "\"10.6.3\"")
+        buildConfigField("String", "versionName", "\"10.8.0\"")
     }
 
     buildTypes {
@@ -36,8 +36,8 @@ android {
 dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
     // imuikit 底层库
-    api("com.netease.yunxin.kit.chat:chatkit:10.6.3")
-    api("com.netease.yunxin.kit.common:common-ui:1.3.9")
+    api("com.netease.yunxin.kit.chat:chatkit:10.8.0")
+    api("com.netease.yunxin.kit.common:common-ui:1.4.0")
 
     api("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.22")
     implementation("androidx.appcompat:appcompat:1.6.1")

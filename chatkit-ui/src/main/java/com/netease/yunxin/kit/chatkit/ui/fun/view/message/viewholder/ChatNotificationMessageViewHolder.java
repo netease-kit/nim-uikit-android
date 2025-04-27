@@ -103,16 +103,16 @@ public class ChatNotificationMessageViewHolder extends FunChatBaseMessageViewHol
       String content = TeamNotificationHelper.getTeamNotificationText(message.getMessageData());
       textBinding.messageText.setText(content);
       if (TextUtils.isEmpty(content)) {
-        baseViewBinding.contentWithAllLayer.setVisibility(View.GONE);
+        baseViewBinding.messageContentGroup.setVisibility(View.GONE);
         baseViewBinding.msgBgLayout.setVisibility(View.GONE);
         textBinding.getRoot().setVisibility(View.GONE);
       } else {
-        baseViewBinding.contentWithAllLayer.setVisibility(View.VISIBLE);
+        baseViewBinding.messageContentGroup.setVisibility(View.VISIBLE);
         baseViewBinding.msgBgLayout.setVisibility(View.VISIBLE);
         textBinding.getRoot().setVisibility(View.VISIBLE);
       }
     } else {
-      baseViewBinding.contentWithAllLayer.setVisibility(View.GONE);
+      baseViewBinding.messageContentGroup.setVisibility(View.GONE);
       baseViewBinding.msgBgLayout.setVisibility(View.GONE);
       textBinding.getRoot().setVisibility(View.GONE);
     }

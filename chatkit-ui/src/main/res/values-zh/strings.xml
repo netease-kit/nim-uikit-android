@@ -284,6 +284,7 @@
     <string name="chat_ai_translate_language_title">将输入内容翻译为</string>
     <string name="chat_ai_translate_target_language">翻译语言</string>
     <string name="chat_ai_search_error">模型请求异常</string>
+    <string name="chat_ai_error">服务器繁忙，请稍后再试</string>
     <string name="chat_ai_message_progressing">大模型请求响应中...</string>
     <string name="chat_ai_message_type_unsupport">暂不支持该格式</string>
     <string name="chat_ai_error_user_not_exist">用户不存在</string>

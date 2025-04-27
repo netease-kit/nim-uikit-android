@@ -115,6 +115,9 @@ public class ChatTeamFragment extends NormalChatFragment {
       chatView.getTitleBar().setTitle(teamInfo.getName());
       chatView.updateInputHintInfo(teamInfo.getName());
       chatView.getMessageListView().updateTeamInfo(teamInfo);
+      chatView.getTitleBar().getActionImageView().setVisibility(View.VISIBLE);
+    } else {
+      chatView.getTitleBar().getActionImageView().setVisibility(View.GONE);
     }
     boolean isMute = ChatUtils.isMute(currentMember, teamInfo);
     ALog.d(LIB_TAG, TAG, "refreshView isMute:" + isMute);

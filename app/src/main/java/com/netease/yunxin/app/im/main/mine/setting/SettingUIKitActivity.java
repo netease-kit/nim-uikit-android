@@ -5,12 +5,17 @@
 package com.netease.yunxin.app.im.main.mine.setting;
 
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
+import androidx.annotation.DrawableRes;
 import androidx.annotation.Nullable;
+import com.netease.yunxin.app.im.AppSkinConfig;
 import com.netease.yunxin.app.im.R;
 import com.netease.yunxin.app.im.databinding.ActivityKitConfigBinding;
 import com.netease.yunxin.app.im.main.SettingKitConfig;
 import com.netease.yunxin.app.im.utils.DataUtils;
+import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
 import com.netease.yunxin.kit.common.ui.activities.BaseLocalActivity;
 
 public class SettingUIKitActivity extends BaseLocalActivity {
@@ -23,6 +28,14 @@ public class SettingUIKitActivity extends BaseLocalActivity {
     viewBinding = ActivityKitConfigBinding.inflate(getLayoutInflater());
     setContentView(viewBinding.getRoot());
     initView();
+    if (AppSkinConfig.getInstance().getAppSkinStyle() == AppSkinConfig.AppSkin.commonSkin) {
+      changeStatusBarColor(R.color.color_ededed);
+      viewBinding.clRoot.setBackgroundResource(R.color.color_ededed);
+      viewBinding.kitSettingll.setBackgroundResource(R.color.color_white);
+      updateCommonView(
+          R.drawable.fun_setting_bg_switch_thumb_selector,
+          R.drawable.fun_setting_bg_switch_track_selector);
+    }
   }
 
   private void initView() {
@@ -81,5 +94,46 @@ public class SettingUIKitActivity extends BaseLocalActivity {
             DataUtils.getSettingKitConfig().hasOnlineStatus = viewBinding.kitOnlineSc.isChecked();
           }
         });
+    viewBinding.kitTeamManageCountEt.setText(
+        String.valueOf(IMKitConfigCenter.getTeamManagerMaxCount()));
+    viewBinding.kitTeamManageCountEt.addTextChangedListener(
+        new TextWatcher() {
+          @Override
+          public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+          @Override
+          public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+          @Override
+          public void afterTextChanged(Editable s) {
+            String editContent = s.toString();
+            try {
+              int teamMember = Integer.parseInt(editContent);
+              IMKitConfigCenter.setTeamManagerMaxCount(teamMember);
+            } catch (Exception e) {
+            }
+          }
+        });
+  }
+
+  private void updateCommonView(@DrawableRes int thumbRes, @DrawableRes int trackRes) {
+
+    viewBinding.kitCallSc.setThumbResource(thumbRes);
+    viewBinding.kitCallSc.setTrackResource(trackRes);
+
+    viewBinding.kitCollectSc.setThumbResource(thumbRes);
+    viewBinding.kitCollectSc.setTrackResource(trackRes);
+
+    viewBinding.kitOnlineSc.setThumbResource(thumbRes);
+    viewBinding.kitOnlineSc.setTrackResource(trackRes);
+
+    viewBinding.kitPinSc.setThumbResource(thumbRes);
+    viewBinding.kitPinSc.setTrackResource(trackRes);
+
+    viewBinding.kitStickTopSc.setThumbResource(thumbRes);
+    viewBinding.kitStickTopSc.setTrackResource(trackRes);
+
+    viewBinding.kitTeamSc.setThumbResource(thumbRes);
+    viewBinding.kitTeamSc.setTrackResource(trackRes);
   }
 }

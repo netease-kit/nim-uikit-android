@@ -4,6 +4,7 @@
 
 package com.netease.yunxin.kit.conversationkit.ui.page.viewmodel;
 
+import android.os.SystemClock;
 import android.text.TextUtils;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -179,9 +180,13 @@ public class ConversationViewModel extends BaseViewModel {
       new LoginDetailListenerImpl() {
         @Override
         public void onDataSync(V2NIMDataSyncType type, V2NIMDataSyncState state, V2NIMError error) {
-          ALog.d(LIB_TAG, TAG, "onDataSync:" + type.name() + "," + state.name());
           if (type == V2NIMDataSyncType.V2NIM_DATA_SYNC_MAIN
               && state == V2NIMDataSyncState.V2NIM_DATA_SYNC_STATE_COMPLETED) {
+            ALog.d(
+                LIB_TAG,
+                TAG,
+                "Performance loginDetailListener V2NIM_DATA_SYNC_MAIN COMPLETED timestamp:"
+                    + SystemClock.elapsedRealtime());
             getConversationData();
           }
         }
@@ -279,6 +284,10 @@ public class ConversationViewModel extends BaseViewModel {
       return;
     }
     hasStart = true;
+    ALog.d(
+        LIB_TAG,
+        TAG,
+        "Performance queryConversation start timestamp:" + SystemClock.elapsedRealtime());
     ConversationRepo.getConversationList(
         offSet,
         PAGE_LIMIT,
@@ -298,6 +307,11 @@ public class ConversationViewModel extends BaseViewModel {
                     + ((data != null && data.getConversationList() != null)
                         ? data.getConversationList().size()
                         : 0));
+            ALog.d(
+                LIB_TAG,
+                TAG,
+                "Performance queryConversation onSuccess timestamp:"
+                    + SystemClock.elapsedRealtime());
             FetchResult<List<ConversationBean>> result = new FetchResult<>(LoadStatus.Success);
             result.setType(offSet > 0 ? FetchResult.FetchType.Add : FetchResult.FetchType.Init);
 
@@ -311,11 +325,30 @@ public class ConversationViewModel extends BaseViewModel {
               result.setData(resultData);
               hasMore = resultData.size() == PAGE_LIMIT;
               mOffset = data.getOffset();
+              checkConversationNameAndRequest(resultData);
             }
             queryLiveData.setValue(result);
             hasStart = false;
           }
         });
+  }
+
+  private void checkConversationNameAndRequest(List<ConversationBean> resultData) {
+    List<String> userIdList = new ArrayList<>();
+    if (resultData != null) {
+      for (int index = 0; index < resultData.size(); index++) {
+        ConversationBean conversationBean = resultData.get(index);
+        if (TextUtils.equals(conversationBean.getConversationName(), conversationBean.getTargetId())
+            && conversationBean.infoData.getType()
+                == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P) {
+          userIdList.add(conversationBean.getTargetId());
+        }
+      }
+      if (userIdList.size() > 0) {
+        ALog.d(LIB_TAG, TAG, "getUserInfo start:" + userIdList.size());
+        ContactRepo.getUserInfo(userIdList, null);
+      }
+    }
   }
 
   public void getAiRobotUserList() {
@@ -446,7 +479,11 @@ public class ConversationViewModel extends BaseViewModel {
 
         @Override
         public void onSyncFinished() {
-          ALog.d(LIB_TAG, TAG, "conversationListener onSyncFinished:");
+          ALog.d(
+              LIB_TAG,
+              TAG,
+              "Performance conversationListener onSyncFinished timestamp:"
+                  + SystemClock.elapsedRealtime());
         }
 
         @Override
@@ -494,7 +531,8 @@ public class ConversationViewModel extends BaseViewModel {
                 TAG,
                 "conversationListener onConversationChanged,conversation:"
                     + (conversation != null ? conversation.getConversationId() : "id is null"));
-            if (conversation != null
+            if (IMKitConfigCenter.getEnableDismissTeamDeleteConversation()
+                && conversation != null
                 && ConversationUtils.isDismissTeamMsg(conversation.getLastMessage())) {
               deleteList.add(conversation.getConversationId());
               deleteConversation(conversation.getConversationId(), false);
@@ -584,7 +622,8 @@ public class ConversationViewModel extends BaseViewModel {
     List<ConversationBean> resultData = new ArrayList<>();
     if (data != null) {
       for (int index = 0; index < data.size(); index++) {
-        resultData.add(conversationFactory.CreateBean(data.get(index)));
+        ConversationBean conversationBean = conversationFactory.CreateBean(data.get(index));
+        resultData.add(conversationBean);
       }
     }
     return resultData;

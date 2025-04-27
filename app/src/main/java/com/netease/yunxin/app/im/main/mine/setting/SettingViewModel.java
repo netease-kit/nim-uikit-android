@@ -6,6 +6,7 @@ package com.netease.yunxin.app.im.main.mine.setting;
 
 import android.content.Context;
 import com.netease.yunxin.app.im.utils.DataUtils;
+import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
 import com.netease.yunxin.kit.chatkit.repo.SettingRepo;
 import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
 
@@ -19,12 +20,21 @@ public class SettingViewModel extends BaseViewModel {
     SettingRepo.setShowReadStatus(delete);
   }
 
-  public boolean getLocalConversation(Context context) {
-    return DataUtils.getLocalConversationConfigSwitch(context);
+  public boolean getCloudConversation(Context context) {
+    return DataUtils.getCloudConversationConfigSwitch(context);
   }
 
-  public void setLocalConversation(Context context, boolean isLocal) {
-    DataUtils.saveLocalConversationConfigSwitch(context, isLocal);
+  public void setCloudConversation(Context context, boolean isLocal) {
+    DataUtils.saveCloudConversationConfigSwitch(context, isLocal);
+  }
+
+  public boolean getAIStream(Context context) {
+    return DataUtils.getAIStreamConfigSwitch(context);
+  }
+
+  public void setAIStream(Context context, boolean isStream) {
+    DataUtils.saveAIStreamConfigSwitch(context, isStream);
+    IMKitConfigCenter.setEnableAIStream(isStream);
   }
 
   public boolean getAudioPlayMode() {

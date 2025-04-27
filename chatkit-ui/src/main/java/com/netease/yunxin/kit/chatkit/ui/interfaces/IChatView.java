@@ -45,6 +45,8 @@ public interface IChatView {
 
   void deleteMessage(List<ChatMessageBean> message);
 
+  void updateMessage(ChatMessageBean message, Object payload);
+
   /**
    * 根据clientId删除消息
    *

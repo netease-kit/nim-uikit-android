@@ -20,5 +20,14 @@
     android:textColor="@color/color_333333"
     android:textSize="@dimen/text_size_16"
     tools:text="@tools:sample/lorem" />
-
+    <ProgressBar
+        android:id="@+id/messageLoading"
+        android:layout_width="@dimen/dimen_16_dp"
+        android:layout_height="@dimen/dimen_16_dp"
+        android:layout_marginTop="@dimen/dimen_12_dp"
+        android:layout_marginStart="@dimen/dimen_16_dp"
+        android:layout_marginEnd="@dimen/dimen_50_dp"
+        android:visibility="gone"
+        android:alpha="0.5"
+        style="@android:style/Widget.ProgressBar.Small"/>
 </FrameLayout>

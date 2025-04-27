@@ -68,6 +68,6 @@
     <!-- error tips-->
     <string name="team_network_error_tip">当前网络不可用，请检查你的网络设置。</string>
     <string name="team_add_manager_empty_tip">请选择成员</string>
-    <string name="team_add_manager_limit_tip">最多只能设置10个管理员</string>
+    <string name="team_add_manager_limit_tip">最多只能设置%s个管理员</string>
     <string name="team_operate_no_permission_tip">您暂无操作权限</string>
 </resources>

@@ -67,6 +67,6 @@
     <!-- error tips-->
     <string name="team_network_error_tip">No Network</string>
     <string name="team_add_manager_empty_tip">Select member</string>
-    <string name="team_add_manager_limit_tip">10 admins at most</string>
+    <string name="team_add_manager_limit_tip">%s admins at most</string>
     <string name="team_operate_no_permission_tip">No permission</string>
 </resources>

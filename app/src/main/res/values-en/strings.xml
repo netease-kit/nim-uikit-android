@@ -54,7 +54,8 @@
     <string name="setting_notify">Notification</string>
     <string name="setting_clear_cache">Clear Cache</string>
     <string name="setting_play_mode">Handset Mode</string>
-    <string name="conversation_mode">Local Conversation Mode</string>
+    <string name="conversation_mode">Cloud Conversation Mode</string>
+    <string name="ai_stream_mode">AI Stream Mode</string>
     <string name="setting_filter_notify">Filter notifications</string>
     <string name="setting_friend_delete_mode">Delete Remark</string>
     <string name="setting_message_read_mode">Read/Unread</string>
@@ -132,4 +133,5 @@
     <string name="uikit_stick_top_switch_title">Stick top message</string>
     <string name="uikit_online_switch_title">Message Typing Status</string>
     <string name="uikit_call_switch_title">Prohibit strangers from making calls</string>
+    <string name="uikit_team_manager_limit_title">Team Manager count limit</string>
 </resources>

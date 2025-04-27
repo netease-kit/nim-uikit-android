@@ -9,7 +9,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content">
-
     <TextView
         android:id="@+id/messageText"
         android:layout_width="wrap_content"
@@ -18,6 +17,18 @@
         android:paddingHorizontal="@dimen/dimen_16_dp"
         android:paddingVertical="@dimen/dimen_12_dp"
         android:textColor="@color/color_333333"
-        tools:text="@tools:sample/lorem" />
+        tools:text="@tools:sample/lorem"
+        android:visibility="visible"/>
+
+    <ProgressBar
+        android:id="@+id/messageLoading"
+        android:layout_width="@dimen/dimen_16_dp"
+        android:layout_height="@dimen/dimen_16_dp"
+        android:layout_marginTop="@dimen/dimen_12_dp"
+        android:layout_marginStart="@dimen/dimen_12_dp"
+        android:layout_marginEnd="@dimen/dimen_50_dp"
+        android:visibility="gone"
+        android:alpha="0.5"
+        style="@android:style/Widget.ProgressBar.Small"/>
 
 </FrameLayout>

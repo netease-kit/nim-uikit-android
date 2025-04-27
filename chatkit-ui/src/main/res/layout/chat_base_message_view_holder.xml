@@ -7,6 +7,7 @@
 
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/baseRoot"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -111,26 +112,8 @@
         app:barrierDirection="bottom"
         app:constraint_referenced_ids="otherUsername,myName" />
 
-    <androidx.constraintlayout.helper.widget.Layer
-        android:id="@+id/contentWithAllLayer"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:constraint_referenced_ids="messageTopGroup,messageContainer,messageBottomGroup"/>
-
-    <androidx.constraintlayout.helper.widget.Layer
-        android:id="@+id/contentWithTopLayer"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:constraint_referenced_ids="messageTopGroup,messageContainer"/>
-
-    <androidx.constraintlayout.helper.widget.Layer
-        android:id="@+id/contentWithBottomLayer"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:constraint_referenced_ids="messageBottomGroup,messageContainer"/>
-
-    <com.netease.yunxin.kit.common.ui.widgets.LongClickableFrameLayout
-        android:id="@+id/messageTopGroup"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/messageContentGroup"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toStartOf="@+id/myAvatar"
@@ -139,31 +122,68 @@
         app:layout_goneMarginTop="@dimen/dimen_4_dp"
         app:layout_constraintWidth_default="wrap"
         app:layout_goneMarginEnd="@dimen/dimen_60_dp"
-        app:layout_goneMarginStart="@dimen/dimen_60_dp" />
+        app:layout_goneMarginStart="@dimen/dimen_60_dp">
 
-    <com.netease.yunxin.kit.common.ui.widgets.LongClickableFrameLayout
-        android:id="@+id/messageContainer"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:layout_constraintEnd_toStartOf="@id/myAvatar"
-        app:layout_constraintStart_toEndOf="@id/otherUserAvatar"
-        app:layout_constraintTop_toBottomOf="@id/messageTopGroup"
-        app:layout_constraintWidth_default="wrap"
-        android:paddingBottom="@dimen/dimen_4_dp"
-        app:layout_goneMarginEnd="@dimen/dimen_60_dp"
-        app:layout_goneMarginStart="@dimen/dimen_60_dp" />
+        <androidx.constraintlayout.helper.widget.Layer
+            android:id="@+id/contentWithTopLayer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:constraint_referenced_ids="messageTopGroup,messageContainer"
+            tools:ignore="MissingConstraints" />
+        <com.netease.yunxin.kit.common.ui.widgets.LongClickableFrameLayout
+            android:id="@+id/messageTopGroup"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintWidth_default="wrap"/>
 
-    <com.netease.yunxin.kit.common.ui.widgets.LongClickableFrameLayout
-        android:id="@+id/messageBottomGroup"
-        android:layout_width="0dp"
+        <com.netease.yunxin.kit.common.ui.widgets.LongClickableFrameLayout
+            android:id="@+id/messageContainer"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/messageTopGroup"
+            app:layout_constraintWidth_default="wrap"
+            android:paddingBottom="@dimen/dimen_4_dp" />
+
+        <com.netease.yunxin.kit.common.ui.widgets.LongClickableFrameLayout
+            android:id="@+id/messageBottomGroup"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/messageContainer"
+            android:paddingBottom="@dimen/dimen_4_dp"
+            app:layout_constraintWidth_default="wrap"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    <LinearLayout android:id="@+id/messageUpdateOperate"
+        android:layout_width="@dimen/dimen_30_dp"
         android:layout_height="wrap_content"
-        app:layout_constraintEnd_toStartOf="@+id/myAvatar"
-        app:layout_constraintStart_toEndOf="@id/otherUserAvatar"
-        app:layout_constraintTop_toBottomOf="@id/messageContainer"
-        android:paddingBottom="@dimen/dimen_4_dp"
-        app:layout_constraintWidth_default="wrap"
-        app:layout_goneMarginEnd="@dimen/dimen_60_dp"
-        app:layout_goneMarginStart="@dimen/dimen_60_dp" />
+        android:orientation="vertical"
+        app:layout_constraintTop_toTopOf="@id/messageContentGroup"
+        app:layout_constraintStart_toEndOf="@id/messageContentGroup"
+        android:layout_marginStart="@dimen/dimen_10_dp"
+        android:visibility="gone">
+
+        <ImageView android:id="@+id/messageUpdateStop"
+            android:layout_width="@dimen/dimen_28_dp"
+            android:src="@drawable/ic_chat_ai_stop"
+            android:layout_height="@dimen/dimen_28_dp"
+            android:layout_marginTop="@dimen/dimen_12_dp"
+            android:visibility="gone"/>
+
+        <ImageView android:id="@+id/messageUpdateRefresh"
+            android:layout_width="@dimen/dimen_28_dp"
+            android:src="@drawable/ic_chat_ai_refresh"
+            android:layout_height="@dimen/dimen_28_dp"
+            android:layout_marginTop="@dimen/dimen_12_dp" />
+    </LinearLayout>
+
 
     <LinearLayout
         android:id="@+id/llSignal"
@@ -172,7 +192,7 @@
         android:layout_marginTop="@dimen/dimen_5_dp"
         app:layout_constraintEnd_toStartOf="@id/myAvatar"
         app:layout_constraintStart_toEndOf="@id/otherUserAvatar"
-        app:layout_constraintTop_toBottomOf="@id/messageBottomGroup"
+        app:layout_constraintTop_toBottomOf="@id/messageContentGroup"
         android:orientation="horizontal"
         android:visibility="gone"
         android:paddingBottom="@dimen/dimen_4_dp"
@@ -203,8 +223,8 @@
         android:layout_height="@dimen/dimen_16_dp"
         android:layout_gravity="bottom"
         android:layout_marginEnd="@dimen/dimen_3_dp"
-        app:layout_constraintEnd_toStartOf="@id/messageContainer"
-        app:layout_constraintBottom_toBottomOf="@id/messageContainer"
+        app:layout_constraintEnd_toStartOf="@id/messageContentGroup"
+        app:layout_constraintBottom_toBottomOf="@id/messageContentGroup"
         android:visibility="gone">
 
         <ProgressBar

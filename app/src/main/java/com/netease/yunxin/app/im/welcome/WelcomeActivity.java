@@ -41,10 +41,10 @@ public class WelcomeActivity extends BaseActivity {
         activityWelcomeBinding = ActivityWelcomeBinding.inflate(getLayoutInflater());
         setContentView(activityWelcomeBinding.getRoot());
         // 判断是否已经登录
-        if (TextUtils.isEmpty(NIMClient.getCurrentAccount())) {
-            startLogin();
-        } else {
+        if (IMKitClient.hasLogin()) {
             showMainActivityAndFinish();
+        } else {
+            startLogin();
         }
     }
 

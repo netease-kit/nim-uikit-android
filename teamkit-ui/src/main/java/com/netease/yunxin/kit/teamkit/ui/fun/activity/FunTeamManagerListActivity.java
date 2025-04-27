@@ -11,6 +11,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.Nullable;
 import androidx.viewbinding.ViewBinding;
 import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamType;
+import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
 import com.netease.yunxin.kit.corekit.im2.IMKitClient;
 import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.teamkit.ui.R;
@@ -62,9 +63,10 @@ public class FunTeamManagerListActivity extends BaseTeamManagerListActivity {
     ArrayList<String> filterList = TeamUtils.getAccIdListFromInfoList(managerList);
     filterList.add(IMKitClient.account());
     intent.putExtra(RouterConstant.SELECTOR_CONTACT_FILTER_KEY, filterList);
-    intent.putExtra(
-        RouterConstant.KEY_CONTACT_SELECTOR_MAX_COUNT,
-        TeamUIKitConstant.KEY_MANAGER_MAX_COUNT - managerList.size());
+    if (IMKitConfigCenter.getTeamManagerMaxCount() >= 0) {
+      int numLimit = IMKitConfigCenter.getTeamManagerMaxCount() - managerList.size();
+      intent.putExtra(RouterConstant.KEY_CONTACT_SELECTOR_MAX_COUNT, numLimit > 0 ? numLimit : 0);
+    }
     launcher.launch(intent);
   }
 }

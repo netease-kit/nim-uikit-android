@@ -34,7 +34,6 @@ import com.netease.yunxin.kit.common.utils.NetworkUtils;
 import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.teamkit.ui.R;
 import com.netease.yunxin.kit.teamkit.ui.adapter.BaseTeamMemberListAdapter;
-import com.netease.yunxin.kit.teamkit.ui.utils.TeamUIKitConstant;
 import com.netease.yunxin.kit.teamkit.ui.utils.TeamUtils;
 import com.netease.yunxin.kit.teamkit.ui.viewmodel.TeamSettingViewModel;
 import java.util.ArrayList;
@@ -60,7 +59,7 @@ public abstract class BaseTeamMemberSelectActivity extends BaseLocalActivity {
   protected View groupEmpty;
   protected RecyclerView rvMemberList;
   protected EditText etSearch;
-  protected int maxCount = TeamUIKitConstant.KEY_MANAGER_MAX_COUNT;
+  protected int maxCount = IMKitConfigCenter.getTeamManagerMaxCount();
 
   @Override
   protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -74,7 +73,7 @@ public abstract class BaseTeamMemberSelectActivity extends BaseLocalActivity {
         getIntent()
             .getIntExtra(
                 RouterConstant.KEY_CONTACT_SELECTOR_MAX_COUNT,
-                TeamUIKitConstant.KEY_MANAGER_MAX_COUNT);
+                IMKitConfigCenter.getTeamManagerMaxCount());
     if (teamInfo == null) {
       finish();
       return;
@@ -145,10 +144,12 @@ public abstract class BaseTeamMemberSelectActivity extends BaseLocalActivity {
                   .show();
               return;
             }
-            if (selectedList.size() > maxCount) {
+            if (maxCount >= 0 && selectedList.size() > maxCount) {
+              String tips = getString(R.string.team_add_manager_limit_tip);
               Toast.makeText(
                       getApplicationContext(),
-                      getString(R.string.team_add_manager_limit_tip),
+                      String.format(
+                          tips, String.valueOf(IMKitConfigCenter.getTeamManagerMaxCount())),
                       Toast.LENGTH_SHORT)
                   .show();
               return;

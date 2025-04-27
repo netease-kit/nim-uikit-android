@@ -466,6 +466,11 @@ public class ChatView extends LinearLayout implements IChatView, AitTextChangeLi
     binding.messageView.deleteMessage(message);
   }
 
+  @Override
+  public void updateMessage(ChatMessageBean message, Object payload) {
+    binding.messageView.updateMessage(message, payload);
+  }
+
   /**
    * 根据clientId删除消息
    *
@@ -489,18 +494,16 @@ public class ChatView extends LinearLayout implements IChatView, AitTextChangeLi
     binding.messageView.revokeMessage(message);
   }
 
+  @Override
   public void updateMessageStatus(ChatMessageBean message) {
     binding.messageView.updateMessageStatus(message);
-  }
-
-  public void updateMessage(ChatMessageBean message, Object payload) {
-    binding.messageView.updateMessage(message, payload);
   }
 
   public void updateMessage(V2NIMMessage message, Object payload) {
     binding.messageView.updateMessage(message, payload);
   }
 
+  @Override
   public void updateProgress(IMMessageProgress progress) {
     binding.messageView.updateAttachmentProgress(progress);
   }
@@ -524,6 +527,7 @@ public class ChatView extends LinearLayout implements IChatView, AitTextChangeLi
     binding.chatBottomInputLayout.setMute(mute);
   }
 
+  @Override
   public void setMessageProxy(IMessageProxy proxy) {
     messageProxy = proxy;
     binding.chatBottomInputLayout.init(proxy);
@@ -554,22 +558,26 @@ public class ChatView extends LinearLayout implements IChatView, AitTextChangeLi
     return binding.chatViewBodyBottom;
   }
 
+  @Override
   public void setAitManager(AitManager manager) {
     manager.setAitTextChangeListener(binding.chatBottomInputLayout);
     aitTextManager = manager;
     binding.chatBottomInputLayout.setAitTextWatcher(manager);
   }
 
+  @Override
   public void setMessageViewHolderFactory(IChatFactory viewHolderFactory) {
     binding.messageView.setViewHolderFactory(viewHolderFactory);
   }
 
+  @Override
   public void setLayoutCustom(IChatViewCustom layoutCustom) {
     if (layoutCustom != null) {
       layoutCustom.customizeChatLayout(this);
     }
   }
 
+  @Override
   public View getRootView() {
     return binding.getRoot();
   }

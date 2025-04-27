@@ -17,6 +17,7 @@ import com.netease.nimlib.sdk.v2.ai.params.V2NIMAIModelCallContent;
 import com.netease.nimlib.sdk.v2.ai.params.V2NIMAIModelConfigParams;
 import com.netease.nimlib.sdk.v2.ai.params.V2NIMProxyAIModelCallParams;
 import com.netease.nimlib.sdk.v2.ai.result.V2NIMAIModelCallResult;
+import com.netease.nimlib.sdk.v2.ai.result.V2NIMAIModelStreamCallResult;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.manager.AIUserManager;
 import com.netease.yunxin.kit.chatkit.repo.AIRepo;
@@ -79,7 +80,7 @@ public class AiTranslateViewModel extends BaseViewModel {
       variables.put(LanguageKey, language);
       String varStr = variables.toString();
       builder.promptVariables(varStr);
-      ALog.d(LIB_TAG, TAG, "start translate:" + varStr + ",content:" + text);
+      ALog.d(LIB_TAG, TAG, "start translate:" + varStr);
     } catch (Exception e) {
       ALog.e(LIB_TAG, TAG, "translate error, promptVariables error");
     }
@@ -113,9 +114,7 @@ public class AiTranslateViewModel extends BaseViewModel {
           ALog.d(
               LIB_TAG,
               TAG,
-              "onProxyAIModelCall,content: "
-                  + result.getContent().toString()
-                  + ",requestId: "
+              "onProxyAIModelCall requestId: "
                   + result.getRequestId()
                   + ",accountId: "
                   + result.getAccountId());
@@ -136,6 +135,9 @@ public class AiTranslateViewModel extends BaseViewModel {
             }
           }
         }
+
+        @Override
+        public void onProxyAIModelStreamCall(V2NIMAIModelStreamCallResult result) {}
       };
 
   public List<LanguageModel> getLanguageList(Context context) {

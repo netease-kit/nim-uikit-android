@@ -13,7 +13,6 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -144,6 +143,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
   private static final int REQUEST_READ_EXTERNAL_STORAGE_PERMISSION_FILE = 4;
   // 地理位置权限申请
   private static final int REQUEST_LOCATION_PERMISSION = 5;
+  private static final int REQUEST_MIRC_PERMISSION = 6;
   // 音频消息最小长度(单位ms)
   private static final int AUDIO_MESSAGE_MIN_LENGTH = 1000;
 
@@ -311,6 +311,12 @@ public abstract class ChatBaseFragment extends BaseFragment {
     if (!TextUtils.isEmpty(IMKitClient.account())) {
       initData();
     }
+  }
+
+  @Override
+  public void onSaveInstanceState(@NonNull Bundle outState) {
+    super.onSaveInstanceState(outState);
+    ALog.d(LIB_TAG, LOG_TAG, "onSaveInstanceState");
   }
 
   private void handleTopMessage() {
@@ -567,11 +573,6 @@ public abstract class ChatBaseFragment extends BaseFragment {
                       Manifest.permission.ACCESS_COARSE_LOCATION)) {
                     startLocationPage();
                   } else {
-                    LocationManager locationManager =
-                        (LocationManager)
-                            ChatBaseFragment.this
-                                .getContext()
-                                .getSystemService(Context.LOCATION_SERVICE);
                     try {
                       int locationMode =
                           Settings.Secure.getInt(
@@ -588,6 +589,12 @@ public abstract class ChatBaseFragment extends BaseFragment {
                     }
                     hasPermission = false;
                     permission = Manifest.permission.ACCESS_COARSE_LOCATION;
+                  }
+                } else if (currentRequest == REQUEST_MIRC_PERMISSION) {
+                  if (!PermissionUtils.hasPermissions(
+                      ChatBaseFragment.this.getContext(), Manifest.permission.RECORD_AUDIO)) {
+                    hasPermission = false;
+                    permission = Manifest.permission.RECORD_AUDIO;
                   }
                 }
 
@@ -897,6 +904,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
           if (permission == null || permission.length < 1) {
             return false;
           }
+          int request = REQUEST_PERMISSION;
           if (PermissionUtils.hasPermissions(ChatBaseFragment.this.getContext(), permission)) {
             return true;
           } else {
@@ -906,14 +914,16 @@ public abstract class ChatBaseFragment extends BaseFragment {
               if (s.equals(Manifest.permission.RECORD_AUDIO)) {
                 titleRes = R.string.chat_permission_audio_title;
                 contentRes = R.string.chat_permission_audio_content;
+                request = REQUEST_MIRC_PERMISSION;
                 break;
               } else if (s.equals(Manifest.permission.ACCESS_COARSE_LOCATION)) {
                 titleRes = R.string.chat_permission_location_title;
                 contentRes = R.string.chat_permission_location_content;
+                request = REQUEST_LOCATION_PERMISSION;
                 break;
               }
             }
-            requestSystemPermission(permission, REQUEST_PERMISSION, titleRes, contentRes);
+            requestSystemPermission(permission, request, titleRes, contentRes);
             return false;
           }
         }
@@ -1169,7 +1179,8 @@ public abstract class ChatBaseFragment extends BaseFragment {
         public boolean onMessageLongClick(View view, int position, ChatMessageBean messageBean) {
           if (delegateListener == null
               || !delegateListener.onMessageLongClick(view, position, messageBean)) {
-            if (messageBean.isRevoked()) {
+            // 撤回消息或者正在输出中的消息长按没有菜单
+            if (messageBean.isRevoked() || messageBean.AIMessageStreaming()) {
               return false;
             }
             // show pop menu
@@ -1373,6 +1384,18 @@ public abstract class ChatBaseFragment extends BaseFragment {
                   location[1]);
             }
           }
+          return true;
+        }
+
+        @Override
+        public boolean onAIMessageRefresh(View view, int position, IMMessageInfo messageInfo) {
+          viewModel.regenAIMessage(messageInfo);
+          return true;
+        }
+
+        @Override
+        public boolean onAIMessageStreamStop(View view, int position, IMMessageInfo messageInfo) {
+          viewModel.stopAIStream(messageInfo);
           return true;
         }
 
@@ -1959,9 +1982,11 @@ public abstract class ChatBaseFragment extends BaseFragment {
         payload = ActionConstants.PAYLOAD_SIGNAL;
       } else if (fetchResult.getData().first == MessageUpdateType.VoiceToText) {
         payload = ActionConstants.PAYLOAD_VOICE_TO_TEXT;
+      } else if (fetchResult.getData().first == MessageUpdateType.UpdateMessage) {
+        payload = ActionConstants.PAYLOAD_UPDATE_MESSAGE;
       }
       for (ChatMessageBean messageBean : fetchResult.getData().second) {
-        chatView.getMessageListView().updateMessage(messageBean, payload);
+        chatView.updateMessage(messageBean, payload);
       }
     } else if (fetchResult.getLoadStatus() == LoadStatus.Error) {
       String toast = fetchResult.getErrorMsg(getContext());
@@ -2365,6 +2390,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
     viewModel.getAttachmentProgressMutableLiveData().removeObserver(attachLiveDataObserver);
     viewModel.getUpdateMessageLiveData().removeObserver(messageUpdateLiveDataObserver);
     viewModel.getPinedMessageListLiveData().removeObserver(pinedMessageLiveDataObserver);
+    viewModel.onDestroy();
   }
 
   /** for custom layout for ChatView */

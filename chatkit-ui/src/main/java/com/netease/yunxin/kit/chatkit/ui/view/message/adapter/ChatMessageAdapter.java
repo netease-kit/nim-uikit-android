@@ -167,6 +167,9 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<CommonBaseMessageVi
   }
 
   public void appendMessages(List<ChatMessageBean> messages) {
+    if (messages == null || messages.size() < 1) {
+      return;
+    }
     removeSameMessage(messages);
     int pos = messageList.size();
     messageList.addAll(messages);
