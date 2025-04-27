@@ -70,8 +70,7 @@ public class NimSDKOptionConfig {
     options.serverConfig = configServer(context);
     // 打开消息撤回未读数-1的开关
     options.shouldConsiderRevokedMessageUnreadCount = true;
-    boolean localConversation = DataUtils.getLocalConversationConfigSwitch(context);
-    options.enableV2CloudConversation = !localConversation;
+    options.enableV2CloudConversation = DataUtils.getCloudConversationConfigSwitch(context);
     return options;
   }
 

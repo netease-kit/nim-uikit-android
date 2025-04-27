@@ -29,7 +29,7 @@
         app:trackCornerRadius="@dimen/dimen_4_dp" />
 
 
-    <androidx.appcompat.widget.AppCompatImageView
+    <com.netease.yunxin.kit.common.ui.widgets.scaleimage.ScaleImageView
         android:id="@+id/watch_image_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

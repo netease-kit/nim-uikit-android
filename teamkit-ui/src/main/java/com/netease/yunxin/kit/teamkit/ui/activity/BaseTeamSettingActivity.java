@@ -460,8 +460,9 @@ public abstract class BaseTeamSettingActivity extends BaseLocalActivity {
         });
 
     boolean hasPrivilegeToInvite =
-        (team.getInviteMode() == V2NIMTeamInviteMode.V2NIM_TEAM_INVITE_MODE_ALL)
-            || teamMember.getMemberRole() != V2NIMTeamMemberRole.V2NIM_TEAM_MEMBER_ROLE_NORMAL
+        team.getInviteMode() == V2NIMTeamInviteMode.V2NIM_TEAM_INVITE_MODE_ALL
+            || (teamMember != null
+                && teamMember.getMemberRole() != V2NIMTeamMemberRole.V2NIM_TEAM_MEMBER_ROLE_NORMAL)
             || team.getTeamType() == V2NIMTeamType.V2NIM_TEAM_TYPE_INVALID;
     ConstraintLayout.LayoutParams params =
         (ConstraintLayout.LayoutParams) rvMemberList.getLayoutParams();

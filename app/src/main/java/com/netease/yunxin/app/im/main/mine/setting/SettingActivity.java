@@ -19,7 +19,7 @@ import com.netease.yunxin.app.im.BuildConfig;
 import com.netease.yunxin.app.im.IMApplication;
 import com.netease.yunxin.app.im.R;
 import com.netease.yunxin.app.im.databinding.ActivityMineSettingBinding;
-import com.netease.yunxin.app.im.main.MainActivity;
+import com.netease.yunxin.app.im.utils.AppUtils;
 import com.netease.yunxin.app.im.utils.MultiLanguageUtils;
 import com.netease.yunxin.app.im.welcome.WelcomeActivity;
 import com.netease.yunxin.kit.chatkit.ui.custom.ChatConfigManager;
@@ -82,15 +82,21 @@ public class SettingActivity extends BaseLocalActivity {
         });
 
     // 本地会话
-    viewBinding.conversationModeSc.setChecked(viewModel.getLocalConversation(this));
+    viewBinding.conversationModeSc.setChecked(viewModel.getCloudConversation(this));
     viewBinding.conversationModeSc.setOnClickListener(
         v -> {
           boolean checked = viewBinding.conversationModeSc.isChecked();
-          viewModel.setLocalConversation(this, checked);
-          EventCenter.notifyEvent(new MainActivity.SkinEvent());
+          viewModel.setCloudConversation(this, checked);
+          AppUtils.restartApp();
           finish();
         });
 
+    viewBinding.aiStreamModeSc.setChecked(viewModel.getAIStream(this));
+    viewBinding.aiStreamModeSc.setOnClickListener(
+        v -> {
+          boolean checked = viewBinding.aiStreamModeSc.isChecked();
+          viewModel.setAIStream(this, checked);
+        });
     viewBinding.notifyFl.setOnClickListener(
         v -> startActivity(new Intent(SettingActivity.this, SettingNotifyActivity.class)));
 
@@ -179,6 +185,9 @@ public class SettingActivity extends BaseLocalActivity {
 
     viewBinding.conversationModeSc.setThumbResource(thumbRes);
     viewBinding.conversationModeSc.setTrackResource(trackRes);
+
+    viewBinding.aiStreamModeSc.setThumbResource(thumbRes);
+    viewBinding.aiStreamModeSc.setTrackResource(trackRes);
   }
 
   @Override

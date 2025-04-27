@@ -129,6 +129,8 @@ public abstract class ChatBaseMessageViewHolder extends CommonBaseMessageViewHol
           setSelectStatus(message);
         } else if (TextUtils.equals(payloadItem, ActionConstants.PAYLOAD_VOICE_TO_TEXT)) {
           setVoiceToText(message);
+        } else if (TextUtils.equals(payloadItem, ActionConstants.PAYLOAD_UPDATE_MESSAGE)) {
+          onMessageUpdate(message);
         }
         onCommonViewVisibleConfig(message);
         onMessageBackgroundConfig(message);
@@ -217,6 +219,13 @@ public abstract class ChatBaseMessageViewHolder extends CommonBaseMessageViewHol
    * @param data 更新下载进度的消息体
    */
   protected void onProgressUpdate(ChatMessageBean data) {}
+
+  /**
+   * 消息更新
+   *
+   * @param data 更新的消息体
+   */
+  protected void onMessageUpdate(ChatMessageBean data) {}
 
   //// 消息标记状态渲染，消息撤回时需要移除标记，添加标记也都会触发此方法，
   //// 是否存在标记内容需要根据 V2ChatMessageBean 中方法判断
@@ -756,6 +765,8 @@ public abstract class ChatBaseMessageViewHolder extends CommonBaseMessageViewHol
   protected void onLayoutConfig(ChatMessageBean messageBean) {
     ConstraintLayout.LayoutParams messageContainerLayoutParams =
         (ConstraintLayout.LayoutParams) baseViewBinding.messageContainer.getLayoutParams();
+    ConstraintLayout.LayoutParams messageContentLayoutParams =
+        (ConstraintLayout.LayoutParams) baseViewBinding.messageContentGroup.getLayoutParams();
     ConstraintLayout.LayoutParams messageTopLayoutParams =
         (ConstraintLayout.LayoutParams) baseViewBinding.messageTopGroup.getLayoutParams();
     ConstraintLayout.LayoutParams messageBottomLayoutParams =
@@ -767,9 +778,11 @@ public abstract class ChatBaseMessageViewHolder extends CommonBaseMessageViewHol
       messageContainerLayoutParams.horizontalBias = MessageContentLayoutGravity.left;
       messageTopLayoutParams.horizontalBias = MessageContentLayoutGravity.left;
       messageBottomLayoutParams.horizontalBias = MessageContentLayoutGravity.left;
+      messageContentLayoutParams.horizontalBias = MessageContentLayoutGravity.left;
       baseViewBinding.llSignal.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
     } else {
       // 发送的消息设置消息体展示居右
+      messageContentLayoutParams.horizontalBias = MessageContentLayoutGravity.right;
       messageContainerLayoutParams.horizontalBias = MessageContentLayoutGravity.right;
       messageTopLayoutParams.horizontalBias = MessageContentLayoutGravity.right;
       messageBottomLayoutParams.horizontalBias = MessageContentLayoutGravity.right;
@@ -778,6 +791,7 @@ public abstract class ChatBaseMessageViewHolder extends CommonBaseMessageViewHol
     // 自定义消息布局，支持左中右三种，详细见 MessageContentLayoutGravity
     CommonUIOption commonUIOption = uiOptions.commonUIOption;
     if (commonUIOption.messageContentLayoutGravity != null) {
+      messageContentLayoutParams.horizontalBias = commonUIOption.messageContentLayoutGravity;
       messageContainerLayoutParams.horizontalBias = commonUIOption.messageContentLayoutGravity;
       messageTopLayoutParams.horizontalBias = commonUIOption.messageContentLayoutGravity;
       messageBottomLayoutParams.horizontalBias = commonUIOption.messageContentLayoutGravity;
@@ -785,7 +799,7 @@ public abstract class ChatBaseMessageViewHolder extends CommonBaseMessageViewHol
     baseViewBinding.llSignal.setLayoutParams(signalLayoutParams);
     baseViewBinding.messageContainer.setLayoutParams(messageContainerLayoutParams);
     baseViewBinding.messageBottomGroup.setLayoutParams(messageBottomLayoutParams);
-    baseViewBinding.messageContainer.setLayoutParams(messageContainerLayoutParams);
+    baseViewBinding.messageContentGroup.setLayoutParams(messageContentLayoutParams);
     baseViewBinding.messageTopGroup.setLayoutParams(messageTopLayoutParams);
   }
 

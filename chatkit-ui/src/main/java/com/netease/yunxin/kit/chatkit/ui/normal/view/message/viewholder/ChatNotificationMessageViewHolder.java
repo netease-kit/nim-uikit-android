@@ -93,17 +93,17 @@ public class ChatNotificationMessageViewHolder extends NormalChatBaseMessageView
       String content = TeamNotificationHelper.getTeamNotificationText(message.getMessageData());
       if (TextUtils.isEmpty(content)) {
         textBinding.getRoot().setVisibility(View.GONE);
-        baseViewBinding.contentWithAllLayer.setVisibility(View.GONE);
+        baseViewBinding.messageContentGroup.setVisibility(View.GONE);
         baseViewBinding.msgBgLayout.setVisibility(View.GONE);
       } else {
-        baseViewBinding.contentWithAllLayer.setVisibility(View.VISIBLE);
+        baseViewBinding.messageContentGroup.setVisibility(View.VISIBLE);
         baseViewBinding.msgBgLayout.setVisibility(View.VISIBLE);
         textBinding.getRoot().setVisibility(View.VISIBLE);
         textBinding.messageText.setText(content);
       }
     } else {
       textBinding.getRoot().setVisibility(View.GONE);
-      baseViewBinding.contentWithAllLayer.setVisibility(View.VISIBLE);
+      baseViewBinding.messageContentGroup.setVisibility(View.VISIBLE);
       baseViewBinding.msgBgLayout.setVisibility(View.VISIBLE);
       baseViewBinding.baseRoot.setVisibility(View.GONE);
     }

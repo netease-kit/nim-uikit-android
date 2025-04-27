@@ -39,6 +39,8 @@ public class NormalChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
   // 撤销 ui 的控件集合
   protected NormalChatMessageRevokedNormalViewBinding revokedViewBinding;
 
+  protected boolean hasLoadReply = false;
+
   public NormalChatBaseMessageViewHolder(
       @NonNull ChatBaseMessageViewHolderBinding parent, int viewType) {
     super(parent, viewType);
@@ -90,11 +92,7 @@ public class NormalChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
   protected void onLayoutConfig(ChatMessageBean messageBean) {
     super.onLayoutConfig(messageBean);
     ConstraintLayout.LayoutParams messageContainerLayoutParams =
-        (ConstraintLayout.LayoutParams) baseViewBinding.messageContainer.getLayoutParams();
-    ConstraintLayout.LayoutParams messageTopLayoutParams =
-        (ConstraintLayout.LayoutParams) baseViewBinding.messageTopGroup.getLayoutParams();
-    ConstraintLayout.LayoutParams messageBottomLayoutParams =
-        (ConstraintLayout.LayoutParams) baseViewBinding.messageBottomGroup.getLayoutParams();
+        (ConstraintLayout.LayoutParams) baseViewBinding.messageContentGroup.getLayoutParams();
     ConstraintLayout.LayoutParams signalLayoutParams =
         (ConstraintLayout.LayoutParams) baseViewBinding.llSignal.getLayoutParams();
     ConstraintLayout.LayoutParams statusLayoutParams =
@@ -107,17 +105,9 @@ public class NormalChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
     // 设置消息体
     messageContainerLayoutParams.rightMargin = size;
     messageContainerLayoutParams.leftMargin = size;
-    // 设置消息体上部（回复内容）
-    messageTopLayoutParams.rightMargin = size;
-    messageTopLayoutParams.leftMargin = size;
-    // 设置消息体下部
-    messageBottomLayoutParams.rightMargin = size;
-    messageBottomLayoutParams.leftMargin = size;
     // 非回复消息修改布局文件默认大小
     if (!messageBean.hasReply() && !MessageHelper.isThreadReplayInfo(messageBean)) {
       messageContainerLayoutParams.width = 0;
-      messageTopLayoutParams.width = 0;
-      messageBottomLayoutParams.width = 0;
     }
   }
 
@@ -174,6 +164,7 @@ public class NormalChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
   @Override
   protected void setReplyInfo(ChatMessageBean messageBean) {
     replyMessage = null;
+    hasLoadReply = true;
     ReplayUIOption replayUIOption = uiOptions.replayUIOption;
     if (replayUIOption.enable != null && !replayUIOption.enable) {
       return;

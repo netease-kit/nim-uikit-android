@@ -59,4 +59,12 @@ public interface IMessageItemClickListener {
   default boolean onCustomClick(View view, int position, ChatMessageBean messageInfo) {
     return false;
   }
+
+  default boolean onAIMessageRefresh(View view, int position, IMMessageInfo messageInfo) {
+    return false;
+  }
+
+  default boolean onAIMessageStreamStop(View view, int position, IMMessageInfo messageInfo) {
+    return false;
+  }
 }

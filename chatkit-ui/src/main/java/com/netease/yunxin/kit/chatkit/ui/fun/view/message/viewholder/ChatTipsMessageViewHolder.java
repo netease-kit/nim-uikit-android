@@ -45,15 +45,9 @@ public class ChatTipsMessageViewHolder extends FunChatBaseMessageViewHolder {
 
   @Override
   protected void onLayoutConfig(ChatMessageBean messageBean) {
-    ConstraintLayout.LayoutParams messageContainerLayoutParams =
-        (ConstraintLayout.LayoutParams) baseViewBinding.messageContainer.getLayoutParams();
-    ConstraintLayout.LayoutParams messageTopLayoutParams =
-        (ConstraintLayout.LayoutParams) baseViewBinding.messageTopGroup.getLayoutParams();
-    ConstraintLayout.LayoutParams messageBottomLayoutParams =
-        (ConstraintLayout.LayoutParams) baseViewBinding.messageBottomGroup.getLayoutParams();
-    messageContainerLayoutParams.horizontalBias = 0.5f;
-    messageTopLayoutParams.horizontalBias = 0.5f;
-    messageBottomLayoutParams.horizontalBias = 0.5f;
+    ConstraintLayout.LayoutParams messageContentLayoutParams =
+        (ConstraintLayout.LayoutParams) baseViewBinding.messageContentGroup.getLayoutParams();
+    messageContentLayoutParams.horizontalBias = 0.5f;
   }
 
   @Override

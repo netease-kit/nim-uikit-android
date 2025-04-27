@@ -15,6 +15,8 @@ import com.netease.nimlib.sdk.v2.ai.params.V2NIMAIModelCallContent;
 import com.netease.nimlib.sdk.v2.ai.params.V2NIMAIModelCallMessage;
 import com.netease.nimlib.sdk.v2.ai.params.V2NIMAIModelConfigParams;
 import com.netease.nimlib.sdk.v2.ai.params.V2NIMProxyAIModelCallParams;
+import com.netease.nimlib.sdk.v2.ai.result.V2NIMAIModelCallResult;
+import com.netease.nimlib.sdk.v2.ai.result.V2NIMAIModelStreamCallResult;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.R;
 import com.netease.yunxin.kit.chatkit.manager.AIUserManager;
@@ -46,25 +48,31 @@ public class AISearchViewModel extends BaseViewModel {
   //上下文
   private final List<V2NIMAIModelCallMessage> messages = new ArrayList<>();
 
-  private final V2NIMAIListener aiListener =
-      result -> {
-        ALog.d(TAG, "aiSearch, result: " + result);
-        if (aiUser != null
-            && Objects.equals(result.getAccountId(), aiUser.getAccountId())
-            && requestIds.contains(result.getRequestId())) {
-          if (result.getCode() != AIErrorCode.V2NIM_ERROR_CODE_SUCCESS && result.getCode() != 0) {
-            String msg = getAIResultMsg(IMKitClient.getApplicationContext(), result.getCode());
-            searchResult.setValue(new V2NIMAIModelCallContent(msg, 0));
-          } else {
-            searchResult.setValue(result.getContent());
-          }
-          requestIds.remove(result.getRequestId());
+  private final V2NIMAIListener aiListener = new V2NIMAIListener() {
+    @Override
+    public void onProxyAIModelCall(V2NIMAIModelCallResult result) {
+      ALog.d(TAG, "aiSearch, result: " + result);
+      if (aiUser != null
+              && Objects.equals(result.getAccountId(), aiUser.getAccountId())
+              && requestIds.contains(result.getRequestId())) {
+        if (result.getCode() != AIErrorCode.V2NIM_ERROR_CODE_SUCCESS && result.getCode() != 0) {
+          String msg = getAIResultMsg(IMKitClient.getApplicationContext(), result.getCode());
+          searchResult.setValue(new V2NIMAIModelCallContent(msg, 0));
+        } else {
+          searchResult.setValue(result.getContent());
         }
-        if (requestIds.isEmpty()) {
-          isLoadingLiveData.setValue(false);
-        }
-      };
+        requestIds.remove(result.getRequestId());
+      }
+      if (requestIds.isEmpty()) {
+        isLoadingLiveData.setValue(false);
+      }
+    }
 
+    @Override
+    public void onProxyAIModelStreamCall(V2NIMAIModelStreamCallResult result) {
+
+    }
+  };
   public AISearchViewModel() {
     AIRepo.addAIListener(aiListener);
   }

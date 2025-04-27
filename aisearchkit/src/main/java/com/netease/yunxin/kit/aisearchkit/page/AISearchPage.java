@@ -140,4 +140,9 @@ public class AISearchPage extends BaseActivity {
           }
         });
   }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        viewModel.onDestroy();
+    }
 }

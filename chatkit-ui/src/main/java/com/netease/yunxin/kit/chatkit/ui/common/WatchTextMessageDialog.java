@@ -19,6 +19,7 @@ import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.ui.custom.RichTextAttachment;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatMessageDialogLayoutBinding;
+import com.netease.yunxin.kit.chatkit.ui.view.MarkDownViwUtils;
 import com.netease.yunxin.kit.common.ui.dialog.BaseDialog;
 import java.util.Objects;
 
@@ -97,11 +98,16 @@ public class WatchTextMessageDialog extends BaseDialog {
       viewBinding.message.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
     }
     if (!TextUtils.isEmpty(content)) {
-      MessageHelper.identifyExpression(
-          viewBinding.getRoot().getContext(),
-          viewBinding.message,
-          content,
-          messageInfo.getMessage());
+      if (MessageHelper.isAIResponseMessage(messageInfo)) {
+        MarkDownViwUtils.makeMarkDown(
+            viewBinding.getRoot().getContext(), viewBinding.message, content);
+      } else {
+        MessageHelper.identifyExpression(
+            viewBinding.getRoot().getContext(),
+            viewBinding.message,
+            content,
+            messageInfo.getMessage());
+      }
     }
     return viewBinding.getRoot();
   }

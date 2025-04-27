@@ -6,11 +6,9 @@ package com.netease.yunxin.kit.chatkit.ui;
 /** Chat模块常量类。 */
 public class ChatKitUIConstant {
   public static final String LIB_TAG = "ChatKit-UI";
-
-  public static final int ERROR_CODE_SEND_MSG = -10001;
-
-  public static final int ERROR_CODE_FETCH_MSG = -10002;
-
+  // AI 接口错误码
+  // 重新生成AI消息时，原消息被撤回或删除
+  public static final int ERROR_CODE_AI_REGEN_NONE = 107404;
   // PIN消息数量限制
   public static final int ERROR_CODE_PIN_MSG_LIMIT = 107319;
 

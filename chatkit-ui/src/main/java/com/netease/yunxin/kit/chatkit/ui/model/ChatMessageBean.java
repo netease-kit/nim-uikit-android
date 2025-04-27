@@ -16,6 +16,7 @@ import com.netease.nimlib.sdk.v2.message.V2NIMMessageRefer;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessageReferBuilder;
 import com.netease.nimlib.sdk.v2.message.config.V2NIMMessageAIConfig;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageAIStatus;
+import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageAIStreamStatus;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
 import com.netease.nimlib.sdk.v2.utils.V2NIMConversationIdUtil;
 import com.netease.yunxin.kit.alog.ALog;
@@ -100,6 +101,48 @@ public class ChatMessageBean implements Serializable {
     return messageData;
   }
 
+  public V2NIMMessageAIConfig getAIConfig() {
+    if (messageData != null) {
+      return messageData.getMessage().getAIConfig();
+    }
+    return null;
+  }
+
+  public boolean isAIStream() {
+    if (messageData != null) {
+      V2NIMMessageAIConfig aiConfig = messageData.getMessage().getAIConfig();
+      return aiConfig != null && aiConfig.isAIStream();
+    } else {
+      return false;
+    }
+  }
+
+  /**
+   * 流式消息正在输出中
+   *
+   * @return
+   */
+  public boolean AIMessageStreaming() {
+    if (isAIStream()) {
+      return messageData.getMessage().getAIConfig().getAIStreamStatus()
+              == V2NIMMessageAIStreamStatus.V2NIM_MESSAGE_AI_STREAM_STATUS_PLACEHOLDER
+          || messageData.getMessage().getAIConfig().getAIStreamStatus()
+              == V2NIMMessageAIStreamStatus.V2NIM_MESSAGE_AI_STREAM_STATUS_STREAMING;
+    } else {
+      return false;
+    }
+  }
+
+  public boolean isAIResponseMsg() {
+    if (messageData != null) {
+      V2NIMMessageAIConfig aiConfig = messageData.getMessage().getAIConfig();
+      return aiConfig != null
+          && aiConfig.getAIStatus() == V2NIMMessageAIStatus.V2NIM_MESSAGE_AI_STATUS_RESPONSE;
+    } else {
+      return false;
+    }
+  }
+
   public String getSenderId() {
     if (messageData != null) {
       V2NIMMessageAIConfig aiConfig = messageData.getMessage().getAIConfig();
@@ -169,6 +212,7 @@ public class ChatMessageBean implements Serializable {
       if (messageData.getMessage().getThreadReply() != null) {
         replyMessageRefer = messageData.getMessage().getThreadReply();
         hasReply = true;
+        return;
       }
       Map<String, Object> serverExtensionMap =
           MessageExtensionHelper.parseJsonStringToMap(

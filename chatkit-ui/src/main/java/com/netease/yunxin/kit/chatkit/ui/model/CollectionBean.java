@@ -8,6 +8,8 @@ import android.text.TextUtils;
 import com.netease.nimlib.sdk.v2.message.V2NIMCollection;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessage;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessageConverter;
+import com.netease.nimlib.sdk.v2.message.config.V2NIMMessageAIConfig;
+import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageAIStatus;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
 import com.netease.yunxin.kit.chatkit.ChatCustomMsgFactory;
 import com.netease.yunxin.kit.chatkit.model.CustomAttachment;
@@ -67,6 +69,16 @@ public class CollectionBean implements Serializable {
       } catch (JSONException e) {
         e.printStackTrace();
       }
+    }
+  }
+
+  public boolean isAIResponseMsg() {
+    if (messageData != null) {
+      V2NIMMessageAIConfig aiConfig = messageData.getMessage().getAIConfig();
+      return aiConfig != null
+          && aiConfig.getAIStatus() == V2NIMMessageAIStatus.V2NIM_MESSAGE_AI_STATUS_RESPONSE;
+    } else {
+      return false;
     }
   }
 

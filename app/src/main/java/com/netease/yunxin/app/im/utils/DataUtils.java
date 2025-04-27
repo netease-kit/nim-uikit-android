@@ -21,7 +21,8 @@ public class DataUtils {
 
   private static SettingKitConfig kitConfig = null;
 
-  private static Boolean localConversation = null;
+  private static Boolean cloudConversation = null;
+  private static Boolean aiStream = null;
 
   /** read appKey from manifest */
   public static String readAppKey(Context context) {
@@ -97,24 +98,45 @@ public class DataUtils {
   }
 
   // 获取本地会话配置开关
-  public static boolean getLocalConversationConfigSwitch(Context context) {
-    if (localConversation == null) {
+  public static boolean getCloudConversationConfigSwitch(Context context) {
+    if (cloudConversation == null) {
       SharedPreferences sharedPreferences =
           context.getSharedPreferences(
               Constant.CONVERSATION_CONFIG_FILE, Context.MODE_MULTI_PROCESS);
-      localConversation = sharedPreferences.getBoolean(Constant.CONVERSATION_LOCAL_CONFIG, true);
+      cloudConversation = sharedPreferences.getBoolean(Constant.CONVERSATION_LOCAL_CONFIG, false);
     }
-    return localConversation;
+    return cloudConversation;
   }
 
   // 保存私有化配置开关
-  public static void saveLocalConversationConfigSwitch(Context context, boolean configSwitch) {
+  public static void saveCloudConversationConfigSwitch(Context context, boolean configSwitch) {
     SharedPreferences.Editor editor =
         context
             .getSharedPreferences(Constant.CONVERSATION_CONFIG_FILE, Context.MODE_MULTI_PROCESS)
             .edit();
     editor.putBoolean(Constant.CONVERSATION_LOCAL_CONFIG, configSwitch);
-    localConversation = configSwitch;
+    cloudConversation = configSwitch;
+    editor.commit();
+  }
+
+  // 获取AI流式输出配置开关
+  public static boolean getAIStreamConfigSwitch(Context context) {
+    if (aiStream == null) {
+      SharedPreferences sharedPreferences =
+          context.getSharedPreferences(Constant.AI_STREAM_CONFIG_FILE, Context.MODE_MULTI_PROCESS);
+      aiStream = sharedPreferences.getBoolean(Constant.AI_STREAM_CONFIG, true);
+    }
+    return aiStream;
+  }
+
+  // 保存AI流式输出配置开关
+  public static void saveAIStreamConfigSwitch(Context context, boolean configSwitch) {
+    SharedPreferences.Editor editor =
+        context
+            .getSharedPreferences(Constant.AI_STREAM_CONFIG_FILE, Context.MODE_MULTI_PROCESS)
+            .edit();
+    editor.putBoolean(Constant.AI_STREAM_CONFIG, configSwitch);
+    aiStream = configSwitch;
     editor.commit();
   }
 

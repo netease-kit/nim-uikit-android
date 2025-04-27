@@ -11,6 +11,7 @@ import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.Pair;
 import androidx.annotation.NonNull;
@@ -37,6 +38,8 @@ import com.netease.nimlib.sdk.v2.message.attachment.V2NIMMessageAudioAttachment;
 import com.netease.nimlib.sdk.v2.message.config.V2NIMMessageAIConfig;
 import com.netease.nimlib.sdk.v2.message.config.V2NIMMessageConfig;
 import com.netease.nimlib.sdk.v2.message.config.V2NIMMessagePushConfig;
+import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageAIRegenOpType;
+import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageAIStreamStopOpType;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessagePinState;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageQueryDirection;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageSendingState;
@@ -44,11 +47,14 @@ import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
 import com.netease.nimlib.sdk.v2.message.option.V2NIMMessageListOption;
 import com.netease.nimlib.sdk.v2.message.params.V2NIMAddCollectionParams;
 import com.netease.nimlib.sdk.v2.message.params.V2NIMMessageAIConfigParams;
+import com.netease.nimlib.sdk.v2.message.params.V2NIMMessageAIRegenParams;
+import com.netease.nimlib.sdk.v2.message.params.V2NIMMessageAIStreamStopParams;
 import com.netease.nimlib.sdk.v2.message.params.V2NIMSendMessageParams;
 import com.netease.nimlib.sdk.v2.message.params.V2NIMVoiceToTextParams;
 import com.netease.nimlib.sdk.v2.message.result.V2NIMSendMessageResult;
 import com.netease.nimlib.sdk.v2.utils.V2NIMConversationIdUtil;
 import com.netease.yunxin.kit.alog.ALog;
+import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
 import com.netease.yunxin.kit.chatkit.listener.ChatListener;
 import com.netease.yunxin.kit.chatkit.listener.MessageRevokeNotification;
 import com.netease.yunxin.kit.chatkit.listener.MessageUpdateType;
@@ -183,6 +189,24 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
         @Override
         public void onReceiveMessagesModified(@Nullable List<V2NIMMessage> messages) {
           ALog.d(LIB_TAG, TAG, "onReceiveMessagesModified msg");
+          List<ChatMessageBean> messageList = new ArrayList<>();
+          for (V2NIMMessage msg : messages) {
+            ALog.d(
+                LIB_TAG,
+                TAG,
+                "onReceiveMessagesModified msg:"
+                    + msg.getMessageClientId()
+                    + " "
+                    + ",content: "
+                    + msg.getText());
+            messageList.add(new ChatMessageBean(new IMMessageInfo(msg)));
+          }
+          FetchResult<Pair<MessageUpdateType, List<ChatMessageBean>>> messageUpdateResult =
+              new FetchResult<>(LoadStatus.Success);
+          messageUpdateResult.setData(new Pair<>(MessageUpdateType.UpdateMessage, messageList));
+          messageUpdateResult.setType(FetchResult.FetchType.Update);
+          messageUpdateResult.setTypeIndex(-1);
+          updateMessageLiveData.setValue(messageUpdateResult);
         }
 
         @Override
@@ -1132,6 +1156,8 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
               new V2NIMAIModelCallContent(MessageHelper.getAIContentMsg(message), 0);
           aiConfigParams.setContent(content);
         }
+        boolean aiStream = IMKitConfigCenter.getEnableAIStream();
+        aiConfigParams.setAIStream(aiStream);
       }
       //AI消息上下文设置
       if (aiConfigParams != null && aiMessage != null && !aiMessage.isEmpty()) {
@@ -1194,6 +1220,10 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
             .withLimit(messagePageSize)
             .withDirection(V2NIMMessageQueryDirection.V2NIM_QUERY_DIRECTION_DESC);
     if (anchor == null) {
+      ALog.d(
+          LIB_TAG,
+          TAG,
+          "Performance getMessageList start timestamp:" + SystemClock.elapsedRealtime());
       ChatRepo.getMessageList(
           optionBuilder.build(),
           new FetchCallback<List<IMMessageInfo>>() {
@@ -1202,9 +1232,13 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
 
             @Override
             public void onSuccess(@Nullable List<IMMessageInfo> param) {
+              ALog.d(
+                  LIB_TAG,
+                  TAG,
+                  "Performance getMessageList onSuccess timestamp:"
+                      + SystemClock.elapsedRealtime());
               if (param != null) {
                 Collections.reverse(param);
-                //                    fetchPinInfo();
                 onListFetchSuccess(param, V2NIMMessageQueryDirection.V2NIM_QUERY_DIRECTION_DESC);
               }
               if (!hasLoadMessage) {
@@ -1226,7 +1260,10 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
   public void fetchMoreMessage(
       V2NIMMessage anchor, V2NIMMessageQueryDirection direction, boolean needToScrollEnd) {
     ALog.d(LIB_TAG, TAG, "fetchMoreMessage:" + " direction:" + direction);
-
+    ALog.d(
+        LIB_TAG,
+        TAG,
+        "Performance fetchMoreMessage start timestamp:" + SystemClock.elapsedRealtime());
     V2NIMMessageListOption.V2NIMMessageListOptionBuilder optionBuilder =
         V2NIMMessageListOption.V2NIMMessageListOptionBuilder.builder(mConversationId)
             .withLimit(messagePageSize)
@@ -1250,6 +1287,11 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
 
           @Override
           public void onSuccess(@Nullable List<IMMessageInfo> data) {
+            ALog.d(
+                LIB_TAG,
+                TAG,
+                "Performance fetchMoreMessage onSuccess timestamp:"
+                    + SystemClock.elapsedRealtime());
             if (data != null && !data.isEmpty()) {
               if (direction == V2NIMMessageQueryDirection.V2NIM_QUERY_DIRECTION_DESC) {
                 Collections.reverse(data);
@@ -1385,6 +1427,54 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
     replyMessage(textMessage, message, pushList, remoteExtension, aiUser);
   }
 
+  //停止流式消息输出
+  public void stopAIStream(IMMessageInfo messageInfo) {
+    V2NIMMessageAIStreamStopParams params =
+        new V2NIMMessageAIStreamStopParams(
+            V2NIMMessageAIStreamStopOpType.V2NIM_MESSAGE_AI_STREAM_STOP_OP_DEFAULT);
+    ChatRepo.stopAIStreamMessage(
+        messageInfo.getMessage(),
+        params,
+        new FetchCallback<Void>() {
+          @Override
+          public void onError(int errorCode, @Nullable String errorMsg) {
+            ALog.d(LIB_TAG, TAG, "stopAIStreamMessage onError" + errorCode);
+            ToastX.showShortToast(R.string.chat_ai_search_error);
+          }
+
+          @Override
+          public void onSuccess(@Nullable Void data) {
+            ALog.d(LIB_TAG, TAG, "stopAIStreamMessage onSuccess");
+          }
+        });
+  }
+
+  // 重新输出数字人消息
+  public void regenAIMessage(IMMessageInfo messageInfo) {
+    V2NIMMessageAIRegenParams params =
+        new V2NIMMessageAIRegenParams(V2NIMMessageAIRegenOpType.V2NIM_MESSAGE_AI_REGEN_OP_NEW);
+    ChatRepo.regenAIMessage(
+        messageInfo.getMessage(),
+        params,
+        new FetchCallback<Void>() {
+          @Override
+          public void onError(int errorCode, @Nullable String errorMsg) {
+            ALog.d(LIB_TAG, TAG, "regenAIMessage onError" + errorCode);
+            if (errorCode == ChatKitUIConstant.ERROR_CODE_AI_REGEN_NONE) {
+              ToastX.showShortToast(R.string.chat_message_removed_tip);
+            } else {
+              ToastX.showShortToast(R.string.chat_ai_search_error);
+            }
+          }
+
+          @Override
+          public void onSuccess(@Nullable Void data) {
+            ALog.d(LIB_TAG, TAG, "regenAIMessage onSuccess");
+            ToastX.showShortToast(R.string.chat_ai_message_progressing);
+          }
+        });
+  }
+
   // ********************Message Pin********************
 
   private final MutableLiveData<Pair<String, V2NIMMessagePin>> addPinMessageLiveData =
@@ -1438,8 +1528,8 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
   }
 
   @Override
-  protected void onCleared() {
-    super.onCleared();
+  public void onDestroy() {
+    super.onDestroy();
     removeListener();
   }
 }

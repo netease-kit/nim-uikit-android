@@ -57,31 +57,6 @@ public class TeamManagerListViewModel extends TeamBaseViewModel {
     FetchResult<List<TeamMemberWithUserInfo>> result =
         new FetchResult<>(LoadStatus.Success, managerList);
     teamMemberWithUserData.setValue(result);
-    //    TeamRepo.getTeamMemberListWithUserInfo(
-    //        teamId,
-    //        null,
-    //        100,
-    //        V2NIMTeamMemberRoleQueryType.V2NIM_TEAM_MEMBER_ROLE_QUERY_TYPE_MANAGER,
-    //        new FetchCallback<>() {
-    //          @Override
-    //          public void onSuccess(@Nullable TeamMemberListResult param) {
-    //            ALog.d(
-    //                LIB_TAG,
-    //                TAG,
-    //                "requestTeamManagers,onSuccess:" + (param == null ? "null" : param.isFinished()));
-    //            if (param != null) {
-    //              hasMore = !param.isFinished();
-    //              nextPageTag = param.getNextToken();
-    //              teamManagerWithUserData.setValue(new FetchResult<>(param.getMemberList()));
-    //            }
-    //          }
-    //
-    //          @Override
-    //          public void onError(int errorCode, String errorMsg) {
-    //            ALog.d(LIB_TAG, TAG, "requestTeamManagers,onFailed:" + errorCode);
-    //            teamManagerWithUserData.setValue(new FetchResult<>(errorCode, errorMsg));
-    //          }
-    //        });
   }
   /**
    * 添加管理员

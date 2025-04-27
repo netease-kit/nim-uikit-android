@@ -54,7 +54,8 @@
     <string name="setting_server_config">私有化配置</string>
     <string name="setting_kit_config">全局配置</string>
     <string name="setting_play_mode">听筒模式</string>
-    <string name="conversation_mode">本地会话</string>
+    <string name="conversation_mode">云端会话</string>
+    <string name="ai_stream_mode">AI数字人流式输出</string>
     <string name="setting_filter_notify">过滤通知</string>
     <string name="setting_friend_delete_mode">删除好友是否同步删除备注</string>
     <string name="setting_message_read_mode">消息已读未读功能</string>
@@ -132,5 +133,5 @@
     <string name="uikit_stick_top_switch_title">消息置顶功能</string>
     <string name="uikit_online_switch_title">正在输入功能</string>
     <string name="uikit_call_switch_title">禁止陌生人音视频通话</string>
-
+    <string name="uikit_team_manager_limit_title">允许添加的管理员人数( -1 表示无限制)</string>
 </resources>

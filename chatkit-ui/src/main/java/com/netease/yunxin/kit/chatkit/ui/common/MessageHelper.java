@@ -1548,4 +1548,14 @@ public class MessageHelper {
     }
     sendNoteMessage(inputMsg, conversationIds, readReceiptEnabled);
   }
+
+  public static boolean isAIResponseMessage(IMMessageInfo messageInfo) {
+    if (messageInfo != null) {
+      V2NIMMessageAIConfig aiConfig = messageInfo.getMessage().getAIConfig();
+      return aiConfig != null
+          && aiConfig.getAIStatus() == V2NIMMessageAIStatus.V2NIM_MESSAGE_AI_STATUS_RESPONSE;
+    } else {
+      return false;
+    }
+  }
 }

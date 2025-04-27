@@ -228,7 +228,6 @@
     <string name="chat_message_multi_delete_limit_tips">Delete limits 50 messages</string>
     <string name="chat_message_forward_success_tips">Forwarded</string>
     <string name="chat_message_open_fail_tips">Unable to preview the file. Please install a compatible app</string>
-    <string name="chat_kit_no_permission_error">No permission</string>
 
 
     <!-- location -->
@@ -310,7 +309,7 @@
     <string name="chat_ai_error_cannot_blocklist_an_ai_account">Cannot blocklist an AI account</string>
     <string name="chat_ai_error_rate_limit_exceeded">Rate limit exceeded</string>
     <string name="chat_ai_error_parameter">Parameter error</string>
-
+    <string name="chat_ai_error">The server is busy, please try again later.</string>
     <string name="chat_voice_to_text">Convert to text</string>
     <string name="chat_voice_to_text_failed">Text conversion failed.</string>
 </resources>

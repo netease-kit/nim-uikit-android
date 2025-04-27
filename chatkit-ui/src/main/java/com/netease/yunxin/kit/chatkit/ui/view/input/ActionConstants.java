@@ -74,6 +74,6 @@ public class ActionConstants {
   public static final String PAYLOAD_VOICE_TO_TEXT = "messageVoiceToText";
   public static final String PAYLOAD_USERINFO = "userInfo";
   public static final String PAYLOAD_REFRESH_AUDIO_ANIM = "refreshAudioAnim";
-
   public static final String PAYLOAD_SELECT_STATUS = "messageSelectStatus";
+  public static final String PAYLOAD_UPDATE_MESSAGE = "messageUpdate";
 }

@@ -55,15 +55,10 @@ public class FunChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
     super.onLayoutConfig(messageBean);
     if (messageBean.isRevoked()) {
       // 撤回消息控制居中
-      ConstraintLayout.LayoutParams messageContainerLayoutParams =
-          (ConstraintLayout.LayoutParams) baseViewBinding.messageContainer.getLayoutParams();
-      messageContainerLayoutParams.horizontalBias =
-          CommonUIOption.MessageContentLayoutGravity.center;
-      baseViewBinding.messageContainer.setLayoutParams(messageContainerLayoutParams);
-      ConstraintLayout.LayoutParams messageBottomLayoutParams =
-          (ConstraintLayout.LayoutParams) baseViewBinding.messageBottomGroup.getLayoutParams();
-      messageBottomLayoutParams.horizontalBias = CommonUIOption.MessageContentLayoutGravity.center;
-      baseViewBinding.messageBottomGroup.setLayoutParams(messageBottomLayoutParams);
+      ConstraintLayout.LayoutParams messageContentLayoutParams =
+          (ConstraintLayout.LayoutParams) baseViewBinding.messageContentGroup.getLayoutParams();
+      messageContentLayoutParams.horizontalBias = CommonUIOption.MessageContentLayoutGravity.center;
+      baseViewBinding.messageContentGroup.setLayoutParams(messageContentLayoutParams);
     }
     // 设置标记提示 margin
     ConstraintLayout.LayoutParams signalLayoutParams =
@@ -111,11 +106,7 @@ public class FunChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
         (ConstraintLayout.LayoutParams) baseViewBinding.myAvatar.getLayoutParams();
     // 接受消息内容右移
     ConstraintLayout.LayoutParams containerLayoutParams =
-        (ConstraintLayout.LayoutParams) baseViewBinding.messageContainer.getLayoutParams();
-    ConstraintLayout.LayoutParams topLayoutParams =
-        (ConstraintLayout.LayoutParams) baseViewBinding.messageTopGroup.getLayoutParams();
-    ConstraintLayout.LayoutParams bottomLayoutParams =
-        (ConstraintLayout.LayoutParams) baseViewBinding.messageBottomGroup.getLayoutParams();
+        (ConstraintLayout.LayoutParams) baseViewBinding.messageContentGroup.getLayoutParams();
 
     if (isMultiSelect && needShowMultiSelect() && !currentMessage.isRevoked()) {
       baseViewBinding.chatMsgSelectLayout.setVisibility(View.VISIBLE);
@@ -123,14 +114,10 @@ public class FunChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
           ChatMsgCache.contains(message.getMessageData().getMessage().getMessageClientId()));
       avatarLayoutParams.setMarginEnd(SizeUtils.dp2px(mineAvatarMarginEndInMulti));
       containerLayoutParams.goneEndMargin = SizeUtils.dp2px(containerMarginEndInMulti);
-      topLayoutParams.goneEndMargin = SizeUtils.dp2px(containerMarginEndInMulti);
-      bottomLayoutParams.goneEndMargin = SizeUtils.dp2px(containerMarginEndInMulti);
     } else {
       baseViewBinding.chatMsgSelectLayout.setVisibility(View.GONE);
       avatarLayoutParams.setMarginEnd(SizeUtils.dp2px(mineAvatarMarginEnd));
       containerLayoutParams.goneEndMargin = SizeUtils.dp2px(containerMarginEnd);
-      topLayoutParams.goneEndMargin = SizeUtils.dp2px(containerMarginEnd);
-      bottomLayoutParams.goneEndMargin = SizeUtils.dp2px(containerMarginEnd);
     }
   }
 

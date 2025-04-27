@@ -240,7 +240,7 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
         && !message.getMessageStatus().getReadReceiptSent()) {
       List<V2NIMMessage> msgList = new ArrayList<>();
       msgList.add(message);
-      ChatRepo.markTeamMessagesRead(msgList, null);
+      ChatRepo.sendTeamMessageReceipts(msgList, null);
     }
   }
 

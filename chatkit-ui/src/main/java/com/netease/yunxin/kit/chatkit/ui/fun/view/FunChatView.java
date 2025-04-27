@@ -486,10 +486,12 @@ public class FunChatView extends LinearLayout implements IChatView, AitTextChang
     return null;
   }
 
+  @Override
   public void updateMessageStatus(ChatMessageBean message) {
     binding.messageView.updateMessageStatus(message);
   }
 
+  @Override
   public void updateMessage(ChatMessageBean message, Object payload) {
     binding.messageView.updateMessage(message, payload);
   }
@@ -498,6 +500,7 @@ public class FunChatView extends LinearLayout implements IChatView, AitTextChang
     binding.messageView.updateMessage(message, payload);
   }
 
+  @Override
   public void updateProgress(IMMessageProgress progress) {
     binding.messageView.updateAttachmentProgress(progress);
   }
@@ -521,6 +524,7 @@ public class FunChatView extends LinearLayout implements IChatView, AitTextChang
     binding.chatBottomInputLayout.setMute(mute);
   }
 
+  @Override
   public void setMessageProxy(IMessageProxy proxy) {
     messageProxy = proxy;
     binding.chatBottomInputLayout.init(proxy);
@@ -551,22 +555,26 @@ public class FunChatView extends LinearLayout implements IChatView, AitTextChang
     return binding.bodyBottomLayout;
   }
 
+  @Override
   public void setAitManager(AitManager manager) {
     manager.setAitTextChangeListener(binding.chatBottomInputLayout);
     aitTextManager = manager;
     binding.chatBottomInputLayout.setAitTextWatcher(manager);
   }
 
+  @Override
   public void setMessageViewHolderFactory(IChatFactory viewHolderFactory) {
     binding.messageView.setViewHolderFactory(viewHolderFactory);
   }
 
+  @Override
   public void setLayoutCustom(IChatViewCustom layoutCustom) {
     if (layoutCustom != null) {
       layoutCustom.customizeChatLayout(this);
     }
   }
 
+  @Override
   public View getRootView() {
     return binding.getRoot();
   }

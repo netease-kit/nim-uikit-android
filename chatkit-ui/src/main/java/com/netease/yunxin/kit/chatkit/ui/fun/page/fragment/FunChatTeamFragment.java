@@ -86,6 +86,17 @@ public class FunChatTeamFragment extends FunChatFragment {
         anchorMessage = new IMMessageInfo(message);
       }
     }
+    // 初始化AitManager 用于@功能
+    aitManager = new AitManager(getContext(), accountId);
+    aitManager.setUIStyle(AitManager.STYLE_FUN);
+    aitManager.updateTeamInfo(teamInfo);
+    chatView.setAitManager(aitManager);
+    refreshView();
+  }
+
+  @Override
+  protected void initView() {
+    super.initView();
     // 设置titleBar上按钮的点击事件
     chatView
         .getTitleBar()
@@ -100,13 +111,6 @@ public class FunChatTeamFragment extends FunChatFragment {
                   .withParam(KEY_TEAM_ID, accountId)
                   .navigate();
             });
-
-    // 初始化AitManager 用于@功能
-    aitManager = new AitManager(getContext(), accountId);
-    aitManager.setUIStyle(AitManager.STYLE_FUN);
-    aitManager.updateTeamInfo(teamInfo);
-    chatView.setAitManager(aitManager);
-    refreshView();
   }
 
   // 刷新界面
@@ -114,6 +118,9 @@ public class FunChatTeamFragment extends FunChatFragment {
     if (teamInfo != null) {
       chatView.getTitleBar().setTitle(teamInfo.getName());
       chatView.getMessageListView().updateTeamInfo(teamInfo);
+      chatView.getTitleBar().getActionImageView().setVisibility(View.VISIBLE);
+    } else {
+      chatView.getTitleBar().getActionImageView().setVisibility(View.GONE);
     }
     boolean isMute = ChatUtils.isMute(currentMember, teamInfo);
     ALog.d(LIB_TAG, TAG, "refreshView isMute:" + isMute);
