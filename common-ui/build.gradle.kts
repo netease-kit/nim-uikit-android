@@ -16,7 +16,7 @@ android {
     defaultConfig {
         minSdk = 24
         consumerProguardFiles("consumer-rules.pro")
-        buildConfigField("String", "versionName", "\"1.3.9\"")
+        buildConfigField("String", "versionName", "\"1.4.0\"")
     }
 
     buildTypes {
@@ -30,11 +30,14 @@ android {
         viewBinding = true
         buildConfig = true
     }
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8.toString() // 确保与Java版本一致
+    }
 }
 
 dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
-    api("com.netease.yunxin.kit.common:common:1.3.9")
+    api("com.netease.yunxin.kit.common:common:1.4.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.1")
     api("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.22")
     implementation("androidx.appcompat:appcompat:1.6.1")
@@ -46,8 +49,6 @@ dependencies {
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
-
-
 
 }
 
