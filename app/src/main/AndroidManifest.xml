@@ -9,15 +9,6 @@
     android:installLocation="auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- replace com.netease.yunxin.app.im with your package name -->
-    <!-- add uses-permission into your AndroidManifest -->
-    <permission
-        android:name="com.netease.yunxin.app.im.permission.RECEIVE_MSG"
-        android:protectionLevel="signature"/>
-
-    <!-- receive SDK broadcast， replace com.netease.yunxin.app.im with your package name -->
-    <uses-permission android:name="com.netease.yunxin.app.im.permission.RECEIVE_MSG"/>
-
     <!-- xiaomi push -->
     <permission
         android:name="com.netease.yunxin.app.im.permission.MIPUSH_RECEIVE"
@@ -28,10 +19,6 @@
     <!--meuzu push-->
     <!-- down Flyme5 version -->
     <uses-permission android:name="com.meizu.flyme.push.permission.RECEIVE"/>
-    <permission
-        android:name="com.netease.yunxin.app.im.push.permission.MESSAGE"
-        android:protectionLevel="signature"/>
-    <uses-permission android:name="com.netease.yunxin.app.im.push.permission.MESSAGE"/>
     <!--  Flyme3 -->
     <uses-permission android:name="com.meizu.c2dm.permission.RECEIVE" />
     <permission
