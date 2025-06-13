@@ -17,7 +17,7 @@ import java.util.List;
 public class FunBottomActionFactory {
 
   public static List<ActionItem> assembleInputMoreActions(
-      String sessionId, V2NIMConversationType conversationType) {
+      String accountId, V2NIMConversationType conversationType) {
     ArrayList<ActionItem> actions = new ArrayList<>();
     actions.add(
         new ActionItem(
@@ -38,7 +38,7 @@ public class FunBottomActionFactory {
         new ActionItem(
             ActionConstants.ACTION_TYPE_FILE, R.drawable.ic_send_file, R.string.chat_message_file));
     if (conversationType == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P
-        && !AIUserManager.isAIUser(sessionId)) {
+        && !AIUserManager.isAIUser(accountId)) {
       actions.add(
           new ActionItem(
               ActionConstants.ACTION_TYPE_VIDEO_CALL,
@@ -51,6 +51,15 @@ public class FunBottomActionFactory {
               ActionConstants.ACTION_TYPE_TRANSLATE,
               R.drawable.ic_chat_translate_action,
               R.string.chat_message_translate_action));
+    }
+    if (IMKitConfigCenter.getEnableAIChatHelper()
+        && conversationType == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P
+        && !AIUserManager.isAIUser(accountId)) {
+      actions.add(
+          new ActionItem(
+              ActionConstants.ACTION_TYPE_AI_HELPER,
+              R.drawable.fun_ic_chat_input_ai_helper,
+              R.string.chat_message_ai_helper_action));
     }
     if (ChatKitClient.getChatUIConfig() != null
         && ChatKitClient.getChatUIConfig().chatInputMenu != null) {

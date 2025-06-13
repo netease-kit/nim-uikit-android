@@ -11,6 +11,7 @@ import com.netease.yunxin.kit.chatkit.impl.MessageListenerImpl;
 import com.netease.yunxin.kit.chatkit.listener.MessageRevokeNotification;
 import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
+import com.netease.yunxin.kit.chatkit.ui.custom.ChatConfigManager;
 import com.netease.yunxin.kit.chatkit.ui.view.ait.AitService;
 import com.netease.yunxin.kit.corekit.im2.IIMKitInitListener;
 import java.util.List;
@@ -31,14 +32,19 @@ public class ChatUIInitService implements IIMKitInitListener {
           public void onMessageRevokeNotifications(
               @NonNull List<MessageRevokeNotification> revokeNotifications) {
             super.onMessageRevokeNotifications(revokeNotifications);
-            for (MessageRevokeNotification revokeNotification : revokeNotifications) {
-              // 撤回消息通知,如果不在当前聊天界面则添加到本地消息列表
-              if (!TextUtils.equals(
-                  ChatRepo.getConversationId(),
-                  revokeNotification.getNimNotification().getMessageRefer().getConversationId())) {
-                // 当前会话撤回消息
-                MessageHelper.saveLocalMessageForOthersRevokeMessage(
-                    revokeNotification.getNimNotification());
+            if (ChatConfigManager.enableInsertLocalMsgWhenRevoke) {
+              for (MessageRevokeNotification revokeNotification : revokeNotifications) {
+                // 撤回消息通知,如果不在当前聊天界面则添加到本地消息列表
+                if (!TextUtils.equals(
+                    ChatRepo.getConversationId(),
+                    revokeNotification
+                        .getNimNotification()
+                        .getMessageRefer()
+                        .getConversationId())) {
+                  // 当前会话撤回消息
+                  MessageHelper.saveLocalMessageForOthersRevokeMessage(
+                      revokeNotification.getNimNotification());
+                }
               }
             }
           }

@@ -4,8 +4,13 @@
 
 package com.netease.yunxin.kit.conversationkit.ui.fun.viewholder;
 
+import android.view.View;
 import androidx.annotation.NonNull;
+import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
+import com.netease.yunxin.kit.chatkit.OnlineStatusManager;
+import com.netease.yunxin.kit.chatkit.manager.AIUserManager;
 import com.netease.yunxin.kit.common.ui.utils.AvatarColor;
+import com.netease.yunxin.kit.conversationkit.ui.R;
 import com.netease.yunxin.kit.conversationkit.ui.databinding.FunConversationViewHolderBinding;
 import com.netease.yunxin.kit.conversationkit.ui.model.ConversationBean;
 
@@ -25,5 +30,15 @@ public class FunConversationP2PViewHolder extends FunConversationBaseViewHolder 
         data.getAvatarName(),
         AvatarColor.avatarColor(data.getTargetId()));
     viewBinding.nameTv.setText(name);
+    if (IMKitConfigCenter.getEnableOnlineStatus() && !AIUserManager.isAIUser(data.getTargetId())) {
+      viewBinding.onlineView.setVisibility(View.VISIBLE);
+      if (OnlineStatusManager.isOnlineSubscribe(data.getTargetId())) {
+        viewBinding.onlineView.setBackgroundResource(R.drawable.ic_online_status);
+      } else {
+        viewBinding.onlineView.setBackgroundResource(R.drawable.ic_dis_online_status);
+      }
+    } else {
+      viewBinding.onlineView.setVisibility(View.GONE);
+    }
   }
 }

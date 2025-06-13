@@ -31,8 +31,10 @@ import androidx.annotation.Nullable;
 import com.netease.nimlib.sdk.media.record.AudioRecorder;
 import com.netease.nimlib.sdk.media.record.IAudioRecordCallback;
 import com.netease.nimlib.sdk.media.record.RecordType;
+import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
 import com.netease.nimlib.sdk.v2.utils.V2NIMConversationIdUtil;
 import com.netease.yunxin.kit.alog.ALog;
+import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.chatkit.ui.databinding.FunChatMessageBottomViewBinding;
@@ -40,6 +42,7 @@ import com.netease.yunxin.kit.chatkit.ui.fun.FunAudioRecordDialog;
 import com.netease.yunxin.kit.chatkit.ui.fun.factory.FunBottomActionFactory;
 import com.netease.yunxin.kit.chatkit.ui.interfaces.IMessageProxy;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
+import com.netease.yunxin.kit.chatkit.ui.normal.view.AIHelperView;
 import com.netease.yunxin.kit.chatkit.ui.textSelectionHelper.SelectableTextHelper;
 import com.netease.yunxin.kit.chatkit.ui.view.IItemActionListener;
 import com.netease.yunxin.kit.chatkit.ui.view.ait.AitManager;
@@ -57,6 +60,7 @@ import com.netease.yunxin.kit.common.utils.KeyboardUtils;
 import com.netease.yunxin.kit.common.utils.NetworkUtils;
 import com.netease.yunxin.kit.common.utils.XKitUtils;
 import java.io.File;
+import java.util.List;
 
 /**
  * 聊天界面底部输入布局
@@ -229,6 +233,57 @@ public class MessageBottomLayout extends FrameLayout
         (v, hasFocus) ->
             mProxy.onTypeStateChange(
                 !TextUtils.isEmpty(mBinding.chatMessageInputEt.getText()) && hasFocus));
+    if (mProxy.getConversationType() == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P
+        && IMKitConfigCenter.getEnableAIChatHelper()) {
+      mBinding.chatMessageAiHelperView.setLeftImageResource(R.drawable.fun_ic_ai_helper);
+      mBinding.chatMessageAiHelperView.setLottieAnimationFile(
+          "lottie/fun_chat_ai_helper_loading" + ".json");
+      mBinding.chatMessageAiHelperView.setAIHelperClickListener(
+          new AIHelperView.AIHelperClickListener() {
+
+            @Override
+            public void onShow() {
+              if (mProxy != null) {
+                mProxy.onAIHelperClick(
+                    mBinding.chatMessageAiHelperView, ActionConstants.ACTION_AI_HELPER_SHOW);
+              }
+            }
+
+            @Override
+            public void onRefreshClick() {
+              if (mProxy != null) {
+                mProxy.onAIHelperClick(
+                    mBinding.chatMessageAiHelperView, ActionConstants.ACTION_AI_HELPER_REFRESH);
+              }
+            }
+
+            @Override
+            public void onTryAgainClick() {
+              if (mProxy != null) {
+                mProxy.onAIHelperClick(
+                    mBinding.chatMessageAiHelperView, ActionConstants.ACTION_AI_HELPER_REFRESH);
+              }
+            }
+
+            @Override
+            public void onItemClick(AIHelperView.AIHelperItem Item) {
+              if (Item != null && !TextUtils.isEmpty(Item.content)) {
+                boolean sendMsg = mProxy.sendTextMessage(Item.content, null);
+                if (actionClickListener != null) {
+                  actionClickListener.sendMessage(Item.content, sendMsg);
+                }
+              }
+            }
+
+            @Override
+            public void onItemEditClick(AIHelperView.AIHelperItem Item) {
+              if (Item != null && !TextUtils.isEmpty(Item.content)) {
+                mBinding.chatMessageInputEt.setText(Item.content);
+                switchInput();
+              }
+            }
+          });
+    }
   }
 
   public FunChatMessageBottomViewBinding getViewBinding() {
@@ -242,6 +297,10 @@ public class MessageBottomLayout extends FrameLayout
 
   public void setActionClickListener(ActionClickListener listener) {
     actionClickListener = listener;
+  }
+
+  public void setAIHelperData(List<AIHelperView.AIHelperItem> itemList) {
+    mBinding.chatMessageAiHelperView.setHelperContent(itemList);
   }
 
   @Override
@@ -277,6 +336,9 @@ public class MessageBottomLayout extends FrameLayout
         break;
       case ActionConstants.ACTION_TYPE_TRANSLATE:
         switchTranslate(view, item.getAction());
+        break;
+      case ActionConstants.ACTION_TYPE_AI_HELPER:
+        switchAIHelper();
         break;
       default:
         mProxy.onCustomAction(view, item.getAction());
@@ -409,6 +471,11 @@ public class MessageBottomLayout extends FrameLayout
             keepRichEt = false;
           }
         });
+    if (IMKitConfigCenter.getEnableRichTextMessage()) {
+      mBinding.chatMsgInputSwitch.setVisibility(VISIBLE);
+    } else {
+      mBinding.chatMsgInputSwitch.setVisibility(GONE);
+    }
     loadConfig();
   }
 
@@ -525,6 +592,27 @@ public class MessageBottomLayout extends FrameLayout
       emojiShow(false, 0);
     } else if (mInputState == InputState.more) {
       morePanelShow(false, 0);
+    } else if (mInputState == InputState.aiHelper) {
+      aiHelperShow(false);
+    }
+  }
+
+  public void switchAIHelper() {
+    if (mInputState == InputState.aiHelper) {
+      aiHelperShow(false);
+      mInputState = InputState.none;
+      return;
+    }
+    aiHelperShow(true);
+    hideCurrentInput();
+    mInputState = InputState.aiHelper;
+  }
+
+  public void aiHelperShow(boolean show) {
+    if (show) {
+      mBinding.chatMessageAiHelperView.show();
+    } else {
+      mBinding.chatMessageAiHelperView.hide();
     }
   }
 
@@ -812,6 +900,7 @@ public class MessageBottomLayout extends FrameLayout
           long delay = immediately ? 0 : SHOW_DELAY_TIME;
           emojiShow(false, delay);
           morePanelShow(false, delay);
+          aiHelperShow(false);
         },
         immediately ? 0 : ViewConfiguration.getDoubleTapTimeout());
   }

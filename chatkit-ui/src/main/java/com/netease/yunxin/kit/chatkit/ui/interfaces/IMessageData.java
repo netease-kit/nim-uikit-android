@@ -27,6 +27,8 @@ public interface IMessageData {
 
   void updateMessage(V2NIMMessage message, Object payload);
 
+  void updateMessage(String msgClientId, Object payload);
+
   void deleteMessage(ChatMessageBean message);
 
   void deleteMessage(List<ChatMessageBean> message);

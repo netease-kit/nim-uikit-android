@@ -59,6 +59,9 @@ public abstract class ConversationBaseFragment extends BaseFragment implements I
   private Observer<FetchResult<List<ConversationBean>>> changeObserver;
   // 会话列表@消息变化观察者
   private Observer<FetchResult<List<String>>> aitObserver;
+  // 回话更新筛选
+  private Observer<FetchResult<List<String>>> updateObserver;
+
   // 会话列表删除观察者
   private Observer<FetchResult<List<String>>> deleteObserver;
   // 会话列表未读数变化观察者
@@ -76,7 +79,6 @@ public abstract class ConversationBaseFragment extends BaseFragment implements I
   // 空数据View，当会话列表为空时显示。子类可个性化定制，父类值根据业务数据控制是否展示
   protected View emptyView;
   protected Comparator<ConversationBean> conversationComparator;
-
   // 初始化View 子类重新去实现
   public abstract View initViewAndGetRootView(
       @NonNull LayoutInflater inflater,
@@ -313,6 +315,16 @@ public abstract class ConversationBaseFragment extends BaseFragment implements I
         };
     // AI数字人员数据变化观察者
     aiRobotObserver = result -> loadAIUserData(result);
+
+    updateObserver =
+        result -> {
+          if (result.getLoadStatus() == LoadStatus.Finish) {
+            if (result.getType() == FetchResult.FetchType.Update && conversationView != null) {
+              ALog.d(LIB_TAG, TAG, "updateObserver add, Success");
+              conversationView.updateConversation(result.getData());
+            }
+          }
+        };
   }
   /**
    * 加载数据, 用于加载会话列表数据
@@ -354,6 +366,7 @@ public abstract class ConversationBaseFragment extends BaseFragment implements I
   private void registerObserver() {
     viewModel.getChangeLiveData().observeForever(changeObserver);
     viewModel.getAitLiveData().observeForever(aitObserver);
+    viewModel.getUpdateLiveData().observeForever(updateObserver);
     viewModel.getUnreadCountLiveData().observeForever(unreadCountObserver);
     viewModel.getDeleteLiveData().observeForever(deleteObserver);
     viewModel.getAiRobotLiveData().observeForever(aiRobotObserver);
@@ -362,6 +375,7 @@ public abstract class ConversationBaseFragment extends BaseFragment implements I
   private void unregisterObserver() {
     viewModel.getChangeLiveData().removeObserver(changeObserver);
     viewModel.getAitLiveData().removeObserver(aitObserver);
+    viewModel.getUpdateLiveData().removeObserver(updateObserver);
     viewModel.getUnreadCountLiveData().removeObserver(unreadCountObserver);
     viewModel.getDeleteLiveData().removeObserver(deleteObserver);
     viewModel.getAiRobotLiveData().removeObserver(aiRobotObserver);
@@ -484,6 +498,16 @@ public abstract class ConversationBaseFragment extends BaseFragment implements I
     viewModel.loadMore();
   }
 
+  @Override
+  public void onScrollStateIdle(int first, int end) {
+    subscribeConversation(first, end);
+  }
+
+  private void subscribeConversation(int first, int end) {
+    if (conversationView != null) {
+      viewModel.dynamicSubscribeConversation(first, end, conversationView.getDataList());
+    }
+  }
   // 获取会话View
   public ConversationView getConversationView() {
     return conversationView;

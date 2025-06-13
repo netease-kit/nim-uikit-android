@@ -8,6 +8,7 @@ import static com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants.PAYLO
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -56,6 +57,8 @@ public class ChatMessageListView extends RecyclerView implements IMessageData {
   private boolean hasMoreForwardMessages;
 
   private boolean hasMoreNewerMessages;
+
+  private LinearLayoutManager layoutManager;
 
   public ChatMessageListView(@NonNull Context context) {
     super(context);
@@ -108,7 +111,7 @@ public class ChatMessageListView extends RecyclerView implements IMessageData {
   }
 
   private void initRecyclerView() {
-    LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
+    layoutManager = new LinearLayoutManager(getContext());
     layoutManager.setStackFromEnd(true);
     setLayoutManager(layoutManager);
     setItemAnimator(null);
@@ -118,7 +121,6 @@ public class ChatMessageListView extends RecyclerView implements IMessageData {
 
   //设置列表RecyclerView的数据加载停靠位置
   public void setStackFromEnd(boolean stackFromEnd) {
-    LinearLayoutManager layoutManager = (LinearLayoutManager) getLayoutManager();
     if (layoutManager != null) {
       layoutManager.setStackFromEnd(stackFromEnd);
     }
@@ -236,6 +238,14 @@ public class ChatMessageListView extends RecyclerView implements IMessageData {
       String uuid = message.getMessageClientId();
       ChatMessageBean messageBean = messageAdapter.searchMessage(uuid);
       messageBean.setMessageData(new IMMessageInfo(message));
+      messageAdapter.updateMessage(messageBean, payload);
+    }
+  }
+
+  @Override
+  public void updateMessage(String msgClientId, Object payload) {
+    if (messageAdapter != null && !TextUtils.isEmpty(msgClientId)) {
+      ChatMessageBean messageBean = messageAdapter.searchMessage(msgClientId);
       messageAdapter.updateMessage(messageBean, payload);
     }
   }

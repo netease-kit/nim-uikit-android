@@ -4,6 +4,7 @@
 
 package com.netease.yunxin.kit.conversationkit.local.ui.page.viewmodel;
 
+import android.os.SystemClock;
 import android.text.TextUtils;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -16,6 +17,8 @@ import com.netease.nimlib.sdk.v2.conversation.V2NIMLocalConversationListener;
 import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
 import com.netease.nimlib.sdk.v2.conversation.model.V2NIMLocalConversation;
 import com.netease.nimlib.sdk.v2.conversation.result.V2NIMLocalConversationResult;
+import com.netease.nimlib.sdk.v2.subscription.V2NIMSubscribeListener;
+import com.netease.nimlib.sdk.v2.subscription.model.V2NIMUserStatus;
 import com.netease.nimlib.sdk.v2.team.V2NIMTeamListener;
 import com.netease.nimlib.sdk.v2.team.model.V2NIMTeam;
 import com.netease.nimlib.sdk.v2.user.V2NIMUser;
@@ -23,6 +26,7 @@ import com.netease.nimlib.sdk.v2.utils.V2NIMConversationIdUtil;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.ChatConstants;
 import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
+import com.netease.yunxin.kit.chatkit.OnlineStatusManager;
 import com.netease.yunxin.kit.chatkit.impl.LocalConversationListenerImpl;
 import com.netease.yunxin.kit.chatkit.impl.LoginDetailListenerImpl;
 import com.netease.yunxin.kit.chatkit.impl.TeamListenerImpl;
@@ -31,6 +35,7 @@ import com.netease.yunxin.kit.chatkit.manager.AIUserManager;
 import com.netease.yunxin.kit.chatkit.repo.ContactRepo;
 import com.netease.yunxin.kit.chatkit.repo.LocalConversationRepo;
 import com.netease.yunxin.kit.chatkit.repo.TeamRepo;
+import com.netease.yunxin.kit.chatkit.utils.ConversationIdUtils;
 import com.netease.yunxin.kit.chatkit.utils.ErrorUtils;
 import com.netease.yunxin.kit.common.ui.utils.ToastX;
 import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
@@ -83,6 +88,7 @@ public class ConversationViewModel extends BaseViewModel {
       new MutableLiveData<>();
   // @信息LiveData，用于通知@信息变更
   private final MutableLiveData<FetchResult<List<String>>> aitLiveData = new MutableLiveData<>();
+  private final MutableLiveData<FetchResult<List<String>>> updateLiveData = new MutableLiveData<>();
   // 删除会话LiveData，用于通知会话删除结果
   private final MutableLiveData<FetchResult<List<String>>> deleteLiveData = new MutableLiveData<>();
 
@@ -102,6 +108,12 @@ public class ConversationViewModel extends BaseViewModel {
   // 数据查询是否已经开始
   private boolean hasStart = false;
 
+  private int onlineScrollStart = 0;
+  private int onlineScrollEnd = 0;
+  private int onlineDiff = 20;
+
+  private List<String> onlineScrollAccountList = new ArrayList<>();
+
   public ConversationViewModel() {
     // 注册会话监听
     LocalConversationRepo.addConversationListener(conversationListener);
@@ -115,6 +127,10 @@ public class ConversationViewModel extends BaseViewModel {
     if (IMKitConfigCenter.getEnableAIUser()) {
       ContactRepo.addContactListener(contactListener);
       AIUserManager.addAIUserChangeListener(aiUserChangeListener);
+    }
+    // 如果开启在线状态
+    if (IMKitConfigCenter.getEnableOnlineStatus()) {
+      OnlineStatusManager.addUserOnlineListener(onlineListener);
     }
   }
 
@@ -182,6 +198,11 @@ public class ConversationViewModel extends BaseViewModel {
           ALog.d(LIB_TAG, TAG, "onDataSync:" + type.name() + "," + state.name());
           if (type == V2NIMDataSyncType.V2NIM_DATA_SYNC_MAIN
               && state == V2NIMDataSyncState.V2NIM_DATA_SYNC_STATE_COMPLETED) {
+            ALog.d(
+                LIB_TAG,
+                TAG,
+                "Performance loginDetailListener V2NIM_DATA_SYNC_MAIN COMPLETED timestamp:"
+                    + SystemClock.elapsedRealtime());
             getConversationData();
           }
         }
@@ -244,6 +265,10 @@ public class ConversationViewModel extends BaseViewModel {
     return aiRobotLiveData;
   }
 
+  public MutableLiveData<FetchResult<List<String>>> getUpdateLiveData() {
+    return updateLiveData;
+  }
+
   /** 获取未读数 */
   public void getUnreadCount() {
     int unreadCount = LocalConversationRepo.getTotalUnreadCount();
@@ -273,12 +298,16 @@ public class ConversationViewModel extends BaseViewModel {
    * @param offSet 偏移量
    */
   private void getConversationByPage(long offSet) {
-    ALog.d(LIB_TAG, TAG, "queryConversation:" + offSet);
+    ALog.d(LIB_TAG, TAG, "queryConversation offSet:" + offSet);
     if (hasStart) {
       ALog.d(LIB_TAG, TAG, "queryConversation,has Started return");
       return;
     }
     hasStart = true;
+    ALog.d(
+        LIB_TAG,
+        TAG,
+        "Performance queryConversation start timestamp:" + SystemClock.elapsedRealtime());
     LocalConversationRepo.getConversationList(
         offSet,
         PAGE_LIMIT,
@@ -298,6 +327,11 @@ public class ConversationViewModel extends BaseViewModel {
                     + ((data != null && data.getConversationList() != null)
                         ? data.getConversationList().size()
                         : 0));
+            ALog.d(
+                LIB_TAG,
+                TAG,
+                "Performance queryConversation onSuccess timestamp:"
+                    + SystemClock.elapsedRealtime());
             FetchResult<List<ConversationBean>> result = new FetchResult<>(LoadStatus.Success);
             result.setType(offSet > 0 ? FetchResult.FetchType.Add : FetchResult.FetchType.Init);
 
@@ -311,6 +345,10 @@ public class ConversationViewModel extends BaseViewModel {
               result.setData(resultData);
               hasMore = resultData.size() == PAGE_LIMIT;
               mOffset = data.getOffset();
+              // 订阅首页会话在线状态
+              if (IMKitConfigCenter.getEnableOnlineStatus() && offSet == 0) {
+                subscribeOnlineStatus(resultData);
+              }
             }
             queryLiveData.setValue(result);
             hasStart = false;
@@ -450,7 +488,11 @@ public class ConversationViewModel extends BaseViewModel {
 
         @Override
         public void onSyncFinished() {
-          ALog.d(LIB_TAG, TAG, "conversationListener onSyncFinished:");
+          ALog.d(
+              LIB_TAG,
+              TAG,
+              "Performance conversationListener onSyncFinished timestamp:"
+                  + SystemClock.elapsedRealtime());
         }
 
         @Override
@@ -469,7 +511,12 @@ public class ConversationViewModel extends BaseViewModel {
           result.setType(FetchResult.FetchType.Add);
           List<V2NIMLocalConversation> data = new ArrayList<>();
           data.add(conversation);
-          convertAndNotify(result, data);
+          List<ConversationBean> resultData = createConversationBean(data);
+          result.setData(resultData);
+          changeLiveData.setValue(result);
+          if (IMKitConfigCenter.getEnableOnlineStatus()) {
+            subscribeOnlineStatus(resultData);
+          }
         }
 
         @Override
@@ -573,11 +620,40 @@ public class ConversationViewModel extends BaseViewModel {
         }
       };
 
+  protected V2NIMSubscribeListener onlineListener =
+      new V2NIMSubscribeListener() {
+        @Override
+        public void onUserStatusChanged(List<V2NIMUserStatus> userStatusList) {
+          if (userStatusList == null || userStatusList.isEmpty()) {
+            return;
+          }
+          List<String> conversationIdList = new ArrayList<>();
+          for (V2NIMUserStatus userStatus : userStatusList) {
+            if (userStatus != null && userStatus.getAccountId() != null) {
+              String conversationId =
+                  ConversationIdUtils.conversationId(
+                      userStatus.getAccountId(), V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P);
+              conversationIdList.add(conversationId);
+            }
+          }
+          if (!conversationIdList.isEmpty()) {
+            FetchResult<List<String>> updateResult =
+                new FetchResult<>(FetchResult.FetchType.Update);
+            updateResult.setData(conversationIdList);
+            updateResult.setLoadStatus(LoadStatus.Finish);
+            updateLiveData.setValue(updateResult);
+          }
+        }
+      };
+
   // 会话列表转换并通知LiveData
   public void convertAndNotify(
       FetchResult<List<ConversationBean>> result, List<V2NIMLocalConversation> conversationList) {
     if (conversationList != null) {
       List<ConversationBean> resultData = createConversationBean(conversationList);
+      if (IMKitConfigCenter.getEnableOnlineStatus()) {
+        subscribeOnlineStatus(resultData);
+      }
       result.setData(resultData);
       changeLiveData.setValue(result);
     }
@@ -611,6 +687,56 @@ public class ConversationViewModel extends BaseViewModel {
     }
   }
 
+  protected void subscribeOnlineStatus(List<ConversationBean> conversationBeanList) {
+    if (conversationBeanList == null) {
+      return;
+    }
+    List<String> accountList = new ArrayList<>();
+    for (ConversationBean conversationBean : conversationBeanList) {
+      if (conversationBean.getConversationType()
+              == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P
+          && !AIUserManager.isAIUser(conversationBean.getTargetId())) {
+        accountList.add(conversationBean.getTargetId());
+      }
+    }
+    if (!accountList.isEmpty()) {
+      OnlineStatusManager.subscribeUserStatus(accountList);
+    }
+  }
+
+  /** 根据页面滑动订阅会话状态 */
+  public void dynamicSubscribeConversation(
+      int start, int end, List<ConversationBean> conversationBeanList) {
+    if (IMKitConfigCenter.getEnableOnlineStatus() && conversationBeanList != null) {
+      if (start < PAGE_LIMIT && end < PAGE_LIMIT) {
+        return;
+      }
+      int startIndex = start - onlineDiff > PAGE_LIMIT ? start - onlineDiff : PAGE_LIMIT + 1;
+      int endIndex = end + onlineDiff > PAGE_LIMIT ? end + onlineDiff : PAGE_LIMIT + 1;
+      List<String> accountList = new ArrayList<>();
+      for (int i = startIndex; i < endIndex && i < conversationBeanList.size(); i++) {
+        String conversationId = conversationBeanList.get(i).getConversationId();
+        if (ConversationIdUtils.conversationType(conversationId)
+            == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P) {
+          accountList.add(ConversationIdUtils.conversationTargetId(conversationId));
+        }
+      }
+      if (!accountList.isEmpty()) {
+        if (!onlineScrollAccountList.isEmpty()) {
+          OnlineStatusManager.unsubscribeUserStatus(onlineScrollAccountList);
+          onlineScrollAccountList.clear();
+        }
+        onlineScrollAccountList.addAll(accountList);
+        OnlineStatusManager.subscribeUserStatus(accountList);
+        // 刷新在线状态
+        FetchResult<List<String>> updateResult = new FetchResult<>(FetchResult.FetchType.Update);
+        updateResult.setData(accountList);
+        updateResult.setLoadStatus(LoadStatus.Finish);
+        updateLiveData.setValue(updateResult);
+      }
+    }
+  }
+
   // 是否还有更多数据
   public boolean hasMore() {
     return hasMore;
@@ -629,6 +755,9 @@ public class ConversationViewModel extends BaseViewModel {
     if (IMKitConfigCenter.getEnableAIUser()) {
       ContactRepo.removeContactListener(contactListener);
       AIUserManager.removeAIUserChangeListener(aiUserChangeListener);
+    }
+    if (IMKitConfigCenter.getEnableOnlineStatus()) {
+      OnlineStatusManager.removeUserOnlineListener(onlineListener);
     }
   }
 }

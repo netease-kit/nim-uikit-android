@@ -169,6 +169,28 @@ public class ContactAdapter extends RecyclerView.Adapter<BaseContactViewHolder> 
   }
 
   // 验证，好友选择，通讯录调用
+  public void updateData(List<String> accountIdList) {
+    if (dataList.isEmpty()) {
+      return;
+    }
+    for (String account : accountIdList) {
+      int index = getIndexByAccount(account);
+      if (index >= 0) {
+        notifyItemChanged(index);
+      }
+    }
+  }
+
+  public int getIndexByAccount(String account) {
+    for (int i = 0; i < dataList.size(); i++) {
+      if (dataList.get(i).getAccountId().equals(account)) {
+        return i;
+      }
+    }
+    return 0;
+  }
+
+  // 验证，好友选择，通讯录调用
   public void updateDataAndSort(BaseContactBean data) {
     int index = dataList.indexOf(data);
     if (index >= 0) {

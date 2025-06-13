@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
 import android.view.ViewTreeObserver;
+import androidx.annotation.Nullable;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
@@ -19,6 +20,7 @@ import com.netease.nimlib.sdk.v2.message.V2NIMP2PMessageReadReceipt;
 import com.netease.nimlib.sdk.v2.user.V2NIMUser;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
+import com.netease.yunxin.kit.chatkit.OnlineStatusManager;
 import com.netease.yunxin.kit.chatkit.cache.FriendUserCache;
 import com.netease.yunxin.kit.chatkit.manager.AIUserManager;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
@@ -56,10 +58,18 @@ public class FunChatP2PFragment extends FunChatFragment {
   protected Observer<V2NIMP2PMessageReadReceipt> p2pReceiptObserver;
 
   @Override
+  public void onCreate(@Nullable Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    ALog.d(LIB_TAG, TAG, "onCreate");
+    if (getArguments() != null) {
+      conversationType = V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P;
+      accountId = (String) getArguments().getSerializable(RouterConstant.CHAT_ID_KRY);
+    }
+  }
+
+  @Override
   protected void initData(Bundle bundle) {
     ALog.d(LIB_TAG, TAG, "initData");
-    conversationType = V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P;
-    accountId = (String) bundle.getSerializable(RouterConstant.CHAT_ID_KRY);
     if (TextUtils.isEmpty(accountId)) {
       requireActivity().finish();
       return;
@@ -99,6 +109,7 @@ public class FunChatP2PFragment extends FunChatFragment {
                   .withContext(requireActivity())
                   .navigate();
             });
+    chatView.getTitleBar().getTitleTextView().setEllipsize(TextUtils.TruncateAt.MIDDLE);
   }
 
   public void refreshView() {
@@ -106,8 +117,16 @@ public class FunChatP2PFragment extends FunChatFragment {
     if (friendInfo != null) {
       name = friendInfo.getName();
     }
-    chatView.getTitleBar().setTitle(name);
     chatView.updateInputHintInfo(name);
+    if (IMKitConfigCenter.getEnableOnlineStatus() && !AIUserManager.isAIUser(this.accountId)) {
+      String onlineFormat = getResources().getString(R.string.chat_online_status_title_format);
+      String onlineStatus =
+          OnlineStatusManager.isOnlineSubscribe(this.accountId)
+              ? getResources().getString(R.string.chat_online_status_text)
+              : getResources().getString(R.string.chat_offline_status_text);
+      name = String.format(onlineFormat, name, onlineStatus);
+    }
+    chatView.getTitleBar().setTitle(name);
     List<String> accountList = new ArrayList<>();
     accountList.add(accountId);
     chatView.notifyUserInfoChanged(accountList);
@@ -176,6 +195,13 @@ public class FunChatP2PFragment extends FunChatFragment {
                 friendInfo = result.getData();
                 refreshView();
               }
+            });
+    ((ChatP2PViewModel) viewModel)
+        .getUpdateLiveData()
+        .observe(
+            getViewLifecycleOwner(),
+            update -> {
+              refreshView();
             });
   }
 

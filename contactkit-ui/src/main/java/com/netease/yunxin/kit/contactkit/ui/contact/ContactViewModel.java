@@ -17,7 +17,11 @@ import com.netease.nimlib.sdk.v2.auth.V2NIMLoginDetailListener;
 import com.netease.nimlib.sdk.v2.auth.enums.V2NIMConnectStatus;
 import com.netease.nimlib.sdk.v2.auth.enums.V2NIMDataSyncState;
 import com.netease.nimlib.sdk.v2.auth.enums.V2NIMDataSyncType;
+import com.netease.nimlib.sdk.v2.subscription.V2NIMSubscribeListener;
+import com.netease.nimlib.sdk.v2.subscription.model.V2NIMUserStatus;
 import com.netease.yunxin.kit.alog.ALog;
+import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
+import com.netease.yunxin.kit.chatkit.OnlineStatusManager;
 import com.netease.yunxin.kit.chatkit.repo.ContactRepo;
 import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
@@ -47,7 +51,8 @@ public class ContactViewModel extends BaseViewModel {
   private final List<ContactFriendBean> contactFriendBeanList = new ArrayList<>();
   private final MutableLiveData<ContactEntranceBean> contactEntranceLiveData =
       new MutableLiveData<>();
-  private final MutableLiveData<FetchResult<List<ContactFriendBean>>> userInfoLiveData =
+
+  private final MutableLiveData<FetchResult<List<String>>> contactStatusLiveData =
       new MutableLiveData<>();
   private ContactEntranceBean verifyBean;
   private int unreadCount = 0;
@@ -60,6 +65,11 @@ public class ContactViewModel extends BaseViewModel {
   //是否已经注册监听
   private boolean haveRegisterListener = false;
 
+  private final int subOnlineOffset = 1000;
+  private final int subOnlineDiff = 30;
+
+  private List<String> onlineScrollAccountList = new ArrayList<>();
+
   public void setSelectorPage(boolean selectorPage) {
     isSelectorPage = selectorPage;
   }
@@ -68,16 +78,24 @@ public class ContactViewModel extends BaseViewModel {
     registerObserver();
   }
 
+  // 通讯录好友查询LiveData
   public LiveData<FetchResult<List<ContactFriendBean>>> getContactLiveData() {
     return contactLiveData;
   }
 
+  // 好友在线状态LiveData
+  public LiveData<FetchResult<List<String>>> getContactStatusLiveData() {
+    return contactStatusLiveData;
+  }
+
+  // 通讯录上部分功能入口LiveData
   public LiveData<ContactEntranceBean> getContactEntranceLiveData() {
     return contactEntranceLiveData;
   }
 
+  // 通讯录好友信息变更
   public MutableLiveData<FetchResult<List<ContactFriendBean>>> getUserInfoLiveData() {
-    return userInfoLiveData;
+    return null;
   }
 
   public void fetchContactList(boolean userCache) {
@@ -88,6 +106,9 @@ public class ContactViewModel extends BaseViewModel {
     }
     if (!contactFriendBeanList.isEmpty()) {
       ALog.d(LIB_TAG, TAG, "fetchContactList,contactFriendBeanList not empty");
+      if (!userCache) {
+        subscribeContactStatus();
+      }
       return;
     }
     boolean clearCache = !haveFetchContact;
@@ -122,6 +143,9 @@ public class ContactViewModel extends BaseViewModel {
             fetchResult.setStatus(LoadStatus.Success);
             fetchResult.setData(contactFriendBeanList);
             contactLiveData.postValue(fetchResult);
+            if (!userCache) {
+              subscribeContactStatus();
+            }
           }
         });
 
@@ -152,6 +176,9 @@ public class ContactViewModel extends BaseViewModel {
     ContactRepo.addContactListener(friendChangeObserve);
     ContactRepo.addFriendApplicationCountListener(friendApplicationCountListener);
     IMKitClient.addLoginDetailListener(loginDetailListener);
+    if (IMKitConfigCenter.getEnableOnlineStatus()) {
+      OnlineStatusManager.addUserOnlineListener(onlineListener);
+    }
     haveRegisterListener = true;
   }
 
@@ -190,6 +217,22 @@ public class ContactViewModel extends BaseViewModel {
         @Override
         public void onFriendAddRejected(@NonNull FriendAddApplicationInfo rejectionInfo) {
           requestApplicationUnreadCount();
+        }
+      };
+
+  private V2NIMSubscribeListener onlineListener =
+      userStatusList -> {
+        List<String> statusAccountList = new ArrayList<>();
+        for (V2NIMUserStatus userStatus : userStatusList) {
+          if (userStatus != null && userStatus.getAccountId() != null) {
+            statusAccountList.add(userStatus.getAccountId());
+          }
+        }
+        if (statusAccountList.size() > 0) {
+          FetchResult<List<String>> updateResult = new FetchResult<>(FetchResult.FetchType.Update);
+          updateResult.setData(statusAccountList);
+          updateResult.setLoadStatus(LoadStatus.Finish);
+          contactStatusLiveData.setValue(updateResult);
         }
       };
 
@@ -239,6 +282,9 @@ public class ContactViewModel extends BaseViewModel {
             }
             if (state == V2NIMDataSyncState.V2NIM_DATA_SYNC_STATE_COMPLETED) {
               fetchContactList(false);
+              if (onlineScrollAccountList.size() > 0) {
+                subscribeContactStatus(onlineScrollAccountList);
+              }
             } else if (state == V2NIMDataSyncState.V2NIM_DATA_SYNC_STATE_SYNCING) {
               fetchResult.setStatus(LoadStatus.Loading);
               fetchResult.setData(null);
@@ -276,9 +322,11 @@ public class ContactViewModel extends BaseViewModel {
 
   private void setAddLivieData(List<UserWithFriend> addFriendList) {
     List<ContactFriendBean> addList = new ArrayList<>();
+    List<String> addAccountList = new ArrayList<>();
     for (UserWithFriend friendInfo : addFriendList) {
       ContactFriendBean bean = new ContactFriendBean(friendInfo);
       bean.viewType = IViewTypeConstant.CONTACT_FRIEND;
+      addAccountList.add(friendInfo.getAccount());
       if (contactFriendBeanList.contains(bean)) {
         continue;
       }
@@ -286,6 +334,7 @@ public class ContactViewModel extends BaseViewModel {
       ALog.d(LIB_TAG, TAG, "addFriend,add:" + "id=" + friendInfo.getAccount());
       addList.add(bean);
     }
+    subscribeContactStatus(addAccountList);
     FetchResult<List<ContactFriendBean>> addResult = new FetchResult<>(FetchResult.FetchType.Add);
     addResult.setData(addList);
     addResult.setLoadStatus(LoadStatus.Finish);
@@ -348,6 +397,63 @@ public class ContactViewModel extends BaseViewModel {
     contactDataList.add(blackBean);
     contactDataList.add(groupBean);
     return contactDataList;
+  }
+
+  private void subscribeContactStatus() {
+    if (IMKitConfigCenter.getEnableOnlineStatus()) {
+      List<String> accountIdList = new ArrayList<>();
+      for (int index = 0;
+          index < contactFriendBeanList.size() && index < subOnlineOffset;
+          index++) {
+        accountIdList.add(contactFriendBeanList.get(index).data.getAccount());
+      }
+      if (!accountIdList.isEmpty()) {
+        OnlineStatusManager.subscribeUserStatus(accountIdList);
+        FetchResult<List<String>> updateResult = new FetchResult<>(FetchResult.FetchType.Update);
+        updateResult.setData(accountIdList);
+        updateResult.setLoadStatus(LoadStatus.Finish);
+        contactStatusLiveData.setValue(updateResult);
+      }
+    }
+  }
+
+  public void subscribeContactStatus(List<String> accountIdList) {
+    if (IMKitConfigCenter.getEnableOnlineStatus() && accountIdList.size() > 0) {
+      OnlineStatusManager.subscribeUserStatus(accountIdList);
+
+      FetchResult<List<String>> updateResult = new FetchResult<>(FetchResult.FetchType.Update);
+      updateResult.setData(accountIdList);
+      updateResult.setLoadStatus(LoadStatus.Finish);
+      contactStatusLiveData.setValue(updateResult);
+    }
+  }
+
+  public void dynamicSubscribeContactFriend(int first, int end) {
+    if (IMKitConfigCenter.getEnableOnlineStatus() && end > subOnlineOffset) {
+      List<String> accountIdList = new ArrayList<>();
+      int startIndex =
+          first - subOnlineDiff > subOnlineOffset ? first - subOnlineDiff : subOnlineOffset + 1;
+      int endIndex =
+          end + subOnlineDiff > subOnlineOffset ? end + subOnlineDiff : subOnlineOffset + 1;
+      for (int index = startIndex;
+          index < endIndex && index < contactFriendBeanList.size();
+          index++) {
+        accountIdList.add(contactFriendBeanList.get(index).data.getAccount());
+      }
+      if (!accountIdList.isEmpty()) {
+        if (!onlineScrollAccountList.isEmpty()) {
+          OnlineStatusManager.unsubscribeUserStatus(onlineScrollAccountList);
+          onlineScrollAccountList.clear();
+          OnlineStatusManager.subscribeUserStatus(accountIdList);
+          onlineScrollAccountList.addAll(accountIdList);
+
+          FetchResult<List<String>> updateResult = new FetchResult<>(FetchResult.FetchType.Update);
+          updateResult.setData(accountIdList);
+          updateResult.setLoadStatus(LoadStatus.Finish);
+          contactStatusLiveData.setValue(updateResult);
+        }
+      }
+    }
   }
 
   @Override

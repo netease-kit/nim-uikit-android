@@ -12,7 +12,6 @@
 
     <string name="welcome_button">注册/登录</string>
     <string name="email_login">邮箱登录</string>
-    <string name="login_text">登录</string>
     <string name="server_config">节点选择</string>
     <string name="tab_session_tab_text">消息</string>
     <string name="tab_contact_tab_text">通讯录</string>
@@ -56,6 +55,7 @@
     <string name="setting_play_mode">听筒模式</string>
     <string name="conversation_mode">云端会话</string>
     <string name="ai_stream_mode">AI数字人流式输出</string>
+    <string name="rich_text_mode">换行消息</string>
     <string name="setting_filter_notify">过滤通知</string>
     <string name="setting_friend_delete_mode">删除好友是否同步删除备注</string>
     <string name="setting_message_read_mode">消息已读未读功能</string>
@@ -124,7 +124,7 @@
     <string name="uikit_account_login_page_title">账号登录</string>
     <string name="uikit_account_login_hint">登录账号</string>
     <string name="uikit_token_login_hint">登录Token</string>
-
+    <string name="login_text">登录</string>
  <!-- 功能配置 -->
     <string name="uikit_function_title">功能配置</string>
     <string name="uikit_team_switch_title">群聊功能</string>
@@ -134,4 +134,5 @@
     <string name="uikit_online_switch_title">正在输入功能</string>
     <string name="uikit_call_switch_title">禁止陌生人音视频通话</string>
     <string name="uikit_team_manager_limit_title">允许添加的管理员人数( -1 表示无限制)</string>
+
 </resources>

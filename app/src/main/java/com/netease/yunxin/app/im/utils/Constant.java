@@ -7,7 +7,6 @@ package com.netease.yunxin.app.im.utils;
 public class Constant {
 
   public static final String PROJECT_TAG = "imkit-sample";
-  public static final String PAGE_MAIN = "https://netease.yunxin.im.demo.home";
   public static final String CONFIG_APPKEY_KEY = "com.netease.nim.appKey";
   public static final String CONFIG_APPKEY_KEY_OVERSEA = "com.netease.nim.oversea.appKey";
   public static final String CONFIG_AMAP_SERVER_KEY = "com.amap.api.v2.web.apikey";
@@ -35,6 +34,9 @@ public class Constant {
   public static final String CONVERSATION_LOCAL_CONFIG = "local_conversation";
   public static final String AI_STREAM_CONFIG_FILE = "imkit_ai_stream_info";
   public static final String AI_STREAM_CONFIG = "ai_stream";
+  public static final String NOTIFICATION_CONFIG_FILE = "notification_config";
+  public static final String NOTIFICATION_HIDE_CONFIG = "notification_hide_content";
+  public static final String TOGGLE_NOTIFICATION_CONFIG = "toggle_notification";
   public static final int CHINA_CONFIG = 0;
   public static final int OVERSEA_CONFIG = 1;
 

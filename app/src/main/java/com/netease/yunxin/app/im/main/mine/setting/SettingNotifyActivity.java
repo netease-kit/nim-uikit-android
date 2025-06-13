@@ -56,18 +56,23 @@ public class SettingNotifyActivity extends BaseLocalActivity {
   }
 
   private void initView() {
-    viewBinding.notifySc.setChecked(viewModel.getToggleNotification());
+    viewBinding.notifySc.setChecked(viewModel.getToggleNotification(SettingNotifyActivity.this));
     viewBinding.notifySc.setOnClickListener(
-        v -> viewModel.setToggleNotification(viewBinding.notifySc.isChecked()));
+        v ->
+            viewModel.setToggleNotification(
+                SettingNotifyActivity.this, viewBinding.notifySc.isChecked()));
     viewBinding.notifyRingSc.setChecked(viewModel.getRingToggle());
     viewBinding.notifyRingSc.setOnClickListener(
         v -> viewModel.setRingToggle(viewBinding.notifyRingSc.isChecked()));
     viewBinding.notifyShakeSc.setChecked(viewModel.getVibrateToggle());
     viewBinding.notifyShakeSc.setOnClickListener(
         v -> viewModel.setVibrateToggle(viewBinding.notifyShakeSc.isChecked()));
-    viewBinding.notifyShowInfoSc.setChecked(!viewModel.getPushShowNoDetail());
+    viewBinding.notifyShowInfoSc.setChecked(
+        !viewModel.getPushShowNoDetail(SettingNotifyActivity.this));
     viewBinding.notifyShowInfoSc.setOnClickListener(
-        v -> viewModel.setPushShowNoDetail(!viewBinding.notifyShowInfoSc.isChecked()));
+        v ->
+            viewModel.setPushShowNoDetail(
+                SettingNotifyActivity.this, !viewBinding.notifyShowInfoSc.isChecked()));
     viewBinding.settingTitleBar.setOnBackIconClickListener(v -> onBackPressed());
     if (AppSkinConfig.getInstance().getAppSkinStyle() == AppSkinConfig.AppSkin.commonSkin) {
       updateCommonView();

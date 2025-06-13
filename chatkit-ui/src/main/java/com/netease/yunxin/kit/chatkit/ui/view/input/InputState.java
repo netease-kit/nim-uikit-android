@@ -9,5 +9,6 @@ public enum InputState {
   voice,
   input,
   emoji,
-  more
+  more,
+  aiHelper
 }

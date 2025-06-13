@@ -27,4 +27,9 @@ public class ContactTeamBean extends BaseContactBean {
   public String getTarget() {
     return null;
   }
+
+  @Override
+  public String getAccountId() {
+    return data.getTeamId();
+  }
 }

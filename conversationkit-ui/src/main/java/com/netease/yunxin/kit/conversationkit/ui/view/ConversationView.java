@@ -33,6 +33,8 @@ public class ConversationView extends FrameLayout {
   private ILoadListener loadMoreListener;
   private final int LOAD_MORE_DIFF = 5;
 
+  private LinearLayoutManager conversationLayoutManager;
+
   public ConversationView(Context context) {
     super(context);
     init(null);
@@ -59,9 +61,9 @@ public class ConversationView extends FrameLayout {
         recyclerView,
         new FrameLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-    LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
-    adapter = new ConversationAdapter(layoutManager);
-    recyclerView.setLayoutManager(layoutManager);
+    conversationLayoutManager = new LinearLayoutManager(getContext());
+    adapter = new ConversationAdapter(conversationLayoutManager);
+    recyclerView.setLayoutManager(conversationLayoutManager);
     recyclerView.setAdapter(adapter);
     // 监听滚动，当滚动到底部触发加载更多
     recyclerView.addOnScrollListener(
@@ -70,12 +72,15 @@ public class ConversationView extends FrameLayout {
           public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
             super.onScrollStateChanged(recyclerView, newState);
             if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-              int position = layoutManager.findLastVisibleItemPosition();
-              if (loadMoreListener != null
-                  && loadMoreListener.hasMore()
-                  && adapter.getItemCount() < position + LOAD_MORE_DIFF) {
-                ConversationBean last = adapter.getData(adapter.getItemCount() - 1);
-                loadMoreListener.loadMore(last);
+              int position = conversationLayoutManager.findLastVisibleItemPosition();
+              int startPosition = conversationLayoutManager.findFirstVisibleItemPosition();
+              if (loadMoreListener != null) {
+                if (loadMoreListener.hasMore()
+                    && adapter.getItemCount() < position + LOAD_MORE_DIFF) {
+                  ConversationBean last = adapter.getData(adapter.getItemCount() - 1);
+                  loadMoreListener.loadMore(last);
+                }
+                loadMoreListener.onScrollStateIdle(startPosition, position);
               }
             }
           }
@@ -156,6 +161,26 @@ public class ConversationView extends FrameLayout {
     }
   }
 
+  public void updateConversation(List<String> idList) {
+    if (adapter != null) {
+      adapter.updateItem(idList);
+    }
+  }
+
+  /**
+   * 获取指定位置的会话ID
+   *
+   * @param start
+   * @param end
+   * @return
+   */
+  public List<String> getContentDataID(int start, int end) {
+    if (adapter != null) {
+      return adapter.getContentDataID(start, end);
+    }
+    return null;
+  }
+
   // 移除数据
   public void remove(List<String> data) {
     ALog.d(LIB_TAG, TAG, " remove, start");
@@ -216,5 +241,26 @@ public class ConversationView extends FrameLayout {
     if (adapter != null) {
       adapter.setShowTag(show);
     }
+  }
+
+  public List<ConversationBean> getDataList() {
+    if (adapter != null) {
+      return adapter.getConversationList();
+    }
+    return null;
+  }
+
+  public int getFirstVisiblePosition() {
+    if (conversationLayoutManager != null) {
+      return conversationLayoutManager.findFirstVisibleItemPosition();
+    }
+    return 0;
+  }
+
+  public int getLastVisiblePosition() {
+    if (conversationLayoutManager != null) {
+      return conversationLayoutManager.findLastVisibleItemPosition();
+    }
+    return 0;
   }
 }

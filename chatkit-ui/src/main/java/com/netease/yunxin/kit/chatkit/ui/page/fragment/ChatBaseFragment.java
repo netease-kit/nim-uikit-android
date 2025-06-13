@@ -4,7 +4,6 @@
 
 package com.netease.yunxin.kit.chatkit.ui.page.fragment;
 
-import static androidx.core.content.PermissionChecker.PERMISSION_GRANTED;
 import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
 import static com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants.PAYLOAD_REFRESH_AUDIO_ANIM;
 import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.KEY_FORWARD_SELECTED_CONVERSATIONS;
@@ -34,7 +33,6 @@ import androidx.activity.result.PickVisualMediaRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
 import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -74,6 +72,7 @@ import com.netease.yunxin.kit.chatkit.ui.common.ChatMsgCache;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatUserCache;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatUtils;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
+import com.netease.yunxin.kit.chatkit.ui.common.PermissionHelper;
 import com.netease.yunxin.kit.chatkit.ui.common.ThumbHelper;
 import com.netease.yunxin.kit.chatkit.ui.common.WatchTextMessageDialog;
 import com.netease.yunxin.kit.chatkit.ui.custom.ChatConfigManager;
@@ -95,7 +94,6 @@ import com.netease.yunxin.kit.chatkit.ui.page.viewmodel.ChatP2PViewModel;
 import com.netease.yunxin.kit.chatkit.ui.page.viewmodel.ChatTeamViewModel;
 import com.netease.yunxin.kit.chatkit.ui.view.ait.AitManager;
 import com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants;
-import com.netease.yunxin.kit.chatkit.ui.view.message.ChatMessageListView;
 import com.netease.yunxin.kit.chatkit.ui.view.message.adapter.ChatMessageAdapter;
 import com.netease.yunxin.kit.chatkit.ui.view.message.audio.ChatMessageAudioControl;
 import com.netease.yunxin.kit.chatkit.ui.view.popmenu.ChatPopMenu;
@@ -538,7 +536,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
                 boolean hasPermission = true;
                 String permission = "";
                 if (currentRequest == REQUEST_CAMERA_PERMISSION) {
-                  if (PermissionUtils.hasPermissions(
+                  if (PermissionHelper.hasPermissions(
                       ChatBaseFragment.this.getContext(), Manifest.permission.CAMERA)) {
                     startTakePicture();
                   } else {
@@ -546,7 +544,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
                     permission = Manifest.permission.CAMERA;
                   }
                 } else if (currentRequest == REQUEST_VIDEO_PERMISSION) {
-                  if (PermissionUtils.hasPermissions(
+                  if (PermissionHelper.hasPermissions(
                       ChatBaseFragment.this.getContext(), Manifest.permission.CAMERA)) {
                     startCaptureVideo();
                   } else {
@@ -554,21 +552,23 @@ public abstract class ChatBaseFragment extends BaseFragment {
                     permission = Manifest.permission.CAMERA;
                   }
                 } else if (currentRequest == REQUEST_READ_EXTERNAL_STORAGE_PERMISSION_ALBUM) {
-                  if (this.checkImageOrFilePermission()) {
+                  if (PermissionHelper.checkImageOrFilePermission(
+                      ChatBaseFragment.this.requireContext())) {
                     startPickMedia();
                   } else {
                     hasPermission = false;
                     permission = Manifest.permission.READ_MEDIA_IMAGES;
                   }
                 } else if (currentRequest == REQUEST_READ_EXTERNAL_STORAGE_PERMISSION_FILE) {
-                  if (this.checkImageOrFilePermission()) {
+                  if (PermissionHelper.checkImageOrFilePermission(
+                      ChatBaseFragment.this.requireContext())) {
                     startPickFile();
                   } else {
                     hasPermission = false;
                     permission = Manifest.permission.READ_EXTERNAL_STORAGE;
                   }
                 } else if (currentRequest == REQUEST_LOCATION_PERMISSION) {
-                  if (PermissionUtils.hasPermissions(
+                  if (PermissionHelper.hasPermissions(
                       ChatBaseFragment.this.getContext(),
                       Manifest.permission.ACCESS_COARSE_LOCATION)) {
                     startLocationPage();
@@ -591,7 +591,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
                     permission = Manifest.permission.ACCESS_COARSE_LOCATION;
                   }
                 } else if (currentRequest == REQUEST_MIRC_PERMISSION) {
-                  if (!PermissionUtils.hasPermissions(
+                  if (!PermissionHelper.hasPermissions(
                       ChatBaseFragment.this.getContext(), Manifest.permission.RECORD_AUDIO)) {
                     hasPermission = false;
                     permission = Manifest.permission.RECORD_AUDIO;
@@ -630,36 +630,6 @@ public abstract class ChatBaseFragment extends BaseFragment {
               }
             });
   }
-
-  /** 检查是否有本地图片、视频或者文件读取权限 适配 Android不同版本的权限 */
-  private boolean checkImageOrFilePermission() {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE
-        && ContextCompat.checkSelfPermission(
-                ChatBaseFragment.this.requireContext(),
-                Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED)
-            == PERMISSION_GRANTED) {
-      // Android 14及以上部分照片和视频访问权限
-      return true;
-    } else if (Build.VERSION.SDK_INT == Build.VERSION_CODES.TIRAMISU
-        && (ContextCompat.checkSelfPermission(
-                    ChatBaseFragment.this.requireContext(), Manifest.permission.READ_MEDIA_IMAGES)
-                == PERMISSION_GRANTED
-            || ContextCompat.checkSelfPermission(
-                    ChatBaseFragment.this.requireContext(), Manifest.permission.READ_MEDIA_VIDEO)
-                == PERMISSION_GRANTED)) {
-      // Android 13及以上完整照片和视频访问权限
-      return true;
-    } else if (ContextCompat.checkSelfPermission(
-            ChatBaseFragment.this.requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE)
-        == PERMISSION_GRANTED) {
-      // Android 12及以下完整本地读写访问权限
-      return true;
-    } else {
-      // 无本地读写访问权限
-      return false;
-    }
-  }
-
   // 加载UI的个性化配置
   private void loadConfig() {
     ChatUIConfig config = this.chatConfig;
@@ -995,6 +965,20 @@ public abstract class ChatBaseFragment extends BaseFragment {
         }
 
         @Override
+        public boolean onAIHelperClick(View view, String action) {
+          if (chatConfig != null && chatConfig.chatInputMenu != null) {
+            List<ChatMessageBean> messageBeanList = chatView.getMessageList();
+            List<IMMessageInfo> messageInfoList = new ArrayList<>();
+            for (int index = 0; index < messageBeanList.size(); index++) {
+              messageInfoList.add(messageBeanList.get(index).getMessageData());
+            }
+            return chatConfig.chatInputMenu.onAIHelperClick(
+                getContext(), view, action, messageInfoList);
+          }
+          return false;
+        }
+
+        @Override
         public V2NIMConversationType getConversationType() {
           return conversationType;
         }
@@ -1200,7 +1184,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
         public boolean onMessageClick(View view, int position, ChatMessageBean messageBean) {
           if (delegateListener == null
               || !delegateListener.onMessageClick(view, position, messageBean)) {
-            clickMessage(messageBean.getMessageData(), false);
+            clickMessage(messageBean.getMessageData(), position, false);
           }
 
           return true;
@@ -1303,6 +1287,8 @@ public abstract class ChatBaseFragment extends BaseFragment {
               }
               if (messageBean.hasReply()) {
                 loadReplyInfo(messageBean.getReplyMessageRefer(), false);
+              } else {
+                chatView.clearReplyMessage();
               }
 
             } else {
@@ -1334,7 +1320,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
                   messageInfo,
                   getReplayMessageClickPreviewDialogBgRes());
             } else {
-              clickMessage(messageInfo, true);
+              clickMessage(messageInfo, position, true);
             }
           }
           return true;
@@ -1344,11 +1330,17 @@ public abstract class ChatBaseFragment extends BaseFragment {
         public boolean onSendFailBtnClick(View view, int position, ChatMessageBean messageBean) {
           if (delegateListener == null
               || !delegateListener.onSendFailBtnClick(view, position, messageBean)) {
-            viewModel.sendMessageStrExtension(
-                messageBean.getMessageData().getMessage(),
-                V2NIMConversationIdUtil.conversationId(accountId, conversationType),
-                messageBean.getMessageData().getMessage().getPushConfig().getForcePushAccountIds(),
-                messageBean.getMessageData().getMessage().getServerExtension());
+            V2NIMMessage replyMessage = null;
+            if (messageBean.getReplyMessageRefer() != null) {
+              ChatMessageBean msgBean =
+                  chatView
+                      .getMessageListView()
+                      .searchMessage(messageBean.getReplyMessageRefer().getMessageClientId());
+              if (msgBean != null) {
+                replyMessage = msgBean.getMessage();
+              }
+            }
+            viewModel.resendMessage(messageBean.getMessage(), replyMessage);
           }
           return true;
         }
@@ -1442,7 +1434,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
         });
   }
 
-  protected void clickMessage(IMMessageInfo messageInfo, boolean isReply) {
+  protected void clickMessage(IMMessageInfo messageInfo, int position, boolean isReply) {
     if (messageInfo == null) {
       return;
     }
@@ -1515,17 +1507,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
                 ChatAudioMessageViewHolder.CLICK_TO_PLAY_AUDIO_DELAY, messageInfo, null);
 
       } else {
-        ChatMessageListView messageListView = chatView.getMessageListView();
-        if (messageListView == null) {
-          return;
-        }
-        int position =
-            messageListView.searchMessagePosition(messageInfo.getMessage().getMessageClientId());
-        ChatMessageAdapter adapter = messageListView.getMessageAdapter();
-        if (adapter == null || position < 0) {
-          return;
-        }
-        adapter.notifyItemChanged(position, PAYLOAD_REFRESH_AUDIO_ANIM);
+        chatView.updateMessage(messageInfo.getMessageClientId(), PAYLOAD_REFRESH_AUDIO_ANIM);
       }
     } else {
       if (isReply) {

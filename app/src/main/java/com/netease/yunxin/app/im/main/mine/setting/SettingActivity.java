@@ -22,6 +22,7 @@ import com.netease.yunxin.app.im.databinding.ActivityMineSettingBinding;
 import com.netease.yunxin.app.im.utils.AppUtils;
 import com.netease.yunxin.app.im.utils.MultiLanguageUtils;
 import com.netease.yunxin.app.im.welcome.WelcomeActivity;
+import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
 import com.netease.yunxin.kit.chatkit.ui.custom.ChatConfigManager;
 import com.netease.yunxin.kit.common.ui.activities.BaseLocalActivity;
 import com.netease.yunxin.kit.common.utils.SizeUtils;
@@ -97,6 +98,12 @@ public class SettingActivity extends BaseLocalActivity {
           boolean checked = viewBinding.aiStreamModeSc.isChecked();
           viewModel.setAIStream(this, checked);
         });
+    viewBinding.chatRichTextModeSc.setChecked(IMKitConfigCenter.getEnableRichTextMessage());
+    viewBinding.chatRichTextModeSc.setOnClickListener(
+        v -> {
+          boolean checked = viewBinding.chatRichTextModeSc.isChecked();
+          IMKitConfigCenter.setEnableRichTextMessage(checked);
+        });
     viewBinding.notifyFl.setOnClickListener(
         v -> startActivity(new Intent(SettingActivity.this, SettingNotifyActivity.class)));
 
@@ -121,27 +128,27 @@ public class SettingActivity extends BaseLocalActivity {
 
     viewBinding.tvLogout.setOnClickListener(
         v ->
-                IMKitClient.logout(
-                        new FetchCallback<Void>() {
-                            @Override
-                            public void onError(int errorCode, @NonNull String errorMsg) {
-                                Toast.makeText(
-                                                SettingActivity.this,
-                                                "error code is " + errorCode + ", message is " + errorMsg,
-                                                Toast.LENGTH_SHORT)
-                                        .show();
-                            }
+            IMKitClient.logout(
+                    new FetchCallback<Void>() {
+                        @Override
+                        public void onError(int errorCode, @NonNull String errorMsg) {
+                            Toast.makeText(
+                                            SettingActivity.this,
+                                            "error code is " + errorCode + ", message is " + errorMsg,
+                                            Toast.LENGTH_SHORT)
+                                    .show();
+                        }
 
-                            @Override
-                            public void onSuccess(@Nullable Void data) {
-                                if (getApplicationContext() instanceof IMApplication) {
-                                    ((IMApplication) getApplicationContext())
-                                            .clearActivity(SettingActivity.this);
-                                }
-                                startActivity(new Intent(SettingActivity.this, WelcomeActivity.class));
-                                finish();
+                        @Override
+                        public void onSuccess(@Nullable Void data) {
+                            if (getApplicationContext() instanceof IMApplication) {
+                                ((IMApplication) getApplicationContext())
+                                        .clearActivity(SettingActivity.this);
                             }
-                        }));
+                            startActivity(new Intent(SettingActivity.this, WelcomeActivity.class));
+                            finish();
+                        }
+                    }));
     viewBinding.settingTitleBar.setOnBackIconClickListener(v -> onBackPressed());
     if (AppSkinConfig.getInstance().getAppSkinStyle() == AppSkinConfig.AppSkin.commonSkin) {
       changeStatusBarColor(R.color.color_ededed);
@@ -188,6 +195,9 @@ public class SettingActivity extends BaseLocalActivity {
 
     viewBinding.aiStreamModeSc.setThumbResource(thumbRes);
     viewBinding.aiStreamModeSc.setTrackResource(trackRes);
+
+    viewBinding.chatRichTextModeSc.setThumbResource(thumbRes);
+    viewBinding.chatRichTextModeSc.setTrackResource(trackRes);
   }
 
   @Override

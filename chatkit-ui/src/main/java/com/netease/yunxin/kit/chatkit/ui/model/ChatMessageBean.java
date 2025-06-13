@@ -11,6 +11,7 @@ import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.KEY_REVOKE
 
 import android.text.TextUtils;
 import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
+import com.netease.nimlib.sdk.v2.message.V2NIMMessage;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessagePin;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessageRefer;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessageReferBuilder;
@@ -99,6 +100,10 @@ public class ChatMessageBean implements Serializable {
 
   public IMMessageInfo getMessageData() {
     return messageData;
+  }
+
+  public V2NIMMessage getMessage() {
+    return messageData.getMessage();
   }
 
   public V2NIMMessageAIConfig getAIConfig() {

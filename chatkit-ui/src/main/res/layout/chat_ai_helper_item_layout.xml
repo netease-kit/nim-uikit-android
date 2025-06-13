@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="60dp"
+    android:layout_marginStart="@dimen/dimen_16_dp"
+    android:layout_marginTop="@dimen/dimen_16_dp"
+    android:layout_marginEnd="@dimen/dimen_16_dp"
+    android:background="@drawable/rectangle_white_reduce_bg"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:id="@+id/aiHelperItemLayout">
+
+    <TextView android:id="@+id/aiHelperItemTag"
+        android:layout_width="wrap_content"
+        android:layout_height="32dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="8dp"
+        android:background="@drawable/bg_corner_pink"
+        android:gravity="center"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:textColor="#E75257"
+        android:maxEms="20"
+        android:ellipsize="middle"
+        android:textSize="14sp" />
+
+    <TextView android:id="@+id/aiHelperItemText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:textColor="@color/color_333333"
+        android:maxLines="2"
+        android:ellipsize="end"
+        android:textSize="@dimen/text_size_14" />
+
+    <ImageView
+        android:id="@+id/aiHelperItemEdit"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginEnd="12dp"
+        android:src="@drawable/ic_chat_ai_helper_edit" />
+</LinearLayout>

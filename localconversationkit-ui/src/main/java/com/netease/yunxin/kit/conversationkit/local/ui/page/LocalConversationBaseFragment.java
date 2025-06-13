@@ -16,6 +16,7 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import com.netease.yunxin.kit.alog.ALog;
+import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
 import com.netease.yunxin.kit.common.ui.action.ActionItem;
 import com.netease.yunxin.kit.common.ui.dialog.ListAlertDialog;
 import com.netease.yunxin.kit.common.ui.fragments.BaseFragment;
@@ -59,6 +60,7 @@ public abstract class LocalConversationBaseFragment extends BaseFragment impleme
   private Observer<FetchResult<List<ConversationBean>>> changeObserver;
   // 会话列表@消息变化观察者
   private Observer<FetchResult<List<String>>> aitObserver;
+  private Observer<FetchResult<List<String>>> updateObserver;
   // 会话列表删除观察者
   private Observer<FetchResult<List<String>>> deleteObserver;
   // 会话列表未读数变化观察者
@@ -76,6 +78,8 @@ public abstract class LocalConversationBaseFragment extends BaseFragment impleme
   // 空数据View，当会话列表为空时显示。子类可个性化定制，父类值根据业务数据控制是否展示
   protected View emptyView;
   protected Comparator<ConversationBean> conversationComparator;
+  // 在线状态，订阅超过限制时，根据滑动来动态添加在线状态监听，每次的监听值范围为100
+  protected final int ONLINE_OFFSET = 100;
 
   // 初始化View 子类重新去实现
   public abstract View initViewAndGetRootView(
@@ -271,12 +275,22 @@ public abstract class LocalConversationBaseFragment extends BaseFragment impleme
             if (result.getType() == FetchResult.FetchType.Add && conversationView != null) {
               ALog.d(LIB_TAG, TAG, "aitObserver add, Success");
               ConversationHelper.updateAitInfo(result.getData(), true);
-              conversationView.updateAit(result.getData());
+              conversationView.updateConversation(result.getData());
             } else if (result.getType() == FetchResult.FetchType.Remove
                 && conversationView != null) {
               ALog.d(LIB_TAG, TAG, "aitObserver remove, Success");
               ConversationHelper.updateAitInfo(result.getData(), false);
-              conversationView.updateAit(result.getData());
+              conversationView.updateConversation(result.getData());
+            }
+          }
+        };
+
+    updateObserver =
+        result -> {
+          if (result.getLoadStatus() == LoadStatus.Finish) {
+            if (result.getType() == FetchResult.FetchType.Update && conversationView != null) {
+              ALog.d(LIB_TAG, TAG, "updateObserver add, Success");
+              conversationView.updateConversation(result.getData());
             }
           }
         };
@@ -354,6 +368,7 @@ public abstract class LocalConversationBaseFragment extends BaseFragment impleme
   private void registerObserver() {
     viewModel.getChangeLiveData().observeForever(changeObserver);
     viewModel.getAitLiveData().observeForever(aitObserver);
+    viewModel.getUpdateLiveData().observeForever(updateObserver);
     viewModel.getUnreadCountLiveData().observeForever(unreadCountObserver);
     viewModel.getDeleteLiveData().observeForever(deleteObserver);
     viewModel.getAiRobotLiveData().observeForever(aiRobotObserver);
@@ -362,6 +377,7 @@ public abstract class LocalConversationBaseFragment extends BaseFragment impleme
   private void unregisterObserver() {
     viewModel.getChangeLiveData().removeObserver(changeObserver);
     viewModel.getAitLiveData().removeObserver(aitObserver);
+    viewModel.getUpdateLiveData().removeObserver(updateObserver);
     viewModel.getUnreadCountLiveData().removeObserver(unreadCountObserver);
     viewModel.getDeleteLiveData().removeObserver(deleteObserver);
     viewModel.getAiRobotLiveData().removeObserver(aiRobotObserver);
@@ -482,6 +498,13 @@ public abstract class LocalConversationBaseFragment extends BaseFragment impleme
   @Override
   public void loadMore(Object last) {
     viewModel.loadMore();
+  }
+
+  @Override
+  public void onScrollStateIdle(int first, int end) {
+    if (IMKitConfigCenter.getEnableOnlineStatus() && conversationView != null) {
+      viewModel.dynamicSubscribeConversation(first, end, conversationView.getDataList());
+    }
   }
 
   // 获取会话View

@@ -96,7 +96,7 @@ public abstract class FunChatFragment extends ChatBaseFragment {
   }
 
   @Override
-  protected void clickMessage(IMMessageInfo messageInfo, boolean isReply) {
+  protected void clickMessage(IMMessageInfo messageInfo, int position, boolean isReply) {
     if (messageInfo == null) {
       return;
     }
@@ -109,6 +109,6 @@ public abstract class FunChatFragment extends ChatBaseFragment {
         return;
       }
     }
-    super.clickMessage(messageInfo, isReply);
+    super.clickMessage(messageInfo, position, isReply);
   }
 }

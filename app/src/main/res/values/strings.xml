@@ -12,7 +12,6 @@
 
     <string name="welcome_button">register/login</string>
     <string name="email_login">Email Login</string>
-    <string name="login_text">Login</string>
     <string name="server_config">Select Node</string>
     <string name="tab_session_tab_text">Chats</string>
     <string name="tab_contact_tab_text">Contacts</string>
@@ -31,6 +30,7 @@
     <string name="user_info_email">E-mail</string>
     <string name="user_info_sign">What\'s Up</string>
     <string name="action_copy_success">Coped</string>
+    <string name="login_text">Login</string>
 
     <string name="server_config_china_text">China</string>
     <string name="server_config_oversea_text">Singapore</string>
@@ -56,6 +56,7 @@
     <string name="setting_play_mode">Handset Mode</string>
     <string name="conversation_mode">Cloud Conversation Mode</string>
     <string name="ai_stream_mode">AI Stream Mode</string>
+    <string name="rich_text_mode">Multi Text</string>
     <string name="setting_filter_notify">Filter notifications</string>
     <string name="setting_friend_delete_mode">Delete Remark</string>
     <string name="setting_message_read_mode">Read/Unread</string>

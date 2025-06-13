@@ -39,6 +39,15 @@
             android:textColor="@color/color_white"
             android:textSize="@dimen/text_size_12"
             android:visibility="gone" />
+
+        <View android:id="@+id/onlineView"
+            android:layout_width="@dimen/dimen_12_dp"
+            android:layout_height="@dimen/dimen_12_dp"
+            android:layout_marginEnd="@dimen/dimen_2_dp"
+            android:background="@drawable/ic_online_status"
+            android:layout_gravity="bottom|end"
+            android:visibility="gone"/>
+
     </FrameLayout>
 
     <FrameLayout

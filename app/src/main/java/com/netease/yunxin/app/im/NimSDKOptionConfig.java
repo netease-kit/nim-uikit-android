@@ -71,6 +71,7 @@ public class NimSDKOptionConfig {
     // 打开消息撤回未读数-1的开关
     options.shouldConsiderRevokedMessageUnreadCount = true;
     options.enableV2CloudConversation = DataUtils.getCloudConversationConfigSwitch(context);
+    options.statusBarNotificationConfig.hideContent = DataUtils.getNotificationHideContent(context);
     return options;
   }
 
@@ -130,30 +131,30 @@ public class NimSDKOptionConfig {
   private static MixPushConfig buildMixPushConfig() {
     MixPushConfig config = new MixPushConfig();
     // xiaomi
-//    config.xmAppId = "";
-//    config.xmAppKey = "";
-//    config.xmCertificateName = "";
+    config.xmAppId = AppConfig.xmAppId;
+    config.xmAppKey = AppConfig.xmAppKey;
+    config.xmCertificateName = AppConfig.xmCertificateName;
 
     // huawei
-//    config.hwAppId = "";
-//    config.hwCertificateName = "";
+    config.hwAppId = AppConfig.hwAppId;
+    config.hwCertificateName = AppConfig.hwCertificateName;
 
     // meizu
-//    config.mzAppId = "";
-//    config.mzAppKey = "";
-//    config.mzCertificateName = "";
+    config.mzAppId = AppConfig.mzAppId;
+    config.mzAppKey = AppConfig.mzAppKey;
+    config.mzCertificateName = AppConfig.mzCertificateName;
 
     // fcm
-    //        config.fcmCertificateName = "";
+    //        config.fcmCertificateName = "DEMO_FCM_PUSH";
 
     // vivo
-//    config.vivoCertificateName = "";
+    config.vivoCertificateName = AppConfig.vivoCertificateName;
 
     // oppo
-//    config.oppoAppId = "";
-//    config.oppoAppKey = "";
-//    config.oppoAppSercet = "";
-//    config.oppoCertificateName = "";
-    return null;
+    config.oppoAppId = AppConfig.oppoAppId;
+    config.oppoAppKey = AppConfig.oppoAppKey;
+    config.oppoAppSercet = AppConfig.oppoAppSercet;
+    config.oppoCertificateName = AppConfig.oppoCertificateName;
+    return config;
   }
 }

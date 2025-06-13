@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="280dp">
+
+    <!-- 第一行 -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/first_row"
+        android:layout_width="0dp"
+        android:layout_height="30dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent">
+
+        <!-- 左侧图片 -->
+        <ImageView
+            android:id="@+id/left_icon"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginStart="8dp"
+            android:src="@drawable/ic_chat_ai_helper"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+        <!-- 左侧文字 -->
+        <TextView
+            android:id="@+id/left_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/dimen_4_dp"
+            android:text="@string/chat_ai_helper_title"
+            android:textSize="@dimen/text_size_14"
+            android:textColor="@color/color_333333"
+            android:textStyle="bold"
+            app:layout_constraintStart_toEndOf="@id/left_icon"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+        <!-- 右侧图片 -->
+        <ImageView
+            android:id="@+id/right_icon"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginEnd="8dp"
+            android:src="@drawable/ic_chat_ai_helper_refresh"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rowsContainerRecycler"
+        android:layout_width="0dp"
+        android:layout_height="250dp"
+        android:orientation="vertical"
+        app:layout_constraintTop_toBottomOf="@id/first_row"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent" />
+
+    <LinearLayout
+        android:id="@+id/error_container"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        app:layout_constraintTop_toBottomOf="@id/first_row"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:visibility="visible">
+        <!-- 左侧文字 -->
+        <TextView
+            android:id="@+id/error_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/chat_ai_helper_error_title"
+            android:textSize="@dimen/text_size_16"
+            android:textColor="@color/color_333333"
+            android:textStyle="bold"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="@dimen/dimen_60_dp"/>
+
+        <TextView
+            android:id="@+id/error_button"
+            android:layout_width="@dimen/dimen_80_dp"
+            android:layout_height="32dp"
+            android:text="@string/chat_ai_helper_error_try"
+            android:textSize="@dimen/text_size_14"
+            android:textColor="@color/color_333333"
+            android:background="@drawable/bg_corner_white"
+            android:layout_marginTop="@dimen/dimen_12_dp"
+            android:gravity="center"
+            android:layout_gravity="center_horizontal"/>
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/loading_container"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        app:layout_constraintTop_toBottomOf="@id/first_row"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:visibility="visible">
+
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/aiLoadingLv"
+        android:layout_width="@dimen/dimen_48_dp"
+        android:layout_height="@dimen/dimen_48_dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="@dimen/dimen_80_dp"
+        app:lottie_fileName="lottie/chat_ai_helper_loading.json"
+        app:lottie_loop="true"/>
+    </LinearLayout>
+
+    <!-- 三行内容 -->
+    <LinearLayout
+        android:id="@+id/rows_container"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        app:layout_constraintTop_toBottomOf="@id/first_row"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginTop="@dimen/dimen_12_dp"
+        android:paddingTop="@dimen/dimen_4_dp"
+        android:visibility="gone"
+        android:paddingBottom="@dimen/dimen_4_dp">
+
+        <!-- 三行，复制三次即可 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:orientation="horizontal"
+            android:background="@drawable/rectangle_white_reduce_bg"
+            android:gravity="center_vertical"
+            android:layout_marginStart="@dimen/dimen_16_dp"
+            android:layout_marginEnd="@dimen/dimen_16_dp">
+
+            <!-- 左侧圆角背景文字 -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/dimen_32_dp"
+                android:layout_marginStart="@dimen/dimen_12_dp"
+                android:layout_marginEnd="12dp"
+                android:gravity="center"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:text="标签"
+                android:textSize="@dimen/text_size_12"
+                android:textColor="#F159A2"
+                android:background="@drawable/bg_corner_pink"/>
+
+            <!-- 中间文字 -->
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="中间文字"
+                android:textSize="@dimen/text_size_14"
+                android:textColor="@color/color_333333"/>
+
+            <!-- 右侧图标 -->
+            <ImageView android:id="@+id/firstEditIv"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginEnd="12dp"
+                android:src="@drawable/ic_chat_ai_helper_edit"/>
+        </LinearLayout>
+
+        <!-- 第二行 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:orientation="horizontal"
+            android:background="@drawable/rectangle_white_reduce_bg"
+            android:gravity="center_vertical"
+            android:layout_marginTop="@dimen/dimen_16_dp"
+            android:layout_marginStart="@dimen/dimen_16_dp"
+            android:layout_marginEnd="@dimen/dimen_16_dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="32dp"
+                android:layout_marginStart="12dp"
+                android:layout_marginEnd="8dp"
+                android:gravity="center"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:text="标签2"
+                android:textSize="14sp"
+                android:textColor="#E75257"
+                android:background="@drawable/bg_corner_pink2"/>
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="中间文字2"
+                android:textSize="@dimen/text_size_14"
+                android:textColor="@color/color_333333"/>
+
+            <ImageView android:id="@+id/secondEditIv"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginEnd="12dp"
+                android:src="@drawable/ic_chat_ai_helper_edit"/>
+        </LinearLayout>
+
+        <!-- 第三行 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:orientation="horizontal"
+            android:background="@drawable/rectangle_white_reduce_bg"
+            android:gravity="center_vertical"
+            android:layout_marginTop="@dimen/dimen_16_dp"
+            android:layout_marginStart="@dimen/dimen_16_dp"
+            android:layout_marginEnd="@dimen/dimen_16_dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="32dp"
+                android:layout_marginStart="12dp"
+                android:layout_marginEnd="8dp"
+                android:gravity="center"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:text="标签3"
+                android:textSize="14sp"
+                android:textColor="#598CF1"
+                android:background="@drawable/bg_corner_blue"/>
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="中间文字3"
+                android:textSize="@dimen/text_size_14"
+                android:textColor="@color/color_333333"/>
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginEnd="12dp"
+                android:src="@drawable/ic_chat_ai_helper_edit"/>
+        </LinearLayout>
+
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

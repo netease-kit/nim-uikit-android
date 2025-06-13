@@ -17,6 +17,8 @@ import com.netease.nimlib.sdk.v2.conversation.V2NIMConversationListener;
 import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
 import com.netease.nimlib.sdk.v2.conversation.model.V2NIMConversation;
 import com.netease.nimlib.sdk.v2.conversation.result.V2NIMConversationResult;
+import com.netease.nimlib.sdk.v2.subscription.V2NIMSubscribeListener;
+import com.netease.nimlib.sdk.v2.subscription.model.V2NIMUserStatus;
 import com.netease.nimlib.sdk.v2.team.V2NIMTeamListener;
 import com.netease.nimlib.sdk.v2.team.model.V2NIMTeam;
 import com.netease.nimlib.sdk.v2.user.V2NIMUser;
@@ -24,6 +26,7 @@ import com.netease.nimlib.sdk.v2.utils.V2NIMConversationIdUtil;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.ChatConstants;
 import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
+import com.netease.yunxin.kit.chatkit.OnlineStatusManager;
 import com.netease.yunxin.kit.chatkit.impl.ConversationListenerImpl;
 import com.netease.yunxin.kit.chatkit.impl.LoginDetailListenerImpl;
 import com.netease.yunxin.kit.chatkit.impl.TeamListenerImpl;
@@ -32,6 +35,7 @@ import com.netease.yunxin.kit.chatkit.manager.AIUserManager;
 import com.netease.yunxin.kit.chatkit.repo.ContactRepo;
 import com.netease.yunxin.kit.chatkit.repo.ConversationRepo;
 import com.netease.yunxin.kit.chatkit.repo.TeamRepo;
+import com.netease.yunxin.kit.chatkit.utils.ConversationIdUtils;
 import com.netease.yunxin.kit.chatkit.utils.ErrorUtils;
 import com.netease.yunxin.kit.common.ui.utils.ToastX;
 import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
@@ -86,6 +90,8 @@ public class ConversationViewModel extends BaseViewModel {
   private final MutableLiveData<FetchResult<List<String>>> aitLiveData = new MutableLiveData<>();
   // 删除会话LiveData，用于通知会话删除结果
   private final MutableLiveData<FetchResult<List<String>>> deleteLiveData = new MutableLiveData<>();
+  // 更新会话
+  private final MutableLiveData<FetchResult<List<String>>> updateLiveData = new MutableLiveData<>();
 
   // 置顶AI机器人列表
   private final MutableLiveData<FetchResult<List<AIUserBean>>> aiRobotLiveData =
@@ -103,6 +109,12 @@ public class ConversationViewModel extends BaseViewModel {
   // 数据查询是否已经开始
   private boolean hasStart = false;
 
+  private int onlineScrollStart = 0;
+  private int onlineScrollEnd = 0;
+  private int onlineDiff = 20;
+
+  private List<String> onlineScrollAccountList = new ArrayList<>();
+
   public ConversationViewModel() {
     // 注册会话监听
     ConversationRepo.addConversationListener(conversationListener);
@@ -116,6 +128,10 @@ public class ConversationViewModel extends BaseViewModel {
     if (IMKitConfigCenter.getEnableAIUser()) {
       ContactRepo.addContactListener(contactListener);
       AIUserManager.addAIUserChangeListener(aiUserChangeListener);
+    }
+    // 如果开启在线状态
+    if (IMKitConfigCenter.getEnableOnlineStatus()) {
+      OnlineStatusManager.addUserOnlineListener(onlineListener);
     }
   }
 
@@ -249,6 +265,10 @@ public class ConversationViewModel extends BaseViewModel {
     return aiRobotLiveData;
   }
 
+  public MutableLiveData<FetchResult<List<String>>> getUpdateLiveData() {
+    return updateLiveData;
+  }
+
   /** 获取未读数 */
   public void getUnreadCount() {
     int unreadCount = ConversationRepo.getTotalUnreadCount();
@@ -326,6 +346,9 @@ public class ConversationViewModel extends BaseViewModel {
               hasMore = resultData.size() == PAGE_LIMIT;
               mOffset = data.getOffset();
               checkConversationNameAndRequest(resultData);
+              if (IMKitConfigCenter.getEnableOnlineStatus() && offSet == 0) {
+                subscribeOnlineStatus(resultData);
+              }
             }
             queryLiveData.setValue(result);
             hasStart = false;
@@ -502,7 +525,13 @@ public class ConversationViewModel extends BaseViewModel {
           result.setType(FetchResult.FetchType.Add);
           List<V2NIMConversation> data = new ArrayList<>();
           data.add(conversation);
-          convertAndNotify(result, data);
+          List<ConversationBean> resultData = createConversationBean(data);
+          // 先更新在线状态数据
+          if (IMKitConfigCenter.getEnableOnlineStatus()) {
+            subscribeOnlineStatus(resultData);
+          }
+          result.setData(resultData);
+          changeLiveData.setValue(result);
         }
 
         @Override
@@ -598,6 +627,32 @@ public class ConversationViewModel extends BaseViewModel {
         }
       };
 
+  protected V2NIMSubscribeListener onlineListener =
+      new V2NIMSubscribeListener() {
+        @Override
+        public void onUserStatusChanged(List<V2NIMUserStatus> userStatusList) {
+          if (userStatusList == null || userStatusList.isEmpty()) {
+            return;
+          }
+          List<String> conversationIdList = new ArrayList<>();
+          for (V2NIMUserStatus userStatus : userStatusList) {
+            if (userStatus != null && userStatus.getAccountId() != null) {
+              String conversationId =
+                  ConversationIdUtils.conversationId(
+                      userStatus.getAccountId(), V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P);
+              conversationIdList.add(conversationId);
+            }
+          }
+          if (!conversationIdList.isEmpty()) {
+            FetchResult<List<String>> updateResult =
+                new FetchResult<>(FetchResult.FetchType.Update);
+            updateResult.setData(conversationIdList);
+            updateResult.setLoadStatus(LoadStatus.Finish);
+            updateLiveData.setValue(updateResult);
+          }
+        }
+      };
+
   protected AIUserChangeListener aiUserChangeListener =
       new AIUserChangeListener() {
         @Override
@@ -649,6 +704,61 @@ public class ConversationViewModel extends BaseViewModel {
   // 是否还有更多数据
   public boolean hasMore() {
     return hasMore;
+  }
+
+  protected void subscribeOnlineStatus(List<ConversationBean> conversationBeanList) {
+    if (conversationBeanList == null) {
+      return;
+    }
+    List<String> accountList = new ArrayList<>();
+    for (ConversationBean conversationBean : conversationBeanList) {
+      if (conversationBean.getConversationType()
+              == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P
+          && !AIUserManager.isAIUser(conversationBean.getTargetId())) {
+        accountList.add(conversationBean.getTargetId());
+      }
+    }
+    if (!accountList.isEmpty()) {
+      OnlineStatusManager.subscribeUserStatus(accountList);
+      // 刷新在线状态
+      FetchResult<List<String>> updateResult = new FetchResult<>(FetchResult.FetchType.Update);
+      updateResult.setData(accountList);
+      updateResult.setLoadStatus(LoadStatus.Finish);
+      updateLiveData.setValue(updateResult);
+    }
+  }
+
+  /** 根据滑动来订阅会话在线状态 前置条件：订阅数量超过3000限制 */
+  public void dynamicSubscribeConversation(
+      int start, int end, List<ConversationBean> conversationBeanList) {
+    if (IMKitConfigCenter.getEnableOnlineStatus() && conversationBeanList != null) {
+      if (start < PAGE_LIMIT && end < PAGE_LIMIT) {
+        return;
+      }
+      int startIndex = start - onlineDiff > PAGE_LIMIT ? start - onlineDiff : PAGE_LIMIT + 1;
+      int endIndex = end + onlineDiff > PAGE_LIMIT ? end + onlineDiff : PAGE_LIMIT + 1;
+      List<String> accountList = new ArrayList<>();
+      for (int i = startIndex; i < endIndex && i < conversationBeanList.size(); i++) {
+        String conversationId = conversationBeanList.get(i).getConversationId();
+        if (ConversationIdUtils.conversationType(conversationId)
+            == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P) {
+          accountList.add(ConversationIdUtils.conversationTargetId(conversationId));
+        }
+      }
+      if (!accountList.isEmpty()) {
+        if (!onlineScrollAccountList.isEmpty()) {
+          OnlineStatusManager.unsubscribeUserStatus(onlineScrollAccountList);
+          onlineScrollAccountList.clear();
+        }
+        onlineScrollAccountList.addAll(accountList);
+        OnlineStatusManager.subscribeUserStatus(accountList);
+        // 刷新在线状态
+        FetchResult<List<String>> updateResult = new FetchResult<>(FetchResult.FetchType.Update);
+        updateResult.setData(accountList);
+        updateResult.setLoadStatus(LoadStatus.Finish);
+        updateLiveData.setValue(updateResult);
+      }
+    }
   }
 
   @Override

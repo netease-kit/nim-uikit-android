@@ -17,6 +17,10 @@ public abstract class BaseContactBean extends IndexPinyinBean {
   /** start as 0, weight bigger means item will show higher 0 for Friends Data */
   public int weight;
 
+  public String getAccountId() {
+    return "";
+  };
+
   public interface ContactBeanWeight {
     /** base weight,for friend item */
     int BASE_WEIGHT = 0;

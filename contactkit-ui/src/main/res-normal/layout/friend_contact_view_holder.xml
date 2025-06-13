@@ -39,6 +39,14 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toRightOf="@+id/rb_selector" />
 
+    <View android:id="@+id/onlineView"
+        android:layout_width="@dimen/dimen_12_dp"
+        android:layout_height="@dimen/dimen_12_dp"
+        app:layout_constraintBottom_toBottomOf="@+id/avatar_view"
+        app:layout_constraintLeft_toRightOf="@+id/avatar_view"
+        android:layout_marginStart="-6dp"
+        android:visibility="gone"
+        android:background="@drawable/ic_online_status"/>
 
     <TextView
         android:id="@+id/tv_name"
