@@ -56,48 +56,66 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/replyLayout">
 
-
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="@dimen/dimen_32_dp"
-                    android:orientation="vertical">
+                    android:orientation="horizontal">
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical">
 
-                    <EditText
-                        android:id="@+id/chatRichEt"
-                        android:layout_width="match_parent"
-                        android:layout_height="@dimen/dimen_40_dp"
-                        android:background="@null"
-                        android:ellipsize="end"
-                        android:hint="@string/chat_message_rich_title_hint"
-                        android:imeOptions="actionSend"
-                        android:inputType="text"
-                        android:maxLength="20"
-                        android:paddingStart="@dimen/dimen_12_dp"
-                        android:singleLine="true"
-                        android:textStyle="bold"
-                        android:textColorHint="@color/color_b3b7bc"
-                        android:textCursorDrawable="@null"
-                        android:textSize="@dimen/text_size_16"
-                        android:visibility="gone"
-                        tools:ignore="LabelFor" />
+                        <EditText
+                            android:id="@+id/chatRichEt"
+                            android:layout_width="match_parent"
+                            android:layout_height="@dimen/dimen_40_dp"
+                            android:background="@null"
+                            android:ellipsize="end"
+                            android:hint="@string/chat_message_rich_title_hint"
+                            android:imeOptions="actionSend"
+                            android:inputType="text"
+                            android:maxLength="20"
+                            android:paddingStart="@dimen/dimen_12_dp"
+                            android:singleLine="true"
+                            android:textStyle="bold"
+                            android:textColorHint="@color/color_b3b7bc"
+                            android:textCursorDrawable="@null"
+                            android:textSize="@dimen/text_size_16"
+                            android:visibility="gone"
+                            tools:ignore="LabelFor" />
 
-                    <EditText
-                        android:id="@+id/chat_message_input_et"
-                        android:layout_width="match_parent"
-                        android:layout_height="@dimen/dimen_40_dp"
-                        android:background="@null"
-                        android:ellipsize="end"
-                        android:hint="@string/fun_chat_input_hint_tips"
-                        android:imeOptions="actionSend"
-                        android:inputType="textNoSuggestions"
-                        android:maxLines="3"
-                        android:maxLength="2000"
-                        android:paddingStart="@dimen/dimen_12_dp"
-                        android:textColorHint="@color/color_b3b7bc"
-                        android:textCursorDrawable="@null"
-                        android:textSize="@dimen/text_size_16"
-                        tools:ignore="LabelFor" />
+                        <EditText
+                            android:id="@+id/chat_message_input_et"
+                            android:layout_width="match_parent"
+                            android:layout_height="@dimen/dimen_40_dp"
+                            android:background="@null"
+                            android:ellipsize="end"
+                            android:hint="@string/fun_chat_input_hint_tips"
+                            android:imeOptions="actionSend"
+                            android:inputType="textNoSuggestions"
+                            android:maxLines="3"
+                            android:maxLength="2000"
+                            android:paddingStart="@dimen/dimen_12_dp"
+                            android:textColorHint="@color/color_b3b7bc"
+                            android:textCursorDrawable="@null"
+                            android:textSize="@dimen/text_size_16"
+                            tools:ignore="LabelFor" />
+                    </LinearLayout>
+                    <LinearLayout
+                        android:id="@+id/chatMsgInputSwitchLayout"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:orientation="horizontal"
+                        android:layout_gravity="end">
+                        <ImageView
+                            android:id="@+id/chatMsgInputSwitch"
+                            android:layout_width="@dimen/dimen_38_dp"
+                            android:layout_height="match_parent"
+                            android:paddingStart="@dimen/dimen_6_dp"
+                            android:paddingEnd="@dimen/dimen_12_dp"
+                            android:src="@drawable/ic_chat_open_rich_text" />
+                    </LinearLayout>
                 </LinearLayout>
 
 
@@ -114,22 +132,6 @@
                     android:textSize="@dimen/text_size_16"
                     android:textStyle="bold"
                     android:visibility="gone" />
-
-
-                <FrameLayout
-                    android:id="@+id/chatMsgInputSwitchLayout"
-                    android:layout_width="@dimen/dimen_32_dp"
-                    android:layout_height="match_parent"
-                    android:layout_gravity="end">
-
-                    <ImageView
-                        android:id="@+id/chatMsgInputSwitch"
-                        android:layout_width="@dimen/dimen_20_dp"
-                        android:layout_height="@dimen/dimen_20_dp"
-                        android:layout_marginTop="@dimen/dimen_10_dp"
-                        android:layout_marginEnd="@dimen/dimen_10_dp"
-                        android:src="@drawable/ic_chat_open_rich_text" />
-                </FrameLayout>
                 <FrameLayout
                     android:id="@+id/chatinputMuteLayout"
                     android:layout_width="match_parent"
@@ -238,6 +240,14 @@
             android:layout_width="match_parent"
             android:layout_height="@dimen/dimen_188_dp"
             android:visibility="gone" />
+
+        <com.netease.yunxin.kit.chatkit.ui.normal.view.AIHelperView
+            android:id="@+id/chat_message_ai_helper_view"
+            android:layout_width="match_parent"
+            android:layout_height="288dp"
+            android:visibility="gone"
+            android:background="@drawable/fun_bg_chat_ai_helper"
+            app:layout_constraintTop_toBottomOf="@id/chat_message_input_bar_layout"/>
     </FrameLayout>
 
     <androidx.constraintlayout.widget.Group

@@ -7,6 +7,7 @@ package com.netease.yunxin.app.im;
 import android.app.Activity;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.text.TextUtils;
 import androidx.annotation.NonNull;
 import androidx.multidex.MultiDexApplication;
@@ -21,7 +22,6 @@ import com.netease.yunxin.app.im.utils.Constant;
 import com.netease.yunxin.app.im.utils.DataUtils;
 import com.netease.yunxin.app.im.welcome.WelcomeActivity;
 import com.netease.yunxin.kit.alog.ALog;
-import com.netease.yunxin.kit.chatkit.repo.SettingRepo;
 import com.netease.yunxin.kit.common.ui.utils.AppLanguageConfig;
 import com.netease.yunxin.kit.corekit.im2.IMKitClient;
 import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
@@ -89,10 +89,11 @@ public class IMApplication extends MultiDexApplication {
       e.printStackTrace();
     }
     //设置推送提醒开关，根据用户设置的推送提醒开关状态，设置是否接收推送消息
-    IMKitClient.toggleNotification(SettingRepo.isPushNotify());
+    IMKitClient.toggleNotification(DataUtils.getToggleNotification(this));
     // 注册推送消息处理器，用于处理推送消息
     IMKitClient.registerMixPushMessageHandler(new PushMessageHandler());
-
+    ALog.d(TAG, "Performance application init Finished timestamp:" + SystemClock.elapsedRealtime());
+    // crash
   }
 
   private final List<Activity> activities = new ArrayList<>();

@@ -14,6 +14,7 @@ import androidx.annotation.Nullable;
 
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.v2.auth.option.V2NIMLoginOption;
+import com.netease.yunxin.app.im.AppConfig;
 import com.netease.yunxin.app.im.IMApplication;
 import com.netease.yunxin.app.im.R;
 import com.netease.yunxin.app.im.databinding.ActivityWelcomeBinding;
@@ -63,8 +64,8 @@ public class WelcomeActivity extends BaseActivity {
         ALog.d(Constant.PROJECT_TAG, TAG, "startLogin");
 
         //填入你的 account and token
-        String account = "";
-        String token = "";
+        String account = AppConfig.account;
+        String token = AppConfig.token;
         if (!TextUtils.isEmpty(account) && !TextUtils.isEmpty(token)) {
             loginIM(account, token);
         } else {

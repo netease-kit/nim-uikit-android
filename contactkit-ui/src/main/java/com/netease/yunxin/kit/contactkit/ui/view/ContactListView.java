@@ -49,6 +49,8 @@ public class ContactListView extends FrameLayout
 
   private ContactListViewAttrs contactListViewAttrs;
 
+  private LinearLayoutManager contactLayoutManager;
+
   private final int LOAD_MORE_DIFF = 5;
 
   public ContactListView(Context context) {
@@ -76,27 +78,30 @@ public class ContactListView extends FrameLayout
 
   private void initRecyclerView() {
     decoration = new SuspensionDecoration(getContext(), new ArrayList<>());
-    LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
+    contactLayoutManager = new LinearLayoutManager(getContext());
     contactAdapter = new ContactAdapter();
-    binding.contactList.setLayoutManager(layoutManager);
+    binding.contactList.setLayoutManager(contactLayoutManager);
     binding.contactList.addItemDecoration(
         decoration.setPaddingLeft(getContext().getResources().getDimension(R.dimen.dimen_20_dp)));
     binding.contactList.setAdapter(contactAdapter);
-    binding.indexBar.setLayoutManager(layoutManager);
+    binding.indexBar.setLayoutManager(contactLayoutManager);
     binding.contactList.addOnScrollListener(
         new RecyclerView.OnScrollListener() {
           @Override
           public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
             super.onScrollStateChanged(recyclerView, newState);
             if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-              int position = layoutManager.findLastVisibleItemPosition();
-              if (loadMoreListener != null
-                  && loadMoreListener.hasMore()
-                  && contactAdapter.getItemCount() < position + LOAD_MORE_DIFF
-                  && contactAdapter.getItemCount() > 0) {
-                BaseContactBean last =
-                    contactAdapter.getDataList().get(contactAdapter.getItemCount() - 1);
-                loadMoreListener.loadMore(last);
+              int position = contactLayoutManager.findLastVisibleItemPosition();
+              int startPosition = contactLayoutManager.findFirstVisibleItemPosition();
+              if (loadMoreListener != null) {
+                if (loadMoreListener.hasMore()
+                    && contactAdapter.getItemCount() < position + LOAD_MORE_DIFF
+                    && contactAdapter.getItemCount() > 0) {
+                  BaseContactBean last =
+                      contactAdapter.getDataList().get(contactAdapter.getItemCount() - 1);
+                  loadMoreListener.loadMore(last);
+                }
+                loadMoreListener.onScrollStateIdle(startPosition, position);
               }
             }
           }
@@ -114,6 +119,14 @@ public class ContactListView extends FrameLayout
     if (contactAdapter != null) {
       contactAdapter.setViewHolderFactory(viewHolderFactory);
     }
+  }
+
+  public int getFirstVisiblePosition() {
+    return contactLayoutManager.findFirstVisibleItemPosition();
+  }
+
+  public int getLastVisiblePosition() {
+    return contactLayoutManager.findLastVisibleItemPosition();
   }
 
   @Override
@@ -273,6 +286,13 @@ public class ContactListView extends FrameLayout
         binding.indexBar.setSourceData(contactAdapter.getDataList()).invalidate();
       }
       decoration.setData(contactAdapter.getDataList());
+    }
+  }
+
+  @Override
+  public void updateContactData(List<String> accountIdList) {
+    if (contactAdapter != null) {
+      contactAdapter.updateData(accountIdList);
     }
   }
 

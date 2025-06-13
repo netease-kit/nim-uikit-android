@@ -71,11 +71,14 @@ public class ConversationView extends FrameLayout {
             super.onScrollStateChanged(recyclerView, newState);
             if (newState == RecyclerView.SCROLL_STATE_IDLE) {
               int position = layoutManager.findLastVisibleItemPosition();
-              if (loadMoreListener != null
-                  && loadMoreListener.hasMore()
-                  && adapter.getItemCount() < position + LOAD_MORE_DIFF) {
-                ConversationBean last = adapter.getData(adapter.getItemCount() - 1);
-                loadMoreListener.loadMore(last);
+              if (loadMoreListener != null) {
+                if (loadMoreListener.hasMore()
+                    && adapter.getItemCount() < position + LOAD_MORE_DIFF) {
+                  ConversationBean last = adapter.getData(adapter.getItemCount() - 1);
+                  loadMoreListener.loadMore(last);
+                }
+                int startPosition = layoutManager.findFirstVisibleItemPosition();
+                loadMoreListener.onScrollStateIdle(startPosition, position);
               }
             }
           }
@@ -184,6 +187,20 @@ public class ConversationView extends FrameLayout {
     return 0;
   }
 
+  /**
+   * 获取指定位置的会话ID
+   *
+   * @param start
+   * @param end
+   * @return
+   */
+  public List<String> getContentDataID(int start, int end) {
+    if (adapter != null) {
+      return adapter.getContentDataID(start, end);
+    }
+    return null;
+  }
+
   // 移除会话
   public void removeConversation(String id) {
     if (adapter != null) {
@@ -192,9 +209,9 @@ public class ConversationView extends FrameLayout {
   }
 
   // 更新@信息
-  public void updateAit(List<String> idList) {
+  public void updateConversation(List<String> idList) {
     if (adapter != null) {
-      adapter.updateAit(idList);
+      adapter.updateItem(idList);
     }
   }
 
@@ -210,6 +227,13 @@ public class ConversationView extends FrameLayout {
     if (adapter != null) {
       adapter.removeStickTop(id);
     }
+  }
+
+  public List<ConversationBean> getDataList() {
+    if (adapter != null) {
+      return adapter.getConversationList();
+    }
+    return null;
   }
 
   public void setShowTag(boolean show) {

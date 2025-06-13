@@ -5,6 +5,9 @@
 package com.netease.yunxin.kit.chatkit.ui.common;
 
 import android.text.TextUtils;
+import com.netease.nimlib.sdk.v2.ai.model.V2NIMAIUser;
+import com.netease.nimlib.sdk.v2.ai.params.V2NIMAIModelCallContent;
+import com.netease.nimlib.sdk.v2.ai.params.V2NIMAIModelCallMessage;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessage;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessageCreator;
 import com.netease.nimlib.sdk.v2.message.attachment.V2NIMMessageAudioAttachment;
@@ -12,7 +15,15 @@ import com.netease.nimlib.sdk.v2.message.attachment.V2NIMMessageFileAttachment;
 import com.netease.nimlib.sdk.v2.message.attachment.V2NIMMessageImageAttachment;
 import com.netease.nimlib.sdk.v2.message.attachment.V2NIMMessageLocationAttachment;
 import com.netease.nimlib.sdk.v2.message.attachment.V2NIMMessageVideoAttachment;
+import com.netease.nimlib.sdk.v2.message.config.V2NIMMessageConfig;
+import com.netease.nimlib.sdk.v2.message.config.V2NIMMessagePushConfig;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
+import com.netease.nimlib.sdk.v2.message.params.V2NIMMessageAIConfigParams;
+import com.netease.nimlib.sdk.v2.message.params.V2NIMSendMessageParams;
+import com.netease.nimlib.sdk.v2.utils.V2NIMConversationIdUtil;
+import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
+import com.netease.yunxin.kit.chatkit.manager.AIUserManager;
+import java.util.List;
 
 public class MessageCreator {
 
@@ -109,5 +120,58 @@ public class MessageCreator {
       result.setText(message.getText());
     }
     return result;
+  }
+
+  public static V2NIMSendMessageParams createSendMessageParam(
+      V2NIMMessage message,
+      String conversationId,
+      List<String> pushList,
+      String remoteExtension,
+      V2NIMAIUser aiAgent,
+      List<V2NIMAIModelCallMessage> aiMessage,
+      boolean needACK,
+      boolean showRead) {
+    V2NIMMessageConfig.V2NIMMessageConfigBuilder configBuilder =
+        V2NIMMessageConfig.V2NIMMessageConfigBuilder.builder();
+    configBuilder.withReadReceiptEnabled(needACK && showRead);
+    V2NIMMessagePushConfig.V2NIMMessagePushConfigBuilder pushConfigBuilder =
+        V2NIMMessagePushConfig.V2NIMMessagePushConfigBuilder.builder();
+    if (pushList != null && !pushList.isEmpty()) {
+      pushConfigBuilder.withForcePush(true).withForcePushAccountIds(pushList);
+    }
+    V2NIMSendMessageParams.V2NIMSendMessageParamsBuilder paramsBuilder =
+        V2NIMSendMessageParams.V2NIMSendMessageParamsBuilder.builder()
+            .withMessageConfig(configBuilder.build())
+            .withPushConfig(pushConfigBuilder.build());
+
+    //remoteExtension设置
+    if (!TextUtils.isEmpty(remoteExtension)) {
+      message.setServerExtension(remoteExtension);
+    }
+
+    //@ AI机器人代理设置
+    V2NIMMessageAIConfigParams aiConfigParams = null;
+    String chatId = V2NIMConversationIdUtil.conversationTargetId(conversationId);
+    if (aiAgent == null && AIUserManager.isAIUser(chatId)) {
+      aiAgent = AIUserManager.getAIUserById(chatId);
+    }
+    if (aiAgent != null) {
+      aiConfigParams = new V2NIMMessageAIConfigParams(aiAgent.getAccountId());
+      if (!TextUtils.isEmpty(MessageHelper.getAIContentMsg(message))) {
+        V2NIMAIModelCallContent content =
+            new V2NIMAIModelCallContent(MessageHelper.getAIContentMsg(message), 0);
+        aiConfigParams.setContent(content);
+      }
+      boolean aiStream = IMKitConfigCenter.getEnableAIStream();
+      aiConfigParams.setAIStream(aiStream);
+    }
+    //AI消息上下文设置
+    if (aiConfigParams != null && aiMessage != null && !aiMessage.isEmpty()) {
+      aiConfigParams.setMessages(aiMessage);
+    }
+    if (aiConfigParams != null) {
+      paramsBuilder.withAIConfig(aiConfigParams);
+    }
+    return paramsBuilder.build();
   }
 }

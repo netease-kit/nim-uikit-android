@@ -135,4 +135,7 @@ public class BaseVerifyListActivity extends BaseListActivity implements ILoadLis
   public void loadMore(Object last) {
     viewModel.fetchVerifyList(true);
   }
+
+  @Override
+  public void onScrollStateIdle(int first, int end) {}
 }

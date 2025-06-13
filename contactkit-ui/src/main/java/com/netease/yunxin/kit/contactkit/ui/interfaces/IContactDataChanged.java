@@ -44,6 +44,12 @@ public interface IContactDataChanged {
   void updateContactData(BaseContactBean data);
 
   /**
+   * update data which have been added
+   *
+   * @param accountId
+   */
+  void updateContactData(List<String> accountId);
+  /**
    * update data as list(remove all this type data and add new data)
    *
    * @param viewType the viewType been update

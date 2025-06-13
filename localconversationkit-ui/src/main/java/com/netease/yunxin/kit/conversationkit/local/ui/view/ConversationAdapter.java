@@ -197,8 +197,8 @@ public class ConversationAdapter extends RecyclerView.Adapter<BaseViewHolder> {
     }
   }
 
-  // 更新@信息
-  public void updateAit(List<String> idList) {
+  // 更新信息
+  public void updateItem(List<String> idList) {
     for (String id : idList) {
       for (int j = 0; j < conversationList.size(); j++) {
         if (TextUtils.equals(conversationList.get(j).getConversationId(), id)) {
@@ -295,6 +295,17 @@ public class ConversationAdapter extends RecyclerView.Adapter<BaseViewHolder> {
     return conversationList.size();
   }
 
+  public List<String> getContentDataID(int start, int end) {
+    List<String> result = new ArrayList<>();
+    if (start < 0) {
+      return result;
+    }
+    for (int index = start; index < conversationList.size() && index < end; index++) {
+      result.add(conversationHeaderList.get(index).getConversationId());
+    }
+    return result;
+  }
+
   public ConversationBean getData(int index) {
     if (index >= 0 && index < conversationHeaderList.size()) {
       return conversationHeaderList.get(index);
@@ -303,5 +314,9 @@ public class ConversationAdapter extends RecyclerView.Adapter<BaseViewHolder> {
       return conversationList.get(index - conversationHeaderList.size());
     }
     return null;
+  }
+
+  public List<ConversationBean> getConversationList() {
+    return conversationList;
   }
 }

@@ -61,4 +61,9 @@ public class ContactFriendBean extends BaseContactBean {
   public int hashCode() {
     return Objects.hash(data);
   }
+
+  @Override
+  public String getAccountId() {
+    return data.getAccount();
+  }
 }

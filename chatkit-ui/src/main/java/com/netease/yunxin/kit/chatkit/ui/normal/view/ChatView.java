@@ -372,6 +372,7 @@ public class ChatView extends LinearLayout implements IChatView, AitTextChangeLi
       aitTextManager.setIgnoreTextChange(true);
     }
     hideRichInputPanel();
+    binding.chatBottomInputLayout.hideAndClearRichInput();
     binding.chatBottomInputLayout.setInputEditTextContent(content);
     if (aitTextManager != null) {
       aitTextManager.setIgnoreTextChange(false);
@@ -403,6 +404,11 @@ public class ChatView extends LinearLayout implements IChatView, AitTextChangeLi
     if (binding.chatRichLayout.getVisibility() == VISIBLE) {
       binding.chatRichContentEt.requestFocus();
     }
+  }
+
+  @Override
+  public void clearReplyMessage() {
+    binding.chatBottomInputLayout.clearReplyMsg();
   }
 
   public void setTypeState(boolean isTyping) {
@@ -499,8 +505,14 @@ public class ChatView extends LinearLayout implements IChatView, AitTextChangeLi
     binding.messageView.updateMessageStatus(message);
   }
 
+  @Override
   public void updateMessage(V2NIMMessage message, Object payload) {
     binding.messageView.updateMessage(message, payload);
+  }
+
+  @Override
+  public void updateMessage(String msgClientId, Object payload) {
+    binding.messageView.updateMessage(msgClientId, payload);
   }
 
   @Override
@@ -554,6 +566,7 @@ public class ChatView extends LinearLayout implements IChatView, AitTextChangeLi
     return binding.chatViewBodyTop;
   }
 
+  @Override
   public FrameLayout getChatBodyBottomLayout() {
     return binding.chatViewBodyBottom;
   }

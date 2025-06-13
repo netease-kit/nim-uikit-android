@@ -23,6 +23,8 @@ public class DataUtils {
 
   private static Boolean cloudConversation = null;
   private static Boolean aiStream = null;
+  private static Boolean notificationHideContent = null;
+  private static Boolean toggleNotification = null;
 
   /** read appKey from manifest */
   public static String readAppKey(Context context) {
@@ -178,6 +180,59 @@ public class DataUtils {
     SharedPreferences sharedPreferences =
         context.getSharedPreferences(Constant.SERVER_CONFIG_FILE, Context.MODE_MULTI_PROCESS);
     return sharedPreferences;
+  }
+
+  // 获取在线通知是否展示内容配置开关
+  public static boolean getNotificationHideContent(Context context) {
+    if (notificationHideContent == null) {
+      SharedPreferences sharedPreferences =
+          context.getSharedPreferences(
+              Constant.NOTIFICATION_CONFIG_FILE, Context.MODE_MULTI_PROCESS);
+      notificationHideContent =
+          sharedPreferences.getBoolean(Constant.NOTIFICATION_HIDE_CONFIG, true);
+      if (toggleNotification == null) {
+        toggleNotification =
+            sharedPreferences.getBoolean(Constant.TOGGLE_NOTIFICATION_CONFIG, true);
+      }
+    }
+    return notificationHideContent;
+  }
+
+  // 保存AI流式输出配置开关
+  public static void saveNotificationHideContent(Context context, boolean configSwitch) {
+    SharedPreferences.Editor editor =
+        context
+            .getSharedPreferences(Constant.NOTIFICATION_CONFIG_FILE, Context.MODE_MULTI_PROCESS)
+            .edit();
+    editor.putBoolean(Constant.NOTIFICATION_HIDE_CONFIG, configSwitch);
+    notificationHideContent = configSwitch;
+    editor.commit();
+  }
+
+  // 获取在线通知是否展示内容配置开关
+  public static boolean getToggleNotification(Context context) {
+    if (toggleNotification == null) {
+      SharedPreferences sharedPreferences =
+          context.getSharedPreferences(
+              Constant.NOTIFICATION_CONFIG_FILE, Context.MODE_MULTI_PROCESS);
+      toggleNotification = sharedPreferences.getBoolean(Constant.TOGGLE_NOTIFICATION_CONFIG, true);
+      if (notificationHideContent == null) {
+        notificationHideContent =
+            sharedPreferences.getBoolean(Constant.NOTIFICATION_HIDE_CONFIG, true);
+      }
+    }
+    return toggleNotification;
+  }
+
+  // 保存AI流式输出配置开关
+  public static void saveToggleNotification(Context context, boolean configSwitch) {
+    SharedPreferences.Editor editor =
+        context
+            .getSharedPreferences(Constant.NOTIFICATION_CONFIG_FILE, Context.MODE_MULTI_PROCESS)
+            .edit();
+    editor.putBoolean(Constant.TOGGLE_NOTIFICATION_CONFIG, configSwitch);
+    toggleNotification = configSwitch;
+    editor.commit();
   }
 
   public static SettingKitConfig getSettingKitConfig() {

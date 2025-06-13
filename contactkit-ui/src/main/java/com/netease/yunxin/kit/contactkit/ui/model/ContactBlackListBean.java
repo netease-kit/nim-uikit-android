@@ -39,6 +39,10 @@ public class ContactBlackListBean extends BaseContactBean {
     return data.getAccountId();
   }
 
+  public String getAccountId() {
+    return data.getAccountId();
+  }
+
   @Override
   public boolean isShowDivision() {
     return false;

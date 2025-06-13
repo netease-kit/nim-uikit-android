@@ -5,6 +5,7 @@
 package com.netease.yunxin.kit.conversationkit.local.ui.model;
 
 import android.text.TextUtils;
+import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
 import com.netease.nimlib.sdk.v2.conversation.model.V2NIMLocalConversation;
 import com.netease.nimlib.sdk.v2.utils.V2NIMConversationIdUtil;
 import com.netease.yunxin.kit.common.ui.viewholder.BaseBean;
@@ -94,6 +95,10 @@ public class ConversationBean extends BaseBean {
     }
 
     return targetId;
+  }
+
+  public V2NIMConversationType getConversationType() {
+    return this.infoData.getType();
   }
 
   /**

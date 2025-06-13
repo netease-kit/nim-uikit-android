@@ -8,7 +8,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     android:installLocation="auto"
     xmlns:tools="http://schemas.android.com/tools">
-
+    <!-- 请求网络 -->
+    <uses-permission android:name="android.permission.INTERNET"/>
     <!-- xiaomi push -->
     <permission
         android:name="com.netease.yunxin.app.im.permission.MIPUSH_RECEIVE"
@@ -19,6 +20,7 @@
     <!--meuzu push-->
     <!-- down Flyme5 version -->
     <uses-permission android:name="com.meizu.flyme.push.permission.RECEIVE"/>
+
     <!--  Flyme3 -->
     <uses-permission android:name="com.meizu.c2dm.permission.RECEIVE" />
     <permission
@@ -44,16 +46,16 @@
         android:theme="@style/Theme.Xkit">
         <meta-data
             android:name="com.netease.nim.appKey"
-            android:value="appKey" />
+            android:value="" />
         <meta-data
             android:name="com.netease.nim.oversea.appKey"
-            android:value="appKey" />
+            android:value="" />
         <meta-data
             android:name="com.amap.api.v2.apikey"
-            android:value="apiKey" />
+            android:value="" />
         <meta-data
             android:name="com.amap.api.v2.web.apikey"
-            android:value="apiKey" />
+            android:value="" />
 
         <activity android:name=".welcome.WelcomeActivity"
             android:screenOrientation="portrait"

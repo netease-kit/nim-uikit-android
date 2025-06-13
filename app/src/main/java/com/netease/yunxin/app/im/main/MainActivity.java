@@ -5,6 +5,7 @@
 package com.netease.yunxin.app.im.main;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -25,23 +26,36 @@ import com.netease.nimlib.sdk.v2.auth.enums.V2NIMLoginStatus;
 import com.netease.nimlib.sdk.v2.auth.model.V2NIMKickedOfflineDetail;
 import com.netease.nimlib.sdk.v2.auth.model.V2NIMLoginClient;
 import com.netease.nimlib.sdk.v2.user.V2NIMUser;
+import com.netease.yunxin.app.im.AppConfig;
 import com.netease.yunxin.app.im.AppSkinConfig;
 import com.netease.yunxin.app.im.BuildConfig;
 import com.netease.yunxin.app.im.R;
 import com.netease.yunxin.app.im.databinding.ActivityMainBinding;
 import com.netease.yunxin.app.im.main.mine.MineFragment;
+import com.netease.yunxin.app.im.network.AIHelperAnswer;
+import com.netease.yunxin.app.im.network.IMKitNetRequester;
 import com.netease.yunxin.app.im.utils.Constant;
 import com.netease.yunxin.app.im.utils.DataUtils;
+import com.netease.yunxin.app.im.utils.MessageUtils;
 import com.netease.yunxin.app.im.utils.MultiLanguageUtils;
 import com.netease.yunxin.app.im.welcome.WelcomeActivity;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.call.p2p.NECallEngine;
 import com.netease.yunxin.kit.call.p2p.model.NECallInitRtcMode;
 import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
+import com.netease.yunxin.kit.chatkit.listener.MessageCallback;
+import com.netease.yunxin.kit.chatkit.listener.MessageSendParams;
 import com.netease.yunxin.kit.chatkit.manager.AIUserAgentProvider;
 import com.netease.yunxin.kit.chatkit.manager.AIUserManager;
+import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
+import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
 import com.netease.yunxin.kit.chatkit.repo.SettingRepo;
+import com.netease.yunxin.kit.chatkit.ui.ChatKitClient;
+import com.netease.yunxin.kit.chatkit.ui.ChatUIConfig;
+import com.netease.yunxin.kit.chatkit.ui.IChatInputMenu;
 import com.netease.yunxin.kit.chatkit.ui.custom.ChatConfigManager;
+import com.netease.yunxin.kit.chatkit.ui.normal.view.AIHelperView;
+import com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants;
 import com.netease.yunxin.kit.common.ui.activities.BaseLocalActivity;
 import com.netease.yunxin.kit.common.ui.utils.AppLanguageConfig;
 import com.netease.yunxin.kit.common.utils.SizeUtils;
@@ -71,6 +85,7 @@ import com.netease.yunxin.nertc.ui.CallKitUIOptions;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import org.json.JSONObject;
 
 /** Demo 主页面 */
 public class MainActivity extends BaseLocalActivity {
@@ -99,6 +114,8 @@ public class MainActivity extends BaseLocalActivity {
 
   // AI搜索数字人账号
   private static final String AI_SEARCH_USER_ACCOUNT = "search";
+  private String aiHelperLastMsgClientId = null;
+  private String aiHelperLastAccountId = null;
 
   // AI翻译数字人账号
   private static final String AI_TRANSLATION_USER_ACCOUNT = "translation";
@@ -160,6 +177,21 @@ public class MainActivity extends BaseLocalActivity {
     EventCenter.registerEventNotify(langeNotify);
     initContactFragment(mContactFragment);
     initConversationFragment();
+    ChatRepo.setSendCallback(
+        new MessageCallback() {
+          @Nullable
+          @Override
+          public MessageSendParams beforeSend(@NonNull MessageSendParams param) {
+            ALog.d(
+                "yeshuxin",
+                "MainActivity:onCreate beforeSend:"
+                    + param.getConversationId()
+                    + ","
+                    + param.getMessage().getText()
+                    + param.getMessage().getConversationId());
+            return param;
+          }
+        });
   }
 
   private void initLanguage() {
@@ -477,34 +509,25 @@ public class MainActivity extends BaseLocalActivity {
     NECallEngine.sharedInstance().setCallRecordProvider(new CustomCallOrderProvider());
     // 若重复初始化会销毁之前的初始化实例，重新初始化
     CallKitUI.init(getApplicationContext(), options);
-    IMKitClient.addLoginListener(new V2NIMLoginListener() {
-      @Override
-      public void onLoginStatus(V2NIMLoginStatus status) {
-        if (status == V2NIMLoginStatus.V2NIM_LOGIN_STATUS_LOGOUT) {
-          CallKitUI.destroy();
-        }
-      }
+    IMKitClient.addLoginListener(
+        new V2NIMLoginListener() {
+          @Override
+          public void onLoginStatus(V2NIMLoginStatus status) {
+            if (status == V2NIMLoginStatus.V2NIM_LOGIN_STATUS_LOGOUT) {
+              CallKitUI.destroy();
+            }
+          }
 
-      @Override
-      public void onLoginFailed(V2NIMError error) {
+          @Override
+          public void onLoginFailed(V2NIMError error) {}
 
-      }
+          @Override
+          public void onKickedOffline(V2NIMKickedOfflineDetail detail) {}
 
-      @Override
-      public void onKickedOffline(V2NIMKickedOfflineDetail detail) {
-
-      }
-
-      @Override
-      public void onLoginClientChanged(
-              V2NIMLoginClientChange change,
-              List<V2NIMLoginClient> clients
-      ) {
-
-      }
-    });
-
-
+          @Override
+          public void onLoginClientChanged(
+              V2NIMLoginClientChange change, List<V2NIMLoginClient> clients) {}
+        });
   }
 
   // 加载配置，示例代码，CustomConfig展示如何通过接口来设置界面UI
@@ -614,6 +637,75 @@ public class MainActivity extends BaseLocalActivity {
           };
       ConversationKitClient.setConversationUIConfig(conversationUIConfig);
     }
+
+    IMKitNetRequester.getInstance()
+        .setup(
+            AppConfig.AIHelperHost_ONLINE,
+            DataUtils.readAppKey(this),
+            AppConfig.account,
+            AppConfig.accessToken);
+
+    ChatUIConfig uiConfig = new ChatUIConfig();
+
+    uiConfig.chatInputMenu =
+        new IChatInputMenu() {
+          @Override
+          public boolean onAIHelperClick(
+              Context context, View view, String action, List<IMMessageInfo> msgList) {
+            if (TextUtils.equals(action, ActionConstants.ACTION_AI_HELPER_REFRESH)
+                && view instanceof AIHelperView) {
+              loadAIHelper((AIHelperView) view, msgList);
+            } else if (TextUtils.equals(action, ActionConstants.ACTION_AI_HELPER_SHOW)
+                && view instanceof AIHelperView) {
+              String msgClient = "msgClient";
+              AIHelperView helperView = ((AIHelperView) view);
+              if (msgList != null && !msgList.isEmpty()) {
+                msgClient = msgList.get(msgList.size() - 1).getMessage().getMessageClientId();
+              }
+              if (TextUtils.isEmpty(aiHelperLastMsgClientId)
+                  || helperView.getHelperItemList().size() < 1
+                  || !TextUtils.equals(msgClient, aiHelperLastMsgClientId)) {
+                helperView.showLoading();
+                loadAIHelper((AIHelperView) view, msgList);
+              }
+            }
+            return true;
+          }
+        };
+    ChatKitClient.setChatUIConfig(uiConfig);
+  }
+
+  private void loadAIHelper(AIHelperView helperView, List<IMMessageInfo> msgList) {
+    if (helperView == null) {
+      return;
+    }
+    JSONObject queryStr = MessageUtils.generateAIHelperInfo(msgList);
+    IMKitNetRequester.getInstance()
+        .requestAIChatHelper(
+            queryStr,
+            new FetchCallback<AIHelperAnswer>() {
+              @Override
+              public void onError(int errorCode, @Nullable String errorMsg) {
+                helperView.showError("");
+              }
+
+              @Override
+              public void onSuccess(@Nullable AIHelperAnswer data) {
+                List<AIHelperView.AIHelperItem> itemList = MessageUtils.convertToAIHelperItem(data);
+                if (itemList.isEmpty()) {
+                  helperView.showError("");
+                } else {
+                  helperView.setHelperContent(itemList);
+                }
+                if (msgList != null && !msgList.isEmpty()) {
+                  aiHelperLastMsgClientId =
+                      msgList.get(msgList.size() - 1).getMessage().getMessageClientId();
+                } else {
+                  aiHelperLastMsgClientId = "msgClient";
+                }
+                aiHelperLastAccountId = ChatRepo.getConversationId();
+              }
+            });
   }
 
   private void loadSettingConfig() {

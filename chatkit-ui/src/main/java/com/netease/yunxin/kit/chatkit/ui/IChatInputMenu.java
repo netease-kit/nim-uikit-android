@@ -6,6 +6,7 @@ package com.netease.yunxin.kit.chatkit.ui;
 
 import android.content.Context;
 import android.view.View;
+import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.common.ui.action.ActionItem;
 import java.util.List;
 
@@ -24,6 +25,11 @@ public interface IChatInputMenu {
   }
 
   public default boolean onInputClick(Context context, View view, String action) {
+    return false;
+  }
+
+  public default boolean onAIHelperClick(
+      Context context, View view, String action, List<IMMessageInfo> messageInfoList) {
     return false;
   }
 }

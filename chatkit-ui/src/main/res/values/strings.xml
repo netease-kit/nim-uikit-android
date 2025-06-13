@@ -5,6 +5,9 @@
   -->
 
 <resources>
+    <string name="chat_online_status_title_format">%s%s</string>
+    <string name="chat_online_status_text">(在线)</string>
+    <string name="chat_offline_status_text">(离线)</string>
     <string name="cancel">Cancel</string>
     <string name="chat_dialog_sure">Sure</string>
     <string name="chat_pressed_to_speak">Hold to Talk</string>
@@ -63,7 +66,7 @@
     <string name="chat_message_video_call_action">Video Call</string>
     <string name="chat_message_audio_call_action">Voice Call</string>
     <string name="chat_message_translate_action">Translate</string>
-
+    <string name="chat_message_ai_helper_action">AI Helper</string>
 
     <string name="chat_message_audio_call_text">[Voice Call]</string>
     <string name="chat_message_video_call_text">[Video Call]</string>
@@ -209,6 +212,7 @@
     <!-- error -->
     <string name="chat_message_reply_error">Reply not received</string>
     <string name="chat_network_error_tip">No Network</string>
+    <string name="chat_kit_no_permission_error">No permission</string>
 
     <!-- tips -->
     <string name="chat_message_not_support_tips">[Unknown Message]</string>
@@ -227,7 +231,6 @@
     <string name="chat_message_multi_delete_limit_tips">Delete limits 50 messages</string>
     <string name="chat_message_forward_success_tips">Forwarded</string>
     <string name="chat_message_open_fail_tips">Unable to preview the file. Please install a compatible app</string>
-    <string name="chat_kit_no_permission_error">No permission</string>
 
     <!-- location -->
     <string name="chat_location_mine">Location</string>
@@ -309,6 +312,9 @@
     <string name="chat_ai_error_rate_limit_exceeded">Rate limit exceeded</string>
     <string name="chat_ai_error_parameter">Parameter error</string>
     <string name="chat_ai_error">The server is busy, please try again later.</string>
+    <string name="chat_ai_helper_title">Reply Inspiration</string>
+    <string name="chat_ai_helper_error_title">Reply Inspiration Acquisition Failed</string>
+    <string name="chat_ai_helper_error_try">Click to Retry</string>
     <string name="chat_voice_to_text">Convert to text</string>
     <string name="chat_voice_to_text_failed">Text conversion failed.</string>
 </resources>

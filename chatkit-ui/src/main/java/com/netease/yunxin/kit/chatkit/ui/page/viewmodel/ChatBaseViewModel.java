@@ -19,7 +19,6 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
 import com.netease.nimlib.sdk.v2.ai.enums.V2NIMAIModelRoleType;
 import com.netease.nimlib.sdk.v2.ai.model.V2NIMAIUser;
-import com.netease.nimlib.sdk.v2.ai.params.V2NIMAIModelCallContent;
 import com.netease.nimlib.sdk.v2.ai.params.V2NIMAIModelCallMessage;
 import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
 import com.netease.nimlib.sdk.v2.conversation.model.V2NIMConversation;
@@ -36,8 +35,6 @@ import com.netease.nimlib.sdk.v2.message.V2NIMP2PMessageReadReceipt;
 import com.netease.nimlib.sdk.v2.message.V2NIMTeamMessageReadReceipt;
 import com.netease.nimlib.sdk.v2.message.attachment.V2NIMMessageAudioAttachment;
 import com.netease.nimlib.sdk.v2.message.config.V2NIMMessageAIConfig;
-import com.netease.nimlib.sdk.v2.message.config.V2NIMMessageConfig;
-import com.netease.nimlib.sdk.v2.message.config.V2NIMMessagePushConfig;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageAIRegenOpType;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageAIStreamStopOpType;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessagePinState;
@@ -46,7 +43,6 @@ import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageSendingState;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
 import com.netease.nimlib.sdk.v2.message.option.V2NIMMessageListOption;
 import com.netease.nimlib.sdk.v2.message.params.V2NIMAddCollectionParams;
-import com.netease.nimlib.sdk.v2.message.params.V2NIMMessageAIConfigParams;
 import com.netease.nimlib.sdk.v2.message.params.V2NIMMessageAIRegenParams;
 import com.netease.nimlib.sdk.v2.message.params.V2NIMMessageAIStreamStopParams;
 import com.netease.nimlib.sdk.v2.message.params.V2NIMSendMessageParams;
@@ -54,7 +50,6 @@ import com.netease.nimlib.sdk.v2.message.params.V2NIMVoiceToTextParams;
 import com.netease.nimlib.sdk.v2.message.result.V2NIMSendMessageResult;
 import com.netease.nimlib.sdk.v2.utils.V2NIMConversationIdUtil;
 import com.netease.yunxin.kit.alog.ALog;
-import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
 import com.netease.yunxin.kit.chatkit.listener.ChatListener;
 import com.netease.yunxin.kit.chatkit.listener.MessageRevokeNotification;
 import com.netease.yunxin.kit.chatkit.listener.MessageUpdateType;
@@ -72,6 +67,7 @@ import com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatUserCache;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatUtils;
+import com.netease.yunxin.kit.chatkit.ui.common.MessageCreator;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.chatkit.ui.custom.MultiForwardAttachment;
 import com.netease.yunxin.kit.chatkit.ui.model.AnchorScrollInfo;
@@ -761,14 +757,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
       List<V2NIMAIModelCallMessage> aiMessages) {
     ALog.d(LIB_TAG, TAG, "sendTextMessage:" + (content != null ? content.length() : "null"));
     V2NIMMessage textMessage = V2NIMMessageCreator.createTextMessage(content);
-    //        sendMessage(textMessage, pushList, remoteExtension);
-    if (remoteExtension != null) {
-      JSONObject jsonObject = new JSONObject(remoteExtension);
-      sendMessageStrExtension(
-          textMessage, mConversationId, pushList, jsonObject.toString(), aiUser, aiMessages);
-    } else {
-      sendMessageStrExtension(textMessage, mConversationId, pushList, null, aiUser, aiMessages);
-    }
+    sendMessage(textMessage, pushList, remoteExtension, aiUser, aiMessages);
   }
 
   // 添加收藏
@@ -1092,12 +1081,45 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
       Map<String, Object> remoteExtension,
       V2NIMAIUser aiUser,
       List<V2NIMAIModelCallMessage> aiMessages) {
+    String remoteStr = null;
     if (remoteExtension != null) {
       JSONObject jsonObject = new JSONObject(remoteExtension);
-      sendMessageStrExtension(
-          message, mConversationId, pushList, jsonObject.toString(), aiUser, aiMessages);
+      remoteStr = jsonObject.toString();
+    }
+    sendMessageStrExtension(message, mConversationId, pushList, remoteStr, aiUser, aiMessages);
+  }
+
+  public void resendMessage(V2NIMMessage message, V2NIMMessage replyMessage) {
+
+    if (replyMessage != null) {
+      // 回复消息，被回复消息在当前的消息列表中
+      replyMessage(message, replyMessage, null, null, null);
+    } else if (message.getThreadReply() != null) {
+      // 回复消息但是消息不在当前列表中
+      List<V2NIMMessageRefer> messageReferList = new ArrayList<>();
+      messageReferList.add(message.getThreadReply());
+      ChatRepo.getMessageListByRefers(
+          messageReferList,
+          new FetchCallback<List<IMMessageInfo>>() {
+            @Override
+            public void onError(int errorCode, @Nullable String errorMsg) {
+              ALog.d(LIB_TAG, TAG, "resendMessage replyMessage onError -->> " + errorCode);
+              sendMessageStrExtension(message, mConversationId, null, null);
+            }
+
+            @Override
+            public void onSuccess(@Nullable List<IMMessageInfo> data) {
+              if (data != null && data.size() > 0) {
+                V2NIMMessage replyMessage = data.get(0).getMessage();
+                replyMessage(message, replyMessage, null, null, null);
+              } else {
+                sendMessageStrExtension(message, mConversationId, null, null);
+              }
+            }
+          });
     } else {
-      sendMessageStrExtension(message, mConversationId, pushList, null, aiUser, aiMessages);
+      //直接发送消息
+      sendMessageStrExtension(message, mConversationId, null, null);
     }
   }
 
@@ -1125,51 +1147,20 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
               + " showRead:"
               + showRead);
 
-      V2NIMMessageConfig.V2NIMMessageConfigBuilder configBuilder =
-          V2NIMMessageConfig.V2NIMMessageConfigBuilder.builder();
-      configBuilder.withReadReceiptEnabled(needACK && showRead);
-      V2NIMMessagePushConfig.V2NIMMessagePushConfigBuilder pushConfigBuilder =
-          V2NIMMessagePushConfig.V2NIMMessagePushConfigBuilder.builder();
-      if (pushList != null && !pushList.isEmpty()) {
-        pushConfigBuilder.withForcePush(true).withForcePushAccountIds(pushList);
-      }
-      V2NIMSendMessageParams.V2NIMSendMessageParamsBuilder paramsBuilder =
-          V2NIMSendMessageParams.V2NIMSendMessageParamsBuilder.builder()
-              .withMessageConfig(configBuilder.build())
-              .withPushConfig(pushConfigBuilder.build());
-
-      //remoteExtension设置
-      if (!TextUtils.isEmpty(remoteExtension)) {
-        message.setServerExtension(remoteExtension);
-      }
-
-      //@ AI机器人代理设置
-      V2NIMMessageAIConfigParams aiConfigParams = null;
-      String chatId = V2NIMConversationIdUtil.conversationTargetId(conversationId);
-      if (aiAgent == null && AIUserManager.isAIUser(chatId)) {
-        aiAgent = AIUserManager.getAIUserById(chatId);
-      }
-      if (aiAgent != null) {
-        aiConfigParams = new V2NIMMessageAIConfigParams(aiAgent.getAccountId());
-        if (!TextUtils.isEmpty(MessageHelper.getAIContentMsg(message))) {
-          V2NIMAIModelCallContent content =
-              new V2NIMAIModelCallContent(MessageHelper.getAIContentMsg(message), 0);
-          aiConfigParams.setContent(content);
-        }
-        boolean aiStream = IMKitConfigCenter.getEnableAIStream();
-        aiConfigParams.setAIStream(aiStream);
-      }
-      //AI消息上下文设置
-      if (aiConfigParams != null && aiMessage != null && !aiMessage.isEmpty()) {
-        aiConfigParams.setMessages(aiMessage);
-      }
-      if (aiConfigParams != null) {
-        paramsBuilder.withAIConfig(aiConfigParams);
-      }
+      V2NIMSendMessageParams params =
+          MessageCreator.createSendMessageParam(
+              message,
+              conversationId,
+              pushList,
+              remoteExtension,
+              aiAgent,
+              aiMessage,
+              needACK,
+              showRead);
       ChatRepo.sendMessage(
           message,
           conversationId,
-          paramsBuilder.build(),
+          params,
           new ProgressFetchCallback<V2NIMSendMessageResult>() {
 
             @Override
@@ -1403,14 +1394,14 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
               MessageHelper.getAIContentMsg(replyMsg),
               0);
     }
-    Map<String, Object> remote = MessageHelper.createReplyExtension(remoteExtension, replyMsg);
-
-    sendMessage(
-        message,
-        pushList,
-        remote,
-        aiUser,
-        aiMessage == null ? null : Collections.singletonList(aiMessage));
+    //    Map<String, Object> remote = MessageHelper.createReplyExtension(remoteExtension, replyMsg);
+    //      sendMessage(
+    //              message,
+    //              pushList,
+    //              remote,
+    //              aiUser,
+    //              aiMessage == null ? null : Collections.singletonList(aiMessage));
+    sendReplyMessage(message, replyMsg, pushList, remoteExtension, aiMessage, aiUser);
   }
 
   public void replyTextMessage(
@@ -1425,6 +1416,80 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
         "replyTextMessage,message" + (message == null ? "null" : message.getMessageClientId()));
     V2NIMMessage textMessage = V2NIMMessageCreator.createTextMessage(content);
     replyMessage(textMessage, message, pushList, remoteExtension, aiUser);
+  }
+
+  public void sendReplyMessage(
+      V2NIMMessage message,
+      V2NIMMessage replyMessage,
+      List<String> pushList,
+      Map<String, Object> remoteExtension,
+      V2NIMAIModelCallMessage aiMessage,
+      V2NIMAIUser aiUser) {
+    if (replyMessage == null) {
+      sendMessage(
+          message,
+          pushList,
+          remoteExtension,
+          aiUser,
+          aiMessage == null ? null : Collections.singletonList(aiMessage));
+    }
+    List<V2NIMAIModelCallMessage> aiMessageList =
+        aiMessage == null ? null : Collections.singletonList(aiMessage);
+    String remoteStr = null;
+    if (remoteExtension != null) {
+      JSONObject jsonObject = new JSONObject(remoteExtension);
+      remoteStr = jsonObject.toString();
+    }
+    V2NIMSendMessageParams params =
+        MessageCreator.createSendMessageParam(
+            message,
+            mConversationId,
+            pushList,
+            remoteStr,
+            aiUser,
+            aiMessageList,
+            needACK,
+            showRead);
+    ChatRepo.replyMessage(
+        message,
+        replyMessage,
+        mConversationId,
+        params,
+        new ProgressFetchCallback<V2NIMSendMessageResult>() {
+
+          @Override
+          public void onProgress(int progress) {
+            ALog.d(LIB_TAG, TAG, "replyMessage progress -->> " + progress);
+            if (TextUtils.equals(replyMessage.getConversationId(), mConversationId)
+                && message.getMessageClientId() != null) {
+              FetchResult<IMMessageProgress> result = new FetchResult<>(LoadStatus.Success);
+              result.setData(new IMMessageProgress(message.getMessageClientId(), progress));
+              result.setType(FetchResult.FetchType.Update);
+              result.setTypeIndex(-1);
+              attachmentProgressMutableLiveData.setValue(result);
+            }
+          }
+
+          @Override
+          public void onSuccess(@Nullable V2NIMSendMessageResult data) {
+            ALog.d(LIB_TAG, TAG, "replyMessage onSuccess -->> ");
+            if (data != null
+                && TextUtils.equals(data.getMessage().getConversationId(), mConversationId)) {
+              ALog.d(LIB_TAG, TAG, "replyMessage onSuccess -->> " + mConversationId);
+              //                postMessageSend(new IMMessageInfo(data.getMessage()), false);
+              V2NIMMessageAIConfig aiConfig = data.getMessage().getAIConfig();
+              if (aiConfig != null) {
+                ToastX.showShortToast(R.string.chat_ai_message_progressing);
+              }
+            }
+          }
+
+          @Override
+          public void onError(int errorCode, @Nullable String errorMsg) {
+            ALog.d(
+                LIB_TAG, TAG, "replyMessage onError -->> " + errorCode + " errorMsg:" + errorMsg);
+          }
+        });
   }
 
   //停止流式消息输出

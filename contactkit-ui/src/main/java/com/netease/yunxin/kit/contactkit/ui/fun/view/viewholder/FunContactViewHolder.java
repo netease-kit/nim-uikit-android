@@ -8,7 +8,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
+import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
+import com.netease.yunxin.kit.chatkit.OnlineStatusManager;
 import com.netease.yunxin.kit.common.utils.SizeUtils;
+import com.netease.yunxin.kit.contactkit.ui.R;
 import com.netease.yunxin.kit.contactkit.ui.databinding.FunFriendContactViewHolderBinding;
 import com.netease.yunxin.kit.contactkit.ui.model.BaseContactBean;
 import com.netease.yunxin.kit.contactkit.ui.model.ContactFriendBean;
@@ -54,6 +57,7 @@ public class FunContactViewHolder extends BaseContactViewHolder {
               actions.getSelectorListener(bean.viewType).onSelector(newStatue, bean);
             }
           });
+      binding.onlineView.setVisibility(View.GONE);
     } else {
       binding.rbSelector.setVisibility(View.GONE);
       binding.rootView.setOnClickListener(
@@ -62,7 +66,18 @@ public class FunContactViewHolder extends BaseContactViewHolder {
               actions.getContactListener(bean.viewType).onClick(position, bean);
             }
           });
+      if (IMKitConfigCenter.getEnableOnlineStatus()) {
+        binding.onlineView.setVisibility(View.VISIBLE);
+        if (OnlineStatusManager.isOnlineSubscribe(friendInfo.getAccount())) {
+          binding.onlineView.setBackgroundResource(R.drawable.ic_online_status);
+        } else {
+          binding.onlineView.setBackgroundResource(R.drawable.ic_dis_online_status);
+        }
+      } else {
+        binding.onlineView.setVisibility(View.GONE);
+      }
     }
+
     loadConfig(attrs);
   }
 

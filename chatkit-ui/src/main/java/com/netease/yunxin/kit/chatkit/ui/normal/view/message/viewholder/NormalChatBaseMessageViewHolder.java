@@ -227,7 +227,7 @@ public class NormalChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
             });
       }
     } else {
-      baseViewBinding.messageTopGroup.removeAllViews();
+      updateReplayInfoLayoutWidth(messageBean);
     }
   }
 

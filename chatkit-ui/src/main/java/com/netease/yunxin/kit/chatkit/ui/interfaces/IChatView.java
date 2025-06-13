@@ -8,6 +8,7 @@ import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.widget.FrameLayout;
 import com.netease.nimlib.sdk.uinfo.model.UserInfo;
+import com.netease.nimlib.sdk.v2.message.V2NIMMessage;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessageRefer;
 import com.netease.yunxin.kit.chatkit.ui.ChatUIConfig;
 import com.netease.yunxin.kit.chatkit.ui.IChatFactory;
@@ -63,6 +64,10 @@ public interface IChatView {
 
   void updateMessageStatus(ChatMessageBean message);
 
+  void updateMessage(V2NIMMessage message, Object payload);
+
+  void updateMessage(String msgClientId, Object payload);
+
   void notifyUserInfoChanged(List<String> accountIdList);
 
   void updateProgress(IMMessageProgress progress);
@@ -92,6 +97,8 @@ public interface IChatView {
 
   void setReplyMessage(ChatMessageBean messageBean);
 
+  void clearReplyMessage();
+
   // 展示富文本输入框，并将底部输入框内容设置标题和内容
   void showRichInputPanel();
 
@@ -115,6 +122,8 @@ public interface IChatView {
   boolean isMultiSelect();
 
   void setMultiSelectEnable(boolean enable);
+
+  FrameLayout getChatBodyBottomLayout();
 
   View getRootView();
 }

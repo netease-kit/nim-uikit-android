@@ -26,10 +26,14 @@
     <color name="normal_page_bg_color">#FFFFFF</color>
 
     <color name="color_58be6b">#58be6b</color>
+    <color name="color_ededed">#ededed</color>
+    <color name="color_337EFF">#337EFF</color>
     <color name="color_e9e9ea">#e9e9ea</color>
     <color name="color_101113">#101113</color>
     <color name="color_EB9718">#EB9718</color>
     <color name="color_FFF5E1">#FFF5E1</color>
-    <color name="color_ededed">#ededed</color>
-    <color name="color_337EFF">#337EFF</color>
+    <color name="color_F159A2">#F159A2</color>
+    <color name="color_E75257">#E75257</color>
+    <color name="color_598CF1">#598CF1</color>
+
 </resources>

@@ -62,11 +62,19 @@ public class ChatTeamFragment extends NormalChatFragment {
   Observer<FetchResult<List<V2NIMTeamMessageReadReceipt>>> teamReceiptObserver;
 
   @Override
+  public void onCreate(@Nullable Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    ALog.d(LIB_TAG, TAG, "onCreate");
+    if (getArguments() != null) {
+      conversationType = V2NIMConversationType.V2NIM_CONVERSATION_TYPE_TEAM;
+      teamInfo = (V2NIMTeam) getArguments().getSerializable(RouterConstant.CHAT_KRY);
+      accountId = (String) getArguments().getSerializable(RouterConstant.CHAT_ID_KRY);
+    }
+  }
+
+  @Override
   protected void initData(Bundle bundle) {
     ALog.d(LIB_TAG, TAG, "initData");
-    conversationType = V2NIMConversationType.V2NIM_CONVERSATION_TYPE_TEAM;
-    teamInfo = (V2NIMTeam) bundle.getSerializable(RouterConstant.CHAT_KRY);
-    accountId = (String) bundle.getSerializable(RouterConstant.CHAT_ID_KRY);
     // 如果群信息为空，且accountId为空，则直接关闭页面
     if (teamInfo == null && TextUtils.isEmpty(accountId)) {
       requireActivity().finish();

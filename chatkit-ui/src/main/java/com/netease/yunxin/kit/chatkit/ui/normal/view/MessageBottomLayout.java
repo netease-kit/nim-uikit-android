@@ -32,8 +32,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.netease.nimlib.sdk.media.record.IAudioRecordCallback;
 import com.netease.nimlib.sdk.media.record.RecordType;
+import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
 import com.netease.nimlib.sdk.v2.utils.V2NIMConversationIdUtil;
 import com.netease.yunxin.kit.alog.ALog;
+import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.chatkit.ui.databinding.NormalChatMessageBottomViewBinding;
@@ -135,11 +137,66 @@ public class MessageBottomLayout extends FrameLayout
           }
         };
     mBinding.llyReply.setVisibility(GONE);
-
     mBinding.chatMessageInputEt.setOnFocusChangeListener(
         (v, hasFocus) ->
             mProxy.onTypeStateChange(
                 !TextUtils.isEmpty(mBinding.chatMessageInputEt.getText()) && hasFocus));
+
+    if (mProxy.getConversationType() == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P
+        && IMKitConfigCenter.getEnableAIChatHelper()) {
+      mBinding.chatMsgInputAIHelper.setVisibility(View.VISIBLE);
+      mBinding.chatMsgInputAIHelper.setOnClickListener(
+          v -> {
+            switchAIHelper();
+          });
+      mBinding.chatMessageAiHelperView.setAIHelperClickListener(
+          new AIHelperView.AIHelperClickListener() {
+
+            @Override
+            public void onShow() {
+              if (mProxy != null) {
+                mProxy.onAIHelperClick(
+                    mBinding.chatMessageAiHelperView, ActionConstants.ACTION_AI_HELPER_SHOW);
+              }
+            }
+
+            @Override
+            public void onRefreshClick() {
+              if (mProxy != null) {
+                mProxy.onAIHelperClick(
+                    mBinding.chatMessageAiHelperView, ActionConstants.ACTION_AI_HELPER_REFRESH);
+              }
+            }
+
+            @Override
+            public void onTryAgainClick() {
+              if (mProxy != null) {
+                mProxy.onAIHelperClick(
+                    mBinding.chatMessageAiHelperView, ActionConstants.ACTION_AI_HELPER_REFRESH);
+              }
+            }
+
+            @Override
+            public void onItemClick(AIHelperView.AIHelperItem Item) {
+              if (Item != null && !TextUtils.isEmpty(Item.content)) {
+                boolean sendMsgSuccess = mProxy.sendTextMessage(Item.content, null);
+                if (actionClickListener != null) {
+                  actionClickListener.sendMessage(Item.content, sendMsgSuccess);
+                }
+              }
+            }
+
+            @Override
+            public void onItemEditClick(AIHelperView.AIHelperItem Item) {
+              if (Item != null && !TextUtils.isEmpty(Item.content)) {
+                mBinding.chatMessageInputEt.setText(Item.content);
+                switchInput();
+              }
+            }
+          });
+    } else {
+      mBinding.chatMsgInputAIHelper.setVisibility(View.GONE);
+    }
   }
 
   public NormalChatMessageBottomViewBinding getViewBinding() {
@@ -261,6 +318,11 @@ public class MessageBottomLayout extends FrameLayout
     mBinding.chatMessageActionContainer.setLayoutManager(
         new LinearLayoutManager(getContext(), RecyclerView.HORIZONTAL, false));
     // 多行消息设置点击事件
+    if (IMKitConfigCenter.getEnableRichTextMessage()) {
+      mBinding.chatMsgInputSwitch.setVisibility(VISIBLE);
+    } else {
+      mBinding.chatMsgInputSwitch.setVisibility(GONE);
+    }
     mBinding.chatRichEt.addTextChangedListener(
         new TextWatcher() {
           @Override
@@ -338,6 +400,10 @@ public class MessageBottomLayout extends FrameLayout
         }
       };
 
+  public void setAIHelperData(List<AIHelperView.AIHelperItem> itemList) {
+    mBinding.chatMessageAiHelperView.setHelperContent(itemList);
+  }
+
   public void sendText(ChatMessageBean replyMessage) {
     if (mProxy != null) {
       String msg = mBinding.chatMessageInputEt.getEditableText().toString();
@@ -389,11 +455,13 @@ public class MessageBottomLayout extends FrameLayout
       emojiShow(false, 0);
     } else if (mInputState == InputState.more) {
       morePanelShow(false, 0);
+    } else if (mInputState == InputState.aiHelper) {
+      aiHelperShow(false);
     }
   }
 
   public void setRichTextSwitchListener(OnClickListener listener) {
-    mBinding.chatMsgInputSwitchLayout.setOnClickListener(listener);
+    mBinding.chatMsgInputSwitch.setOnClickListener(listener);
   }
 
   // 获取富文本标题
@@ -458,6 +526,31 @@ public class MessageBottomLayout extends FrameLayout
       actionClickListener.onActionClick(view, action);
     }
     mProxy.onTranslateAction();
+  }
+
+  public void switchAIHelper() {
+    if (mInputState == InputState.aiHelper) {
+      aiHelperShow(false);
+      mInputState = InputState.none;
+      return;
+    }
+    aiHelperShow(true);
+    hideCurrentInput();
+    mInputState = InputState.aiHelper;
+  }
+
+  public void aiHelperShow(boolean show) {
+    if (show) {
+      mBinding.chatMsgInputAIHelper.setChecked(true);
+      mBinding.chatMessageAiHelperView.show();
+      mBinding.chatMessageActionContainer.setVisibility(GONE);
+      mBinding.chatMessageInputRoot.setBackgroundResource(R.drawable.bg_chat_ai_helper);
+    } else {
+      mBinding.chatMsgInputAIHelper.setChecked(false);
+      mBinding.chatMessageAiHelperView.hide();
+      mBinding.chatMessageActionContainer.setVisibility(VISIBLE);
+      mBinding.chatMessageInputRoot.setBackgroundResource(R.color.color_eef1f4);
+    }
   }
 
   public EditText getInputEditText() {
@@ -707,6 +800,7 @@ public class MessageBottomLayout extends FrameLayout
           recordShow(false, delay);
           emojiShow(false, delay);
           morePanelShow(false, delay);
+          aiHelperShow(false);
         },
         immediately ? 0 : ViewConfiguration.getDoubleTapTimeout());
   }

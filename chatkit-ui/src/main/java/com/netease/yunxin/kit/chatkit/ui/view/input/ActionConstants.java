@@ -34,6 +34,8 @@ public class ActionConstants {
   public static final String ACTION_TYPE_VIDEO_CALL = "ACTION_TYPE_VIDEO_CALL";
   // 更多中翻译功能
   public static final String ACTION_TYPE_TRANSLATE = "ACTION_TYPE_TRANSLATE";
+  // 更多中展示助聊功能入口
+  public static final String ACTION_TYPE_AI_HELPER = "ACTION_TYPE_AI_HELPER";
 
   //多选操作下，合并转发按钮点击事件
   public static final String ACTION_TYPE_MULTI_FORWARD = "ACTION_TYPE_MULTI_FORWARD";
@@ -41,6 +43,10 @@ public class ActionConstants {
   public static final String ACTION_TYPE_MULTI_DELETE = "ACTION_TYPE_MULTI_DELETE";
   //多选操作下，逐条按钮点击事件
   public static final String ACTION_TYPE_SINGLE_FORWARD = "ACTION_TYPE_SINGLE_FORWARD";
+  // AI助聊点击刷新提示词
+  public static final String ACTION_AI_HELPER_REFRESH = "ACTION_TYPE_AI_HELPER_REFRESH";
+  // AI助聊点击展示助聊内容
+  public static final String ACTION_AI_HELPER_SHOW = "ACTION_TYPE_AI_HELPER_SHOW";
 
   //消息长按菜单-回复
   public static final String POP_ACTION_REPLY = "POP_ACTION_REPLY";

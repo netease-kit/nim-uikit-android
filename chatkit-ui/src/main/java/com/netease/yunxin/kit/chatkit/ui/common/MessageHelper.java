@@ -719,6 +719,20 @@ public class MessageHelper {
     return remote;
   }
 
+  public static Map<String, Object> createReplyExtensionFromRefer(V2NIMMessageRefer replyMsg) {
+    Map<String, Object> replyInfo = new HashMap<>();
+    if (replyMsg != null) {
+      replyInfo.put(ChatKitUIConstant.REPLY_UUID_KEY, replyMsg.getMessageClientId());
+      replyInfo.put(ChatKitUIConstant.REPLY_TYPE_KEY, replyMsg.getConversationType().getValue());
+      replyInfo.put(ChatKitUIConstant.REPLY_FROM_KEY, replyMsg.getSenderId());
+      replyInfo.put(ChatKitUIConstant.REPLY_TO_KEY, replyMsg.getConversationId());
+      replyInfo.put(ChatKitUIConstant.REPLY_RECEIVE_ID_KEY, replyMsg.getReceiverId());
+      replyInfo.put(ChatKitUIConstant.REPLY_SERVER_ID_KEY, replyMsg.getMessageServerId());
+      replyInfo.put(ChatKitUIConstant.REPLY_TIME_KEY, replyMsg.getCreateTime());
+    }
+    return replyInfo;
+  }
+
   public static void clearAitAndReplyInfo(V2NIMMessage message) {
     if (message != null && message.getServerExtension() != null) {
       Map<String, Object> remote =
@@ -807,7 +821,24 @@ public class MessageHelper {
             IMKitClient.getApplicationContext()
                 .getResources()
                 .getString(R.string.chat_message_revoke_content));
-    revokeMessage.setServerExtension(message.getServerExtension());
+    if (message.getThreadReply() != null) {
+      try {
+        Map<String, Object> remoteExtension =
+            createReplyExtensionFromRefer(message.getThreadReply());
+        Map<String, Object> serverExtensionMap =
+            MessageExtensionHelper.parseJsonStringToMap(message.getServerExtension());
+        if (serverExtensionMap == null) {
+          serverExtensionMap = new HashMap<>();
+        }
+        serverExtensionMap.put(ChatKitUIConstant.REPLY_REMOTE_EXTENSION_KEY, remoteExtension);
+        JSONObject jsonObject = new JSONObject(serverExtensionMap);
+        revokeMessage.setServerExtension(jsonObject.toString());
+      } catch (Exception e) {
+        ALog.e(LIB_TAG, TAG, "saveLocalRevokeMessage Exception:" + e.getMessage());
+      }
+    } else {
+      revokeMessage.setServerExtension(message.getServerExtension());
+    }
     Map<String, Object> map = new HashMap<>(4);
     map.put(KEY_REVOKE_TAG, true);
     map.put(KEY_REVOKE_TIME_TAG, SystemClock.elapsedRealtime());
@@ -816,8 +847,8 @@ public class MessageHelper {
     } else if (message.getMessageType() == V2NIMMessageType.V2NIM_MESSAGE_TYPE_CUSTOM) {
       RichTextAttachment attachment = isRichTextMsg(message);
       if (attachment != null) {
-        String body = ((RichTextAttachment) attachment).body;
-        String title = ((RichTextAttachment) attachment).title;
+        String body = attachment.body;
+        String title = attachment.title;
         JSONObject data = new JSONObject();
         try {
           data.put("body", body == null ? "" : body);

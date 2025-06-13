@@ -183,13 +183,19 @@ public abstract class BasePhotoChoiceDialog extends Dialog {
                     @Override
                     public void onDenial(
                         List<String> permissionsDenial, List<String> permissionDenialForever) {
-                      Toast.makeText(
-                              getContext(),
-                              getContext()
-                                  .getResources()
-                                  .getString(R.string.dialog_permission_tips),
-                              Toast.LENGTH_SHORT)
-                          .show();
+                      // 兼容Android13 部分允许的权限
+                      if (PermissionUtils.checkImageOrFilePermission(getContext())) {
+                        PhotoPicker.getInstance()
+                            .getAPhotoFromAlbumCropAndUpload(getContext(), localCallback);
+                      } else {
+                        Toast.makeText(
+                                getContext(),
+                                getContext()
+                                    .getResources()
+                                    .getString(R.string.dialog_permission_tips),
+                                Toast.LENGTH_SHORT)
+                            .show();
+                      }
                     }
 
                     @Override

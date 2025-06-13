@@ -23,6 +23,7 @@ import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.contactkit.ui.ContactKitClient;
 import com.netease.yunxin.kit.contactkit.ui.ContactUIConfig;
+import com.netease.yunxin.kit.contactkit.ui.ILoadListener;
 import com.netease.yunxin.kit.contactkit.ui.R;
 import com.netease.yunxin.kit.contactkit.ui.interfaces.ContactActions;
 import com.netease.yunxin.kit.contactkit.ui.interfaces.IContactCallback;
@@ -46,9 +47,13 @@ public abstract class BaseContactFragment extends BaseFragment {
   protected View emptyView;
   protected ContactUIConfig contactConfig;
   protected Observer<FetchResult<List<ContactFriendBean>>> contactObserver;
-  protected Observer<FetchResult<List<ContactFriendBean>>> userInfoObserver;
+  protected Observer<FetchResult<List<String>>> onlineStatusObserver;
   protected IContactCallback contactCallback;
   protected int headerCount = 0;
+  protected final int ONLINE_OFFSET = 100;
+  protected final int ONLINE_SUB_DIFF = 30;
+
+  protected int onlineFirstVisible = 0;
 
   public void setContactConfig(ContactUIConfig config) {
     contactConfig = config;
@@ -79,6 +84,11 @@ public abstract class BaseContactFragment extends BaseFragment {
   protected void checkViews() {
     Objects.requireNonNull(rootView);
     Objects.requireNonNull(contactLayout);
+  }
+
+  @Override
+  public void onResume() {
+    super.onResume();
   }
 
   @Override
@@ -116,16 +126,16 @@ public abstract class BaseContactFragment extends BaseFragment {
           }
         };
 
-    userInfoObserver =
+    onlineStatusObserver =
         userInfoResult -> {
           if (userInfoResult.getLoadStatus() == LoadStatus.Finish) {
-            contactLayout.getContactListView().updateFriendData(userInfoResult.getData());
+            contactLayout.getContactListView().updateContactData(userInfoResult.getData());
           }
         };
 
     initView();
     viewModel.getContactLiveData().observeForever(contactObserver);
-    viewModel.getUserInfoLiveData().observeForever(userInfoObserver);
+    viewModel.getContactStatusLiveData().observeForever(onlineStatusObserver);
     handler.postDelayed(
         () -> {
           viewModel.fetchContactList(false);
@@ -137,6 +147,27 @@ public abstract class BaseContactFragment extends BaseFragment {
     loadTitle();
     initContactAction();
     loadConfig();
+    contactLayout
+        .getContactListView()
+        .setLoadMoreListener(
+            new ILoadListener() {
+              @Override
+              public boolean hasMore() {
+                return false;
+              }
+
+              @Override
+              public void loadMore(Object last) {}
+
+              @Override
+              public void onScrollStateIdle(int first, int end) {
+                subscribeContactFriend(first, end);
+              }
+            });
+  }
+
+  private void subscribeContactFriend(int first, int end) {
+    viewModel.dynamicSubscribeContactFriend(first, end);
   }
 
   private void initContactAction() {

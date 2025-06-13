@@ -34,5 +34,6 @@ public class ConversationTeamViewHolder extends ConversationBaseViewHolder {
     } else {
       viewBinding.aitTv.setVisibility(View.GONE);
     }
+    viewBinding.onlineView.setVisibility(View.GONE);
   }
 }

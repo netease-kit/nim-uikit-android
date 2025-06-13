@@ -46,6 +46,8 @@ public interface IMessageProxy {
 
   void onTranslateAction();
 
+  boolean onAIHelperClick(View view, String action);
+
   String getConversationId();
 
   V2NIMConversationType getConversationType();

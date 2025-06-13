@@ -10,6 +10,9 @@ import android.text.TextUtils;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
+import com.netease.nimlib.sdk.v2.V2NIMError;
+import com.netease.nimlib.sdk.v2.auth.enums.V2NIMDataSyncState;
+import com.netease.nimlib.sdk.v2.auth.enums.V2NIMDataSyncType;
 import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessage;
 import com.netease.nimlib.sdk.v2.message.V2NIMP2PMessageReadReceipt;
@@ -20,8 +23,13 @@ import com.netease.nimlib.sdk.v2.notification.config.V2NIMNotificationConfig;
 import com.netease.nimlib.sdk.v2.notification.config.V2NIMNotificationPushConfig;
 import com.netease.nimlib.sdk.v2.notification.config.V2NIMNotificationRouteConfig;
 import com.netease.nimlib.sdk.v2.notification.params.V2NIMSendCustomNotificationParams;
+import com.netease.nimlib.sdk.v2.subscription.V2NIMSubscribeListener;
+import com.netease.nimlib.sdk.v2.subscription.model.V2NIMUserStatus;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
+import com.netease.yunxin.kit.chatkit.OnlineStatusManager;
+import com.netease.yunxin.kit.chatkit.impl.LoginDetailListenerImpl;
+import com.netease.yunxin.kit.chatkit.manager.AIUserManager;
 import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
 import com.netease.yunxin.kit.chatkit.repo.ContactRepo;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatUserCache;
@@ -60,6 +68,9 @@ public class ChatP2PViewModel extends ChatBaseViewModel {
 
   private final FetchResult<UserWithFriend> friendInfoFetchResult =
       new FetchResult<>(LoadStatus.Finish);
+
+  // 更新在线状态
+  private final MutableLiveData<FetchResult<String>> updateLiveData = new MutableLiveData<>();
 
   // 正在输入功能监听，监听通知消息来展示对方是否正在输入
   private final V2NIMNotificationListener notificationListener =
@@ -104,6 +115,29 @@ public class ChatP2PViewModel extends ChatBaseViewModel {
         }
       };
 
+  protected V2NIMSubscribeListener onlineListener =
+      new V2NIMSubscribeListener() {
+        @Override
+        public void onUserStatusChanged(List<V2NIMUserStatus> userStatusList) {
+          if (userStatusList == null || userStatusList.isEmpty()) {
+            return;
+          }
+          String userId = "";
+          for (V2NIMUserStatus userStatus : userStatusList) {
+            if (userStatus != null && Objects.equals(userStatus.getAccountId(), mChatAccountId)) {
+              userId = userStatus.getAccountId();
+              break;
+            }
+          }
+          if (!userId.isEmpty()) {
+            FetchResult<String> updateResult = new FetchResult<>(FetchResult.FetchType.Update);
+            updateResult.setData(userId);
+            updateResult.setLoadStatus(LoadStatus.Finish);
+            updateLiveData.setValue(updateResult);
+          }
+        }
+      };
+
   // 好友信息变更监听
   private final ContactListener friendListener =
       new ContactListener() {
@@ -145,6 +179,18 @@ public class ChatP2PViewModel extends ChatBaseViewModel {
         public void onFriendAddRejected(@NonNull FriendAddApplicationInfo rejectionInfo) {}
       };
 
+  private LoginDetailListenerImpl loginDetailListener =
+      new LoginDetailListenerImpl() {
+        @Override
+        public void onDataSync(V2NIMDataSyncType type, V2NIMDataSyncState state, V2NIMError error) {
+          ALog.d(LIB_TAG, TAG, "onDataSync:" + type.name() + "," + state.name());
+          if (type == V2NIMDataSyncType.V2NIM_DATA_SYNC_MAIN
+              && state == V2NIMDataSyncState.V2NIM_DATA_SYNC_STATE_COMPLETED) {
+            subscribeOnlineStatus(true);
+          }
+        }
+      };
+
   /** chat message read receipt live data */
   public MutableLiveData<V2NIMP2PMessageReadReceipt> getMessageReceiptLiveData() {
     return messageReceiptLiveData;
@@ -159,10 +205,30 @@ public class ChatP2PViewModel extends ChatBaseViewModel {
     return friendInfoLiveData;
   }
 
+  public MutableLiveData<FetchResult<String>> getUpdateLiveData() {
+    return updateLiveData;
+  }
+
   public void getP2PData(V2NIMMessage anchorMessage) {
     getFriendInfo(mChatAccountId);
     getMessageList(anchorMessage, false);
     getP2PMessageReadReceipts();
+    subscribeOnlineStatus(false);
+  }
+
+  private void subscribeOnlineStatus(boolean needRefresh) {
+    if (IMKitConfigCenter.getEnableOnlineStatus() && !AIUserManager.isAIUser(mChatAccountId)) {
+      List<String> accountList = new ArrayList<>();
+      accountList.add(mChatAccountId);
+      OnlineStatusManager.subscribeUserStatus(accountList);
+    }
+    // 重新订阅移除当前状态重新刷新
+    if (needRefresh) {
+      FetchResult<String> updateResult = new FetchResult<>(FetchResult.FetchType.Update);
+      updateResult.setData(mChatAccountId);
+      updateResult.setLoadStatus(LoadStatus.Finish);
+      updateLiveData.setValue(updateResult);
+    }
   }
 
   public void getFriendInfo(String accId) {
@@ -237,7 +303,12 @@ public class ChatP2PViewModel extends ChatBaseViewModel {
     if (IMKitConfigCenter.getEnableTypingStatus()) {
       ChatRepo.addNotificationListener(notificationListener);
     }
+    // 如果开启在线状态
+    if (IMKitConfigCenter.getEnableOnlineStatus()) {
+      OnlineStatusManager.addUserOnlineListener(onlineListener);
+    }
     ContactRepo.addContactListener(friendListener);
+    IMKitClient.addLoginDetailListener(loginDetailListener);
   }
 
   @Override
@@ -246,7 +317,9 @@ public class ChatP2PViewModel extends ChatBaseViewModel {
     if (IMKitConfigCenter.getEnableTypingStatus()) {
       ChatRepo.removeNotificationListener(notificationListener);
     }
+    OnlineStatusManager.removeUserOnlineListener(onlineListener);
     ContactRepo.removeContactListener(friendListener);
+    IMKitClient.removeLoginDetailListener(loginDetailListener);
   }
 
   @Override

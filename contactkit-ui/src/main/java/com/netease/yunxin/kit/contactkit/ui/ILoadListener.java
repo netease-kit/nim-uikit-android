@@ -10,4 +10,6 @@ public interface ILoadListener {
   boolean hasMore();
 
   void loadMore(Object last);
+
+  void onScrollStateIdle(int first, int end);
 }

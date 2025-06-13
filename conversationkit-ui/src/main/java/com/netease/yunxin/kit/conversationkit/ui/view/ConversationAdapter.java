@@ -97,6 +97,17 @@ public class ConversationAdapter extends RecyclerView.Adapter<BaseViewHolder> {
     }
   }
 
+  // 更新信息
+  public void updateItem(List<String> idList) {
+    for (String id : idList) {
+      for (int j = 0; j < conversationList.size(); j++) {
+        if (TextUtils.equals(conversationList.get(j).getConversationId(), id)) {
+          notifyItemChanged(j + conversationHeaderList.size());
+        }
+      }
+    }
+  }
+
   // 更新数据，如果数据已存在，则更新，不存在则添加
   public void update(ConversationBean data) {
     ALog.d(LIB_TAG, TAG, "update" + data.getConversationId());
@@ -131,6 +142,17 @@ public class ConversationAdapter extends RecyclerView.Adapter<BaseViewHolder> {
       }
     }
     layoutManager.scrollToPosition(position);
+  }
+
+  public List<String> getContentDataID(int start, int end) {
+    List<String> result = new ArrayList<>();
+    if (start < 0) {
+      start = 0;
+    }
+    for (int index = start; index < conversationList.size() && index < end; index++) {
+      result.add(conversationHeaderList.get(index).getConversationId());
+    }
+    return result;
   }
 
   private int searchComparatorIndex(ConversationBean data, boolean addStickTop) {
@@ -303,5 +325,9 @@ public class ConversationAdapter extends RecyclerView.Adapter<BaseViewHolder> {
       return conversationList.get(index - conversationHeaderList.size());
     }
     return null;
+  }
+
+  public List<ConversationBean> getConversationList() {
+    return conversationList;
   }
 }
