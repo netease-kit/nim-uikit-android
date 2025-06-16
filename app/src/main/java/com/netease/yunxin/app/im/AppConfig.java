@@ -4,19 +4,26 @@
 
 package com.netease.yunxin.app.im;
 
+/**
+ * IM UIKit 配置信息
+ * 包括登录信息、离线推送信息、AI助聊接口信息等
+ */
 public class AppConfig {
 
   // IM 登录
 
-  // 账号ID
+  // IM UIKit和IM SDK登录账号ID
   public static final String account = "";
-  // 登录token
+  // IM UIKit和IM SDK登录token
   public static final String token = "";
 
 
   // AI助聊 HTTP请求接口信息
+  // 助聊接口Host
   public static final String AIHelperHost_ONLINE = "";
+  // 助聊URL地址
   public static final String AIHelperUrl = "";
+  // 助聊应用服务器需要的权限校验token，由自己业务决定和实现
   public static final String accessToken = "";
 
   // 离线推送信息
