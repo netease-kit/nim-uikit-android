@@ -6,12 +6,17 @@ package com.netease.yunxin.app.im;
 
 public class AppConfig {
 
+  // IM 登录
+
+  // 账号ID
+  public static final String account = "";
+  // 登录token
+  public static final String token = "";
+
+
   // AI助聊 HTTP请求接口信息
   public static final String AIHelperHost_ONLINE = "";
   public static final String AIHelperUrl = "";
-
-  public static final String account = "";
-  public static final String token = "";
   public static final String accessToken = "";
 
   // 离线推送信息
