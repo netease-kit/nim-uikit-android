@@ -90,7 +90,7 @@
         android:layout_height="50dp"
         android:text="@string/login_text"
         android:background="@drawable/bg_login_button"
-        android:textColor="@color/white"
+        android:textColor="@color/color_white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
