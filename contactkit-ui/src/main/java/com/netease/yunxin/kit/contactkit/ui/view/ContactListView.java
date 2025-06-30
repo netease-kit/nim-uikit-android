@@ -27,7 +27,6 @@ import com.netease.yunxin.kit.contactkit.ui.interfaces.IContactListView;
 import com.netease.yunxin.kit.contactkit.ui.interfaces.IContactViewAttrs;
 import com.netease.yunxin.kit.contactkit.ui.model.BaseContactBean;
 import com.netease.yunxin.kit.contactkit.ui.model.ContactFriendBean;
-import com.netease.yunxin.kit.contactkit.ui.model.ContactVerifyInfoBean;
 import com.netease.yunxin.kit.contactkit.ui.view.adapter.ContactAdapter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -296,7 +295,7 @@ public class ContactListView extends FrameLayout
     }
   }
 
-  public void updateVerifyDate(ContactVerifyInfoBean data) {
+  public void updateVerifyDate(BaseContactBean data) {
     if (contactAdapter != null) {
       contactAdapter.updateDataAndSort(data);
       if (data.isNeedToPinyin()) {

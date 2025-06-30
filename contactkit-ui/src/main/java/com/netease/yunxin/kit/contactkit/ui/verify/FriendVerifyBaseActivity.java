@@ -16,9 +16,9 @@ import com.netease.yunxin.kit.contactkit.ui.databinding.BaseListActivityLayoutBi
 import com.netease.yunxin.kit.contactkit.ui.model.ContactVerifyInfoBean;
 import java.util.List;
 
-public class BaseVerifyListActivity extends BaseListActivity implements ILoadListener {
+public class FriendVerifyBaseActivity extends BaseListActivity implements ILoadListener {
 
-  protected VerifyViewModel viewModel;
+  protected FriendVerifyViewModel viewModel;
   protected boolean hasInit = false;
   protected int seriesPageCount = 0;
   protected final int seriesPageLimit = 20;
@@ -56,7 +56,7 @@ public class BaseVerifyListActivity extends BaseListActivity implements ILoadLis
 
   @Override
   protected void initData() {
-    viewModel = new ViewModelProvider(this).get(VerifyViewModel.class);
+    viewModel = new ViewModelProvider(this).get(FriendVerifyViewModel.class);
     viewModel
         .getFetchResult()
         .observe(
@@ -68,7 +68,7 @@ public class BaseVerifyListActivity extends BaseListActivity implements ILoadLis
                     || (result.getData() != null && result.getData().size() < 10)) {
                   if (viewModel.hasMore() && seriesPageCount < seriesPageLimit) {
                     seriesPageCount += result.getData() != null ? result.getData().size() : 0;
-                    viewModel.fetchVerifyList(true);
+                    viewModel.getFriendVerifyList(true);
                   }
                   seriesPageCount = 0;
                 }
@@ -89,7 +89,7 @@ public class BaseVerifyListActivity extends BaseListActivity implements ILoadLis
               updateView();
             });
 
-    viewModel.fetchVerifyList(false);
+    viewModel.getFriendVerifyList(false);
   }
 
   protected void updateView() {
@@ -133,7 +133,7 @@ public class BaseVerifyListActivity extends BaseListActivity implements ILoadLis
 
   @Override
   public void loadMore(Object last) {
-    viewModel.fetchVerifyList(true);
+    viewModel.getFriendVerifyList(true);
   }
 
   @Override

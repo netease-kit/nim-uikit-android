@@ -44,6 +44,9 @@ public class FunTeamManagerActivity extends BaseTeamManagerActivity {
     viewTopSticky = binding.tvTopStickyPermission;
     tvAitValue = binding.tvNotifyAllMembersValue;
     tvTopStickyValue = binding.tvTopStickyValue;
+    swAgreeMode = binding.swTeamAgree;
+    swJoinMode = binding.swTeamJoin;
+    joinAgreeGroup = binding.joinAgreeModelGroup;
     return binding.getRoot();
   }
 

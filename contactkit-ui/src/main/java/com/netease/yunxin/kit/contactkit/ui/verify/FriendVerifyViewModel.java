@@ -11,8 +11,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
 import com.netease.nimlib.sdk.v2.friend.enums.V2NIMFriendAddApplicationStatus;
+import com.netease.nimlib.sdk.v2.team.model.V2NIMTeamJoinActionInfo;
+import com.netease.nimlib.sdk.v2.team.option.V2NIMTeamJoinActionInfoQueryOption;
+import com.netease.nimlib.sdk.v2.team.result.V2NIMTeamJoinActionInfoResult;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.repo.ContactRepo;
+import com.netease.yunxin.kit.chatkit.repo.TeamRepo;
 import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
@@ -28,7 +32,7 @@ import com.netease.yunxin.kit.corekit.im2.model.V2UserInfo;
 import java.util.ArrayList;
 import java.util.List;
 
-public class VerifyViewModel extends BaseViewModel {
+public class FriendVerifyViewModel extends BaseViewModel {
 
   private final String TAG = "VerifyViewModel";
   private static final int PAGE_LIMIT = 100;
@@ -53,7 +57,7 @@ public class VerifyViewModel extends BaseViewModel {
     return resultLiveData;
   }
 
-  public VerifyViewModel() {
+  public FriendVerifyViewModel() {
     infoObserver =
         new ContactListener() {
           @Override
@@ -169,7 +173,7 @@ public class VerifyViewModel extends BaseViewModel {
     ContactRepo.addContactListener(infoObserver);
   }
 
-  public void fetchVerifyList(boolean nextPage) {
+  public void getFriendVerifyList(boolean nextPage) {
     ALog.d(LIB_TAG, TAG, "fetchVerifyList,nextPage:" + nextPage);
     fetchResult.setStatus(LoadStatus.Loading);
     resultLiveData.postValue(fetchResult);
@@ -205,6 +209,38 @@ public class VerifyViewModel extends BaseViewModel {
             }
             resultLiveData.setValue(fetchResult);
           }
+        });
+    getTeamJoinActionInfoList();
+  }
+
+  public void getTeamJoinActionInfoList() {
+    V2NIMTeamJoinActionInfoQueryOption option = new V2NIMTeamJoinActionInfoQueryOption();
+    option.setLimit(100);
+    TeamRepo.getTeamJoinActionInfoList(
+        option,
+        new FetchCallback<V2NIMTeamJoinActionInfoResult>() {
+
+          @Override
+          public void onSuccess(@Nullable V2NIMTeamJoinActionInfoResult data) {
+            if (data != null) {
+              for (V2NIMTeamJoinActionInfo info : data.getInfos()) {
+                ALog.d(
+                    LIB_TAG,
+                    TAG,
+                    "getTeamJoinActionInfoList:info:"
+                        + info.getTeamId()
+                        + ",action:"
+                        + info.getActionType()
+                        + ",account:"
+                        + info.getOperatorAccountId()
+                        + ",status:"
+                        + info.getActionStatus());
+              }
+            }
+          }
+
+          @Override
+          public void onError(int errorCode, @Nullable String errorMsg) {}
         });
   }
 
@@ -298,7 +334,6 @@ public class VerifyViewModel extends BaseViewModel {
             if (needUpdate) {
               updateList.add(bean);
             }
-
             break;
           }
         }

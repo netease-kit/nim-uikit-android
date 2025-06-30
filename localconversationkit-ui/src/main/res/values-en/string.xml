@@ -8,6 +8,7 @@
     <string name="conversation_title">CommsEase IM</string>
     <string name="add_friend">Add Contacts</string> 
     <string name="create_group_team">Create Temp Group</string>
+    <string name="join_group_team">Join Team Group</string>
     <string name="create_advanced_team">Create Group</string>
     <string name="create_advanced_team_success">Group is created</string>
 

@@ -16,9 +16,13 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.SwitchCompat;
+import androidx.constraintlayout.widget.Group;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamAgreeMode;
 import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamInviteMode;
+import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamJoinMode;
 import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamMemberRole;
 import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamUpdateInfoMode;
 import com.netease.nimlib.sdk.v2.team.model.V2NIMTeam;
@@ -31,6 +35,7 @@ import com.netease.yunxin.kit.corekit.im2.IMKitClient;
 import com.netease.yunxin.kit.teamkit.ui.R;
 import com.netease.yunxin.kit.teamkit.ui.dialog.BaseTeamIdentifyDialog;
 import com.netease.yunxin.kit.teamkit.ui.normal.dialog.TeamIdentifyDialog;
+import com.netease.yunxin.kit.teamkit.ui.utils.NetworkUtilsWrapper;
 import com.netease.yunxin.kit.teamkit.ui.utils.TeamUtils;
 import com.netease.yunxin.kit.teamkit.ui.viewmodel.TeamManagerViewModel;
 import java.util.List;
@@ -41,6 +46,7 @@ public abstract class BaseTeamManagerActivity extends BaseLocalActivity {
   protected TeamManagerViewModel viewModel;
 
   protected String teamId;
+
   protected V2NIMTeam teamInfo;
   protected V2NIMTeamMember teamMember;
   private View rootView;
@@ -62,6 +68,11 @@ public abstract class BaseTeamManagerActivity extends BaseLocalActivity {
   protected TextView tvAitValue;
 
   protected TextView tvTopStickyValue;
+
+  protected Group joinAgreeGroup;
+  protected SwitchCompat swAgreeMode;
+
+  protected SwitchCompat swJoinMode;
 
   @Override
   protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -108,6 +119,13 @@ public abstract class BaseTeamManagerActivity extends BaseLocalActivity {
       viewTopSticky.setVisibility(View.VISIBLE);
       tvTopStickyValue.setVisibility(View.VISIBLE);
     }
+    if (joinAgreeGroup != null) {
+      if (IMKitConfigCenter.getEnableTeamJoinAgreeModelAuth()) {
+        joinAgreeGroup.setVisibility(View.VISIBLE);
+      } else {
+        joinAgreeGroup.setVisibility(View.GONE);
+      }
+    }
   }
 
   protected void refreshUI(V2NIMTeam teamInfo) {
@@ -129,6 +147,26 @@ public abstract class BaseTeamManagerActivity extends BaseLocalActivity {
         Objects.equals(TeamUtils.getTeamTopStickyMode(teamInfo), TYPE_EXTENSION_ALLOW_ALL)
             ? R.string.team_all_member
             : R.string.team_owner_and_manager);
+
+    swJoinMode.setChecked(teamInfo.getJoinMode() != V2NIMTeamJoinMode.V2NIM_TEAM_JOIN_MODE_FREE);
+    swAgreeMode.setChecked(
+        teamInfo.getAgreeMode() == V2NIMTeamAgreeMode.V2NIM_TEAM_AGREE_MODE_AUTH);
+    swAgreeMode.setOnClickListener(
+        v -> {
+          if (NetworkUtilsWrapper.checkNetworkAndToast(this)) {
+            viewModel.updateAgreeMode(swAgreeMode.isChecked());
+          } else {
+            swAgreeMode.setChecked(!swAgreeMode.isChecked());
+          }
+        });
+    swJoinMode.setOnClickListener(
+        v -> {
+          if (NetworkUtilsWrapper.checkNetworkAndToast(this)) {
+            viewModel.updateJoinMode(swJoinMode.isChecked());
+          } else {
+            swJoinMode.setChecked(!swJoinMode.isChecked());
+          }
+        });
 
     if (IMKitConfigCenter.getEnableAtMessage()) {
       viewAit.setVisibility(View.VISIBLE);

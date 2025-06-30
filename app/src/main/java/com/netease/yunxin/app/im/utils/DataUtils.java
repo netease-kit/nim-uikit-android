@@ -24,6 +24,7 @@ public class DataUtils {
   private static Boolean cloudConversation = null;
   private static Boolean aiStream = null;
   private static Boolean notificationHideContent = null;
+  private static Boolean teamApplyMode = null;
   private static Boolean toggleNotification = null;
 
   /** read appKey from manifest */
@@ -106,6 +107,7 @@ public class DataUtils {
           context.getSharedPreferences(
               Constant.CONVERSATION_CONFIG_FILE, Context.MODE_MULTI_PROCESS);
       cloudConversation = sharedPreferences.getBoolean(Constant.CONVERSATION_LOCAL_CONFIG, false);
+      teamApplyMode = sharedPreferences.getBoolean(Constant.TEAM_MODE_CONFIG, true);
     }
     return cloudConversation;
   }
@@ -118,6 +120,28 @@ public class DataUtils {
             .edit();
     editor.putBoolean(Constant.CONVERSATION_LOCAL_CONFIG, configSwitch);
     cloudConversation = configSwitch;
+    editor.commit();
+  }
+
+  // 获取群邀请模式
+  public static boolean getTeamModeConfigSwitch(Context context) {
+    if (teamApplyMode == null) {
+      SharedPreferences sharedPreferences =
+              context.getSharedPreferences(
+                      Constant.CONVERSATION_CONFIG_FILE, Context.MODE_MULTI_PROCESS);
+      teamApplyMode = sharedPreferences.getBoolean(Constant.TEAM_MODE_CONFIG, true);
+    }
+    return teamApplyMode;
+  }
+
+  // 保存群邀请模式
+  public static void saveTeamModeConfigSwitch(Context context, boolean configSwitch) {
+    SharedPreferences.Editor editor =
+            context
+                    .getSharedPreferences(Constant.CONVERSATION_CONFIG_FILE, Context.MODE_MULTI_PROCESS)
+                    .edit();
+    editor.putBoolean(Constant.TEAM_MODE_CONFIG, configSwitch);
+    teamApplyMode = configSwitch;
     editor.commit();
   }
 

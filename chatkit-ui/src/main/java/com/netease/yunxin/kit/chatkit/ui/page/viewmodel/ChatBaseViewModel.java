@@ -195,7 +195,12 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
                     + " "
                     + ",content: "
                     + msg.getText());
-            messageList.add(new ChatMessageBean(new IMMessageInfo(msg)));
+            ChatMessageBean msgBean = new ChatMessageBean(new IMMessageInfo(msg));
+            if (msgBean.getMessage().getMessageType()
+                == V2NIMMessageType.V2NIM_MESSAGE_TYPE_CUSTOM) {
+              msgBean.getMessageData().parseAttachment();
+            }
+            messageList.add(msgBean);
           }
           FetchResult<Pair<MessageUpdateType, List<ChatMessageBean>>> messageUpdateResult =
               new FetchResult<>(LoadStatus.Success);
@@ -1329,7 +1334,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
             + direction);
 
     LoadStatus loadStatus =
-        (param == null || param.size() == 0) ? LoadStatus.Finish : LoadStatus.Success;
+        (param == null || param.isEmpty()) ? LoadStatus.Finish : LoadStatus.Success;
     messageFetchResult.setLoadStatus(loadStatus);
     messageFetchResult.setData(convert(param));
     if (anchorMsg != null && !needToScrollEnd) {

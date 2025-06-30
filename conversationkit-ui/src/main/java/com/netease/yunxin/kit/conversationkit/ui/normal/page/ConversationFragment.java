@@ -74,6 +74,7 @@ public class ConversationFragment extends ConversationBaseFragment {
             ContentListPopView contentListPopView =
                 new ContentListPopView.Builder(context)
                     .addItem(PopItemFactory.getAddFriendItem(context))
+                    .addItem(PopItemFactory.getSearchGroupTeamItem(context))
                     .addItem(PopItemFactory.getCreateGroupTeamItem(context, memberLimit))
                     .addItem(PopItemFactory.getCreateAdvancedTeamItem(context, memberLimit))
                     .build();

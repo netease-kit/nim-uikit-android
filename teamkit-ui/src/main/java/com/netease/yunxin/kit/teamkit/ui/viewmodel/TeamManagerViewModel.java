@@ -11,11 +11,14 @@ import static com.netease.yunxin.kit.chatkit.ChatConstants.KEY_EXTENSION_STICKY_
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
+import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamAgreeMode;
 import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamInviteMode;
+import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamJoinMode;
 import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamType;
 import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamUpdateInfoMode;
 import com.netease.nimlib.sdk.v2.team.model.V2NIMTeam;
 import com.netease.nimlib.sdk.v2.team.model.V2NIMTeamMember;
+import com.netease.nimlib.sdk.v2.team.params.V2NIMUpdateTeamInfoParams;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.impl.TeamListenerImpl;
 import com.netease.yunxin.kit.chatkit.repo.TeamRepo;
@@ -265,6 +268,46 @@ public class TeamManagerViewModel extends TeamBaseViewModel {
             ALog.d(LIB_TAG, TAG, "updateTopStickyPrivilege,onFailed:" + errorCode);
             updateTopStickyLiveData.setValue(new FetchResult<>(errorCode, errorMsg));
           }
+        });
+  }
+
+  public void updateAgreeMode(boolean needAgree) {
+    V2NIMUpdateTeamInfoParams params = new V2NIMUpdateTeamInfoParams();
+    params.setAgreeMode(
+        needAgree
+            ? V2NIMTeamAgreeMode.V2NIM_TEAM_AGREE_MODE_AUTH
+            : V2NIMTeamAgreeMode.V2NIM_TEAM_AGREE_MODE_NO_AUTH);
+    TeamRepo.updateTeam(
+        teamId,
+        V2NIMTeamType.V2NIM_TEAM_TYPE_NORMAL,
+        params,
+        null,
+        new FetchCallback<Void>() {
+          @Override
+          public void onError(int errorCode, @Nullable String errorMsg) {}
+
+          @Override
+          public void onSuccess(@Nullable Void data) {}
+        });
+  }
+
+  public void updateJoinMode(boolean needAgree) {
+    V2NIMUpdateTeamInfoParams params = new V2NIMUpdateTeamInfoParams();
+    params.setJoinMode(
+        needAgree
+            ? V2NIMTeamJoinMode.V2NIM_TEAM_JOIN_MODE_APPLY
+            : V2NIMTeamJoinMode.V2NIM_TEAM_JOIN_MODE_FREE);
+    TeamRepo.updateTeam(
+        teamId,
+        V2NIMTeamType.V2NIM_TEAM_TYPE_NORMAL,
+        params,
+        null,
+        new FetchCallback<Void>() {
+          @Override
+          public void onError(int errorCode, @Nullable String errorMsg) {}
+
+          @Override
+          public void onSuccess(@Nullable Void data) {}
         });
   }
 

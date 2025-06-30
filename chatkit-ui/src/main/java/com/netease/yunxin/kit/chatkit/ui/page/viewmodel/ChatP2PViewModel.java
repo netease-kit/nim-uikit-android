@@ -217,7 +217,9 @@ public class ChatP2PViewModel extends ChatBaseViewModel {
   }
 
   private void subscribeOnlineStatus(boolean needRefresh) {
-    if (IMKitConfigCenter.getEnableOnlineStatus() && !AIUserManager.isAIUser(mChatAccountId)) {
+    if (IMKitConfigCenter.getEnableOnlineStatus()
+        && !AIUserManager.isAIUser(mChatAccountId)
+        && !OnlineStatusManager.isOnlineSubscribe(mChatAccountId)) {
       List<String> accountList = new ArrayList<>();
       accountList.add(mChatAccountId);
       OnlineStatusManager.subscribeUserStatus(accountList);

@@ -19,10 +19,17 @@ import com.netease.nimlib.sdk.v2.auth.enums.V2NIMDataSyncState;
 import com.netease.nimlib.sdk.v2.auth.enums.V2NIMDataSyncType;
 import com.netease.nimlib.sdk.v2.subscription.V2NIMSubscribeListener;
 import com.netease.nimlib.sdk.v2.subscription.model.V2NIMUserStatus;
+import com.netease.nimlib.sdk.v2.team.V2NIMTeamListener;
+import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamJoinActionStatus;
+import com.netease.nimlib.sdk.v2.team.model.V2NIMTeamJoinActionInfo;
+import com.netease.nimlib.sdk.v2.team.option.V2NIMTeamJoinActionInfoQueryOption;
+import com.netease.nimlib.sdk.v2.team.result.V2NIMTeamJoinActionInfoResult;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
 import com.netease.yunxin.kit.chatkit.OnlineStatusManager;
+import com.netease.yunxin.kit.chatkit.impl.TeamListenerImpl;
 import com.netease.yunxin.kit.chatkit.repo.ContactRepo;
+import com.netease.yunxin.kit.chatkit.repo.TeamRepo;
 import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
@@ -30,6 +37,7 @@ import com.netease.yunxin.kit.contactkit.ui.R;
 import com.netease.yunxin.kit.contactkit.ui.model.ContactEntranceBean;
 import com.netease.yunxin.kit.contactkit.ui.model.ContactFriendBean;
 import com.netease.yunxin.kit.contactkit.ui.model.IViewTypeConstant;
+import com.netease.yunxin.kit.contactkit.ui.utils.ContactUtils;
 import com.netease.yunxin.kit.corekit.im2.IMKitClient;
 import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
 import com.netease.yunxin.kit.corekit.im2.listener.ContactChangeType;
@@ -56,7 +64,7 @@ public class ContactViewModel extends BaseViewModel {
       new MutableLiveData<>();
   private ContactEntranceBean verifyBean;
   private int unreadCount = 0;
-
+  private int unreadTeamCount = 0;
   private boolean isSelectorPage = false;
 
   //是否已经拉取过联系人
@@ -152,7 +160,7 @@ public class ContactViewModel extends BaseViewModel {
     requestApplicationUnreadCount();
   }
 
-  private void requestApplicationUnreadCount() {
+  public void requestApplicationUnreadCount() {
     ContactRepo.getUnreadApplicationCount(
         new FetchCallback<Integer>() {
           @Override
@@ -164,9 +172,35 @@ public class ContactViewModel extends BaseViewModel {
           @Override
           public void onSuccess(@Nullable Integer count) {
             ALog.d(LIB_TAG, TAG, "fetchContactList,getUnreadApplicationCount,onSuccess:" + count);
-            updateVerifyNumber(count);
+            updateFriendVerifyNumber(count);
           }
         });
+    V2NIMTeamJoinActionInfoQueryOption option = new V2NIMTeamJoinActionInfoQueryOption();
+    option.setLimit(100);
+    if (IMKitConfigCenter.getEnableTeamJoinAgreeModelAuth()) {
+      TeamRepo.getTeamJoinActionInfoList(
+          option,
+          new FetchCallback<V2NIMTeamJoinActionInfoResult>() {
+            @Override
+            public void onError(int errorCode, @Nullable String errorMsg) {}
+
+            @Override
+            public void onSuccess(@Nullable V2NIMTeamJoinActionInfoResult data) {
+              int unreadCount = 0;
+              if (data != null && !data.getInfos().isEmpty()) {
+                long timeStamp = ContactUtils.getTeamVerifyReadTime();
+                for (V2NIMTeamJoinActionInfo info : data.getInfos()) {
+                  if (info.getActionStatus()
+                          == V2NIMTeamJoinActionStatus.V2NIM_TEAM_JOIN_ACTION_STATUS_INIT
+                      && info.getTimestamp() > timeStamp) {
+                    unreadCount++;
+                  }
+                }
+              }
+              updateTeamVerifyNumber(unreadCount);
+            }
+          });
+    }
   }
 
   public void registerObserver() {
@@ -176,6 +210,7 @@ public class ContactViewModel extends BaseViewModel {
     ContactRepo.addContactListener(friendChangeObserve);
     ContactRepo.addFriendApplicationCountListener(friendApplicationCountListener);
     IMKitClient.addLoginDetailListener(loginDetailListener);
+    TeamRepo.addTeamListener(teamListener);
     if (IMKitConfigCenter.getEnableOnlineStatus()) {
       OnlineStatusManager.addUserOnlineListener(onlineListener);
     }
@@ -184,7 +219,7 @@ public class ContactViewModel extends BaseViewModel {
 
   //监听好友申请数量
   private final FriendApplicationCountListener friendApplicationCountListener =
-      this::updateVerifyNumber;
+      this::updateFriendVerifyNumber;
 
   //监听好友变化
   private final ContactListener friendChangeObserve =
@@ -219,7 +254,14 @@ public class ContactViewModel extends BaseViewModel {
           requestApplicationUnreadCount();
         }
       };
-
+  private V2NIMTeamListener teamListener =
+      new TeamListenerImpl() {
+        @Override
+        public void onReceiveTeamJoinActionInfo(@Nullable V2NIMTeamJoinActionInfo joinActionInfo) {
+          int count = unreadTeamCount + 1;
+          updateTeamVerifyNumber(count);
+        }
+      };
   private V2NIMSubscribeListener onlineListener =
       userStatusList -> {
         List<String> statusAccountList = new ArrayList<>();
@@ -236,21 +278,36 @@ public class ContactViewModel extends BaseViewModel {
         }
       };
 
-  private void updateVerifyNumber(int count) {
-    ALog.d(LIB_TAG, TAG, "updateVerifyNumber:" + count);
+  private void updateFriendVerifyNumber(int count) {
+    ALog.d(LIB_TAG, TAG, "updateFriendVerifyNumber:" + count);
     if (verifyBean != null) {
       if (count != unreadCount) {
-        verifyBean.number = count;
+        verifyBean.number = count + unreadTeamCount;
         unreadCount = count;
-        contactEntranceLiveData.postValue(verifyBean);
+        contactEntranceLiveData.setValue(verifyBean);
       }
     } else {
       unreadCount = count;
     }
   }
 
+  private void updateTeamVerifyNumber(int count) {
+    if (IMKitConfigCenter.getEnableTeamJoinAgreeModelAuth()) {
+      ALog.d(LIB_TAG, TAG, "updateTeamVerifyNumber:" + count);
+      if (verifyBean != null) {
+        if (count != unreadTeamCount) {
+          verifyBean.number = count + unreadCount;
+          unreadTeamCount = count;
+          contactEntranceLiveData.setValue(verifyBean);
+        }
+      } else {
+        unreadTeamCount = count;
+      }
+    }
+  }
+
   public int getVerifyCount() {
-    return unreadCount;
+    return unreadCount + unreadTeamCount;
   }
 
   private final V2NIMLoginDetailListener loginDetailListener =
@@ -462,5 +519,6 @@ public class ContactViewModel extends BaseViewModel {
     ContactRepo.removeContactListener(friendChangeObserve);
     ContactRepo.removeFriendApplicationCountListener(friendApplicationCountListener);
     IMKitClient.removeLoginDetailListener(loginDetailListener);
+    TeamRepo.removeTeamListener(teamListener);
   }
 }

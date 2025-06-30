@@ -18,6 +18,8 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import com.netease.lava.nertc.sdk.NERtcOption;
 import com.netease.nimlib.sdk.avsignalling.constant.ChannelType;
+import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
+import com.netease.nimlib.sdk.msg.model.IMMessage;
 import com.netease.nimlib.sdk.v2.V2NIMError;
 import com.netease.nimlib.sdk.v2.ai.model.V2NIMAIUser;
 import com.netease.nimlib.sdk.v2.auth.V2NIMLoginListener;
@@ -79,6 +81,8 @@ import com.netease.yunxin.kit.corekit.event.EventCenter;
 import com.netease.yunxin.kit.corekit.event.EventNotify;
 import com.netease.yunxin.kit.corekit.im2.IMKitClient;
 import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
+import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
+import com.netease.yunxin.kit.corekit.route.XKitRouter;
 import com.netease.yunxin.nertc.ui.CallKitNotificationConfig;
 import com.netease.yunxin.nertc.ui.CallKitUI;
 import com.netease.yunxin.nertc.ui.CallKitUIOptions;
@@ -119,6 +123,7 @@ public class MainActivity extends BaseLocalActivity {
 
   // AI翻译数字人账号
   private static final String AI_TRANSLATION_USER_ACCOUNT = "translation";
+  private static final String NOTIFICATION_MESSAGE = "com.netease.nim.EXTRA.NOTIFY_CONTENT";
 
   //皮肤变更事件，切换皮肤后重新加载页面
   EventNotify<SkinEvent> skinNotify =
@@ -169,6 +174,7 @@ public class MainActivity extends BaseLocalActivity {
       haveUnreadContact = savedInstanceState.getBoolean(CONTACT_POT, false);
     }
     initLanguage();
+    loadSettingConfig();
     activityMainBinding = ActivityMainBinding.inflate(getLayoutInflater());
     setContentView(activityMainBinding.getRoot());
     initView();
@@ -177,21 +183,6 @@ public class MainActivity extends BaseLocalActivity {
     EventCenter.registerEventNotify(langeNotify);
     initContactFragment(mContactFragment);
     initConversationFragment();
-    ChatRepo.setSendCallback(
-        new MessageCallback() {
-          @Nullable
-          @Override
-          public MessageSendParams beforeSend(@NonNull MessageSendParams param) {
-            ALog.d(
-                "yeshuxin",
-                "MainActivity:onCreate beforeSend:"
-                    + param.getConversationId()
-                    + ","
-                    + param.getMessage().getText()
-                    + param.getMessage().getConversationId());
-            return param;
-          }
-        });
   }
 
   private void initLanguage() {
@@ -328,6 +319,13 @@ public class MainActivity extends BaseLocalActivity {
     outState.putInt(CURRENT_INDEX, currentIndex);
     outState.putBoolean(CONVERSATION_POT, haveUnreadConversation);
     outState.putBoolean(CONTACT_POT, haveUnreadContact);
+  }
+
+  @Override
+  protected void onNewIntent(Intent intent) {
+    super.onNewIntent(intent);
+    // 在线通知点击逻辑处理
+    parseAndGoChat(intent);
   }
 
   @Override
@@ -716,8 +714,45 @@ public class MainActivity extends BaseLocalActivity {
     IMKitConfigCenter.setEnableOnlyFriendCall(config.hasStrangeCallLimit);
     IMKitConfigCenter.setEnablePinMessage(config.hasPin);
     IMKitConfigCenter.setEnableTypingStatus(config.hasOnlineStatus);
+    IMKitConfigCenter.setEnableTeamJoinAgreeModelAuth(config.hasTeamApplyMode);
   }
 
+  public void parseAndGoChat(Intent intent) {
+    if (intent.getExtras() != null && intent.getExtras().containsKey(NOTIFICATION_MESSAGE)) {
+      Object msgObject = intent.getExtras().get(NOTIFICATION_MESSAGE);
+      if (msgObject instanceof List) {
+        List<Object> msgList = (List<Object>) msgObject;
+        if (msgList.size() > 0) {
+          Object msg = msgList.get(0);
+          if (msg instanceof IMMessage) {
+            IMMessage message = (IMMessage) msg;
+            String targetId = message.getSessionId();
+            SessionTypeEnum conversationType = message.getSessionType();
+            boolean isNormal =
+                    AppSkinConfig.getInstance().getAppSkinStyle() == AppSkinConfig.AppSkin.baseSkin;
+            if (conversationType == SessionTypeEnum.P2P) {
+              XKitRouter.withKey(
+                              isNormal
+                                      ? RouterConstant.PATH_CHAT_P2P_PAGE
+                                      : RouterConstant.PATH_FUN_CHAT_P2P_PAGE)
+                      .withParam(RouterConstant.CHAT_ID_KRY, targetId)
+                      .withContext(this)
+                      .navigate();
+            } else if (conversationType == SessionTypeEnum.Team) {
+              XKitRouter.withKey(
+                              isNormal
+                                      ? RouterConstant.PATH_CHAT_TEAM_PAGE
+                                      : RouterConstant.PATH_FUN_CHAT_TEAM_PAGE)
+                      .withParam(RouterConstant.CHAT_ID_KRY, targetId)
+                      .withContext(this)
+                      .navigate();
+            }
+            tabClick(activityMainBinding.conversationBtnGroup);
+          }
+        }
+      }
+    }
+  }
   //皮肤变更事件
   public static class SkinEvent extends BaseEvent {
     @NonNull

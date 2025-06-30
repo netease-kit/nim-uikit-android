@@ -220,14 +220,25 @@ public class TeamUIService extends ChatService {
       if (isGroup) {
         teamParams.setInviteMode(V2NIMTeamInviteMode.V2NIM_TEAM_INVITE_MODE_ALL);
         teamParams.setUpdateInfoMode(V2NIMTeamUpdateInfoMode.V2NIM_TEAM_UPDATE_INFO_MODE_ALL);
+        teamParams.setAgreeMode(V2NIMTeamAgreeMode.V2NIM_TEAM_AGREE_MODE_NO_AUTH);
+        teamParams.setJoinMode(V2NIMTeamJoinMode.V2NIM_TEAM_JOIN_MODE_FREE);
       } else {
         teamParams.setInviteMode(V2NIMTeamInviteMode.V2NIM_TEAM_INVITE_MODE_MANAGER);
         teamParams.setUpdateInfoMode(V2NIMTeamUpdateInfoMode.V2NIM_TEAM_UPDATE_INFO_MODE_MANAGER);
+        V2NIMTeamAgreeMode agreeMode = TeamKitConfigCenter.teamAgreeMode;
+        V2NIMTeamJoinMode joinMode = TeamKitConfigCenter.teamJoinMode;
+        if (agreeMode == null) {
+          agreeMode = V2NIMTeamAgreeMode.V2NIM_TEAM_AGREE_MODE_NO_AUTH;
+        }
+
+        if (joinMode == null) {
+          joinMode = V2NIMTeamJoinMode.V2NIM_TEAM_JOIN_MODE_FREE;
+        }
+        teamParams.setAgreeMode(agreeMode);
+        teamParams.setJoinMode(joinMode);
       }
-      teamParams.setAgreeMode(V2NIMTeamAgreeMode.V2NIM_TEAM_AGREE_MODE_NO_AUTH);
       teamParams.setUpdateExtensionMode(
           V2NIMTeamUpdateExtensionMode.V2NIM_TEAM_UPDATE_EXTENSION_MODE_ALL);
-      teamParams.setJoinMode(V2NIMTeamJoinMode.V2NIM_TEAM_JOIN_MODE_FREE);
       teamParams.setServerExtension(extJson.toString());
 
       teamParams.setName(teamName);

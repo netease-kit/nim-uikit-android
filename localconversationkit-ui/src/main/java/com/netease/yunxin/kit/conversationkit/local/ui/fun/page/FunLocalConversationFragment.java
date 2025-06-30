@@ -79,6 +79,8 @@ public class FunLocalConversationFragment extends LocalConversationBaseFragment 
                 new ContentListPopView.Builder(context)
                     .addItem(FunPopItemFactory.getAddFriendItem(context))
                     .addItem(FunPopItemFactory.getDivideLineItem(context))
+                    .addItem(FunPopItemFactory.getSearchGroupTeamItem(context))
+                    .addItem(FunPopItemFactory.getDivideLineItem(context))
                     .addItem(FunPopItemFactory.getCreateGroupTeamItem(context, memberLimit))
                     .addItem(FunPopItemFactory.getDivideLineItem(context))
                     .addItem(FunPopItemFactory.getCreateAdvancedTeamItem(context, memberLimit))

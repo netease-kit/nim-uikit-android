@@ -8,6 +8,7 @@
 <resources>
     <string name="conversation_title">云信IM</string>
     <string name="add_friend">添加好友</string>
+    <string name="join_group_team">加入群组</string>
     <string name="create_group_team">创建讨论组</string>
     <string name="create_advanced_team">创建高级群</string>
     <string name="create_advanced_team_success">成功创建了群聊</string>

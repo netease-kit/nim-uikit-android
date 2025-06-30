@@ -10,6 +10,7 @@
     <string name="team_info_title">群信息</string>
     <string name="team_group_info_title">讨论组信息</string>
     <string name="team_name_title">群名称</string>
+    <string name="team_id_title">群号: %s</string>
     <string name="team_group_name_title">讨论组名称</string>
     <string name="team_member_title">群成员</string>
     <string name="team_member_selector_title">人员选择</string>
@@ -52,6 +53,13 @@
     <string name="team_manager_list_empty">暂无群管理人员</string>
     <string name="team_network_error">当前网络不可用，请检查你的网络设置。</string>
     <string name="team_request_fail">操作失败</string>
+
+    <!-- join & invite mode setting -->
+    <string name="team_join_mode_title">进群模式</string>
+    <string name="team_join_team_title">入群邀请需同意</string>
+    <string name="team_join_team_subscribe">开启后，拉入入群， 需被邀请人同意后才可成功</string>
+    <string name="team_invite_team_title">入群审核</string>
+    <string name="team_invite_team_subscribe">开启后，成员入群时需要群主或管理同意后才可加入</string>
 
     <string name="group_team">讨论组</string>
     <string name="advanced_team">高级群</string>

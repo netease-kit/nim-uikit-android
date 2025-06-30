@@ -107,9 +107,8 @@
     <string name="chat_enter_team">%s进入群聊</string>
     <string name="chat_exit_team">%s退出群聊</string>
 
-    <string name="chat_team_need_authentication">需要身份验证</string>
-    <string name="chat_team_allow_anyone_join">允许任何人加入</string>
-    <string name="chat_team_not_allow_anyone_join">不允许任何人申请加入</string>
+    <string name="chat_team_allow_anyone_join">关闭了入群审核</string>
+    <string name="chat_team_need_authentication">开启了入群审核</string>
     <string name="chat_team_admin_invite">管理员邀请</string>
 
     <string name="chat_invite">邀请 </string>
@@ -126,7 +125,8 @@
     <string name="chat_team_notice_update">更新了群公告</string>
     <string name="chat_team_accept_ones_invent">接受了%s的入群邀请</string>
     <string name="chat_team_verify_update">更新群身份验证权限为</string>
-    <string name="chat_team_manager_pass_ones_application">管理员通过用户%s的入群申请</string>
+    <string name="chat_team_manager_pass_ones_application">%s的入群申请已通过</string>
+    <string name="chat_team_join_application">%s加入群聊</string>
     <string name="chat_team_remove_to_another">将群转移给</string>
     <string name="chat_team_operate_by_manager">被管理员</string>
     <string name="chat_team_mute">禁言</string>
@@ -145,8 +145,8 @@
     <string name="chat_team_modify_permission_all">\"所有人\"</string>
     <string name="chat_team_modify_permission_manager">\"群主和管理员\"</string>
     <string name="chat_team_invited_id_verify_permission_update">更新了群权限\"邀请人身份验证权限\"为</string>
-    <string name="chat_team_invited_permission_need">\"需要被邀请方同意\"</string>
-    <string name="chat_team_invited_permission_no">\"不需要被邀请方同意\"</string>
+    <string name="chat_team_invited_permission_need">开启了入群邀请需要同意</string>
+    <string name="chat_team_invited_permission_no">关闭了入群邀请需要同意</string>
     <string name="chat_team_modify_extension_permission_update">更新群权限\"扩展字段修改\"为</string>
     <string name="chat_team_cancel_all_mute">群禁言已关闭</string>
     <string name="chat_team_full_mute">群禁言已开启</string>
@@ -208,6 +208,7 @@
     <!-- error -->
     <string name="chat_message_reply_error">获取回复消息错误</string>
     <string name="chat_network_error_tip">当前网络不可用，请检查你的网络设置。</string>
+    <string name="chat_kit_no_permission_error">您暂无操作权限</string>
 
     <!-- tips -->
     <string name="chat_message_not_support_tips">[未知消息体]</string>
@@ -224,21 +225,6 @@
     <string name="chat_message_not_friend_send_call">"非好友暂不支持音视频通话"</string>
     <string name="chat_message_forward_success_tips">转发成功</string>
     <string name="chat_message_open_fail_tips">无法预览该文件，请安装相关应用</string>
-    <string name="chat_kit_no_permission_error">您暂无操作权限</string>
-    <string name="chat_ai_message_type_unsupport">暂不支持该格式</string>
-    <string name="chat_ai_error_user_not_exist">用户不存在</string>
-    <string name="chat_ai_error_failed_request_to_the_llm">请求大语言模型失败</string>
-    <string name="chat_ai_error_ai_messages_function_disabled">AI消息功能未开通</string>
-    <string name="chat_ai_error_user_banned">用户被禁用</string>
-    <string name="chat_ai_error_user_chat_banned">用户被禁言</string>
-    <string name="chat_ai_error_message_hit_antispam">消息命中反垃圾</string>
-    <string name="chat_ai_error_not_an_ai_account">不是数字人账号</string>
-    <string name="chat_ai_error_team_member_not_exist">群成员不存在</string>
-    <string name="chat_ai_error_team_normal_member_chat_banned">群普通成员禁言</string>
-    <string name="chat_ai_error_team_member_chat_banned">群成员被禁言</string>
-    <string name="chat_ai_error_cannot_blocklist_an_ai_account">不允许对数字人进行黑名单操作</string>
-    <string name="chat_ai_error_rate_limit_exceeded">频率超限</string>
-    <string name="chat_ai_error_parameter">参数错误</string>
 
     <!-- location -->
     <string name="chat_location_mine">定位</string>
@@ -307,6 +293,20 @@
     <string name="chat_ai_helper_title">回复灵感</string>
     <string name="chat_ai_helper_error_title">回复灵感获取失败</string>
     <string name="chat_ai_helper_error_try">点击重试</string>
+    <string name="chat_ai_message_type_unsupport">暂不支持该格式</string>
+    <string name="chat_ai_error_user_not_exist">用户不存在</string>
+    <string name="chat_ai_error_failed_request_to_the_llm">请求大语言模型失败</string>
+    <string name="chat_ai_error_ai_messages_function_disabled">AI消息功能未开通</string>
+    <string name="chat_ai_error_user_banned">用户被禁用</string>
+    <string name="chat_ai_error_user_chat_banned">用户被禁言</string>
+    <string name="chat_ai_error_message_hit_antispam">消息命中反垃圾</string>
+    <string name="chat_ai_error_not_an_ai_account">不是数字人账号</string>
+    <string name="chat_ai_error_team_member_not_exist">群成员不存在</string>
+    <string name="chat_ai_error_team_normal_member_chat_banned">群普通成员禁言</string>
+    <string name="chat_ai_error_team_member_chat_banned">群成员被禁言</string>
+    <string name="chat_ai_error_cannot_blocklist_an_ai_account">不允许对数字人进行黑名单操作</string>
+    <string name="chat_ai_error_rate_limit_exceeded">频率超限</string>
+    <string name="chat_ai_error_parameter">参数错误</string>
 
     <string name="chat_voice_to_text">转文字</string>
     <string name="chat_voice_to_text_failed">转文字失败</string>

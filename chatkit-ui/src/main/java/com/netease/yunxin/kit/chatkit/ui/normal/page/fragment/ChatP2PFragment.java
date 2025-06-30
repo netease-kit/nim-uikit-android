@@ -30,6 +30,7 @@ import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.normal.view.MessageBottomLayout;
 import com.netease.yunxin.kit.chatkit.ui.page.viewmodel.ChatP2PViewModel;
 import com.netease.yunxin.kit.chatkit.ui.view.ait.AitManager;
+import com.netease.yunxin.kit.chatkit.utils.ConversationIdUtils;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.corekit.im2.model.UserWithFriend;
@@ -71,12 +72,20 @@ public class ChatP2PFragment extends NormalChatFragment {
       requireActivity().finish();
       return;
     }
-    anchorMessage = (IMMessageInfo) bundle.getSerializable(RouterConstant.KEY_MESSAGE_INFO);
-    if (anchorMessage == null) {
+    IMMessageInfo msgParam =
+        (IMMessageInfo) bundle.getSerializable(RouterConstant.KEY_MESSAGE_INFO);
+    if (msgParam == null) {
       V2NIMMessage message = (V2NIMMessage) bundle.getSerializable(RouterConstant.KEY_MESSAGE);
       if (message != null) {
-        anchorMessage = new IMMessageInfo(message);
+        msgParam = new IMMessageInfo(message);
       }
+    }
+    if (msgParam != null
+        && TextUtils.equals(
+            ConversationIdUtils.conversationTargetId(msgParam.getMessage().getConversationId()),
+            accountId)) {
+      anchorMessage = msgParam;
+      chatView.appendMessage(new ChatMessageBean(anchorMessage));
     }
     // 初始化AitManager
     if (IMKitConfigCenter.getEnableAIUser()
@@ -212,11 +221,13 @@ public class ChatP2PFragment extends NormalChatFragment {
         anchorMessage = new IMMessageInfo(message);
       }
     }
+    loadAnchorMessage();
+  }
+
+  private void loadAnchorMessage() {
     ChatMessageBean anchorMessageBean = null;
     if (anchorMessage != null) {
       anchorMessageBean = new ChatMessageBean(anchorMessage);
-    }
-    if (anchorMessage != null) {
       int position =
           chatView
               .getMessageListView()

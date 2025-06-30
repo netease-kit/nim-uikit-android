@@ -119,7 +119,10 @@ public class ContactFragment extends BaseContactFragment {
     verifyBean =
         new ContactEntranceBean(
             R.mipmap.ic_contact_verfiy_msg, context.getString(R.string.contact_list_verify_msg));
-    verifyBean.router = RouterConstant.PATH_MY_NOTIFICATION_PAGE;
+    verifyBean.router =
+        IMKitConfigCenter.getEnableTeamJoinAgreeModelAuth() && IMKitConfigCenter.getEnableTeam()
+            ? RouterConstant.PATH_MY_NOTIFICATION_PAGE
+            : RouterConstant.PATH_FRIEND_NOTIFICATION_PAGE;
     //black list
     ContactEntranceBean blackBean =
         new ContactEntranceBean(

@@ -9,6 +9,7 @@ import static com.netease.yunxin.kit.teamkit.ui.utils.TeamUIKitConstant.KEY_TEAM
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import androidx.annotation.Nullable;
 import com.netease.yunxin.kit.teamkit.ui.R;
 import com.netease.yunxin.kit.teamkit.ui.activity.BaseTeamManagerActivity;
 import com.netease.yunxin.kit.teamkit.ui.databinding.TeamManagerActivityBinding;
@@ -23,9 +24,14 @@ public class TeamManagerActivity extends BaseTeamManagerActivity {
   private TeamManagerActivityBinding binding;
 
   @Override
+  protected void onCreate(@Nullable Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    changeStatusBarColor(R.color.color_eff1f4);
+  }
+
+  @Override
   protected View initViewAndGetRootView(Bundle savedInstanceState) {
     binding = TeamManagerActivityBinding.inflate(getLayoutInflater());
-    changeStatusBarColor(R.color.color_eff1f4);
     viewEditManager = binding.tvEditManager;
     backView = binding.ivBack;
     tvManagerCount = binding.tvManagerCount;
@@ -37,6 +43,9 @@ public class TeamManagerActivity extends BaseTeamManagerActivity {
     viewTopSticky = binding.tvTopStickyPermission;
     tvAitValue = binding.tvNotifyAllMembersValue;
     tvTopStickyValue = binding.tvTopStickyValue;
+    swAgreeMode = binding.swTeamAgree;
+    swJoinMode = binding.swTeamJoin;
+    joinAgreeGroup = binding.joinAgreeModelGroup;
     return binding.getRoot();
   }
 

@@ -27,4 +27,7 @@ public interface IViewTypeConstant {
 
   // AI数字人
   int CONTACT_AI_USER = 14;
+
+  // 群验证消息
+  int CONTACT_TEAM_VERIFY_INFO = 15;
 }

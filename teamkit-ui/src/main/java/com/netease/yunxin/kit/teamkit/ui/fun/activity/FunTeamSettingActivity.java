@@ -41,6 +41,7 @@ public class FunTeamSettingActivity extends BaseTeamSettingActivity {
     bg3 = binding.bg3;
     ivIcon = binding.ivIcon;
     tvName = binding.tvName;
+    tvId = binding.tvSubscribe;
     tvHistory = binding.tvHistory;
     tvMark = binding.tvMark;
     tvCount = binding.tvCount;
@@ -56,6 +57,7 @@ public class FunTeamSettingActivity extends BaseTeamSettingActivity {
     ivBack = binding.ivBack;
     ivAdd = binding.ivAdd;
     rvMemberList = binding.rvMemberList;
+    toTeamDetail = binding.llName;
     return binding.getRoot();
   }
 
