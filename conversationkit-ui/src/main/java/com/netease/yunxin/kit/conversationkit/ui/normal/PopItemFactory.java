@@ -7,6 +7,7 @@ package com.netease.yunxin.kit.conversationkit.ui.normal;
 import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.PATH_ADD_FRIEND_PAGE;
 import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.PATH_CREATE_ADVANCED_TEAM_ACTION;
 import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.PATH_CREATE_NORMAL_TEAM_ACTION;
+import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.PATH_SEARCH_TEAM_PAGE;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
@@ -17,6 +18,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.core.content.ContextCompat;
 import com.netease.yunxin.kit.common.ui.widgets.ContentListPopView;
+import com.netease.yunxin.kit.common.utils.SizeUtils;
 import com.netease.yunxin.kit.conversationkit.ui.R;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 
@@ -96,6 +98,29 @@ public final class PopItemFactory {
   }
 
   /**
+   * 获取加号弹出的pop item:加入群组
+   *
+   * @param context 上下文
+   * @return pop item
+   */
+  public static ContentListPopView.Item getSearchGroupTeamItem(Context context) {
+    LinearLayout.LayoutParams params = getParams(context);
+    params.setMargins(
+        (int) context.getResources().getDimension(R.dimen.pop_text_margin_left),
+        0,
+        (int) context.getResources().getDimension(R.dimen.pop_text_margin_right_top),
+        0);
+    int requestCode = 2;
+    return new ContentListPopView.Item.Builder()
+        .configView(
+            getView(context, R.string.join_group_team, R.drawable.ic_conversation_group_team))
+        .configParams(params)
+        .configClickListener(
+            v -> XKitRouter.withKey(PATH_SEARCH_TEAM_PAGE).withContext(context).navigate())
+        .build();
+  }
+
+  /**
    * 获取加号弹出的pop item:创建点击事件，不同的按钮不同的响应事件
    *
    * @param context 上下文
@@ -120,9 +145,12 @@ public final class PopItemFactory {
   private static View getView(Context context, int txtId, int drawableId) {
     TextView textView = new TextView(context);
     textView.setGravity(Gravity.CENTER_VERTICAL);
+    int padding = (int) context.getResources().getDimension(R.dimen.dimen_8_dp);
+    int rightPadding = SizeUtils.dp2px(12);
     textView.setTextSize(14);
     textView.setMaxLines(1);
     textView.setText(txtId);
+    textView.setPadding(padding, 0, rightPadding, 0);
     Drawable drawable = ContextCompat.getDrawable(context, drawableId);
     if (drawable != null) {
       drawable.setBounds(0, 0, drawable.getMinimumWidth(), drawable.getMinimumHeight());

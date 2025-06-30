@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2022 NetEase, Inc. All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be
+  ~ found in the LICENSE file.
+  -->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/tv_Tips"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/text_size_14"
+        android:textColor="@color/color_b3b7bc"
+        android:layout_marginHorizontal="@dimen/dimen_20_dp"
+        android:layout_marginVertical="@dimen/dimen_4_dp"
+        android:visibility="gone" />
+
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout android:id="@+id/empty_layout"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dimen_188_dp"
+            android:layout_marginTop="150dp"
+            android:visibility="gone"
+            android:orientation="vertical">
+
+        <ImageView android:id="@+id/emptyIv"
+            android:layout_width="@dimen/dimen_118_dp"
+            android:layout_height="@dimen/dimen_96_dp"
+            android:layout_gravity="center_horizontal"
+            android:src="@drawable/ic_contact_empty"/>
+
+        <TextView android:id="@+id/emptyTv"
+            android:layout_width="@dimen/dimen_118_dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:gravity="center"/>
+        </LinearLayout>
+
+        <com.netease.yunxin.kit.contactkit.ui.view.ContactListView
+            android:id="@+id/contact_listView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:showIndexBar="false" />
+    </FrameLayout>
+
+
+</LinearLayout>

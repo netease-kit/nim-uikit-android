@@ -18,6 +18,11 @@
     <string name="add_friend_search_hint">请输入账号</string>
     <string name="add_friend_search_empty_tips">该用户不存在</string>
 
+    <!-- join team page-->
+    <string name="join_team_title">加入群组</string>
+    <string name="join_team_search_hint">输入群号</string>
+    <string name="join_team_search_empty_tips">该群组不存在</string>
+
     <!-- verify page -->
     <string name="contact_verify_agree">同意</string>
     <string name="contact_verify_reject">拒绝</string>
@@ -34,6 +39,12 @@
     <string name="verify_max_count_text">99+</string>
     <string name="verify_agree_message_text">我已经同意了你的申请，现在开始聊天吧~</string>
     <string name="verify_empty_text">暂无验证消息</string>
+    <string name="team_verify_apply_text">申请加入群 %s</string>
+    <string name="team_verify_reject_text">拒绝了入群申请 %s</string>
+    <string name="team_verify_invitation_text">邀请加入群 %s</string>
+    <string name="team_verify_reject_invitation_text">拒绝了入群邀请 %s</string>
+    <string name="team_verify_title">群</string>
+    <string name="friend_verify_title">好友</string>
 
     <!-- my team page -->
     <string name="my_team">我的群聊</string>
@@ -53,7 +64,7 @@
     <string name="comment_name">备注名</string>
     <string name="notify_message">消息通知</string>
     <string name="add_black_list">加入黑名单</string>
-    <string name="chat">聊天</string>
+    <string name="chat">去聊天</string>
     <string name="delete_friend">删除好友</string>
     <string name="add_friend">添加好友</string>
     <string name="contact_user_info_account">账号:%s</string>
@@ -62,6 +73,13 @@
     <string name="save">保存</string>
     <string name="add_friend_operate_success">好友申请已发送</string>
     <string name="add_friend_operate_fail">好友申请失败 %s</string>
+
+    <!-- team info page-->
+    <string name="team_info_title">群信息</string>
+    <string name="team_info_id_text">群号: %s</string>
+    <string name="team_info_owner_text">群主: %s</string>
+    <string name="team_info_introduce_text">群介绍 </string>
+    <string name="team_apply_join_tip">入群申请已发送</string>
 
     <!--添加好友页面 -->
     <string name="add_friend_search_error">搜索失败</string>
@@ -79,6 +97,17 @@
     <string name="contact_error_tips">信息获取失败</string>
     <string name="contact_team_be_removed_title">提示</string>
     <string name="contact_team_be_removed_content">您已被移除群聊或该群聊已被解散</string>
+    <string name="team_apply_join_error_tip">申请加入群组失败。</string>
+    <string name="contact_network_error_tip">当前网络不可用，请检查你当网络设置。</string>
+    <string name="contact_operate_error_tip">操作失败，请稍后重试。</string>
+    <string name="contact_member_already_exit_error_tip">已在群组</string>
+    <string name="contact_team_verify_done_error_tip">该验证消息已被处理</string>
+    <string name="contact_member_no_permission_error_tip">无操作权限</string>
+    <string name="contact_member_dissolved_error_tip">群组不存在</string>
+    <string name="contact_member_limit_error_tip">群组人数达到上限</string>
+    <string name="contact_member_join_limit_error_tip">加入群组数量超过上限 </string>
+    <string name="contact_member_join_expired_error_tip">邀请已失效</string>
+
     <!--    selector-->
     <string name="select">选择</string>
     <string name="selected">已选</string>
@@ -113,9 +142,14 @@
 
     <!--    common-->
     <string name="cancel">取消</string>
-    <string name="contact_network_error_tip">当前网络不可用，请检查你当网络设置。</string>
     <string name="recent_conversation">最近会话</string>
     <string name="my_friend">我的好友</string>
     <string name="recent_forward">最近转发</string>
     <string name="contact_selector_multi_select">多选</string>
+    <string name="contact_dialog_clear_team_verify_title">清空群验证消息</string>
+    <string name="contact_dialog_clear_team_verify_content">是否清空群验证消息？</string>
+    <string name="contact_dialog_clear_friend_verify_title">清空好友验证消息</string>
+    <string name="contact_dialog_clear_friend_verify_content">是否清空好友验证消息？</string>
+    <string name="contact_dialog_sure">确认</string>
+    <string name="contact_dialog_cancel">取消</string>
 </resources>

@@ -129,6 +129,7 @@
     <!-- uikit config -->
     <string name="uikit_function_title">UIKit Config</string>
     <string name="uikit_team_switch_title">Team</string>
+    <string name="uikit_team_mode_switch_title">Team Apply-Join Mode</string>
     <string name="uikit_collect_switch_title">Collect Message</string>
     <string name="uikit_pin_switch_title">Pin Message</string>
     <string name="uikit_stick_top_switch_title">Stick top message</string>

@@ -140,7 +140,6 @@ public class ConversationViewModel extends BaseViewModel {
         @Override
         public void onNotify(@NonNull AitEvent aitEvent) {
           FetchResult<List<String>> result = new FetchResult<>(LoadStatus.Finish);
-          ALog.d(LIB_TAG, TAG, "aitNotify");
           if (aitEvent.getAitInfoList() == null) {
             return;
           }
@@ -216,7 +215,6 @@ public class ConversationViewModel extends BaseViewModel {
             @NonNull List<? extends UserWithFriend> contactList) {
           if (changeType == ContactChangeType.Update) {
             for (UserWithFriend user : contactList) {
-              ALog.d(LIB_TAG, TAG, "onUserProfileChanged:" + user.getAccount());
               if (TextUtils.equals(user.getAccount(), IMKitClient.account())) {
                 getAiRobotUserList();
               }
@@ -493,6 +491,7 @@ public class ConversationViewModel extends BaseViewModel {
               TAG,
               "Performance conversationListener onSyncFinished timestamp:"
                   + SystemClock.elapsedRealtime());
+          getConversationData();
         }
 
         @Override

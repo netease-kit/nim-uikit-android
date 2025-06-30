@@ -20,6 +20,7 @@
                 android:value="xkit.startup" />
         </provider>
 
+        <!-- 基础版Activity -->
         <activity
             android:name=".normal.contact.ContactActivity"
             android:exported="false"
@@ -30,6 +31,14 @@
             android:exported="false"
             android:screenOrientation="portrait" />
 
+        <activity
+            android:name=".normal.team.TeamSearchActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <activity android:name=".normal.team.TeamProfileActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
 
         <activity
             android:name=".normal.blacklist.BlackListActivity"
@@ -38,11 +47,6 @@
 
         <activity
             android:name=".normal.team.TeamListActivity"
-            android:launchMode="singleTop"
-            android:screenOrientation="portrait" />
-
-        <activity
-            android:name=".normal.verify.VerifyListActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait" />
 
@@ -74,6 +78,15 @@
             android:exported="false"
             android:screenOrientation="portrait" />
 
+        <activity android:name=".normal.verify.FriendVerifyActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".normal.verify.ContactVerifyActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
         <!-- fun style activity -->
         <activity
             android:name=".fun.contact.FunContactActivity"
@@ -93,11 +106,6 @@
 
         <activity
             android:name=".fun.team.FunTeamListActivity"
-            android:launchMode="singleTop"
-            android:screenOrientation="portrait" />
-
-        <activity
-            android:name=".fun.verify.FunVerifyListActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait" />
 
@@ -135,6 +143,22 @@
             android:name=".fun.selector.ai.FunAIContactSelectorActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
+
+        <activity android:name=".fun.verify.FunFriendVerifyActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <activity android:name=".fun.verify.FunContactVerifyActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <activity android:name=".fun.team.FunTeamSearchActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <activity android:name=".fun.team.FunTeamProfileActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"/>
 
     </application>
 

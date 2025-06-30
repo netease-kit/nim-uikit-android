@@ -49,7 +49,7 @@ public class ChatPinActivity extends ChatPinBaseActivity {
 
     XKitRouter.withKey(router)
         .withParam(RouterConstant.KEY_MESSAGE_INFO, messageInfo.getMessageData())
-        .withParam(RouterConstant.CHAT_KRY, mSessionId)
+        .withParam(RouterConstant.CHAT_ID_KRY, mSessionId)
         .withContext(this)
         .navigate();
     finish();

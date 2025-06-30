@@ -30,7 +30,10 @@ import com.netease.yunxin.kit.contactkit.ui.interfaces.IContactCallback;
 import com.netease.yunxin.kit.contactkit.ui.model.ContactEntranceBean;
 import com.netease.yunxin.kit.contactkit.ui.model.ContactFriendBean;
 import com.netease.yunxin.kit.contactkit.ui.model.IViewTypeConstant;
+import com.netease.yunxin.kit.contactkit.ui.verify.ClearTeamVerifyEvent;
 import com.netease.yunxin.kit.contactkit.ui.view.ContactLayout;
+import com.netease.yunxin.kit.corekit.event.EventCenter;
+import com.netease.yunxin.kit.corekit.event.EventNotify;
 import com.netease.yunxin.kit.corekit.im2.model.UserWithFriend;
 import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
@@ -87,11 +90,6 @@ public abstract class BaseContactFragment extends BaseFragment {
   }
 
   @Override
-  public void onResume() {
-    super.onResume();
-  }
-
-  @Override
   public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
     //data observer
@@ -141,6 +139,26 @@ public abstract class BaseContactFragment extends BaseFragment {
           viewModel.fetchContactList(false);
         },
         200);
+    EventCenter.registerEventNotify(
+        new EventNotify<ClearTeamVerifyEvent>() {
+          @Override
+          public void onNotify(@NonNull ClearTeamVerifyEvent message) {
+            if (viewModel != null) {
+              viewModel.requestApplicationUnreadCount();
+            }
+          }
+
+          @NonNull
+          @Override
+          public String getEventType() {
+            return ClearTeamVerifyEvent.EVENT_TYPE;
+          }
+        });
+  }
+
+  @Override
+  public void onStart() {
+    super.onStart();
   }
 
   private void initView() {

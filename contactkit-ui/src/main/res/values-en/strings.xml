@@ -17,6 +17,11 @@
     <string name="add_friend_search_hint">Enter Account</string>
     <string name="add_friend_search_empty_tips">User not found</string>
 
+    <!-- join team page-->
+    <string name="join_team_title">Join Team Group</string>
+    <string name="join_team_search_hint">Enter Group Id</string>
+    <string name="join_team_search_empty_tips">Group not found</string>
+
     <!-- verify page -->
     <string name="contact_verify_agree">Accept</string>
     <string name="contact_verify_reject">Decline</string>
@@ -34,6 +39,12 @@
     <string name="verify_agree_message_text">I\'ve accepted your friend request. Now let\'s
         chat</string>
     <string name="verify_empty_text">Verifications Empty</string>
+    <string name="team_verify_apply_text">Apply to the group of %s</string>
+    <string name="team_verify_reject_text">Rejected the apply %s</string>
+    <string name="team_verify_invitation_text">Invite to join the group of %s</string>
+    <string name="team_verify_reject_invitation_text">Refused the invitation %s</string>
+    <string name="team_verify_title">Team</string>
+    <string name="friend_verify_title">Friend</string>
 
     <!-- my team page -->
     <string name="my_team">My Groups</string>
@@ -62,10 +73,17 @@
     <string name="save">Save</string>
     <string name="add_friend_operate_success">Friend request sent</string>
     <string name="add_friend_operate_fail">Friend request failed: %s</string>
+    <string name="team_apply_join_error_tip">Fail Apply Join Group。</string>
+
+    <!-- team info page-->
+    <string name="team_info_title">Team Info</string>
+    <string name="team_info_id_text">Group ID: %s</string>
+    <string name="team_info_owner_text">Owner: %s</string>
+    <string name="team_info_introduce_text">Introduce </string>
+    <string name="team_apply_join_tip">Apply Send Success</string>
 
     <!--添加好友页面 -->
     <string name="add_friend_search_error">Failed to search</string>
-
 
     <!-- error toast -->
     <string name="agree_add_friend_fail">Failed</string>
@@ -81,6 +99,15 @@
     <string name="contact_team_be_removed_title">Notice</string>
     <string name="contact_team_be_removed_content">You\'re removed from the group, or the group
         got dissolved</string>
+    <string name="contact_network_error_tip">No Network</string>
+    <string name="contact_operate_error_tip">Operate Failed</string>
+    <string name="contact_member_already_exit_error_tip">Team member already exit</string>
+    <string name="contact_team_verify_done_error_tip">The verification message has been processed</string>
+    <string name="contact_member_no_permission_error_tip">No operation permission</string>
+    <string name="contact_member_dissolved_error_tip">Team does not exist</string>
+    <string name="contact_member_limit_error_tip">Team member limit exceeded</string>
+    <string name="contact_member_join_limit_error_tip">Joined team limit exceeded</string>
+    <string name="contact_member_join_expired_error_tip">The invitation has expired</string>
 
     <!--    selector-->
     <string name="select">Select</string>
@@ -117,11 +144,16 @@
 
     <!--    common-->
     <string name="cancel"> Cancel </string>
-    <string name="contact_network_error_tip">No Network</string>
     <string name="recent_conversation">Latest Chat</string>
     <string name="my_friend">My Friends</string>
     <string name="recent_forward">Forwarded</string>
     <string name="contact_selector_multi_select">Multiselect</string>
-
+    <string name="contact_dialog_clear_team_verify_title">Clear Team Application</string>
+    <string name="contact_dialog_clear_team_verify_content">Are you sure to clear Team Application？</string>
+    <string name="contact_dialog_clear_friend_verify_title">Clear Friend Application</string>
+    <string name="contact_dialog_clear_friend_verify_content">Are you sure to clear Friend
+        Application？</string>
+    <string name="contact_dialog_sure">Sure</string>
+    <string name="contact_dialog_cancel">Cancel</string>
 
 </resources>

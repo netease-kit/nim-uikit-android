@@ -42,6 +42,7 @@ import com.netease.nimlib.sdk.v2.team.model.V2NIMTeamMember;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
 import com.netease.yunxin.kit.chatkit.model.TeamMemberWithUserInfo;
+import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.common.ui.activities.BaseLocalActivity;
 import com.netease.yunxin.kit.common.ui.dialog.ChoiceListener;
 import com.netease.yunxin.kit.common.ui.dialog.CommonChoiceDialog;
@@ -73,8 +74,13 @@ public abstract class BaseTeamSettingActivity extends BaseLocalActivity {
   protected TeamSettingViewModel settingViewModel;
   private View rootView;
   protected View bg3;
+
+  protected View toTeamDetail;
+
   protected ContactAvatarView ivIcon;
+
   protected TextView tvName;
+  protected TextView tvId;
   protected TextView tvHistory;
   protected TextView tvMark;
   protected TextView tvCount;
@@ -396,13 +402,20 @@ public abstract class BaseTeamSettingActivity extends BaseLocalActivity {
     ivBack.setOnClickListener(v -> finish());
     ivIcon.setData(teamIcon, teamName, ColorUtils.avatarColor(teamId));
     tvName.setText(team.getName());
+    String idText = String.format(getString(R.string.team_id_title), teamId);
+    tvId.setText(idText);
+    tvId.setOnLongClickListener(
+        v -> {
+          MessageHelper.copyText(teamId, true);
+          return true;
+        });
     if (IMKitConfigCenter.getEnablePinMessage()) {
       tvMark.setVisibility(View.VISIBLE);
     } else {
       tvMark.setVisibility(View.GONE);
     }
     boolean hasPrivilegeToUpdateInfo = TeamUtils.hasUpdateTeamInfoPermission(team, teamMember);
-    tvName.setOnClickListener(
+    toTeamDetail.setOnClickListener(
         v -> {
           BaseTeamInfoActivity.launch(
               BaseTeamSettingActivity.this,

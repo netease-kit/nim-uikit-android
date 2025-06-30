@@ -9,6 +9,7 @@
     <string name="team_info_title">Group Info</string>
     <string name="team_group_info_title">Temp Group Info</string>
     <string name="team_name_title">Group Name</string>
+    <string name="team_id_title">Group ID: %s</string>
     <string name="team_member_selector_title">Select member</string>
     <string name="team_group_name_title">Temp Group Name</string>
     <string name="team_member_title">Group Member</string>
@@ -51,6 +52,14 @@
     <string name="team_manager_list_empty">No Admin</string>
     <string name="team_network_error">No network</string>
     <string name="team_request_fail">Failed</string>
+
+    <!-- join & invite mode setting -->
+    <string name="team_join_mode_title">Join Group Mode</string>
+    <string name="team_join_team_title">Invitation acceptance requirement</string>
+    <string name="team_join_team_subscribe">When enabled, inviting someone to join the team
+        requires the invitee\'s approval before they can successfully join.</string>
+    <string name="team_invite_team_title">Require verification to join</string>
+    <string name="team_invite_team_subscribe">When enabled, members must obtain approval from the team owner or administrators before joining the team.</string>
 
     <string name="group_team">Temp Group</string>
     <string name="advanced_team">Group</string>

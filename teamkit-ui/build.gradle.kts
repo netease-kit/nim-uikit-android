@@ -17,7 +17,7 @@ android {
         minSdk = 24
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
-        buildConfigField("String", "versionName", "\"10.8.1\"")
+        buildConfigField("String", "versionName", "\"10.8.2\"")
     }
 
     buildTypes {
@@ -26,7 +26,9 @@ android {
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
-
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
     buildFeatures {
         viewBinding = true
         buildConfig = true
@@ -37,7 +39,7 @@ android {
 dependencies {
     // imuikit 底层库
     implementation(project(":chatkit-ui"))
-    api("com.netease.yunxin.kit.common:common-ui:1.5.0")
+    api("com.netease.yunxin.kit.common:common-ui:1.6.0")
 
     api("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.22")
     implementation("androidx.appcompat:appcompat:1.6.1")

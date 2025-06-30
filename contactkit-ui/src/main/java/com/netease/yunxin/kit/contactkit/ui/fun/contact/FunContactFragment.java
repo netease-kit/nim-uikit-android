@@ -118,7 +118,6 @@ public class FunContactFragment extends BaseContactFragment {
     } else {
       viewBinding.contactLayout.getTitleBar().setVisibility(View.GONE);
     }
-
     viewBinding.contactLayout.getTitleBar().showRight2ImageView(false);
 
     if (contactConfig.showTitleBarRightIcon) {
@@ -160,7 +159,10 @@ public class FunContactFragment extends BaseContactFragment {
         new ContactEntranceBean(
             R.mipmap.fun_ic_contact_verfiy_msg,
             context.getString(R.string.contact_list_verify_msg));
-    verifyBean.router = RouterConstant.PATH_FUN_MY_NOTIFICATION_PAGE;
+    verifyBean.router =
+        IMKitConfigCenter.getEnableTeamJoinAgreeModelAuth() && IMKitConfigCenter.getEnableTeam()
+            ? RouterConstant.PATH_FUN_MY_NOTIFICATION_PAGE
+            : RouterConstant.PATH_FUN_FRIEND_NOTIFICATION_PAGE;
     verifyBean.showRightArrow = false;
     //black list
     ContactEntranceBean blackBean =

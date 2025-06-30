@@ -109,9 +109,8 @@
     <string name="chat_enter_team">%s joined group</string>
     <string name="chat_exit_team">%s left group</string>
 
-    <string name="chat_team_need_authentication">Identify needed</string>
-    <string name="chat_team_allow_anyone_join">Allow anyone to join</string>
-    <string name="chat_team_not_allow_anyone_join">Allow no one to join</string>
+    <string name="chat_team_allow_anyone_join">Group join approval has been disabled</string>
+    <string name="chat_team_need_authentication">Group join approval has been enabled</string>
     <string name="chat_team_admin_invite">Admin invitation</string>
 
     <string name="chat_invite">invite</string>
@@ -128,7 +127,8 @@
     <string name="chat_team_notice_update">Modified group announcement</string>
     <string name="chat_team_accept_ones_invent">accepted invitation from %s</string>
     <string name="chat_team_verify_update">permissions updated to</string>
-    <string name="chat_team_manager_pass_ones_application">Admin answered request from%s</string>
+    <string name="chat_team_manager_pass_ones_application">Answered request from%s</string>
+    <string name="chat_team_join_application">%s Join Group</string>
     <string name="chat_team_remove_to_another">Transfer the group to</string>
     <string name="chat_team_operate_by_manager">Admin by</string>
     <string name="chat_team_mute">Mute</string>
@@ -147,8 +147,8 @@
     <string name="chat_team_modify_permission_manager">Owner&amp;Admin</string>
     <string name="chat_team_invited_id_verify_permission_update">Allow user to decide join or not
         upon inviting </string>
-    <string name="chat_team_invited_permission_need">need Author</string>
-    <string name="chat_team_invited_permission_no">not need</string>
+    <string name="chat_team_invited_permission_need">Group join invitations now require approval</string>
+    <string name="chat_team_invited_permission_no">Group join invitations no longer require approval</string>
     <string name="chat_team_modify_extension_permission_update">Group setting permission has been updated to </string>
     <string name="chat_team_cancel_all_mute">Unmute all</string>
     <string name="chat_team_full_mute">Mute all</string>
@@ -297,6 +297,9 @@
     <string name="chat_ai_translate_target_language">Language</string>
     <string name="chat_ai_search_error">AI error</string>
     <string name="chat_ai_message_progressing">Thinking…</string>
+    <string name="chat_ai_helper_title">Reply Inspiration</string>
+    <string name="chat_ai_helper_error_title">Reply Inspiration Acquisition Failed</string>
+    <string name="chat_ai_helper_error_try">Click to Retry</string>
     <string name="chat_ai_message_type_unsupport">Unsupported format</string>
     <string name="chat_ai_error_user_not_exist">User does not exist</string>
     <string name="chat_ai_error_failed_request_to_the_llm">Failed request to the language model</string>
@@ -312,9 +315,7 @@
     <string name="chat_ai_error_rate_limit_exceeded">Rate limit exceeded</string>
     <string name="chat_ai_error_parameter">Parameter error</string>
     <string name="chat_ai_error">The server is busy, please try again later.</string>
-    <string name="chat_ai_helper_title">Reply Inspiration</string>
-    <string name="chat_ai_helper_error_title">Reply Inspiration Acquisition Failed</string>
-    <string name="chat_ai_helper_error_try">Click to Retry</string>
+
     <string name="chat_voice_to_text">Convert to text</string>
     <string name="chat_voice_to_text_failed">Text conversion failed.</string>
 </resources>

@@ -14,7 +14,7 @@ import com.netease.yunxin.kit.contactkit.ui.model.ContactVerifyInfoBean;
 import com.netease.yunxin.kit.contactkit.ui.model.IViewTypeConstant;
 import com.netease.yunxin.kit.contactkit.ui.normal.view.ContactViewHolderFactory;
 import com.netease.yunxin.kit.contactkit.ui.normal.view.viewholder.VerifyInfoViewHolder;
-import com.netease.yunxin.kit.contactkit.ui.verify.BaseVerifyListActivity;
+import com.netease.yunxin.kit.contactkit.ui.verify.FriendVerifyBaseFragment;
 import com.netease.yunxin.kit.contactkit.ui.view.viewholder.BaseContactViewHolder;
 import com.netease.yunxin.kit.corekit.im2.IMKitClient;
 import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
@@ -22,11 +22,11 @@ import com.netease.yunxin.kit.corekit.im2.model.V2UserInfo;
 import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 
-public class VerifyListActivity extends BaseVerifyListActivity implements ILoadListener {
+public class FriendVerifyListFragment extends FriendVerifyBaseFragment implements ILoadListener {
 
   @Override
   protected void configViewHolderFactory() {
-    binding.contactListView.setViewHolderFactory(
+    layoutBinding.contactListView.setViewHolderFactory(
         new ContactViewHolderFactory() {
           @Override
           protected BaseContactViewHolder getCustomViewHolder(ViewGroup view, int viewType) {
@@ -50,7 +50,7 @@ public class VerifyListActivity extends BaseVerifyListActivity implements ILoadL
                                     bean,
                                     V2NIMFriendAddApplicationStatus
                                         .V2NIM_FRIEND_ADD_APPLICATION_STATUS_AGREED);
-                                binding.contactListView.updateContactData(bean);
+                                layoutBinding.contactListView.updateContactData(bean);
                               }
                               toastResult(true, errorCode);
                             }
@@ -64,10 +64,10 @@ public class VerifyListActivity extends BaseVerifyListActivity implements ILoadL
                                   bean,
                                   V2NIMFriendAddApplicationStatus
                                       .V2NIM_FRIEND_ADD_APPLICATION_STATUS_AGREED);
-                              binding.contactListView.updateVerifyDate(bean);
+                              layoutBinding.contactListView.updateVerifyDate(bean);
                               //
                               XKitRouter.withKey(RouterConstant.PATH_CHAT_SEND_TEXT_ACTION)
-                                  .withContext(VerifyListActivity.this)
+                                  .withContext(FriendVerifyListFragment.this.requireContext())
                                   .withParam(
                                       RouterConstant.KEY_SESSION_ID,
                                       bean.data.getApplicantAccountId())
@@ -99,7 +99,7 @@ public class VerifyListActivity extends BaseVerifyListActivity implements ILoadL
                                     bean,
                                     V2NIMFriendAddApplicationStatus
                                         .V2NIM_FRIEND_ADD_APPLICATION_STATUS_AGREED);
-                                binding.contactListView.updateContactData(bean);
+                                layoutBinding.contactListView.updateContactData(bean);
                               }
                               toastResult(false, errorCode);
                             }
@@ -113,7 +113,7 @@ public class VerifyListActivity extends BaseVerifyListActivity implements ILoadL
                                   bean,
                                   V2NIMFriendAddApplicationStatus
                                       .V2NIM_FRIEND_ADD_APPLICATION_STATUS_REJECTED);
-                              binding.contactListView.updateContactData(bean);
+                              layoutBinding.contactListView.updateContactData(bean);
                             }
                           });
                     }

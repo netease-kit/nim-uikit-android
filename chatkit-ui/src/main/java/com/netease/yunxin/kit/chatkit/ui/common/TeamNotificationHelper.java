@@ -166,25 +166,12 @@ public class TeamNotificationHelper {
           IMKitClient.getApplicationContext().getString(R.string.chat_team_notice_update));
     } else if (field.getJoinMode() != null) {
       V2NIMTeamJoinMode type = field.getJoinMode();
-      String auth = IMKitClient.getApplicationContext().getString(R.string.chat_team_verify_update);
       if (type == V2NIMTeamJoinMode.V2NIM_TEAM_JOIN_MODE_FREE) {
-        subStr
-            .append(auth)
-            .append(
-                IMKitClient.getApplicationContext()
-                    .getString(R.string.chat_team_allow_anyone_join));
-      } else if (type == V2NIMTeamJoinMode.V2NIM_TEAM_JOIN_MODE_APPLY) {
-        subStr
-            .append(auth)
-            .append(
-                IMKitClient.getApplicationContext()
-                    .getString(R.string.chat_team_need_authentication));
+        subStr.append(
+            IMKitClient.getApplicationContext().getString(R.string.chat_team_allow_anyone_join));
       } else {
-        subStr
-            .append(auth)
-            .append(
-                IMKitClient.getApplicationContext()
-                    .getString(R.string.chat_team_not_allow_anyone_join));
+        subStr.append(
+            IMKitClient.getApplicationContext().getString(R.string.chat_team_need_authentication));
       }
     } else if (field.getAvatar() != null) {
       subStr.append(
@@ -218,12 +205,6 @@ public class TeamNotificationHelper {
                 .getString(R.string.chat_team_modify_permission_manager));
       }
     } else if (field.getAgreeMode() != null) {
-      subStr.append(
-          IMKitClient.getApplicationContext()
-              .getString(R.string.chat_team_invited_id_verify_permission_update));
-      subStr.append(
-          IMKitClient.getApplicationContext()
-              .getString(R.string.chat_team_invited_id_verify_permission_update));
       V2NIMTeamAgreeMode inviteModeEnum = field.getAgreeMode();
       if (inviteModeEnum == V2NIMTeamAgreeMode.V2NIM_TEAM_AGREE_MODE_AUTH) {
         subStr.append(
@@ -372,6 +353,12 @@ public class TeamNotificationHelper {
 
   private static String buildManagerPassTeamApplyNotification(
       V2NIMMessageNotificationAttachment a) {
+    if (a.getUpdatedTeamInfo() != null
+        && a.getUpdatedTeamInfo().getJoinMode() == V2NIMTeamJoinMode.V2NIM_TEAM_JOIN_MODE_FREE) {
+      return String.format(
+          IMKitClient.getApplicationContext().getString(R.string.chat_team_join_application),
+          buildMemberListString(a.getTargetIds(), null));
+    }
 
     return String.format(
         IMKitClient.getApplicationContext()

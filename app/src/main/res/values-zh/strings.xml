@@ -128,6 +128,7 @@
  <!-- 功能配置 -->
     <string name="uikit_function_title">功能配置</string>
     <string name="uikit_team_switch_title">群聊功能</string>
+    <string name="uikit_team_mode_switch_title">群聊申请邀请功能</string>
     <string name="uikit_collect_switch_title">收藏功能</string>
     <string name="uikit_pin_switch_title">标记功能</string>
     <string name="uikit_stick_top_switch_title">消息置顶功能</string>

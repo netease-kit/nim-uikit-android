@@ -669,6 +669,7 @@ public class MessageBottomLayout extends FrameLayout
     if (mInputState == InputState.voice) {
       recordShow(false, 0);
       updateState(InputState.input);
+      setReplyMsgVisible(replyMessage != null);
       return;
     }
     if (actionClickListener != null) {
@@ -677,6 +678,7 @@ public class MessageBottomLayout extends FrameLayout
     }
     recordShow(true, 0);
     hideCurrentInput();
+    setReplyMsgVisible(false);
     updateState(InputState.voice);
   }
 
@@ -942,6 +944,10 @@ public class MessageBottomLayout extends FrameLayout
   public void clearReplyMsg() {
     replyMessage = null;
     mBinding.replyLayout.setVisibility(GONE);
+  }
+
+  public void setReplyMsgVisible(boolean visible) {
+    mBinding.replyLayout.setVisibility(visible ? VISIBLE : GONE);
   }
 
   // 设置输入框属性配置

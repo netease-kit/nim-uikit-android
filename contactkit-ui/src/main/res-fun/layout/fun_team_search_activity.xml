@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2022 NetEase, Inc. All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be
+  ~ found in the LICENSE file.
+  -->
+
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/color_ededed"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <LinearLayout android:id="@+id/layout_title"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/page_title_bar_height"
+        android:orientation="horizontal"
+        tools:ignore="MissingConstraints">
+
+        <ImageView
+            android:id="@+id/iv_back"
+            android:layout_width="@dimen/image_operate_width_height"
+            android:layout_height="@dimen/image_operate_width_height"
+            android:layout_gravity="center"
+            android:layout_marginLeft="@dimen/page_margin_left_right"
+            android:src="@mipmap/ic_back" />
+
+        <TextView
+            android:id="@+id/tv_title"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:text="@string/join_team_title"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/text_size_17"
+            android:textColor="@color/title_color"
+            android:textStyle="bold"
+            android:layout_gravity="center_vertical"
+            android:gravity="center_horizontal"
+            android:layout_marginLeft="@dimen/page_margin_left_right"
+            android:layout_marginRight="@dimen/page_margin_left_right" />
+
+        <TextView
+            android:id="@+id/tv_more"
+            android:layout_width="@dimen/image_operate_width_height"
+            android:layout_height="@dimen/image_operate_width_height"
+            android:layout_gravity="center"
+            android:layout_marginRight="20dp" />
+    </LinearLayout>
+    
+    <LinearLayout android:id="@+id/layout_input"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dimen_36_dp"
+        android:background="@drawable/fun_selected_user_bg"
+        android:orientation="horizontal"
+        android:layout_marginLeft="@dimen/page_margin_left_right"
+        android:layout_marginRight="@dimen/page_margin_left_right"
+        android:layout_marginTop="@dimen/dimen_5_dp"
+        android:gravity="center"
+        app:layout_constraintTop_toBottomOf="@id/layout_title"
+        tools:ignore="MissingConstraints" >
+
+        <ImageView
+            android:src="@mipmap/ic_search"
+            android:layout_marginLeft="@dimen/dimen_12_dp"
+            android:layout_marginRight="@dimen/dimen_12_dp"
+            android:layout_gravity="center_vertical"
+            android:layout_width="@dimen/dimen_12_dp"
+            android:layout_height="@dimen/dimen_12_dp"/>
+
+        <EditText android:id="@+id/et_account"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@null"
+            android:textCursorDrawable="@null"
+            android:imeOptions="actionSearch"
+            android:singleLine="true"
+            android:layout_marginRight="@dimen/dimen_12_dp"
+            android:textSize="@dimen/text_size_14"
+            android:hint="@string/join_team_search_hint"/>
+
+        <ImageView android:id="@+id/iv_clear"
+            android:src="@drawable/ic_clear"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="@dimen/dimen_12_dp"
+            android:layout_marginRight="@dimen/dimen_12_dp"
+            android:layout_width="@dimen/dimen_12_dp"
+            android:layout_height="@dimen/dimen_12_dp"
+            android:visibility="gone"/>
+
+    </LinearLayout>
+
+    <LinearLayout android:id="@+id/empty_layout"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@id/layout_input"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintVertical_weight="1"
+        android:orientation="vertical"
+        android:visibility="gone"
+        tools:ignore="MissingConstraints" >
+        <ImageView
+            android:id="@+id/empty_state_iv"
+            android:layout_width="@dimen/dimen_188_dp"
+            android:layout_height="@dimen/verify_name_max_len"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="@dimen/dimen_70_dp"
+            android:layout_marginBottom="@dimen/dimen_16_dp"
+            android:src="@drawable/fun_ic_contact_empty"/>
+
+        <TextView android:id="@+id/empty_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="@string/join_team_search_empty_tips"
+            android:textColor="@color/color_b3b7bc"/>
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

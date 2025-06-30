@@ -58,21 +58,48 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <TextView
-                android:id="@+id/tvName"
+            <LinearLayout android:id="@+id/llName"
                 android:layout_width="0dp"
-                android:layout_height="82dp"
-                android:layout_marginStart="11dp"
-                android:layout_marginEnd="16dp"
-                android:gravity="center_vertical|start"
-                android:singleLine="true"
-                android:textColor="@color/color_333333"
-                android:textSize="16dp"
-                app:drawableEndCompat="@drawable/ic_right_arrow"
+                android:layout_height="70dp"
+                android:orientation="vertical"
                 app:layout_constraintEnd_toEndOf="@id/bg1"
                 app:layout_constraintStart_toEndOf="@id/ivIcon"
                 app:layout_constraintTop_toTopOf="parent"
-                tools:ignore="SpUsage" />
+                android:layout_marginStart="11dp"
+                android:gravity="center_vertical"
+                android:layout_marginEnd="16dp">
+
+                <TextView
+                    android:id="@+id/tvName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:layout_marginEnd="16dp"
+                    android:singleLine="true"
+                    android:textColor="@color/color_333333"
+                    android:textSize="16dp"
+                    tools:ignore="SpUsage" />
+
+                <TextView
+                    android:id="@+id/tvSubscribe"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:singleLine="true"
+                    android:textColor="@color/color_666666"
+                    android:layout_marginStart="6dp"
+                    android:textSize="14dp"
+                    android:layout_marginTop="@dimen/dimen_4_dp"
+                    tools:ignore="SpUsage" />
+            </LinearLayout>
+
+            <ImageView
+                android:layout_width="@dimen/dimen_20_dp"
+                android:layout_height="@dimen/dimen_20_dp"
+                android:src="@drawable/ic_right_arrow"
+                app:layout_constraintEnd_toEndOf="@id/bg1"
+                app:layout_constraintTop_toTopOf="parent"
+                android:layout_marginTop="@dimen/dimen_25_dp"
+                android:layout_marginEnd="@dimen/dimen_12_dp"/>
 
             <com.netease.yunxin.kit.common.ui.widgets.ContactAvatarView
                 android:id="@+id/ivIcon"
@@ -80,9 +107,9 @@
                 android:layout_height="50dp"
                 android:layout_marginStart="16dp"
                 app:avatarCorner="4dp"
-                app:layout_constraintBottom_toBottomOf="@id/tvName"
+                app:layout_constraintBottom_toBottomOf="@id/llName"
                 app:layout_constraintStart_toStartOf="@id/bg1"
-                app:layout_constraintTop_toTopOf="@id/tvName" />
+                app:layout_constraintTop_toTopOf="@id/llName" />
 
             <View
                 android:layout_width="0dp"
@@ -91,7 +118,7 @@
                 android:background="@color/color_e5e5e5"
                 app:layout_constraintEnd_toEndOf="@id/bg1"
                 app:layout_constraintStart_toStartOf="@id/bg1"
-                app:layout_constraintTop_toBottomOf="@id/tvName" />
+                app:layout_constraintTop_toBottomOf="@id/llName" />
 
             <TextView
                 android:id="@+id/tvMember"
@@ -105,7 +132,7 @@
                 android:textColor="@color/color_333333"
                 android:textSize="16dp"
                 app:layout_constraintStart_toStartOf="@id/bg1"
-                app:layout_constraintTop_toBottomOf="@id/tvName"
+                app:layout_constraintTop_toBottomOf="@id/llName"
                 tools:ignore="SpUsage" />
 
             <TextView
@@ -141,10 +168,10 @@
                 android:layout_marginStart="6dp"
                 android:layout_marginEnd="16dp"
                 android:overScrollMode="never"
-                app:layout_constraintBottom_toBottomOf="@id/bg1"
+                android:layout_marginTop="16dp"
                 app:layout_constraintEnd_toEndOf="@id/bg1"
                 app:layout_constraintStart_toEndOf="@id/ivAdd"
-                app:layout_constraintTop_toBottomOf="@id/tvCount" />
+                app:layout_constraintTop_toBottomOf="@id/tvMember" />
 
             <View
                 android:id="@+id/bg2"
@@ -255,8 +282,8 @@
                 android:layout_height="0.5dp"
                 android:layout_marginStart="16dp"
                 android:background="@color/color_e5e5e5"
-                app:layout_constraintEnd_toEndOf="@id/bg3"
-                app:layout_constraintStart_toStartOf="@id/bg3"
+                app:layout_constraintEnd_toEndOf="@id/bg2"
+                app:layout_constraintStart_toStartOf="@id/bg2"
                 app:layout_constraintTop_toBottomOf="@id/tvMessageTip" />
 
             <androidx.constraintlayout.widget.Group

@@ -7,6 +7,7 @@ package com.netease.yunxin.kit.conversationkit.ui.fun;
 import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.PATH_FUN_ADD_FRIEND_PAGE;
 import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.PATH_FUN_CREATE_ADVANCED_TEAM_ACTION;
 import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.PATH_FUN_CREATE_NORMAL_TEAM_ACTION;
+import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.PATH_FUN_SEARCH_TEAM_PAGE;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
@@ -33,6 +34,7 @@ public final class FunPopItemFactory {
    */
   public static ContentListPopView.Item getAddFriendItem(Context context) {
     LinearLayout.LayoutParams params = getParams(context);
+    params.setMargins(0, SizeUtils.dp2px(8), 0, 0);
     return new ContentListPopView.Item.Builder()
         .configView(
             getView(context, R.string.add_friend, R.drawable.fun_ic_conversation_add_friend))
@@ -85,6 +87,24 @@ public final class FunPopItemFactory {
   }
 
   /**
+   * 获取加号弹出的pop item:查找群组
+   *
+   * @param context 上下文
+   * @return pop item
+   */
+  public static ContentListPopView.Item getSearchGroupTeamItem(Context context) {
+    LinearLayout.LayoutParams params = getParams(context);
+    int requestCode = 2;
+    return new ContentListPopView.Item.Builder()
+        .configView(
+            getView(context, R.string.join_group_team, R.drawable.fun_ic_conversation_create_team))
+        .configParams(params)
+        .configClickListener(
+            v -> XKitRouter.withKey(PATH_FUN_SEARCH_TEAM_PAGE).withContext(context).navigate())
+        .build();
+  }
+
+  /**
    * 获取加号弹出的pop item:分割线
    *
    * @param context 上下文
@@ -93,7 +113,7 @@ public final class FunPopItemFactory {
   public static ContentListPopView.Item getDivideLineItem(Context context) {
     LinearLayout.LayoutParams params =
         new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, SizeUtils.dp2px(0.5f));
-    params.setMargins(SizeUtils.dp2px(42), 0, 0, 0);
+    params.setMargins(SizeUtils.dp2px(16), 0, 0, 0);
     return new ContentListPopView.Item.Builder()
         .configView(getDivideView(context))
         .configParams(params)
