@@ -343,6 +343,7 @@ public class ConversationViewModel extends BaseViewModel {
               result.setData(resultData);
               hasMore = resultData.size() == PAGE_LIMIT;
               mOffset = data.getOffset();
+              checkConversationNameAndRequest(resultData);
               // 订阅首页会话在线状态
               if (IMKitConfigCenter.getEnableOnlineStatus() && offSet == 0) {
                 subscribeOnlineStatus(resultData);
@@ -686,6 +687,24 @@ public class ConversationViewModel extends BaseViewModel {
     }
   }
 
+  // 检查会话名称是否存在，在非好友关系下，会话不会同步非好友用户信息，需要主动拉取
+    private void checkConversationNameAndRequest(List<ConversationBean> resultData) {
+        List<String> userIdList = new ArrayList<>();
+        if (resultData != null) {
+            for (int index = 0; index < resultData.size(); index++) {
+                ConversationBean conversationBean = resultData.get(index);
+                if (TextUtils.equals(conversationBean.getConversationName(), conversationBean.getTargetId())
+                        && conversationBean.infoData.getType()
+                        == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P) {
+                    userIdList.add(conversationBean.getTargetId());
+                }
+            }
+            if (userIdList.size() > 0) {
+                ALog.d(LIB_TAG, TAG, "getUserInfo start:" + userIdList.size());
+                ContactRepo.getUserInfo(userIdList, null);
+            }
+        }
+    }
   protected void subscribeOnlineStatus(List<ConversationBean> conversationBeanList) {
     if (conversationBeanList == null) {
       return;
