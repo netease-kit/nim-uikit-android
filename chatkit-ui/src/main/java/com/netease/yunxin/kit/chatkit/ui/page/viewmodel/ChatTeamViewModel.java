@@ -94,33 +94,27 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
       };
 
   private final TeamChangeListener teamInfoListener =
-      new TeamChangeListener() {
+      team -> {
+        ALog.d(LIB_TAG, TAG, "onTeamInfoUpdated:");
+        if (team != null && TextUtils.equals(team.getTeamId(), mChatAccountId)) {
+          teamLiveData.setValue(team);
+          ChatRepo.setCurrentTeam(team);
+          if (!TextUtils.isEmpty(team.getServerExtension())) {
+            try {
 
-        @Override
-        public void onTeamUpdate(V2NIMTeam team) {
-          ALog.d(LIB_TAG, TAG, "onTeamInfoUpdated:");
-          if (team != null && TextUtils.equals(team.getTeamId(), mChatAccountId)) {
-            teamLiveData.setValue(team);
-            ChatRepo.setCurrentTeam(team);
-            if (!TextUtils.isEmpty(team.getServerExtension())) {
-              try {
+              //处理置顶消息
+              handleTopMessage(team.getServerExtension());
 
-                //处理置顶消息
-                handleTopMessage(team.getServerExtension());
-
-                //处理最后一次操作类型
-                JSONObject jsonTeam = new JSONObject(team.getServerExtension());
-                if (jsonTeam.has(ChatConstants.KEY_EXTENSION_LAST_OPT_TYPE)) {
-                  String lastOptType =
-                      jsonTeam.optString(ChatConstants.KEY_EXTENSION_LAST_OPT_TYPE);
-                  if (TextUtils.equals(
-                      lastOptType, ChatConstants.KEY_EXTENSION_STICKY_PERMISSION)) {
-                    handleTopMessagePermission(team.getServerExtension());
-                  }
+              //处理最后一次操作类型
+              JSONObject jsonTeam = new JSONObject(team.getServerExtension());
+              if (jsonTeam.has(ChatConstants.KEY_EXTENSION_LAST_OPT_TYPE)) {
+                String lastOptType = jsonTeam.optString(ChatConstants.KEY_EXTENSION_LAST_OPT_TYPE);
+                if (TextUtils.equals(lastOptType, ChatConstants.KEY_EXTENSION_STICKY_PERMISSION)) {
+                  handleTopMessagePermission(team.getServerExtension());
                 }
-              } catch (JSONException e) {
-                ALog.e(LIB_TAG, TAG, "handleTopMessage json error:" + e);
               }
+            } catch (JSONException e) {
+              ALog.e(LIB_TAG, TAG, "handleTopMessage json error:" + e);
             }
           }
         }
@@ -199,7 +193,7 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
         LIB_TAG,
         TAG,
         "refreshTeamMessageReceipt:" + (messageBeans == null ? "null" : messageBeans.size()));
-    if (messageBeans == null || messageBeans.size() < 1) {
+    if (messageBeans == null || messageBeans.isEmpty()) {
       return;
     }
     List<V2NIMMessage> messages = new ArrayList<>();
@@ -264,6 +258,9 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
         TAG,
         "getTeamMemberInfoWithMessage:" + (messages == null ? "null" : messages.size()));
     Set<String> memberIds = new HashSet<>();
+    if (messages == null || messages.isEmpty()) {
+      return;
+    }
     for (IMMessageInfo message : messages) {
       memberIds.add(message.getMessage().getSenderId());
     }
@@ -354,7 +351,7 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
           @Override
           public void onSuccess(@Nullable List<IMMessageInfo> data) {
             ALog.d(LIB_TAG, TAG, "getTopStickyMessage,onSuccess:" + (data == null));
-            if (data != null && data.size() > 0) {
+            if (data != null && !data.isEmpty()) {
               ChatUserCache.getInstance().setTopMessage(data.get(0));
               topMessageLiveData.postValue(data.get(0));
             } else {
@@ -423,7 +420,7 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
               }
 
               @Override
-              public void onError(int errorCode, @NonNull String errorMsg) {
+              public void onError(int errorCode, String errorMsg) {
                 ALog.d(LIB_TAG, TAG, "addStickyMessage,onFailed:" + errorCode);
               }
             });
@@ -487,7 +484,7 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
               }
 
               @Override
-              public void onError(int errorCode, @NonNull String errorMsg) {
+              public void onError(int errorCode, String errorMsg) {
                 ALog.d(LIB_TAG, TAG, "removeStickyMessage,onFailed:" + errorCode);
               }
             });

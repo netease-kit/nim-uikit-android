@@ -28,7 +28,7 @@ public class FunTeamUpdateNameActivity extends BaseTeamUpdateNameActivity {
   protected View initViewAndGetRootView(Bundle savedInstanceState) {
     FunTeamUpdateNameActivityBinding binding =
         FunTeamUpdateNameActivityBinding.inflate(getLayoutInflater());
-    cancelView = binding.ivCancel;
+    cancelView = binding.tvCancel;
     ivClear = binding.ivClear;
     tvTitle = binding.tvTitle;
     tvFlag = binding.tvFlag;

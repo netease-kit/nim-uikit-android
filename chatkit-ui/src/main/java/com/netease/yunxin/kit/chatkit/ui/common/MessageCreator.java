@@ -22,6 +22,7 @@ import com.netease.nimlib.sdk.v2.message.params.V2NIMMessageAIConfigParams;
 import com.netease.nimlib.sdk.v2.message.params.V2NIMSendMessageParams;
 import com.netease.nimlib.sdk.v2.utils.V2NIMConversationIdUtil;
 import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
+import com.netease.yunxin.kit.chatkit.IMKitCustomFactory;
 import com.netease.yunxin.kit.chatkit.manager.AIUserManager;
 import java.util.List;
 
@@ -138,6 +139,15 @@ public class MessageCreator {
         V2NIMMessagePushConfig.V2NIMMessagePushConfigBuilder.builder();
     if (pushList != null && !pushList.isEmpty()) {
       pushConfigBuilder.withForcePush(true).withForcePushAccountIds(pushList);
+    }
+    if (IMKitCustomFactory.getPushConfig() != null) {
+      V2NIMMessagePushConfig pushConfig = IMKitCustomFactory.getPushConfig();
+      pushConfigBuilder.withForcePush(pushConfig.isForcePush());
+      pushConfigBuilder.withContent(pushConfig.getPushContent());
+      pushConfigBuilder.withPushEnabled(pushConfig.isPushEnabled());
+      pushConfigBuilder.withPayload(pushConfig.getPushPayload());
+      pushConfigBuilder.withForcePushContent(pushConfig.getForcePushContent());
+      pushConfigBuilder.withPushNickEnabled(pushConfig.isPushNickEnabled());
     }
     V2NIMSendMessageParams.V2NIMSendMessageParamsBuilder paramsBuilder =
         V2NIMSendMessageParams.V2NIMSendMessageParamsBuilder.builder()

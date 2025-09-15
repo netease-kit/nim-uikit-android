@@ -8,6 +8,7 @@ import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
 
 import android.text.TextUtils;
 import android.text.style.ImageSpan;
+import android.text.util.Linkify;
 import android.view.LayoutInflater;
 import android.view.View;
 import androidx.annotation.NonNull;
@@ -73,12 +74,22 @@ public class ChatTextMessageViewHolder extends FunChatBaseMessageViewHolder {
 
   private void setMessageText(ChatMessageBean message) {
     // 设置消息文本
-    if (properties.getMessageTextSize() != null) {
-      textBinding.messageText.setTextSize(properties.getMessageTextSize());
+    if (MessageHelper.isReceivedMessage(message)) {
+      if (properties.getReceiveMessageTextSize() != null) {
+        textBinding.messageText.setTextSize(properties.getReceiveMessageTextSize());
+      }
+      if (properties.getReceiveMessageTextColor() != null) {
+        textBinding.messageText.setTextColor(properties.getReceiveMessageTextColor());
+      }
+    } else {
+      if (properties.getSelfMessageTextSize() != null) {
+        textBinding.messageText.setTextSize(properties.getSelfMessageTextSize());
+      }
+      if (properties.getSelfMessageTextColor() != null) {
+        textBinding.messageText.setTextColor(properties.getSelfMessageTextColor());
+      }
     }
-    if (properties.getMessageTextColor() != null) {
-      textBinding.messageText.setTextColor(properties.getMessageTextColor());
-    }
+
     if (message.getMessageData().getMessage().getMessageType()
         == V2NIMMessageType.V2NIM_MESSAGE_TYPE_TEXT) {
       if (message.isAIResponseMsg()) {
@@ -121,6 +132,10 @@ public class ChatTextMessageViewHolder extends FunChatBaseMessageViewHolder {
       textBinding.messageText.setText(
           parent.getContext().getResources().getString(R.string.chat_message_not_support_tips));
     }
+    // 指定模式（例如只识别电话和邮箱）
+    Linkify.addLinks(
+        textBinding.messageText,
+        Linkify.PHONE_NUMBERS | Linkify.EMAIL_ADDRESSES | Linkify.WEB_URLS);
   }
 
   private void updateOperateView() {

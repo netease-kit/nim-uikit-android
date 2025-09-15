@@ -4,6 +4,7 @@
 
 package com.netease.yunxin.kit.chatkit.ui.normal.view.message.viewholder;
 
+import android.text.util.Linkify;
 import android.view.LayoutInflater;
 import android.view.View;
 import androidx.annotation.NonNull;
@@ -49,13 +50,13 @@ public class ChatAIMessageViewHolder extends NormalChatBaseMessageViewHolder {
     CommonUIOption commonUIOption = uiOptions.commonUIOption;
     if (commonUIOption.messageTextColor != null) {
       textBinding.messageText.setTextColor(commonUIOption.messageTextColor);
-    } else if (properties.getMessageTextColor() != null) {
-      textBinding.messageText.setTextColor(properties.getMessageTextColor());
+    } else if (properties.getReceiveMessageTextColor() != null) {
+      textBinding.messageText.setTextColor(properties.getReceiveMessageTextColor());
     }
     if (commonUIOption.messageTextSize != null) {
       textBinding.messageText.setTextSize(commonUIOption.messageTextSize);
-    } else if (properties.getMessageTextSize() != null) {
-      textBinding.messageText.setTextSize(properties.getMessageTextSize());
+    } else if (properties.getReceiveMessageTextSize() != null) {
+      textBinding.messageText.setTextSize(properties.getReceiveMessageTextSize());
     }
 
     if (message.getMessageData().getMessage().getMessageType()
@@ -116,6 +117,10 @@ public class ChatAIMessageViewHolder extends NormalChatBaseMessageViewHolder {
     } else {
       textBinding.messageText.setOnClickListener(this::clickSelect);
     }
+    // 也可单独指定模式（例如只识别电话和邮箱）
+    Linkify.addLinks(
+        textBinding.messageText,
+        Linkify.PHONE_NUMBERS | Linkify.EMAIL_ADDRESSES | Linkify.WEB_URLS);
   }
 
   @Override

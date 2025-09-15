@@ -19,6 +19,8 @@
     android:paddingVertical="@dimen/dimen_10_dp"
     android:textColor="@color/color_333333"
     android:textSize="@dimen/text_size_16"
+    android:textColorLink="@color/color_007aff"
+    android:linksClickable="true"
     tools:text="@tools:sample/lorem" />
     <ProgressBar
         android:id="@+id/messageLoading"

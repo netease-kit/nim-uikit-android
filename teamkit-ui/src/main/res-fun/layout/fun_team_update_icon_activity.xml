@@ -27,13 +27,14 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:ignore="SpUsage" />
 
-    <ImageView
-        android:id="@+id/ivCancel"
-        android:layout_width="26dp"
+    <TextView
+        android:id="@+id/tvCancel"
+        android:layout_width="wrap_content"
         android:layout_height="48dp"
         android:layout_marginStart="20dp"
-        android:gravity="center_vertical"
-        android:src="@drawable/ic_arrow_left"
+        android:text="@string/team_cancel"
+        android:gravity="center"
+        android:textColor="@color/color_666666"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 

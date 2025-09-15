@@ -116,25 +116,22 @@ public class ChatP2PViewModel extends ChatBaseViewModel {
       };
 
   protected V2NIMSubscribeListener onlineListener =
-      new V2NIMSubscribeListener() {
-        @Override
-        public void onUserStatusChanged(List<V2NIMUserStatus> userStatusList) {
-          if (userStatusList == null || userStatusList.isEmpty()) {
-            return;
+      userStatusList -> {
+        if (userStatusList == null || userStatusList.isEmpty()) {
+          return;
+        }
+        String userId = "";
+        for (V2NIMUserStatus userStatus : userStatusList) {
+          if (userStatus != null && Objects.equals(userStatus.getAccountId(), mChatAccountId)) {
+            userId = userStatus.getAccountId();
+            break;
           }
-          String userId = "";
-          for (V2NIMUserStatus userStatus : userStatusList) {
-            if (userStatus != null && Objects.equals(userStatus.getAccountId(), mChatAccountId)) {
-              userId = userStatus.getAccountId();
-              break;
-            }
-          }
-          if (!userId.isEmpty()) {
-            FetchResult<String> updateResult = new FetchResult<>(FetchResult.FetchType.Update);
-            updateResult.setData(userId);
-            updateResult.setLoadStatus(LoadStatus.Finish);
-            updateLiveData.setValue(updateResult);
-          }
+        }
+        if (!userId.isEmpty()) {
+          FetchResult<String> updateResult = new FetchResult<>(FetchResult.FetchType.Update);
+          updateResult.setData(userId);
+          updateResult.setLoadStatus(LoadStatus.Finish);
+          updateLiveData.setValue(updateResult);
         }
       };
 
@@ -157,7 +154,7 @@ public class ChatP2PViewModel extends ChatBaseViewModel {
             }
           }
 
-          if (needFriendList.size() > 0) {
+          if (!needFriendList.isEmpty()) {
             FetchResult<List<String>> userInfoFetchResult = new FetchResult<>(LoadStatus.Finish);
             userInfoFetchResult.setData(accountList);
             userInfoFetchResult.setType(FetchResult.FetchType.Update);
@@ -179,11 +176,11 @@ public class ChatP2PViewModel extends ChatBaseViewModel {
         public void onFriendAddRejected(@NonNull FriendAddApplicationInfo rejectionInfo) {}
       };
 
-  private LoginDetailListenerImpl loginDetailListener =
+  private final LoginDetailListenerImpl loginDetailListener =
       new LoginDetailListenerImpl() {
         @Override
         public void onDataSync(V2NIMDataSyncType type, V2NIMDataSyncState state, V2NIMError error) {
-          ALog.d(LIB_TAG, TAG, "onDataSync:" + type.name() + "," + state.name());
+          ALog.d(LIB_TAG, TAG, "onDataSync:" + type + "," + state);
           if (type == V2NIMDataSyncType.V2NIM_DATA_SYNC_MAIN
               && state == V2NIMDataSyncState.V2NIM_DATA_SYNC_STATE_COMPLETED) {
             subscribeOnlineStatus(true);
@@ -352,12 +349,7 @@ public class ChatP2PViewModel extends ChatBaseViewModel {
     }
   }
 
-  /**
-   * 是否是好友
-   *
-   * @param account
-   * @return
-   */
+  /** 是否是好友 */
   public boolean isFriend(String account) {
     return ContactRepo.isFriend(account);
   }

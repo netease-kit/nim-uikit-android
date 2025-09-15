@@ -34,7 +34,7 @@ public class FunTeamManagerActivity extends BaseTeamManagerActivity {
   protected View initViewAndGetRootView(Bundle savedInstanceState) {
     binding = FunTeamManagerActivityBinding.inflate(getLayoutInflater());
     viewEditManager = binding.tvEditManager;
-    backView = binding.ivBack;
+    backView = binding.viewTitle.getBackImageView();
     tvManagerCount = binding.tvManagerCount;
     viewInvite = binding.tvInviteOtherPermission;
     tvInviteValue = binding.tvInviteOtherValue;

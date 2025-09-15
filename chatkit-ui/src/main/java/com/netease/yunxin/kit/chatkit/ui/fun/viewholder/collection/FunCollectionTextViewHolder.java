@@ -5,6 +5,7 @@
 package com.netease.yunxin.kit.chatkit.ui.fun.viewholder.collection;
 
 import android.text.style.ImageSpan;
+import android.text.util.Linkify;
 import android.view.LayoutInflater;
 import androidx.annotation.NonNull;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
@@ -52,5 +53,9 @@ public class FunCollectionTextViewHolder extends FunCollectionBaseViewHolder {
       textBinding.messageText.setText(
           parent.getContext().getResources().getString(R.string.chat_message_not_support_tips));
     }
+    // 指定模式（例如只识别电话和邮箱）
+    Linkify.addLinks(
+        textBinding.messageText,
+        Linkify.PHONE_NUMBERS | Linkify.EMAIL_ADDRESSES | Linkify.WEB_URLS);
   }
 }

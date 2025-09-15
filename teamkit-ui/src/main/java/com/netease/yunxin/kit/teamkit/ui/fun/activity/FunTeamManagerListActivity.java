@@ -41,7 +41,7 @@ public class FunTeamManagerListActivity extends BaseTeamManagerListActivity {
   @Override
   protected View initViewAndGetRootView(Bundle savedInstanceState) {
     viewBinding = FunTeamManagerListActivityBinding.inflate(getLayoutInflater());
-    ivBack = viewBinding.ivBack;
+    ivBack = viewBinding.viewTitle.getBackImageView();
     tvAddManager = viewBinding.tvManager;
     rvMemberList = viewBinding.rvMemberList;
     groupEmpty = viewBinding.groupEmtpy;

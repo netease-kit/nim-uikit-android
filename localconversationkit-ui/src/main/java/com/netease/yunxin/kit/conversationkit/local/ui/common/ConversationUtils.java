@@ -101,26 +101,49 @@ public class ConversationUtils {
     }
     return false;
   }
-
+  /**
+   * 获取会话列表的排序比较器 用于对ConversationBean列表进行排序，排序规则如下： 1. 优先按置顶状态排序：置顶会话排在非置顶会话之前 2.
+   * 置顶状态相同的情况下，按最后一条消息时间戳降序排序（最新消息的会话排在前面） 3. 时间戳相同则按会话ID排序，确保排序稳定性 4.
+   * 处理null对象：若其中一个对象为null，非null对象排在前面
+   *
+   * @return 用于排序ConversationBean的Comparator实例
+   */
   public static Comparator<ConversationBean> getConversationComparator() {
-    // 会话排序规则
-
+    // 会话排序规则：置顶优先 > 最新消息优先 > 会话ID排序 > null安全处理
     return (bean1, bean2) -> {
       int result;
+      // 若bean1为null，bean2排在前面
       if (bean1 == null) {
         result = 1;
-      } else if (bean2 == null) {
+      }
+      // 若bean2为null，bean1排在前面
+      else if (bean2 == null) {
         result = -1;
-      } else if (bean1.isStickTop() == bean2.isStickTop()) {
-        long time = bean1.getLastMsgTime() - bean2.getLastMsgTime();
-        result = time == 0L ? 0 : (time > 0 ? -1 : 1);
-      } else {
+      }
+      // 置顶状态不同，置顶会话排在前面
+      else if (bean1.isStickTop() != bean2.isStickTop()) {
         result = bean1.isStickTop() ? -1 : 1;
+      }
+      // 置顶状态相同，按最后消息时间戳降序排序
+      else {
+        long timeDiff = bean1.getLastMsgTime() - bean2.getLastMsgTime();
+        if (timeDiff != 0) {
+          result = timeDiff > 0 ? -1 : 1;
+        } else {
+          // 时间戳相同则按会话ID排序，确保排序稳定性
+          result = bean1.getConversationId().compareTo(bean2.getConversationId());
+        }
       }
       return result;
     };
   }
 
+  /**
+   * 转换JSONArray为HashSet
+   *
+   * @param jsonArray
+   * @return
+   */
   public static Set<String> toHashSet(JSONArray jsonArray) {
     if (jsonArray == null) {
       return null;

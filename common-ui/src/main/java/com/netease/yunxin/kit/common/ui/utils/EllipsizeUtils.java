@@ -175,7 +175,7 @@ public class EllipsizeUtils {
 
     final int keywordStart = compareContent.indexOf(compareKeyword);
     if (keywordStart < 0) { // 找不到关键字
-      textView.setText(null);
+      textView.setText(compareContent);
       return;
     }
 

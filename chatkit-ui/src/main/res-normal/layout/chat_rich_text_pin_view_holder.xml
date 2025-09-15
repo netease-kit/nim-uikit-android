@@ -21,21 +21,25 @@
         android:paddingTop="@dimen/dimen_4_dp"
         android:paddingBottom="@dimen/dimen_6_dp"
         android:ellipsize="end"
-        android:textColor="@color/color_222222"
+        android:textColor="@color/color_chat_rich_message_title"
         android:paddingEnd="@dimen/dimen_16_dp"
         tools:text="@tools:sample/lorem"
         android:textStyle="bold"
+        android:textColorLink="@color/color_chat_message_highlight"
+        android:linksClickable="true"
         android:singleLine="true" />
     <TextView
         android:id="@+id/messageContent"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="@dimen/text_size_16"
-        android:textColor="@color/color_222222"
+        android:textColor="@color/color_chat_rich_message_content"
         android:paddingEnd="@dimen/dimen_16_dp"
         android:paddingBottom="@dimen/dimen_4_dp"
         android:ellipsize="end"
         android:maxLines="2"
+        android:textColorLink="@color/color_chat_message_highlight"
+        android:linksClickable="true"
         tools:text="@tools:sample/lorem" />
 
     <androidx.constraintlayout.widget.Placeholder

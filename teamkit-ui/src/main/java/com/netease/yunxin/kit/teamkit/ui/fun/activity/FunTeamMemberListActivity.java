@@ -37,11 +37,11 @@ public class FunTeamMemberListActivity extends BaseTeamMemberListActivity {
   protected View initViewAndGetRootView(Bundle savedInstanceState) {
     FunTeamMemberListActivityBinding binding =
         FunTeamMemberListActivityBinding.inflate(getLayoutInflater());
-    ivBack = binding.ivBack;
+    ivBack = binding.viewTitle.getBackImageView();
     ivClear = binding.ivClear;
     groupEmpty = binding.groupEmtpy;
     rvMemberList = binding.rvMemberList;
-    tvTitle = binding.tvTitle;
+    tvTitle = binding.viewTitle.getTitleTextView();
     rvMemberList.addItemDecoration(
         new RecyclerView.ItemDecoration() {
           @Override

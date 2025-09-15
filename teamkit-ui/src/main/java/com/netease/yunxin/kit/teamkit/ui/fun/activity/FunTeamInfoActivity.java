@@ -29,9 +29,9 @@ public class FunTeamInfoActivity extends BaseTeamInfoActivity {
   protected View initViewAndGetRootView(Bundle savedInstanceState) {
     FunTeamInfoActivityBinding binding = FunTeamInfoActivityBinding.inflate(getLayoutInflater());
     line2 = binding.line2;
-    ivBack = binding.ivBack;
+    ivBack = binding.viewTitle.getBackImageView();
     ivIcon = binding.ivIcon;
-    tvTitle = binding.tvTitle;
+    tvTitle = binding.viewTitle.getTitleTextView();
     tvIcon = binding.tvIcon;
     tvName = binding.tvName;
     tvIntroduce = binding.tvIntroduce;

@@ -30,7 +30,7 @@ public class FunTeamUpdateIconActivity extends BaseTeamUpdateIconActivity {
   protected View initViewAndGetRootView(Bundle savedInstanceState) {
     FunTeamUpdateIconActivityBinding binding =
         FunTeamUpdateIconActivityBinding.inflate(getLayoutInflater());
-    cancelView = binding.ivCancel;
+    cancelView = binding.tvCancel;
     groupPrivilege = binding.groupPrivilege;
     ivIcon = binding.ivIcon;
     ivCamera = binding.ivCamera;

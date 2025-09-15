@@ -34,7 +34,7 @@ public class FunTeamMemberSelectActivity extends BaseTeamMemberSelectActivity {
   @Override
   protected View initViewAndGetRootView(Bundle savedInstanceState) {
     viewBinding = FunTeamMemberSelectActivityBinding.inflate(getLayoutInflater());
-    ivBack = viewBinding.ivBack;
+    ivBack = viewBinding.tvCancel;
     ivClear = viewBinding.ivClear;
     tvSure = viewBinding.tvSure;
     rvMemberList = viewBinding.rvMemberList;

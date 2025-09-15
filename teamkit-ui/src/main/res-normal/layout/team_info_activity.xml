@@ -12,28 +12,15 @@
     android:layout_height="match_parent"
     android:background="@color/color_eff1f4">
 
-    <TextView
-        android:id="@+id/tvTitle"
-        android:layout_width="wrap_content"
+    <com.netease.yunxin.kit.common.ui.widgets.BackTitleBar
+        android:id="@+id/viewTitle"
+        android:layout_width="match_parent"
         android:layout_height="48dp"
-        android:gravity="center"
-        android:text="@string/team_info_title"
-        android:textColor="@color/color_333333"
-        android:textSize="16dp"
-        android:textStyle="bold"
+        app:titleText="@string/team_info_title"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:ignore="SpUsage" />
+        app:layout_constraintTop_toTopOf="parent"/>
 
-    <ImageView
-        android:id="@+id/ivBack"
-        android:layout_width="26dp"
-        android:layout_height="48dp"
-        android:layout_marginStart="20dp"
-        android:src="@drawable/ic_arrow_left"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
 
     <View
         android:id="@+id/infoBg"
@@ -47,7 +34,7 @@
         app:layout_constraintBottom_toBottomOf="@id/tvIntroduce"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvTitle" />
+        app:layout_constraintTop_toBottomOf="@id/viewTitle" />
 
     <TextView
         android:id="@+id/tvIcon"

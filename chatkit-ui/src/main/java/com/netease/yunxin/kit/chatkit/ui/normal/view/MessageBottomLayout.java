@@ -570,8 +570,8 @@ public class MessageBottomLayout extends FrameLayout
       mInputState = InputState.none;
       return;
     }
-    emojiShow(true, 0);
     hideCurrentInput();
+    emojiShow(true, 0);
     mInputState = InputState.emoji;
   }
 
@@ -595,8 +595,8 @@ public class MessageBottomLayout extends FrameLayout
       mInputState = InputState.none;
       return;
     }
-    morePanelShow(true, 0);
     hideCurrentInput();
+    morePanelShow(true, 0);
     mInputState = InputState.more;
   }
 

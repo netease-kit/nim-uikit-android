@@ -16,7 +16,7 @@ android {
     defaultConfig {
         minSdk = 24
         consumerProguardFiles("consumer-rules.pro")
-        buildConfigField("String", "versionName", "\"1.5.0\"")
+        buildConfigField("String", "versionName", "\"1.8.0\"")
     }
 
     buildTypes {
@@ -37,7 +37,7 @@ android {
 
 dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
-    api("com.netease.yunxin.kit.common:common:1.5.0")
+    api("com.netease.yunxin.kit.common:common:1.8.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.1")
     api("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.22")
     implementation("androidx.appcompat:appcompat:1.6.1")

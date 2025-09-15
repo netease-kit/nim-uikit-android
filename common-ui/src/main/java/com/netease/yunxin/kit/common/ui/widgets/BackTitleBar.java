@@ -18,6 +18,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.core.content.res.ResourcesCompat;
+import com.netease.yunxin.kit.common.ui.CommonUIConfig;
 import com.netease.yunxin.kit.common.ui.R;
 import com.netease.yunxin.kit.common.ui.databinding.BackTitleBarLayoutBinding;
 
@@ -64,6 +65,15 @@ public class BackTitleBar extends FrameLayout {
         binding.ivBack.setVisibility(GONE);
         binding.tvLeft.setVisibility(VISIBLE);
         binding.tvLeft.setText(leftTitle);
+      }
+      if (CommonUIConfig.INSTANCE.getBackIconResId() != 0) {
+        binding.ivBack.setImageResource(CommonUIConfig.INSTANCE.getBackIconResId());
+      }
+      if (CommonUIConfig.INSTANCE.getTitleTextColor() != 0) {
+        binding.tvTitle.setTextColor(CommonUIConfig.INSTANCE.getTitleTextColor());
+      }
+      if (CommonUIConfig.INSTANCE.getTitleTextSize() != 0) {
+        binding.tvTitle.setTextSize(CommonUIConfig.INSTANCE.getTitleTextSize());
       }
     }
   }

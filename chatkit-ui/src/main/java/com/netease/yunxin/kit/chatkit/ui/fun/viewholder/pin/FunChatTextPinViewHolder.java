@@ -4,6 +4,7 @@
 
 package com.netease.yunxin.kit.chatkit.ui.fun.viewholder.pin;
 
+import android.text.util.Linkify;
 import android.view.LayoutInflater;
 import androidx.annotation.NonNull;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
@@ -35,11 +36,21 @@ public class FunChatTextPinViewHolder extends FunChatBasePinViewHolder {
   @Override
   public void onBindData(ChatMessageBean message, int position) {
     super.onBindData(message, position);
-    if (properties.getMessageTextSize() != null) {
-      textBinding.messageText.setTextSize(properties.getMessageTextSize());
-    }
-    if (properties.getMessageTextColor() != null) {
-      textBinding.messageText.setTextColor(properties.getMessageTextColor());
+    // 设置消息文本
+    if (MessageHelper.isReceivedMessage(message)) {
+      if (properties.getReceiveMessageTextSize() != null) {
+        textBinding.messageText.setTextSize(properties.getReceiveMessageTextSize());
+      }
+      if (properties.getReceiveMessageTextColor() != null) {
+        textBinding.messageText.setTextColor(properties.getReceiveMessageTextColor());
+      }
+    } else {
+      if (properties.getSelfMessageTextSize() != null) {
+        textBinding.messageText.setTextSize(properties.getSelfMessageTextSize());
+      }
+      if (properties.getSelfMessageTextColor() != null) {
+        textBinding.messageText.setTextColor(properties.getSelfMessageTextColor());
+      }
     }
     if (message.getMessageData().getMessage().getMessageType()
         == V2NIMMessageType.V2NIM_MESSAGE_TYPE_TEXT) {
@@ -59,5 +70,9 @@ public class FunChatTextPinViewHolder extends FunChatBasePinViewHolder {
       textBinding.messageText.setText(
           parent.getContext().getResources().getString(R.string.chat_message_not_support_tips));
     }
+    // 指定模式（例如只识别电话和邮箱）
+    Linkify.addLinks(
+        textBinding.messageText,
+        Linkify.PHONE_NUMBERS | Linkify.EMAIL_ADDRESSES | Linkify.WEB_URLS);
   }
 }
