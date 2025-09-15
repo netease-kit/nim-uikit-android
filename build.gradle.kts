@@ -7,7 +7,7 @@ plugins {
     } else if (GradleVersion.current() >= GradleVersion.version("7.0")){
         id("com.android.library") version "7.3.1" apply false
         id("com.android.application") version "7.3.1" apply false
-        id("org.jetbrains.kotlin.android") version "1.6.20" apply false
+        id("org.jetbrains.kotlin.android") version "1.8.0" apply false
     }
 
 }

@@ -16,8 +16,10 @@
         android:textSize="@dimen/text_size_16"
         android:paddingHorizontal="@dimen/dimen_16_dp"
         android:paddingVertical="@dimen/dimen_12_dp"
-        android:textColor="@color/color_333333"
+        android:textColor="@color/color_chat_message_text"
         tools:text="@tools:sample/lorem"
+        android:textColorLink="@color/color_chat_message_highlight"
+        android:linksClickable="true"
         android:visibility="visible"/>
 
     <ProgressBar

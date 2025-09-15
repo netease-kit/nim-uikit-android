@@ -24,6 +24,8 @@
         android:paddingHorizontal="@dimen/dimen_16_dp"
         tools:text="@tools:sample/lorem"
         android:textStyle="bold"
+        android:textColorLink="@color/color_007aff"
+        android:linksClickable="true"
         android:maxLines="2"/>
     <TextView
         android:id="@+id/messageContent"
@@ -34,6 +36,8 @@
         android:paddingHorizontal="@dimen/dimen_16_dp"
         android:paddingBottom="@dimen/dimen_4_dp"
         android:ellipsize="end"
+        android:textColorLink="@color/color_007aff"
+        android:linksClickable="true"
         tools:text="@tools:sample/lorem" />
 
 </LinearLayout>

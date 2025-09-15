@@ -9,11 +9,15 @@ import android.text.TextUtils;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
+import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.v2.V2NIMError;
+import com.netease.nimlib.sdk.v2.V2NIMFailureCallback;
+import com.netease.nimlib.sdk.v2.V2NIMSuccessCallback;
 import com.netease.nimlib.sdk.v2.ai.model.V2NIMAIUser;
 import com.netease.nimlib.sdk.v2.auth.enums.V2NIMDataSyncState;
 import com.netease.nimlib.sdk.v2.auth.enums.V2NIMDataSyncType;
 import com.netease.nimlib.sdk.v2.conversation.V2NIMLocalConversationListener;
+import com.netease.nimlib.sdk.v2.conversation.V2NIMLocalConversationService;
 import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
 import com.netease.nimlib.sdk.v2.conversation.model.V2NIMLocalConversation;
 import com.netease.nimlib.sdk.v2.conversation.result.V2NIMLocalConversationResult;
@@ -517,6 +521,21 @@ public class ConversationViewModel extends BaseViewModel {
           if (IMKitConfigCenter.getEnableOnlineStatus()) {
             subscribeOnlineStatus(resultData);
           }
+          String accountId =
+              ConversationIdUtils.conversationTargetId(conversation.getConversationId());
+          if (TextUtils.isEmpty(conversation.getAvatar())
+              && conversation.getType() == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P
+              && !ContactRepo.isFriend(accountId)) {
+            ALog.d(
+                LIB_TAG,
+                TAG,
+                "conversationListener onConversationCreated,conversation is not friend,"
+                    + "accountId:"
+                    + accountId);
+            refreshConversation(
+                Collections.singletonList(accountId),
+                Collections.singletonList(conversation.getConversationId()));
+          }
         }
 
         @Override
@@ -534,43 +553,7 @@ public class ConversationViewModel extends BaseViewModel {
               TAG,
               "conversationListener onConversationChanged,conversation:"
                   + (conversationList != null ? conversationList.size() : "0"));
-          if (conversationList == null || conversationList.isEmpty()) {
-            return;
-          }
-          List<V2NIMLocalConversation> changeList = new ArrayList<>();
-          List<String> deleteList = new ArrayList<>();
-          for (V2NIMLocalConversation conversation : conversationList) {
-            ALog.d(
-                LIB_TAG,
-                TAG,
-                "conversationListener onConversationChanged,conversation:"
-                    + (conversation != null ? conversation.getConversationId() : "id is null"));
-            if (conversation != null
-                && ConversationUtils.isDismissTeamMsg(conversation.getLastMessage())) {
-              deleteList.add(conversation.getConversationId());
-              deleteConversation(conversation.getConversationId(), false);
-            } else {
-              changeList.add(conversation);
-            }
-          }
-          if (changeList.size() > 0) {
-            ALog.d(
-                LIB_TAG,
-                TAG,
-                "conversationListener onConversationChanged,changeList:" + changeList.size());
-            FetchResult<List<ConversationBean>> result = new FetchResult<>(LoadStatus.Success);
-            result.setType(FetchResult.FetchType.Update);
-            convertAndNotify(result, changeList);
-          }
-          if (deleteList.size() > 0) {
-            ALog.d(
-                LIB_TAG,
-                TAG,
-                "conversationListener onConversationChanged,deleteList:" + deleteList.size());
-            FetchResult<List<String>> result = new FetchResult<>(LoadStatus.Success);
-            result.setData(deleteList);
-            deleteLiveData.setValue(result);
-          }
+          updateConversationChange(conversationList);
         }
 
         @Override
@@ -670,6 +653,48 @@ public class ConversationViewModel extends BaseViewModel {
     return resultData;
   }
 
+  // 更新会话信息到UI列表
+  private void updateConversationChange(List<V2NIMLocalConversation> conversationList) {
+    if (conversationList == null || conversationList.isEmpty()) {
+      return;
+    }
+    ALog.d(LIB_TAG, TAG, " updateConversationChange,conversation:" + conversationList.size());
+    List<V2NIMLocalConversation> changeList = new ArrayList<>();
+    List<String> deleteList = new ArrayList<>();
+    for (V2NIMLocalConversation conversation : conversationList) {
+      ALog.d(
+          LIB_TAG,
+          TAG,
+          "conversationListener onConversationChanged,conversation:"
+              + (conversation != null ? conversation.getConversationId() : "id is null"));
+      if (conversation != null
+          && ConversationUtils.isDismissTeamMsg(conversation.getLastMessage())) {
+        deleteList.add(conversation.getConversationId());
+        deleteConversation(conversation.getConversationId(), false);
+      } else {
+        changeList.add(conversation);
+      }
+    }
+    if (changeList.size() > 0) {
+      ALog.d(
+          LIB_TAG,
+          TAG,
+          "conversationListener onConversationChanged,changeList:" + changeList.size());
+      FetchResult<List<ConversationBean>> result = new FetchResult<>(LoadStatus.Success);
+      result.setType(FetchResult.FetchType.Update);
+      convertAndNotify(result, changeList);
+    }
+    if (deleteList.size() > 0) {
+      ALog.d(
+          LIB_TAG,
+          TAG,
+          "conversationListener onConversationChanged,deleteList:" + deleteList.size());
+      FetchResult<List<String>> result = new FetchResult<>(LoadStatus.Success);
+      result.setData(deleteList);
+      deleteLiveData.setValue(result);
+    }
+  }
+
   //工具方法，去除重复会话
   public void checkConversationAndRemove(List<V2NIMLocalConversation> data) {
     Set<String> conversationIds = new HashSet<>();
@@ -688,23 +713,68 @@ public class ConversationViewModel extends BaseViewModel {
   }
 
   // 检查会话名称是否存在，在非好友关系下，会话不会同步非好友用户信息，需要主动拉取
-    private void checkConversationNameAndRequest(List<ConversationBean> resultData) {
-        List<String> userIdList = new ArrayList<>();
-        if (resultData != null) {
-            for (int index = 0; index < resultData.size(); index++) {
-                ConversationBean conversationBean = resultData.get(index);
-                if (TextUtils.equals(conversationBean.getConversationName(), conversationBean.getTargetId())
-                        && conversationBean.infoData.getType()
-                        == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P) {
-                    userIdList.add(conversationBean.getTargetId());
-                }
-            }
-            if (userIdList.size() > 0) {
-                ALog.d(LIB_TAG, TAG, "getUserInfo start:" + userIdList.size());
-                ContactRepo.getUserInfo(userIdList, null);
-            }
+  private void checkConversationNameAndRequest(List<ConversationBean> resultData) {
+    List<String> userIdList = new ArrayList<>();
+    List<String> userConversationIdList = new ArrayList<>();
+    List<String> friendIdList = new ArrayList<>();
+    if (resultData != null) {
+      for (int index = 0; index < resultData.size(); index++) {
+        ConversationBean conversationBean = resultData.get(index);
+        if (TextUtils.equals(conversationBean.getConversationName(), conversationBean.getTargetId())
+            && conversationBean.infoData.getType()
+                == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P) {
+          if (ContactRepo.isFriend(conversationBean.getTargetId())) {
+            friendIdList.add(conversationBean.getTargetId());
+          } else {
+            userIdList.add(conversationBean.getTargetId());
+            userConversationIdList.add(conversationBean.getConversationId());
+          }
         }
+      }
+      if (friendIdList.size() > 0) {
+        ALog.d(LIB_TAG, TAG, "getUserInfo start:" + userIdList.size());
+        ContactRepo.getUserInfo(userIdList, null);
+      }
+      // 非好友刷新会话信息
+      if (userIdList.size() > 0) {
+        refreshConversation(userIdList, userConversationIdList);
+      }
     }
+  }
+
+  private void refreshConversation(List<String> userIdList, List<String> userConversationIdList) {
+    ContactRepo.getUserListFromCloud(
+        userIdList,
+        new FetchCallback<List<V2NIMUser>>() {
+          @Override
+          public void onError(int errorCode, @Nullable String errorMsg) {
+            ALog.e(
+                LIB_TAG, TAG, "refreshConversation onError:" + errorCode + ",errorMsg:" + errorMsg);
+          }
+
+          @Override
+          public void onSuccess(@Nullable List<V2NIMUser> data) {
+            ALog.d(
+                LIB_TAG, TAG, "refreshConversation onSuccess:" + (data != null ? data.size() : 0));
+            if (data != null && !data.isEmpty()) {
+              NIMClient.getService(V2NIMLocalConversationService.class)
+                  .getConversationListByIds(
+                      userConversationIdList,
+                      new V2NIMSuccessCallback<List<V2NIMLocalConversation>>() {
+                        @Override
+                        public void onSuccess(List<V2NIMLocalConversation> results) {
+                          updateConversationChange(results);
+                        }
+                      },
+                      new V2NIMFailureCallback() {
+                        @Override
+                        public void onFailure(V2NIMError error) {}
+                      });
+            }
+          }
+        });
+  }
+
   protected void subscribeOnlineStatus(List<ConversationBean> conversationBeanList) {
     if (conversationBeanList == null) {
       return;

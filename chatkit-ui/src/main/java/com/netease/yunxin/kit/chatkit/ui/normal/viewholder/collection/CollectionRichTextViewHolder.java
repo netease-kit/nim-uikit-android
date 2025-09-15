@@ -5,6 +5,7 @@
 package com.netease.yunxin.kit.chatkit.ui.normal.viewholder.collection;
 
 import android.text.style.ImageSpan;
+import android.text.util.Linkify;
 import android.view.LayoutInflater;
 import androidx.annotation.NonNull;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
@@ -44,6 +45,13 @@ public class CollectionRichTextViewHolder extends CollectionBaseViewHolder {
             viewBinding.messageContent,
             attachment.body,
             ImageSpan.ALIGN_BOTTOM);
+        // 指定模式（例如只识别电话和邮箱）
+        Linkify.addLinks(
+            viewBinding.messageTitle,
+            Linkify.PHONE_NUMBERS | Linkify.EMAIL_ADDRESSES | Linkify.WEB_URLS);
+        Linkify.addLinks(
+            viewBinding.messageContent,
+            Linkify.PHONE_NUMBERS | Linkify.EMAIL_ADDRESSES | Linkify.WEB_URLS);
       }
     }
   }

@@ -5,6 +5,7 @@
 package com.netease.yunxin.kit.chatkit.ui.fun.view.message.viewholder;
 
 import android.text.TextUtils;
+import android.text.util.Linkify;
 import android.view.LayoutInflater;
 import android.view.View;
 import androidx.annotation.NonNull;
@@ -83,6 +84,13 @@ public class ChatRichTextMessageViewHolder extends FunChatBaseMessageViewHolder 
             viewBinding.getRoot().setOnClickListener(this::clickSelect);
           }
         }
+        // 指定模式（例如只识别电话和邮箱）
+        Linkify.addLinks(
+            viewBinding.messageContent,
+            Linkify.PHONE_NUMBERS | Linkify.EMAIL_ADDRESSES | Linkify.WEB_URLS);
+        Linkify.addLinks(
+            viewBinding.messageTitle,
+            Linkify.PHONE_NUMBERS | Linkify.EMAIL_ADDRESSES | Linkify.WEB_URLS);
       }
     }
   }

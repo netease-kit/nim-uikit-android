@@ -46,5 +46,10 @@
     <color name="color_bcccfa">#bcccfa</color>
     <color name="color_e75257">#E75257</color>
 
+    <!-- -->
+    <color name="color_chat_message_highlight">#007AFF</color>
+    <color name="color_chat_message_text">#333333</color>
+    <color name="color_chat_rich_message_title">#222222</color>
+    <color name="color_chat_rich_message_content">#222222</color>
 
 </resources>

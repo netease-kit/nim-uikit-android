@@ -60,7 +60,6 @@ import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.model.RecentForward;
 import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
 import com.netease.yunxin.kit.chatkit.repo.ConversationRepo;
-import com.netease.yunxin.kit.chatkit.repo.LocalConversationRepo;
 import com.netease.yunxin.kit.chatkit.repo.ResourceRepo;
 import com.netease.yunxin.kit.chatkit.repo.SettingRepo;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant;
@@ -688,7 +687,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
   public void setChattingAccount() {
     ALog.d(LIB_TAG, TAG, "setChattingAccount sessionId:" + mConversationId);
     if (!TextUtils.isEmpty(mConversationId)) {
-      ChatRepo.setChattingId(mConversationId, mSessionType);
+      ChatRepo.setCurrentConversationId(mConversationId);
       AitService.getInstance().clearAitInfo(mConversationId);
     }
   }
@@ -710,12 +709,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
 
   // 清理
   public void clearChattingAccount() {
-    if (IMKitClient.enableV2CloudConversation()) {
-      ConversationRepo.clearUnreadCountByIds(Collections.singletonList(mConversationId), null);
-    } else {
-      LocalConversationRepo.clearUnreadCountByIds(Collections.singletonList(mConversationId), null);
-    }
-    ChatRepo.clearChattingId();
+    ChatRepo.clearCurrentConversationId();
   }
 
   // 注册监听

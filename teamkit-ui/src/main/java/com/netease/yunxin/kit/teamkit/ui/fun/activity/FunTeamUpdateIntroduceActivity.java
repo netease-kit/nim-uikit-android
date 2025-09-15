@@ -28,7 +28,7 @@ public class FunTeamUpdateIntroduceActivity extends BaseTeamUpdateIntroduceActiv
   protected View initViewAndGetRootView(Bundle savedInstanceState) {
     FunTeamUpdateIntroduceActivityBinding binding =
         FunTeamUpdateIntroduceActivityBinding.inflate(getLayoutInflater());
-    cancelView = binding.ivCancel;
+    cancelView = binding.tvCancel;
     ivClear = binding.ivClear;
     tvFlag = binding.tvFlag;
     tvSave = binding.tvSave;

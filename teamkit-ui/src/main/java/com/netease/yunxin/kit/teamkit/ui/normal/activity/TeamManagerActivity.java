@@ -33,7 +33,7 @@ public class TeamManagerActivity extends BaseTeamManagerActivity {
   protected View initViewAndGetRootView(Bundle savedInstanceState) {
     binding = TeamManagerActivityBinding.inflate(getLayoutInflater());
     viewEditManager = binding.tvEditManager;
-    backView = binding.ivBack;
+    backView = binding.viewTitle.getBackImageView();
     tvManagerCount = binding.tvManagerCount;
     viewInvite = binding.tvInviteOtherPermission;
     tvInviteValue = binding.tvInviteOtherValue;

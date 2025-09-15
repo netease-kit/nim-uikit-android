@@ -15,9 +15,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="@dimen/text_size_14"
-        android:textColor="@color/color_333333"
+        android:textColor="@color/color_chat_message_text"
         android:maxLines="3"
         android:ellipsize="end"
+        android:textColorLink="@color/color_chat_message_highlight"
+        android:linksClickable="true"
         tools:text="@tools:sample/lorem" />
 
 </FrameLayout>

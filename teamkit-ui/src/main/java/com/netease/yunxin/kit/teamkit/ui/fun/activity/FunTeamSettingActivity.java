@@ -54,7 +54,7 @@ public class FunTeamSettingActivity extends BaseTeamSettingActivity {
     swStickTop = binding.swStickTop;
     swMessageTip = binding.swMessageTip;
     swTeamMute = binding.swTeamMute;
-    ivBack = binding.ivBack;
+    ivBack = binding.viewTitle.getBackImageView();
     ivAdd = binding.ivAdd;
     rvMemberList = binding.rvMemberList;
     toTeamDetail = binding.llName;

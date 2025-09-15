@@ -4,6 +4,7 @@
 
 package com.netease.yunxin.kit.chatkit.ui.fun.viewholder.pin;
 
+import android.text.util.Linkify;
 import android.view.LayoutInflater;
 import androidx.annotation.NonNull;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
@@ -46,6 +47,13 @@ public class FunChatRichTextPinViewHolder extends FunChatBasePinViewHolder {
             textBinding.messageContent,
             attachment.body,
             message.getMessageData().getMessage());
+        // 指定模式（例如只识别电话和邮箱）
+        Linkify.addLinks(
+            textBinding.messageContent,
+            Linkify.PHONE_NUMBERS | Linkify.EMAIL_ADDRESSES | Linkify.WEB_URLS);
+        Linkify.addLinks(
+            textBinding.messageTitle,
+            Linkify.PHONE_NUMBERS | Linkify.EMAIL_ADDRESSES | Linkify.WEB_URLS);
       }
     }
   }

@@ -108,12 +108,9 @@ public class ConversationViewModel extends BaseViewModel {
   private boolean hasMore = true;
   // 数据查询是否已经开始
   private boolean hasStart = false;
+  private final int onlineDiff = 20;
 
-  private int onlineScrollStart = 0;
-  private int onlineScrollEnd = 0;
-  private int onlineDiff = 20;
-
-  private List<String> onlineScrollAccountList = new ArrayList<>();
+  private final List<String> onlineScrollAccountList = new ArrayList<>();
 
   public ConversationViewModel() {
     // 注册会话监听
@@ -136,7 +133,7 @@ public class ConversationViewModel extends BaseViewModel {
   }
 
   // @信息监听
-  private EventNotify<AitEvent> aitNotify =
+  private final EventNotify<AitEvent> aitNotify =
       new EventNotify<AitEvent>() {
         @Override
         public void onNotify(@NonNull AitEvent aitEvent) {
@@ -166,11 +163,11 @@ public class ConversationViewModel extends BaseViewModel {
         }
       };
 
-  private EventNotify<TeamEvent> dismissTeamEvent =
+  private final EventNotify<TeamEvent> dismissTeamEvent =
       new EventNotify<TeamEvent>() {
         @Override
         public void onNotify(@NonNull TeamEvent teamEvent) {
-          if (teamEvent != null && teamEvent.getAction() == TeamEventAction.ACTION_DISMISS) {
+          if (teamEvent.getAction().equals(TeamEventAction.ACTION_DISMISS)) {
             ALog.d(LIB_TAG, TAG, "dismissTeamEvent,teamId:" + teamEvent.getTeamId());
             String id = teamEvent.getTeamId();
             if (TextUtils.isEmpty(id)
@@ -191,7 +188,7 @@ public class ConversationViewModel extends BaseViewModel {
         }
       };
 
-  private LoginDetailListenerImpl loginDetailListener =
+  private final LoginDetailListenerImpl loginDetailListener =
       new LoginDetailListenerImpl() {
         @Override
         public void onDataSync(V2NIMDataSyncType type, V2NIMDataSyncState state, V2NIMError error) {
@@ -207,7 +204,7 @@ public class ConversationViewModel extends BaseViewModel {
         }
       };
 
-  private ContactListener contactListener =
+  private final ContactListener contactListener =
       new ContactListener() {
         @Override
         public void onContactChange(
@@ -365,7 +362,7 @@ public class ConversationViewModel extends BaseViewModel {
           userIdList.add(conversationBean.getTargetId());
         }
       }
-      if (userIdList.size() > 0) {
+      if (!userIdList.isEmpty()) {
         ALog.d(LIB_TAG, TAG, "getUserInfo start:" + userIdList.size());
         ContactRepo.getUserInfo(userIdList, null);
       }
@@ -377,7 +374,7 @@ public class ConversationViewModel extends BaseViewModel {
       return;
     }
     List<V2NIMAIUser> aiUserList = AIUserManager.getPinDefaultUserList();
-    if (aiUserList == null || aiUserList.isEmpty()) {
+    if (aiUserList.isEmpty()) {
       return;
     }
     ContactRepo.getUserInfo(
@@ -388,7 +385,7 @@ public class ConversationViewModel extends BaseViewModel {
 
           @Override
           public void onSuccess(@Nullable List<V2NIMUser> data) {
-            if (data != null && data.size() > 0) {
+            if (data != null && !data.isEmpty()) {
               V2NIMUser user = data.get(0);
               if (user != null) {
                 ALog.d(LIB_TAG, TAG, "getAiRobotUserList,user:" + user.getServerExtension());
@@ -568,7 +565,7 @@ public class ConversationViewModel extends BaseViewModel {
               changeList.add(conversation);
             }
           }
-          if (changeList.size() > 0) {
+          if (!changeList.isEmpty()) {
             ALog.d(
                 LIB_TAG,
                 TAG,
@@ -577,7 +574,7 @@ public class ConversationViewModel extends BaseViewModel {
             result.setType(FetchResult.FetchType.Update);
             convertAndNotify(result, changeList);
           }
-          if (deleteList.size() > 0) {
+          if (!deleteList.isEmpty()) {
             ALog.d(
                 LIB_TAG,
                 TAG,

@@ -24,6 +24,7 @@ public class ChatUIInitService implements IIMKitInitListener {
 
   @Override
   public void onInit(@NonNull Context context) {
+    // 群聊@功能初始化
     AitService.getInstance().init(context);
     //注册消息撤回监听
     ChatRepo.addMessageListener(

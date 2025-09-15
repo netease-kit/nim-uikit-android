@@ -25,6 +25,8 @@
         android:paddingEnd="@dimen/dimen_16_dp"
         tools:text="@tools:sample/lorem"
         android:textStyle="bold"
+        android:textColorLink="@color/color_007aff"
+        android:linksClickable="true"
         android:singleLine="true" />
     <TextView
         android:id="@+id/messageContent"
@@ -36,6 +38,8 @@
         android:paddingBottom="@dimen/dimen_4_dp"
         android:ellipsize="end"
         android:maxLines="2"
+        android:textColorLink="@color/color_007aff"
+        android:linksClickable="true"
         tools:text="@tools:sample/lorem" />
 
     <androidx.constraintlayout.widget.Placeholder

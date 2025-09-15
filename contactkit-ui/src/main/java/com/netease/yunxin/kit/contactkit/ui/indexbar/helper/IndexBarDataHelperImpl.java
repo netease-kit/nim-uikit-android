@@ -5,6 +5,7 @@
 package com.netease.yunxin.kit.contactkit.ui.indexbar.helper;
 
 import android.text.TextUtils;
+
 import com.github.promeg.pinyinhelper.Pinyin;
 import com.netease.yunxin.kit.contactkit.ui.indexbar.bean.IndexPinyinBean;
 import java.util.Collections;

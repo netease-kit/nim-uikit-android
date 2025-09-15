@@ -25,12 +25,12 @@ public class TeamMemberListActivity extends BaseTeamMemberListActivity {
   protected View initViewAndGetRootView(Bundle savedInstanceState) {
     TeamMemberListActivityBinding binding =
         TeamMemberListActivityBinding.inflate(getLayoutInflater());
-    ivBack = binding.ivBack;
+    ivBack = binding.viewTitle.getBackImageView();
     ivClear = binding.ivClear;
     rvMemberList = binding.rvMemberList;
     groupEmpty = binding.groupEmtpy;
     etSearch = binding.etSearch;
-    tvTitle = binding.tvTitle;
+    tvTitle = binding.viewTitle.getTitleTextView();
     return binding.getRoot();
   }
 

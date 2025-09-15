@@ -6,6 +6,7 @@ package com.netease.yunxin.kit.chatkit.ui.normal.view.message.viewholder;
 
 import android.text.TextUtils;
 import android.text.style.ImageSpan;
+import android.text.util.Linkify;
 import android.view.LayoutInflater;
 import android.view.View;
 import androidx.annotation.NonNull;
@@ -60,15 +61,17 @@ public class ChatTextMessageViewHolder extends NormalChatBaseMessageViewHolder {
 
   private void setMessageText(ChatMessageBean message) {
     CommonUIOption commonUIOption = uiOptions.commonUIOption;
-    if (commonUIOption.messageTextColor != null) {
-      textBinding.messageText.setTextColor(commonUIOption.messageTextColor);
-    } else if (properties.getMessageTextColor() != null) {
-      textBinding.messageText.setTextColor(properties.getMessageTextColor());
-    }
-    if (commonUIOption.messageTextSize != null) {
-      textBinding.messageText.setTextSize(commonUIOption.messageTextSize);
-    } else if (properties.getMessageTextSize() != null) {
-      textBinding.messageText.setTextSize(properties.getMessageTextSize());
+    if (MessageHelper.isReceivedMessage(message)) {
+      if (commonUIOption.messageTextColor != null) {
+        textBinding.messageText.setTextColor(commonUIOption.messageTextColor);
+      } else if (properties.getReceiveMessageTextColor() != null) {
+        textBinding.messageText.setTextColor(properties.getReceiveMessageTextColor());
+      }
+      if (commonUIOption.messageTextSize != null) {
+        textBinding.messageText.setTextSize(commonUIOption.messageTextSize);
+      } else if (properties.getReceiveMessageTextSize() != null) {
+        textBinding.messageText.setTextSize(properties.getReceiveMessageTextSize());
+      }
     }
 
     if (message.getMessageData().getMessage().getMessageType()
@@ -115,6 +118,10 @@ public class ChatTextMessageViewHolder extends NormalChatBaseMessageViewHolder {
       textBinding.messageText.setText(
           parent.getContext().getResources().getString(R.string.chat_message_not_support_tips));
     }
+    // 也可单独指定模式（例如只识别电话和邮箱）
+    Linkify.addLinks(
+        textBinding.messageText,
+        Linkify.PHONE_NUMBERS | Linkify.EMAIL_ADDRESSES | Linkify.WEB_URLS);
   }
 
   private void updateOperateView() {

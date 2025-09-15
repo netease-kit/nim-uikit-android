@@ -17,9 +17,11 @@ import android.view.ViewGroup
 import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import com.netease.yunxin.kit.common.ui.CommonUIConfig
 import com.netease.yunxin.kit.common.ui.R
 
 class BrowseActivity : AppCompatActivity() {
@@ -40,7 +42,7 @@ class BrowseActivity : AppCompatActivity() {
     }
 
     private fun initViews() {
-        val close = findViewById<View>(R.id.iv_close)
+        val close: ImageView = findViewById<View>(R.id.iv_close) as ImageView
         close.setOnClickListener { finish() }
         val tvTitle = findViewById<TextView>(R.id.tv_title)
         tvTitle.text = title
@@ -55,6 +57,15 @@ class BrowseActivity : AppCompatActivity() {
         webViewGroup.addView(webView)
         if (!TextUtils.isEmpty(url)) {
             webView!!.loadUrl(url!!)
+        }
+        if (CommonUIConfig.backIconResId != 0) {
+            close.setImageResource(CommonUIConfig.backIconResId)
+        }
+        if (CommonUIConfig.titleTextColor != 0) {
+            tvTitle.setTextColor(CommonUIConfig.titleTextColor)
+        }
+        if (CommonUIConfig.titleTextSize != 0f) {
+            tvTitle.textSize = CommonUIConfig.titleTextSize
         }
     }
 

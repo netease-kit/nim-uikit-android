@@ -10,7 +10,7 @@ pluginManagement {
         google()
         mavenCentral()
         maven {
-            setUrl("https://oss.sonatype.org/content/repositories/snapshots/")
+            setUrl("https://central.sonatype.com/repository/maven-snapshots/")
         }
         maven {
             setUrl("https://developer.huawei.com/repo/")
@@ -24,7 +24,7 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
         maven {
-            setUrl("https://oss.sonatype.org/content/repositories/snapshots/")
+            setUrl("https://central.sonatype.com/repository/maven-snapshots/")
         }
         maven {
             setUrl("https://developer.huawei.com/repo/")

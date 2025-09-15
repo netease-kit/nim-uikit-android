@@ -52,7 +52,7 @@ public class ChatUIService extends ChatService {
   @Override
   public ChatService create(@NonNull Context context) {
 
-    // normal
+    // 注册普通聊天页面到路由器
     XKitRouter.registerRouter(RouterConstant.PATH_CHAT_P2P_PAGE, ChatP2PActivity.class);
     XKitRouter.registerRouter(RouterConstant.PATH_CHAT_AI_P2P_PAGE, ChatAIActivity.class);
     XKitRouter.registerRouter(RouterConstant.PATH_CHAT_TEAM_PAGE, ChatTeamActivity.class);
@@ -65,7 +65,7 @@ public class ChatUIService extends ChatService {
     XKitRouter.registerRouter(
         RouterConstant.PATH_COLLECTION_DETAIL_PAGE, CollectionDetailActivity.class);
 
-    // fun
+    // 注册功能聊天页面到路由器
     XKitRouter.registerRouter(RouterConstant.PATH_FUN_CHAT_P2P_PAGE, FunChatP2PActivity.class);
     XKitRouter.registerRouter(RouterConstant.PATH_FUN_CHAT_AI_PAGE, FunChatAIActivity.class);
     XKitRouter.registerRouter(RouterConstant.PATH_FUN_CHAT_TEAM_PAGE, FunChatTeamActivity.class);

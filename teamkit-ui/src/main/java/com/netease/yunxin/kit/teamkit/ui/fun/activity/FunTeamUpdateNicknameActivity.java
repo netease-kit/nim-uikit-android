@@ -29,7 +29,7 @@ public class FunTeamUpdateNicknameActivity extends BaseTeamUpdateNicknameActivit
     FunTeamUpdateNicknameActivityBinding binding =
         FunTeamUpdateNicknameActivityBinding.inflate(getLayoutInflater());
     ivClear = binding.ivClear;
-    cancelView = binding.ivCancel;
+    cancelView = binding.tvCancel;
     tvFlag = binding.tvFlag;
     tvSave = binding.tvSave;
     etNickname = binding.etNickname;
