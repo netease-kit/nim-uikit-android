@@ -11,7 +11,6 @@ import androidx.multidex.MultiDexApplication;
 import com.heytap.msp.push.HeytapPushManager;
 import com.huawei.hms.support.common.ActivityMgr;
 import com.netease.nimlib.sdk.SDKOptions;
-import com.netease.nimlib.sdk.auth.LoginInfo;
 import com.netease.yunxin.app.im.crash.AppCrashHandler;
 import com.netease.yunxin.app.im.main.MainActivity;
 import com.netease.yunxin.app.im.main.mine.MineInfoActivity;

@@ -15,6 +15,8 @@ pluginManagement {
         maven {
             setUrl("https://developer.huawei.com/repo/")
         }
+
+        maven { setUrl( "https://www.jitpack.io") }
     }
 }
 
@@ -29,6 +31,7 @@ dependencyResolutionManagement {
         maven {
             setUrl("https://developer.huawei.com/repo/")
         }
+        maven { setUrl( "https://www.jitpack.io") }
     }
 }
 

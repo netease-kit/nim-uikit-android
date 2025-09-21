@@ -17,7 +17,7 @@ android {
         targetSdk = 33
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
-        buildConfigField("String", "versionName", "\"9.7.5\"")
+        buildConfigField("String", "versionName", "\"9.7.6\"")
     }
 
     buildTypes {
@@ -41,14 +41,14 @@ android {
 
 dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
-    api("com.netease.yunxin.kit.chat:chatkit:9.7.5")
-    api("com.netease.yunxin.kit.common:common-ui:1.3.3")
-    api("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.21") 
-    implementation("androidx.appcompat:appcompat:1.4.2")
-    implementation("com.google.android.material:material:1.5.0") 
-    implementation("androidx.recyclerview:recyclerview:1.2.1") 
-    implementation("com.airbnb.android:lottie:5.0.3") 
-    implementation("com.github.bumptech.glide:glide:4.13.1") 
+    api("com.netease.yunxin.kit.chat:chatkit:9.7.6")
+    api("com.netease.yunxin.kit.common:common-ui:1.3.6")
+    api("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.21")
+    implementation("androidx.appcompat:appcompat:1.6.1")
+    implementation("com.google.android.material:material:1.11.0")
+    implementation("androidx.recyclerview:recyclerview:1.2.1")
+    implementation("com.airbnb.android:lottie:5.0.3")
+    implementation("com.github.bumptech.glide:glide:4.13.1")
 
 }
 

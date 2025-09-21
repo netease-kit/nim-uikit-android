@@ -8,16 +8,20 @@ plugins {
 }
 
 android {
-    compileSdk = 33
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.netease.yunxin.app.im"
-        minSdk = 21
-        targetSdk = 33
+        minSdk = 24
         versionCode = 1
-        versionName = "9.7.1"
+        versionName = "9.7.5"
         multiDexEnabled = true
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        ndk {
+            abiFilters.add("armeabi-v7a")
+            abiFilters.add("arm64-v8a")
+        }
     }
 
     buildTypes {
@@ -55,25 +59,29 @@ dependencies {
 //    implementation(project(":chatkit-ui"))
 //    implementation(project(":locationkit"))
 
-    implementation("com.netease.yunxin.kit.contact:contactkit-ui:9.7.5")
-    implementation("com.netease.yunxin.kit.conversation:conversationkit-ui:9.7.5")
-    implementation("com.netease.yunxin.kit.team:teamkit-ui:9.7.5")
-    implementation("com.netease.yunxin.kit.chat:chatkit-ui:9.7.5")
-    implementation("com.netease.yunxin.kit.locationkit:locationkit:9.7.5")
-    implementation("com.netease.yunxin.kit.call:call-ui:2.2.0") //呼叫组件 UI 包
-    implementation("com.netease.nimlib:avsignalling:9.14.2") //信令组件
+    implementation("com.netease.yunxin.kit.contact:contactkit-ui:9.7.6")
+    implementation("com.netease.yunxin.kit.conversation:conversationkit-ui:9.7.6")
+    implementation("com.netease.yunxin.kit.team:teamkit-ui:9.7.6")
+    implementation("com.netease.yunxin.kit.chat:chatkit-ui:9.7.6")
+    implementation("com.netease.yunxin.kit.locationkit:locationkit:9.7.6")
+
+    // 呼叫组件 相关
+    implementation("com.netease.nimlib:avsignalling:9.20.15")
+    implementation("com.netease.yunxin.kit.call:call-ui:2.7.0")
+    implementation("com.netease.yunxin.kit:alog:1.1.1")
+
     implementation("com.airbnb.android:lottie:5.0.3")
     implementation("com.github.bumptech.glide:glide:4.13.1")
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation("com.squareup.retrofit2:converter-scalars:2.9.0")
     implementation("com.squareup.okhttp3:okhttp:4.9.3")
-    implementation("com.huawei.hms:push:6.3.0.302")
+    implementation("com.huawei.hms:push:6.10.0.300")
     implementation("com.meizu.flyme.internet:push-internal:4.1.0")
-    implementation("com.huawei.agconnect:agconnect-core:1.6.5.300")
+    implementation("com.huawei.agconnect:agconnect-core:1.7.2.300")
 
-    implementation("com.google.code.gson:gson:2.9.0")
-    implementation("commons-codec:commons-codec:1.10")
-    implementation("androidx.annotation:annotation:1.3.0")
+    implementation("com.google.code.gson:gson:2.10.1")
+    implementation("commons-codec:commons-codec:1.11")
+    implementation("androidx.annotation:annotation:1.7.1")
 
 }
