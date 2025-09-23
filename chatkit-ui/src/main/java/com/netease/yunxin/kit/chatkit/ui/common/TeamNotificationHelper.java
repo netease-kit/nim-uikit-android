@@ -22,7 +22,6 @@ import com.netease.yunxin.kit.chatkit.repo.TeamRepo;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.corekit.im.IMKitClient;
 import com.netease.yunxin.kit.corekit.im.model.UserInfo;
-import com.netease.yunxin.kit.corekit.im.utils.IMKitUtils;
 import java.util.List;
 import java.util.Map;
 
@@ -124,7 +123,7 @@ public class TeamNotificationHelper {
     sb.append(IMKitClient.getApplicationContext().getString(R.string.chat_invite));
     sb.append(buildMemberListString(tid, a.getTargets(), fromUser));
     Team team = getTeam(tid);
-    if (team != null && !IMKitUtils.isTeamGroup(team)) {
+    if (team != null && !ChatUtils.isTeamGroup(team)) {
       sb.append(IMKitClient.getApplicationContext().getString(R.string.chat_join_team));
     } else {
       sb.append(IMKitClient.getApplicationContext().getString(R.string.chat_join_discuss_team));
@@ -137,7 +136,7 @@ public class TeamNotificationHelper {
     StringBuilder sb = new StringBuilder();
     sb.append(buildMemberListString(tid, a.getTargets(), null));
     Team team = getTeam(tid);
-    if (team != null && !IMKitUtils.isTeamGroup(team)) {
+    if (team != null && !ChatUtils.isTeamGroup(team)) {
       sb.append(IMKitClient.getApplicationContext().getString(R.string.chat_removed_team));
     } else {
       sb.append(IMKitClient.getApplicationContext().getString(R.string.chat_removed_discuss_team));
@@ -149,7 +148,7 @@ public class TeamNotificationHelper {
   private static String buildLeaveTeamNotification(String tid, UserInfo fromUser) {
     String tip;
     Team team = getTeam(tid);
-    if (team != null && !IMKitUtils.isTeamGroup(team)) {
+    if (team != null && !ChatUtils.isTeamGroup(team)) {
       tip = IMKitClient.getApplicationContext().getString(R.string.chat_left_team);
     } else {
       tip = IMKitClient.getApplicationContext().getString(R.string.chat_left_discuss_team);

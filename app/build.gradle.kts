@@ -14,7 +14,7 @@ android {
         applicationId = "com.netease.yunxin.app.im"
         minSdk = 24
         versionCode = 1
-        versionName = "9.7.5"
+        versionName = "9.7.7"
         multiDexEnabled = true
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -59,14 +59,13 @@ dependencies {
 //    implementation(project(":chatkit-ui"))
 //    implementation(project(":locationkit"))
 
-    implementation("com.netease.yunxin.kit.contact:contactkit-ui:9.7.6")
-    implementation("com.netease.yunxin.kit.conversation:conversationkit-ui:9.7.6")
-    implementation("com.netease.yunxin.kit.team:teamkit-ui:9.7.6")
-    implementation("com.netease.yunxin.kit.chat:chatkit-ui:9.7.6")
-    implementation("com.netease.yunxin.kit.locationkit:locationkit:9.7.6")
+    implementation("com.netease.yunxin.kit.contact:contactkit-ui:9.7.7")
+    implementation("com.netease.yunxin.kit.conversation:conversationkit-ui:9.7.7")
+    implementation("com.netease.yunxin.kit.team:teamkit-ui:9.7.7")
+    implementation("com.netease.yunxin.kit.chat:chatkit-ui:9.7.7")
+    implementation("com.netease.yunxin.kit.locationkit:locationkit:9.7.7")
 
     // 呼叫组件 相关
-    implementation("com.netease.nimlib:avsignalling:9.20.15")
     implementation("com.netease.yunxin.kit.call:call-ui:2.7.0")
     implementation("com.netease.yunxin.kit:alog:1.1.1")
 
