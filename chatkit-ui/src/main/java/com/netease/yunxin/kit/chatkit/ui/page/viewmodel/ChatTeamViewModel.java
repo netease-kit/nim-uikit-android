@@ -496,6 +496,12 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
   }
 
   @Override
+  public void updateVoicePlayModel() {
+    super.updateVoicePlayModel();
+    teamLiveData.setValue(TeamUserManager.getInstance().getCurrentTeam());
+  }
+
+  @Override
   protected void onCleared() {
     super.onCleared();
     TeamUserManager.getInstance().clear();

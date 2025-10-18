@@ -121,7 +121,8 @@
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="@dimen/dimen_46_dp">
+            android:layout_height="@dimen/dimen_46_dp"
+            android:visibility="gone">
 
             <TextView
                 android:id="@+id/play_mode_tv"
@@ -223,6 +224,28 @@
                 android:layout_marginStart="@dimen/dimen_16_dp"
                 android:gravity="center"
                 android:text="@string/setting_server_config"
+                android:textColor="@color/color_333333"
+                android:textSize="@dimen/dimen_16_dp" />
+
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_marginEnd="36dp"
+                android:src="@drawable/ic_frame_mine_right_arrow"
+                android:layout_gravity="end|center_vertical" />
+        </FrameLayout>
+        <FrameLayout android:id="@+id/pushConfigLayout"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dimen_46_dp"
+            android:visibility="visible">
+
+            <TextView
+                android:id="@+id/pushConfigTipTv"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/dimen_46_dp"
+                android:layout_marginStart="@dimen/dimen_16_dp"
+                android:gravity="center"
+                android:text="@string/push_config"
                 android:textColor="@color/color_333333"
                 android:textSize="@dimen/dimen_16_dp" />
 

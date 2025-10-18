@@ -4,13 +4,15 @@
 
 package com.netease.yunxin.kit.chatkit.ui.normal.viewholder.pin;
 
-import android.text.util.Linkify;
 import android.view.LayoutInflater;
+import android.view.View;
 import androidx.annotation.NonNull;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
+import com.netease.yunxin.kit.chatkit.ui.common.TextLinkifyUtils;
 import com.netease.yunxin.kit.chatkit.ui.custom.RichTextAttachment;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatBasePinViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatRichTextPinViewHolderBinding;
+import com.netease.yunxin.kit.chatkit.ui.interfaces.IMessageItemClickListener;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 
 public class ChatRichTextPinViewHolder extends ChatBasePinViewHolder {
@@ -28,7 +30,7 @@ public class ChatRichTextPinViewHolder extends ChatBasePinViewHolder {
             LayoutInflater.from(parent.getContext()), getContainer(), true);
     viewBinding
         .getRoot()
-        .setOnClickListener(v -> itemListener.onViewClick(v, position, currentMessage));
+        .setOnClickListener(v -> itemListener.onCustomViewClick(v, position, currentMessage));
   }
 
   @Override
@@ -46,12 +48,32 @@ public class ChatRichTextPinViewHolder extends ChatBasePinViewHolder {
             attachment.body,
             message.getMessageData().getMessage());
         // 指定模式（例如只识别电话和邮箱）
-        Linkify.addLinks(
-            viewBinding.messageContent,
-            Linkify.PHONE_NUMBERS | Linkify.EMAIL_ADDRESSES | Linkify.WEB_URLS);
-        Linkify.addLinks(
+        TextLinkifyUtils.addLinks(
             viewBinding.messageTitle,
-            Linkify.PHONE_NUMBERS | Linkify.EMAIL_ADDRESSES | Linkify.WEB_URLS);
+            new IMessageItemClickListener() {
+              @Override
+              public boolean onMessageTelClick(
+                  View view, int position, ChatMessageBean messageInfo, String target) {
+                itemListener.onMessageTelClick(view, position, messageInfo, target);
+                return true;
+              }
+            },
+            position,
+            null);
+
+        // 指定模式（例如只识别电话和邮箱）
+        TextLinkifyUtils.addLinks(
+            viewBinding.messageContent,
+            new IMessageItemClickListener() {
+              @Override
+              public boolean onMessageTelClick(
+                  View view, int position, ChatMessageBean messageInfo, String target) {
+                itemListener.onMessageTelClick(view, position, messageInfo, target);
+                return true;
+              }
+            },
+            position,
+            null);
       }
     }
   }

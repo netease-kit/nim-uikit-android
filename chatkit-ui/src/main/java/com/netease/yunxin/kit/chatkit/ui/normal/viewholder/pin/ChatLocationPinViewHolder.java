@@ -33,7 +33,7 @@ public class ChatLocationPinViewHolder extends ChatBasePinViewHolder {
         ChatLocationPinViewHolderBinding.inflate(
             LayoutInflater.from(parent.getContext()), getContainer(), true);
     binding.locationClick.setOnClickListener(
-        v -> itemListener.onViewClick(v, position, currentMessage));
+        v -> itemListener.onCustomViewClick(v, position, currentMessage));
   }
 
   @Override

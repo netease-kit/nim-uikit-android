@@ -5,11 +5,11 @@
 package com.netease.yunxin.kit.chatkit.ui.fun.view.message.viewholder;
 
 import android.text.TextUtils;
-import android.text.util.Linkify;
 import android.view.LayoutInflater;
 import android.view.View;
 import androidx.annotation.NonNull;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
+import com.netease.yunxin.kit.chatkit.ui.common.TextLinkifyUtils;
 import com.netease.yunxin.kit.chatkit.ui.custom.RichTextAttachment;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatBaseMessageViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.databinding.FunChatMessageRichTextViewHolderBinding;
@@ -85,12 +85,10 @@ public class ChatRichTextMessageViewHolder extends FunChatBaseMessageViewHolder 
           }
         }
         // 指定模式（例如只识别电话和邮箱）
-        Linkify.addLinks(
-            viewBinding.messageContent,
-            Linkify.PHONE_NUMBERS | Linkify.EMAIL_ADDRESSES | Linkify.WEB_URLS);
-        Linkify.addLinks(
-            viewBinding.messageTitle,
-            Linkify.PHONE_NUMBERS | Linkify.EMAIL_ADDRESSES | Linkify.WEB_URLS);
+        TextLinkifyUtils.addLinks(
+            viewBinding.messageContent, itemClickListener, position, currentMessage);
+        TextLinkifyUtils.addLinks(
+            viewBinding.messageTitle, itemClickListener, position, currentMessage);
       }
     }
   }

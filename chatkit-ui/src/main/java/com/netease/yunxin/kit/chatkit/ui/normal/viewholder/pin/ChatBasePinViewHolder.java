@@ -163,10 +163,10 @@ public abstract class ChatBasePinViewHolder extends ChatBaseViewHolder<ChatMessa
           v -> itemListener.onMessageClick(v, position, currentMessage));
 
       baseViewBinding.messageBody.setOnClickListener(
-          v -> itemListener.onViewClick(v, position, currentMessage));
+          v -> itemListener.onCustomViewClick(v, position, currentMessage));
 
       baseViewBinding.ivMoreAction.setOnClickListener(
-          v -> itemListener.onViewClick(v, position, currentMessage));
+          v -> itemListener.onCustomViewClick(v, position, currentMessage));
     }
   }
 

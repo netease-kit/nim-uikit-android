@@ -48,4 +48,5 @@
     <dimen name="text_size_12">12sp</dimen>
     <dimen name="text_size_10">10sp</dimen>
     <dimen name="text_size_20">20sp</dimen>
+    <dimen name="chat_earphone_icon_size">14dp</dimen>
 </resources>

@@ -6,6 +6,8 @@ package com.netease.yunxin.kit.chatkit.ui.page.fragment;
 
 import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
 import static com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants.PAYLOAD_REFRESH_AUDIO_ANIM;
+import static com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants.POP_ACTION_COPY;
+import static com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants.POP_ACTION_TEL;
 import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.KEY_FORWARD_SELECTED_CONVERSATIONS;
 
 import android.Manifest;
@@ -57,9 +59,11 @@ import com.netease.nimlib.sdk.v2.utils.V2NIMConversationIdUtil;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
 import com.netease.yunxin.kit.chatkit.impl.LoginDetailListenerImpl;
+import com.netease.yunxin.kit.chatkit.listener.MediaChooseConfig;
 import com.netease.yunxin.kit.chatkit.listener.MessageUpdateType;
 import com.netease.yunxin.kit.chatkit.manager.AIUserManager;
 import com.netease.yunxin.kit.chatkit.map.ChatLocationBean;
+import com.netease.yunxin.kit.chatkit.media.ImageUtil;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.model.MessagePinInfo;
 import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
@@ -68,6 +72,7 @@ import com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant;
 import com.netease.yunxin.kit.chatkit.ui.ChatUIConfig;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.builder.IChatViewCustom;
+import com.netease.yunxin.kit.chatkit.ui.common.ChatDialogUtils;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatMsgCache;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatUserCache;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatUtils;
@@ -99,6 +104,8 @@ import com.netease.yunxin.kit.chatkit.ui.view.message.audio.ChatMessageAudioCont
 import com.netease.yunxin.kit.chatkit.ui.view.popmenu.ChatPopMenu;
 import com.netease.yunxin.kit.chatkit.ui.view.popmenu.IChatPopMenuClickListener;
 import com.netease.yunxin.kit.chatkit.utils.SendMediaHelper;
+import com.netease.yunxin.kit.common.ui.dialog.BottomChoiceDialog;
+import com.netease.yunxin.kit.common.ui.dialog.BottomHeaderChoiceDialog;
 import com.netease.yunxin.kit.common.ui.dialog.ChoiceListener;
 import com.netease.yunxin.kit.common.ui.dialog.CommonChoiceDialog;
 import com.netease.yunxin.kit.common.ui.dialog.TopPopupWindow;
@@ -108,6 +115,7 @@ import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.common.utils.NetworkUtils;
 import com.netease.yunxin.kit.common.utils.PermissionUtils;
+import com.netease.yunxin.kit.common.utils.model.LocalFileInfo;
 import com.netease.yunxin.kit.common.utils.storage.StorageType;
 import com.netease.yunxin.kit.common.utils.storage.StorageUtil;
 import com.netease.yunxin.kit.corekit.im2.IMKitClient;
@@ -217,6 +225,8 @@ public abstract class ChatBaseFragment extends BaseFragment {
   private Observer<String> removePinLiveDataObserver;
   // 删除消息观察者
   private Observer<FetchResult<List<V2NIMMessageRefer>>> deleteLiveDataObserver;
+
+  private ActivityResultLauncher<Intent> activityResultLauncher;
   // 登录状态变更监听
   private final LoginDetailListenerImpl loginListener =
       new LoginDetailListenerImpl() {
@@ -309,6 +319,18 @@ public abstract class ChatBaseFragment extends BaseFragment {
     if (!TextUtils.isEmpty(IMKitClient.account())) {
       initData();
     }
+    activityResultLauncher =
+        registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+              if (ChatKitClient.getPictureChooseEngine() != null) {
+                ArrayList<LocalFileInfo> localFileInfos =
+                    ChatKitClient.getPictureChooseEngine().onIntentResult(result);
+                if (localFileInfos != null && localFileInfos.size() > 0) {
+                  sendImageMessage(localFileInfos);
+                }
+              }
+            });
   }
 
   @Override
@@ -767,31 +789,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
 
         @Override
         public void pickMedia() {
-          String[] permission = new String[] {Manifest.permission.READ_EXTERNAL_STORAGE};
-
-          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            permission =
-                new String[] {
-                  Manifest.permission.READ_MEDIA_IMAGES,
-                  Manifest.permission.READ_MEDIA_VIDEO,
-                  Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED
-                };
-            // 根据系统版本判断，如果是Android13则采用Manifest.permission.READ_MEDIA_IMAGES
-          } else if (Build.VERSION.SDK_INT == Build.VERSION_CODES.TIRAMISU) {
-            permission =
-                new String[] {
-                  Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_MEDIA_VIDEO
-                };
-          }
-          if (PermissionUtils.hasPermissions(ChatBaseFragment.this.getContext(), permission)) {
-            startPickMedia();
-          } else {
-            requestSystemPermission(
-                permission,
-                REQUEST_READ_EXTERNAL_STORAGE_PERMISSION_ALBUM,
-                R.string.chat_permission_storage_title,
-                R.string.chat_permission_storage_content);
-          }
+          startPickMedia();
         }
 
         @Override
@@ -1074,7 +1072,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
     }
     if (chatConfig == null
         || chatConfig.showPermissionPop == null
-        || chatConfig.showPermissionPop == Boolean.TRUE) {
+        || chatConfig.showPermissionPop) {
 
       permissionPop =
           new TopPopupWindow(
@@ -1112,10 +1110,79 @@ public abstract class ChatBaseFragment extends BaseFragment {
   }
 
   protected void startPickMedia() {
-    pickMediaLauncher.launch(
-        new PickVisualMediaRequest.Builder()
-            .setMediaType(ActivityResultContracts.PickVisualMedia.ImageAndVideo.INSTANCE)
-            .build());
+    boolean result = false;
+
+    if (ChatKitClient.getPictureChooseEngine() != null) {
+      ChatKitClient.getPictureChooseEngine()
+          .onStartPictureChoose(
+              this.getContext(),
+              activityResultLauncher,
+              new MediaChooseConfig(),
+              new FetchCallback<ArrayList<LocalFileInfo>>() {
+                @Override
+                public void onError(int errorCode, String errorMsg) {}
+
+                @Override
+                public void onSuccess(@Nullable ArrayList<LocalFileInfo> data) {
+                  sendImageMessage(data);
+                }
+              });
+    } else {
+      String[] permissions = new String[] {Manifest.permission.READ_EXTERNAL_STORAGE};
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+        permissions =
+            new String[] {
+              Manifest.permission.READ_MEDIA_IMAGES,
+              Manifest.permission.READ_MEDIA_VIDEO,
+              Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED
+            };
+        // 根据系统版本判断，如果是Android13则采用Manifest.permission.READ_MEDIA_IMAGES
+      } else if (Build.VERSION.SDK_INT == Build.VERSION_CODES.TIRAMISU) {
+        permissions =
+            new String[] {
+              Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_MEDIA_VIDEO
+            };
+      }
+      if (PermissionUtils.hasPermissions(ChatBaseFragment.this.getContext(), permissions)) {
+        pickMediaLauncher.launch(
+            new PickVisualMediaRequest.Builder()
+                .setMediaType(ActivityResultContracts.PickVisualMedia.ImageAndVideo.INSTANCE)
+                .build());
+      } else {
+        requestSystemPermission(
+            permissions,
+            REQUEST_READ_EXTERNAL_STORAGE_PERMISSION_ALBUM,
+            R.string.chat_permission_storage_title,
+            R.string.chat_permission_storage_content);
+      }
+    }
+  }
+
+  protected void sendImageMessage(ArrayList<LocalFileInfo> result) {
+    for (LocalFileInfo localMedia : result) {
+      if (localMedia.getPath() != null && localMedia.getMimeType() != null) {
+        ALog.d(LIB_TAG, LOG_TAG, "pick media result uri -->> " + localMedia.getPath());
+        if (ImageUtil.isValidPictureFile(localMedia.getMimeType())) {
+          mHandler.postDelayed(() -> viewModel.sendImageMessage(localMedia.getPath()), 100);
+        } else if (ImageUtil.isValidVideoFile(localMedia.getMimeType())) {
+          mHandler.postDelayed(
+              () ->
+                  viewModel.sendVideoMessage(
+                      localMedia.getPath(),
+                      localMedia.getDuration(),
+                      localMedia.getWidth(),
+                      localMedia.getHeight(),
+                      localMedia.getName()),
+              100);
+        } else {
+          ToastX.showShortToast(R.string.chat_message_type_not_support_tips);
+          ALog.d(LIB_TAG, LOG_TAG, "PhotoPicker No media selected");
+        }
+      } else {
+        ToastX.showShortToast(R.string.chat_message_type_not_support_tips);
+        ALog.d(LIB_TAG, LOG_TAG, "PhotoPicker No media selected");
+      }
+    }
   }
 
   protected void startPickFile() {
@@ -1392,9 +1459,64 @@ public abstract class ChatBaseFragment extends BaseFragment {
         }
 
         @Override
-        public boolean onCustomClick(View view, int position, ChatMessageBean messageInfo) {
+        public boolean onCustomViewClick(View view, int position, ChatMessageBean messageInfo) {
           return (delegateListener != null
-              && delegateListener.onCustomClick(view, position, messageInfo));
+              && delegateListener.onCustomViewClick(view, position, messageInfo));
+        }
+
+        @Override
+        public boolean onMessageTelClick(
+            View view, int position, ChatMessageBean messageBean, String target) {
+
+          if (delegateListener == null
+              || !delegateListener.onMessageTelClick(view, position, messageBean, target)) {
+            BottomHeaderChoiceDialog dialog =
+                new BottomHeaderChoiceDialog(
+                    ChatBaseFragment.this.getContext(),
+                    ChatDialogUtils.assembleMessageTelActions());
+            dialog.setTitle(String.format(getString(R.string.chat_tel_tips_title), target));
+            dialog.setOnChoiceListener(
+                new BottomChoiceDialog.OnChoiceListener() {
+                  @Override
+                  public void onChoice(@NonNull String type) {
+                    boolean hasNetwork = NetworkUtils.isConnected();
+                    switch (type) {
+                      case POP_ACTION_TEL:
+                        if (hasNetwork) {
+                          Intent intent = new Intent(Intent.ACTION_DIAL); // 仅打开拨号界面
+                          intent.setData(Uri.parse("tel:" + target)); // 自动填充电话号码
+                          startActivity(intent);
+                        } else {
+                          Toast.makeText(
+                                  ChatBaseFragment.this.getContext(),
+                                  R.string.chat_network_error_tip,
+                                  Toast.LENGTH_SHORT)
+                              .show();
+                        }
+                        break;
+                      case POP_ACTION_COPY:
+                        if (hasNetwork) {
+                          MessageHelper.copyText(target, true);
+                        } else {
+                          Toast.makeText(
+                                  ChatBaseFragment.this.getContext(),
+                                  R.string.chat_network_error_tip,
+                                  Toast.LENGTH_SHORT)
+                              .show();
+                        }
+                        break;
+                      default:
+                        break;
+                    }
+                  }
+
+                  @Override
+                  public void onCancel() {}
+                });
+            dialog.show();
+          }
+
+          return true;
         }
       };
 
@@ -1501,6 +1623,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
       }
     } else if (messageInfo.getMessage().getMessageType()
         == V2NIMMessageType.V2NIM_MESSAGE_TYPE_AUDIO) {
+      ChatMessageAudioControl.getInstance().setEarPhoneModeEnable(ChatKitClient.isEarphoneMode());
       if (isReply) {
         ChatMessageAudioControl.getInstance()
             .startPlayAudioDelay(
@@ -1730,6 +1853,27 @@ public abstract class ChatBaseFragment extends BaseFragment {
             return true;
           }
           viewModel.voiceToText(messageBean);
+          return true;
+        }
+
+        @Override
+        public boolean onVoicePlayChange(ChatMessageBean messageInfo) {
+          boolean currentValue = ChatKitClient.isEarphoneMode();
+          if (currentValue) {
+            Toast.makeText(
+                    ChatBaseFragment.this.getContext(),
+                    R.string.chat_message_audio_speaker_tip,
+                    Toast.LENGTH_SHORT)
+                .show();
+          } else {
+            Toast.makeText(
+                    ChatBaseFragment.this.getContext(),
+                    R.string.chat_message_audio_earphone_tip,
+                    Toast.LENGTH_SHORT)
+                .show();
+          }
+          ChatMessageAudioControl.getInstance().setEarPhoneModeEnable(!currentValue);
+          viewModel.updateVoicePlayModel();
           return true;
         }
 

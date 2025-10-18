@@ -39,6 +39,8 @@ public class ChatMessageAudioControl extends BaseAudioControl<IMMessageInfo> {
 
   private IMMessageInfo mItem = null;
 
+  private boolean mShouldStop = false;
+
   private ChatMessageAudioControl() {
     super(true);
   }
@@ -144,6 +146,7 @@ public class ChatMessageAudioControl extends BaseAudioControl<IMMessageInfo> {
     if (audioAttachment == null) {
       return;
     }
+    mShouldStop = false;
     String path = MessageHelper.getMessageAttachPath(message.getMessage());
     if (!TextUtils.isEmpty(path)) {
       if (FileUtils.isFileExists(path)) {
@@ -158,6 +161,9 @@ public class ChatMessageAudioControl extends BaseAudioControl<IMMessageInfo> {
 
               @Override
               public void onSuccess(@Nullable String data) {
+                if (mShouldStop) {
+                  return;
+                }
                 startPlayAudio(
                     message, audioControlListener, audioStreamType, true, delayMillis, data);
               }
@@ -259,6 +265,7 @@ public class ChatMessageAudioControl extends BaseAudioControl<IMMessageInfo> {
   }
 
   public void stopAudio() {
+    mShouldStop = true;
     super.stopAudio();
   }
 

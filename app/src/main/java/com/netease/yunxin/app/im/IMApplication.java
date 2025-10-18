@@ -22,14 +22,13 @@ import com.netease.yunxin.app.im.utils.Constant;
 import com.netease.yunxin.app.im.utils.DataUtils;
 import com.netease.yunxin.app.im.welcome.WelcomeActivity;
 import com.netease.yunxin.kit.alog.ALog;
+import com.netease.yunxin.kit.chatkit.ui.ChatKitClient;
 import com.netease.yunxin.kit.common.ui.utils.AppLanguageConfig;
 import com.netease.yunxin.kit.corekit.im2.IMKitClient;
 import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 import com.netease.yunxin.kit.locationkit.LocationConfig;
 import com.netease.yunxin.kit.locationkit.LocationKitClient;
-import com.vivo.push.PushClient;
-import com.vivo.push.util.VivoPushException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -82,18 +81,13 @@ public class IMApplication extends MultiDexApplication {
     ActivityMgr.INST.init(this);
     // oppo push
     HeytapPushManager.init(this, true);
-    try {
-      // vivo push
-      PushClient.getInstance(this).initialize();
-    } catch (VivoPushException e) {
-      e.printStackTrace();
-    }
     //设置推送提醒开关，根据用户设置的推送提醒开关状态，设置是否接收推送消息
     IMKitClient.toggleNotification(DataUtils.getToggleNotification(this));
     // 注册推送消息处理器，用于处理推送消息
     IMKitClient.registerMixPushMessageHandler(new PushMessageHandler());
+    // 设置图片选择引擎，用于选择图片
+    ChatKitClient.setPictureChooseEngine(new PictureEngine());
     ALog.d(TAG, "Performance application init Finished timestamp:" + SystemClock.elapsedRealtime());
-    // crash
   }
 
   private final List<Activity> activities = new ArrayList<>();

@@ -13,6 +13,7 @@ import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageSendingState;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
 import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
+import com.netease.yunxin.kit.chatkit.ui.ChatKitClient;
 import com.netease.yunxin.kit.chatkit.ui.ChatMessageType;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatUserCache;
@@ -105,7 +106,10 @@ public class ChatPopActionFactory {
         addPluginTextActionIfNeed(actions, message);
         return actions;
       }
-
+      if (message.getMessageData().getMessage().getMessageType()
+          == V2NIMMessageType.V2NIM_MESSAGE_TYPE_AUDIO) {
+        actions.add(getVoicePlayAction(context, message));
+      }
       if (message.getViewType() == MsgTypeEnum.nrtc_netcall.getValue()) {
         // call
         actions.add(getDeleteAction(context, message));
@@ -135,9 +139,9 @@ public class ChatPopActionFactory {
               == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_TEAM) {
         actions.add(getTopStickyAction(context, message));
       }
-      if (IMKitConfigCenter.getEnableVoiceToText()
-          && message.getMessageData().getMessage().getMessageType()
+      if (message.getMessageData().getMessage().getMessageType()
               == V2NIMMessageType.V2NIM_MESSAGE_TYPE_AUDIO
+          && IMKitConfigCenter.getEnableVoiceToText()
           && TextUtils.isEmpty(message.getVoiceToText())) {
         actions.add(getVoiceToTextAction(context, message));
       }
@@ -364,6 +368,29 @@ public class ChatPopActionFactory {
           }
           if (actionListener != null) {
             actionListener.get().onForward(messageInfo);
+          }
+        },
+        message);
+  }
+
+  // 构建语音播放按钮
+  private PluginAction<ChatMessageBean> getVoicePlayAction(
+      Context context, ChatMessageBean message) {
+    return new PluginAction<>(
+        ActionConstants.POP_ACTION_VOICE_PLAY,
+        ChatKitClient.isEarphoneMode()
+            ? context.getString(R.string.chat_message_action_voice_play_off)
+            : context.getString(R.string.chat_message_action_voice_play_on),
+        ChatKitClient.isEarphoneMode()
+            ? R.drawable.ic_chat_audio_speaker
+            : R.drawable.ic_chat_audio_earphone,
+        (view, messageInfo) -> {
+          if (!NetworkUtils.isConnected()) {
+            ToastX.showShortToast(R.string.chat_network_error_tip);
+            return;
+          }
+          if (actionListener != null) {
+            actionListener.get().onVoicePlayChange(messageInfo);
           }
         },
         message);

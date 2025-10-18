@@ -9,8 +9,12 @@ import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.KEY_TEAM_I
 import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.PATH_TEAM_SETTING_PAGE;
 
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.text.Spannable;
+import android.text.SpannableString;
 import android.text.TextUtils;
+import android.text.style.ImageSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -18,6 +22,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
@@ -28,6 +33,7 @@ import com.netease.nimlib.sdk.v2.team.model.V2NIMTeamMember;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
+import com.netease.yunxin.kit.chatkit.ui.ChatKitClient;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.cache.TeamUserManager;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatUtils;
@@ -120,10 +126,25 @@ public class ChatTeamFragment extends NormalChatFragment {
   // 刷新页面
   private void refreshView() {
     if (teamInfo != null) {
-      chatView.getTitleBar().setTitle(teamInfo.getName());
       chatView.updateInputHintInfo(teamInfo.getName());
       chatView.getMessageListView().updateTeamInfo(teamInfo);
       chatView.getTitleBar().getActionImageView().setVisibility(View.VISIBLE);
+      String name = teamInfo.getName();
+      if (ChatKitClient.isEarphoneMode()) {
+        SpannableString spannable = new SpannableString(name + "v");
+        Drawable icon =
+            ResourcesCompat.getDrawable(getResources(), R.drawable.ic_chat_audio_earphone, null);
+        int iconSize = getResources().getDimensionPixelSize(R.dimen.chat_earphone_icon_size);
+        if (icon != null) {
+          icon.setBounds(0, 0, iconSize, iconSize); // 宽高根据需求调整
+          ImageSpan imageSpan = new ImageSpan(icon, ImageSpan.ALIGN_BASELINE); // 图标与文字基线对齐
+          int start = name.length();
+          spannable.setSpan(imageSpan, start, start + 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+        chatView.getTitleBar().setTitle(spannable);
+      } else {
+        chatView.getTitleBar().setTitle(name);
+      }
     } else {
       chatView.getTitleBar().getActionImageView().setVisibility(View.GONE);
     }

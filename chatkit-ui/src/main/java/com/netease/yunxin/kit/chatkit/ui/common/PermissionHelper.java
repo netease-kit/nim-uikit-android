@@ -14,6 +14,7 @@ import androidx.core.content.ContextCompat;
 import androidx.core.content.PermissionChecker;
 
 public class PermissionHelper {
+  public static final String STORAGE = Manifest.permission_group.STORAGE;
 
   public static boolean hasPermissions(Context context, @NonNull String... permissions) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {

@@ -17,7 +17,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import androidx.annotation.NonNull;
 import com.netease.nimlib.sdk.v2.message.attachment.V2NIMMessageAudioAttachment;
-import com.netease.yunxin.kit.chatkit.repo.SettingRepo;
+import com.netease.yunxin.kit.chatkit.ui.ChatKitClient;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatAudioPinViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatBasePinViewHolderBinding;
@@ -135,7 +135,7 @@ public class ChatAudioPinViewHolder extends ChatBasePinViewHolder {
     super.onBindData(data, position, payload);
     if (payload.contains(PAYLOAD_REFRESH_AUDIO_ANIM)) {
       initPlayAnim();
-      audioControl.setEarPhoneModeEnable(SettingRepo.getHandsetMode());
+      audioControl.setEarPhoneModeEnable(ChatKitClient.isEarphoneMode());
       audioControl.startPlayAudioDelay(
           CLICK_TO_PLAY_AUDIO_DELAY, data.getMessageData(), onPlayListener);
     }

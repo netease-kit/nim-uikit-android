@@ -7,9 +7,9 @@ package com.netease.yunxin.kit.teamkit.ui.normal.activity;
 import android.os.Bundle;
 import android.view.View;
 import com.netease.yunxin.kit.common.ui.photo.BasePhotoChoiceDialog;
-import com.netease.yunxin.kit.common.ui.photo.PhotoChoiceDialog;
 import com.netease.yunxin.kit.teamkit.ui.activity.BaseTeamUpdateIconActivity;
 import com.netease.yunxin.kit.teamkit.ui.databinding.TeamUpdateIconActivityBinding;
+import com.netease.yunxin.kit.teamkit.ui.normal.dialog.ImageChoiceDialog;
 
 /**
  * 普通版群头像修改页面，差异化UI展示
@@ -40,6 +40,6 @@ public class TeamUpdateIconActivity extends BaseTeamUpdateIconActivity {
   }
 
   protected BasePhotoChoiceDialog getPhotoChoiceDialog() {
-    return new PhotoChoiceDialog(this);
+    return new ImageChoiceDialog(this);
   }
 }

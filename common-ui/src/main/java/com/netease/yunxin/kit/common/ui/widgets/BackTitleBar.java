@@ -6,6 +6,7 @@ package com.netease.yunxin.kit.common.ui.widgets;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.text.SpannableString;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -141,6 +142,11 @@ public class BackTitleBar extends FrameLayout {
   }
 
   public BackTitleBar setTitle(String title) {
+    binding.tvTitle.setText(title);
+    return this;
+  }
+
+  public BackTitleBar setTitle(SpannableString title) {
     binding.tvTitle.setText(title);
     return this;
   }

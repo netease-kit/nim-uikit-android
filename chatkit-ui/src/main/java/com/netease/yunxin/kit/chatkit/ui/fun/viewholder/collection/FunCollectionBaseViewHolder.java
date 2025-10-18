@@ -140,7 +140,7 @@ public abstract class FunCollectionBaseViewHolder extends ChatBaseViewHolder<Col
           v -> itemListener.onMessageLongClick(v, position, currentCollection));
 
       baseViewBinding.ivMoreAction.setOnClickListener(
-          v -> itemListener.onViewClick(v, position, currentCollection));
+          v -> itemListener.onCustomViewClick(v, position, currentCollection));
     }
   }
 

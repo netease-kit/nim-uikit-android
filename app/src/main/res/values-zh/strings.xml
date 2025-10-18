@@ -38,8 +38,6 @@
     <string name="server_config_dialog_cancel">取消</string>
     <string name="incoming_call_notify_audio">【语音通话】</string>
     <string name="incoming_call_notify_video">【视频通话】</string>
-
-
     <string name="mine_collect">收藏</string>
     <string name="mine_about">关于云信</string>
     <string name="mine_setting">设置</string>
@@ -51,6 +49,7 @@
     <string name="setting_notify">消息提醒</string>
     <string name="setting_clear_cache">清理缓存</string>
     <string name="setting_server_config">私有化配置</string>
+    <string name="push_config">推送配置</string>
     <string name="setting_kit_config">全局配置</string>
     <string name="setting_play_mode">听筒模式</string>
     <string name="conversation_mode">云端会话</string>
@@ -91,7 +90,7 @@
     <string name="not_usable">功能暂未开放</string>
     <string name="setting_fail">设置失败</string>
     <string name="setting_success">设置成功</string>
-    <string name="login_fail">登录失败:%d</string>
+    <string name="login_fail">登录失败:%s</string>
     <string name="request_fail">操作失败</string>
     <string name="user_fail">用户信息获取失败</string>
     <string name="imkit_email_fail">邮箱格式错误，请检查</string>
@@ -120,11 +119,18 @@
     <string name="server_config_param_module_title">连接云信服务器加密数据通道的公钥参数1</string>
     <string name="server_config_param_save">保存配置</string>
 
+    <!--push config -->
+    <string name="push_config_title">推送配置</string>
+    <string name="push_config_switch_content">推送配置生效</string>
+    <string name="push_config_param_title">推送配置参数</string>
+    <string name="push_config_param_content_title">推送配置内容</string>
+
     <!-- login -->
     <string name="uikit_account_login_page_title">账号登录</string>
     <string name="uikit_account_login_hint">登录账号</string>
     <string name="uikit_token_login_hint">登录Token</string>
     <string name="login_text">登录</string>
+
  <!-- 功能配置 -->
     <string name="uikit_function_title">功能配置</string>
     <string name="uikit_team_switch_title">群聊功能</string>
@@ -134,6 +140,12 @@
     <string name="uikit_stick_top_switch_title">消息置顶功能</string>
     <string name="uikit_online_switch_title">正在输入功能</string>
     <string name="uikit_call_switch_title">禁止陌生人音视频通话</string>
+    <string name="uikit_image_pick_switch_title">使用图片选择器插件</string>
     <string name="uikit_team_manager_limit_title">允许添加的管理员人数( -1 表示无限制)</string>
+
+    <!-- -->
+    <string name="uikit_save_success">保存成功</string>
+    <string name="uikit_kickoff_tips">该账户被踢下线</string>
+
 
 </resources>

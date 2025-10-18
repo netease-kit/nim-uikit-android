@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -27,6 +28,9 @@ import com.netease.nimlib.sdk.v2.auth.enums.V2NIMLoginClientChange;
 import com.netease.nimlib.sdk.v2.auth.enums.V2NIMLoginStatus;
 import com.netease.nimlib.sdk.v2.auth.model.V2NIMKickedOfflineDetail;
 import com.netease.nimlib.sdk.v2.auth.model.V2NIMLoginClient;
+import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
+import com.netease.nimlib.sdk.v2.message.config.V2NIMMessagePushConfig;
+import com.netease.nimlib.sdk.v2.message.params.V2NIMSendMessageParams;
 import com.netease.nimlib.sdk.v2.user.V2NIMUser;
 import com.netease.yunxin.app.im.AppConfig;
 import com.netease.yunxin.app.im.AppSkinConfig;
@@ -45,6 +49,7 @@ import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.call.p2p.NECallEngine;
 import com.netease.yunxin.kit.call.p2p.model.NECallInitRtcMode;
 import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
+import com.netease.yunxin.kit.chatkit.IMKitCustomFactory;
 import com.netease.yunxin.kit.chatkit.listener.MessageCallback;
 import com.netease.yunxin.kit.chatkit.listener.MessageSendParams;
 import com.netease.yunxin.kit.chatkit.manager.AIUserAgentProvider;
@@ -58,6 +63,7 @@ import com.netease.yunxin.kit.chatkit.ui.IChatInputMenu;
 import com.netease.yunxin.kit.chatkit.ui.custom.ChatConfigManager;
 import com.netease.yunxin.kit.chatkit.ui.normal.view.AIHelperView;
 import com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants;
+import com.netease.yunxin.kit.chatkit.utils.ConversationIdUtils;
 import com.netease.yunxin.kit.common.ui.activities.BaseLocalActivity;
 import com.netease.yunxin.kit.common.ui.utils.AppLanguageConfig;
 import com.netease.yunxin.kit.common.utils.SizeUtils;
@@ -89,6 +95,8 @@ import com.netease.yunxin.nertc.ui.CallKitUIOptions;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import org.jetbrains.annotations.NotNull;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 /** Demo 主页面 */
@@ -238,6 +246,72 @@ public class MainActivity extends BaseLocalActivity {
           }
         });
     IMKitConfigCenter.setEnableAIStream(DataUtils.getAIStreamConfigSwitch(this));
+    boolean pushConfigToggle = DataUtils.getPushConfigToggle(this);
+    if (pushConfigToggle) {
+      String serverConfig = DataUtils.getPushConfigContent(IMKitClient.getApplicationContext());
+      V2NIMMessagePushConfig pushContent = MessageUtils.convertToPushConfig(serverConfig);
+      IMKitCustomFactory.setPushConfig(pushContent);
+    }
+
+    IMKitCustomFactory.setMessageSendCallback(
+        new MessageCallback() {
+          @Override
+          public MessageSendParams beforeSend(@NotNull MessageSendParams param) {
+            V2NIMSendMessageParams sendMessageParams = param.getParams();
+            //sendMessageParams如果为空，则创建一个新的V2NIMSendMessageParams对象。否则，使用sendMessageParams
+            // 中的值重新创建一个新的V2NIMSendMessageParams对象，保留原值的同时修改pushConfig中的payload
+            String conversationId = ChatRepo.getCurrentConversationId();
+            if (!TextUtils.isEmpty(conversationId)) {
+
+              V2NIMConversationType conversationType =
+                  ConversationIdUtils.conversationType(conversationId);
+              String type = "team";
+              String accountId = ConversationIdUtils.conversationTargetId(conversationId);
+              //根据V2NIMConversationType来判断，如果是P2P 则tepe值为"p2p"
+              if (conversationType == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P) {
+                type = "p2p";
+                accountId = IMKitClient.account();
+              }
+              //将type值和conversationId的值放在Json中，然后转换为String复制给payload
+              JSONObject jsonObject = new JSONObject();
+              try {
+                jsonObject.put("sessionType", type);
+                jsonObject.put("sessionId", accountId);
+              } catch (JSONException e) {
+                e.printStackTrace();
+              }
+              V2NIMMessagePushConfig.V2NIMMessagePushConfigBuilder pushConfig =
+                  V2NIMMessagePushConfig.V2NIMMessagePushConfigBuilder.builder();
+              pushConfig.withPayload(jsonObject.toString());
+
+              V2NIMSendMessageParams.V2NIMSendMessageParamsBuilder builder =
+                  V2NIMSendMessageParams.V2NIMSendMessageParamsBuilder.builder();
+              if (sendMessageParams != null) {
+                builder.withAIConfig(sendMessageParams.getAIConfig());
+                builder.withMessageConfig(sendMessageParams.getMessageConfig());
+                builder.withAntispamConfig(sendMessageParams.getAntispamConfig());
+                builder.withClientAntispamEnabled(sendMessageParams.isClientAntispamEnabled());
+                builder.withRobotConfig(sendMessageParams.getRobotConfig());
+                builder.withTargetConfig(sendMessageParams.getTargetConfig());
+                builder.withClientAntispamReplace(sendMessageParams.getClientAntispamReplace());
+                builder.withRouteConfig(sendMessageParams.getRouteConfig());
+                if (sendMessageParams.getPushConfig() != null) {
+                  pushConfig.withForcePush(sendMessageParams.getPushConfig().isForcePush());
+                  pushConfig.withPushEnabled(sendMessageParams.getPushConfig().isPushEnabled());
+                  pushConfig.withContent(sendMessageParams.getPushConfig().getPushContent());
+                  pushConfig.withForcePushContent(
+                      sendMessageParams.getPushConfig().getForcePushContent());
+                  pushConfig.withForcePushAccountIds(
+                      sendMessageParams.getPushConfig().getForcePushAccountIds());
+                }
+              }
+              builder.withPushConfig(pushConfig.build());
+              builder.withPushConfig(pushConfig.build());
+              param.setParams(builder.build());
+            }
+            return param;
+          }
+        });
   }
 
   @Override
@@ -513,18 +587,53 @@ public class MainActivity extends BaseLocalActivity {
           public void onLoginStatus(V2NIMLoginStatus status) {
             if (status == V2NIMLoginStatus.V2NIM_LOGIN_STATUS_LOGOUT) {
               CallKitUI.destroy();
+              backToLogin();
             }
           }
 
           @Override
-          public void onLoginFailed(V2NIMError error) {}
+          public void onLoginFailed(V2NIMError error) {
+            Toast.makeText(MainActivity.this, error.getDesc(), Toast.LENGTH_LONG).show();
+            backToLogin();
+          }
 
           @Override
-          public void onKickedOffline(V2NIMKickedOfflineDetail detail) {}
+          public void onKickedOffline(V2NIMKickedOfflineDetail detail) {
+            if (detail.getReasonDesc() != null) {
+              Toast.makeText(MainActivity.this, detail.getReasonDesc(), Toast.LENGTH_LONG).show();
+            } else {
+              Toast.makeText(MainActivity.this, R.string.uikit_kickoff_tips, Toast.LENGTH_LONG)
+                  .show();
+            }
+            backToLogin();
+          }
 
           @Override
           public void onLoginClientChanged(
               V2NIMLoginClientChange change, List<V2NIMLoginClient> clients) {}
+        });
+  }
+
+  private void backToLogin() {
+    IMKitClient.logout(
+        new FetchCallback<Void>() {
+          @Override
+          public void onError(int errorCode, @Nullable String errorMsg) {
+            Intent intent = new Intent();
+            intent.setClass(MainActivity.this, WelcomeActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            MainActivity.this.startActivity(intent);
+            MainActivity.this.finish();
+          }
+
+          @Override
+          public void onSuccess(@Nullable Void data) {
+            Intent intent = new Intent();
+            intent.setClass(MainActivity.this, WelcomeActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            MainActivity.this.startActivity(intent);
+            MainActivity.this.finish();
+          }
         });
   }
 
@@ -729,23 +838,23 @@ public class MainActivity extends BaseLocalActivity {
             String targetId = message.getSessionId();
             SessionTypeEnum conversationType = message.getSessionType();
             boolean isNormal =
-                    AppSkinConfig.getInstance().getAppSkinStyle() == AppSkinConfig.AppSkin.baseSkin;
+                AppSkinConfig.getInstance().getAppSkinStyle() == AppSkinConfig.AppSkin.baseSkin;
             if (conversationType == SessionTypeEnum.P2P) {
               XKitRouter.withKey(
-                              isNormal
-                                      ? RouterConstant.PATH_CHAT_P2P_PAGE
-                                      : RouterConstant.PATH_FUN_CHAT_P2P_PAGE)
-                      .withParam(RouterConstant.CHAT_ID_KRY, targetId)
-                      .withContext(this)
-                      .navigate();
+                      isNormal
+                          ? RouterConstant.PATH_CHAT_P2P_PAGE
+                          : RouterConstant.PATH_FUN_CHAT_P2P_PAGE)
+                  .withParam(RouterConstant.CHAT_ID_KRY, targetId)
+                  .withContext(this)
+                  .navigate();
             } else if (conversationType == SessionTypeEnum.Team) {
               XKitRouter.withKey(
-                              isNormal
-                                      ? RouterConstant.PATH_CHAT_TEAM_PAGE
-                                      : RouterConstant.PATH_FUN_CHAT_TEAM_PAGE)
-                      .withParam(RouterConstant.CHAT_ID_KRY, targetId)
-                      .withContext(this)
-                      .navigate();
+                      isNormal
+                          ? RouterConstant.PATH_CHAT_TEAM_PAGE
+                          : RouterConstant.PATH_FUN_CHAT_TEAM_PAGE)
+                  .withParam(RouterConstant.CHAT_ID_KRY, targetId)
+                  .withContext(this)
+                  .navigate();
             }
             tabClick(activityMainBinding.conversationBtnGroup);
           }
@@ -753,6 +862,7 @@ public class MainActivity extends BaseLocalActivity {
       }
     }
   }
+
   //皮肤变更事件
   public static class SkinEvent extends BaseEvent {
     @NonNull

@@ -26,6 +26,8 @@ public class ChatUIInitService implements IIMKitInitListener {
   public void onInit(@NonNull Context context) {
     // 群聊@功能初始化
     AitService.getInstance().init(context);
+    // Kit功能初始化，该初始化不依赖IM SDK初始化时机
+    ChatKitClient.init(context);
     //注册消息撤回监听
     ChatRepo.addMessageListener(
         new MessageListenerImpl() {

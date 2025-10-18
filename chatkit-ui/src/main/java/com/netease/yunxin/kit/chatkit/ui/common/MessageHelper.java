@@ -38,6 +38,7 @@ import com.netease.nimlib.sdk.v2.message.V2NIMMessageConverter;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessageCreator;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessageRefer;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessageRevokeNotification;
+import com.netease.nimlib.sdk.v2.message.attachment.V2NIMMessageAudioAttachment;
 import com.netease.nimlib.sdk.v2.message.attachment.V2NIMMessageFileAttachment;
 import com.netease.nimlib.sdk.v2.message.attachment.V2NIMMessageNotificationAttachment;
 import com.netease.nimlib.sdk.v2.message.config.V2NIMMessageAIConfig;
@@ -75,6 +76,7 @@ import com.netease.yunxin.kit.chatkit.utils.AIErrorCode;
 import com.netease.yunxin.kit.chatkit.utils.ErrorUtils;
 import com.netease.yunxin.kit.chatkit.utils.MessageExtensionHelper;
 import com.netease.yunxin.kit.common.ui.utils.ToastX;
+import com.netease.yunxin.kit.common.utils.FileUtils;
 import com.netease.yunxin.kit.corekit.im2.IMKitClient;
 import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
 import com.netease.yunxin.kit.corekit.im2.extend.ProgressFetchCallback;
@@ -1548,6 +1550,7 @@ public class MessageHelper {
 
     //记录转发的最新会话
     List<RecentForward> recentForwards = new ArrayList<>();
+    boolean isFirst = true;
     // 合并转发消息需要逆序的，所以获取消息列表是逆序。逐条转发需要正序，所以要倒序遍历
     for (int index = messages.size() - 1; index >= 0; index--) {
       ChatMessageBean message = messages.get(index);
@@ -1565,13 +1568,14 @@ public class MessageHelper {
             V2NIMMessageCreator.createForwardMessage(message.getMessageData().getMessage());
         MessageHelper.clearAitAndReplyInfo(forwardMessage);
         forwardMessageImpl(forwardMessage, conversationId, showToasts, readReceiptEnabled);
-        if (recentForwards.isEmpty()) {
+        if (isFirst) {
           String sessionId = V2NIMConversationIdUtil.conversationTargetId(conversationId);
           V2NIMConversationType sessionType =
               V2NIMConversationIdUtil.conversationType(conversationId);
           recentForwards.add(new RecentForward(sessionId, sessionType));
         }
       }
+      isFirst = false;
     }
     SettingRepo.saveRecentForward(recentForwards);
     if (hasError) {
@@ -1587,6 +1591,22 @@ public class MessageHelper {
           && aiConfig.getAIStatus() == V2NIMMessageAIStatus.V2NIM_MESSAGE_AI_STATUS_RESPONSE;
     } else {
       return false;
+    }
+  }
+
+  /** 预下载语音消息附件 */
+  public static void preDownloadAudioAttachment(ChatMessageBean currentMessage) {
+    if (currentMessage == null) {
+      return;
+    }
+    V2NIMMessageAudioAttachment audioAttachment =
+        (V2NIMMessageAudioAttachment) currentMessage.getMessageData().getMessage().getAttachment();
+    if (audioAttachment == null) {
+      return;
+    }
+    String path = MessageHelper.getMessageAttachPath(currentMessage.getMessageData().getMessage());
+    if (!TextUtils.isEmpty(path) && !FileUtils.isFileExists(path)) {
+      ChatRepo.downloadAttachment(currentMessage.getMessageData().getMessage(), path, null);
     }
   }
 }

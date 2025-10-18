@@ -34,7 +34,7 @@ public class FunChatLocationPinViewHolder extends FunChatBasePinViewHolder {
         FunChatLocationPinViewHolderBinding.inflate(
             LayoutInflater.from(parent.getContext()), getContainer(), true);
     binding.locationClick.setOnClickListener(
-        v -> itemListener.onViewClick(v, position, currentMessage));
+        v -> itemListener.onCustomViewClick(v, position, currentMessage));
   }
 
   @Override

@@ -6,6 +6,7 @@ package com.netease.yunxin.app.im.utils;
 
 import android.text.TextUtils;
 import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
+import com.netease.nimlib.sdk.v2.message.config.V2NIMMessagePushConfig;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageSendingState;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
 import com.netease.yunxin.app.im.R;
@@ -108,5 +109,48 @@ public class MessageUtils {
       }
     }
     return itemList;
+  }
+
+  public static V2NIMMessagePushConfig convertToPushConfig(String serverConfig) {
+    if (!TextUtils.isEmpty(serverConfig)) {
+      String cleanedConfig = serverConfig.replaceAll("[\n\t]", "");
+      try {
+        JSONObject dataJson = new JSONObject(cleanedConfig);
+        V2NIMMessagePushConfig.V2NIMMessagePushConfigBuilder builder =
+            V2NIMMessagePushConfig.V2NIMMessagePushConfigBuilder.builder();
+        if (dataJson.has("pushNickEnabled")) {
+          builder.withPushNickEnabled(dataJson.optBoolean("pushNickEnabled", true));
+        }
+        if (dataJson.has("forcePush")) {
+          builder.withForcePush(dataJson.optBoolean("forcePush", false));
+        }
+        if (dataJson.has("pushEnabled")) {
+          builder.withPushEnabled(dataJson.optBoolean("pushEnabled", true));
+        }
+        if (dataJson.has("forcePushContent")) {
+          String forcePushContent = dataJson.getString("forcePushContent");
+          if (!TextUtils.isEmpty(forcePushContent)) {
+            builder.withForcePushContent(dataJson.getString("forcePushContent"));
+          }
+        }
+        if (dataJson.has("payload")) {
+          String payload = dataJson.getString("payload");
+          if (!TextUtils.isEmpty(payload)) {
+            builder.withPayload(dataJson.getString("payload"));
+          }
+        }
+        if (dataJson.has("content")) {
+          String content = dataJson.getString("content");
+          if (!TextUtils.isEmpty(content)) {
+            builder.withContent(dataJson.getString("content"));
+          }
+        }
+        return builder.build();
+      } catch (JSONException e) {
+        return null;
+      }
+    }
+
+    return null;
   }
 }
