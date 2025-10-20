@@ -39,6 +39,7 @@ public abstract class NormalChatFragment extends ChatBaseFragment {
       @NonNull LayoutInflater inflater, @Nullable ViewGroup container) {
     viewBinding = NormalChatFragmentBinding.inflate(inflater, container, false);
     chatView = viewBinding.chatView;
+    chatView.getTitleBar().getTitleTextView().setEllipsize(TextUtils.TruncateAt.MIDDLE);
     return viewBinding.getRoot();
   }
 

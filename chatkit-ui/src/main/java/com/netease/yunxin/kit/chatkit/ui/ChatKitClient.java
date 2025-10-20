@@ -27,6 +27,7 @@ import com.netease.yunxin.kit.chatkit.emoji.ChatEmojiManager;
 import com.netease.yunxin.kit.chatkit.map.IMessageMapProvider;
 import com.netease.yunxin.kit.chatkit.model.CustomAttachment;
 import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
+import com.netease.yunxin.kit.chatkit.repo.SettingRepo;
 import com.netease.yunxin.kit.chatkit.ui.view.ait.AitService;
 import com.netease.yunxin.kit.chatkit.ui.view.emoji.EmojiManager;
 import com.netease.yunxin.kit.chatkit.ui.view.message.viewholder.ChatBaseMessageViewHolder;
@@ -48,6 +49,8 @@ public class ChatKitClient {
   private static final Long timeGap = 2000L;
   private static ChatUIConfig chatConfig;
   private static IMessageMapProvider messageMapProvider;
+  private static IPictureChooseEngine pictureChooseEngine;
+  private static Boolean voicePlayEarphoneMode;
 
   public static void init(Context context) {
     EmojiManager.init(context);
@@ -55,6 +58,29 @@ public class ChatKitClient {
     registerSendTeamTips();
     registerAtMessageNotifyTrigger();
     registerSendText();
+  }
+
+  /**
+   * 是否开启听筒模式播放语音
+   *
+   * @return true 听筒模式播放语音 false 扬声器模式播放语音
+   */
+  public static boolean isEarphoneMode() {
+    if (voicePlayEarphoneMode == null) {
+      voicePlayEarphoneMode = SettingRepo.getHandsetMode();
+    }
+    return voicePlayEarphoneMode;
+  }
+
+  /**
+   * 设置听筒模式播放语音
+   *
+   * @param earphoneMode true 听筒模式播放语音 false 扬声器模式播放语音
+   */
+  public static void setEarphoneMode(boolean earphoneMode) {
+    voicePlayEarphoneMode = earphoneMode;
+    SettingRepo.setHandsetMode(earphoneMode);
+    ALog.d(ChatKitUIConstant.LIB_TAG, TAG, "setEarphoneMode:" + earphoneMode);
   }
 
   public static void setChatUIConfig(ChatUIConfig config) {
@@ -67,6 +93,14 @@ public class ChatKitClient {
 
   public static ChatUIConfig getChatUIConfig() {
     return chatConfig;
+  }
+
+  public static void setPictureChooseEngine(IPictureChooseEngine engine) {
+    pictureChooseEngine = engine;
+  }
+
+  public static @Nullable IPictureChooseEngine getPictureChooseEngine() {
+    return pictureChooseEngine;
   }
 
   public static @Nullable IMessageMapProvider getMessageMapProvider() {
@@ -223,5 +257,24 @@ public class ChatKitClient {
                   });
               return true;
             }));
+  }
+
+  private static void loadVoicePlayEarphoneMode() {
+    SettingRepo.getHandsetMode(
+        new FetchCallback<Boolean>() {
+          @Override
+          public void onError(int errorCode, @org.jetbrains.annotations.Nullable String errorMsg) {
+            ALog.e(
+                ChatKitUIConstant.LIB_TAG, TAG, "loadVoicePlayEarphoneMode onError:" + errorCode);
+          }
+
+          @Override
+          public void onSuccess(@org.jetbrains.annotations.Nullable Boolean data) {
+            ALog.d(ChatKitUIConstant.LIB_TAG, TAG, "loadVoicePlayEarphoneMode onSuccess:" + data);
+            if (data != null) {
+              voicePlayEarphoneMode = data;
+            }
+          }
+        });
   }
 }

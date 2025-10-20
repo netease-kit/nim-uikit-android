@@ -13,6 +13,7 @@ import com.netease.nimlib.sdk.ServerAddresses;
 import com.netease.nimlib.sdk.StatusBarNotificationConfig;
 import com.netease.nimlib.sdk.StatusBarNotificationFilter;
 import com.netease.nimlib.sdk.mixpush.MixPushConfig;
+import com.netease.nimlib.sdk.sync.SyncConfig;
 import com.netease.yunxin.app.im.main.MainActivity;
 import com.netease.yunxin.app.im.main.mine.setting.ServerConfigUtils;
 import com.netease.yunxin.app.im.push.PushUserInfoProvider;
@@ -66,8 +67,15 @@ public class NimSDKOptionConfig {
     options.shouldConsiderRevokedMessageUnreadCount = true;
     // 会话置顶是否漫游
     options.notifyStickTopSession = true;
-    options.mixPushConfig = buildMixPushConfig();
+    //    options.mixPushConfig = buildMixPushConfig();
     options.serverConfig = configServer(context);
+    SyncConfig.Builder syncConfigBuilder = new SyncConfig.Builder();
+    syncConfigBuilder.setEnableSyncSuperTeamMember(false);
+    syncConfigBuilder.setEnableSyncTeamMember(false);
+    syncConfigBuilder.setEnableSyncTeamMemberUserInfo(false);
+    syncConfigBuilder.setEnableSyncSuperTeamMemberUserInfo(false);
+    options.syncConfig = syncConfigBuilder.build();
+
     // 打开消息撤回未读数-1的开关
     options.shouldConsiderRevokedMessageUnreadCount = true;
     options.enableV2CloudConversation = DataUtils.getCloudConversationConfigSwitch(context);
@@ -118,7 +126,7 @@ public class NimSDKOptionConfig {
     config.notificationSmallIconId = R.mipmap.ic_logo;
     config.notificationColor = Color.parseColor("#3a9efb");
     config.notificationSound = NOTIFY_SOUND_KEY;
-    config.notificationFoldStyle = NotificationFoldStyle.ALL;
+    config.notificationFoldStyle = NotificationFoldStyle.CONTACT;
     config.downTimeEnableNotification = true;
     config.ledARGB = Color.GREEN;
     config.ledOnMs = LED_ON_MS;

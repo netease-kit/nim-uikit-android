@@ -6,9 +6,12 @@ package com.netease.yunxin.kit.chatkit.ui.page;
 
 import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
 import static com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants.PAYLOAD_REFRESH_AUDIO_ANIM;
+import static com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants.POP_ACTION_COPY;
+import static com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants.POP_ACTION_TEL;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -25,7 +28,9 @@ import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
+import com.netease.yunxin.kit.chatkit.ui.ChatKitClient;
 import com.netease.yunxin.kit.chatkit.ui.R;
+import com.netease.yunxin.kit.chatkit.ui.common.ChatDialogUtils;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatUtils;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.chatkit.ui.common.WatchTextMessageDialog;
@@ -40,6 +45,7 @@ import com.netease.yunxin.kit.common.ui.action.ActionItem;
 import com.netease.yunxin.kit.common.ui.activities.BaseLocalActivity;
 import com.netease.yunxin.kit.common.ui.dialog.BaseBottomChoiceDialog;
 import com.netease.yunxin.kit.common.ui.dialog.BottomChoiceDialog;
+import com.netease.yunxin.kit.common.ui.dialog.BottomHeaderChoiceDialog;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.common.utils.NetworkUtils;
@@ -240,12 +246,45 @@ public abstract class ChatPinBaseActivity extends BaseLocalActivity {
         }
 
         @Override
-        public boolean onViewClick(View view, int position, ChatMessageBean messageInfo) {
+        public boolean onCustomViewClick(View view, int position, ChatMessageBean messageInfo) {
           if (view.getId() == R.id.iv_more_action) {
             showMoreActionDialog(messageInfo);
           } else {
             clickMsg(messageInfo);
           }
+          return true;
+        }
+
+        @Override
+        public boolean onMessageTelClick(
+            View view, int position, ChatMessageBean messageInfo, String target) {
+          BottomHeaderChoiceDialog dialog =
+              new BottomHeaderChoiceDialog(
+                  ChatPinBaseActivity.this, ChatDialogUtils.assembleMessageTelActions());
+          dialog.setTitle(String.format(getString(R.string.chat_tel_tips_title), target));
+          dialog.setOnChoiceListener(
+              new BottomChoiceDialog.OnChoiceListener() {
+                @Override
+                public void onChoice(@NonNull String type) {
+                  switch (type) {
+                    case POP_ACTION_TEL:
+                      Intent intent = new Intent(Intent.ACTION_DIAL); // 仅打开拨号界面
+                      intent.setData(Uri.parse("tel:" + target)); // 自动填充电话号码
+                      startActivity(intent);
+                      break;
+                    case POP_ACTION_COPY:
+                      MessageHelper.copyText(target, true);
+
+                      break;
+                    default:
+                      break;
+                  }
+                }
+
+                @Override
+                public void onCancel() {}
+              });
+          dialog.show();
           return true;
         }
       };
@@ -283,6 +322,7 @@ public abstract class ChatPinBaseActivity extends BaseLocalActivity {
     } else if (messageInfo.getMessageData().getMessage().getMessageType()
         == V2NIMMessageType.V2NIM_MESSAGE_TYPE_AUDIO) {
       // 音频消息点击播放音频
+      ChatMessageAudioControl.getInstance().setEarPhoneModeEnable(ChatKitClient.isEarphoneMode());
       pinAdapter.updateMessage(messageInfo, PAYLOAD_REFRESH_AUDIO_ANIM);
     } else {
       // 自定义消息点击，实现在子类中

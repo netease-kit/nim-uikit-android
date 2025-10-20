@@ -155,7 +155,7 @@ public interface IMessageItemClickListener {
    * @param messageInfo 消息信息
    * @return 是否消费该事件
    */
-  default boolean onCustomClick(View view, int position, ChatMessageBean messageInfo) {
+  default boolean onCustomViewClick(View view, int position, ChatMessageBean messageInfo) {
     return false;
   }
 
@@ -180,6 +180,19 @@ public interface IMessageItemClickListener {
    * @return 是否消费该事件
    */
   default boolean onAIMessageStreamStop(View view, int position, IMMessageInfo messageInfo) {
+    return false;
+  }
+
+  /**
+   * 消息中电话点击事件回调
+   *
+   * @param view 触发事件的视图
+   * @param position 消息所在位置
+   * @param messageInfo 消息信息
+   * @return 是否消费该事件
+   */
+  default boolean onMessageTelClick(
+      View view, int position, ChatMessageBean messageInfo, String target) {
     return false;
   }
 }

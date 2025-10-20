@@ -82,8 +82,6 @@ public class ChatUIService extends ChatService {
     XKitRouter.registerRouter(RouterConstant.PATH_FUN_COLLECTION_PAGE, FunCollectionActivity.class);
 
     // ===通用逻辑初始化===
-    // Kit功能初始化，该初始化不依赖IM SDK初始化时机
-    ChatKitClient.init(context);
     // 注册自定义消息类型
     ChatKitClient.addCustomAttach(
         ChatMessageType.MULTI_FORWARD_ATTACHMENT, MultiForwardAttachment.class);

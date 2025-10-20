@@ -59,6 +59,11 @@ public interface IChatPopMenuClickListener {
     return false;
   }
 
+  // 点击语音播放
+  default boolean onVoicePlayChange(ChatMessageBean messageInfo) {
+    return false;
+  }
+
   // 自定义按钮点击
   default boolean onCustom(View view, ChatMessageBean messageInfo, String action) {
     return false;

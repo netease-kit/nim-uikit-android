@@ -159,7 +159,7 @@ public class MessageCreator {
       message.setServerExtension(remoteExtension);
     }
 
-    //@ AI机器人代理设置
+    //@ 代理设置
     V2NIMMessageAIConfigParams aiConfigParams = null;
     String chatId = V2NIMConversationIdUtil.conversationTargetId(conversationId);
     if (aiAgent == null && AIUserManager.isAIUser(chatId)) {

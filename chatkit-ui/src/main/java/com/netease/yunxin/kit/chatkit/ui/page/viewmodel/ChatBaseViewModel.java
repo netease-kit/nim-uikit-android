@@ -62,6 +62,7 @@ import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
 import com.netease.yunxin.kit.chatkit.repo.ConversationRepo;
 import com.netease.yunxin.kit.chatkit.repo.ResourceRepo;
 import com.netease.yunxin.kit.chatkit.repo.SettingRepo;
+import com.netease.yunxin.kit.chatkit.ui.ChatKitClient;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatUserCache;
@@ -794,6 +795,26 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
     }
   }
 
+  // 发送图片消息,参数为图片文件地址path
+  public void sendImageMessage(String imagePath) {
+    if (imagePath != null) {
+      ALog.d(LIB_TAG, TAG, "sendImageMessage:" + imagePath);
+      long limitSize = ChatUtils.getFileLimitSize() * 1024 * 1024;
+      File file = new File(imagePath);
+      if (file.exists() && file.length() > limitSize) {
+        String fileSizeLimit = String.valueOf(ChatUtils.getFileLimitSize());
+        String limitText =
+            String.format(
+                IMKitClient.getApplicationContext()
+                    .getString(R.string.chat_message_file_size_limit_tips),
+                fileSizeLimit);
+        ToastX.showShortToast(limitText);
+        return;
+      }
+      sendImageMessage(file);
+    }
+  }
+
   // 发送图片消息
   public void sendImageMessage(File imageFile) {
     if (imageFile != null) {
@@ -927,6 +948,23 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
             locationBean.getLat(), locationBean.getLng(), locationBean.getAddress());
     locationMsg.setText(locationBean.getTitle());
     sendMessage(locationMsg, null, null);
+  }
+
+  // 发送视频消息
+  public void sendVideoMessage(
+      String videoFile, int duration, int width, int height, String displayName) {
+    if (videoFile != null) {
+      ALog.d(LIB_TAG, TAG, "sendVideoMessage:" + videoFile);
+      File videoFileObj = new File(videoFile);
+      if (!videoFileObj.exists()) {
+        ALog.e(LIB_TAG, TAG, "sendVideoMessage videoFile not exist:" + videoFile);
+        return;
+      }
+      V2NIMMessage msg =
+          V2NIMMessageCreator.createVideoMessage(
+              videoFile, displayName, null, duration, width, height);
+      sendMessage(msg, null, null);
+    }
   }
 
   // 发送视频消息
@@ -1589,6 +1627,17 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
     }
     ALog.d(LIB_TAG, TAG, "removeMsgPin,message" + messageInfo.getMessage().getMessageClientId());
     ChatRepo.unpinMessage(messageInfo.getPinOption().getMessageRefer(), null);
+  }
+
+  /** 更新语音播放模式 */
+  public void updateVoicePlayModel() {
+    boolean currentValue = ChatKitClient.isEarphoneMode();
+    ALog.d(LIB_TAG, TAG, "updateVoicePlayModel, currentValue:" + currentValue);
+    ChatKitClient.setEarphoneMode(!currentValue);
+    FetchResult<List<String>> userInfoFetchResult = new FetchResult<>(LoadStatus.Finish);
+    userInfoFetchResult.setData(Collections.singletonList(mChatAccountId));
+    userInfoFetchResult.setType(FetchResult.FetchType.Update);
+    userChangeLiveData.setValue(userInfoFetchResult);
   }
 
   @Override

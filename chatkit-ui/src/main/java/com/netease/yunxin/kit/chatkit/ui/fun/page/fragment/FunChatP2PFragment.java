@@ -7,11 +7,16 @@ package com.netease.yunxin.kit.chatkit.ui.fun.page.fragment;
 import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
 
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.Spannable;
+import android.text.SpannableString;
 import android.text.TextUtils;
+import android.text.style.ImageSpan;
 import android.view.ViewTreeObserver;
 import androidx.annotation.Nullable;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
@@ -24,6 +29,7 @@ import com.netease.yunxin.kit.chatkit.OnlineStatusManager;
 import com.netease.yunxin.kit.chatkit.cache.FriendUserCache;
 import com.netease.yunxin.kit.chatkit.manager.AIUserManager;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
+import com.netease.yunxin.kit.chatkit.ui.ChatKitClient;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatUserCache;
 import com.netease.yunxin.kit.chatkit.ui.fun.view.MessageBottomLayout;
@@ -118,7 +124,6 @@ public class FunChatP2PFragment extends FunChatFragment {
                   .withContext(requireActivity())
                   .navigate();
             });
-    chatView.getTitleBar().getTitleTextView().setEllipsize(TextUtils.TruncateAt.MIDDLE);
   }
 
   public void refreshView() {
@@ -126,7 +131,7 @@ public class FunChatP2PFragment extends FunChatFragment {
     if (friendInfo != null) {
       name = friendInfo.getName();
     }
-    chatView.updateInputHintInfo(name);
+    //    chatView.updateInputHintInfo(name);
     if (IMKitConfigCenter.getEnableOnlineStatus() && !AIUserManager.isAIUser(this.accountId)) {
       String onlineFormat = getResources().getString(R.string.chat_online_status_title_format);
       String onlineStatus =
@@ -135,7 +140,21 @@ public class FunChatP2PFragment extends FunChatFragment {
               : getResources().getString(R.string.chat_offline_status_text);
       name = String.format(onlineFormat, name, onlineStatus);
     }
-    chatView.getTitleBar().setTitle(name);
+    if (ChatKitClient.isEarphoneMode()) {
+      SpannableString spannable = new SpannableString(name + "v");
+      Drawable icon =
+          ResourcesCompat.getDrawable(getResources(), R.drawable.ic_chat_audio_earphone, null);
+      int iconSize = getResources().getDimensionPixelSize(R.dimen.chat_earphone_icon_size);
+      if (icon != null) {
+        icon.setBounds(0, 0, iconSize, iconSize); // 宽高根据需求调整
+        ImageSpan imageSpan = new ImageSpan(icon, ImageSpan.ALIGN_BASELINE); // 图标与文字基线对齐
+        int start = name.length();
+        spannable.setSpan(imageSpan, start, start + 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+      }
+      chatView.getTitleBar().setTitle(spannable);
+    } else {
+      chatView.getTitleBar().setTitle(name);
+    }
     List<String> accountList = new ArrayList<>();
     accountList.add(accountId);
     chatView.notifyUserInfoChanged(accountList);

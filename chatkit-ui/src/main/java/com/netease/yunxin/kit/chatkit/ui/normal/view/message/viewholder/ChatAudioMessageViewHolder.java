@@ -19,7 +19,6 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import androidx.annotation.NonNull;
 import com.netease.nimlib.sdk.v2.message.attachment.V2NIMMessageAudioAttachment;
-import com.netease.yunxin.kit.chatkit.repo.SettingRepo;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatBaseMessageViewHolderBinding;
@@ -160,6 +159,7 @@ public class ChatAudioMessageViewHolder extends NormalChatBaseMessageViewHolder 
           }
         });
     checkAudioPlayAndRefreshAnim();
+    MessageHelper.preDownloadAudioAttachment(message);
   }
 
   @Override
@@ -167,7 +167,6 @@ public class ChatAudioMessageViewHolder extends NormalChatBaseMessageViewHolder 
     super.bindData(message, position, payload);
     if (payload.contains(PAYLOAD_REFRESH_AUDIO_ANIM)) {
       initPlayAnim();
-      audioControl.setEarPhoneModeEnable(SettingRepo.getHandsetMode());
       audioControl.startPlayAudioDelay(
           CLICK_TO_PLAY_AUDIO_DELAY, message.getMessageData(), onPlayListener);
     }

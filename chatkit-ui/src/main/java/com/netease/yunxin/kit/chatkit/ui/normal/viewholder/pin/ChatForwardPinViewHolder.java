@@ -32,7 +32,7 @@ public class ChatForwardPinViewHolder extends ChatBasePinViewHolder {
         ChatForwardPinViewHolderBinding.inflate(
             LayoutInflater.from(parent.getContext()), getContainer(), true);
     viewBinding.messageText.setOnClickListener(
-        v -> itemListener.onViewClick(v, position, currentMessage));
+        v -> itemListener.onCustomViewClick(v, position, currentMessage));
   }
 
   @Override

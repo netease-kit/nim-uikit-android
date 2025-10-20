@@ -231,7 +231,7 @@ public abstract class ConversationBaseFragment extends BaseFragment implements I
   // 初始化观察者
   protected void initData() {
     viewModel = new ViewModelProvider(this).get(ConversationViewModel.class);
-    conversationComparator = ConversationUtils.getConversationComparator();
+    conversationComparator = ConversationUtils.getConversationSortOrderComparator();
     viewModel.setComparator(conversationComparator);
     if (conversationFactory != null) {
       viewModel.setConversationFactory(conversationFactory);

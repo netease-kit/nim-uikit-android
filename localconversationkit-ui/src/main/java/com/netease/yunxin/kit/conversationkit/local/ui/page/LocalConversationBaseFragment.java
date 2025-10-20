@@ -233,7 +233,7 @@ public abstract class LocalConversationBaseFragment extends BaseFragment impleme
   // 初始化观察者
   protected void initData() {
     viewModel = new ViewModelProvider(this).get(ConversationViewModel.class);
-    conversationComparator = ConversationUtils.getConversationComparator();
+    conversationComparator = ConversationUtils.getConversationSortOrderComparator();
     viewModel.setComparator(conversationComparator);
     if (conversationFactory != null) {
       viewModel.setConversationFactory(conversationFactory);

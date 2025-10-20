@@ -8,7 +8,6 @@ import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
 
 import android.text.TextUtils;
 import android.text.style.ImageSpan;
-import android.text.util.Linkify;
 import android.view.LayoutInflater;
 import android.view.View;
 import androidx.annotation.NonNull;
@@ -19,6 +18,7 @@ import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
+import com.netease.yunxin.kit.chatkit.ui.common.TextLinkifyUtils;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatBaseMessageViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.databinding.FunChatMessageTextViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
@@ -133,9 +133,7 @@ public class ChatTextMessageViewHolder extends FunChatBaseMessageViewHolder {
           parent.getContext().getResources().getString(R.string.chat_message_not_support_tips));
     }
     // 指定模式（例如只识别电话和邮箱）
-    Linkify.addLinks(
-        textBinding.messageText,
-        Linkify.PHONE_NUMBERS | Linkify.EMAIL_ADDRESSES | Linkify.WEB_URLS);
+    TextLinkifyUtils.addLinks(textBinding.messageText, itemClickListener, position, currentMessage);
   }
 
   private void updateOperateView() {

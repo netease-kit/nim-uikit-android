@@ -31,7 +31,6 @@
     <string name="user_info_sign">What\'s Up</string>
     <string name="action_copy_success">Coped</string>
     <string name="login_text">Login</string>
-
     <string name="server_config_china_text">China</string>
     <string name="server_config_oversea_text">Singapore</string>
     <string name="server_config_dialog_title">Select Node</string>
@@ -46,6 +45,7 @@
     <string name="mine_about">About CommSEase</string>
     <string name="mine_setting">Settings</string>
     <string name="setting_server_config">Server config</string>
+    <string name="push_config">Push config</string>
     <string name="setting_kit_config">Ability config</string>
     <string name="mine_version">Version</string>
     <string name="mine_im_version">NIM Version</string>
@@ -92,7 +92,7 @@
     <string name="not_usable">Not open</string>
     <string name="setting_fail">Setting Failed</string>
     <string name="setting_success">Setting Successfully</string>
-    <string name="login_fail">Login Failed:%d</string>
+    <string name="login_fail">Login Failed:%s</string>
     <string name="request_fail">Failed</string>
     <string name="user_fail">Failed</string>
     <string name="imkit_email_fail">The email format is incorrect. Please check.</string>
@@ -121,6 +121,12 @@
     <string name="server_config_param_module_title">connect server param 1</string>
     <string name="server_config_param_save">Save</string>
 
+    <!--push config -->
+    <string name="push_config_title">Push Config</string>
+    <string name="push_config_switch_content">Push config effective</string>
+    <string name="push_config_param_title">Push config param</string>
+    <string name="push_config_param_content_title">Push config json param</string>
+
     <!-- login -->
     <string name="uikit_account_login_page_title">Login</string>
     <string name="uikit_account_login_hint">Account</string>
@@ -135,5 +141,10 @@
     <string name="uikit_stick_top_switch_title">Stick top message</string>
     <string name="uikit_online_switch_title">Message Typing Status</string>
     <string name="uikit_call_switch_title">Prohibit strangers from making calls</string>
+    <string name="uikit_image_pick_switch_title">Use image picker plugin</string>
     <string name="uikit_team_manager_limit_title">Team Manager count limit</string>
+
+    <string name="uikit_save_success">Save successfully</string>
+    <string name="uikit_kickoff_tips">Account kicked offline</string>
+
 </resources>

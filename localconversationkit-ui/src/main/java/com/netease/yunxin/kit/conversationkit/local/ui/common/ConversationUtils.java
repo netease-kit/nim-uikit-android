@@ -138,6 +138,20 @@ public class ConversationUtils {
     };
   }
 
+  public static Comparator<ConversationBean> getConversationSortOrderComparator() {
+    return new Comparator<ConversationBean>() {
+      @Override
+      public int compare(ConversationBean bean1, ConversationBean bean2) {
+        // 避免空指针异常（若 sortOrder 可能为 null）
+        long order1 = bean1.getSortOrder();
+        long order2 = bean2.getSortOrder();
+
+        // 升序排序：order1 - order2（若需降序则反过来：order2 - order1）
+        return Long.compare(order2, order1);
+      }
+    };
+  }
+
   /**
    * 转换JSONArray为HashSet
    *

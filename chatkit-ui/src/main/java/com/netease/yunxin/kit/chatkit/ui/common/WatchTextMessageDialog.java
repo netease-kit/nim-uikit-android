@@ -4,6 +4,12 @@
 
 package com.netease.yunxin.kit.chatkit.ui.common;
 
+import static com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants.POP_ACTION_COPY;
+import static com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants.POP_ACTION_TEL;
+
+import android.annotation.SuppressLint;
+import android.content.Intent;
+import android.net.Uri;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -17,10 +23,15 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentManager;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
+import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.custom.RichTextAttachment;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatMessageDialogLayoutBinding;
+import com.netease.yunxin.kit.chatkit.ui.interfaces.IMessageItemClickListener;
+import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.view.MarkDownViwUtils;
 import com.netease.yunxin.kit.common.ui.dialog.BaseDialog;
+import com.netease.yunxin.kit.common.ui.dialog.BottomChoiceDialog;
+import com.netease.yunxin.kit.common.ui.dialog.BottomHeaderChoiceDialog;
 import java.util.Objects;
 
 /** 查看文本消息的弹窗,支持文本消息和富文本消息 PIN页面点击文本消息或者富文本消息，弹出此弹窗 */
@@ -45,6 +56,7 @@ public class WatchTextMessageDialog extends BaseDialog {
     messageInfo = message;
   }
 
+  @SuppressLint("ClickableViewAccessibility")
   @Nullable
   @Override
   protected View getRootView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container) {
@@ -59,6 +71,7 @@ public class WatchTextMessageDialog extends BaseDialog {
         });
     viewBinding.dialogContainer.setOnClickListener(v -> dismiss());
     viewBinding.message.setOnClickListener(v -> dismiss());
+    viewBinding.dialogScrollview.setOnClickListener(v -> dismiss());
     viewBinding.dialogScrollview.setOnTouchListener(
         (v, event) -> {
           if (event.getAction() == MotionEvent.ACTION_DOWN) {
@@ -72,9 +85,6 @@ public class WatchTextMessageDialog extends BaseDialog {
           }
           return false;
         });
-
-    viewBinding.dialogScrollview.setOnClickListener(v -> dismiss());
-
     String content = "";
     String title = "";
     if (messageInfo != null) {
@@ -97,6 +107,46 @@ public class WatchTextMessageDialog extends BaseDialog {
       viewBinding.messageTitle.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
       viewBinding.message.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
     }
+    if (!TextUtils.isEmpty(title)) {
+      TextLinkifyUtils.addLinks(
+          viewBinding.messageTitle,
+          new IMessageItemClickListener() {
+            @Override
+            public boolean onMessageTelClick(
+                View view, int position, ChatMessageBean messageInfo, String target) {
+              BottomHeaderChoiceDialog dialog =
+                  new BottomHeaderChoiceDialog(
+                      getContext(), ChatDialogUtils.assembleMessageTelActions());
+              dialog.setTitle(String.format(getString(R.string.chat_tel_tips_title), target));
+              dialog.setOnChoiceListener(
+                  new BottomChoiceDialog.OnChoiceListener() {
+                    @Override
+                    public void onChoice(@NonNull String type) {
+                      switch (type) {
+                        case POP_ACTION_TEL:
+                          Intent intent = new Intent(Intent.ACTION_DIAL); // 仅打开拨号界面
+                          intent.setData(Uri.parse("tel:" + target)); // 自动填充电话号码
+                          startActivity(intent);
+                          break;
+                        case POP_ACTION_COPY:
+                          MessageHelper.copyText(target, true);
+
+                          break;
+                        default:
+                          break;
+                      }
+                    }
+
+                    @Override
+                    public void onCancel() {}
+                  });
+              dialog.show();
+              return true;
+            }
+          },
+          0,
+          null);
+    }
     if (!TextUtils.isEmpty(content)) {
       if (MessageHelper.isAIResponseMessage(messageInfo)) {
         MarkDownViwUtils.makeMarkDown(
@@ -108,6 +158,45 @@ public class WatchTextMessageDialog extends BaseDialog {
             content,
             messageInfo.getMessage());
       }
+      // 指定模式（例如只识别电话和邮箱）
+      TextLinkifyUtils.addLinks(
+          viewBinding.message,
+          new IMessageItemClickListener() {
+            @Override
+            public boolean onMessageTelClick(
+                View view, int position, ChatMessageBean messageInfo, String target) {
+              BottomHeaderChoiceDialog dialog =
+                  new BottomHeaderChoiceDialog(
+                      getContext(), ChatDialogUtils.assembleMessageTelActions());
+              dialog.setTitle(String.format(getString(R.string.chat_tel_tips_title), target));
+              dialog.setOnChoiceListener(
+                  new BottomChoiceDialog.OnChoiceListener() {
+                    @Override
+                    public void onChoice(@NonNull String type) {
+                      switch (type) {
+                        case POP_ACTION_TEL:
+                          Intent intent = new Intent(Intent.ACTION_DIAL); // 仅打开拨号界面
+                          intent.setData(Uri.parse("tel:" + target)); // 自动填充电话号码
+                          startActivity(intent);
+                          break;
+                        case POP_ACTION_COPY:
+                          MessageHelper.copyText(target, true);
+
+                          break;
+                        default:
+                          break;
+                      }
+                    }
+
+                    @Override
+                    public void onCancel() {}
+                  });
+              dialog.show();
+              return true;
+            }
+          },
+          0,
+          null);
     }
     return viewBinding.getRoot();
   }
@@ -120,10 +209,13 @@ public class WatchTextMessageDialog extends BaseDialog {
   @Override
   protected void initParams() {
     Window window = Objects.requireNonNull(getDialog()).getWindow();
-    WindowManager.LayoutParams layoutParams = window.getAttributes();
-    layoutParams.height = ViewGroup.LayoutParams.MATCH_PARENT;
-    layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT;
-    window.setAttributes(layoutParams);
+    WindowManager.LayoutParams layoutParams = null;
+    if (window != null) {
+      layoutParams = window.getAttributes();
+      layoutParams.height = ViewGroup.LayoutParams.MATCH_PARENT;
+      layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT;
+      window.setAttributes(layoutParams);
+    }
     setCancelable(true);
   }
 

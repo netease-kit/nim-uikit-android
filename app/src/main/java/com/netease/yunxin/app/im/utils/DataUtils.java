@@ -10,6 +10,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.text.TextUtils;
 import com.netease.yunxin.app.im.main.SettingKitConfig;
+import com.netease.yunxin.kit.corekit.im2.IMKitClient;
 
 public class DataUtils {
 
@@ -22,10 +23,12 @@ public class DataUtils {
   private static SettingKitConfig kitConfig = null;
 
   private static Boolean cloudConversation = null;
+  private static Boolean teamApplyMode = null;
   private static Boolean aiStream = null;
   private static Boolean notificationHideContent = null;
-  private static Boolean teamApplyMode = null;
   private static Boolean toggleNotification = null;
+  private static Boolean togglePushConfig = null;
+  private static String pushConfigContent = null;
 
   /** read appKey from manifest */
   public static String readAppKey(Context context) {
@@ -70,9 +73,7 @@ public class DataUtils {
             context
                 .getPackageManager()
                 .getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
-        if (appInfo != null) {
-          aMapServerKey = appInfo.metaData.getString(Constant.CONFIG_AMAP_SERVER_KEY);
-        }
+        aMapServerKey = appInfo.metaData.getString(Constant.CONFIG_AMAP_SERVER_KEY);
       } catch (Exception e) {
         e.printStackTrace();
       }
@@ -127,8 +128,8 @@ public class DataUtils {
   public static boolean getTeamModeConfigSwitch(Context context) {
     if (teamApplyMode == null) {
       SharedPreferences sharedPreferences =
-              context.getSharedPreferences(
-                      Constant.CONVERSATION_CONFIG_FILE, Context.MODE_MULTI_PROCESS);
+          context.getSharedPreferences(
+              Constant.CONVERSATION_CONFIG_FILE, Context.MODE_MULTI_PROCESS);
       teamApplyMode = sharedPreferences.getBoolean(Constant.TEAM_MODE_CONFIG, true);
     }
     return teamApplyMode;
@@ -137,9 +138,9 @@ public class DataUtils {
   // 保存群邀请模式
   public static void saveTeamModeConfigSwitch(Context context, boolean configSwitch) {
     SharedPreferences.Editor editor =
-            context
-                    .getSharedPreferences(Constant.CONVERSATION_CONFIG_FILE, Context.MODE_MULTI_PROCESS)
-                    .edit();
+        context
+            .getSharedPreferences(Constant.CONVERSATION_CONFIG_FILE, Context.MODE_MULTI_PROCESS)
+            .edit();
     editor.putBoolean(Constant.TEAM_MODE_CONFIG, configSwitch);
     teamApplyMode = configSwitch;
     editor.commit();
@@ -263,7 +264,39 @@ public class DataUtils {
     if (kitConfig == null) {
       kitConfig = new SettingKitConfig();
     }
+    kitConfig.hasTeamApplyMode = getTeamModeConfigSwitch(IMKitClient.getApplicationContext());
     return kitConfig;
+  }
+
+  // 保存PUSH配置开关
+  public static void savePushConfig(Context context, boolean configSwitch, String pushContent) {
+    SharedPreferences.Editor editor =
+        context.getSharedPreferences(Constant.PUSH_CONFIG_FILE, Context.MODE_MULTI_PROCESS).edit();
+    editor.putBoolean(Constant.PUSH_CONFIG_TOGGLE, configSwitch);
+    editor.putString(Constant.PUSH_CONFIG_CONTENT, pushContent);
+    togglePushConfig = configSwitch;
+    pushConfigContent = pushContent;
+    editor.commit();
+  }
+
+  public static boolean getPushConfigToggle(Context context) {
+    if (togglePushConfig == null) {
+      SharedPreferences sharedPreferences =
+          context.getSharedPreferences(Constant.PUSH_CONFIG_FILE, Context.MODE_MULTI_PROCESS);
+      togglePushConfig = sharedPreferences.getBoolean(Constant.PUSH_CONFIG_TOGGLE, false);
+      pushConfigContent = sharedPreferences.getString(Constant.PUSH_CONFIG_CONTENT, "");
+    }
+    return togglePushConfig;
+  }
+
+  public static String getPushConfigContent(Context context) {
+    if (togglePushConfig == null) {
+      SharedPreferences sharedPreferences =
+          context.getSharedPreferences(Constant.PUSH_CONFIG_FILE, Context.MODE_MULTI_PROCESS);
+      togglePushConfig = sharedPreferences.getBoolean(Constant.PUSH_CONFIG_TOGGLE, false);
+      pushConfigContent = sharedPreferences.getString(Constant.PUSH_CONFIG_CONTENT, "");
+    }
+    return pushConfigContent;
   }
 
   public static float getSizeToM(long size) {

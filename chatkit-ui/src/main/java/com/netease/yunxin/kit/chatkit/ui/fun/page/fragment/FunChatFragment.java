@@ -39,6 +39,7 @@ public abstract class FunChatFragment extends ChatBaseFragment {
       @NonNull LayoutInflater inflater, @Nullable ViewGroup container) {
     viewBinding = FunChatFragmentBinding.inflate(inflater, container, false);
     chatView = viewBinding.chatView;
+    chatView.getTitleBar().getTitleTextView().setEllipsize(TextUtils.TruncateAt.MIDDLE);
     return viewBinding.getRoot();
   }
 

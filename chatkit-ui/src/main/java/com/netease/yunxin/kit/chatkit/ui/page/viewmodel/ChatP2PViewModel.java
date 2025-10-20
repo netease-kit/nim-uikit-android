@@ -398,4 +398,13 @@ public class ChatP2PViewModel extends ChatBaseViewModel {
       ALog.e(TAG, e.getMessage());
     }
   }
+
+  @Override
+  public void updateVoicePlayModel() {
+    super.updateVoicePlayModel();
+    FetchResult<String> updateResult = new FetchResult<>(FetchResult.FetchType.Update);
+    updateResult.setData(mChatAccountId);
+    updateResult.setLoadStatus(LoadStatus.Finish);
+    updateLiveData.setValue(updateResult);
+  }
 }

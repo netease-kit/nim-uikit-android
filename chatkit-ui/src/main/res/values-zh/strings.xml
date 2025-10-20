@@ -87,6 +87,8 @@
     <string name="chat_message_action_copy">复制</string>
     <string name="chat_message_action_reply">回复</string>
     <string name="chat_message_action_transmit">转发</string>
+    <string name="chat_message_action_voice_play_on">听筒播放</string>
+    <string name="chat_message_action_voice_play_off">扬声器</string>
     <string name="chat_message_action_pin">标记</string>
     <string name="chat_message_action_pin_cancel">取消标记</string>
     <string name="chat_message_action_multi_select">多选</string>
@@ -96,6 +98,8 @@
     <string name="chat_message_action_collection">收藏</string>
     <string name="chat_message_action_top">置顶</string>
     <string name="chat_message_action_cancel_top">取消置顶</string>
+    <string name="chat_message_action_tel">呼叫</string>
+    <string name="chat_message_action_cancel">取消</string>
 
     <string name="chat_message_action_revoke_this_message">撤回此消息</string>
     <string name="chat_message_action_delete_this_message">删除此消息</string>
@@ -225,6 +229,8 @@
     <string name="chat_message_not_friend_send_call">"非好友暂不支持音视频通话"</string>
     <string name="chat_message_forward_success_tips">转发成功</string>
     <string name="chat_message_open_fail_tips">无法预览该文件，请安装相关应用</string>
+    <string name="chat_message_audio_earphone_tip">切换听筒播放模式,请贴近手机聆听</string>
+    <string name="chat_message_audio_speaker_tip">扬声器播放</string>
 
     <!-- location -->
     <string name="chat_location_mine">定位</string>
@@ -310,6 +316,7 @@
 
     <string name="chat_voice_to_text">转文字</string>
     <string name="chat_voice_to_text_failed">转文字失败</string>
-
+    <string name="ps_camera_roll">图片和视频</string>
+    <string name="chat_tel_tips_title">\"%s\"可能是一个电话号码，你可以</string>
 
 </resources>

@@ -57,6 +57,10 @@ public class ConversationBean extends BaseBean {
     return stickTop;
   }
 
+  public Long getSortOrder() {
+    return infoData != null ? infoData.getSortOrder() : 0L;
+  }
+
   public void setStickTop(Boolean stickTop) {
     this.stickTop = stickTop;
   }

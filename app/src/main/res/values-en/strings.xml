@@ -37,14 +37,13 @@
     <string name="server_config_dialog_content">The app will exit after switching nodes and take effect after restarting</string>
     <string name="server_config_dialog_positive">OK</string>
     <string name="server_config_dialog_cancel">Cancel</string>
-
     <string name="incoming_call_notify_audio">[Audio Call]</string>
     <string name="incoming_call_notify_video">[Video Call]</string>
-
     <string name="mine_collect">Favorites</string>
     <string name="mine_about">About CommSEase</string>
     <string name="mine_setting">Settings</string>
     <string name="setting_server_config">Server config</string>
+    <string name="push_config">Push config</string>
     <string name="setting_kit_config">Ability config</string>
     <string name="mine_version">Version</string>
     <string name="mine_im_version">NIM Version</string>
@@ -82,7 +81,6 @@
     <string name="clear_message_tips">Chat history Cleared</string>
     <string name="cache_size_text">%.2f &#8197;M</string>
     <string name="cache_size_null_text">0.00 &#8197;M</string>
-
     <string name="sexual_male">Male</string>
     <string name="sexual_female">Female</string>
     <string name="sexual_unknown">Other</string>
@@ -91,7 +89,7 @@
     <string name="not_usable">Not open</string>
     <string name="setting_fail">Setting Failed</string>
     <string name="setting_success">Setting Successfully</string>
-    <string name="login_fail">Login Failed:%d</string>
+    <string name="login_fail">Login Failed:%s</string>
     <string name="request_fail">Failed</string>
     <string name="user_fail">Failed</string>
     <string name="imkit_email_fail">The email format is incorrect. Please check.</string>
@@ -120,6 +118,12 @@
     <string name="server_config_param_module_title">connect server param 1</string>
     <string name="server_config_param_save">Save</string>
 
+    <!--push config -->
+    <string name="push_config_title">Push Config</string>
+    <string name="push_config_switch_content">Push config effective</string>
+    <string name="push_config_param_title">Push config param</string>
+    <string name="push_config_param_content_title">Push config json param</string>
+
     <!-- login -->
     <string name="uikit_account_login_page_title">Login</string>
     <string name="uikit_account_login_hint">Account</string>
@@ -134,5 +138,10 @@
     <string name="uikit_stick_top_switch_title">Stick top message</string>
     <string name="uikit_online_switch_title">Message Typing Status</string>
     <string name="uikit_call_switch_title">Prohibit strangers from making calls</string>
+    <string name="uikit_image_pick_switch_title">Use image picker plugin</string>
     <string name="uikit_team_manager_limit_title">Team Manager count limit</string>
+
+    <string name="uikit_save_success">Save successfully</string>
+    <string name="uikit_kickoff_tips">Account kicked offline</string>
+
 </resources>

@@ -66,9 +66,16 @@ public class ActionConstants {
   public static final String POP_ACTION_TRANSMIT = "POP_ACTION_TRANSMIT";
   //消息长按菜单-语音转文字
   public static final String POP_ACTION_VOICE_TO_TEXT = "POP_ACTION_VOICE_TO_TEXT";
+  //消息长按菜单-语音播放
+  public static final String POP_ACTION_VOICE_PLAY = "POP_ACTION_VOICE_PLAY";
 
   //消息长按菜单-置顶
   public static final String POP_ACTION_TOP_STICK = "POP_ACTION_TOP_STICK";
+
+  // 消息长按菜单-拨打电话
+  public static final String POP_ACTION_TEL = "POP_ACTION_TEL";
+  //消息长按菜单-取消置顶
+  public static final String POP_ACTION_CANCEL = "POP_ACTION_CANCEL";
 
   //消息列表payload
   public static final String PAYLOAD_STATUS = "messageStatus";

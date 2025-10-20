@@ -29,7 +29,6 @@ import com.netease.yunxin.kit.chatkit.repo.ContactRepo;
 import com.netease.yunxin.kit.chatkit.repo.ResourceRepo;
 import com.netease.yunxin.kit.common.ui.activities.BaseLocalActivity;
 import com.netease.yunxin.kit.common.ui.photo.BasePhotoChoiceDialog;
-import com.netease.yunxin.kit.common.ui.photo.PhotoChoiceDialog;
 import com.netease.yunxin.kit.common.ui.utils.AvatarColor;
 import com.netease.yunxin.kit.common.ui.utils.CommonCallback;
 import com.netease.yunxin.kit.common.ui.utils.ToastX;
@@ -40,6 +39,7 @@ import com.netease.yunxin.kit.common.utils.SizeUtils;
 import com.netease.yunxin.kit.corekit.im2.IMKitClient;
 import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
 import com.netease.yunxin.kit.teamkit.ui.fun.dialog.FunPhotoChoiceDialog;
+import com.netease.yunxin.kit.teamkit.ui.normal.dialog.ImageChoiceDialog;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -187,7 +187,7 @@ public class MineInfoActivity extends BaseLocalActivity {
     if (AppSkinConfig.getInstance().getAppSkinStyle() == AppSkinConfig.AppSkin.commonSkin) {
       choiceDialog = new FunPhotoChoiceDialog(this);
     } else {
-      choiceDialog = new PhotoChoiceDialog(this);
+      choiceDialog = new ImageChoiceDialog(this);
     }
     choiceDialog.show(
         new CommonCallback<File>() {

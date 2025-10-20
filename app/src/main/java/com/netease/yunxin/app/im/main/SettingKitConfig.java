@@ -12,6 +12,5 @@ public class SettingKitConfig {
   public boolean hasStickTopMsg = true;
   public boolean hasOnlineStatus = true;
   public boolean hasStrangeCallLimit = true;
-  public boolean hasTeamApplyMode = true;
-
+  public boolean hasTeamApplyMode = false;
 }

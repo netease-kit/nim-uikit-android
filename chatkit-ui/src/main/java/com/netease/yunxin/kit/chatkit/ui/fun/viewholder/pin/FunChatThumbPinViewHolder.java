@@ -45,7 +45,7 @@ public abstract class FunChatThumbPinViewHolder extends FunChatBasePinViewHolder
         FunChatThumbnailPinViewHolderBinding.inflate(
             LayoutInflater.from(parent.getContext()), getContainer(), true);
     binding.thumbnail.setOnClickListener(
-        v -> itemListener.onViewClick(v, position, currentMessage));
+        v -> itemListener.onCustomViewClick(v, position, currentMessage));
   }
 
   @Override

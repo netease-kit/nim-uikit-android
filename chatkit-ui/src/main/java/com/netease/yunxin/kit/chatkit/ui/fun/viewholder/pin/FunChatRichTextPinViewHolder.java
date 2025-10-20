@@ -4,10 +4,10 @@
 
 package com.netease.yunxin.kit.chatkit.ui.fun.viewholder.pin;
 
-import android.text.util.Linkify;
 import android.view.LayoutInflater;
 import androidx.annotation.NonNull;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
+import com.netease.yunxin.kit.chatkit.ui.common.TextLinkifyUtils;
 import com.netease.yunxin.kit.chatkit.ui.custom.RichTextAttachment;
 import com.netease.yunxin.kit.chatkit.ui.databinding.FunChatBasePinViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.databinding.FunChatRichTextPinViewHolderBinding;
@@ -30,7 +30,7 @@ public class FunChatRichTextPinViewHolder extends FunChatBasePinViewHolder {
             LayoutInflater.from(parent.getContext()), getContainer(), true);
     textBinding
         .getRoot()
-        .setOnClickListener(v -> itemListener.onViewClick(v, position, currentMessage));
+        .setOnClickListener(v -> itemListener.onCustomViewClick(v, position, currentMessage));
   }
 
   @Override
@@ -48,12 +48,10 @@ public class FunChatRichTextPinViewHolder extends FunChatBasePinViewHolder {
             attachment.body,
             message.getMessageData().getMessage());
         // 指定模式（例如只识别电话和邮箱）
-        Linkify.addLinks(
-            textBinding.messageContent,
-            Linkify.PHONE_NUMBERS | Linkify.EMAIL_ADDRESSES | Linkify.WEB_URLS);
-        Linkify.addLinks(
-            textBinding.messageTitle,
-            Linkify.PHONE_NUMBERS | Linkify.EMAIL_ADDRESSES | Linkify.WEB_URLS);
+        TextLinkifyUtils.addLinks(textBinding.messageTitle, null, position, null);
+
+        // 指定模式（例如只识别电话和邮箱）
+        TextLinkifyUtils.addLinks(textBinding.messageContent, null, position, null);
       }
     }
   }

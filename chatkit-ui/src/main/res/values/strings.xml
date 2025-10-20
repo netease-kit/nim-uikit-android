@@ -86,6 +86,8 @@
     <string name="chat_message_action_copy">Copy</string>
     <string name="chat_message_action_reply">Reply</string>
     <string name="chat_message_action_transmit">Forward</string>
+    <string name="chat_message_action_voice_play_on">Turn on Speaker</string>
+    <string name="chat_message_action_voice_play_off">Turn off Speaker</string>
     <string name="chat_message_action_pin">Pin</string>
     <string name="chat_message_action_pin_cancel">Unpin</string>
     <string name="chat_message_action_multi_select">Multi-select</string>
@@ -97,6 +99,8 @@
     <string name="chat_message_action_cancel_top">Remove from top</string>
     <string name="chat_team_add_top_message">Added top message</string>
     <string name="chat_team_remove_top_message">Removed top message</string>
+    <string name="chat_message_action_tel">Call</string>
+    <string name="chat_message_action_cancel">Cancel</string>
 
     <string name="chat_message_action_revoke_this_message">Confirm message recall?</string>
     <string name="chat_message_action_delete_this_message">Confirm message deletion?</string>
@@ -231,6 +235,9 @@
     <string name="chat_message_multi_delete_limit_tips">Delete limits 50 messages</string>
     <string name="chat_message_forward_success_tips">Forwarded</string>
     <string name="chat_message_open_fail_tips">Unable to preview the file. Please install a compatible app</string>
+    <string name="chat_message_audio_earphone_tip">Switched to ear speaker, Move phone to ear to
+        hear audio</string>
+    <string name="chat_message_audio_speaker_tip">turn on speaker</string>
 
     <!-- location -->
     <string name="chat_location_mine">Location</string>
@@ -318,4 +325,7 @@
 
     <string name="chat_voice_to_text">Convert to text</string>
     <string name="chat_voice_to_text_failed">Text conversion failed.</string>
+    <string name="ps_camera_roll">Image and Video</string>
+    <string name="chat_tel_tips_title">\"%s\" may be a phone number, do you want to call
+        it?</string>
 </resources>

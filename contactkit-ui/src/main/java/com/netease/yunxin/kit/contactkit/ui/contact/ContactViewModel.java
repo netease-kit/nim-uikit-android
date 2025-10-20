@@ -27,8 +27,10 @@ import com.netease.nimlib.sdk.v2.team.result.V2NIMTeamJoinActionInfoResult;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
 import com.netease.yunxin.kit.chatkit.OnlineStatusManager;
+import com.netease.yunxin.kit.chatkit.impl.LocalConversationListenerImpl;
 import com.netease.yunxin.kit.chatkit.impl.TeamListenerImpl;
 import com.netease.yunxin.kit.chatkit.repo.ContactRepo;
+import com.netease.yunxin.kit.chatkit.repo.LocalConversationRepo;
 import com.netease.yunxin.kit.chatkit.repo.TeamRepo;
 import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
@@ -108,10 +110,10 @@ public class ContactViewModel extends BaseViewModel {
 
   public void fetchContactList(boolean userCache) {
     ALog.i(LIB_TAG, TAG, "fetchContactList");
-    if (!IMKitClient.isDataSyncComplete()) {
-      ALog.i(LIB_TAG, TAG, "fetchContactList,dataSync not complete");
-      return;
-    }
+    //    if (!IMKitClient.isDataSyncComplete()) {
+    //      ALog.i(LIB_TAG, TAG, "fetchContactList,dataSync not complete");
+    //      return;
+    //    }
     if (!contactFriendBeanList.isEmpty()) {
       ALog.d(LIB_TAG, TAG, "fetchContactList,contactFriendBeanList not empty");
       if (!userCache) {
@@ -209,6 +211,7 @@ public class ContactViewModel extends BaseViewModel {
     }
     ContactRepo.addContactListener(friendChangeObserve);
     ContactRepo.addFriendApplicationCountListener(friendApplicationCountListener);
+    LocalConversationRepo.addConversationListener(conversationListener);
     IMKitClient.addLoginDetailListener(loginDetailListener);
     TeamRepo.addTeamListener(teamListener);
     if (IMKitConfigCenter.getEnableOnlineStatus()) {
@@ -229,6 +232,9 @@ public class ContactViewModel extends BaseViewModel {
             @NonNull ContactChangeType changeType,
             @NonNull List<? extends UserWithFriend> contactList) {
           ALog.d(LIB_TAG, TAG, "onFriendChange:" + changeType + "," + contactList.size());
+          if (!haveFetchContact) {
+            return;
+          }
           switch (changeType) {
             case AddFriend:
             case RemoveBlack:
@@ -331,9 +337,17 @@ public class ContactViewModel extends BaseViewModel {
         @Override
         public void onDataSync(V2NIMDataSyncType type, V2NIMDataSyncState state, V2NIMError error) {
           //数据同步完成，刷新联系人列表
+          ALog.d(
+              LIB_TAG,
+              TAG,
+              "onDataSync,V2NIMDataSyncType:"
+                  + type.name()
+                  + ",V2NIMDataSyncState:"
+                  + state.name());
+
           if (type == V2NIMDataSyncType.V2NIM_DATA_SYNC_MAIN) {
             ALog.i(LIB_TAG, TAG, "loginSyncObserver:" + state.name());
-            if (isSelectorPage && haveFetchContact) {
+            if (isSelectorPage || haveFetchContact) {
               ALog.i(LIB_TAG, TAG, "loginSyncObserver:isSelectorPage");
               return;
             }
@@ -347,6 +361,19 @@ public class ContactViewModel extends BaseViewModel {
               fetchResult.setData(null);
               contactLiveData.postValue(fetchResult);
             }
+          }
+        }
+      };
+
+  private LocalConversationListenerImpl conversationListener =
+      new LocalConversationListenerImpl() {
+
+        @Override
+        public void onSyncStarted() {
+          ALog.d(LIB_TAG, TAG, "onDataSync,LocalConversationListenerImpl onSyncStarted");
+          fetchContactList(false);
+          if (onlineScrollAccountList.size() > 0) {
+            subscribeContactStatus(onlineScrollAccountList);
           }
         }
       };

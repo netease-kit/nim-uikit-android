@@ -6,18 +6,31 @@ package com.netease.yunxin.kit.chatkit.ui.page.viewmodel;
 
 import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
 
+import android.content.Context;
+import android.os.Build;
 import android.text.TextUtils;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessage;
 import com.netease.nimlib.sdk.v2.message.attachment.V2NIMMessageFileAttachment;
+import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
+import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
+import com.netease.yunxin.kit.chatkit.ui.common.PermissionHelper;
+import com.netease.yunxin.kit.common.ui.utils.Permission;
+import com.netease.yunxin.kit.common.ui.utils.ToastX;
 import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
+import com.netease.yunxin.kit.common.utils.ThreadUtils;
+import com.netease.yunxin.kit.common.utils.storage.ExternalStorage;
 import com.netease.yunxin.kit.corekit.im2.extend.ProgressFetchCallback;
+import java.io.File;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
 
 /**
  * Watch image or video info view model update image/video file downloading progress for watch
@@ -119,6 +132,81 @@ public class WatchImageVideoViewModel extends BaseViewModel {
             onDownloadSuccess(message);
           }
         });
+  }
+
+  public void saveMedia(Context context, V2NIMMessage currentMsg) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+      saveToLocal(currentMsg);
+    } else {
+      // 根据系统版本判断，如果是Android13则采用Manifest.permission.READ_MEDIA_IMAGES
+      String pressionStorage = PermissionHelper.STORAGE;
+      Permission.requirePermissions(context, pressionStorage)
+          .request(
+              new Permission.PermissionCallback() {
+                @Override
+                public void onGranted(List<String> permissionsGranted) {
+                  if (new HashSet<>(permissionsGranted)
+                      .containsAll(Arrays.asList(pressionStorage))) {
+                    saveToLocal(currentMsg);
+                  } else {
+                    ToastX.showShortToast(R.string.permission_default);
+                  }
+                }
+
+                @Override
+                public void onDenial(
+                    List<String> permissionsDenial, List<String> permissionDenialForever) {
+                  ToastX.showShortToast(R.string.permission_default);
+                }
+
+                @Override
+                public void onException(Exception exception) {
+                  ToastX.showShortToast(R.string.permission_default);
+                }
+              });
+    }
+  }
+
+  public void saveToLocal(V2NIMMessage currentMsg) {
+    if (currentMsg.getMessageType() == V2NIMMessageType.V2NIM_MESSAGE_TYPE_IMAGE) {
+      ThreadUtils.execute(
+          new Runnable() {
+            @Override
+            public void run() {
+              String path = MessageHelper.getMessageAttachPath(currentMsg);
+              if (TextUtils.isEmpty(path)) {
+                ALog.e(TAG, "save image -->> path is null");
+                return;
+              }
+              ALog.d(TAG, "save path:" + path);
+              boolean isSuccess = ExternalStorage.savePictureFile(new File(path));
+              if (isSuccess) {
+                ToastX.showShortToast(R.string.chat_message_image_save);
+              } else {
+                ToastX.showShortToast(R.string.chat_message_image_save_fail);
+              }
+            }
+          });
+    } else if (currentMsg.getMessageType() == V2NIMMessageType.V2NIM_MESSAGE_TYPE_VIDEO) {
+      ThreadUtils.execute(
+          new Runnable() {
+            @Override
+            public void run() {
+              String path = MessageHelper.getMessageAttachPath(currentMsg);
+              if (TextUtils.isEmpty(path)) {
+                ALog.e(TAG, "save video -->> path is null");
+                return;
+              }
+              ALog.d(TAG, "save path:" + path);
+              boolean isSuccess = ExternalStorage.saveVideoFile(new File(path));
+              if (isSuccess) {
+                ToastX.showShortToast(R.string.chat_message_video_save);
+              } else {
+                ToastX.showShortToast(R.string.chat_message_video_save_fail);
+              }
+            }
+          });
+    }
   }
 
   @Override

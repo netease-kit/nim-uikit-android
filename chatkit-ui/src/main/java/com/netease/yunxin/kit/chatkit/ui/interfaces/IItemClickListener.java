@@ -13,11 +13,15 @@ public interface IItemClickListener<T> {
     return false;
   }
 
-  default boolean onViewClick(View view, int position, T messageInfo) {
+  default boolean onCustomViewClick(View view, int position, T messageInfo) {
     return false;
   }
 
   default boolean onMessageLongClick(View view, int position, T messageInfo) {
+    return false;
+  }
+
+  default boolean onMessageTelClick(View view, int position, T messageInfo, String target) {
     return false;
   }
 }
