@@ -58,6 +58,9 @@ dependencies {
     implementation("com.google.android.material:material:1.11.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation("androidx.multidex:multidex:2.0.1")
+
+    // 以下本地依赖和远端依赖不能同时引入，否则会报错。根据您的项目需要来进行切换
+    // ---- start ----
     //本地代码依赖
 //    implementation(project(":contactkit-ui"))
 //    implementation(project(":conversationkit-ui"))
@@ -66,8 +69,6 @@ dependencies {
 //    implementation(project(":chatkit-ui"))
 //    implementation(project(":locationkit"))
 //    implementation(project(":aisearchkit"))
-    // 通用UI库
-//    implementation(project(":common-ui"))
 
     //远端aar依赖
     implementation("com.netease.yunxin.kit.contact:contactkit-ui:10.8.9")
@@ -77,6 +78,13 @@ dependencies {
     implementation("com.netease.yunxin.kit.chat:chatkit-ui:10.8.9")
     implementation("com.netease.yunxin.kit.locationkit:locationkit:10.8.9")
     implementation("com.netease.yunxin.kit.aisearchkit:aisearchkit:10.8.9")
+
+    // ---- end ----
+
+    // 通用UI库,如果需要则引入，同时在chatkit-ui、localconversationkit-ui、conversationkit-ui也需要切换源码引入
+//    implementation(project(":common-ui"))
+
+    // 以下为必需引入的依赖
     //呼叫组件 UI 包
     implementation("com.netease.yunxin.kit.call:call-ui:3.7.1")
     implementation("com.netease.nimlib:avsignalling:10.9.52") //信令组件
