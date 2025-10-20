@@ -17,7 +17,7 @@ android {
         minSdk = 24
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
-        buildConfigField("String", "versionName", "\"10.9.0\"")
+        buildConfigField("String", "versionName", "\"10.8.9\"")
     }
 
     buildTypes {

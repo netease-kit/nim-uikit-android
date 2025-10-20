@@ -16,7 +16,7 @@ android {
         minSdk = 24
         targetSdk = 34
         versionCode = 1
-        versionName = "10.9.0"
+        versionName = "10.8.9"
         multiDexEnabled = true
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -66,16 +66,17 @@ dependencies {
 //    implementation(project(":chatkit-ui"))
 //    implementation(project(":locationkit"))
 //    implementation(project(":aisearchkit"))
+    // 通用UI库
 //    implementation(project(":common-ui"))
 
     //远端aar依赖
-    implementation("com.netease.yunxin.kit.contact:contactkit-ui:10.9.0")
-    implementation("com.netease.yunxin.kit.conversation:conversationkit-ui:10.9.0")
-    implementation("com.netease.yunxin.kit.localconversation:localconversationkit-ui:10.9.0")
-    implementation("com.netease.yunxin.kit.team:teamkit-ui:10.9.0")
-    implementation("com.netease.yunxin.kit.chat:chatkit-ui:10.9.0")
-    implementation("com.netease.yunxin.kit.locationkit:locationkit:10.9.0")
-    implementation("com.netease.yunxin.kit.aisearchkit:aisearchkit:10.9.0")
+    implementation("com.netease.yunxin.kit.contact:contactkit-ui:10.8.9")
+    implementation("com.netease.yunxin.kit.conversation:conversationkit-ui:10.8.9")
+    implementation("com.netease.yunxin.kit.localconversation:localconversationkit-ui:10.8.9")
+    implementation("com.netease.yunxin.kit.team:teamkit-ui:10.8.9")
+    implementation("com.netease.yunxin.kit.chat:chatkit-ui:10.8.9")
+    implementation("com.netease.yunxin.kit.locationkit:locationkit:10.8.9")
+    implementation("com.netease.yunxin.kit.aisearchkit:aisearchkit:10.8.9")
     //呼叫组件 UI 包
     implementation("com.netease.yunxin.kit.call:call-ui:3.7.1")
     implementation("com.netease.nimlib:avsignalling:10.9.52") //信令组件
