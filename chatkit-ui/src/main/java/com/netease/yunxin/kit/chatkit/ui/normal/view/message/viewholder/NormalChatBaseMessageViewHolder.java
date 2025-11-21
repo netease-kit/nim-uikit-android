@@ -60,8 +60,8 @@ public class NormalChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
             commonUIOption.otherUserMessageBgRes);
       } else if (properties.getReceiveMessageBg() != null) {
         baseViewBinding.contentWithTopLayer.setBackground(properties.getReceiveMessageBg());
-      } else if (properties.receiveMessageBgColor != null) {
-        baseViewBinding.contentWithTopLayer.setBackgroundResource(properties.receiveMessageBgColor);
+      } else if (properties.receiveMessageBgRes != null) {
+        baseViewBinding.contentWithTopLayer.setBackgroundResource(properties.receiveMessageBgRes);
       } else {
         isCustomBgValid = false;
       }
@@ -72,8 +72,8 @@ public class NormalChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
         baseViewBinding.contentWithTopLayer.setBackgroundResource(commonUIOption.myMessageBgRes);
       } else if (properties.getSelfMessageBg() != null) {
         baseViewBinding.contentWithTopLayer.setBackground(properties.getSelfMessageBg());
-      } else if (properties.selfMessageBgColor != null) {
-        baseViewBinding.contentWithTopLayer.setBackgroundResource(properties.selfMessageBgColor);
+      } else if (properties.selfMessageBgRes != null) {
+        baseViewBinding.contentWithTopLayer.setBackgroundResource(properties.selfMessageBgRes);
       } else {
         isCustomBgValid = false;
       }

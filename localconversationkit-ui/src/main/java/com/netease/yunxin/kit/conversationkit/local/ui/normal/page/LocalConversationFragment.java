@@ -180,41 +180,49 @@ public class LocalConversationFragment extends LocalConversationBaseFragment {
   }
 
   // 获取标题栏
+  @Override
   public TitleBarView getTitleBar() {
     return viewBinding.titleBar;
   }
 
   // 获取顶部布局
+  @Override
   public LinearLayout getTopLayout() {
     return viewBinding.topLayout;
   }
 
   // 获取会话列表布局
+  @Override
   public LinearLayout getBodyLayout() {
     return viewBinding.bodyLayout;
   }
 
   // 获取底部布局，目前组件中没有使用，提供给开发者扩展使用。在整个会话页面最底部增加一些View的时候使用
+  @Override
   public FrameLayout getBottomLayout() {
     return viewBinding.bottomLayout;
   }
 
   // 获取会话列表的顶部布局，目前组件中没有使用，提供给开发者扩展使用。如果需要再会话列表顶部增加一些View，可以在这个布局中添加
+  @Override
   public FrameLayout getBodyTopLayout() {
     return viewBinding.bodyTopLayout;
   }
 
   // 获取展示错误信息的TextView，目前用于展示网络错误信息
+  @Override
   public TextView getErrorTextView() {
     return viewBinding.errorTv;
   }
 
   // 设置是否展示空数据的View，目前用于展示会话列表为空的情况
+  @Override
   public void setEmptyViewVisible(int visible) {
     viewBinding.emptyLayout.setVisibility(visible);
   }
 
   // 设置是否展示空数据的View，目前用于展示会话列表为空的情况
+  @Override
   public View getEmptyView() {
     return viewBinding.emptyLayout;
   }

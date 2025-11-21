@@ -11,6 +11,9 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.Observer;
@@ -510,5 +513,71 @@ public abstract class LocalConversationBaseFragment extends BaseFragment impleme
   // 获取会话View
   public ConversationView getConversationView() {
     return conversationView;
+  }
+
+  /**
+   * 获取标题栏
+   *
+   * @return 标题栏
+   */
+  public TitleBarView getTitleBar() {
+    return null;
+  }
+
+  /**
+   * 获取顶部布局
+   *
+   * @return 顶部布局
+   */
+  public LinearLayout getTopLayout() {
+    return null;
+  }
+
+  /**
+   * 获取主体布局
+   *
+   * @return 主体布局
+   */
+  public LinearLayout getBodyLayout() {
+    return null;
+  }
+
+  /**
+   * 获取底部布局
+   *
+   * @return 底部布局
+   */
+  public FrameLayout getBottomLayout() {
+    return null;
+  }
+
+  /**
+   * 获取主体顶部布局的顶部布局 如果需要再会话列表和标题之间添加一些UI，可以使用此布局
+   *
+   * @return 主体顶部布局
+   */
+  public FrameLayout getBodyTopLayout() {
+    return null;
+  }
+
+  /**
+   * 获取展示错误信息的TextView 当前断网的错误信息展示在此TextView上
+   *
+   * @return 主体底部布局
+   */
+  public TextView getErrorTextView() {
+    return null;
+  }
+
+  /** 设置空布局是否可见 */
+  public void setEmptyViewVisible(int visible) {}
+
+  /**
+   * 获取空布局 当会话列表为空时，展示此布局。当前空布局包含文本和图片
+   *
+   * @return 空布局
+   */
+  public View getEmptyView() {
+    return null;
   }
 }

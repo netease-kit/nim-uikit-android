@@ -263,6 +263,7 @@ public class FunLocalConversationFragment extends LocalConversationBaseFragment 
    *
    * @return 标题栏{@link TitleBarView}实例
    */
+  @Override
   public TitleBarView getTitleBar() {
     return viewBinding.titleBar;
   }
@@ -272,6 +273,7 @@ public class FunLocalConversationFragment extends LocalConversationBaseFragment 
    *
    * @return 顶部布局{@link LinearLayout}实例
    */
+  @Override
   public LinearLayout getTopLayout() {
     return viewBinding.topLayout;
   }
@@ -281,6 +283,7 @@ public class FunLocalConversationFragment extends LocalConversationBaseFragment 
    *
    * @return 主体布局{@link LinearLayout}实例
    */
+  @Override
   public LinearLayout getBodyLayout() {
     return viewBinding.bodyLayout;
   }
@@ -290,6 +293,7 @@ public class FunLocalConversationFragment extends LocalConversationBaseFragment 
    *
    * @return 底部布局{@link FrameLayout}实例
    */
+  @Override
   public FrameLayout getBottomLayout() {
     return viewBinding.bottomLayout;
   }
@@ -299,6 +303,7 @@ public class FunLocalConversationFragment extends LocalConversationBaseFragment 
    *
    * @return 主体顶部布局{@link FrameLayout}实例
    */
+  @Override
   public FrameLayout getBodyTopLayout() {
     return viewBinding.bodyTopLayout;
   }
@@ -308,6 +313,7 @@ public class FunLocalConversationFragment extends LocalConversationBaseFragment 
    *
    * @return 错误提示{@link TextView}实例
    */
+  @Override
   public TextView getErrorTextView() {
     return viewBinding.errorTv;
   }
@@ -317,6 +323,7 @@ public class FunLocalConversationFragment extends LocalConversationBaseFragment 
    *
    * @param visible 可见性标识（{@link View#VISIBLE} / {@link View#GONE} / {@link View#INVISIBLE}）
    */
+  @Override
   public void setEmptyViewVisible(int visible) {
     viewBinding.emptyLayout.setVisibility(visible);
   }
@@ -326,6 +333,7 @@ public class FunLocalConversationFragment extends LocalConversationBaseFragment 
    *
    * @return 空布局{@link View}实例
    */
+  @Override
   public View getEmptyView() {
     return viewBinding.emptyLayout;
   }

@@ -9,20 +9,20 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
+
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.lifecycle.ViewModelProvider;
+
 import com.netease.yunxin.app.im.AppSkinConfig;
-import com.netease.yunxin.app.im.BuildConfig;
 import com.netease.yunxin.app.im.IMApplication;
 import com.netease.yunxin.app.im.R;
 import com.netease.yunxin.app.im.databinding.ActivityMineSettingBinding;
 import com.netease.yunxin.app.im.utils.AppUtils;
 import com.netease.yunxin.app.im.utils.MultiLanguageUtils;
 import com.netease.yunxin.app.im.welcome.WelcomeActivity;
-import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
 import com.netease.yunxin.kit.chatkit.ui.custom.ChatConfigManager;
 import com.netease.yunxin.kit.common.ui.activities.BaseLocalActivity;
 import com.netease.yunxin.kit.common.utils.SizeUtils;
@@ -92,18 +92,6 @@ public class SettingActivity extends BaseLocalActivity {
           finish();
         });
 
-    viewBinding.aiStreamModeSc.setChecked(viewModel.getAIStream(this));
-    viewBinding.aiStreamModeSc.setOnClickListener(
-        v -> {
-          boolean checked = viewBinding.aiStreamModeSc.isChecked();
-          viewModel.setAIStream(this, checked);
-        });
-    viewBinding.chatRichTextModeSc.setChecked(IMKitConfigCenter.getEnableRichTextMessage());
-    viewBinding.chatRichTextModeSc.setOnClickListener(
-        v -> {
-          boolean checked = viewBinding.chatRichTextModeSc.isChecked();
-          IMKitConfigCenter.setEnableRichTextMessage(checked);
-        });
     viewBinding.notifyFl.setOnClickListener(
         v -> startActivity(new Intent(SettingActivity.this, SettingNotifyActivity.class)));
 
@@ -118,13 +106,17 @@ public class SettingActivity extends BaseLocalActivity {
 
     viewBinding.serverConfigLayout.setOnClickListener(
         v -> startActivity(new Intent(SettingActivity.this, ServerConfigActivity.class)));
-    if (BuildConfig.DEBUG) {
-      viewBinding.kitConfigLayout.setVisibility(View.VISIBLE);
-      viewBinding.kitConfigLayout.setOnClickListener(
-          v -> startActivity(new Intent(SettingActivity.this, SettingUIKitActivity.class)));
-    } else {
-      viewBinding.kitConfigLayout.setVisibility(View.GONE);
-    }
+
+    viewBinding.pushConfigLayout.setOnClickListener(
+        v -> {
+          startActivity(new Intent(SettingActivity.this, PushConfigParseActivity.class));
+        });
+
+    viewBinding.kitConfigLayout.setVisibility(View.VISIBLE);
+    viewBinding.kitConfigLayout.setOnClickListener(
+        v -> {
+          startActivity(new Intent(SettingActivity.this, SettingUIKitActivity.class));
+        });
 
     viewBinding.tvLogout.setOnClickListener(
         v ->
@@ -192,12 +184,6 @@ public class SettingActivity extends BaseLocalActivity {
 
     viewBinding.conversationModeSc.setThumbResource(thumbRes);
     viewBinding.conversationModeSc.setTrackResource(trackRes);
-
-    viewBinding.aiStreamModeSc.setThumbResource(thumbRes);
-    viewBinding.aiStreamModeSc.setTrackResource(trackRes);
-
-    viewBinding.chatRichTextModeSc.setThumbResource(thumbRes);
-    viewBinding.chatRichTextModeSc.setTrackResource(trackRes);
   }
 
   @Override

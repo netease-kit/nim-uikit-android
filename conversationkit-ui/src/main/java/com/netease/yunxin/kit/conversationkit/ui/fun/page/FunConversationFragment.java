@@ -213,6 +213,7 @@ public class FunConversationFragment extends ConversationBaseFragment {
    *
    * @return 标题栏
    */
+  @Override
   public TitleBarView getTitleBar() {
     return viewBinding.titleBar;
   }
@@ -222,6 +223,7 @@ public class FunConversationFragment extends ConversationBaseFragment {
    *
    * @return 顶部布局
    */
+  @Override
   public LinearLayout getTopLayout() {
     return viewBinding.topLayout;
   }
@@ -231,6 +233,7 @@ public class FunConversationFragment extends ConversationBaseFragment {
    *
    * @return 主体布局
    */
+  @Override
   public LinearLayout getBodyLayout() {
     return viewBinding.bodyLayout;
   }
@@ -240,6 +243,7 @@ public class FunConversationFragment extends ConversationBaseFragment {
    *
    * @return 底部布局
    */
+  @Override
   public FrameLayout getBottomLayout() {
     return viewBinding.bottomLayout;
   }
@@ -249,6 +253,7 @@ public class FunConversationFragment extends ConversationBaseFragment {
    *
    * @return 主体顶部布局
    */
+  @Override
   public FrameLayout getBodyTopLayout() {
     return viewBinding.bodyTopLayout;
   }
@@ -258,11 +263,13 @@ public class FunConversationFragment extends ConversationBaseFragment {
    *
    * @return 主体底部布局
    */
+  @Override
   public TextView getErrorTextView() {
     return viewBinding.errorTv;
   }
 
   /** 设置空布局是否可见 */
+  @Override
   public void setEmptyViewVisible(int visible) {
     viewBinding.emptyLayout.setVisibility(visible);
   }
@@ -272,6 +279,7 @@ public class FunConversationFragment extends ConversationBaseFragment {
    *
    * @return 空布局
    */
+  @Override
   public View getEmptyView() {
     return viewBinding.emptyLayout;
   }

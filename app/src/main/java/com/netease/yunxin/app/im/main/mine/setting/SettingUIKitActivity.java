@@ -8,8 +8,11 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
+
 import androidx.annotation.DrawableRes;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.ViewModelProvider;
+
 import com.netease.yunxin.app.im.AppSkinConfig;
 import com.netease.yunxin.app.im.PictureEngine;
 import com.netease.yunxin.app.im.R;
@@ -22,12 +25,15 @@ import com.netease.yunxin.kit.common.ui.activities.BaseLocalActivity;
 
 public class SettingUIKitActivity extends BaseLocalActivity {
   private ActivityKitConfigBinding viewBinding;
+  private SettingViewModel viewModel;
 
   @Override
   protected void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     changeStatusBarColor(R.color.color_e9eff5);
     viewBinding = ActivityKitConfigBinding.inflate(getLayoutInflater());
+    viewModel = new ViewModelProvider(this).get(SettingViewModel.class);
+
     setContentView(viewBinding.getRoot());
     initView();
     if (AppSkinConfig.getInstance().getAppSkinStyle() == AppSkinConfig.AppSkin.commonSkin) {
@@ -50,7 +56,20 @@ public class SettingUIKitActivity extends BaseLocalActivity {
     viewBinding.kitPinSc.setChecked(kitConfig.hasPin);
     viewBinding.kitCallSc.setChecked(kitConfig.hasStrangeCallLimit);
     viewBinding.kitImagePickSc.setChecked(ChatKitClient.getPictureChooseEngine() != null);
+    viewBinding.kitAntiSpamSc.setChecked(IMKitConfigCenter.getEnableAntiSpamTipMessage());
     viewBinding.settingTitleBar.setOnBackIconClickListener(v -> onBackPressed());
+    viewBinding.aiStreamModeSc.setChecked(viewModel.getAIStream(this));
+    viewBinding.aiStreamModeSc.setOnClickListener(
+        v -> {
+          boolean checked = viewBinding.aiStreamModeSc.isChecked();
+          viewModel.setAIStream(this, checked);
+        });
+    viewBinding.chatRichTextModeSc.setChecked(IMKitConfigCenter.getEnableRichTextMessage());
+    viewBinding.chatRichTextModeSc.setOnClickListener(
+        v -> {
+          boolean checked = viewBinding.chatRichTextModeSc.isChecked();
+          IMKitConfigCenter.setEnableRichTextMessage(checked);
+        });
     viewBinding.kitCallSc.setOnClickListener(
         new View.OnClickListener() {
           @Override
@@ -132,6 +151,14 @@ public class SettingUIKitActivity extends BaseLocalActivity {
           }
         });
 
+    viewBinding.kitAntiSpamSc.setOnClickListener(
+        new View.OnClickListener() {
+          @Override
+          public void onClick(View v) {
+            IMKitConfigCenter.setEnableAntiSpamTipMessage(viewBinding.kitAntiSpamSc.isChecked());
+          }
+        });
+
     viewBinding.kitImagePickSc.setOnClickListener(
         new View.OnClickListener() {
           @Override
@@ -167,5 +194,14 @@ public class SettingUIKitActivity extends BaseLocalActivity {
 
     viewBinding.kitTeamModeSc.setThumbResource(thumbRes);
     viewBinding.kitTeamModeSc.setTrackResource(trackRes);
+
+    viewBinding.aiStreamModeSc.setThumbResource(thumbRes);
+    viewBinding.aiStreamModeSc.setTrackResource(trackRes);
+
+    viewBinding.chatRichTextModeSc.setThumbResource(thumbRes);
+    viewBinding.chatRichTextModeSc.setTrackResource(trackRes);
+
+    viewBinding.kitAntiSpamSc.setThumbResource(thumbRes);
+    viewBinding.kitAntiSpamSc.setTrackResource(trackRes);
   }
 }

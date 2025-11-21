@@ -324,17 +324,8 @@ public class ChatP2PViewModel extends ChatBaseViewModel {
   @Override
   public void sendReceipt(V2NIMMessage message) {
     ALog.d(
-        LIB_TAG,
-        TAG,
-        "sendReceipt:"
-            + (message == null
-                ? "null"
-                : message.getMessageClientId()
-                    + message.getMessageConfig().isReadReceiptEnabled()));
-    if (message != null
-        && message.getMessageConfig().isReadReceiptEnabled()
-        && showRead
-        && message.getCreateTime() > receiptTime) {
+        LIB_TAG, TAG, "sendReceipt:" + (message == null ? "null" : message.getMessageClientId()));
+    if (message != null && showRead && message.getCreateTime() > receiptTime) {
       receiptTime = message.getCreateTime();
       ChatRepo.markP2PMessageRead(message, null);
     }
