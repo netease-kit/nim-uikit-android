@@ -62,22 +62,22 @@ dependencies {
     // 以下本地依赖和远端依赖不能同时引入，否则会报错。根据您的项目需要来进行切换
     // ---- start ----
     //本地代码依赖
-    implementation(project(":contactkit-ui"))
-    implementation(project(":conversationkit-ui"))
-    implementation(project(":localconversationkit-ui"))
-    implementation(project(":teamkit-ui"))
-    implementation(project(":chatkit-ui"))
-    implementation(project(":locationkit"))
-    implementation(project(":aisearchkit"))
+//    implementation(project(":contactkit-ui"))
+//    implementation(project(":conversationkit-ui"))
+//    implementation(project(":localconversationkit-ui"))
+//    implementation(project(":teamkit-ui"))
+//    implementation(project(":chatkit-ui"))
+//    implementation(project(":locationkit"))
+//    implementation(project(":aisearchkit"))
 
     //远端aar依赖
-//    implementation("com.netease.yunxin.kit.contact:contactkit-ui:10.9.1")
-//    implementation("com.netease.yunxin.kit.conversation:conversationkit-ui:10.9.1")
-//    implementation("com.netease.yunxin.kit.localconversation:localconversationkit-ui:10.9.1")
-//    implementation("com.netease.yunxin.kit.team:teamkit-ui:10.9.1")
-//    implementation("com.netease.yunxin.kit.chat:chatkit-ui:10.9.1")
-//    implementation("com.netease.yunxin.kit.locationkit:locationkit:10.9.1")
-//    implementation("com.netease.yunxin.kit.aisearchkit:aisearchkit:10.9.1")
+    implementation("com.netease.yunxin.kit.contact:contactkit-ui:10.9.1")
+    implementation("com.netease.yunxin.kit.conversation:conversationkit-ui:10.9.1")
+    implementation("com.netease.yunxin.kit.localconversation:localconversationkit-ui:10.9.1")
+    implementation("com.netease.yunxin.kit.team:teamkit-ui:10.9.1")
+    implementation("com.netease.yunxin.kit.chat:chatkit-ui:10.9.1")
+    implementation("com.netease.yunxin.kit.locationkit:locationkit:10.9.1")
+    implementation("com.netease.yunxin.kit.aisearchkit:aisearchkit:10.9.1")
 
     // ---- end ----
 
