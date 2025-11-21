@@ -328,4 +328,18 @@
     <string name="ps_camera_roll">Image and Video</string>
     <string name="chat_tel_tips_title">\"%s\" may be a phone number, do you want to call
         it?</string>
+
+    <!-- Anti-spam content tips -->
+    <string name="chat_anti_porn_tips">Pornography</string>
+    <string name="chat_anti_ad_tips">Advertisement</string>
+    <string name="chat_anti_ad_law_tips">Advertising Law</string>
+    <string name="chat_anti_violence_tips">Violence Terrorism</string>
+    <string name="chat_anti_prohibited_tips">Prohibited Content</string>
+    <string name="chat_anti_politics_tips">Political Content</string>
+    <string name="chat_anti_insult_tips">Insult</string>
+    <string name="chat_anti_spam_tips">Spam</string>
+    <string name="chat_anti_other_tips">Other</string>
+    <string name="chat_anti_value_tips">Value-related</string>
+    <string name="chat_anti_result_tips">The content may involve %s. Please adjust and send.</string>
+
 </resources>

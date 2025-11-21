@@ -76,15 +76,7 @@ public abstract class ChatBaseMessageViewHolder extends CommonBaseMessageViewHol
 
   public void onAttachedToWindow() {
     // 只针对收到的消息来发送已读回执，满足条件1.消息需要已读确认2.还没有发送已读回执
-    if (messageReader == null
-        || currentMessage == null
-        || currentMessage.getMessageData() == null
-        || currentMessage.getMessageData().getMessage().isSelf()
-        || !currentMessage
-            .getMessageData()
-            .getMessage()
-            .getMessageConfig()
-            .isReadReceiptEnabled()) {
+    if (messageReader == null || currentMessage == null || !currentMessage.isReadReceiptEnabled()) {
       return;
     }
     // 当消息被展示出时发送消息已读回执
@@ -644,8 +636,8 @@ public abstract class ChatBaseMessageViewHolder extends CommonBaseMessageViewHol
       } else {
         baseViewBinding.messageSending.setVisibility(View.VISIBLE);
       }
-    } else if (((data.getMessageData().getSendingState()
-        == V2NIMMessageSendingState.V2NIM_MESSAGE_SENDING_STATE_FAILED))) { // 消息发送失败或者对方将自己拉黑时展示
+    } else if ((data.getMessageData().getSendingState()
+        == V2NIMMessageSendingState.V2NIM_MESSAGE_SENDING_STATE_FAILED)) { // 消息发送失败或者对方将自己拉黑时展示
       baseViewBinding.readProcess.setVisibility(View.GONE);
       baseViewBinding.messageSending.setVisibility(View.GONE);
       // 自定义设置消息失败图片资源
@@ -661,15 +653,26 @@ public abstract class ChatBaseMessageViewHolder extends CommonBaseMessageViewHol
       } else {
         baseViewBinding.ivStatus.setVisibility(View.VISIBLE);
       }
+    } else if (data.hasErrorCode()) {
+      baseViewBinding.ivStatus.setVisibility(View.VISIBLE);
+      baseViewBinding.readProcess.setVisibility(View.GONE);
+      baseViewBinding.messageSending.setVisibility(View.GONE);
+      if (messageStatusUIOption.failedFlagIconRes != null) {
+        baseViewBinding.ivStatus.setImageResource(messageStatusUIOption.failedFlagIconRes);
+      } else {
+        if (data.getErrorCode() == ChatKitUIConstant.ERROR_CODE_ANTISPAM) {
+          baseViewBinding.ivStatus.setImageResource(R.drawable.ic_chat_status_invalid);
+        } else {
+          baseViewBinding.ivStatus.setImageResource(R.drawable.ic_error);
+        }
+      }
     } else if (data.getMessageData().getMessage().getConversationType()
         == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P) { // p2p 消息发送成功状态
       baseViewBinding.messageSending.setVisibility(View.GONE);
       baseViewBinding.readProcess.setVisibility(View.GONE);
       // 若消息不需要展示消息已读状态 或者 MessageProperties#getShowP2pMessageStatus 返回 false
       // 控制不展示点对点消息发送成功后的已读状态，则不进行点对点会话中消息已读状态展示，否则展示
-      if (!properties.getShowP2pMessageStatus()
-          || !data.getMessageData().getMessage().getMessageConfig().isReadReceiptEnabled()
-          || !ChatConfigManager.showReadStatus) {
+      if (!properties.getShowP2pMessageStatus() || !ChatConfigManager.showReadStatus) {
         baseViewBinding.ivStatus.setVisibility(View.GONE);
       } else {
         baseViewBinding.ivStatus.setVisibility(View.VISIBLE);
@@ -843,7 +846,8 @@ public abstract class ChatBaseMessageViewHolder extends CommonBaseMessageViewHol
             return;
           }
           if (currentMessage.getMessageData().getSendingState()
-              == V2NIMMessageSendingState.V2NIM_MESSAGE_SENDING_STATE_FAILED) {
+                  == V2NIMMessageSendingState.V2NIM_MESSAGE_SENDING_STATE_FAILED
+              || currentMessage.getErrorCode() != ChatKitUIConstant.ERROR_CODE_ANTISPAM) {
             itemClickListener.onSendFailBtnClick(v, position, currentMessage);
           }
         });

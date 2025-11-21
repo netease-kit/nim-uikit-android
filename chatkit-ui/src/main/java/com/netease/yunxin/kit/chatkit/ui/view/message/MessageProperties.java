@@ -14,13 +14,13 @@ import java.util.Map;
 public class MessageProperties {
 
   // 接受消息背景
-  public Drawable receiveMessageBg;
+  @Deprecated public Drawable receiveMessageBg;
   // 自己发送消息的背景
-  public Drawable selfMessageBg;
+  @Deprecated public Drawable selfMessageBg;
   // 自己发送消息的背景颜色
-  public Integer selfMessageBgColor = null;
+  public Integer selfMessageBgRes = null;
   // 接收消息的背景颜色
-  public Integer receiveMessageBgColor = null;
+  public Integer receiveMessageBgRes = null;
   // 用户昵称颜色
   @ColorInt public Integer userNickColor = null;
   // 用户昵称文字大小

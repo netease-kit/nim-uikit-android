@@ -319,4 +319,17 @@
     <string name="ps_camera_roll">图片和视频</string>
     <string name="chat_tel_tips_title">\"%s\"可能是一个电话号码，你可以</string>
 
+    <!-- 反垃圾内容提示文本 -->
+    <string name="chat_anti_porn_tips">色情</string>
+    <string name="chat_anti_ad_tips">广告</string>
+    <string name="chat_anti_ad_law_tips">广告法</string>
+    <string name="chat_anti_violence_tips">暴恐</string>
+    <string name="chat_anti_prohibited_tips">违禁</string>
+    <string name="chat_anti_politics_tips">涉政</string>
+    <string name="chat_anti_insult_tips">谩骂</string>
+    <string name="chat_anti_spam_tips">灌水</string>
+    <string name="chat_anti_other_tips">其他</string>
+    <string name="chat_anti_value_tips">涉价值观</string>
+    <string name="chat_anti_result_tips">内容可能涉及%s, 请调整后发送</string>
+
 </resources>

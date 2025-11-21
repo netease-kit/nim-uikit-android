@@ -50,6 +50,7 @@ import com.netease.nimlib.sdk.v2.message.params.V2NIMVoiceToTextParams;
 import com.netease.nimlib.sdk.v2.message.result.V2NIMSendMessageResult;
 import com.netease.nimlib.sdk.v2.utils.V2NIMConversationIdUtil;
 import com.netease.yunxin.kit.alog.ALog;
+import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
 import com.netease.yunxin.kit.chatkit.listener.ChatListener;
 import com.netease.yunxin.kit.chatkit.listener.MessageRevokeNotification;
 import com.netease.yunxin.kit.chatkit.listener.MessageUpdateType;
@@ -1223,6 +1224,20 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
                 V2NIMMessageAIConfig aiConfig = data.getMessage().getAIConfig();
                 if (aiConfig != null) {
                   ToastX.showShortToast(R.string.chat_ai_message_progressing);
+                }
+
+                if (IMKitConfigCenter.getEnableAntiSpamTipMessage()
+                    && data.getAntispamResult() != null) {
+                  String tips =
+                      MessageHelper.getAntispamTips(
+                          IMKitClient.getApplicationContext(), data.getAntispamResult());
+                  V2NIMMessage tipMessage = V2NIMMessageCreator.createTipsMessage(tips);
+                  ChatRepo.insertMessageToLocal(
+                      tipMessage,
+                      mConversationId,
+                      data.getMessage().getSenderId(),
+                      data.getMessage().getCreateTime() + 5,
+                      null);
                 }
               }
             }

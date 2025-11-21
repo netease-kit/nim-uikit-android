@@ -87,6 +87,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -1608,5 +1609,54 @@ public class MessageHelper {
     if (!TextUtils.isEmpty(path) && !FileUtils.isFileExists(path)) {
       ChatRepo.downloadAttachment(currentMessage.getMessageData().getMessage(), path, null);
     }
+  }
+
+  public static String getAntispamTips(Context context, String jsonResult) {
+    String resultStr = context.getResources().getString(R.string.chat_anti_result_tips);
+    int contentId = R.string.chat_anti_other_tips;
+    Pattern pattern = Pattern.compile("\"label\":(\\d+)");
+    String jsonResultReplace = jsonResult.replace("\\", "");
+    Matcher matcher = pattern.matcher(jsonResultReplace);
+    if (matcher.find()) {
+      String labelValue = matcher.group(1); // group(1) 对应捕获的数字部分
+      switch (labelValue) {
+        case "100":
+          contentId = R.string.chat_anti_porn_tips;
+          break;
+        case "200":
+          contentId = R.string.chat_anti_ad_tips;
+          break;
+        case "260":
+          contentId = R.string.chat_anti_ad_law_tips;
+          break;
+        case "300":
+          contentId = R.string.chat_anti_violence_tips;
+          break;
+        case "400":
+          contentId = R.string.chat_anti_prohibited_tips;
+          break;
+        case "500":
+          contentId = R.string.chat_anti_politics_tips;
+          break;
+        case "600":
+          contentId = R.string.chat_anti_insult_tips;
+          break;
+        case "700":
+          contentId = R.string.chat_anti_spam_tips;
+          break;
+        case "900":
+          contentId = R.string.chat_anti_other_tips;
+          break;
+        case "1100":
+          contentId = R.string.chat_anti_value_tips;
+          break;
+        default:
+          // 如需自定义“未知”的资源，可在 strings.xml 中添加并引用
+          // 此处示例直接返回默认字符串的资源 ID（需确保已定义）
+          contentId = R.string.chat_anti_value_tips;
+          break;
+      }
+    }
+    return String.format(resultStr, context.getResources().getString(contentId));
   }
 }

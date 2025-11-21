@@ -49,6 +49,7 @@ public class ChatKitUIConstant {
   public static final String KEY_MERGE_REMOTE_EXTENSION_AVATAR = "mergedMessageAvatarKey";
 
   public static final int ERROR_CODE_NETWORK = 415;
+  public static final int ERROR_CODE_ANTISPAM = 195002;
 
   public static final String KEY_MAP_FOR_MESSAGE = "chat_message_map";
   public static final String KEY_MAP_FOR_PIN = "chat_pin_map";

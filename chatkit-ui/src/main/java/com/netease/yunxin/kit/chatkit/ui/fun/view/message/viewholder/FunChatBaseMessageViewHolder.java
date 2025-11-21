@@ -153,28 +153,29 @@ public class FunChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
     boolean isReceivedMsg = MessageHelper.isReceivedMessage(messageBean) || isForwardMsg();
     CommonUIOption commonUIOption = uiOptions.commonUIOption;
     boolean isCustomBgValid = true;
+    View backgroundView = getMessageBackgroundView();
+    backgroundView.setBackground(null);
     if (isReceivedMsg) {
       if (commonUIOption.otherUserMessageBg != null) {
-        baseViewBinding.contentWithTopLayer.setBackground(commonUIOption.otherUserMessageBg);
+        backgroundView.setBackground(commonUIOption.otherUserMessageBg);
       } else if (commonUIOption.otherUserMessageBgRes != null) {
-        baseViewBinding.contentWithTopLayer.setBackgroundResource(
-            commonUIOption.otherUserMessageBgRes);
+        backgroundView.setBackgroundResource(commonUIOption.otherUserMessageBgRes);
       } else if (properties.getReceiveMessageBg() != null) {
-        baseViewBinding.contentWithTopLayer.setBackground(properties.getReceiveMessageBg());
-      } else if (properties.receiveMessageBgColor != null) {
-        baseViewBinding.contentWithTopLayer.setBackgroundResource(properties.receiveMessageBgColor);
+        backgroundView.setBackground(properties.getReceiveMessageBg());
+      } else if (properties.receiveMessageBgRes != null) {
+        backgroundView.setBackgroundResource(properties.receiveMessageBgRes);
       } else {
         isCustomBgValid = false;
       }
     } else {
       if (commonUIOption.myMessageBg != null) {
-        baseViewBinding.contentWithTopLayer.setBackground(commonUIOption.myMessageBg);
+        backgroundView.setBackground(commonUIOption.myMessageBg);
       } else if (commonUIOption.myMessageBgRes != null) {
-        baseViewBinding.contentWithTopLayer.setBackgroundResource(commonUIOption.myMessageBgRes);
+        backgroundView.setBackgroundResource(commonUIOption.myMessageBgRes);
       } else if (properties.getSelfMessageBg() != null) {
-        baseViewBinding.contentWithTopLayer.setBackground(properties.getSelfMessageBg());
-      } else if (properties.selfMessageBgColor != null) {
-        baseViewBinding.contentWithTopLayer.setBackgroundResource(properties.selfMessageBgColor);
+        backgroundView.setBackground(properties.getSelfMessageBg());
+      } else if (properties.selfMessageBgRes != null) {
+        backgroundView.setBackgroundResource(properties.selfMessageBgRes);
       } else {
         isCustomBgValid = false;
       }
@@ -185,7 +186,6 @@ public class FunChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
     if (baseViewBinding.messageContainer.getChildCount() <= 0) {
       return;
     }
-    View backgroundView = getMessageBackgroundView();
     if (type == ChatMessageType.LOCATION_MESSAGE_VIEW_TYPE) {
       backgroundView.setBackgroundResource(R.drawable.fun_bg_message_location);
       return;

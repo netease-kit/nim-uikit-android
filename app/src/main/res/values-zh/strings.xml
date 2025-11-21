@@ -8,7 +8,8 @@
     <string name="app_name">云信IM</string>
     <string name="yunxin_name">网易云信</string>
     <string name="yunxin_desc">真正稳定的IM 云服务</string>
-    <string name="yunxin_tips">仅用于体验云信IM产品功能，请勿轻信汇款、中奖等涉及钱款的信息，勿轻易拨打陌生电话，谨防上当受骗。</string>
+    <string name="yunxin_tips">仅用于体验云信IM产品功能，勿轻信汇款、中奖等涉及钱款的信息，勿拨打陌生电话，谨防上当受骗。</string>
+    <string name="yunxin_report_tips">点击举报。</string>
 
     <string name="welcome_button">注册/登录</string>
     <string name="email_login">邮箱登录</string>
@@ -142,6 +143,7 @@
     <string name="uikit_call_switch_title">禁止陌生人音视频通话</string>
     <string name="uikit_image_pick_switch_title">使用图片选择器插件</string>
     <string name="uikit_team_manager_limit_title">允许添加的管理员人数( -1 表示无限制)</string>
+    <string name="uikit_anti_spam_switch_title">文本安全提示功能</string>
 
     <!-- -->
     <string name="uikit_save_success">保存成功</string>

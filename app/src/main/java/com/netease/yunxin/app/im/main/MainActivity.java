@@ -10,13 +10,12 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.FrameLayout;
-import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+
 import com.netease.lava.nertc.sdk.NERtcOption;
 import com.netease.nimlib.sdk.avsignalling.constant.ChannelType;
 import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
@@ -44,6 +43,7 @@ import com.netease.yunxin.app.im.utils.Constant;
 import com.netease.yunxin.app.im.utils.DataUtils;
 import com.netease.yunxin.app.im.utils.MessageUtils;
 import com.netease.yunxin.app.im.utils.MultiLanguageUtils;
+import com.netease.yunxin.app.im.utils.ViewUtils;
 import com.netease.yunxin.app.im.welcome.WelcomeActivity;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.call.p2p.NECallEngine;
@@ -60,13 +60,14 @@ import com.netease.yunxin.kit.chatkit.repo.SettingRepo;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitClient;
 import com.netease.yunxin.kit.chatkit.ui.ChatUIConfig;
 import com.netease.yunxin.kit.chatkit.ui.IChatInputMenu;
+import com.netease.yunxin.kit.chatkit.ui.builder.IChatViewCustom;
 import com.netease.yunxin.kit.chatkit.ui.custom.ChatConfigManager;
+import com.netease.yunxin.kit.chatkit.ui.interfaces.IChatView;
 import com.netease.yunxin.kit.chatkit.ui.normal.view.AIHelperView;
 import com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants;
 import com.netease.yunxin.kit.chatkit.utils.ConversationIdUtils;
 import com.netease.yunxin.kit.common.ui.activities.BaseLocalActivity;
 import com.netease.yunxin.kit.common.ui.utils.AppLanguageConfig;
-import com.netease.yunxin.kit.common.utils.SizeUtils;
 import com.netease.yunxin.kit.contactkit.ui.contact.BaseContactFragment;
 import com.netease.yunxin.kit.contactkit.ui.fun.contact.FunContactFragment;
 import com.netease.yunxin.kit.contactkit.ui.normal.contact.ContactFragment;
@@ -92,12 +93,14 @@ import com.netease.yunxin.kit.corekit.route.XKitRouter;
 import com.netease.yunxin.nertc.ui.CallKitNotificationConfig;
 import com.netease.yunxin.nertc.ui.CallKitUI;
 import com.netease.yunxin.nertc.ui.CallKitUIOptions;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
+
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 /** Demo 主页面 */
 public class MainActivity extends BaseLocalActivity {
@@ -124,14 +127,14 @@ public class MainActivity extends BaseLocalActivity {
   private LocalConversationBaseFragment mLocalConversationFragment;
   private ConversationBaseFragment mConversationFragment;
 
-  // AI搜索数字人账号
+  // 搜索数字人账号
   private static final String AI_SEARCH_USER_ACCOUNT = "search";
+  private static final String NOTIFICATION_MESSAGE = "com.netease.nim.EXTRA.NOTIFY_CONTENT";
   private String aiHelperLastMsgClientId = null;
   private String aiHelperLastAccountId = null;
 
-  // AI翻译数字人账号
+  // 翻译数字人账号
   private static final String AI_TRANSLATION_USER_ACCOUNT = "translation";
-  private static final String NOTIFICATION_MESSAGE = "com.netease.nim.EXTRA.NOTIFY_CONTENT";
 
   //皮肤变更事件，切换皮肤后重新加载页面
   EventNotify<SkinEvent> skinNotify =
@@ -645,50 +648,7 @@ public class MainActivity extends BaseLocalActivity {
           new ILocalConversationViewLayout() {
             @Override
             public void customizeConversationLayout(LocalConversationBaseFragment fragment) {
-
-              if (fragment instanceof LocalConversationFragment) {
-                LocalConversationFragment conversationFragment =
-                    (LocalConversationFragment) fragment;
-                TextView textView = new TextView(conversationFragment.getContext());
-                textView.setText(R.string.yunxin_tips);
-                ViewGroup.LayoutParams layoutParams =
-                    new FrameLayout.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT, SizeUtils.dp2px(50));
-                conversationFragment.getBodyTopLayout().setBackgroundResource(R.color.color_FFF5E1);
-                textView.setTextColor(
-                    conversationFragment.getResources().getColor(R.color.color_EB9718));
-                textView.setMaxLines(2);
-                textView.setTextSize(13);
-                textView.setLineSpacing(1, 1.2f);
-                textView.setEllipsize(TextUtils.TruncateAt.END);
-                textView.setPadding(
-                    SizeUtils.dp2px(16),
-                    SizeUtils.dp2px(6),
-                    SizeUtils.dp2px(16),
-                    SizeUtils.dp2px(4));
-                conversationFragment.getBodyTopLayout().addView(textView, layoutParams);
-              } else if (fragment instanceof FunLocalConversationFragment) {
-                FunLocalConversationFragment conversationFragment =
-                    (FunLocalConversationFragment) fragment;
-                TextView textView = new TextView(conversationFragment.getContext());
-                textView.setText(R.string.yunxin_tips);
-                ViewGroup.LayoutParams layoutParams =
-                    new FrameLayout.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT, SizeUtils.dp2px(50));
-                conversationFragment.getBodyTopLayout().setBackgroundResource(R.color.color_FFF5E1);
-                textView.setTextColor(
-                    conversationFragment.getResources().getColor(R.color.color_EB9718));
-                textView.setMaxLines(2);
-                textView.setEllipsize(TextUtils.TruncateAt.END);
-                textView.setTextSize(13);
-                textView.setLineSpacing(1, 1.2f);
-                textView.setPadding(
-                    SizeUtils.dp2px(16),
-                    SizeUtils.dp2px(6),
-                    SizeUtils.dp2px(16),
-                    SizeUtils.dp2px(4));
-                conversationFragment.getBodyTopLayout().addView(textView, layoutParams);
-              }
+              ViewUtils.addTipsView(fragment.getBodyTopLayout(), fragment.getContext(), false);
             }
           };
       LocalConversationKitClient.setConversationUIConfig(conversationUIConfig);
@@ -698,48 +658,7 @@ public class MainActivity extends BaseLocalActivity {
           new IConversationViewLayout() {
             @Override
             public void customizeConversationLayout(ConversationBaseFragment fragment) {
-
-              if (fragment instanceof ConversationFragment) {
-                ConversationFragment conversationFragment = (ConversationFragment) fragment;
-                TextView textView = new TextView(conversationFragment.getContext());
-                textView.setText(R.string.yunxin_tips);
-                ViewGroup.LayoutParams layoutParams =
-                    new FrameLayout.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT, SizeUtils.dp2px(50));
-                conversationFragment.getBodyTopLayout().setBackgroundResource(R.color.color_FFF5E1);
-                textView.setTextColor(
-                    conversationFragment.getResources().getColor(R.color.color_EB9718));
-                textView.setMaxLines(2);
-                textView.setTextSize(13);
-                textView.setLineSpacing(1, 1.2f);
-                textView.setEllipsize(TextUtils.TruncateAt.END);
-                textView.setPadding(
-                    SizeUtils.dp2px(16),
-                    SizeUtils.dp2px(6),
-                    SizeUtils.dp2px(16),
-                    SizeUtils.dp2px(4));
-                conversationFragment.getBodyTopLayout().addView(textView, layoutParams);
-              } else if (fragment instanceof FunConversationFragment) {
-                FunConversationFragment conversationFragment = (FunConversationFragment) fragment;
-                TextView textView = new TextView(conversationFragment.getContext());
-                textView.setText(R.string.yunxin_tips);
-                ViewGroup.LayoutParams layoutParams =
-                    new FrameLayout.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT, SizeUtils.dp2px(50));
-                conversationFragment.getBodyTopLayout().setBackgroundResource(R.color.color_FFF5E1);
-                textView.setTextColor(
-                    conversationFragment.getResources().getColor(R.color.color_EB9718));
-                textView.setMaxLines(2);
-                textView.setEllipsize(TextUtils.TruncateAt.END);
-                textView.setTextSize(13);
-                textView.setLineSpacing(1, 1.2f);
-                textView.setPadding(
-                    SizeUtils.dp2px(16),
-                    SizeUtils.dp2px(6),
-                    SizeUtils.dp2px(16),
-                    SizeUtils.dp2px(4));
-                conversationFragment.getBodyTopLayout().addView(textView, layoutParams);
-              }
+              ViewUtils.addTipsView(fragment.getBodyTopLayout(), fragment.getContext(), false);
             }
           };
       ConversationKitClient.setConversationUIConfig(conversationUIConfig);
@@ -753,7 +672,14 @@ public class MainActivity extends BaseLocalActivity {
             AppConfig.accessToken);
 
     ChatUIConfig uiConfig = new ChatUIConfig();
-
+    uiConfig.chatViewCustom =
+        new IChatViewCustom() {
+          @Override
+          public void customizeChatLayout(IChatView layout) {
+            ViewUtils.addTipsView(
+                layout.getChatBodyTopLayout(), layout.getRootView().getContext(), true);
+          }
+        };
     uiConfig.chatInputMenu =
         new IChatInputMenu() {
           @Override

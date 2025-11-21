@@ -18,6 +18,7 @@ import com.netease.nimlib.sdk.v2.message.V2NIMMessageReferBuilder;
 import com.netease.nimlib.sdk.v2.message.config.V2NIMMessageAIConfig;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageAIStatus;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageAIStreamStatus;
+import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageSendingState;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
 import com.netease.nimlib.sdk.v2.utils.V2NIMConversationIdUtil;
 import com.netease.yunxin.kit.alog.ALog;
@@ -100,6 +101,40 @@ public class ChatMessageBean implements Serializable {
 
   public IMMessageInfo getMessageData() {
     return messageData;
+  }
+
+  public boolean hasErrorCode() {
+    return messageData != null
+        && messageData.getMessage().getSendingState()
+            == V2NIMMessageSendingState.V2NIM_MESSAGE_SENDING_STATE_SUCCEEDED
+        && messageData.getMessage().getMessageStatus() != null
+        && messageData.getMessage().getMessageStatus().getErrorCode() != 200;
+  }
+
+  public int getErrorCode() {
+    if (messageData != null && messageData.getMessage().getMessageStatus() != null) {
+      return messageData.getMessage().getMessageStatus().getErrorCode();
+    }
+    return 0;
+  }
+
+  public boolean isReadReceiptEnabled() {
+    if (messageData == null
+        || messageData.getMessage() == null
+        || messageData.getMessage().isSelf()) {
+      return false;
+    }
+    if (messageData.getMessage().getConversationType()
+            == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_TEAM
+        || messageData.getMessage().getConversationType()
+            == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_SUPER_TEAM) {
+      return messageData.getMessage().getMessageConfig().isReadReceiptEnabled();
+    } else if (messageData.getMessage().getConversationType()
+        == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P) {
+      // 单聊默认发送读取回执
+      return true;
+    }
+    return false;
   }
 
   public V2NIMMessage getMessage() {
