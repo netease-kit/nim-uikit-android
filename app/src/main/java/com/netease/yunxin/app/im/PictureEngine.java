@@ -24,8 +24,8 @@ import com.netease.yunxin.kit.common.picturechoose.PictureChoose;
 import com.netease.yunxin.kit.common.picturechoose.PictureChooseClient;
 import com.netease.yunxin.kit.common.ui.utils.AppLanguageConfig;
 import com.netease.yunxin.kit.common.utils.model.LocalFileInfo;
-import com.netease.yunxin.kit.corekit.im2.IMKitClient;
-import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
+import com.netease.yunxin.kit.corekit.coexist.im2.IMKitClient;
+import com.netease.yunxin.kit.corekit.coexist.im2.extend.FetchCallback;
 import java.util.ArrayList;
 import org.jetbrains.annotations.NotNull;
 

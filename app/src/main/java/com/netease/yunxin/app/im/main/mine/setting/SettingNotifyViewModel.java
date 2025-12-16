@@ -6,14 +6,14 @@ package com.netease.yunxin.app.im.main.mine.setting;
 
 import android.content.Context;
 import androidx.lifecycle.MutableLiveData;
-import com.netease.nimlib.sdk.NIMClient;
+import com.netease.nimlib.coexist.sdk.NIMClient;
 import com.netease.yunxin.app.im.R;
 import com.netease.yunxin.app.im.utils.DataUtils;
 import com.netease.yunxin.kit.chatkit.repo.SettingRepo;
 import com.netease.yunxin.kit.common.ui.utils.ToastX;
 import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
-import com.netease.yunxin.kit.corekit.im2.IMKitClient;
+import com.netease.yunxin.kit.corekit.coexist.im2.IMKitClient;
 
 public class SettingNotifyViewModel extends BaseViewModel {
 

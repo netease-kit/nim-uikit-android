@@ -7,7 +7,7 @@ package com.netease.yunxin.app.im.network;
 import android.text.TextUtils;
 import com.netease.yunxin.app.im.utils.Constant;
 import com.netease.yunxin.kit.alog.ALog;
-import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
+import com.netease.yunxin.kit.corekit.coexist.im2.extend.FetchCallback;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;

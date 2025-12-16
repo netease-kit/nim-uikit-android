@@ -15,9 +15,9 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.netease.nimlib.sdk.uinfo.model.UserInfo;
-import com.netease.nimlib.sdk.v2.auth.enums.V2NIMDataSyncLevel;
-import com.netease.nimlib.sdk.v2.auth.option.V2NIMLoginOption;
+import com.netease.nimlib.coexist.sdk.uinfo.model.UserInfo;
+import com.netease.nimlib.coexist.sdk.v2.auth.enums.V2NIMDataSyncLevel;
+import com.netease.nimlib.coexist.sdk.v2.auth.option.V2NIMLoginOption;
 import com.netease.yunxin.app.im.AppConfig;
 import com.netease.yunxin.app.im.BuildConfig;
 import com.netease.yunxin.app.im.IMApplication;
@@ -32,8 +32,8 @@ import com.netease.yunxin.app.im.utils.DataUtils;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.common.ui.activities.BaseLocalActivity;
 import com.netease.yunxin.kit.common.ui.utils.ToastX;
-import com.netease.yunxin.kit.corekit.im2.IMKitClient;
-import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
+import com.netease.yunxin.kit.corekit.coexist.im2.IMKitClient;
+import com.netease.yunxin.kit.corekit.coexist.im2.extend.FetchCallback;
 
 /** 启动页面 如果没有登录则展示登录按钮，点击登录按钮进入登录页面 如果已经登录则直接进入主页面 */
 public class WelcomeActivity extends BaseLocalActivity {

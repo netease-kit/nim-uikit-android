@@ -13,8 +13,8 @@ import com.netease.yunxin.app.im.R;
 import com.netease.yunxin.app.im.databinding.ActivityAccountLoginBinding;
 import com.netease.yunxin.kit.common.ui.activities.BaseLocalActivity;
 import com.netease.yunxin.kit.common.ui.utils.ToastX;
-import com.netease.yunxin.kit.corekit.im2.IMKitClient;
-import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
+import com.netease.yunxin.kit.corekit.coexist.im2.IMKitClient;
+import com.netease.yunxin.kit.corekit.coexist.im2.extend.FetchCallback;
 
 public class AccountLoginActivity extends BaseLocalActivity {
 

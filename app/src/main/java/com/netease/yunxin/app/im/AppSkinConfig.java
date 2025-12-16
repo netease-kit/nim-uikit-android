@@ -4,7 +4,7 @@
 
 package com.netease.yunxin.app.im;
 
-import com.netease.yunxin.kit.corekit.im2.utils.PreferenceUtils;
+import com.netease.yunxin.kit.corekit.coexist.im2.utils.PreferenceUtils;
 
 /**
  * App UI 风格设置IM UIKit 包含协同版和通用版 在加载页面的时候，可以根据需要加载不同风格的Fragment或者Activity。

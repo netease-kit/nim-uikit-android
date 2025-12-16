@@ -13,7 +13,7 @@ import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import androidx.annotation.NonNull;
 import com.netease.yunxin.kit.corekit.event.BaseEvent;
-import com.netease.yunxin.kit.corekit.im2.IMKitClient;
+import com.netease.yunxin.kit.corekit.coexist.im2.IMKitClient;
 import java.util.Locale;
 
 public class MultiLanguageUtils {

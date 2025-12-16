@@ -7,7 +7,7 @@ package com.netease.yunxin.app.im.push;
 import com.huawei.hms.push.RemoteMessage;
 import com.netease.yunxin.kit.alog.ALog;
 
-public class HWPushMessageService extends com.netease.nimlib.sdk.mixpush.HWPushMessageService {
+public class HWPushMessageService extends com.netease.nimlib.coexist.sdk.mixpush.HWPushMessageService {
 
   private static final String TAG = "HWPushMessageService";
 
