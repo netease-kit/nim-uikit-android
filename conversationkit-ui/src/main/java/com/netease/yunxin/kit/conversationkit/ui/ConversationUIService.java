@@ -13,7 +13,7 @@ import com.netease.yunxin.kit.conversationkit.ui.fun.FunCreateTeamFactory;
 import com.netease.yunxin.kit.conversationkit.ui.fun.page.FunConversationActivity;
 import com.netease.yunxin.kit.conversationkit.ui.normal.NormalCreateTeamFactory;
 import com.netease.yunxin.kit.conversationkit.ui.normal.page.ConversationActivity;
-import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
+import com.netease.yunxin.kit.corekit.coexist.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 import java.util.ArrayList;
 import java.util.List;

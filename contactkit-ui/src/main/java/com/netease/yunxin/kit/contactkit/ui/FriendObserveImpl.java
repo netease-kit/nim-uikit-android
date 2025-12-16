@@ -5,10 +5,10 @@
 package com.netease.yunxin.kit.contactkit.ui;
 
 import androidx.annotation.NonNull;
-import com.netease.yunxin.kit.corekit.im2.listener.ContactChangeType;
-import com.netease.yunxin.kit.corekit.im2.listener.ContactListener;
-import com.netease.yunxin.kit.corekit.im2.model.FriendAddApplicationInfo;
-import com.netease.yunxin.kit.corekit.im2.model.UserWithFriend;
+import com.netease.yunxin.kit.corekit.coexist.im2.listener.ContactChangeType;
+import com.netease.yunxin.kit.corekit.coexist.im2.listener.ContactListener;
+import com.netease.yunxin.kit.corekit.coexist.im2.model.FriendAddApplicationInfo;
+import com.netease.yunxin.kit.corekit.coexist.im2.model.UserWithFriend;
 import java.util.List;
 
 public class FriendObserveImpl implements ContactListener {

@@ -11,7 +11,7 @@ import androidx.fragment.app.FragmentManager;
 import com.netease.yunxin.kit.common.ui.activities.BaseLocalActivity;
 import com.netease.yunxin.kit.conversationkit.local.ui.R;
 import com.netease.yunxin.kit.conversationkit.local.ui.databinding.LocalConversationActivityBinding;
-import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
+import com.netease.yunxin.kit.corekit.coexist.im2.utils.RouterConstant;
 
 /** 普通版会话页面Activity，可以直接使用 跳转链接：{@link RouterConstant#PATH_CONVERSATION_PAGE} */
 public class LocalConversationActivity extends BaseLocalActivity {

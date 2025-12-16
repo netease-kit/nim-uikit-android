@@ -5,9 +5,9 @@
 package com.netease.yunxin.kit.contactkit.ui.selector.ai;
 
 import static com.netease.yunxin.kit.contactkit.ui.ContactUIConfig.DEFAULT_SESSION_MAX_SELECT_COUNT;
-import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.KEY_FORWARD_SELECTED_CONVERSATIONS;
-import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.KEY_REQUEST_SELECTOR_NAME;
-import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.REQUEST_CONTACT_SELECTOR_KEY;
+import static com.netease.yunxin.kit.corekit.coexist.im2.utils.RouterConstant.KEY_FORWARD_SELECTED_CONVERSATIONS;
+import static com.netease.yunxin.kit.corekit.coexist.im2.utils.RouterConstant.KEY_REQUEST_SELECTOR_NAME;
+import static com.netease.yunxin.kit.corekit.coexist.im2.utils.RouterConstant.REQUEST_CONTACT_SELECTOR_KEY;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
@@ -29,7 +29,7 @@ import com.netease.yunxin.kit.common.utils.NetworkUtils;
 import com.netease.yunxin.kit.contactkit.ui.R;
 import com.netease.yunxin.kit.contactkit.ui.model.SelectedViewBean;
 import com.netease.yunxin.kit.contactkit.ui.selector.BaseSelectedSelectorAdapter;
-import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
+import com.netease.yunxin.kit.corekit.coexist.im2.utils.RouterConstant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;

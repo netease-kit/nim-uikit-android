@@ -4,8 +4,8 @@
 
 package com.netease.yunxin.kit.contactkit.ui.model;
 
-import com.netease.nimlib.sdk.v2.team.model.V2NIMTeam;
-import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
+import com.netease.nimlib.coexist.sdk.v2.team.model.V2NIMTeam;
+import com.netease.yunxin.kit.corekit.coexist.im2.utils.RouterConstant;
 
 /** Contact data for team */
 public class ContactTeamBean extends BaseContactBean {

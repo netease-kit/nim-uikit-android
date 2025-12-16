@@ -5,7 +5,7 @@
 package com.netease.yunxin.kit.aisearchkit.page;
 
 import androidx.annotation.NonNull;
-import com.netease.nimlib.sdk.v2.ai.params.V2NIMAIModelCallContent;
+import com.netease.nimlib.coexist.sdk.v2.ai.params.V2NIMAIModelCallContent;
 import com.netease.yunxin.kit.aisearchkit.databinding.AiSearchMessageHolderBinding;
 import com.netease.yunxin.kit.common.ui.viewholder.BaseViewHolder;
 

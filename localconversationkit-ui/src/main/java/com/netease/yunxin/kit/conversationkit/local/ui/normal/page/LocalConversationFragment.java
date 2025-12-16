@@ -29,7 +29,7 @@ import com.netease.yunxin.kit.conversationkit.local.ui.model.ConversationHeaderB
 import com.netease.yunxin.kit.conversationkit.local.ui.normal.PopItemFactory;
 import com.netease.yunxin.kit.conversationkit.local.ui.normal.ViewHolderFactory;
 import com.netease.yunxin.kit.conversationkit.local.ui.page.LocalConversationBaseFragment;
-import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
+import com.netease.yunxin.kit.corekit.coexist.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 import java.util.List;
 

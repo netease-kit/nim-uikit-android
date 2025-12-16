@@ -6,8 +6,8 @@ package com.netease.yunxin.kit.contactkit.ui.model;
 
 import android.text.TextUtils;
 import androidx.annotation.Nullable;
-import com.netease.yunxin.kit.corekit.im2.model.UserWithFriend;
-import com.netease.yunxin.kit.corekit.im2.model.V2UserInfo;
+import com.netease.yunxin.kit.corekit.coexist.im2.model.UserWithFriend;
+import com.netease.yunxin.kit.corekit.coexist.im2.model.V2UserInfo;
 
 /** data bean for friend */
 public class ContactBlackListBean extends BaseContactBean {

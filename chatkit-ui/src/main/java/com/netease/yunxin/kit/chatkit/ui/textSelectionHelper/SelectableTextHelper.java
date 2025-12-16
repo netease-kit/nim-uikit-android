@@ -18,7 +18,7 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
-import com.netease.yunxin.kit.corekit.im2.IMKitClient;
+import com.netease.yunxin.kit.corekit.coexist.im2.IMKitClient;
 
 /** TextView 选择帮助类 */
 public class SelectableTextHelper {

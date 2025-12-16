@@ -5,7 +5,7 @@
 package com.netease.yunxin.kit.chatkit.ui.model;
 
 import androidx.annotation.NonNull;
-import com.netease.nimlib.sdk.v2.message.V2NIMMessage;
+import com.netease.nimlib.coexist.sdk.v2.message.V2NIMMessage;
 
 public class AnchorScrollInfo {
   V2NIMMessage anchorMessage;

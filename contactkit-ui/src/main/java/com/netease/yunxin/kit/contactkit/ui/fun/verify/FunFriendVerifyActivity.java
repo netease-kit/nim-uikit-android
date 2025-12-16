@@ -8,8 +8,8 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.ViewGroup;
 import androidx.annotation.Nullable;
-import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
-import com.netease.nimlib.sdk.v2.friend.enums.V2NIMFriendAddApplicationStatus;
+import com.netease.nimlib.coexist.sdk.v2.conversation.enums.V2NIMConversationType;
+import com.netease.nimlib.coexist.sdk.v2.friend.enums.V2NIMFriendAddApplicationStatus;
 import com.netease.yunxin.kit.contactkit.ui.ILoadListener;
 import com.netease.yunxin.kit.contactkit.ui.R;
 import com.netease.yunxin.kit.contactkit.ui.databinding.BaseListActivityLayoutBinding;
@@ -19,10 +19,10 @@ import com.netease.yunxin.kit.contactkit.ui.model.ContactVerifyInfoBean;
 import com.netease.yunxin.kit.contactkit.ui.model.IViewTypeConstant;
 import com.netease.yunxin.kit.contactkit.ui.verify.FriendVerifyBaseActivity;
 import com.netease.yunxin.kit.contactkit.ui.view.viewholder.BaseContactViewHolder;
-import com.netease.yunxin.kit.corekit.im2.IMKitClient;
-import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
-import com.netease.yunxin.kit.corekit.im2.model.V2UserInfo;
-import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
+import com.netease.yunxin.kit.corekit.coexist.im2.IMKitClient;
+import com.netease.yunxin.kit.corekit.coexist.im2.extend.FetchCallback;
+import com.netease.yunxin.kit.corekit.coexist.im2.model.V2UserInfo;
+import com.netease.yunxin.kit.corekit.coexist.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 
 public class FunFriendVerifyActivity extends FriendVerifyBaseActivity implements ILoadListener {

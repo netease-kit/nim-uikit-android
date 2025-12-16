@@ -10,16 +10,16 @@ import static com.netease.yunxin.kit.chatkit.ChatConstants.TYPE_EXTENSION_ALLOW_
 import static com.netease.yunxin.kit.chatkit.ChatConstants.TYPE_EXTENSION_ALLOW_MANAGER;
 
 import android.text.TextUtils;
-import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamMemberRole;
-import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamType;
-import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamUpdateInfoMode;
-import com.netease.nimlib.sdk.v2.team.model.V2NIMTeam;
-import com.netease.nimlib.sdk.v2.team.model.V2NIMTeamMember;
-import com.netease.nimlib.sdk.v2.user.V2NIMUser;
+import com.netease.nimlib.coexist.sdk.v2.team.enums.V2NIMTeamMemberRole;
+import com.netease.nimlib.coexist.sdk.v2.team.enums.V2NIMTeamType;
+import com.netease.nimlib.coexist.sdk.v2.team.enums.V2NIMTeamUpdateInfoMode;
+import com.netease.nimlib.coexist.sdk.v2.team.model.V2NIMTeam;
+import com.netease.nimlib.coexist.sdk.v2.team.model.V2NIMTeamMember;
+import com.netease.nimlib.coexist.sdk.v2.user.V2NIMUser;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.model.TeamMemberWithUserInfo;
-import com.netease.yunxin.kit.corekit.im2.IMKitClient;
-import com.netease.yunxin.kit.corekit.im2.IMKitConstant;
+import com.netease.yunxin.kit.corekit.coexist.im2.IMKitClient;
+import com.netease.yunxin.kit.corekit.coexist.im2.IMKitConstant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;

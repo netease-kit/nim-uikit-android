@@ -28,8 +28,8 @@ import com.netease.yunxin.kit.chatkit.ui.normal.page.ChatSettingActivity;
 import com.netease.yunxin.kit.chatkit.ui.normal.page.ChatTeamActivity;
 import com.netease.yunxin.kit.chatkit.ui.normal.page.CollectionActivity;
 import com.netease.yunxin.kit.chatkit.ui.normal.page.CollectionDetailActivity;
-import com.netease.yunxin.kit.corekit.im2.IMKitClient;
-import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
+import com.netease.yunxin.kit.corekit.coexist.im2.IMKitClient;
+import com.netease.yunxin.kit.corekit.coexist.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 
 /** Chat模块UI服务。在应用启动之后会调用{@link #create(Context)}方法。 当前用于对外能力接口的注册 */

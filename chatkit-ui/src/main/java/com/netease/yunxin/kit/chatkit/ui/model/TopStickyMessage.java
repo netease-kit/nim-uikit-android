@@ -5,8 +5,8 @@
 package com.netease.yunxin.kit.chatkit.ui.model;
 
 import android.text.TextUtils;
-import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
-import com.netease.nimlib.sdk.v2.utils.V2NIMConversationIdUtil;
+import com.netease.nimlib.coexist.sdk.v2.conversation.enums.V2NIMConversationType;
+import com.netease.nimlib.coexist.sdk.v2.utils.V2NIMConversationIdUtil;
 import com.netease.yunxin.kit.chatkit.ChatConstants;
 import org.json.JSONObject;
 

@@ -6,7 +6,7 @@ package com.netease.yunxin.kit.chatkit.ui.model;
 
 import android.text.TextUtils;
 import com.netease.yunxin.kit.common.ui.viewholder.BaseBean;
-import com.netease.yunxin.kit.corekit.im2.model.UserWithFriend;
+import com.netease.yunxin.kit.corekit.coexist.im2.model.UserWithFriend;
 import java.util.ArrayList;
 import java.util.List;
 

@@ -4,9 +4,9 @@
 
 package com.netease.yunxin.kit.chatkit.ui.model;
 
-import com.netease.nimlib.sdk.v2.message.V2NIMMessage;
-import com.netease.nimlib.sdk.v2.message.V2NIMMessageRefer;
-import com.netease.nimlib.sdk.v2.message.V2NIMMessageRevokeNotification;
+import com.netease.nimlib.coexist.sdk.v2.message.V2NIMMessage;
+import com.netease.nimlib.coexist.sdk.v2.message.V2NIMMessageRefer;
+import com.netease.nimlib.coexist.sdk.v2.message.V2NIMMessageRevokeNotification;
 
 /** 消息撤回信息 */
 public class MessageRevokeInfo {

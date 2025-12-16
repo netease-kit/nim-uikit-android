@@ -16,8 +16,8 @@ import com.netease.yunxin.kit.conversationkit.ui.R;
 import com.netease.yunxin.kit.conversationkit.ui.common.ConversationUtils;
 import com.netease.yunxin.kit.conversationkit.ui.databinding.ConversationViewHolderBinding;
 import com.netease.yunxin.kit.conversationkit.ui.model.ConversationBean;
-import com.netease.yunxin.kit.corekit.im2.IMKitClient;
-import com.netease.yunxin.kit.corekit.im2.utils.TimeFormatLocalUtils;
+import com.netease.yunxin.kit.corekit.coexist.im2.IMKitClient;
+import com.netease.yunxin.kit.corekit.coexist.im2.utils.TimeFormatLocalUtils;
 import java.util.Locale;
 
 /** 普通版会话列表基础ViewHolder 加载会话列表的基础UI，包括头像、名称、消息内容、时间、未读数、置顶状态等 */

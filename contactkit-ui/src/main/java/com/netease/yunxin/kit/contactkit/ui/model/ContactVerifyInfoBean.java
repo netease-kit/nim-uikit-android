@@ -5,8 +5,8 @@
 package com.netease.yunxin.kit.contactkit.ui.model;
 
 import android.text.TextUtils;
-import com.netease.nimlib.sdk.v2.friend.enums.V2NIMFriendAddApplicationStatus;
-import com.netease.yunxin.kit.corekit.im2.model.FriendAddApplicationInfo;
+import com.netease.nimlib.coexist.sdk.v2.friend.enums.V2NIMFriendAddApplicationStatus;
+import com.netease.yunxin.kit.corekit.coexist.im2.model.FriendAddApplicationInfo;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;

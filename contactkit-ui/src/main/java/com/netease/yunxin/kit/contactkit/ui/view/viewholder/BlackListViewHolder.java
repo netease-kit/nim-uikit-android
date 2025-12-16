@@ -13,7 +13,7 @@ import com.netease.yunxin.kit.contactkit.ui.model.BaseContactBean;
 import com.netease.yunxin.kit.contactkit.ui.model.ContactBlackListBean;
 import com.netease.yunxin.kit.contactkit.ui.utils.ColorUtils;
 import com.netease.yunxin.kit.contactkit.ui.view.ContactListViewAttrs;
-import com.netease.yunxin.kit.corekit.im2.model.V2UserInfo;
+import com.netease.yunxin.kit.corekit.coexist.im2.model.V2UserInfo;
 
 public class BlackListViewHolder extends BaseContactViewHolder {
 

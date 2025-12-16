@@ -5,9 +5,9 @@
 package com.netease.yunxin.kit.chatkit.ui.view.message.audio;
 
 import android.text.TextUtils;
-import com.netease.nimlib.sdk.v2.message.attachment.V2NIMMessageAudioAttachment;
+import com.netease.nimlib.coexist.sdk.v2.message.attachment.V2NIMMessageAudioAttachment;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
-import com.netease.yunxin.kit.corekit.im2.audioplayer.Playable;
+import com.netease.yunxin.kit.corekit.coexist.im2.audioplayer.Playable;
 
 /** support audio message control */
 public class ChatMessageAudioPlayable implements Playable {

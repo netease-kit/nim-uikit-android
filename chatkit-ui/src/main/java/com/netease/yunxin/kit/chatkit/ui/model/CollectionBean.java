@@ -5,12 +5,12 @@
 package com.netease.yunxin.kit.chatkit.ui.model;
 
 import android.text.TextUtils;
-import com.netease.nimlib.sdk.v2.message.V2NIMCollection;
-import com.netease.nimlib.sdk.v2.message.V2NIMMessage;
-import com.netease.nimlib.sdk.v2.message.V2NIMMessageConverter;
-import com.netease.nimlib.sdk.v2.message.config.V2NIMMessageAIConfig;
-import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageAIStatus;
-import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
+import com.netease.nimlib.coexist.sdk.v2.message.V2NIMCollection;
+import com.netease.nimlib.coexist.sdk.v2.message.V2NIMMessage;
+import com.netease.nimlib.coexist.sdk.v2.message.V2NIMMessageConverter;
+import com.netease.nimlib.coexist.sdk.v2.message.config.V2NIMMessageAIConfig;
+import com.netease.nimlib.coexist.sdk.v2.message.enums.V2NIMMessageAIStatus;
+import com.netease.nimlib.coexist.sdk.v2.message.enums.V2NIMMessageType;
 import com.netease.yunxin.kit.chatkit.ChatCustomMsgFactory;
 import com.netease.yunxin.kit.chatkit.model.CustomAttachment;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;

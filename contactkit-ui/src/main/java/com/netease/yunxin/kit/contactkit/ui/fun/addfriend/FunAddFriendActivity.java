@@ -11,9 +11,9 @@ import androidx.annotation.Nullable;
 import com.netease.yunxin.kit.contactkit.ui.R;
 import com.netease.yunxin.kit.contactkit.ui.addfriend.BaseAddFriendActivity;
 import com.netease.yunxin.kit.contactkit.ui.databinding.FunAddFriendActivityBinding;
-import com.netease.yunxin.kit.corekit.im2.IMKitClient;
-import com.netease.yunxin.kit.corekit.im2.model.V2UserInfo;
-import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
+import com.netease.yunxin.kit.corekit.coexist.im2.IMKitClient;
+import com.netease.yunxin.kit.corekit.coexist.im2.model.V2UserInfo;
+import com.netease.yunxin.kit.corekit.coexist.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 
 public class FunAddFriendActivity extends BaseAddFriendActivity {

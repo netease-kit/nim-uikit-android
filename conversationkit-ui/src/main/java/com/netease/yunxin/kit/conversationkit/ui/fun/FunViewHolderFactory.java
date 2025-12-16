@@ -7,9 +7,9 @@ package com.netease.yunxin.kit.conversationkit.ui.fun;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
-import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
-import com.netease.nimlib.sdk.v2.conversation.model.V2NIMConversation;
-import com.netease.nimlib.sdk.v2.utils.V2NIMConversationIdUtil;
+import com.netease.nimlib.coexist.sdk.v2.conversation.enums.V2NIMConversationType;
+import com.netease.nimlib.coexist.sdk.v2.conversation.model.V2NIMConversation;
+import com.netease.nimlib.coexist.sdk.v2.utils.V2NIMConversationIdUtil;
 import com.netease.yunxin.kit.common.ui.viewholder.BaseViewHolder;
 import com.netease.yunxin.kit.conversationkit.ui.IConversationFactory;
 import com.netease.yunxin.kit.conversationkit.ui.common.ConversationConstant;
@@ -19,7 +19,7 @@ import com.netease.yunxin.kit.conversationkit.ui.fun.viewholder.FunConversationH
 import com.netease.yunxin.kit.conversationkit.ui.fun.viewholder.FunConversationP2PViewHolder;
 import com.netease.yunxin.kit.conversationkit.ui.fun.viewholder.FunConversationTeamViewHolder;
 import com.netease.yunxin.kit.conversationkit.ui.model.ConversationBean;
-import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
+import com.netease.yunxin.kit.corekit.coexist.im2.utils.RouterConstant;
 
 /** 会话列表ViewHolder工厂，用于创建会话列表的ViewHolder */
 public class FunViewHolderFactory implements IConversationFactory {

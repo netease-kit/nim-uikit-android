@@ -6,7 +6,7 @@ package com.netease.yunxin.kit.chatkit.ui.common;
 
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
-import com.netease.yunxin.kit.corekit.im2.IMKitClient;
+import com.netease.yunxin.kit.corekit.coexist.im2.IMKitClient;
 
 public class ThumbHelper {
 

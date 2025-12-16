@@ -10,7 +10,7 @@ import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultLauncher;
 import com.netease.yunxin.kit.chatkit.listener.MediaChooseConfig;
 import com.netease.yunxin.kit.common.utils.model.LocalFileInfo;
-import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
+import com.netease.yunxin.kit.corekit.coexist.im2.extend.FetchCallback;
 import java.util.ArrayList;
 import org.jetbrains.annotations.NotNull;
 

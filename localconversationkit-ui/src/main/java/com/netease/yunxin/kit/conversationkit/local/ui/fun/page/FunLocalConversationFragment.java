@@ -33,7 +33,7 @@ import com.netease.yunxin.kit.conversationkit.local.ui.fun.FunViewHolderFactory;
 import com.netease.yunxin.kit.conversationkit.local.ui.model.AIUserBean;
 import com.netease.yunxin.kit.conversationkit.local.ui.model.ConversationHeaderBean;
 import com.netease.yunxin.kit.conversationkit.local.ui.page.LocalConversationBaseFragment;
-import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
+import com.netease.yunxin.kit.corekit.coexist.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 import java.util.List;
 

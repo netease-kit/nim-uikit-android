@@ -4,10 +4,10 @@
 
 package com.netease.yunxin.kit.conversationkit.local.ui.normal;
 
-import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.PATH_ADD_FRIEND_PAGE;
-import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.PATH_CREATE_ADVANCED_TEAM_ACTION;
-import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.PATH_CREATE_NORMAL_TEAM_ACTION;
-import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.PATH_SEARCH_TEAM_PAGE;
+import static com.netease.yunxin.kit.corekit.coexist.im2.utils.RouterConstant.PATH_ADD_FRIEND_PAGE;
+import static com.netease.yunxin.kit.corekit.coexist.im2.utils.RouterConstant.PATH_CREATE_ADVANCED_TEAM_ACTION;
+import static com.netease.yunxin.kit.corekit.coexist.im2.utils.RouterConstant.PATH_CREATE_NORMAL_TEAM_ACTION;
+import static com.netease.yunxin.kit.corekit.coexist.im2.utils.RouterConstant.PATH_SEARCH_TEAM_PAGE;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;

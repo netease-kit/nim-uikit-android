@@ -7,7 +7,7 @@ package com.netease.yunxin.kit.chatkit.ui.page;
 import android.content.Context;
 import android.content.Intent;
 import android.view.View;
-import com.netease.nimlib.sdk.v2.message.V2NIMMessage;
+import com.netease.nimlib.coexist.sdk.v2.message.V2NIMMessage;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.ui.view.media.SimpleVideoPlayer;
 

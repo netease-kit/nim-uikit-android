@@ -5,14 +5,14 @@
 package com.netease.yunxin.kit.chatkit.ui.common;
 
 import android.text.TextUtils;
-import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
-import com.netease.nimlib.sdk.v2.team.model.V2NIMTeamMember;
-import com.netease.nimlib.sdk.v2.user.V2NIMUser;
+import com.netease.nimlib.coexist.sdk.v2.conversation.enums.V2NIMConversationType;
+import com.netease.nimlib.coexist.sdk.v2.team.model.V2NIMTeamMember;
+import com.netease.nimlib.coexist.sdk.v2.user.V2NIMUser;
 import com.netease.yunxin.kit.chatkit.cache.FriendUserCache;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.ui.cache.TeamUserManager;
-import com.netease.yunxin.kit.corekit.im2.IMKitClient;
-import com.netease.yunxin.kit.corekit.im2.model.UserWithFriend;
+import com.netease.yunxin.kit.corekit.coexist.im2.IMKitClient;
+import com.netease.yunxin.kit.corekit.coexist.im2.model.UserWithFriend;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

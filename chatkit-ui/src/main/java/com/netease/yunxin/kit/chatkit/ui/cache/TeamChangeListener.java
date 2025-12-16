@@ -4,7 +4,7 @@
 
 package com.netease.yunxin.kit.chatkit.ui.cache;
 
-import com.netease.nimlib.sdk.v2.team.model.V2NIMTeam;
+import com.netease.nimlib.coexist.sdk.v2.team.model.V2NIMTeam;
 
 /** 缓存群变化监听 */
 public interface TeamChangeListener {

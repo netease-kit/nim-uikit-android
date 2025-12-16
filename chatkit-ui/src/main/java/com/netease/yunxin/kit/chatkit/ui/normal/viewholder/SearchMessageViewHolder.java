@@ -15,8 +15,8 @@ import com.netease.yunxin.kit.common.ui.utils.AppLanguageConfig;
 import com.netease.yunxin.kit.common.ui.utils.AvatarColor;
 import com.netease.yunxin.kit.common.ui.utils.EllipsizeUtils;
 import com.netease.yunxin.kit.common.ui.viewholder.BaseViewHolder;
-import com.netease.yunxin.kit.corekit.im2.IMKitClient;
-import com.netease.yunxin.kit.corekit.im2.utils.TimeFormatLocalUtils;
+import com.netease.yunxin.kit.corekit.coexist.im2.IMKitClient;
+import com.netease.yunxin.kit.corekit.coexist.im2.utils.TimeFormatLocalUtils;
 import java.util.List;
 import java.util.Locale;
 

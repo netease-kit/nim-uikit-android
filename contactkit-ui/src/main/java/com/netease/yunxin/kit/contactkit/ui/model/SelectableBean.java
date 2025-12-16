@@ -5,7 +5,7 @@
 package com.netease.yunxin.kit.contactkit.ui.model;
 
 import androidx.annotation.Nullable;
-import com.netease.nimlib.sdk.search.model.RecordHitInfo;
+import com.netease.nimlib.coexist.sdk.search.model.RecordHitInfo;
 import com.netease.yunxin.kit.chatkit.model.HitType;
 
 /**

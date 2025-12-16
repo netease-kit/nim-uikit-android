@@ -7,7 +7,7 @@ package com.netease.yunxin.kit.teamkit.ui.normal.activity;
 import android.os.Bundle;
 import android.view.View;
 import androidx.viewbinding.ViewBinding;
-import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamType;
+import com.netease.nimlib.coexist.sdk.v2.team.enums.V2NIMTeamType;
 import com.netease.yunxin.kit.teamkit.ui.R;
 import com.netease.yunxin.kit.teamkit.ui.activity.BaseTeamMemberSelectActivity;
 import com.netease.yunxin.kit.teamkit.ui.adapter.BaseTeamMemberListAdapter;

@@ -6,8 +6,8 @@ package com.netease.yunxin.kit.conversationkit.local.ui.normal.page.viewmodel;
 
 import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
-import com.netease.nimlib.sdk.v2.conversation.model.V2NIMLocalConversation;
-import com.netease.nimlib.sdk.v2.conversation.result.V2NIMLocalConversationResult;
+import com.netease.nimlib.coexist.sdk.v2.conversation.model.V2NIMLocalConversation;
+import com.netease.nimlib.coexist.sdk.v2.conversation.result.V2NIMLocalConversationResult;
 import com.netease.yunxin.kit.chatkit.repo.LocalConversationRepo;
 import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
@@ -15,7 +15,7 @@ import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.conversationkit.local.ui.ILocalConversationFactory;
 import com.netease.yunxin.kit.conversationkit.local.ui.model.ConversationBean;
 import com.netease.yunxin.kit.conversationkit.local.ui.normal.ViewHolderFactory;
-import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
+import com.netease.yunxin.kit.corekit.coexist.im2.extend.FetchCallback;
 import java.util.ArrayList;
 import java.util.List;
 

@@ -7,10 +7,10 @@ package com.netease.yunxin.kit.chatkit.ui.fun.view.message.viewholder;
 import android.text.TextUtils;
 import android.view.View;
 import androidx.annotation.NonNull;
-import com.netease.nimlib.sdk.v2.message.V2NIMMessage;
-import com.netease.nimlib.sdk.v2.message.attachment.V2NIMMessageVideoAttachment;
-import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageAttachmentUploadState;
-import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageSendingState;
+import com.netease.nimlib.coexist.sdk.v2.message.V2NIMMessage;
+import com.netease.nimlib.coexist.sdk.v2.message.attachment.V2NIMMessageVideoAttachment;
+import com.netease.nimlib.coexist.sdk.v2.message.enums.V2NIMMessageAttachmentUploadState;
+import com.netease.nimlib.coexist.sdk.v2.message.enums.V2NIMMessageSendingState;
 import com.netease.yunxin.kit.chatkit.media.BitmapDecoder;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatBaseMessageViewHolderBinding;
@@ -19,7 +19,7 @@ import com.netease.yunxin.kit.common.ui.utils.ToastX;
 import com.netease.yunxin.kit.common.utils.FileUtils;
 import com.netease.yunxin.kit.common.utils.ImageUtils;
 import com.netease.yunxin.kit.common.utils.SizeUtils;
-import com.netease.yunxin.kit.corekit.im2.IMKitClient;
+import com.netease.yunxin.kit.corekit.coexist.im2.IMKitClient;
 import java.util.Locale;
 
 public class ChatVideoMessageViewHolder extends ChatThumbBaseViewHolder {

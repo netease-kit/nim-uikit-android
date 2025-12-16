@@ -6,9 +6,9 @@ package com.netease.yunxin.kit.chatkit.ui.normal.viewholder.collection;
 
 import android.view.View;
 import androidx.annotation.NonNull;
-import com.netease.nimlib.sdk.v2.message.attachment.V2NIMMessageImageAttachment;
-import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageAttachmentUploadState;
-import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageSendingState;
+import com.netease.nimlib.coexist.sdk.v2.message.attachment.V2NIMMessageImageAttachment;
+import com.netease.nimlib.coexist.sdk.v2.message.enums.V2NIMMessageAttachmentUploadState;
+import com.netease.nimlib.coexist.sdk.v2.message.enums.V2NIMMessageSendingState;
 import com.netease.yunxin.kit.chatkit.ui.databinding.CollectionBaseViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.model.CollectionBean;
 import com.netease.yunxin.kit.common.utils.ImageUtils;

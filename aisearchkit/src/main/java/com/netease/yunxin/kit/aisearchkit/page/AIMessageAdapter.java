@@ -8,7 +8,7 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-import com.netease.nimlib.sdk.v2.ai.params.V2NIMAIModelCallContent;
+import com.netease.nimlib.coexist.sdk.v2.ai.params.V2NIMAIModelCallContent;
 import com.netease.yunxin.kit.aisearchkit.databinding.AiSearchMessageHolderBinding;
 import java.util.ArrayList;
 import java.util.List;

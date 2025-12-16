@@ -7,11 +7,11 @@ package com.netease.yunxin.kit.contactkit.ui.fun.team;
 import android.os.Bundle;
 import android.view.View;
 import androidx.annotation.Nullable;
-import com.netease.nimlib.sdk.v2.team.model.V2NIMTeam;
+import com.netease.nimlib.coexist.sdk.v2.team.model.V2NIMTeam;
 import com.netease.yunxin.kit.contactkit.ui.R;
 import com.netease.yunxin.kit.contactkit.ui.databinding.FunTeamSearchActivityBinding;
 import com.netease.yunxin.kit.contactkit.ui.team.BaseTeamSearchActivity;
-import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
+import com.netease.yunxin.kit.corekit.coexist.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 
 public class FunTeamSearchActivity extends BaseTeamSearchActivity {

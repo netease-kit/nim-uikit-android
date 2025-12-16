@@ -13,14 +13,14 @@ import android.text.TextUtils;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentManager;
-import com.netease.nimlib.sdk.msg.model.IMMessage;
+import com.netease.nimlib.coexist.sdk.msg.model.IMMessage;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.fun.page.fragment.FunChatFragment;
 import com.netease.yunxin.kit.chatkit.ui.fun.page.fragment.FunChatP2PFragment;
 import com.netease.yunxin.kit.chatkit.ui.page.ChatBaseActivity;
-import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
+import com.netease.yunxin.kit.corekit.coexist.im2.utils.RouterConstant;
 
 /** Fun皮肤单聊聊天界面Activity，继承自ChatBaseActivity */
 public class FunChatP2PActivity extends ChatBaseActivity {

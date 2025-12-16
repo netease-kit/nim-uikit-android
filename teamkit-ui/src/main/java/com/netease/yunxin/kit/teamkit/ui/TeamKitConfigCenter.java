@@ -4,8 +4,8 @@
 
 package com.netease.yunxin.kit.teamkit.ui;
 
-import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamAgreeMode;
-import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamJoinMode;
+import com.netease.nimlib.coexist.sdk.v2.team.enums.V2NIMTeamAgreeMode;
+import com.netease.nimlib.coexist.sdk.v2.team.enums.V2NIMTeamJoinMode;
 
 public class TeamKitConfigCenter {
 

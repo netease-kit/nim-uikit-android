@@ -15,7 +15,7 @@ import com.netease.yunxin.kit.conversationkit.ui.model.AIUserBean;
 import com.netease.yunxin.kit.conversationkit.ui.model.ConversationBean;
 import com.netease.yunxin.kit.conversationkit.ui.model.ConversationHeaderBean;
 import com.netease.yunxin.kit.conversationkit.ui.normal.ConversationTopAdapter;
-import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
+import com.netease.yunxin.kit.corekit.coexist.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 
 public class ConversationHeaderViewHolder extends BaseViewHolder<ConversationBean> {

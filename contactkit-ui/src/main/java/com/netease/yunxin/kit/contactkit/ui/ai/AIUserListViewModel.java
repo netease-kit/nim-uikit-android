@@ -7,7 +7,7 @@ package com.netease.yunxin.kit.contactkit.ui.ai;
 import static com.netease.yunxin.kit.contactkit.ui.ContactConstant.LIB_TAG;
 
 import androidx.lifecycle.MutableLiveData;
-import com.netease.nimlib.sdk.v2.ai.model.V2NIMAIUser;
+import com.netease.nimlib.coexist.sdk.v2.ai.model.V2NIMAIUser;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.manager.AIUserManager;
 import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
