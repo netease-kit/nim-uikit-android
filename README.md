@@ -67,5 +67,7 @@ IM UIKit 采用 （Model–View–ViewModel）MVVM 架构模型，实现 UI 展�
 ## 相关文档
 
 - IM UIKit 的功能清单，请参考 [IM UIKit 功能概览](https://doc.yunxin.163.com/messaging-uikit/concept/zMzMDQ2MTg)。
+- 若需要直接体验 IM Demo，请参考 [体验 Demo](https://doc.yunxin.163.com/messaging-uikit/guide/Dg4MTg2MTM?platform=android)。
+- 若需要跑通 IM Demo，请参考 [跑通 IM Demo 源码](https://doc.yunxin.163.com/messaging-uikit/guide/zk0MjE5Mjk?platform=android)。
 - IM UIKit 的集成流程，请参考 [集成开发文档](https://doc.yunxin.163.com/messaging-uikit/guide/DU4NzAzNzQ?platform=android)。
 - IM UIKit 已支持音视频通话，具体实现流程请参考 [实现音视频通话功能](https://doc.yunxin.163.com/messaging-uikit/guide/jgxOTUyMjQ?platform=android)。
