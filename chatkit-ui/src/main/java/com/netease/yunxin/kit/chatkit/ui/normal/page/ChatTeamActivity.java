@@ -13,14 +13,14 @@ import android.text.TextUtils;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentManager;
-import com.netease.nimlib.sdk.v2.message.V2NIMMessage;
-import com.netease.nimlib.sdk.v2.team.model.V2NIMTeam;
+import com.netease.nimlib.coexist.sdk.v2.message.V2NIMMessage;
+import com.netease.nimlib.coexist.sdk.v2.team.model.V2NIMTeam;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.normal.page.fragment.ChatTeamFragment;
 import com.netease.yunxin.kit.chatkit.ui.page.ChatBaseActivity;
-import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
+import com.netease.yunxin.kit.corekit.coexist.im2.utils.RouterConstant;
 
 /** 标准皮肤，群聊会话页面。 */
 public class ChatTeamActivity extends ChatBaseActivity {

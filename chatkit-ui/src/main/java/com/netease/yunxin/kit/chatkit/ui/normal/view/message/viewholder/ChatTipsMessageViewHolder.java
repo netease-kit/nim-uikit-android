@@ -4,7 +4,7 @@
 
 package com.netease.yunxin.kit.chatkit.ui.normal.view.message.viewholder;
 
-import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.KEY_TEAM_CREATED_TIP;
+import static com.netease.yunxin.kit.corekit.coexist.im2.utils.RouterConstant.KEY_TEAM_CREATED_TIP;
 
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -17,7 +17,7 @@ import com.netease.yunxin.kit.chatkit.ui.databinding.ChatBaseMessageViewHolderBi
 import com.netease.yunxin.kit.chatkit.ui.databinding.NormalChatMessageTipViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.utils.MessageExtensionHelper;
-import com.netease.yunxin.kit.corekit.im2.IMKitClient;
+import com.netease.yunxin.kit.corekit.coexist.im2.IMKitClient;
 import java.util.Map;
 
 /** view holder for Text message */

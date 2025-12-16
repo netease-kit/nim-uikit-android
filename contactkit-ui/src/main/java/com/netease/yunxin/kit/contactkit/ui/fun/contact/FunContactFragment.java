@@ -4,7 +4,7 @@
 
 package com.netease.yunxin.kit.contactkit.ui.fun.contact;
 
-import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.PATH_FUN_ADD_FRIEND_PAGE;
+import static com.netease.yunxin.kit.corekit.coexist.im2.utils.RouterConstant.PATH_FUN_ADD_FRIEND_PAGE;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -21,8 +21,8 @@ import com.netease.yunxin.kit.contactkit.ui.interfaces.ContactActions;
 import com.netease.yunxin.kit.contactkit.ui.model.ContactEntranceBean;
 import com.netease.yunxin.kit.contactkit.ui.model.ContactFriendBean;
 import com.netease.yunxin.kit.contactkit.ui.model.IViewTypeConstant;
-import com.netease.yunxin.kit.corekit.im2.model.UserWithFriend;
-import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
+import com.netease.yunxin.kit.corekit.coexist.im2.model.UserWithFriend;
+import com.netease.yunxin.kit.corekit.coexist.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 import java.util.ArrayList;
 import java.util.List;

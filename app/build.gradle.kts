@@ -62,33 +62,18 @@ dependencies {
     // 以下本地依赖和远端依赖不能同时引入，否则会报错。根据您的项目需要来进行切换
     // ---- start ----
     //本地代码依赖
-//    implementation(project(":contactkit-ui"))
-//    implementation(project(":conversationkit-ui"))
-//    implementation(project(":localconversationkit-ui"))
-//    implementation(project(":teamkit-ui"))
-//    implementation(project(":chatkit-ui"))
-//    implementation(project(":locationkit"))
-//    implementation(project(":aisearchkit"))
-
-    //远端aar依赖
-    implementation("com.netease.yunxin.kit.contact:contactkit-ui:10.9.1")
-    implementation("com.netease.yunxin.kit.conversation:conversationkit-ui:10.9.1")
-    implementation("com.netease.yunxin.kit.localconversation:localconversationkit-ui:10.9.1")
-    implementation("com.netease.yunxin.kit.team:teamkit-ui:10.9.1")
-    implementation("com.netease.yunxin.kit.chat:chatkit-ui:10.9.1")
-    implementation("com.netease.yunxin.kit.locationkit:locationkit:10.9.1")
-    implementation("com.netease.yunxin.kit.aisearchkit:aisearchkit:10.9.1")
-
-    // ---- end ----
+    implementation(project(":contactkit-ui"))
+    implementation(project(":conversationkit-ui"))
+    implementation(project(":localconversationkit-ui"))
+    implementation(project(":teamkit-ui"))
+    implementation(project(":chatkit-ui"))
+    implementation(project(":locationkit"))
+    implementation(project(":aisearchkit"))
 
     // 通用UI库,如果需要则引入，同时在chatkit-ui、localconversationkit-ui、conversationkit-ui也需要切换源码引入
 //    implementation(project(":common-ui"))
-
-    // 以下为必需引入的依赖
-    //呼叫组件 UI 包
-    implementation("com.netease.yunxin.kit.call:call-ui:3.7.1")
-    implementation("com.netease.nimlib:avsignalling:10.9.52") //信令组件
     api("com.netease.yunxin.kit.common:common-picturechoose:1.1.0") //图片选择组件
+    implementation("com.netease.yunxin.kit.meeting:meeting:4.18.1")
     implementation("com.airbnb.android:lottie:5.0.3")
     implementation("com.github.bumptech.glide:glide:4.13.1")
     implementation("com.squareup.retrofit2:retrofit:2.9.0")

@@ -5,8 +5,8 @@
 package com.netease.yunxin.kit.contactkit.ui.selector.forward.adapter;
 
 import static com.netease.yunxin.kit.contactkit.ui.ContactUIConfig.DEFAULT_SESSION_MAX_SELECT_COUNT;
-import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.KEY_FORWARD_SELECTED_CONVERSATIONS;
-import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.KEY_FORWARD_SELECTOR_MODE;
+import static com.netease.yunxin.kit.corekit.coexist.im2.utils.RouterConstant.KEY_FORWARD_SELECTED_CONVERSATIONS;
+import static com.netease.yunxin.kit.corekit.coexist.im2.utils.RouterConstant.KEY_FORWARD_SELECTOR_MODE;
 
 import android.content.Intent;
 import android.os.Bundle;

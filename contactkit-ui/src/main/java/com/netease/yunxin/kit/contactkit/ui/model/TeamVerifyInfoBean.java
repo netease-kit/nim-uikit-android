@@ -5,11 +5,11 @@
 package com.netease.yunxin.kit.contactkit.ui.model;
 
 import android.text.TextUtils;
-import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamJoinActionStatus;
-import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamJoinActionType;
-import com.netease.nimlib.sdk.v2.team.model.V2NIMTeam;
-import com.netease.nimlib.sdk.v2.team.model.V2NIMTeamJoinActionInfo;
-import com.netease.nimlib.sdk.v2.user.V2NIMUser;
+import com.netease.nimlib.coexist.sdk.v2.team.enums.V2NIMTeamJoinActionStatus;
+import com.netease.nimlib.coexist.sdk.v2.team.enums.V2NIMTeamJoinActionType;
+import com.netease.nimlib.coexist.sdk.v2.team.model.V2NIMTeam;
+import com.netease.nimlib.coexist.sdk.v2.team.model.V2NIMTeamJoinActionInfo;
+import com.netease.nimlib.coexist.sdk.v2.user.V2NIMUser;
 import com.netease.yunxin.kit.alog.ALog;
 import java.util.ArrayList;
 import java.util.List;

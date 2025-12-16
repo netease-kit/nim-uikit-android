@@ -15,8 +15,8 @@ import com.netease.yunxin.kit.conversationkit.ui.R;
 import com.netease.yunxin.kit.conversationkit.ui.common.ConversationUtils;
 import com.netease.yunxin.kit.conversationkit.ui.databinding.FunConversationViewHolderBinding;
 import com.netease.yunxin.kit.conversationkit.ui.model.ConversationBean;
-import com.netease.yunxin.kit.corekit.im2.IMKitClient;
-import com.netease.yunxin.kit.corekit.im2.utils.TimeFormatLocalUtils;
+import com.netease.yunxin.kit.corekit.coexist.im2.IMKitClient;
+import com.netease.yunxin.kit.corekit.coexist.im2.utils.TimeFormatLocalUtils;
 import java.util.Locale;
 
 /** 会话列表基础ViewHolder，用于加载通用的UI 置顶、未读、免打扰、头像、会话名称、最后一条消息、时间 */

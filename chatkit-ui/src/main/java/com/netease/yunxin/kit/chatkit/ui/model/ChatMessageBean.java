@@ -5,22 +5,22 @@
 package com.netease.yunxin.kit.chatkit.ui.model;
 
 import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
-import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.KEY_REVOKE_EDIT_TAG;
-import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.KEY_REVOKE_TAG;
-import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.KEY_REVOKE_TIME_TAG;
+import static com.netease.yunxin.kit.corekit.coexist.im2.utils.RouterConstant.KEY_REVOKE_EDIT_TAG;
+import static com.netease.yunxin.kit.corekit.coexist.im2.utils.RouterConstant.KEY_REVOKE_TAG;
+import static com.netease.yunxin.kit.corekit.coexist.im2.utils.RouterConstant.KEY_REVOKE_TIME_TAG;
 
 import android.text.TextUtils;
-import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
-import com.netease.nimlib.sdk.v2.message.V2NIMMessage;
-import com.netease.nimlib.sdk.v2.message.V2NIMMessagePin;
-import com.netease.nimlib.sdk.v2.message.V2NIMMessageRefer;
-import com.netease.nimlib.sdk.v2.message.V2NIMMessageReferBuilder;
-import com.netease.nimlib.sdk.v2.message.config.V2NIMMessageAIConfig;
-import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageAIStatus;
-import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageAIStreamStatus;
-import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageSendingState;
-import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
-import com.netease.nimlib.sdk.v2.utils.V2NIMConversationIdUtil;
+import com.netease.nimlib.coexist.sdk.v2.conversation.enums.V2NIMConversationType;
+import com.netease.nimlib.coexist.sdk.v2.message.V2NIMMessage;
+import com.netease.nimlib.coexist.sdk.v2.message.V2NIMMessagePin;
+import com.netease.nimlib.coexist.sdk.v2.message.V2NIMMessageRefer;
+import com.netease.nimlib.coexist.sdk.v2.message.V2NIMMessageReferBuilder;
+import com.netease.nimlib.coexist.sdk.v2.message.config.V2NIMMessageAIConfig;
+import com.netease.nimlib.coexist.sdk.v2.message.enums.V2NIMMessageAIStatus;
+import com.netease.nimlib.coexist.sdk.v2.message.enums.V2NIMMessageAIStreamStatus;
+import com.netease.nimlib.coexist.sdk.v2.message.enums.V2NIMMessageSendingState;
+import com.netease.nimlib.coexist.sdk.v2.message.enums.V2NIMMessageType;
+import com.netease.nimlib.coexist.sdk.v2.utils.V2NIMConversationIdUtil;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.model.CustomAttachment;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;

@@ -13,8 +13,8 @@ import com.netease.yunxin.kit.chatkit.repo.ContactRepo;
 import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
-import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
-import com.netease.yunxin.kit.corekit.im2.model.UserWithFriend;
+import com.netease.yunxin.kit.corekit.coexist.im2.extend.FetchCallback;
+import com.netease.yunxin.kit.corekit.coexist.im2.model.UserWithFriend;
 
 /** 添加好友ViewModel 提供根据账号ID的搜索功能 */
 public class AddFriendViewModel extends BaseViewModel {

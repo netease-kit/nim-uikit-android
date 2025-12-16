@@ -5,7 +5,7 @@
 package com.netease.yunxin.kit.chatkit.ui.view.ait;
 
 import android.text.TextUtils;
-import com.netease.nimlib.sdk.v2.ai.model.V2NIMAIUser;
+import com.netease.nimlib.coexist.sdk.v2.ai.model.V2NIMAIUser;
 import com.netease.yunxin.kit.chatkit.manager.AIUserManager;
 import com.netease.yunxin.kit.chatkit.model.TeamMemberWithUserInfo;
 import com.netease.yunxin.kit.chatkit.ui.model.ait.AitUserInfo;

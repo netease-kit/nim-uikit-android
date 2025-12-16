@@ -15,7 +15,7 @@ import com.netease.yunxin.kit.conversationkit.local.ui.fun.FunConversationTopAda
 import com.netease.yunxin.kit.conversationkit.local.ui.model.AIUserBean;
 import com.netease.yunxin.kit.conversationkit.local.ui.model.ConversationBean;
 import com.netease.yunxin.kit.conversationkit.local.ui.model.ConversationHeaderBean;
-import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
+import com.netease.yunxin.kit.corekit.coexist.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 
 /** 会话列表头部ViewHolder，用于展示会话列表顶部的横向滚动区域（如AI用户快捷入口） */

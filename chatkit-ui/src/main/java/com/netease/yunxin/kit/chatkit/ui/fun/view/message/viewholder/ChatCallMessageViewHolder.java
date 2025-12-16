@@ -8,7 +8,7 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import androidx.annotation.NonNull;
-import com.netease.nimlib.sdk.v2.message.V2NIMMessage;
+import com.netease.nimlib.coexist.sdk.v2.message.V2NIMMessage;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatUtils;
@@ -18,7 +18,7 @@ import com.netease.yunxin.kit.chatkit.ui.databinding.FunChatMessageCallViewHolde
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.view.message.viewholder.options.ChatMessageViewHolderUIOptions;
 import com.netease.yunxin.kit.chatkit.ui.view.message.viewholder.options.MessageStatusUIOption;
-import com.netease.yunxin.kit.corekit.im2.IMKitClient;
+import com.netease.yunxin.kit.corekit.coexist.im2.IMKitClient;
 
 public class ChatCallMessageViewHolder extends FunChatBaseMessageViewHolder {
 

@@ -6,10 +6,10 @@ package com.netease.yunxin.kit.chatkit.ui.normal.viewholder.pin;
 
 import android.view.View;
 import androidx.annotation.NonNull;
-import com.netease.nimlib.sdk.v2.message.V2NIMMessage;
-import com.netease.nimlib.sdk.v2.message.attachment.V2NIMMessageVideoAttachment;
-import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageAttachmentUploadState;
-import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageSendingState;
+import com.netease.nimlib.coexist.sdk.v2.message.V2NIMMessage;
+import com.netease.nimlib.coexist.sdk.v2.message.attachment.V2NIMMessageVideoAttachment;
+import com.netease.nimlib.coexist.sdk.v2.message.enums.V2NIMMessageAttachmentUploadState;
+import com.netease.nimlib.coexist.sdk.v2.message.enums.V2NIMMessageSendingState;
 import com.netease.yunxin.kit.chatkit.media.BitmapDecoder;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatBasePinViewHolderBinding;

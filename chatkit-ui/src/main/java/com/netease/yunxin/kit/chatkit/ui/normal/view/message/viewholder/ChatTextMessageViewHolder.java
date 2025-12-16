@@ -9,9 +9,9 @@ import android.text.style.ImageSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import androidx.annotation.NonNull;
-import com.netease.nimlib.sdk.v2.message.V2NIMMessageRefer;
-import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageAIStreamStatus;
-import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
+import com.netease.nimlib.coexist.sdk.v2.message.V2NIMMessageRefer;
+import com.netease.nimlib.coexist.sdk.v2.message.enums.V2NIMMessageAIStreamStatus;
+import com.netease.nimlib.coexist.sdk.v2.message.enums.V2NIMMessageType;
 import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
@@ -22,7 +22,7 @@ import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.textSelectionHelper.SelectableTextHelper;
 import com.netease.yunxin.kit.chatkit.ui.view.MarkDownViwUtils;
 import com.netease.yunxin.kit.chatkit.ui.view.message.viewholder.options.CommonUIOption;
-import com.netease.yunxin.kit.corekit.im2.IMKitClient;
+import com.netease.yunxin.kit.corekit.coexist.im2.IMKitClient;
 
 /** view holder for Text message */
 public class ChatTextMessageViewHolder extends NormalChatBaseMessageViewHolder {

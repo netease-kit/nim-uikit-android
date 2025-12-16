@@ -11,7 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import com.netease.nimlib.sdk.search.model.RecordHitInfo;
+import com.netease.nimlib.coexist.sdk.search.model.RecordHitInfo;
 import com.netease.yunxin.kit.contactkit.ui.R;
 import com.netease.yunxin.kit.contactkit.ui.databinding.FunForwardConversationSelectorLayoutBinding;
 import com.netease.yunxin.kit.contactkit.ui.fun.selector.forward.adapter.FunConversationSelectorAdapter;

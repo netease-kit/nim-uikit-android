@@ -14,7 +14,7 @@ import com.netease.yunxin.kit.common.utils.SizeUtils;
 import com.netease.yunxin.kit.contactkit.ui.R;
 import com.netease.yunxin.kit.contactkit.ui.databinding.FunUserInfoActivityLayoutBinding;
 import com.netease.yunxin.kit.contactkit.ui.userinfo.BaseUserInfoActivity;
-import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
+import com.netease.yunxin.kit.corekit.coexist.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 
 public class FunUserInfoActivity extends BaseUserInfoActivity {

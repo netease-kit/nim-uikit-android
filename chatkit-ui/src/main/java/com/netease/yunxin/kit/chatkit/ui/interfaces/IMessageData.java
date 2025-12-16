@@ -4,9 +4,9 @@
 
 package com.netease.yunxin.kit.chatkit.ui.interfaces;
 
-import com.netease.nimlib.sdk.v2.message.V2NIMMessage;
-import com.netease.nimlib.sdk.v2.message.V2NIMMessagePin;
-import com.netease.nimlib.sdk.v2.message.V2NIMMessageRefer;
+import com.netease.nimlib.coexist.sdk.v2.message.V2NIMMessage;
+import com.netease.nimlib.coexist.sdk.v2.message.V2NIMMessagePin;
+import com.netease.nimlib.coexist.sdk.v2.message.V2NIMMessageRefer;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import java.util.List;
 

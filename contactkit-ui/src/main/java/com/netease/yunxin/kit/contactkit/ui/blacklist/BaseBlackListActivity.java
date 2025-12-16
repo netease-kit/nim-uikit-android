@@ -4,7 +4,7 @@
 
 package com.netease.yunxin.kit.contactkit.ui.blacklist;
 
-import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.REQUEST_CONTACT_SELECTOR_KEY;
+import static com.netease.yunxin.kit.corekit.coexist.im2.utils.RouterConstant.REQUEST_CONTACT_SELECTOR_KEY;
 
 import android.content.Intent;
 import android.view.View;

@@ -10,7 +10,7 @@ import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.contactkit.ui.R;
 import com.netease.yunxin.kit.contactkit.ui.activity.BaseListActivity;
 import com.netease.yunxin.kit.contactkit.ui.databinding.BaseListActivityLayoutBinding;
-import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
+import com.netease.yunxin.kit.corekit.coexist.im2.utils.RouterConstant;
 
 /**
  * 群组列表基类

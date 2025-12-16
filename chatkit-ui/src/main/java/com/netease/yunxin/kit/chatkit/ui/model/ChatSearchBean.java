@@ -8,11 +8,11 @@ import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.style.ForegroundColorSpan;
 import androidx.annotation.Nullable;
-import com.netease.nimlib.sdk.search.model.RecordHitInfo;
-import com.netease.nimlib.sdk.v2.message.V2NIMMessage;
+import com.netease.nimlib.coexist.sdk.search.model.RecordHitInfo;
+import com.netease.nimlib.coexist.sdk.v2.message.V2NIMMessage;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.common.ui.viewholder.BaseBean;
-import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
+import com.netease.yunxin.kit.corekit.coexist.im2.utils.RouterConstant;
 import java.util.ArrayList;
 import java.util.List;
 

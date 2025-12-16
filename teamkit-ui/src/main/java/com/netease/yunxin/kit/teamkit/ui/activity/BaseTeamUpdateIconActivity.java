@@ -4,9 +4,9 @@
 
 package com.netease.yunxin.kit.teamkit.ui.activity;
 
-import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.KEY_TEAM_ICON;
-import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.KEY_TEAM_ID;
-import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.KEY_TEAM_NAME;
+import static com.netease.yunxin.kit.corekit.coexist.im2.utils.RouterConstant.KEY_TEAM_ICON;
+import static com.netease.yunxin.kit.corekit.coexist.im2.utils.RouterConstant.KEY_TEAM_ID;
+import static com.netease.yunxin.kit.corekit.coexist.im2.utils.RouterConstant.KEY_TEAM_NAME;
 import static com.netease.yunxin.kit.teamkit.ui.activity.BaseTeamInfoActivity.KEY_TEAM_UPDATE_INFO_PRIVILEGE;
 import static com.netease.yunxin.kit.teamkit.ui.utils.NetworkUtilsWrapper.handleNetworkBrokenResult;
 
@@ -29,7 +29,7 @@ import com.netease.yunxin.kit.common.ui.photo.PhotoChoiceDialog;
 import com.netease.yunxin.kit.common.ui.utils.CommonCallback;
 import com.netease.yunxin.kit.common.ui.widgets.ContactAvatarView;
 import com.netease.yunxin.kit.common.utils.NetworkUtils;
-import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
+import com.netease.yunxin.kit.corekit.coexist.im2.extend.FetchCallback;
 import com.netease.yunxin.kit.teamkit.ui.R;
 import com.netease.yunxin.kit.teamkit.ui.utils.ColorUtils;
 import com.netease.yunxin.kit.teamkit.ui.utils.TeamIconUtils;

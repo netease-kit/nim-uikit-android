@@ -8,17 +8,17 @@ import static com.netease.yunxin.kit.conversationkit.ui.common.ConversationConst
 
 import android.content.Context;
 import android.text.TextUtils;
-import com.netease.nimlib.sdk.v2.conversation.model.V2NIMConversation;
-import com.netease.nimlib.sdk.v2.conversation.model.V2NIMLastMessage;
-import com.netease.nimlib.sdk.v2.message.attachment.V2NIMMessageAttachment;
-import com.netease.nimlib.sdk.v2.message.attachment.V2NIMMessageNotificationAttachment;
-import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageNotificationType;
-import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
+import com.netease.nimlib.coexist.sdk.v2.conversation.model.V2NIMConversation;
+import com.netease.nimlib.coexist.sdk.v2.conversation.model.V2NIMLastMessage;
+import com.netease.nimlib.coexist.sdk.v2.message.attachment.V2NIMMessageAttachment;
+import com.netease.nimlib.coexist.sdk.v2.message.attachment.V2NIMMessageNotificationAttachment;
+import com.netease.nimlib.coexist.sdk.v2.message.enums.V2NIMMessageNotificationType;
+import com.netease.nimlib.coexist.sdk.v2.message.enums.V2NIMMessageType;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.conversationkit.ui.ConversationCustom;
 import com.netease.yunxin.kit.conversationkit.ui.ConversationKitClient;
 import com.netease.yunxin.kit.conversationkit.ui.model.ConversationBean;
-import com.netease.yunxin.kit.corekit.im2.IMKitClient;
+import com.netease.yunxin.kit.corekit.coexist.im2.IMKitClient;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;

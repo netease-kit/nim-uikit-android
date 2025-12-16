@@ -6,12 +6,12 @@ package com.netease.yunxin.app.im.main.mine.setting;
 
 import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
-import com.netease.nimlib.sdk.misc.DirCacheFileType;
+import com.netease.nimlib.coexist.sdk.misc.DirCacheFileType;
 import com.netease.yunxin.kit.chatkit.repo.MiscRepo;
 import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
-import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
+import com.netease.yunxin.kit.corekit.coexist.im2.extend.FetchCallback;
 import java.util.ArrayList;
 import java.util.List;
 

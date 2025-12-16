@@ -4,7 +4,7 @@
 
 package com.netease.yunxin.kit.chatkit.ui;
 
-import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
+import com.netease.nimlib.coexist.sdk.v2.message.enums.V2NIMMessageType;
 
 /** 消息类型 */
 public interface ChatMessageType {

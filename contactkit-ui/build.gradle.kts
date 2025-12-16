@@ -41,7 +41,7 @@ dependencies {
 //    api(project(":common-ui"))
     api("com.netease.yunxin.kit.common:common-ui:1.9.0")
     api("com.netease.yunxin.kit:alog:1.1.1")
-    api("com.netease.yunxin.kit.chat:chatkit:10.9.1")
+    api("com.netease.yunxin.kit.chat:chatkit-coexist:10.9.1")
 
     api("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.22")
     implementation("androidx.appcompat:appcompat:1.6.1")

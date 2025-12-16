@@ -12,7 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewbinding.ViewBinding;
-import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamType;
+import com.netease.nimlib.coexist.sdk.v2.team.enums.V2NIMTeamType;
 import com.netease.yunxin.kit.teamkit.ui.R;
 import com.netease.yunxin.kit.teamkit.ui.activity.BaseTeamMemberListActivity;
 import com.netease.yunxin.kit.teamkit.ui.adapter.BaseTeamMemberListAdapter;

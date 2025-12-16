@@ -8,10 +8,10 @@ import static com.netease.yunxin.kit.corekit.plugin.PluginConstantsKt.CHAT_POP_M
 
 import android.content.Context;
 import android.text.TextUtils;
-import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
-import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
-import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageSendingState;
-import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
+import com.netease.nimlib.coexist.sdk.msg.constant.MsgTypeEnum;
+import com.netease.nimlib.coexist.sdk.v2.conversation.enums.V2NIMConversationType;
+import com.netease.nimlib.coexist.sdk.v2.message.enums.V2NIMMessageSendingState;
+import com.netease.nimlib.coexist.sdk.v2.message.enums.V2NIMMessageType;
 import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitClient;
 import com.netease.yunxin.kit.chatkit.ui.ChatMessageType;

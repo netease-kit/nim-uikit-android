@@ -10,7 +10,7 @@ import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
 import android.view.View;
 import androidx.annotation.NonNull;
-import com.netease.nimlib.sdk.search.model.RecordHitInfo;
+import com.netease.nimlib.coexist.sdk.search.model.RecordHitInfo;
 import com.netease.yunxin.kit.chatkit.model.FriendSearchInfo;
 import com.netease.yunxin.kit.chatkit.model.HitType;
 import com.netease.yunxin.kit.common.ui.utils.AvatarColor;

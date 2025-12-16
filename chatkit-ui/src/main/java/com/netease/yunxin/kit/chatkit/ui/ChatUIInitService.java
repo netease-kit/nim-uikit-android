@@ -13,7 +13,7 @@ import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.chatkit.ui.custom.ChatConfigManager;
 import com.netease.yunxin.kit.chatkit.ui.view.ait.AitService;
-import com.netease.yunxin.kit.corekit.im2.IIMKitInitListener;
+import com.netease.yunxin.kit.corekit.coexist.im2.IIMKitInitListener;
 import java.util.List;
 
 /** Chat模块初始化服务。在初始化完成之后，会调用{@link #onInit(Context)}方法。 */

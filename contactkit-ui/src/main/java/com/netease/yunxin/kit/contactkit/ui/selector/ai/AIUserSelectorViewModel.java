@@ -10,7 +10,7 @@ import static com.netease.yunxin.kit.contactkit.ui.ContactUIConfig.DEFAULT_SELEC
 import android.text.TextUtils;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
-import com.netease.nimlib.sdk.v2.ai.model.V2NIMAIUser;
+import com.netease.nimlib.coexist.sdk.v2.ai.model.V2NIMAIUser;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.manager.AIUserManager;
 import com.netease.yunxin.kit.chatkit.repo.ContactRepo;
@@ -22,8 +22,8 @@ import com.netease.yunxin.kit.contactkit.ui.indexbar.helper.IndexBarDataHelperIm
 import com.netease.yunxin.kit.contactkit.ui.model.ContactFriendBean;
 import com.netease.yunxin.kit.contactkit.ui.model.SelectableBean;
 import com.netease.yunxin.kit.contactkit.ui.model.SelectedViewBean;
-import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
-import com.netease.yunxin.kit.corekit.im2.model.UserWithFriend;
+import com.netease.yunxin.kit.corekit.coexist.im2.extend.FetchCallback;
+import com.netease.yunxin.kit.corekit.coexist.im2.model.UserWithFriend;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

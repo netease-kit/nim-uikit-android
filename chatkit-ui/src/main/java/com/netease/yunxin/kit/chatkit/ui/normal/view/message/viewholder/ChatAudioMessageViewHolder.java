@@ -18,7 +18,7 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import androidx.annotation.NonNull;
-import com.netease.nimlib.sdk.v2.message.attachment.V2NIMMessageAudioAttachment;
+import com.netease.nimlib.coexist.sdk.v2.message.attachment.V2NIMMessageAudioAttachment;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatBaseMessageViewHolderBinding;
@@ -26,7 +26,7 @@ import com.netease.yunxin.kit.chatkit.ui.databinding.NormalChatMessageAudioViewH
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.view.message.audio.ChatMessageAudioControl;
 import com.netease.yunxin.kit.common.utils.SizeUtils;
-import com.netease.yunxin.kit.corekit.im2.audioplayer.Playable;
+import com.netease.yunxin.kit.corekit.coexist.im2.audioplayer.Playable;
 import java.util.List;
 import java.util.Objects;
 

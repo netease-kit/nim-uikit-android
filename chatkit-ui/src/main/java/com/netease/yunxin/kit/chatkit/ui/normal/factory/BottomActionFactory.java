@@ -4,7 +4,7 @@
 
 package com.netease.yunxin.kit.chatkit.ui.normal.factory;
 
-import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
+import com.netease.nimlib.coexist.sdk.v2.conversation.enums.V2NIMConversationType;
 import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
 import com.netease.yunxin.kit.chatkit.manager.AIUserManager;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitClient;

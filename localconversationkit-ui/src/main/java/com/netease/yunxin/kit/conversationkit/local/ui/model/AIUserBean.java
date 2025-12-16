@@ -4,7 +4,7 @@
 
 package com.netease.yunxin.kit.conversationkit.local.ui.model;
 
-import com.netease.nimlib.sdk.v2.ai.model.V2NIMAIUser;
+import com.netease.nimlib.coexist.sdk.v2.ai.model.V2NIMAIUser;
 import com.netease.yunxin.kit.common.ui.viewholder.BaseBean;
 
 public class AIUserBean extends BaseBean {

@@ -11,7 +11,7 @@ import com.netease.yunxin.kit.chatkit.listener.MediaChooseConfig;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitClient;
 import com.netease.yunxin.kit.common.ui.photo.BasePhotoChoiceDialog;
 import com.netease.yunxin.kit.common.utils.model.LocalFileInfo;
-import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
+import com.netease.yunxin.kit.corekit.coexist.im2.extend.FetchCallback;
 import com.netease.yunxin.kit.teamkit.ui.R;
 import com.netease.yunxin.kit.teamkit.ui.databinding.FunDialogPhotoChoiceBinding;
 import java.io.File;

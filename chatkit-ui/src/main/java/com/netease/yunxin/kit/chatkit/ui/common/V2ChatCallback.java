@@ -7,7 +7,7 @@ package com.netease.yunxin.kit.chatkit.ui.common;
 import androidx.annotation.Nullable;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.common.ui.utils.ToastX;
-import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
+import com.netease.yunxin.kit.corekit.coexist.im2.extend.FetchCallback;
 
 /**
  * 通用的回调

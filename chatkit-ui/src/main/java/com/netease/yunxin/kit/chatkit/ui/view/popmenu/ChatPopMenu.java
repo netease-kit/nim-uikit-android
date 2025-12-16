@@ -27,7 +27,7 @@ import com.netease.yunxin.kit.chatkit.ui.factory.ChatPopActionFactory;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.textSelectionHelper.SelectableTextHelper;
 import com.netease.yunxin.kit.common.utils.SizeUtils;
-import com.netease.yunxin.kit.corekit.im2.IMKitClient;
+import com.netease.yunxin.kit.corekit.coexist.im2.IMKitClient;
 import com.netease.yunxin.kit.corekit.model.PluginAction;
 import java.util.ArrayList;
 import java.util.List;

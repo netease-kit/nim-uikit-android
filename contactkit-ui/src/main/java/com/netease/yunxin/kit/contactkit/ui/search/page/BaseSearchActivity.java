@@ -29,7 +29,7 @@ import com.netease.yunxin.kit.contactkit.ui.R;
 import com.netease.yunxin.kit.contactkit.ui.model.SearchTeamBean;
 import com.netease.yunxin.kit.contactkit.ui.search.SearchAdapter;
 import com.netease.yunxin.kit.contactkit.ui.search.SearchViewModel;
-import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
+import com.netease.yunxin.kit.corekit.coexist.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 import java.util.Objects;
 

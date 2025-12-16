@@ -5,7 +5,7 @@
 package com.netease.yunxin.kit.contactkit.ui.contact;
 
 import static com.netease.yunxin.kit.contactkit.ui.ContactConstant.LIB_TAG;
-import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.PATH_ADD_FRIEND_PAGE;
+import static com.netease.yunxin.kit.corekit.coexist.im2.utils.RouterConstant.PATH_ADD_FRIEND_PAGE;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -34,8 +34,8 @@ import com.netease.yunxin.kit.contactkit.ui.verify.ClearTeamVerifyEvent;
 import com.netease.yunxin.kit.contactkit.ui.view.ContactLayout;
 import com.netease.yunxin.kit.corekit.event.EventCenter;
 import com.netease.yunxin.kit.corekit.event.EventNotify;
-import com.netease.yunxin.kit.corekit.im2.model.UserWithFriend;
-import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
+import com.netease.yunxin.kit.corekit.coexist.im2.model.UserWithFriend;
+import com.netease.yunxin.kit.corekit.coexist.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 import java.util.Collections;
 import java.util.List;

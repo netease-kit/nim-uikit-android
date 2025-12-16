@@ -9,7 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import androidx.annotation.NonNull;
 import com.bumptech.glide.Glide;
-import com.netease.nimlib.sdk.v2.message.attachment.V2NIMMessageLocationAttachment;
+import com.netease.nimlib.coexist.sdk.v2.message.attachment.V2NIMMessageLocationAttachment;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitClient;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant;

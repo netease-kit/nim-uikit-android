@@ -4,7 +4,7 @@
 
 package com.netease.yunxin.kit.chatkit.ui;
 
-import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
+import com.netease.nimlib.coexist.sdk.v2.conversation.enums.V2NIMConversationType;
 
 /** 聊天界面回调接口 该接口定义了聊天界面的回调方法，用于处理会话切换等事件 */
 public interface IChatListener {

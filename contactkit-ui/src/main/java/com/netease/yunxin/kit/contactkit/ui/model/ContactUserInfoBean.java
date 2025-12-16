@@ -5,8 +5,8 @@
 package com.netease.yunxin.kit.contactkit.ui.model;
 
 import android.text.TextUtils;
-import com.netease.nimlib.sdk.v2.user.V2NIMUser;
-import com.netease.yunxin.kit.corekit.im2.model.UserWithFriend;
+import com.netease.nimlib.coexist.sdk.v2.user.V2NIMUser;
+import com.netease.yunxin.kit.corekit.coexist.im2.model.UserWithFriend;
 
 /** profile page user info */
 public class ContactUserInfoBean {

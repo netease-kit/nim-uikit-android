@@ -9,7 +9,7 @@ import android.text.Spanned;
 import android.text.style.ForegroundColorSpan;
 import android.view.View;
 import androidx.annotation.NonNull;
-import com.netease.nimlib.sdk.search.model.RecordHitInfo;
+import com.netease.nimlib.coexist.sdk.search.model.RecordHitInfo;
 import com.netease.yunxin.kit.chatkit.model.TeamSearchInfo;
 import com.netease.yunxin.kit.common.ui.utils.AvatarColor;
 import com.netease.yunxin.kit.common.ui.viewholder.BaseViewHolder;

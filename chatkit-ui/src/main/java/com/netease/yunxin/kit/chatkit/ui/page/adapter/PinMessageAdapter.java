@@ -14,7 +14,7 @@ import com.netease.yunxin.kit.chatkit.ui.interfaces.ChatBaseViewHolder;
 import com.netease.yunxin.kit.chatkit.ui.interfaces.IChatViewHolderFactory;
 import com.netease.yunxin.kit.chatkit.ui.interfaces.IItemClickListener;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
-import com.netease.yunxin.kit.corekit.im2.model.IMMessageProgress;
+import com.netease.yunxin.kit.corekit.coexist.im2.model.IMMessageProgress;
 import java.util.ArrayList;
 import java.util.List;
 

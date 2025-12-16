@@ -7,13 +7,13 @@ package com.netease.yunxin.app.im;
 import android.content.Context;
 import android.graphics.Color;
 import android.text.TextUtils;
-import com.netease.nimlib.sdk.NotificationFoldStyle;
-import com.netease.nimlib.sdk.SDKOptions;
-import com.netease.nimlib.sdk.ServerAddresses;
-import com.netease.nimlib.sdk.StatusBarNotificationConfig;
-import com.netease.nimlib.sdk.StatusBarNotificationFilter;
-import com.netease.nimlib.sdk.mixpush.MixPushConfig;
-import com.netease.nimlib.sdk.sync.SyncConfig;
+import com.netease.nimlib.coexist.sdk.NotificationFoldStyle;
+import com.netease.nimlib.coexist.sdk.SDKOptions;
+import com.netease.nimlib.coexist.sdk.ServerAddresses;
+import com.netease.nimlib.coexist.sdk.StatusBarNotificationConfig;
+import com.netease.nimlib.coexist.sdk.StatusBarNotificationFilter;
+import com.netease.nimlib.coexist.sdk.mixpush.MixPushConfig;
+import com.netease.nimlib.coexist.sdk.sync.SyncConfig;
 import com.netease.yunxin.app.im.main.MainActivity;
 import com.netease.yunxin.app.im.main.mine.setting.ServerConfigUtils;
 import com.netease.yunxin.app.im.push.PushUserInfoProvider;
@@ -64,7 +64,6 @@ public class NimSDKOptionConfig {
     options.checkManifestConfig = false;
     options.enableTeamMsgAck = true;
     options.enableFcs = false;
-    options.shouldConsiderRevokedMessageUnreadCount = true;
     // 会话置顶是否漫游
     options.notifyStickTopSession = true;
     //    options.mixPushConfig = buildMixPushConfig();

@@ -7,7 +7,7 @@ package com.netease.yunxin.kit.conversationkit.ui.page;
 import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
-import com.netease.nimlib.sdk.v2.conversation.model.V2NIMConversation;
+import com.netease.nimlib.coexist.sdk.v2.conversation.model.V2NIMConversation;
 import com.netease.yunxin.kit.common.ui.viewholder.BaseViewHolder;
 import com.netease.yunxin.kit.conversationkit.ui.IConversationFactory;
 import com.netease.yunxin.kit.conversationkit.ui.model.ConversationBean;

@@ -9,13 +9,13 @@ import static com.netease.yunxin.kit.teamkit.ui.utils.TeamUIKitConstant.LIB_TAG;
 import android.text.TextUtils;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
-import com.netease.nimlib.sdk.v2.team.model.V2NIMTeam;
+import com.netease.nimlib.coexist.sdk.v2.team.model.V2NIMTeam;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.impl.TeamListenerImpl;
 import com.netease.yunxin.kit.chatkit.repo.TeamRepo;
 import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
-import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
+import com.netease.yunxin.kit.corekit.coexist.im2.extend.FetchCallback;
 
 public class TeamInfoViewModel extends BaseViewModel {
 

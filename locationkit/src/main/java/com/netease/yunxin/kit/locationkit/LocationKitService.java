@@ -8,7 +8,7 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 import com.netease.yunxin.kit.chatkit.ChatService;
 import com.netease.yunxin.kit.chatkit.ui.BuildConfig;
-import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
+import com.netease.yunxin.kit.corekit.coexist.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 
 public class LocationKitService extends ChatService {

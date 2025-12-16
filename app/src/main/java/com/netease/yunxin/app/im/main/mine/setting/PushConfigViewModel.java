@@ -5,13 +5,13 @@
 package com.netease.yunxin.app.im.main.mine.setting;
 
 import android.text.TextUtils;
-import com.netease.nimlib.sdk.v2.message.config.V2NIMMessagePushConfig;
+import com.netease.nimlib.coexist.sdk.v2.message.config.V2NIMMessagePushConfig;
 import com.netease.yunxin.app.im.utils.DataUtils;
 import com.netease.yunxin.app.im.utils.MessageUtils;
 import com.netease.yunxin.kit.chatkit.IMKitCustomFactory;
 import com.netease.yunxin.kit.common.ui.utils.ToastX;
 import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
-import com.netease.yunxin.kit.corekit.im2.IMKitClient;
+import com.netease.yunxin.kit.corekit.coexist.im2.IMKitClient;
 import org.json.JSONException;
 import org.json.JSONObject;
 

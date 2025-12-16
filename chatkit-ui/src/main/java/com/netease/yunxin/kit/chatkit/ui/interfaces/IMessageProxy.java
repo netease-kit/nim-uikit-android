@@ -5,7 +5,7 @@
 package com.netease.yunxin.kit.chatkit.ui.interfaces;
 
 import android.view.View;
-import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
+import com.netease.nimlib.coexist.sdk.v2.conversation.enums.V2NIMConversationType;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import java.io.File;
 import java.util.Map;

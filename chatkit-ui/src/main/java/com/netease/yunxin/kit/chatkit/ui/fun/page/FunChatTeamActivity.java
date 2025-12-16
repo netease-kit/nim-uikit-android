@@ -12,14 +12,14 @@ import android.text.TextUtils;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentManager;
-import com.netease.nimlib.sdk.v2.message.V2NIMMessage;
-import com.netease.nimlib.sdk.v2.team.model.V2NIMTeam;
+import com.netease.nimlib.coexist.sdk.v2.message.V2NIMMessage;
+import com.netease.nimlib.coexist.sdk.v2.team.model.V2NIMTeam;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.fun.page.fragment.FunChatTeamFragment;
 import com.netease.yunxin.kit.chatkit.ui.page.ChatBaseActivity;
-import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
+import com.netease.yunxin.kit.corekit.coexist.im2.utils.RouterConstant;
 
 /** Fun皮肤群聊聊天页面，逻辑在Fragment中实现，该Activity只做Fragment你管理 */
 public class FunChatTeamActivity extends ChatBaseActivity {

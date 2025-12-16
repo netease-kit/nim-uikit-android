@@ -16,8 +16,8 @@ import com.netease.yunxin.kit.contactkit.ui.model.BaseContactBean;
 import com.netease.yunxin.kit.contactkit.ui.model.ContactVerifyInfoBean;
 import com.netease.yunxin.kit.contactkit.ui.view.ContactListViewAttrs;
 import com.netease.yunxin.kit.contactkit.ui.view.viewholder.BaseContactViewHolder;
-import com.netease.yunxin.kit.corekit.im2.IMKitClient;
-import com.netease.yunxin.kit.corekit.im2.model.FriendAddApplicationInfo;
+import com.netease.yunxin.kit.corekit.coexist.im2.IMKitClient;
+import com.netease.yunxin.kit.corekit.coexist.im2.model.FriendAddApplicationInfo;
 
 public class VerifyInfoViewHolder extends BaseContactViewHolder {
 

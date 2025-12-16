@@ -8,13 +8,13 @@ import static com.netease.yunxin.kit.contactkit.ui.ContactConstant.LIB_TAG;
 
 import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
-import com.netease.nimlib.sdk.v2.team.model.V2NIMTeam;
+import com.netease.nimlib.coexist.sdk.v2.team.model.V2NIMTeam;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.repo.TeamRepo;
 import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
-import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
+import com.netease.yunxin.kit.corekit.coexist.im2.extend.FetchCallback;
 
 /** 添加好友ViewModel 提供根据账号ID的搜索功能 */
 public class JoinTeamViewModel extends BaseViewModel {

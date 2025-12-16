@@ -14,9 +14,9 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
-import com.netease.nimlib.sdk.v2.team.model.V2NIMTeam;
-import com.netease.nimlib.sdk.v2.utils.V2NIMConversationIdUtil;
+import com.netease.nimlib.coexist.sdk.v2.conversation.enums.V2NIMConversationType;
+import com.netease.nimlib.coexist.sdk.v2.team.model.V2NIMTeam;
+import com.netease.nimlib.coexist.sdk.v2.utils.V2NIMConversationIdUtil;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.repo.ContactRepo;
 import com.netease.yunxin.kit.chatkit.repo.TeamRepo;
@@ -28,8 +28,8 @@ import com.netease.yunxin.kit.common.ui.activities.adapter.CommonMoreAdapter;
 import com.netease.yunxin.kit.common.ui.activities.viewholder.BaseMoreViewHolder;
 import com.netease.yunxin.kit.common.ui.dialog.BaseDialog;
 import com.netease.yunxin.kit.common.ui.utils.AvatarColor;
-import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
-import com.netease.yunxin.kit.corekit.im2.model.UserWithFriend;
+import com.netease.yunxin.kit.corekit.coexist.im2.extend.FetchCallback;
+import com.netease.yunxin.kit.corekit.coexist.im2.model.UserWithFriend;
 import java.util.ArrayList;
 
 public class FunChatMessageForwardConfirmDialog extends BaseDialog {

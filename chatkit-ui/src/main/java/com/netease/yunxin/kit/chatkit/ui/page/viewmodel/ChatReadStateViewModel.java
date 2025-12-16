@@ -8,7 +8,7 @@ import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
 
 import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
-import com.netease.nimlib.sdk.v2.message.V2NIMMessage;
+import com.netease.nimlib.coexist.sdk.v2.message.V2NIMMessage;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.model.IMTeamMsgAckInfo;
 import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
@@ -20,7 +20,7 @@ import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.common.utils.NetworkUtils;
-import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
+import com.netease.yunxin.kit.corekit.coexist.im2.extend.FetchCallback;
 import java.util.List;
 
 /** chat read state info vide model fetch team read state info to read state page */

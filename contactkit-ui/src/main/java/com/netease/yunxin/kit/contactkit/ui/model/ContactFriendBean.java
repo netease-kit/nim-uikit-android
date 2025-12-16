@@ -4,9 +4,9 @@
 
 package com.netease.yunxin.kit.contactkit.ui.model;
 
-import com.netease.nimlib.sdk.search.model.RecordHitInfo;
+import com.netease.nimlib.coexist.sdk.search.model.RecordHitInfo;
 import com.netease.yunxin.kit.chatkit.model.HitType;
-import com.netease.yunxin.kit.corekit.im2.model.UserWithFriend;
+import com.netease.yunxin.kit.corekit.coexist.im2.model.UserWithFriend;
 import java.util.Objects;
 
 /** data bean for friend */

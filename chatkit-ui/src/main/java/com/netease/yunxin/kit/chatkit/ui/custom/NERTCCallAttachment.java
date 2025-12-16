@@ -6,7 +6,7 @@ package com.netease.yunxin.kit.chatkit.ui.custom;
 
 import androidx.annotation.Nullable;
 import com.netease.yunxin.kit.chatkit.ui.R;
-import com.netease.yunxin.kit.corekit.im2.IMKitClient;
+import com.netease.yunxin.kit.corekit.coexist.im2.IMKitClient;
 import java.util.ArrayList;
 import java.util.List;
 import org.json.JSONArray;

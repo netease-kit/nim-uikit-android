@@ -13,11 +13,11 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
-import com.netease.nimlib.sdk.v2.team.model.V2NIMTeam;
+import com.netease.nimlib.coexist.sdk.v2.team.model.V2NIMTeam;
 import com.netease.yunxin.kit.common.ui.activities.BaseLocalActivity;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
-import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
+import com.netease.yunxin.kit.corekit.coexist.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 import java.util.Objects;
 

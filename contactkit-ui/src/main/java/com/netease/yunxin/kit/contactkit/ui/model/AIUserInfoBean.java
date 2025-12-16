@@ -4,7 +4,7 @@
 
 package com.netease.yunxin.kit.contactkit.ui.model;
 
-import com.netease.nimlib.sdk.v2.ai.model.V2NIMAIUser;
+import com.netease.nimlib.coexist.sdk.v2.ai.model.V2NIMAIUser;
 
 /** AI数字人数据模块 */
 public class AIUserInfoBean extends BaseContactBean {

@@ -36,7 +36,7 @@ import com.netease.yunxin.kit.contactkit.ui.normal.team.TeamSearchActivity;
 import com.netease.yunxin.kit.contactkit.ui.normal.userinfo.UserInfoActivity;
 import com.netease.yunxin.kit.contactkit.ui.normal.verify.ContactVerifyActivity;
 import com.netease.yunxin.kit.contactkit.ui.normal.verify.FriendVerifyActivity;
-import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
+import com.netease.yunxin.kit.corekit.coexist.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 
 @Keep

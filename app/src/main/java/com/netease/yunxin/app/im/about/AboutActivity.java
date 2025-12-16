@@ -11,7 +11,7 @@ import com.netease.yunxin.app.im.R;
 import com.netease.yunxin.app.im.databinding.ActivityAboutBinding;
 import com.netease.yunxin.app.im.utils.AppUtils;
 import com.netease.yunxin.kit.common.ui.activities.BrowseActivity;
-import com.netease.yunxin.kit.corekit.im2.IMKitClient;
+import com.netease.yunxin.kit.corekit.coexist.im2.IMKitClient;
 
 public class AboutActivity extends AppCompatActivity {
 
