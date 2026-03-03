@@ -11,7 +11,7 @@
     <string name="yunxin_tips">For test only. Beware of money transfer, lottery winnings strange call scams.</string>
     <string name="yunxin_report_tips">Report</string>
 
-    <string name="welcome_button">register/login</string>
+        <string name="welcome_button">login</string>
     <string name="email_login">Email Login</string>
     <string name="server_config">Select Node</string>
     <string name="tab_session_tab_text">Chats</string>
@@ -35,7 +35,10 @@
     <string name="server_config_china_text">China</string>
     <string name="server_config_oversea_text">Singapore</string>
     <string name="server_config_dialog_title">Select Node</string>
+    <string name="server_config_agent_title">Save Agent Config</string>
     <string name="server_config_dialog_content">The app will exit after switching nodes and take effect after restarting</string>
+    <string name="server_config_agent_dialog_content">The app will exit after switching config
+        and take effect after restarting</string>
     <string name="server_config_dialog_positive">OK</string>
     <string name="server_config_dialog_cancel">Cancel</string>
     <string name="incoming_call_notify_audio">[Audio Call]</string>
@@ -145,5 +148,23 @@
 
     <string name="uikit_save_success">Save successfully</string>
     <string name="uikit_kickoff_tips">Account kicked offline</string>
+
+    <!-- OpenClaw Configuration Page -->
+    <string name="config_info_title">Configuration Info</string>
+    <string name="config_app_key_label">AppKey</string>
+    <string name="config_app_key_hint">Enter application AppKey</string>
+    <string name="config_app_key_error">AppKey format is incorrect, minimum length is 20</string>
+    <string name="config_account_label">Account</string>
+    <string name="config_account_hint">Enter login account</string>
+    <string name="config_token_label">Token</string>
+    <string name="config_token_hint">Enter login token</string>
+    <string name="config_openclaw_account_label">OpenClaw Account</string>
+    <string name="config_openclaw_account_hint">Enter OpenClaw AI agent account</string>
+    <string name="config_openclaw_account_desc">OpenClaw account is optional. When configured, an AI agent session will be created automatically.</string>
+    <string name="config_save_button">Save Configuration</string>
+    <string name="config_reset_button">Reset Configuration</string>
+    <string name="config_save_success">Configuration saved successfully</string>
+    <string name="config_reset_success">Configuration reset successfully</string>
+    <string name="openclaw_welcome_message">Begin your OpenClaw AI agent journey and make the most of your personal assistant!</string>
 
 </resources>

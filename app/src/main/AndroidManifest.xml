@@ -148,6 +148,10 @@
             android:screenOrientation="portrait"
             android:exported="false" />
 
+        <activity android:name=".main.mine.setting.ConfigInfoActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+
         <!-- 声明云信后台服务 -->
         <service
             android:name="com.netease.nimlib.service.NimService"

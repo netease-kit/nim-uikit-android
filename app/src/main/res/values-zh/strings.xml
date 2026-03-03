@@ -5,13 +5,13 @@
   -->
 
 <resources>
-    <string name="app_name">云信IM</string>
+    <string name="app_name">云信智能IM</string>
     <string name="yunxin_name">网易云信</string>
     <string name="yunxin_desc">真正稳定的IM 云服务</string>
     <string name="yunxin_tips">仅用于体验云信IM产品功能，勿轻信汇款、中奖等涉及钱款的信息，勿拨打陌生电话，谨防上当受骗。</string>
     <string name="yunxin_report_tips">点击举报。</string>
 
-    <string name="welcome_button">注册/登录</string>
+    <string name="welcome_button">登录</string>
     <string name="email_login">邮箱登录</string>
     <string name="server_config">节点选择</string>
     <string name="tab_session_tab_text">消息</string>
@@ -34,7 +34,9 @@
     <string name="server_config_china_text">国内节点配置</string>
     <string name="server_config_oversea_text">海外节点配置</string>
     <string name="server_config_dialog_title">更改配置节点</string>
+    <string name="server_config_agent_title">保存配置信息</string>
     <string name="server_config_dialog_content">切换节点后应用将退出并在重新开启后生效</string>
+    <string name="server_config_agent_dialog_content">切换配置信息后应用将退出并在重新开启后生效</string>
     <string name="server_config_dialog_positive">重启</string>
     <string name="server_config_dialog_cancel">取消</string>
     <string name="incoming_call_notify_audio">【语音通话】</string>
@@ -149,5 +151,22 @@
     <string name="uikit_save_success">保存成功</string>
     <string name="uikit_kickoff_tips">该账户被踢下线</string>
 
+    <!-- OpenClaw配置页面 -->
+    <string name="config_info_title">配置信息</string>
+    <string name="config_app_key_label">AppKey</string>
+    <string name="config_app_key_hint">请输入应用AppKey</string>
+    <string name="config_app_key_error">AppKey格式不正确，长度至少20位</string>
+    <string name="config_account_label">账号</string>
+    <string name="config_account_hint">请输入登录账号</string>
+    <string name="config_token_label">Token</string>
+    <string name="config_token_hint">请输入登录Token</string>
+    <string name="config_openclaw_account_label">OpenClaw账号</string>
+    <string name="config_openclaw_account_hint">请输入OpenClaw智能体账号</string>
+    <string name="config_openclaw_account_desc">OpenClaw账号为可选配置，配置后将自动创建智能体会话</string>
+    <string name="config_save_button">保存配置</string>
+    <string name="config_reset_button">重置配置</string>
+    <string name="config_save_success">配置保存成功</string>
+    <string name="config_reset_success">配置重置成功</string>
+    <string name="openclaw_welcome_message">开启 OpenClaw 智能体之旅，尽情使唤你的小助理吧。</string>
 
 </resources>

@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2022 NetEase, Inc. All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be
+  ~ found in the LICENSE file.
+  -->
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+                <variable
+                    name="viewModel"
+                    type="com.netease.yunxin.app.im.main.mine.setting.ConfigInfoViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/cl_root"
+        android:background="@color/color_e9eff5"
+        tools:ignore="MissingDefaultResource">
+
+        <com.netease.yunxin.kit.common.ui.widgets.BackTitleBar
+            android:id="@+id/config_title_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            app:titleText="@string/config_info_title" />
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintTop_toBottomOf="@id/config_title_bar"
+            app:layout_constraintBottom_toBottomOf="parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingBottom="@dimen/dimen_20_dp">
+
+                <!-- AppKey配置组 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/dimen_16_dp"
+                    android:layout_marginLeft="@dimen/dimen_20_dp"
+                    android:layout_marginRight="@dimen/dimen_20_dp"
+                    android:background="@drawable/app_white_round_bg"
+                    android:orientation="vertical"
+                    android:paddingTop="@dimen/dimen_16_dp"
+                    android:paddingBottom="@dimen/dimen_16_dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="@dimen/dimen_16_dp"
+                        android:layout_marginBottom="@dimen/dimen_8_dp"
+                        android:text="@string/config_app_key_label"
+                        android:textColor="@color/color_333333"
+                        android:textSize="@dimen/dimen_14_dp" />
+
+                    <EditText
+                        android:id="@+id/et_app_key"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/dimen_46_dp"
+                        android:layout_marginLeft="@dimen/dimen_16_dp"
+                        android:layout_marginRight="@dimen/dimen_16_dp"
+                        android:background="@drawable/edit_text_bg"
+                        android:hint="@string/config_app_key_hint"
+                        android:textColor="@color/color_333333"
+                        android:textColorHint="@color/color_b3b7bc"
+                        android:textSize="@dimen/dimen_16_dp"
+                        android:paddingLeft="@dimen/dimen_12_dp"
+                        android:paddingRight="@dimen/dimen_12_dp"
+                        android:singleLine="true"
+                        android:text="@{viewModel.appKey}" />
+
+                    <TextView
+                        android:id="@+id/tv_app_key_error"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="@dimen/dimen_16_dp"
+                        android:layout_marginTop="@dimen/dimen_4_dp"
+                        android:textColor="@color/color_f24957"
+                        android:textSize="@dimen/dimen_12_dp"
+                        android:visibility="gone"
+                        tools:text="AppKey格式不正确" />
+                </LinearLayout>
+
+                <!-- 账号配置组 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/dimen_16_dp"
+                    android:layout_marginLeft="@dimen/dimen_20_dp"
+                    android:layout_marginRight="@dimen/dimen_20_dp"
+                    android:background="@drawable/app_white_round_bg"
+                    android:orientation="vertical"
+                    android:paddingTop="@dimen/dimen_16_dp"
+                    android:paddingBottom="@dimen/dimen_16_dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="@dimen/dimen_16_dp"
+                        android:layout_marginBottom="@dimen/dimen_8_dp"
+                        android:text="@string/config_account_label"
+                        android:textColor="@color/color_333333"
+                        android:textSize="@dimen/dimen_14_dp" />
+
+                    <EditText
+                        android:id="@+id/et_account"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/dimen_46_dp"
+                        android:layout_marginLeft="@dimen/dimen_16_dp"
+                        android:layout_marginRight="@dimen/dimen_16_dp"
+                        android:background="@drawable/edit_text_bg"
+                        android:hint="@string/config_account_hint"
+                        android:textColor="@color/color_333333"
+                        android:textColorHint="@color/color_b3b7bc"
+                        android:textSize="@dimen/dimen_16_dp"
+                        android:paddingLeft="@dimen/dimen_12_dp"
+                        android:paddingRight="@dimen/dimen_12_dp"
+                        android:singleLine="true"
+                        android:text="@{viewModel.account}" />
+                </LinearLayout>
+
+                <!-- Token配置组 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/dimen_16_dp"
+                    android:layout_marginLeft="@dimen/dimen_20_dp"
+                    android:layout_marginRight="@dimen/dimen_20_dp"
+                    android:background="@drawable/app_white_round_bg"
+                    android:orientation="vertical"
+                    android:paddingTop="@dimen/dimen_16_dp"
+                    android:paddingBottom="@dimen/dimen_16_dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="@dimen/dimen_16_dp"
+                        android:layout_marginBottom="@dimen/dimen_8_dp"
+                        android:text="@string/config_token_label"
+                        android:textColor="@color/color_333333"
+                        android:textSize="@dimen/dimen_14_dp" />
+
+                    <EditText
+                        android:id="@+id/et_token"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/dimen_46_dp"
+                        android:layout_marginLeft="@dimen/dimen_16_dp"
+                        android:layout_marginRight="@dimen/dimen_16_dp"
+                        android:background="@drawable/edit_text_bg"
+                        android:hint="@string/config_token_hint"
+                        android:textColor="@color/color_333333"
+                        android:textColorHint="@color/color_b3b7bc"
+                        android:textSize="@dimen/dimen_16_dp"
+                        android:paddingLeft="@dimen/dimen_12_dp"
+                        android:paddingRight="@dimen/dimen_12_dp"
+                        android:singleLine="true"
+                        android:inputType="textPassword"
+                        android:text="@{viewModel.token}" />
+                </LinearLayout>
+
+                <!-- OpenClaw账号配置组 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/dimen_16_dp"
+                    android:layout_marginLeft="@dimen/dimen_20_dp"
+                    android:layout_marginRight="@dimen/dimen_20_dp"
+                    android:background="@drawable/app_white_round_bg"
+                    android:orientation="vertical"
+                    android:paddingTop="@dimen/dimen_16_dp"
+                    android:paddingBottom="@dimen/dimen_16_dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="@dimen/dimen_16_dp"
+                        android:layout_marginBottom="@dimen/dimen_8_dp"
+                        android:text="@string/config_openclaw_account_label"
+                        android:textColor="@color/color_333333"
+                        android:textSize="@dimen/dimen_14_dp" />
+
+                    <EditText
+                        android:id="@+id/et_openclaw_account"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/dimen_46_dp"
+                        android:layout_marginLeft="@dimen/dimen_16_dp"
+                        android:layout_marginRight="@dimen/dimen_16_dp"
+                        android:background="@drawable/edit_text_bg"
+                        android:hint="@string/config_openclaw_account_hint"
+                        android:textColor="@color/color_333333"
+                        android:textColorHint="@color/color_b3b7bc"
+                        android:textSize="@dimen/dimen_16_dp"
+                        android:paddingLeft="@dimen/dimen_12_dp"
+                        android:paddingRight="@dimen/dimen_12_dp"
+                        android:singleLine="true"
+                        android:text="@{viewModel.openClawAccount}" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="@dimen/dimen_16_dp"
+                        android:layout_marginRight="@dimen/dimen_16_dp"
+                        android:layout_marginTop="@dimen/dimen_4_dp"
+                        android:text="@string/config_openclaw_account_desc"
+                        android:textColor="@color/color_999999"
+                        android:textSize="@dimen/dimen_12_dp" />
+                </LinearLayout>
+
+                <!-- 保存按钮 -->
+                <Button
+                    android:id="@+id/btn_save_config"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/dimen_46_dp"
+                    android:layout_marginTop="@dimen/dimen_24_dp"
+                    android:layout_marginLeft="@dimen/dimen_20_dp"
+                    android:layout_marginRight="@dimen/dimen_20_dp"
+                    android:background="@drawable/bg_login_button"
+                    android:text="@string/config_save_button"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/dimen_16_dp"
+                    android:enabled="@{viewModel.saveButtonEnabled}" />
+
+                <!-- 重置按钮 -->
+                <TextView
+                    android:id="@+id/tv_reset_config"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/dimen_46_dp"
+                    android:layout_marginTop="@dimen/dimen_16_dp"
+                    android:layout_marginLeft="@dimen/dimen_20_dp"
+                    android:layout_marginRight="@dimen/dimen_20_dp"
+                    android:background="@drawable/rectangle_white_reduce_bg"
+                    android:gravity="center"
+                    android:text="@string/config_reset_button"
+                    android:textColor="@color/color_666666"
+                    android:textSize="@dimen/dimen_16_dp" />
+
+            </LinearLayout>
+        </ScrollView>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

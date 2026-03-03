@@ -11,8 +11,9 @@
     <string name="yunxin_tips">For test only. Beware of money transfer, lottery winnings strange call scams.</string>
     <string name="yunxin_report_tips">Report</string>
 
-    <string name="welcome_button">register/login</string>
+        <string name="welcome_button">login</string>
     <string name="email_login">Email Login</string>
+    <string name="agent_config">智能体配置</string>
     <string name="server_config">Select Node</string>
     <string name="tab_session_tab_text">Chats</string>
     <string name="tab_contact_tab_text">Contacts</string>
@@ -35,7 +36,10 @@
     <string name="server_config_china_text">China</string>
     <string name="server_config_oversea_text">Singapore</string>
     <string name="server_config_dialog_title">Select Node</string>
+    <string name="server_config_agent_title">Save Agent Config</string>
     <string name="server_config_dialog_content">The app will exit after switching nodes and take effect after restarting</string>
+    <string name="server_config_agent_dialog_content">The app will exit after switching config
+        and take effect after restarting</string>
     <string name="server_config_dialog_positive">OK</string>
     <string name="server_config_dialog_cancel">Cancel</string>
 
@@ -98,6 +102,25 @@
     <string name="user_fail">Failed</string>
     <string name="imkit_email_fail">The email format is incorrect. Please check.</string>
     <string name="network_error">No internet</string>
+
+    <!-- OpenClaw Config -->
+    <string name="openclaw_welcome_message">欢迎使用 OpenClaw AI 智能助手！我可以帮助您解答问题和提供各种服务。</string>
+    <string name="config_info_title">配置信息</string>
+    <string name="config_app_key_label">AppKey</string>
+    <string name="config_account_label">账号</string>
+    <string name="config_token_label">Token</string>
+    <string name="config_openclaw_account_label">OpenClaw 智能体账号</string>
+    <string name="config_app_key_hint">请输入 AppKey</string>
+    <string name="config_account_hint">请输入账号</string>
+    <string name="config_token_hint">请输入 Token</string>
+    <string name="config_openclaw_account_hint">请输入 OpenClaw 智能体账号</string>
+    <string name="config_openclaw_account_desc">可选。如填写，进入主界面时将自动发送欢迎消息。</string>
+    <string name="config_save_success">配置保存成功</string>
+    <string name="config_reset_success">配置清空成功</string>
+    <string name="config_save_button">保存</string>
+    <string name="config_reset_button">清空</string>
+    <string name="config_app_key_error">请填写 AppKey</string>
+    <string name="config_info_help_text">配置完成后重启应用生效</string>
     <string name="anti_error">Unsafe content detected. Please rephrase.</string>
 
     <!--    skin-->

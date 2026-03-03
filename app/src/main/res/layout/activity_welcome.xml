@@ -65,6 +65,23 @@
         app:layout_constraintTop_toBottomOf="@+id/app_desc"
         tools:ignore="SpUsage" />
 
+    <!-- 智能体配置按钮 - 移到登录按钮下方 -->
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tv_agent_config"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dimen_16_dp"
+        android:text="@string/agent_config"
+        android:textColor="@color/color_337EFF"
+        android:textSize="@dimen/text_size_16"
+        android:background="?android:attr/selectableItemBackground"
+        android:padding="@dimen/dimen_12_dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/login_button" />
+
+    <!-- 底部其他配置选项的水平布局 -->
     <androidx.appcompat.widget.LinearLayoutCompat
         android:layout_width="wrap_content"
         android:layout_height="@dimen/dimen_21_dp"
@@ -74,11 +91,11 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
-    <androidx.appcompat.widget.AppCompatImageView
-        android:id="@+id/app_bottom_icon"
-        android:layout_width="@dimen/dimen_21_dp"
-        android:layout_height="@dimen/dimen_21_dp"
-        android:src="@mipmap/ic_yunxin_bottom" />
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/app_bottom_icon"
+            android:layout_width="@dimen/dimen_21_dp"
+            android:layout_height="@dimen/dimen_21_dp"
+            android:src="@mipmap/ic_yunxin_bottom" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/app_bottom_name"

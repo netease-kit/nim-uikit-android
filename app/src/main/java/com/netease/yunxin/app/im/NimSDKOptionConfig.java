@@ -14,6 +14,7 @@ import com.netease.nimlib.sdk.StatusBarNotificationConfig;
 import com.netease.nimlib.sdk.StatusBarNotificationFilter;
 import com.netease.nimlib.sdk.mixpush.MixPushConfig;
 import com.netease.nimlib.sdk.sync.SyncConfig;
+import com.netease.yunxin.app.im.main.mine.setting.ConfigDataUtils;
 import com.netease.yunxin.app.im.main.MainActivity;
 import com.netease.yunxin.app.im.main.mine.setting.ServerConfigUtils;
 import com.netease.yunxin.app.im.push.PushUserInfoProvider;
@@ -51,7 +52,16 @@ public class NimSDKOptionConfig {
       }
     }
     if (TextUtils.isEmpty(options.appKey)) {
-      options.appKey = DataUtils.readAppKey(context);
+      // 优先使用用户配置的AppKey
+      String userConfigAppKey = ConfigDataUtils.getAppKey(context);
+      if (!TextUtils.isEmpty(userConfigAppKey)) {
+        options.appKey = userConfigAppKey;
+        ALog.d(TAG, "getSDKOptions", "Using user configured AppKey: " + userConfigAppKey);
+      } else {
+        // 回退到默认配置
+        options.appKey = DataUtils.readAppKey(context);
+        ALog.d(TAG, "getSDKOptions", "Using default AppKey");
+      }
     }
     initStatusBarNotificationConfig(options);
     options.preloadAttach = true;

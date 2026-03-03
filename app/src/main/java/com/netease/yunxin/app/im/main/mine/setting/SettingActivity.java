@@ -112,6 +112,12 @@ public class SettingActivity extends BaseLocalActivity {
           startActivity(new Intent(SettingActivity.this, PushConfigParseActivity.class));
         });
 
+    // 添加配置信息页面入口
+    viewBinding.configInfoLayout.setOnClickListener(
+        v -> {
+          startActivity(new Intent(SettingActivity.this, ConfigInfoActivity.class));
+        });
+
     viewBinding.kitConfigLayout.setVisibility(View.VISIBLE);
     viewBinding.kitConfigLayout.setOnClickListener(
         v -> {

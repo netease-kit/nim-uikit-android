@@ -19,6 +19,7 @@ import com.netease.nimlib.sdk.uinfo.model.UserInfo;
 import com.netease.nimlib.sdk.v2.auth.enums.V2NIMDataSyncLevel;
 import com.netease.nimlib.sdk.v2.auth.option.V2NIMLoginOption;
 import com.netease.yunxin.app.im.AppConfig;
+import com.netease.yunxin.app.im.main.mine.setting.ConfigDataUtils;
 import com.netease.yunxin.app.im.BuildConfig;
 import com.netease.yunxin.app.im.IMApplication;
 import com.netease.yunxin.app.im.R;
@@ -26,6 +27,7 @@ import com.netease.yunxin.app.im.databinding.ActivityWelcomeBinding;
 import com.netease.yunxin.app.im.main.AccountLoginActivity;
 import com.netease.yunxin.app.im.main.MainActivity;
 import com.netease.yunxin.app.im.main.mine.setting.ServerConfigActivity;
+import com.netease.yunxin.app.im.main.mine.setting.ConfigInfoActivity;
 import com.netease.yunxin.app.im.utils.AppUtils;
 import com.netease.yunxin.app.im.utils.Constant;
 import com.netease.yunxin.app.im.utils.DataUtils;
@@ -52,7 +54,7 @@ public class WelcomeActivity extends BaseLocalActivity {
     if (IMKitClient.hasLogin()) {
       showMainActivityAndFinish();
     } else {
-      startLogin();
+      showLoginView();
     }
   }
 
@@ -66,18 +68,6 @@ public class WelcomeActivity extends BaseLocalActivity {
     finish();
   }
 
-    // 开始登录
-    private void startLogin() {
-        ALog.d(Constant.PROJECT_TAG, TAG, "startLogin");
-        //填入你的 account and token
-        String account = AppConfig.account;
-        String token = AppConfig.token;
-        if (!TextUtils.isEmpty(account) && !TextUtils.isEmpty(token)) {
-            loginIM(account, token);
-        } else {
-            showLoginView();
-        }
-    }
 
   // 展示登录页面
   private void showLoginView() {
@@ -86,9 +76,10 @@ public class WelcomeActivity extends BaseLocalActivity {
     activityWelcomeBinding.loginButton.setVisibility(View.VISIBLE);
     activityWelcomeBinding.appBottomIcon.setVisibility(View.GONE);
     activityWelcomeBinding.appBottomName.setVisibility(View.GONE);
-    activityWelcomeBinding.tvEmailLogin.setVisibility(View.VISIBLE);
+//    activityWelcomeBinding.tvEmailLogin.setVisibility(View.VISIBLE);
+    activityWelcomeBinding.tvAgentConfig.setVisibility(View.VISIBLE);
     activityWelcomeBinding.tvServerConfig.setVisibility(View.VISIBLE);
-    activityWelcomeBinding.vEmailLine.setVisibility(View.VISIBLE);
+//    activityWelcomeBinding.vEmailLine.setVisibility(View.VISIBLE);
     activityWelcomeBinding.tvAccountLogin.setVisibility(View.VISIBLE);
     activityWelcomeBinding.vServerLine.setVisibility(View.VISIBLE);
     activityWelcomeBinding.vAccountLoginLine.setVisibility(View.VISIBLE);
@@ -97,9 +88,10 @@ public class WelcomeActivity extends BaseLocalActivity {
         view -> {
           launchLoginPage();
         });
-    activityWelcomeBinding.tvEmailLogin.setOnClickListener(
+    activityWelcomeBinding.tvAgentConfig.setOnClickListener(
         view -> {
-          launchLoginPage();
+          Intent intent = new Intent(WelcomeActivity.this, ConfigInfoActivity.class);
+          startActivity(intent);
         });
     activityWelcomeBinding.tvServerConfig.setOnClickListener(
         view -> {
@@ -127,6 +119,32 @@ public class WelcomeActivity extends BaseLocalActivity {
     // 启动登录页面
     private void launchLoginPage() {
         ALog.d(Constant.PROJECT_TAG, TAG, "launchLoginPage");
+        
+        String account = null;
+        String token = null;
+        
+        // 优先级1：检查用户保存的配置
+        if (ConfigDataUtils.hasValidLoginConfig(this)) {
+            account = ConfigDataUtils.getAccount(this);
+            token = ConfigDataUtils.getToken(this);
+            ALog.d(TAG, "launchLoginPage", "Using user configured credentials");
+        }
+        
+        // 优先级2：回退到 AppConfig 默认配置
+        if (TextUtils.isEmpty(account) || TextUtils.isEmpty(token)) {
+            account = AppConfig.account;
+            token = AppConfig.token;
+            ALog.d(TAG, "launchLoginPage", "Using AppConfig default credentials");
+        }
+        
+        // 如果有有效的登录信息，则直接登录
+        if (!TextUtils.isEmpty(account) && !TextUtils.isEmpty(token)) {
+            loginIM(account, token);
+        } else {
+            // 没有有效登录信息时，显示提示
+            ALog.d(TAG, "launchLoginPage", "No valid credentials found");
+            ToastX.showShortToast("请先配置智能体账号信息");
+        }
     }
 
   // 登录IM
