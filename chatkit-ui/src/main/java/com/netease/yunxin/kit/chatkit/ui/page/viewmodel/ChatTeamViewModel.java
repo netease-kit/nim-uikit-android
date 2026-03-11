@@ -65,7 +65,7 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
       new TeamUserChangedListener() {
         @Override
         public void onUsersChanged(List<String> accountIds) {
-          ALog.d(
+          ALog.i(
               LIB_TAG, TAG, "onUsersChanged:" + (accountIds == null ? "null" : accountIds.size()));
           FetchResult<List<String>> result = new FetchResult<>(LoadStatus.Finish);
           result.setData(accountIds);
@@ -76,7 +76,7 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
 
         @Override
         public void onUserDelete(List<String> accountIds) {
-          ALog.d(LIB_TAG, TAG, "onUserDelete:" + (accountIds == null ? "null" : accountIds.size()));
+          ALog.i(LIB_TAG, TAG, "onUserDelete:" + (accountIds == null ? "null" : accountIds.size()));
           FetchResult<List<String>> result = new FetchResult<>(LoadStatus.Finish);
           result.setData(accountIds);
           result.setType(FetchResult.FetchType.Remove);
@@ -85,7 +85,7 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
 
         @Override
         public void onUsersAdd(List<String> accountIds) {
-          ALog.d(LIB_TAG, TAG, "onUsersAdd:" + (accountIds == null ? "null" : accountIds.size()));
+          ALog.i(LIB_TAG, TAG, "onUsersAdd:" + (accountIds == null ? "null" : accountIds.size()));
           FetchResult<List<String>> result = new FetchResult<>(LoadStatus.Finish);
           result.setData(accountIds);
           result.setType(FetchResult.FetchType.Add);
@@ -95,7 +95,7 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
 
   private final TeamChangeListener teamInfoListener =
       team -> {
-        ALog.d(LIB_TAG, TAG, "onTeamInfoUpdated:");
+        ALog.i(LIB_TAG, TAG, "onTeamInfoUpdated:");
         if (team != null && TextUtils.equals(team.getTeamId(), mChatAccountId)) {
           teamLiveData.setValue(team);
           ChatRepo.setCurrentTeam(team);
@@ -133,7 +133,7 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
   @Override
   protected void onTeamMessageReadReceipts(List<V2NIMTeamMessageReadReceipt> readReceipts) {
     super.onTeamMessageReadReceipts(readReceipts);
-    ALog.d(
+    ALog.i(
         LIB_TAG,
         TAG,
         "onTeamMessageReadReceipts:" + (readReceipts == null ? "null" : readReceipts.size()));
@@ -150,7 +150,7 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
       new EventNotify<TeamEvent>() {
         @Override
         public void onNotify(@NonNull TeamEvent event) {
-          ALog.d(LIB_TAG, TAG, "teamDismissNotify:" + event.getTeamId() + event.getAction());
+          ALog.i(LIB_TAG, TAG, "teamDismissNotify:" + event.getTeamId() + event.getAction());
           myDismiss =
               TextUtils.equals(event.getTeamId(), mChatAccountId)
                   && TextUtils.equals(event.getAction(), TeamEventAction.ACTION_DISMISS);
@@ -165,7 +165,7 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
 
   /** 发送解散群聊事件 如果进入该群，发现该群已被解散，发送解散群聊事件，用于通知会话列表界面更新 */
   public void sendTeamDismissEvent() {
-    ALog.d(LIB_TAG, TAG, "sendTeamDismissEvent:" + mChatAccountId);
+    ALog.i(LIB_TAG, TAG, "sendTeamDismissEvent:" + mChatAccountId);
     EventCenter.notifyEvent(new TeamEvent(mChatAccountId, TeamEventAction.ACTION_DISMISS));
   }
 
@@ -189,7 +189,7 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
   }
 
   public void refreshTeamMessageReceipt(List<ChatMessageBean> messageBeans) {
-    ALog.d(
+    ALog.i(
         LIB_TAG,
         TAG,
         "refreshTeamMessageReceipt:" + (messageBeans == null ? "null" : messageBeans.size()));
@@ -226,7 +226,7 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
 
   @Override
   public void sendReceipt(V2NIMMessage message) {
-    ALog.d(
+    ALog.i(
         LIB_TAG, TAG, "sendReceipt:" + (message == null ? "null" : message.getMessageClientId()));
     if (message != null
         && message.getMessageConfig().isReadReceiptEnabled()
@@ -239,7 +239,7 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
   }
 
   public void getTeamInfo() {
-    ALog.d(LIB_TAG, TAG, "getTeamInfo:" + mChatAccountId);
+    ALog.i(LIB_TAG, TAG, "getTeamInfo:" + mChatAccountId);
     V2NIMTeam team = TeamUserManager.getInstance().getCurrentTeam();
     if (team != null) {
       teamLiveData.setValue(team);
@@ -253,7 +253,7 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
   @Override
   protected void getTeamMemberInfoWithMessage(List<IMMessageInfo> messages) {
     super.getTeamMemberInfoWithMessage(messages);
-    ALog.d(
+    ALog.i(
         LIB_TAG,
         TAG,
         "getTeamMemberInfoWithMessage:" + (messages == null ? "null" : messages.size()));
@@ -300,7 +300,7 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
    * @param teamExtension 群扩展信息
    */
   public void handleTopMessage(String teamExtension) {
-    ALog.d(LIB_TAG, TAG, "handleTopMessage:" + teamExtension);
+    ALog.i(LIB_TAG, TAG, "handleTopMessage:" + teamExtension);
     try {
       JSONObject jsonTeam = new JSONObject(teamExtension);
       if (jsonTeam.has(ChatConstants.KEY_EXTENSION_STICKY)) {
@@ -337,7 +337,7 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
             .withReceiverId(topMessage.getReceiverId())
             .withCreateTime(topMessage.getTime())
             .build();
-    ALog.d(LIB_TAG, TAG, "getTopStickyMessage:" + topMessage.getIdClient());
+    ALog.i(LIB_TAG, TAG, "getTopStickyMessage:" + topMessage.getIdClient());
     List<V2NIMMessageRefer> refers = new ArrayList<>();
     refers.add(refer);
     ChatRepo.getMessageListByRefers(
@@ -345,12 +345,12 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
         new FetchCallback<List<IMMessageInfo>>() {
           @Override
           public void onError(int errorCode, @Nullable String errorMsg) {
-            ALog.d(LIB_TAG, TAG, "getTopStickyMessage,onError:" + errorCode);
+            ALog.i(LIB_TAG, TAG, "getTopStickyMessage,onError:" + errorCode);
           }
 
           @Override
           public void onSuccess(@Nullable List<IMMessageInfo> data) {
-            ALog.d(LIB_TAG, TAG, "getTopStickyMessage,onSuccess:" + (data == null));
+            ALog.i(LIB_TAG, TAG, "getTopStickyMessage,onSuccess:" + (data == null));
             if (data != null && !data.isEmpty()) {
               ChatUserCache.getInstance().setTopMessage(data.get(0));
               topMessageLiveData.postValue(data.get(0));
@@ -416,12 +416,12 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
             new FetchCallback<Void>() {
               @Override
               public void onSuccess(@Nullable Void param) {
-                ALog.d(LIB_TAG, TAG, "addStickyMessage,onSuccess");
+                ALog.i(LIB_TAG, TAG, "addStickyMessage,onSuccess");
               }
 
               @Override
               public void onError(int errorCode, String errorMsg) {
-                ALog.d(LIB_TAG, TAG, "addStickyMessage,onFailed:" + errorCode);
+                ALog.i(LIB_TAG, TAG, "addStickyMessage,onFailed:" + errorCode);
               }
             });
       }
@@ -480,12 +480,12 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
             new FetchCallback<Void>() {
               @Override
               public void onSuccess(@Nullable Void param) {
-                ALog.d(LIB_TAG, TAG, "removeStickyMessage,onSuccess");
+                ALog.i(LIB_TAG, TAG, "removeStickyMessage,onSuccess");
               }
 
               @Override
               public void onError(int errorCode, String errorMsg) {
-                ALog.d(LIB_TAG, TAG, "removeStickyMessage,onFailed:" + errorCode);
+                ALog.i(LIB_TAG, TAG, "removeStickyMessage,onFailed:" + errorCode);
               }
             });
       }

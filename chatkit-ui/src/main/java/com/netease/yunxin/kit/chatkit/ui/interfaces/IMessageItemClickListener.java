@@ -184,15 +184,16 @@ public interface IMessageItemClickListener {
   }
 
   /**
-   * 消息中电话点击事件回调
+   * 文本消息中Linky点击事件回调包括：邮箱、手机号、网址
    *
    * @param view 触发事件的视图
    * @param position 消息所在位置
    * @param messageInfo 消息信息
+   * @param url 点击的URL
    * @return 是否消费该事件
    */
-  default boolean onMessageTelClick(
-      View view, int position, ChatMessageBean messageInfo, String target) {
+  default boolean onMessageClickableSpanClick(
+      View view, int position, ChatMessageBean messageInfo, String url) {
     return false;
   }
 }

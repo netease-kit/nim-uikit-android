@@ -55,6 +55,16 @@ public interface IChatView {
    */
   void deleteMessages(List<String> clientIds);
 
+  /**
+   * 搜索
+   *
+   * @param messageId
+   * @return
+   */
+  int searchMessagePosition(String messageId);
+
+  int searchMessagePositionByTime(long messageCreateTime);
+
   List<ChatMessageBean> getMessageList();
 
   //获取顶部布局
@@ -117,7 +127,7 @@ public interface IChatView {
 
   void setLayoutCustom(IChatViewCustom layoutCustom);
 
-  void showMultiSelect(boolean show);
+  void showMultiSelect(boolean show, View.OnClickListener onCancelListener);
 
   boolean isMultiSelect();
 

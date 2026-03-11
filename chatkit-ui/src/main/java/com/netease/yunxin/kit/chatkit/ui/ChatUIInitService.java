@@ -39,7 +39,7 @@ public class ChatUIInitService implements IIMKitInitListener {
               for (MessageRevokeNotification revokeNotification : revokeNotifications) {
                 // 撤回消息通知,如果不在当前聊天界面则添加到本地消息列表
                 if (!TextUtils.equals(
-                    ChatRepo.getConversationId(),
+                    ChatRepo.getCurrentConversationId(),
                     revokeNotification
                         .getNimNotification()
                         .getMessageRefer()

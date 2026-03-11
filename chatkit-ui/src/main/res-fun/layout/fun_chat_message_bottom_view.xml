@@ -241,7 +241,7 @@
             android:layout_height="@dimen/dimen_188_dp"
             android:visibility="gone" />
 
-        <com.netease.yunxin.kit.chatkit.ui.normal.view.AIHelperView
+        <com.netease.yunxin.kit.chatkit.ui.view.ai.AIHelperView
             android:id="@+id/chat_message_ai_helper_view"
             android:layout_width="match_parent"
             android:layout_height="288dp"

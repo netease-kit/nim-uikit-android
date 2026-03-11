@@ -6,7 +6,7 @@ package com.netease.yunxin.kit.teamkit.ui.utils;
 
 public class TeamUIKitConstant {
   // Intent传递参数，群信息Key值
-  public static final String KEY_TEAM_INFO = "team_info";
+  public static final String KEY_TEAM_INFO = "team_teamInfo";
 
   // TeamUIKit模块的Tag
   public static final String LIB_TAG = "TeamUIKit";

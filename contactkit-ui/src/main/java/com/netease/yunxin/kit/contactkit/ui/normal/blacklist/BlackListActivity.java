@@ -18,6 +18,11 @@ public class BlackListActivity extends BaseBlackListActivity {
 
   // 配置差异化UI
   @Override
+  protected int getEmptyStateViewRes() {
+    return R.drawable.ic_contact_empty;
+  }
+
+  @Override
   protected void initView() {
     super.initView();
     binding

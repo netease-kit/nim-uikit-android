@@ -30,7 +30,7 @@ public class FunTeamMemberListActivity extends BaseTeamMemberListActivity {
   @Override
   protected void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    changeStatusBarColor(R.color.color_ededed);
+    changeStatusBarColor(R.color.fun_team_page_bg_color);
   }
 
   @Override

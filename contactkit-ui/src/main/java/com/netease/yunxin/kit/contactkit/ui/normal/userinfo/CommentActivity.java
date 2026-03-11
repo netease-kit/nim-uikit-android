@@ -18,7 +18,7 @@ public class CommentActivity extends BaseCommentActivity {
     CommentActivityLayoutBinding binding =
         CommentActivityLayoutBinding.inflate(getLayoutInflater());
     titleBar = binding.title;
-    titleBar.setActionTextColor(getResources().getColor(R.color.color_337eff));
+    titleBar.setActionTextColor(getResources().getColor(R.color.color_contact_blue_primary));
     edtComment = binding.edtComment;
     return binding.getRoot();
   }

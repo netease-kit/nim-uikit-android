@@ -52,9 +52,9 @@ public class ChatRichTextPinViewHolder extends ChatBasePinViewHolder {
             viewBinding.messageTitle,
             new IMessageItemClickListener() {
               @Override
-              public boolean onMessageTelClick(
+              public boolean onMessageClickableSpanClick(
                   View view, int position, ChatMessageBean messageInfo, String target) {
-                itemListener.onMessageTelClick(view, position, messageInfo, target);
+                itemListener.onMessageClickableSpanClick(view, position, messageInfo, target);
                 return true;
               }
             },
@@ -66,9 +66,9 @@ public class ChatRichTextPinViewHolder extends ChatBasePinViewHolder {
             viewBinding.messageContent,
             new IMessageItemClickListener() {
               @Override
-              public boolean onMessageTelClick(
+              public boolean onMessageClickableSpanClick(
                   View view, int position, ChatMessageBean messageInfo, String target) {
-                itemListener.onMessageTelClick(view, position, messageInfo, target);
+                itemListener.onMessageClickableSpanClick(view, position, messageInfo, target);
                 return true;
               }
             },

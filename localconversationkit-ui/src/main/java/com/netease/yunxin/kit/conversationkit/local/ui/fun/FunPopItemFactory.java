@@ -172,7 +172,7 @@ public final class FunPopItemFactory {
 
   private static View getDivideView(Context context) {
     View view = new View(context);
-    view.setBackgroundResource(R.color.color_5a5a5a);
+    view.setBackgroundResource(R.color.fun_conversation_pop_bg_color);
     return view;
   }
 

@@ -60,7 +60,7 @@ public class ChatCallMessageViewHolder extends NormalChatBaseMessageViewHolder {
     }
     boolean isSelf = message.isSelf();
     int callTypeIconRes;
-    if (isForwardMsg()) {
+    if (!isChatMsg()) {
       String callText = "";
       if (attachment != null && attachment.callType == 1) {
         callText =
@@ -85,7 +85,7 @@ public class ChatCallMessageViewHolder extends NormalChatBaseMessageViewHolder {
       callTypeIconRes = 0;
     }
 
-    if (isForwardMsg()) {
+    if (!isChatMsg()) {
       callBinding.chatMessageCallIconIn.setVisibility(View.GONE);
       callBinding.chatMessageCallIconOut.setVisibility(View.GONE);
       String brief = MessageHelper.getMsgBrief(messageBean.getMessageData(), false);

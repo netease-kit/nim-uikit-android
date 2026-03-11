@@ -61,7 +61,7 @@ public class ChatTextMessageViewHolder extends NormalChatBaseMessageViewHolder {
 
   private void setMessageText(ChatMessageBean message) {
     CommonUIOption commonUIOption = uiOptions.commonUIOption;
-    if (MessageHelper.isReceivedMessage(message)) {
+    if (showReceiveUIStyle()) {
       if (commonUIOption.messageTextColor != null) {
         textBinding.messageText.setTextColor(commonUIOption.messageTextColor);
       } else if (properties.getReceiveMessageTextColor() != null) {
@@ -82,7 +82,14 @@ public class ChatTextMessageViewHolder extends NormalChatBaseMessageViewHolder {
         if (aiStreamStatus
             != V2NIMMessageAIStreamStatus.V2NIM_MESSAGE_AI_STREAM_STATUS_PLACEHOLDER) {
           String text = message.getMessageData().getMessage().getText();
-          if (TextUtils.isEmpty(text)
+          if (!TextUtils.isEmpty(currentMessage.getKeyword())) {
+            MessageHelper.identifyFaceExpressionAndHighlight(
+                parent.getContext(),
+                textBinding.messageText,
+                text,
+                currentMessage.getKeyword(),
+                parent.getContext().getResources().getColor(R.color.color_chat_message_highlight));
+          } else if (TextUtils.isEmpty(text)
               && aiStreamStatus
                   == V2NIMMessageAIStreamStatus.V2NIM_MESSAGE_AI_STREAM_STATUS_ABORTED) {
             text = textBinding.getRoot().getContext().getString(R.string.chat_ai_error);
@@ -99,11 +106,18 @@ public class ChatTextMessageViewHolder extends NormalChatBaseMessageViewHolder {
         }
       } else {
         //转发消息不需要展示@的高亮
-        if (isForwardMsg() || !IMKitConfigCenter.getEnableAtMessage()) {
+        if (!TextUtils.isEmpty(currentMessage.getKeyword())) {
+          MessageHelper.identifyFaceExpressionAndHighlight(
+              parent.getContext(),
+              textBinding.messageText,
+              message.getMessageData().getText(),
+              currentMessage.getKeyword(),
+              parent.getContext().getResources().getColor(R.color.color_chat_message_highlight));
+        } else if (!isChatMsg() || !IMKitConfigCenter.getEnableAtMessage()) {
           MessageHelper.identifyFaceExpression(
               textBinding.getRoot().getContext(),
               textBinding.messageText,
-              message.getMessageData().getMessage().getText(),
+              message.getMessageData().getText(),
               ImageSpan.ALIGN_BOTTOM);
         } else {
           MessageHelper.identifyExpression(
@@ -119,11 +133,14 @@ public class ChatTextMessageViewHolder extends NormalChatBaseMessageViewHolder {
           parent.getContext().getResources().getString(R.string.chat_message_not_support_tips));
     }
     // 也可单独指定模式（例如只识别电话和邮箱）
-    TextLinkifyUtils.addLinks(textBinding.messageText, itemClickListener, position, currentMessage);
+    if (TextUtils.isEmpty(currentMessage.keyword)) {
+      TextLinkifyUtils.addLinks(
+          textBinding.messageText, itemClickListener, position, currentMessage);
+    }
   }
 
   private void updateOperateView() {
-    if (currentMessage.isAIResponseMsg()) {
+    if (currentMessage.isAIResponseMsg() && isChatMsg()) {
       V2NIMMessageAIStreamStatus aiStreamStatus = currentMessage.getAIConfig().getAIStreamStatus();
       V2NIMMessageRefer threadInfo = currentMessage.getReplyMessageRefer();
       if (aiStreamStatus == V2NIMMessageAIStreamStatus.V2NIM_MESSAGE_AI_STREAM_STATUS_PLACEHOLDER) {
@@ -196,7 +213,13 @@ public class ChatTextMessageViewHolder extends NormalChatBaseMessageViewHolder {
     }
     //    设置点击事件
     if (!isMultiSelect) {
-      textBinding.messageText.setOnClickListener(v -> SelectableTextHelper.getInstance().dismiss());
+      if (itemClickListener != null) {
+        textBinding.messageText.setOnClickListener(
+            v -> {
+              SelectableTextHelper.getInstance().dismiss();
+              itemClickListener.onMessageClick(textBinding.messageText, position, currentMessage);
+            });
+      }
     } else {
       textBinding.messageText.setOnClickListener(this::clickSelect);
     }

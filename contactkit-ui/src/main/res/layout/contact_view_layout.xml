@@ -27,7 +27,7 @@
             android:id="@+id/divide_line_top_for_title"
             android:layout_width="match_parent"
             android:layout_height="@dimen/dimen_1_dp"
-            android:background="@color/color_e9eff5"
+            android:background="@color/color_contact_view_bg"
             android:alpha="0.6"
             tools:ignore="MissingConstraints" />
 

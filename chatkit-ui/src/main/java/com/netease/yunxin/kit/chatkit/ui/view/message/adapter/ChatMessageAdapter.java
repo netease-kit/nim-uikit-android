@@ -26,6 +26,7 @@ import com.netease.yunxin.kit.chatkit.model.MessagePinInfo;
 import com.netease.yunxin.kit.chatkit.ui.ChatMessageType;
 import com.netease.yunxin.kit.chatkit.ui.ChatViewHolderDefaultFactory;
 import com.netease.yunxin.kit.chatkit.ui.IChatFactory;
+import com.netease.yunxin.kit.chatkit.ui.common.ChatUtils;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.chatkit.ui.interfaces.IMessageItemClickListener;
 import com.netease.yunxin.kit.chatkit.ui.interfaces.IMessageReader;
@@ -173,6 +174,8 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<CommonBaseMessageVi
     removeSameMessage(messages);
     int pos = messageList.size();
     messageList.addAll(messages);
+    //刷新消息之间的时间是否需要展示
+    ChatUtils.updateShowTimeText(messageList, pos);
     for (ChatMessageBean messageBean : messages) {
       messagesMap.put(messageBean.getMsgClientId(), messageBean);
     }
@@ -231,6 +234,8 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<CommonBaseMessageVi
     int pos = messageList.size();
     int deletePos = getMessageIndex(message);
     messageList.add(message);
+    //刷新消息之间的时间是否需要展示
+    ChatUtils.updateShowTimeText(messageList, pos);
     messagesMap.put(message.getMsgClientId(), message);
     loadReplyInfo(message);
     if (deletePos >= 0) {
@@ -430,7 +435,7 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<CommonBaseMessageVi
 
     for (int i = 0; i < messageList.size(); i++) {
       if (message.getMessageData().getMessage().getCreateTime()
-          < messageList.get(i).getMessageData().getMessage().getCreateTime()) {
+          < messageList.get(i).getCreateTime()) {
         index = i;
         break;
       }
@@ -439,9 +444,13 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<CommonBaseMessageVi
     loadReplyInfo(message);
     if (index >= 0) {
       messageList.add(index, message);
+      //刷新消息之间的时间是否需要展示
+      ChatUtils.updateShowTimeText(messageList, index);
       notifyItemInserted(index);
     } else {
       messageList.add(message);
+      //刷新消息之间的时间是否需要展示
+      ChatUtils.updateShowTimeText(messageList, messageList.size() - 1);
       notifyItemInserted(messageList.size() - 1);
     }
     return index;
@@ -458,8 +467,7 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<CommonBaseMessageVi
     }
     int index = -1;
     for (int i = 0; i < messageList.size(); i++) {
-      if (TextUtils.equals(
-          clientId, messageList.get(i).getMessageData().getMessage().getMessageClientId())) {
+      if (TextUtils.equals(clientId, messageList.get(i).getMessageData().getMessageClientId())) {
         index = i;
         break;
       }
@@ -496,6 +504,8 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<CommonBaseMessageVi
   public void forwardMessages(List<ChatMessageBean> message) {
     removeSameMessage(message);
     messageList.addAll(0, message);
+    //刷新消息之间的时间是否需要展示
+    ChatUtils.updateShowTimeText(messageList, 0);
     for (ChatMessageBean messageBean : message) {
       messagesMap.put(messageBean.getMsgClientId(), messageBean);
     }
@@ -532,8 +542,7 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<CommonBaseMessageVi
 
   public ChatMessageBean searchMessage(String messageId) {
     for (int i = messageList.size() - 1; i >= 0; i--) {
-      if (TextUtils.equals(
-          messageId, messageList.get(i).getMessageData().getMessage().getMessageClientId())) {
+      if (TextUtils.equals(messageId, messageList.get(i).getMessageData().getMessageClientId())) {
         return messageList.get(i);
       }
     }
@@ -542,23 +551,41 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<CommonBaseMessageVi
 
   public int searchMessagePosition(String messageId) {
     for (int i = 0; i < messageList.size(); i++) {
-      if (TextUtils.equals(
-          messageId, messageList.get(i).getMessageData().getMessage().getMessageClientId())) {
+      if (TextUtils.equals(messageId, messageList.get(i).getMessageData().getMessageClientId())) {
         return i;
       }
     }
     return -1;
   }
 
+  public int searchMessagePositionByTime(long messageCreateTime) {
+
+    // 根据时间搜索，搜索第一个时间值大于该时间的消息位置。保证上个消息的时间一定小于该值
+
+    if (messageList == null || messageList.isEmpty()) {
+      return -1;
+    }
+    int left = 0;
+    int right = messageList.size() - 1;
+    int ans = -1;
+    while (left <= right) {
+      int mid = left + ((right - left) >> 1);
+      long midTime = messageList.get(mid).getCreateTime();
+      if (midTime > messageCreateTime) {
+        ans = mid;
+        right = mid - 1;
+      } else {
+        left = mid + 1;
+      }
+    }
+    if (ans <= 0) {
+      return -1;
+    }
+    long prevTime = messageList.get(ans - 1).getCreateTime();
+    return prevTime < messageCreateTime ? ans : -1;
+  }
+
   public List<ChatMessageBean> getMessageList() {
     return messageList;
-  }
-
-  public interface EndItemBindingListener {
-    void onEndItemBinding();
-  }
-
-  public interface AdapterProcessCallback<T> {
-    void onProcess(T data);
   }
 }

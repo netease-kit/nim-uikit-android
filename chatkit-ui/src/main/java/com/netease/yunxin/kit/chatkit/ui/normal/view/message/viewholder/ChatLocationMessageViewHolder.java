@@ -48,8 +48,31 @@ public class ChatLocationMessageViewHolder extends NormalChatBaseMessageViewHold
     if (attachment == null) {
       return;
     }
-    binding.locationItemTitle.setText(message.getMessageData().getMessage().getText());
-    binding.locationItemAddress.setText(attachment.getAddress());
+    if (!TextUtils.isEmpty(currentMessage.keyword)) {
+      MessageHelper.identifyHighlight(
+          parent.getContext(),
+          binding.locationItemTitle,
+          message.getMessageData().getText(),
+          currentMessage.getKeyword(),
+          binding
+              .getRoot()
+              .getContext()
+              .getResources()
+              .getColor(R.color.color_chat_message_highlight));
+      MessageHelper.identifyHighlight(
+          parent.getContext(),
+          binding.locationItemAddress,
+          attachment.getAddress(),
+          currentMessage.getKeyword(),
+          binding
+              .getRoot()
+              .getContext()
+              .getResources()
+              .getColor(R.color.color_chat_message_highlight));
+    } else {
+      binding.locationItemTitle.setText(message.getMessageData().getMessage().getText());
+      binding.locationItemAddress.setText(attachment.getAddress());
+    }
     if (itemClickListener != null) {
       binding.locationClick.setOnClickListener(
           v -> itemClickListener.onMessageClick(v, position, currentMessage));

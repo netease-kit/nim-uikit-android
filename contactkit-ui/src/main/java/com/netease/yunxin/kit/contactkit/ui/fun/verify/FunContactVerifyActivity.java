@@ -8,14 +8,14 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
 import com.netease.yunxin.kit.contactkit.ui.R;
-import com.netease.yunxin.kit.contactkit.ui.databinding.VerifyListActivityLayoutBinding;
+import com.netease.yunxin.kit.contactkit.ui.databinding.FunVerifyListActivityLayoutBinding;
 import com.netease.yunxin.kit.contactkit.ui.verify.FriendVerifyBaseFragment;
 import com.netease.yunxin.kit.contactkit.ui.verify.TeamVerifyBaseFragment;
 import com.netease.yunxin.kit.contactkit.ui.verify.VerifyBaseActivity;
 
 public class FunContactVerifyActivity extends VerifyBaseActivity {
 
-  protected VerifyListActivityLayoutBinding layoutBinding;
+  protected FunVerifyListActivityLayoutBinding layoutBinding;
 
   @Override
   public FriendVerifyBaseFragment getFriendFragment() {
@@ -30,7 +30,7 @@ public class FunContactVerifyActivity extends VerifyBaseActivity {
   @Override
   public void initViewAndSetContentView(@Nullable Bundle savedInstanceState) {
     changeStatusBarColor(R.color.color_ededed);
-    layoutBinding = VerifyListActivityLayoutBinding.inflate(getLayoutInflater());
+    layoutBinding = FunVerifyListActivityLayoutBinding.inflate(getLayoutInflater());
     setContentView(layoutBinding.getRoot());
     layoutBinding.title.getTitleTextView().setTextSize(17);
     layoutBinding.title.getTitleTextView().setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));

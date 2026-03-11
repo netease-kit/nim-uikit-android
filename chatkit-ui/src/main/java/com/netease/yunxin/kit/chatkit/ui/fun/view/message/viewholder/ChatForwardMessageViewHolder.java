@@ -6,6 +6,7 @@ package com.netease.yunxin.kit.chatkit.ui.fun.view.message.viewholder;
 
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
+import android.text.TextUtils;
 import android.text.style.ImageSpan;
 import android.view.LayoutInflater;
 import android.widget.LinearLayout;
@@ -40,7 +41,7 @@ public class ChatForwardMessageViewHolder extends FunChatBaseMessageViewHolder {
     super.onMessageBackgroundConfig(messageBean);
     LinearLayout.LayoutParams layoutParams =
         (LinearLayout.LayoutParams) viewBinding.messageDivider.getLayoutParams();
-    if (isForwardMsg() || MessageHelper.isReceivedMessage(messageBean)) {
+    if (!isChatMsg() || MessageHelper.isReceivedMessage(messageBean)) {
       layoutParams.setMarginStart(SizeUtils.dp2px(7));
       layoutParams.setMarginEnd(0);
     } else {
@@ -64,28 +65,61 @@ public class ChatForwardMessageViewHolder extends FunChatBaseMessageViewHolder {
                   .getContext()
                   .getString(R.string.chat_message_multi_record_title),
               attachment.sessionName);
-      viewBinding.messageMultiTitle.setText(titleText);
       if (attachment.abstractsList != null) {
         String contentFormat =
             getMessageContainer()
                 .getContext()
                 .getString(R.string.chat_message_multi_record_content);
         SpannableStringBuilder textBuilder = new SpannableStringBuilder();
-        for (int i = 0; i < attachment.abstractsList.size(); i++) {
-          String content =
-              String.format(
-                  contentFormat,
-                  ChatUtils.getEllipsizeMiddleNick(attachment.abstractsList.get(i).senderNick),
-                  attachment.abstractsList.get(i).content);
-          SpannableString sb =
-              MessageHelper.replaceEmoticons(
-                  parent.getContext(), content, MessageHelper.DEF_SCALE, ImageSpan.ALIGN_BOTTOM);
-          textBuilder.append(sb);
-          if (i < attachment.abstractsList.size() - 1) {
-            textBuilder.append("\n");
+
+        if (!TextUtils.isEmpty(currentMessage.keyword)) {
+          for (int i = 0; i < attachment.abstractsList.size(); i++) {
+            String content =
+                String.format(
+                    contentFormat,
+                    ChatUtils.getEllipsizeMiddleNick(attachment.abstractsList.get(i).senderNick),
+                    attachment.abstractsList.get(i).content);
+            textBuilder.append(content);
+            if (i < attachment.abstractsList.size() - 1) {
+              textBuilder.append("\n");
+            }
           }
+          MessageHelper.identifyFaceExpressionAndHighlight(
+              parent.getContext(),
+              viewBinding.messageText,
+              textBuilder.toString(),
+              message.getKeyword(),
+              parent
+                  .getContext()
+                  .getResources()
+                  .getColor(R.color.fun_chat_message_highlight_color));
+          MessageHelper.identifyFaceExpressionAndHighlight(
+              parent.getContext(),
+              viewBinding.messageMultiTitle,
+              titleText,
+              message.getKeyword(),
+              parent
+                  .getContext()
+                  .getResources()
+                  .getColor(R.color.fun_chat_message_highlight_color));
+        } else {
+          for (int i = 0; i < attachment.abstractsList.size(); i++) {
+            String content =
+                String.format(
+                    contentFormat,
+                    ChatUtils.getEllipsizeMiddleNick(attachment.abstractsList.get(i).senderNick),
+                    attachment.abstractsList.get(i).content);
+            SpannableString sb =
+                MessageHelper.replaceEmoticons(
+                    parent.getContext(), content, MessageHelper.DEF_SCALE, ImageSpan.ALIGN_BOTTOM);
+            textBuilder.append(sb);
+            if (i < attachment.abstractsList.size() - 1) {
+              textBuilder.append("\n");
+            }
+          }
+          viewBinding.messageMultiTitle.setText(titleText);
+          viewBinding.messageText.setText(textBuilder);
         }
-        viewBinding.messageText.setText(textBuilder);
       }
     }
   }

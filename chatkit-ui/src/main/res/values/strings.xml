@@ -6,10 +6,11 @@
 
 <resources>
     <string name="chat_online_status_title_format">%s%s</string>
-    <string name="chat_online_status_text">(在线)</string>
-    <string name="chat_offline_status_text">(离线)</string>
+    <string name="chat_online_status_text">(online)</string>
+    <string name="chat_offline_status_text">(offline)</string>
     <string name="cancel">Cancel</string>
     <string name="chat_dialog_sure">Sure</string>
+    <string name="chat_complete_text">Complete</string>
     <string name="chat_pressed_to_speak">Hold to Talk</string>
     <string name="chat_record_failed">Whoops! Please retry.</string>
     <string name="chat_message_send_hint">Sending to %s</string>
@@ -24,6 +25,7 @@
     <string name="chat_message_re_edit">Edit</string>
     <string name="chat_message_voice_in"> Release to send</string>
     <string name="chat_message_signal">Pin</string>
+    <string name="chat_message_history">Search Chat History</string>
     <string name="chat_message_open_message_notice">Notification</string>
     <string name="chat_message_set_top">Sticky on Top</string>
     <string name="chat_message_set_ai_pin">PIN</string>
@@ -100,6 +102,8 @@
     <string name="chat_team_add_top_message">Added top message</string>
     <string name="chat_team_remove_top_message">Removed top message</string>
     <string name="chat_message_action_tel">Call</string>
+    <!-- 消息长按定位，用于搜索定位 -->
+    <string name="chat_message_action_location">Locate to chat</string>
     <string name="chat_message_action_cancel">Cancel</string>
 
     <string name="chat_message_action_revoke_this_message">Confirm message recall?</string>
@@ -190,9 +194,43 @@
 
 
     <!-- search -->
-    <string name="message_search_title">History</string>
-    <string name="message_search_hint">Chat History</string>
+    <string name="message_search_title">Search Chat History</string>
+    <string name="message_search_hint">Search Chat History</string>
     <string name="message_search_empty">Empty</string>
+    <string name="message_search_tips">Search Chat Messages</string>
+    <string name="message_search_member">Members</string>
+    <string name="message_search_image">Images</string>
+    <string name="message_search_video">Videos</string>
+    <string name="message_search_file">Files</string>
+    <string name="message_search_date">Date</string>
+    <string name="message_search_today">Today</string>
+    <string name="chat_search_member_by_user">Search by member</string>
+    <string name="chat_calendar_today">Today</string>
+    <string name="chat_calendar_month_number">%d</string>
+    <string name="chat_search_image_empty_tips">No images found</string>
+    <string name="chat_search_video_empty_tips">No videos found</string>
+    <string name="chat_search_file_empty_tips">No files found</string>
+    <string name="chat_list_no_more_tips">No more</string>
+    <string name="chat_list_loading_more_tips">Loading more messages</string>
+    <string name="chat_week_1">Sun</string>
+    <string name="chat_week_2">Mon</string>
+    <string name="chat_week_3">Tue</string>
+    <string name="chat_week_4">Wed</string>
+    <string name="chat_week_5">Thu</string>
+    <string name="chat_week_6">Fri</string>
+    <string name="chat_week_7">Sat</string>
+
+    <!-- calendar -->
+    <string name="chat_calendar_filter_by_date">Filter by Date</string>
+    <string name="chat_calendar_quick_today">Today</string>
+    <string name="chat_calendar_quick_last_7_days">Last 7 Days</string>
+    <string name="chat_calendar_quick_last_30_days">Last 30 Days</string>
+    <string name="chat_no_more_images">No more images</string>
+    <string name="chat_group_label_this_month">This Month</string>
+    <string name="chat_group_label_this_week">This Week</string>
+    <string name="chat_month_format_current_year">MMM</string>
+    <string name="chat_month_format_other_year">MMM yyyy</string>
+    <string name="chat_search_failed">Search failed: %1$s</string>
 
     <string name="chat_team_all_mute">Muted</string>
     <string name="chat_message_forward_tips">[Forward] %s history</string>
@@ -328,6 +366,7 @@
     <string name="ps_camera_roll">Image and Video</string>
     <string name="chat_tel_tips_title">\"%s\" may be a phone number, do you want to call
         it?</string>
+    <string name="chat_message_see_bottom">%d new messages</string>
 
     <!-- Anti-spam content tips -->
     <string name="chat_anti_porn_tips">Pornography</string>
@@ -342,4 +381,23 @@
     <string name="chat_anti_value_tips">Value-related</string>
     <string name="chat_anti_result_tips">The content may involve %s. Please adjust and send.</string>
 
+    <!-- 搜索相关文案-->
+    <string name="chat_date_m_d_formate">MM-dd</string>
+    <string name="chat_date_y_m_d_formate">yyyy-MM-dd</string>
+    <string name="chat_date_y_m_formate">yyyy-MM</string>
+
+    <!-- ==================== Fun 皮肤专属字符串 ==================== -->
+
+    <!-- Fun 输入框 -->
+    <string name="fun_chat_input_more_album_title">Album</string>
+    <string name="fun_chat_input_audio_record_title">Hold to Talk</string>
+    <string name="fun_chat_input_hint_tips">Enter what you want to say…</string>
+
+    <!-- Fun 录音提示 -->
+    <string name="fun_chat_audio_record_send_tips">release to send</string>
+    <string name="fun_chat_audio_record_cancel_tips">release to cancel</string>
+    <string name="fun_chat_audio_record_max_time_tips">Recording will stop after %d \"</string>
+
+    <!-- Fun 消息撤回 -->
+    <string name="fun_chat_message_revoked">%s recalled the message</string>
 </resources>

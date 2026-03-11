@@ -53,7 +53,7 @@ public abstract class BaseTeamUpdateIntroduceActivity extends BaseLocalActivity 
     checkViews();
     setContentView(rootView);
 
-    changeStatusBarColor(R.color.color_eff1f4);
+    changeStatusBarColor(R.color.color_team_page_bg);
     hasPrivilege = getIntent().getBooleanExtra(KEY_TEAM_UPDATE_INFO_PRIVILEGE, false);
     teamId = getIntent().getStringExtra(KEY_TEAM_ID);
     lastTeamIntroduce = getIntent().getStringExtra(KEY_TEAM_INTRODUCE);

@@ -39,6 +39,7 @@ import com.netease.yunxin.kit.corekit.event.BaseEvent;
 import com.netease.yunxin.kit.corekit.event.EventCenter;
 import com.netease.yunxin.kit.corekit.event.EventNotify;
 import com.netease.yunxin.kit.corekit.im2.IMKitClient;
+import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.teamkit.ui.R;
 import com.netease.yunxin.kit.teamkit.ui.adapter.BaseTeamMemberListAdapter;
 import com.netease.yunxin.kit.teamkit.ui.model.EventCloseChat;
@@ -60,6 +61,12 @@ public abstract class BaseTeamMemberListActivity extends BaseLocalActivity {
   protected BaseTeamMemberListAdapter<? extends ViewBinding> adapter;
   protected V2NIMTeamType teamTypeEnum;
   protected TeamWithCurrentMember teamWithCurrentMember;
+  public static final String KEY_SELECT_MODE = "team_member_select_mode";
+  public static final int MODE_DEFAULT = 0;
+  public static final int MODE_SELECT = 1;
+  public static final String RESULT_SELECTED_ACCOUNT_ID = "result_selected_account_id";
+  public static final String RESULT_SELECTED_NAME = "result_selected_name";
+  protected int selectMode = MODE_DEFAULT;
 
   private View rootView;
   protected View ivBack;
@@ -96,12 +103,17 @@ public abstract class BaseTeamMemberListActivity extends BaseLocalActivity {
 
     changeStatusBarColor(R.color.color_white);
 
-    V2NIMTeam teamInfo = (V2NIMTeam) getIntent().getSerializableExtra(KEY_TEAM_INFO);
+    V2NIMTeam teamInfo = (V2NIMTeam) getIntent().getSerializableExtra(RouterConstant.KEY_TEAM_INFO);
+    teamId = getIntent().getStringExtra(RouterConstant.KEY_TEAM_ID);
     if (teamInfo != null) {
       teamId = teamInfo.getTeamId();
       teamTypeEnum = teamInfo.getTeamType();
       teamGroup = TeamUtils.isTeamGroup(teamInfo);
+    } else if (teamId != null) {
+      teamTypeEnum = V2NIMTeamType.V2NIM_TEAM_TYPE_NORMAL;
+      teamGroup = false;
     }
+    selectMode = getIntent().getIntExtra(KEY_SELECT_MODE, MODE_DEFAULT);
     if (TextUtils.isEmpty(teamId)) {
       finish();
       return;
@@ -168,6 +180,7 @@ public abstract class BaseTeamMemberListActivity extends BaseLocalActivity {
     adapter = getMemberListAdapter(teamTypeEnum);
     // 讨论组不展示身份标签
     adapter.setGroupIdentify(!teamGroup);
+    adapter.showSelect(selectMode == MODE_SELECT);
     rvMemberList.setAdapter(adapter);
     adapter.setItemClickListener(
         (action, view, data, position) -> {
@@ -179,6 +192,14 @@ public abstract class BaseTeamMemberListActivity extends BaseLocalActivity {
                   accounts.add(data.getAccountId());
                   showDeleteConfirmDialog(accounts);
                 });
+          } else if (selectMode == MODE_SELECT) {
+            if (action.equals(BaseTeamMemberListAdapter.ACTION_CHECK)) {
+              Intent dataIntent = new Intent();
+              dataIntent.putExtra(RESULT_SELECTED_ACCOUNT_ID, data.getAccountId());
+              dataIntent.putExtra(RESULT_SELECTED_NAME, data.getName());
+              setResult(Activity.RESULT_OK, dataIntent);
+              finish();
+            }
           }
         });
     ivClear.setOnClickListener(v -> etSearch.setText(null));

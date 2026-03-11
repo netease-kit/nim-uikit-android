@@ -76,6 +76,11 @@ public abstract class CommonBaseMessageViewHolder extends RecyclerView.ViewHolde
     return mode == ChatMessageType.FORWARD_MESSAGE_MODE;
   }
 
+  // 仅展示消息模式，不展示消息的回复、PIN等信息，不支持多选等
+  public boolean isOnlyMsgMode() {
+    return mode == ChatMessageType.ONLY_MESSAGE_MODE;
+  }
+
   /**
    * 设置已读回调
    *

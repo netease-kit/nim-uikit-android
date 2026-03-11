@@ -54,6 +54,7 @@
     <string name="black_list_tips">你不会收到列表中任何联系人的消息</string>
     <string name="contact_black_list_relieve">解除</string>
     <string name="add_black_error">%s加入黑名单失败</string>
+    <string name="black_list_empty_text">暂无黑名单成员</string>
 
     <!-- userinfo page -->
     <string name="clear_all">清空</string>

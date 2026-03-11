@@ -15,6 +15,8 @@ import com.netease.nimlib.sdk.v2.message.V2NIMMessage;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessagePin;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessageRefer;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessageReferBuilder;
+import com.netease.nimlib.sdk.v2.message.attachment.V2NIMMessageAttachment;
+import com.netease.nimlib.sdk.v2.message.attachment.V2NIMMessageFileAttachment;
 import com.netease.nimlib.sdk.v2.message.config.V2NIMMessageAIConfig;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageAIStatus;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageAIStreamStatus;
@@ -90,6 +92,18 @@ public class ChatMessageBean implements Serializable {
 
   //语音转文字结果，默认是空
   private String voiceToText;
+
+  public boolean showTimeText = false;
+
+  public String keyword;
+
+  public void setKeyword(String keyword) {
+    this.keyword = keyword;
+  }
+
+  public String getKeyword() {
+    return keyword;
+  }
 
   public void setVoiceToText(String voiceToText) {
     this.voiceToText = voiceToText;
@@ -197,6 +211,10 @@ public class ChatMessageBean implements Serializable {
 
   public String getMsgClientId() {
     return messageData == null ? "" : messageData.getMessage().getMessageClientId();
+  }
+
+  public long getCreateTime() {
+    return messageData == null ? 0 : messageData.getMessage().getCreateTime();
   }
 
   public void setMessageData(IMMessageInfo messageData) {
@@ -337,6 +355,22 @@ public class ChatMessageBean implements Serializable {
       }
     }
     return viewType;
+  }
+
+  public V2NIMMessageAttachment getAttachment() {
+    return messageData.getMessage().getAttachment();
+  }
+
+  public String getAttachmentPathOrUrl() {
+    V2NIMMessageFileAttachment attachment =
+        (V2NIMMessageFileAttachment) messageData.getAttachment();
+    if (attachment == null) {
+      return null;
+    }
+    if (TextUtils.isEmpty(attachment.getPath())) {
+      return attachment.getUrl();
+    }
+    return attachment.getPath();
   }
 
   public ChatMessageBean setViewType(int viewType) {

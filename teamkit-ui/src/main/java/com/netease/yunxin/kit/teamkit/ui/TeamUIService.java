@@ -12,8 +12,10 @@ import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.PATH_CREAT
 import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.PATH_CREATE_NORMAL_TEAM_ACTION;
 import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.PATH_FUN_CREATE_ADVANCED_TEAM_ACTION;
 import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.PATH_FUN_CREATE_NORMAL_TEAM_ACTION;
+import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.PATH_FUN_TEAM_MEMBER_LIST_PAGE;
 import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.PATH_FUN_TEAM_SETTING_PAGE;
 import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.PATH_TEAM_INVITE_ACTION;
+import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.PATH_TEAM_MEMBER_LIST_PAGE;
 import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.PATH_TEAM_SETTING_PAGE;
 import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.REQUEST_CONTACT_SELECTOR_KEY;
 
@@ -41,7 +43,9 @@ import com.netease.yunxin.kit.corekit.model.ResultInfo;
 import com.netease.yunxin.kit.corekit.model.ResultObserver;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 import com.netease.yunxin.kit.corekit.startup.Initializer;
+import com.netease.yunxin.kit.teamkit.ui.fun.activity.FunTeamMemberListActivity;
 import com.netease.yunxin.kit.teamkit.ui.fun.activity.FunTeamSettingActivity;
+import com.netease.yunxin.kit.teamkit.ui.normal.activity.TeamMemberListActivity;
 import com.netease.yunxin.kit.teamkit.ui.normal.activity.TeamSettingActivity;
 import com.netease.yunxin.kit.teamkit.ui.utils.TeamIconUtils;
 import com.netease.yunxin.kit.teamkit.ui.utils.TeamUIKitConstant;
@@ -89,6 +93,8 @@ public class TeamUIService extends ChatService {
     // 标准版本注册 ========================================
     // 注册群聊设置页面路由
     XKitRouter.registerRouter(PATH_TEAM_SETTING_PAGE, TeamSettingActivity.class);
+    // 注册群成员列表页面路由
+    XKitRouter.registerRouter(PATH_TEAM_MEMBER_LIST_PAGE, TeamMemberListActivity.class);
     // 创建讨论组注册到路由器，可通过路由触发
     registerCreateNormalTeamRouter(
         context, PATH_CREATE_NORMAL_TEAM_ACTION, () -> TeamIconUtils.getDefaultRandomIconUrl(true));
@@ -101,6 +107,7 @@ public class TeamUIService extends ChatService {
     // 娱乐版本注册 ========================================
     // 注册群聊设置页面路由
     XKitRouter.registerRouter(PATH_FUN_TEAM_SETTING_PAGE, FunTeamSettingActivity.class);
+    XKitRouter.registerRouter(PATH_FUN_TEAM_MEMBER_LIST_PAGE, FunTeamMemberListActivity.class);
     // 创建讨论组注册到路由器，可通过路由触发
     registerCreateAdvanceTeamRouter(
         context,

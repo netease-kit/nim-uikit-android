@@ -78,7 +78,7 @@ public class FunChatView extends LinearLayout implements IChatView, AitTextChang
     ChatViewHolderDefaultFactory.getInstance().config(FunChatViewHolderFactory.getInstance());
     LayoutInflater layoutInflater = LayoutInflater.from(getContext());
     binding = FunChatViewBinding.inflate(layoutInflater, this, true);
-    binding.messageView.setOnListViewEventListener(
+    binding.messageView.addOnListViewEventListener(
         new ChatMessageListView.OnListViewEventListener() {
           @Override
           public void onListViewStartScroll() {
@@ -422,8 +422,8 @@ public class FunChatView extends LinearLayout implements IChatView, AitTextChang
       binding.notificationTextView.setTextSize(14);
       binding.notificationTextView.setText(R.string.chat_network_error_tip);
       binding.notificationTextView.setTextColor(
-          getContext().getResources().getColor(R.color.color_50_000000));
-      binding.notificationTextView.setBackgroundResource(R.color.color_fceeee);
+          getContext().getResources().getColor(R.color.fun_chat_network_error_text));
+      binding.notificationTextView.setBackgroundResource(R.color.fun_chat_network_error_bg);
     }
   }
 
@@ -433,7 +433,7 @@ public class FunChatView extends LinearLayout implements IChatView, AitTextChang
   }
 
   @Override
-  public void showMultiSelect(boolean show) {
+  public void showMultiSelect(boolean show, View.OnClickListener onCancelListener) {
     binding.chatBottomInputLayout.collapse(true);
     binding.chatMsgMultiSelectLayout.setVisibility(show ? VISIBLE : GONE);
     binding.messageView.setMultiSelect(show);
@@ -443,13 +443,13 @@ public class FunChatView extends LinearLayout implements IChatView, AitTextChang
       binding.titleBar.setActionText(R.string.cancel);
       binding.titleBar.getActionTextView().setVisibility(VISIBLE);
       binding.titleBar.getActionImageView().setVisibility(GONE);
-      binding.titleBar.setActionTextListener(v -> showMultiSelect(false));
+      binding.titleBar.setActionTextListener(onCancelListener);
       ChatMsgCache.clear();
     } else {
       ChatMsgCache.clear();
       binding.titleBar.getActionTextView().setVisibility(GONE);
       binding.titleBar.getActionImageView().setVisibility(VISIBLE);
-      binding.titleBar.setActionTextListener(null);
+      binding.titleBar.setActionTextListener(onCancelListener);
     }
   }
 
@@ -519,6 +519,7 @@ public class FunChatView extends LinearLayout implements IChatView, AitTextChang
 
   @Override
   public void hideCurrentInput() {
+    hideRichInputPanel();
     binding.chatBottomInputLayout.hideCurrentInput();
   }
 
@@ -590,6 +591,16 @@ public class FunChatView extends LinearLayout implements IChatView, AitTextChang
   @Override
   public View getRootView() {
     return binding.getRoot();
+  }
+
+  @Override
+  public int searchMessagePosition(String messageId) {
+    return binding.messageView.searchMessagePosition(messageId);
+  }
+
+  @Override
+  public int searchMessagePositionByTime(long messageCreateTime) {
+    return binding.messageView.searchMessagePositionByTime(messageCreateTime);
   }
 
   private final TextWatcher richTitleInputTextWatcher =

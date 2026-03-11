@@ -10,7 +10,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/color_eff1f4">
+    android:background="@color/color_team_page_bg">
 
     <TextView
         android:id="@+id/tvTitle"
@@ -18,7 +18,7 @@
         android:layout_height="48dp"
         android:gravity="center"
         android:text="@string/team_update_icon"
-        android:textColor="@color/color_333333"
+        android:textColor="@color/color_team_primary_text"
         android:textSize="16dp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
@@ -33,7 +33,7 @@
         android:layout_marginStart="20dp"
         android:gravity="center_vertical"
         android:text="@string/team_cancel"
-        android:textColor="@color/color_666666"
+        android:textColor="@color/color_team_tertiary_text"
         android:textSize="16dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -46,7 +46,7 @@
         android:layout_marginEnd="20dp"
         android:gravity="center_vertical"
         android:text="@string/team_save"
-        android:textColor="@color/color_337eff"
+        android:textColor="@color/color_team_blue_primary"
         android:textSize="16dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -102,7 +102,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:text="@string/team_default_icon"
-        android:textColor="@color/color_333333"
+        android:textColor="@color/color_team_primary_text"
         android:textSize="16dp"
         app:layout_constraintStart_toStartOf="@id/bg2"
         app:layout_constraintTop_toTopOf="@id/bg2"

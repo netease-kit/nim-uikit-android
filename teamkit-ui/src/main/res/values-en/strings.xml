@@ -21,7 +21,7 @@
     <string name="team_manager">Group Admin</string>
     <string name="team_edit_manager">Edit Admin</string>
     <string name="team_mark">Pin</string> 
-    <string name="team_history">History</string> 
+    <string name="team_history">Search Chat History</string>
     <string name="team_message_tip">Notification</string> 
     <string name="team_session_pin">Sticky on Top</string> 
     <string name="team_mute">Group Mute</string> 

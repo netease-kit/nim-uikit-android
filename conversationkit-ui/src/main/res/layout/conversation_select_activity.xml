@@ -24,7 +24,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="@dimen/text_size_12"
-        android:textColor="@color/color_999999"
+        android:textColor="@color/color_conversation_secondary_text"
         android:text="@string/recent_title"
         android:layout_marginLeft="@dimen/dimen_20_dp"
         />

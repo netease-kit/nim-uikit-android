@@ -114,6 +114,16 @@ public class ChatSettingActivity extends BaseLocalActivity {
       binding.pinLayout.setVisibility(View.GONE);
     }
 
+    binding.historyLayout.setOnClickListener(
+        v ->
+            XKitRouter.withKey(RouterConstant.PATH_CHAT_SEARCH_PAGE)
+                .withParam(
+                    RouterConstant.CHAT_CONVERSATION_TYPE_KRY,
+                    V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P.getValue())
+                .withParam(RouterConstant.CHAT_ID_KRY, accId)
+                .withContext(ChatSettingActivity.this)
+                .navigate());
+
     binding.notifyLayout.setOnClickListener(
         v -> {
           if (!NetworkUtils.isConnected()) {

@@ -18,4 +18,11 @@
     <dimen name="dimen_14_dp">14dp</dimen>
 
     <dimen name="text_size_12">12sp</dimen>
+
+    <!-- ==================== Fun 皮肤专属尺寸 ==================== -->
+    <dimen name="fun_add_pop_item_height">42dp</dimen>
+    <dimen name="fun_add_pop_item_width">126dp</dimen>
+    <dimen name="fun_add_pop_item_margin_right_top">16dp</dimen>
+    <dimen name="fun_add_pop_item_padding">8dp</dimen>
+    <!-- ==================== Fun 皮肤专属尺寸 END ==================== -->
 </resources>

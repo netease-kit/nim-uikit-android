@@ -27,7 +27,7 @@ public class FunUserInfoActivity extends BaseUserInfoActivity {
     contactInfoView.configSCBlackSwitch(
         R.drawable.fun_switch_track_selector, R.drawable.fun_switch_thumb_selector);
     contactInfoView.configAvatarCorner(SizeUtils.dp2px(4));
-    contactInfoView.configChatBtnColor(getResources().getColor(R.color.color_525c8c));
+    contactInfoView.configChatBtnColor(getResources().getColor(R.color.fun_contact_chat_btn_color));
     contactInfoView.configDivideLineColor(getResources().getColor(R.color.color_ededed));
     contactInfoView.configRootBgColor(getResources().getColor(R.color.color_ededed));
     contactInfoView.configSignatureMaxLines(2);

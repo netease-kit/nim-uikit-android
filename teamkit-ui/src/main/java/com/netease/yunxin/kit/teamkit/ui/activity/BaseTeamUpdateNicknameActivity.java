@@ -52,7 +52,7 @@ public abstract class BaseTeamUpdateNicknameActivity extends BaseLocalActivity {
     checkViews();
     setContentView(rootView);
 
-    changeStatusBarColor(R.color.color_eff1f4);
+    changeStatusBarColor(R.color.color_team_page_bg);
     teamId = getIntent().getStringExtra(KEY_TEAM_ID);
     lastTeamNickname = getIntent().getStringExtra(KEY_TEAM_MY_NICKNAME);
     teamNickname = lastTeamNickname;

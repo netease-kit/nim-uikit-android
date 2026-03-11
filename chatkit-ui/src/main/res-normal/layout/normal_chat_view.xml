@@ -186,7 +186,7 @@
         android:id="@+id/chatMsgMultiSelectLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/color_eff1f4"
+        android:background="@color/color_chat_input_reply_bg"
         android:clickable="true"
         android:focusable="true"
         android:paddingBottom="@dimen/dimen_12_dp"

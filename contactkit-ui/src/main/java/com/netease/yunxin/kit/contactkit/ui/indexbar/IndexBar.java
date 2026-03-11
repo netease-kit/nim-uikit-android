@@ -117,8 +117,8 @@ public class IndexBar extends View {
                 TypedValue.COMPLEX_UNIT_SP,
                 8,
                 getResources().getDisplayMetrics()); //default text size
-    textColor = getContext().getResources().getColor(R.color.color_14131b);
-    textColorPressed = getContext().getResources().getColor(R.color.color_ffffff);
+    textColor = getContext().getResources().getColor(R.color.color_contact_primary_text);
+    textColorPressed = getContext().getResources().getColor(R.color.color_white);
     mPressedBackground = Color.TRANSPARENT; //default background color
     TypedArray typedArray =
         context.getTheme().obtainStyledAttributes(attrs, R.styleable.IndexBar, defStyleAttr, 0);
@@ -146,7 +146,7 @@ public class IndexBar extends View {
 
     backgroundPaint = new Paint();
     backgroundPaint.setAntiAlias(true);
-    backgroundPaint.setColor(context.getResources().getColor(R.color.color_537ff4));
+    backgroundPaint.setColor(context.getResources().getColor(R.color.color_contact_index_bar_bg));
 
     //set default index pressed listener
     setOnIndexPressedListener(

@@ -18,7 +18,7 @@
         android:layout_height="48dp"
         android:gravity="center"
         android:text="@string/team_member_selector_title"
-        android:textColor="@color/color_333333"
+        android:textColor="@color/color_team_primary_text"
         android:textSize="16dp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
@@ -34,7 +34,7 @@
         android:text="@string/team_cancel"
         app:layout_constraintStart_toStartOf="parent"
         android:gravity="center"
-        android:textColor="@color/color_666666"
+        android:textColor="@color/color_team_tertiary_text"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
@@ -45,7 +45,7 @@
         android:text="@string/team_sure"
         app:layout_constraintEnd_toEndOf="parent"
         android:gravity="center"
-        android:textColor="@color/color_337eff"
+        android:textColor="@color/color_team_blue_primary"
         app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
@@ -61,8 +61,8 @@
         android:maxLines="1"
         android:paddingStart="15dp"
         android:paddingEnd="15dp"
-        android:textColor="@color/color_333333"
-        android:textColorHint="@color/color_a6adb6"
+        android:textColor="@color/color_team_primary_text"
+        android:textColorHint="@color/color_team_input_hint"
         android:textSize="14dp"
         android:inputType="text"
         app:layout_constraintEnd_toEndOf="parent"

@@ -22,7 +22,7 @@
     <string name="team_manager">群管理</string>
     <string name="team_edit_manager">管理管理员</string>
     <string name="team_mark">标记</string>
-    <string name="team_history">历史记录</string>
+    <string name="team_history">搜索聊天记录</string>
     <string name="team_message_tip">开启消息提醒</string>
     <string name="team_session_pin">聊天置顶</string>
     <string name="team_mute">群禁言</string>

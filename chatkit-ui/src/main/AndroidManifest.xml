@@ -83,12 +83,6 @@
             />
 
         <activity
-            android:name="com.netease.yunxin.kit.chatkit.ui.normal.page.ChatSearchActivity"
-            android:screenOrientation="portrait"
-            android:launchMode="singleTop"
-            />
-
-        <activity
             android:name="com.netease.yunxin.kit.chatkit.ui.page.WatchImageActivity"
             android:screenOrientation="portrait"
              />
@@ -117,7 +111,25 @@
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize"
             android:launchMode="standard"/>
+        <activity
+            android:name="com.netease.yunxin.kit.chatkit.ui.normal.search.ChatHistoryActivity"
+            android:launchMode="singleTop"
+            />
+        <activity
+            android:name="com.netease.yunxin.kit.chatkit.ui.normal.search.ChatSearchMemberActivity"
+            android:screenOrientation="portrait"
+            android:launchMode="singleTop" />
+        <activity android:name=".normal.search.ChatSearchImageActivity"
+            android:screenOrientation="portrait"
+            android:launchMode="standard"/>
 
+        <activity android:name=".normal.search.ChatSearchFileActivity"
+            android:screenOrientation="portrait"
+            android:launchMode="standard"/>
+
+        <activity android:name=".normal.search.ChatSearchDateActivity"
+            android:screenOrientation="portrait"
+            android:launchMode="standard"/>
         <!-- Fun -->
         <activity android:name=".fun.page.FunChatP2PActivity"
             android:screenOrientation="portrait"
@@ -145,17 +157,6 @@
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize"/>
 
-        <activity
-            android:name="com.netease.yunxin.kit.chatkit.ui.fun.page.FunChatSearchActivity"
-            android:screenOrientation="portrait"
-            android:launchMode="singleTop"
-            />
-        <activity
-            android:name="com.netease.yunxin.kit.chatkit.ui.fun.page.FunChatReaderActivity"
-            android:screenOrientation="portrait"
-            android:launchMode="singleTop"
-            />
-
         <activity android:name=".fun.page.FunChatForwardActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize"
@@ -165,6 +166,30 @@
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize"
             android:launchMode="standard"/>
+
+        <activity android:name=".fun.page.FunChatReaderActivity"
+            android:screenOrientation="portrait"
+            android:launchMode="singleTop"/>
+        <activity android:name=".fun.search.FunChatSearchHistoryActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize"
+            android:launchMode="standard"/>
+        <activity
+            android:name=".fun.search.FunChatSearchMemberActivity"
+            android:screenOrientation="portrait"
+            android:launchMode="singleTop" />
+        <activity android:name=".fun.search.FunChatSearchImageActivity"
+            android:screenOrientation="portrait"
+            android:launchMode="standard"/>
+
+        <activity android:name=".fun.search.FunChatSearchFileActivity"
+            android:screenOrientation="portrait"
+            android:launchMode="standard"/>
+
+        <activity android:name=".fun.search.FunChatSearchDateActivity"
+            android:screenOrientation="portrait"
+            android:launchMode="standard"/>
+
 
         <provider
             android:name="com.netease.yunxin.kit.common.utils.CommonFileProvider"

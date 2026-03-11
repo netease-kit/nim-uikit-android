@@ -12,6 +12,6 @@
         android:height="@dimen/dimen_20_dp" />
 
     <solid android:color="@color/color_white" />
-    <stroke android:width="1dp" android:color="@color/color_dbdde4"/>
+    <stroke android:width="1dp" android:color="#dbdde4"/>
 
 </shape>

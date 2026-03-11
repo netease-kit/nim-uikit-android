@@ -33,6 +33,7 @@
     <dimen name="dimen_28_dp">28dp</dimen>
     <dimen name="dimen_24_dp">24dp</dimen>
     <dimen name="dimen_18_dp">18dp</dimen>
+    <dimen name="dimen_16_dp">16dp</dimen>
     <dimen name="dimen_15_dp">15dp</dimen>
     <dimen name="dimen_13_dp">13dp</dimen>
     <dimen name="dimen_11_dp">11dp</dimen>
@@ -49,4 +50,9 @@
     <dimen name="text_size_10">10sp</dimen>
     <dimen name="text_size_20">20sp</dimen>
     <dimen name="chat_earphone_icon_size">14dp</dimen>
+
+    <!-- ==================== Fun 皮肤专属尺寸 ==================== -->
+
+    <!-- Fun 录音动画 -->
+    <dimen name="fun_chat_audio_record_animator_max_width">315dp</dimen>
 </resources>

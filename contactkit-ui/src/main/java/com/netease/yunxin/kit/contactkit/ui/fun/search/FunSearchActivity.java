@@ -88,7 +88,7 @@ public class FunSearchActivity extends BaseSearchActivity {
     content.setText(getString(R.string.contact_team_be_removed_content));
     title.setText(getString(R.string.contact_team_be_removed_title));
     positiveBut.setText(getString(R.string.selector_sure_without_num));
-    positiveBut.setTextColor(getResources().getColor(R.color.color_58be6b));
+    positiveBut.setTextColor(getResources().getColor(R.color.fun_contact_primary_color));
     // 设置不可取消
     builder.setCancelable(false);
     builder.setView(dialogView);

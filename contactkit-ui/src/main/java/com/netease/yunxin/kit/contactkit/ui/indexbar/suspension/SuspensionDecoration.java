@@ -19,7 +19,8 @@ import java.util.List;
 /** custom decoration for Suspension */
 public class SuspensionDecoration extends RecyclerView.ItemDecoration {
 
-  private static final int DEFAULT_COLOR_TITLE_BOTTOM_LINE_COLOR_RES = R.color.color_dbe0e8;
+  private static final int DEFAULT_COLOR_TITLE_BOTTOM_LINE_COLOR_RES =
+      R.color.color_contact_suspension_line;
 
   private static final int DEFAULT_INDEX_DECORATION_BG_RES = R.color.color_eff1f4;
 
@@ -45,7 +46,7 @@ public class SuspensionDecoration extends RecyclerView.ItemDecoration {
     mData = datas;
     mPaint = new Paint();
     mBounds = new Rect();
-    colorTitleBg = context.getResources().getColor(R.color.color_ffffff);
+    colorTitleBg = context.getResources().getColor(R.color.color_white);
     colorTitleBottomLine =
         context.getResources().getColor(DEFAULT_COLOR_TITLE_BOTTOM_LINE_COLOR_RES);
     colorTitleFont = context.getResources().getColor(R.color.color_b3b7bc);

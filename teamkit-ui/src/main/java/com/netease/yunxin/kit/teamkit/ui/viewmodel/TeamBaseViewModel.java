@@ -156,7 +156,7 @@ public class TeamBaseViewModel extends BaseViewModel {
         @Override
         public void onUsersChanged(List<String> accountIds) {
           if (TextUtils.equals(teamId, TeamBaseViewModel.this.teamId)) {
-            ALog.d(LIB_TAG, TAG, "teamUserChangedListener,onUsersChanged:" + accountIds.size());
+            ALog.i(LIB_TAG, TAG, "teamUserChangedListener,onUsersChanged:" + accountIds.size());
             FetchResult<List<TeamMemberWithUserInfo>> userData =
                 new FetchResult<>(
                     FetchResult.FetchType.Update,

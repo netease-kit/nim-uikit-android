@@ -158,7 +158,6 @@ public abstract class ChatBasePinViewHolder extends ChatBaseViewHolder<ChatMessa
   /** set click listener for ivStatus */
   private void setClickListener() {
     if (itemListener != null) {
-
       baseViewBinding.fileBaseRoot.setOnClickListener(
           v -> itemListener.onMessageClick(v, position, currentMessage));
 

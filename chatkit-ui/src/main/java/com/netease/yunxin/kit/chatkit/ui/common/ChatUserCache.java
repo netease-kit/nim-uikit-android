@@ -33,6 +33,7 @@ public class ChatUserCache {
 
   //非好友的用户信息
   private final Map<String, V2NIMUser> userInfoMap = new HashMap<>();
+  private final Map<String, String> conversationNameMap = new HashMap<>();
 
   //置顶消息
   private IMMessageInfo topMessage;
@@ -59,6 +60,25 @@ public class ChatUserCache {
     }
   }
 
+  public void addConversationInfo(String conversationId, String name) {
+    if (!TextUtils.isEmpty(conversationId)) {
+      conversationNameMap.put(conversationId, name);
+    }
+  }
+
+  public String getConversationInfo(String conversationId) {
+    if (conversationNameMap.containsKey(conversationId)) {
+      return conversationNameMap.get(conversationId);
+    }
+    return conversationId;
+  }
+
+  public void removeConversationInfo(String conversationId) {
+    if (conversationNameMap.containsKey(conversationId)) {
+      conversationNameMap.remove(conversationId);
+    }
+  }
+
   /**
    * 获取群成员信息(不包括用户信息，好友信息)
    *
@@ -71,6 +91,8 @@ public class ChatUserCache {
 
   public void clear() {
     userInfoMap.clear();
+    removeTopMessage();
+    conversationNameMap.clear();
   }
 
   /**
@@ -123,6 +145,32 @@ public class ChatUserCache {
       }
     } else {
       return TeamUserManager.getInstance().getNickname(account, true);
+    }
+    return account;
+  }
+
+  /**
+   * 获取成员头像中展示名称
+   *
+   * @param account 用户账号
+   * @return 群成员信息
+   */
+  public String getAvatarName(String account, V2NIMConversationType type) {
+    if (type == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P) {
+      //本人先处理
+      if (Objects.equals(account, IMKitClient.account())) {
+        if (!TextUtils.isEmpty(IMKitClient.currentUser().getName())) {
+          return IMKitClient.currentUser().getName();
+        }
+      }
+      UserWithFriend friendInfo = FriendUserCache.getFriendByAccount(account);
+      if (friendInfo != null) {
+        return friendInfo.getAvatarName();
+      } else if (userInfoMap.get(account) != null) {
+        return userInfoMap.get(account).getName();
+      }
+    } else {
+      return TeamUserManager.getInstance().getAvatarNickname(account);
     }
     return account;
   }

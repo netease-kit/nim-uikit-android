@@ -82,7 +82,7 @@ public class ChatView extends LinearLayout implements IChatView, AitTextChangeLi
     ChatViewHolderDefaultFactory.getInstance().config(ChatViewHolderFactory.getInstance());
     LayoutInflater layoutInflater = LayoutInflater.from(getContext());
     binding = NormalChatViewBinding.inflate(layoutInflater, this, true);
-    binding.messageView.setOnListViewEventListener(
+    binding.messageView.addOnListViewEventListener(
         new ChatMessageListView.OnListViewEventListener() {
           @Override
           public void onListViewStartScroll() {
@@ -438,7 +438,7 @@ public class ChatView extends LinearLayout implements IChatView, AitTextChangeLi
   }
 
   @Override
-  public void showMultiSelect(boolean show) {
+  public void showMultiSelect(boolean show, View.OnClickListener onCancelListener) {
     binding.chatBottomInputLayout.collapse(true);
     binding.chatMsgMultiSelectLayout.setVisibility(show ? VISIBLE : GONE);
     binding.chatViewBottom.setVisibility(show ? GONE : VISIBLE);
@@ -448,13 +448,13 @@ public class ChatView extends LinearLayout implements IChatView, AitTextChangeLi
       binding.chatViewTitle.setActionText(R.string.cancel);
       binding.chatViewTitle.getActionTextView().setVisibility(VISIBLE);
       binding.chatViewTitle.getActionImageView().setVisibility(GONE);
-      binding.chatViewTitle.setActionTextListener(v -> showMultiSelect(false));
+      binding.chatViewTitle.setActionTextListener(onCancelListener);
       ChatMsgCache.clear();
     } else {
       ChatMsgCache.clear();
       binding.chatViewTitle.getActionTextView().setVisibility(GONE);
       binding.chatViewTitle.getActionImageView().setVisibility(VISIBLE);
-      binding.chatViewTitle.setActionTextListener(null);
+      binding.chatViewTitle.setActionTextListener(onCancelListener);
     }
   }
 
@@ -485,6 +485,16 @@ public class ChatView extends LinearLayout implements IChatView, AitTextChangeLi
   @Override
   public void deleteMessages(List<String> clientIds) {
     binding.messageView.deleteMessages(clientIds);
+  }
+
+  @Override
+  public int searchMessagePosition(String messageId) {
+    return binding.messageView.searchMessagePosition(messageId);
+  }
+
+  @Override
+  public int searchMessagePositionByTime(long messageCreateTime) {
+    return binding.messageView.searchMessagePositionByTime(messageCreateTime);
   }
 
   @Override
@@ -522,6 +532,7 @@ public class ChatView extends LinearLayout implements IChatView, AitTextChangeLi
 
   @Override
   public void hideCurrentInput() {
+    hideRichInputPanel();
     binding.chatBottomInputLayout.hideCurrentInput();
   }
 

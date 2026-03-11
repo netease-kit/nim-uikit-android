@@ -130,11 +130,10 @@ public class MessageCreator {
       String remoteExtension,
       V2NIMAIUser aiAgent,
       List<V2NIMAIModelCallMessage> aiMessage,
-      boolean needACK,
       boolean showRead) {
     V2NIMMessageConfig.V2NIMMessageConfigBuilder configBuilder =
         V2NIMMessageConfig.V2NIMMessageConfigBuilder.builder();
-    configBuilder.withReadReceiptEnabled(needACK && showRead);
+    configBuilder.withReadReceiptEnabled(showRead);
     V2NIMMessagePushConfig.V2NIMMessagePushConfigBuilder pushConfigBuilder =
         V2NIMMessagePushConfig.V2NIMMessagePushConfigBuilder.builder();
     if (pushList != null && !pushList.isEmpty()) {

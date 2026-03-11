@@ -50,7 +50,7 @@
             android:layout_marginEnd="@dimen/dimen_100_dp"
             android:ellipsize="end"
             android:maxLines="1"
-            android:textColor="@color/color_333333"
+            android:textColor="@color/color_conversation_primary_text"
             android:textSize="@dimen/text_size_16" />
 
         <TextView
@@ -61,7 +61,7 @@
             android:maxLines="1"
             android:layout_marginTop="@dimen/dimen_35_dp"
             android:layout_marginEnd="@dimen/dimen_18_dp"
-            android:textColor="@color/color_999999" />
+            android:textColor="@color/color_conversation_secondary_text" />
 
         <TextView
             android:id="@+id/conversation_time"
@@ -72,7 +72,7 @@
             android:ellipsize="end"
             android:maxWidth="@dimen/dimen_100_dp"
             android:maxLines="1"
-            android:textColor="@color/color_cccccc"
+            android:textColor="@color/color_conversation_time_text"
             android:textSize="@dimen/text_size_12" />
 
         <ImageView android:id="@+id/conversation_mute_iv"

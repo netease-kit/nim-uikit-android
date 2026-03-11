@@ -25,7 +25,7 @@ public class ContactSelectorActivity extends BaseContactSelectorActivity {
         .getDecoration()
         .setTitleAlignBottom(false)
         .setIndexDecorationBg(getResources().getColor(R.color.color_eff1f4))
-        .setColorTitleBottomLine(getResources().getColor(R.color.color_dbe0e8));
+        .setColorTitleBottomLine(getResources().getColor(R.color.color_contact_suspension_line));
     contactListView.setViewHolderFactory(new ContactDefaultFactory());
     emptyGroup = binding.emptyLayout;
     rvSelected = binding.rvSelected;

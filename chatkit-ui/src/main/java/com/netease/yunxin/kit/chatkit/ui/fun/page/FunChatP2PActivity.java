@@ -70,7 +70,7 @@ public class FunChatP2PActivity extends ChatBaseActivity {
   @Override
   protected void onNewIntent(Intent intent) {
     super.onNewIntent(intent);
-    ALog.e(LIB_TAG, TAG, "onNewIntent");
+    ALog.i(LIB_TAG, TAG, "onNewIntent");
     chatFragment.onNewIntent(intent);
   }
 }

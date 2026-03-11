@@ -6,8 +6,6 @@ package com.netease.yunxin.kit.chatkit.ui.page.fragment;
 
 import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
 import static com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants.PAYLOAD_REFRESH_AUDIO_ANIM;
-import static com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants.POP_ACTION_COPY;
-import static com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants.POP_ACTION_TEL;
 import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.KEY_FORWARD_SELECTED_CONVERSATIONS;
 
 import android.Manifest;
@@ -72,10 +70,10 @@ import com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant;
 import com.netease.yunxin.kit.chatkit.ui.ChatUIConfig;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.builder.IChatViewCustom;
-import com.netease.yunxin.kit.chatkit.ui.common.ChatDialogUtils;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatMsgCache;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatUserCache;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatUtils;
+import com.netease.yunxin.kit.chatkit.ui.common.MessageClickUtils;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.chatkit.ui.common.PermissionHelper;
 import com.netease.yunxin.kit.chatkit.ui.common.ThumbHelper;
@@ -104,8 +102,6 @@ import com.netease.yunxin.kit.chatkit.ui.view.message.audio.ChatMessageAudioCont
 import com.netease.yunxin.kit.chatkit.ui.view.popmenu.ChatPopMenu;
 import com.netease.yunxin.kit.chatkit.ui.view.popmenu.IChatPopMenuClickListener;
 import com.netease.yunxin.kit.chatkit.utils.SendMediaHelper;
-import com.netease.yunxin.kit.common.ui.dialog.BottomChoiceDialog;
-import com.netease.yunxin.kit.common.ui.dialog.BottomHeaderChoiceDialog;
 import com.netease.yunxin.kit.common.ui.dialog.ChoiceListener;
 import com.netease.yunxin.kit.common.ui.dialog.CommonChoiceDialog;
 import com.netease.yunxin.kit.common.ui.dialog.TopPopupWindow;
@@ -171,12 +167,16 @@ public abstract class ChatBaseFragment extends BaseFragment {
   // 聊天对象ID 单聊为对方ID 群聊为群ID
   protected String accountId;
 
+  protected String mConversationId;
+
   protected Handler mHandler;
 
   // 当前要转发的消息
   protected ChatMessageBean forwardMessage;
 
   protected TopPopupWindow permissionPop;
+
+  protected IMMessageInfo anchorMessage;
 
   // 多媒体文件选择Launcher
   ActivityResultLauncher<PickVisualMediaRequest> pickMediaLauncher;
@@ -235,7 +235,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
             @Nullable V2NIMDataSyncType type,
             @Nullable V2NIMDataSyncState state,
             @Nullable V2NIMError error) {
-          ALog.d(
+          ALog.i(
               LIB_TAG,
               LOG_TAG,
               "onDataSync type:" + type != null
@@ -288,6 +288,8 @@ public abstract class ChatBaseFragment extends BaseFragment {
   //置顶消息View
   ChatTopMessageLayoutBinding topMessageViewBinding;
 
+  public boolean isForeground = false;
+
   @Nullable
   @Override
   public View onCreateView(
@@ -307,9 +309,20 @@ public abstract class ChatBaseFragment extends BaseFragment {
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
     if (getArguments() != null) {
+      // 定位消息
+      anchorMessage =
+          (IMMessageInfo) getArguments().getSerializable(RouterConstant.KEY_MESSAGE_INFO);
+      if (anchorMessage == null) {
+        V2NIMMessage message =
+            (V2NIMMessage) getArguments().getSerializable(RouterConstant.KEY_MESSAGE);
+        if (message != null) {
+          anchorMessage = new IMMessageInfo(message);
+        }
+      }
       initData(getArguments());
     }
     mHandler = new Handler();
+
     initViewModel();
     handleTopMessage();
     initDataObserver();
@@ -336,7 +349,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
   @Override
   public void onSaveInstanceState(@NonNull Bundle outState) {
     super.onSaveInstanceState(outState);
-    ALog.d(LIB_TAG, LOG_TAG, "onSaveInstanceState");
+    ALog.i(LIB_TAG, LOG_TAG, "onSaveInstanceState");
   }
 
   private void handleTopMessage() {
@@ -535,7 +548,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
   }
 
   protected void initView() {
-    ALog.d(LIB_TAG, LOG_TAG, "initView");
+    ALog.i(LIB_TAG, LOG_TAG, "initView");
 
     chatView.getMessageListView().setPopActionListener(actionListener);
     chatView.setMessageProxy(messageProxy);
@@ -699,7 +712,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
   }
 
   protected void initCustom() {
-    ALog.d(LIB_TAG, LOG_TAG, "initCustom");
+    ALog.i(LIB_TAG, LOG_TAG, "initCustom");
     if (chatViewCustom != null) {
       chatView.setLayoutCustom(chatViewCustom);
     }
@@ -716,6 +729,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
         (InputMethodManager) requireContext().getSystemService(Context.INPUT_METHOD_SERVICE);
     imm.hideSoftInputFromWindow(rootView.getWindowToken(), 0);
     ChatMessageAudioControl.getInstance().stopAudio();
+    isForeground = false;
   }
 
   private final IMessageProxy messageProxy =
@@ -1111,7 +1125,6 @@ public abstract class ChatBaseFragment extends BaseFragment {
 
   protected void startPickMedia() {
     boolean result = false;
-
     if (ChatKitClient.getPictureChooseEngine() != null) {
       ChatKitClient.getPictureChooseEngine()
           .onStartPictureChoose(
@@ -1161,9 +1174,26 @@ public abstract class ChatBaseFragment extends BaseFragment {
   protected void sendImageMessage(ArrayList<LocalFileInfo> result) {
     for (LocalFileInfo localMedia : result) {
       if (localMedia.getPath() != null && localMedia.getMimeType() != null) {
-        ALog.d(LIB_TAG, LOG_TAG, "pick media result uri -->> " + localMedia.getPath());
+        ALog.i(
+            LIB_TAG,
+            LOG_TAG,
+            "pick media result uri -->> "
+                + localMedia.getPath()
+                + "getName=  "
+                + localMedia.getName()
+                + " getWidth= "
+                + localMedia.getWidth()
+                + " getHeight= "
+                + localMedia.getHeight());
         if (ImageUtil.isValidPictureFile(localMedia.getMimeType())) {
-          mHandler.postDelayed(() -> viewModel.sendImageMessage(localMedia.getPath()), 100);
+          mHandler.postDelayed(
+              () ->
+                  viewModel.sendImageMessage(
+                      localMedia.getPath(),
+                      localMedia.getName(),
+                      localMedia.getWidth(),
+                      localMedia.getHeight()),
+              100);
         } else if (ImageUtil.isValidVideoFile(localMedia.getMimeType())) {
           mHandler.postDelayed(
               () ->
@@ -1176,11 +1206,11 @@ public abstract class ChatBaseFragment extends BaseFragment {
               100);
         } else {
           ToastX.showShortToast(R.string.chat_message_type_not_support_tips);
-          ALog.d(LIB_TAG, LOG_TAG, "PhotoPicker No media selected");
+          ALog.i(LIB_TAG, LOG_TAG, "PhotoPicker No media selected");
         }
       } else {
         ToastX.showShortToast(R.string.chat_message_type_not_support_tips);
-        ALog.d(LIB_TAG, LOG_TAG, "PhotoPicker No media selected");
+        ALog.i(LIB_TAG, LOG_TAG, "PhotoPicker No media selected");
       }
     }
   }
@@ -1381,11 +1411,14 @@ public abstract class ChatBaseFragment extends BaseFragment {
                 && (messageInfo.getMessage().getMessageType()
                         == V2NIMMessageType.V2NIM_MESSAGE_TYPE_TEXT
                     || MessageHelper.isRichTextMsg(messageInfo))) {
-              WatchTextMessageDialog.launchDialog(
-                  getParentFragmentManager(),
-                  "",
-                  messageInfo,
-                  getReplayMessageClickPreviewDialogBgRes());
+              isForeground = false;
+              WatchTextMessageDialog dialog =
+                  WatchTextMessageDialog.launchDialog(
+                      getParentFragmentManager(),
+                      "",
+                      messageInfo,
+                      getReplayMessageClickPreviewDialogBgRes());
+              dialog.setOnDismissListener(d -> isForeground = true);
             } else {
               clickMessage(messageInfo, position, true);
             }
@@ -1424,7 +1457,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
             if (messageInfo.isRevoked()) {
               return false;
             }
-            ALog.d(LIB_TAG, LOG_TAG, "onTextSelected: " + text);
+            ALog.i(LIB_TAG, LOG_TAG, "onTextSelected: " + text);
             // show pop menu
             if (popMenu == null) {
               popMenu = new ChatPopMenu();
@@ -1465,57 +1498,13 @@ public abstract class ChatBaseFragment extends BaseFragment {
         }
 
         @Override
-        public boolean onMessageTelClick(
+        public boolean onMessageClickableSpanClick(
             View view, int position, ChatMessageBean messageBean, String target) {
-
           if (delegateListener == null
-              || !delegateListener.onMessageTelClick(view, position, messageBean, target)) {
-            BottomHeaderChoiceDialog dialog =
-                new BottomHeaderChoiceDialog(
-                    ChatBaseFragment.this.getContext(),
-                    ChatDialogUtils.assembleMessageTelActions());
-            dialog.setTitle(String.format(getString(R.string.chat_tel_tips_title), target));
-            dialog.setOnChoiceListener(
-                new BottomChoiceDialog.OnChoiceListener() {
-                  @Override
-                  public void onChoice(@NonNull String type) {
-                    boolean hasNetwork = NetworkUtils.isConnected();
-                    switch (type) {
-                      case POP_ACTION_TEL:
-                        if (hasNetwork) {
-                          Intent intent = new Intent(Intent.ACTION_DIAL); // 仅打开拨号界面
-                          intent.setData(Uri.parse("tel:" + target)); // 自动填充电话号码
-                          startActivity(intent);
-                        } else {
-                          Toast.makeText(
-                                  ChatBaseFragment.this.getContext(),
-                                  R.string.chat_network_error_tip,
-                                  Toast.LENGTH_SHORT)
-                              .show();
-                        }
-                        break;
-                      case POP_ACTION_COPY:
-                        if (hasNetwork) {
-                          MessageHelper.copyText(target, true);
-                        } else {
-                          Toast.makeText(
-                                  ChatBaseFragment.this.getContext(),
-                                  R.string.chat_network_error_tip,
-                                  Toast.LENGTH_SHORT)
-                              .show();
-                        }
-                        break;
-                      default:
-                        break;
-                    }
-                  }
-
-                  @Override
-                  public void onCancel() {}
-                });
-            dialog.show();
+              || !delegateListener.onMessageClickableSpanClick(
+                  view, position, messageBean, target)) {
+            MessageClickUtils.handleClickableSpanClick(ChatBaseFragment.this.getContext(), target);
           }
-
           return true;
         }
       };
@@ -1755,9 +1744,8 @@ public abstract class ChatBaseFragment extends BaseFragment {
               && chatConfig.popMenuClickListener.onMultiSelected(messageBean)) {
             return true;
           }
-          chatView.showMultiSelect(true);
+          switchMultiSelect(true);
           ChatMsgCache.addMessage(messageBean);
-          chatView.getMessageListView().setMultiSelect(true);
           checkMultiSelectView();
           return true;
         }
@@ -1769,7 +1757,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
               && chatConfig.popMenuClickListener.onCollection(messageBean)) {
             return true;
           }
-          viewModel.addMsgCollection(getConversationName(), messageBean.getMessageData());
+          viewModel.addMsgCollection(getConversationName(false), messageBean.getMessageData());
           return true;
         }
 
@@ -1935,7 +1923,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
   }
 
   protected void clearMessageMultiSelectStatus() {
-    chatView.showMultiSelect(false);
+    switchMultiSelect(false);
     ChatMsgCache.clear();
   }
 
@@ -1948,7 +1936,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
         .searchMessage(forwardMessage.getMessageData().getMessage().getMessageClientId());
   }
 
-  public String getConversationName() {
+  public String getConversationName(boolean useNick) {
     return "";
   }
 
@@ -1962,7 +1950,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
   protected abstract void updateDataWhenLogin();
 
   protected void initDataObserver() {
-    ALog.d(LIB_TAG, LOG_TAG, "initDataObserver");
+    ALog.i(LIB_TAG, LOG_TAG, "initDataObserver");
 
     // 加载消息数据，首次进入或者加载更多
     messageLiveDataObserver = this::onLoadMessage;
@@ -2018,11 +2006,11 @@ public abstract class ChatBaseFragment extends BaseFragment {
               // Callback is invoked after the user selects a media item or closes the
               // photo picker.
               if (uri != null) {
-                ALog.d(LIB_TAG, LOG_TAG, "pick media result uri -->> " + uri);
+                ALog.i(LIB_TAG, LOG_TAG, "pick media result uri -->> " + uri);
                 mHandler.postDelayed(
                     () -> viewModel.sendImageOrVideoMessage(uri, getContext()), 100);
               } else {
-                ALog.d(LIB_TAG, LOG_TAG, "PhotoPicker No media selected");
+                ALog.i(LIB_TAG, LOG_TAG, "PhotoPicker No media selected");
               }
             });
 
@@ -2062,11 +2050,14 @@ public abstract class ChatBaseFragment extends BaseFragment {
     }
     boolean hasMore = listFetchResult.getLoadStatus() != LoadStatus.Finish;
     if (listFetchResult.getTypeIndex() == 0) {
-      ALog.d(LIB_TAG, LOG_TAG, "message observe older forward has more:" + hasMore);
+      ALog.i(LIB_TAG, LOG_TAG, "message observe older forward has more:" + hasMore);
       chatView.getMessageListView().setHasMoreForwardMessages(hasMore);
       chatView.addMessageListForward(listFetchResult.getData());
+      if (listFetchResult.getType() == FetchResult.FetchType.Init) {
+        chatView.getMessageListView().scrollToEnd();
+      }
     } else {
-      ALog.d(LIB_TAG, LOG_TAG, "message observe newer load has more:" + hasMore);
+      ALog.i(LIB_TAG, LOG_TAG, "message observe newer load has more:" + hasMore);
       chatView.getMessageListView().setHasMoreNewerMessages(hasMore);
       if (listFetchResult.getExtraInfo() instanceof AnchorScrollInfo) {
         chatView.appendMessageList(listFetchResult.getData(), false);
@@ -2079,24 +2070,12 @@ public abstract class ChatBaseFragment extends BaseFragment {
   protected void onReceiveMessage(FetchResult<List<ChatMessageBean>> listFetchResult) {
 
     if (listFetchResult.getData() == null || listFetchResult.getData().isEmpty()) {
-      ALog.d(LIB_TAG, LOG_TAG, "rec message observe data is null or empty");
+      ALog.i(LIB_TAG, LOG_TAG, "rec message observe data is null or empty");
       return;
     }
-    if (chatView.getMessageListView().hasMoreNewerMessages()) {
-      chatView.clearMessageList();
-      chatView.getMessageListView().appendMessageList(listFetchResult.getData());
-      if (listFetchResult.getData() != null) {
-        chatView.getMessageListView().setHasMoreNewerMessages(false);
-        viewModel.fetchMoreMessage(
-            listFetchResult
-                .getData()
-                .get(listFetchResult.getData().size() - 1)
-                .getMessageData()
-                .getMessage(),
-            V2NIMMessageQueryDirection.V2NIM_QUERY_DIRECTION_DESC);
-      }
-    } else {
-      chatView.appendMessageList(listFetchResult.getData());
+    if (!chatView.getMessageListView().hasMoreNewerMessages()) {
+      boolean scroll = chatView.getMessageListView().isLastItemVisible() && isForeground;
+      chatView.appendMessageList(listFetchResult.getData(), scroll);
     }
   }
 
@@ -2110,6 +2089,8 @@ public abstract class ChatBaseFragment extends BaseFragment {
         payload = ActionConstants.PAYLOAD_VOICE_TO_TEXT;
       } else if (fetchResult.getData().first == MessageUpdateType.UpdateMessage) {
         payload = ActionConstants.PAYLOAD_UPDATE_MESSAGE;
+      } else if (fetchResult.getData().first == MessageUpdateType.ReloadMessage) {
+        payload = ActionConstants.PAYLOAD_RELOAD;
       }
       for (ChatMessageBean messageBean : fetchResult.getData().second) {
         chatView.updateMessage(messageBean, payload);
@@ -2150,10 +2131,12 @@ public abstract class ChatBaseFragment extends BaseFragment {
 
   protected void onSentMessage(FetchResult<ChatMessageBean> fetchResult) {
     if (fetchResult.getType() == FetchResult.FetchType.Add) {
-      ALog.d(LIB_TAG, LOG_TAG, "send message add");
+      ALog.i(LIB_TAG, LOG_TAG, "send message add");
+      // 只有当前页面处于前台可见状态时才自动滚动到底部
+      boolean shouldScroll = isForeground;
       if (chatView.getMessageListView().hasMoreNewerMessages()) {
         chatView.clearMessageList();
-        chatView.getMessageListView().insertMessage(fetchResult.getData());
+        chatView.getMessageListView().insertMessage(fetchResult.getData(), shouldScroll);
         if (fetchResult.getData() != null) {
           chatView.getMessageListView().setHasMoreNewerMessages(false);
           viewModel.fetchMoreMessage(
@@ -2161,8 +2144,8 @@ public abstract class ChatBaseFragment extends BaseFragment {
               V2NIMMessageQueryDirection.V2NIM_QUERY_DIRECTION_DESC);
         }
       } else {
-        ALog.d(LIB_TAG, LOG_TAG, "send message appendMessage");
-        chatView.getMessageListView().insertMessage(fetchResult.getData());
+        ALog.i(LIB_TAG, LOG_TAG, "send message insertMessage");
+        chatView.getMessageListView().insertMessage(fetchResult.getData(), shouldScroll);
       }
     } else {
       chatView.updateMessageStatus(fetchResult.getData());
@@ -2170,7 +2153,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
   }
 
   protected void onAttachmentUpdateProgress(FetchResult<IMMessageProgress> fetchResult) {
-    ALog.d(LIB_TAG, LOG_TAG, "attachment update progress");
+    ALog.i(LIB_TAG, LOG_TAG, "attachment update progress");
     chatView.updateProgress(fetchResult.getData());
   }
 
@@ -2269,7 +2252,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
   }
 
   protected void onPickFile(Uri pickFile) {
-    ALog.d(LIB_TAG, LOG_TAG, "pick file result uri:" + pickFile);
+    ALog.i(LIB_TAG, LOG_TAG, "pick file result uri:" + pickFile);
     if (pickFile == null) {
       return;
     }
@@ -2288,7 +2271,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
     if (sure && !TextUtils.isEmpty(captureTempImagePath)) {
       File f = new File(captureTempImagePath);
       Uri contentUri = Uri.fromFile(f);
-      ALog.d(LIB_TAG, LOG_TAG, "take picture contentUri -->> " + contentUri);
+      ALog.i(LIB_TAG, LOG_TAG, "take picture contentUri -->> " + contentUri);
       viewModel.sendImageOrVideoMessage(contentUri, getContext());
       captureTempImagePath = "";
     }
@@ -2298,7 +2281,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
     if (sure && !TextUtils.isEmpty(captureTempVideoPath)) {
       File f = new File(captureTempVideoPath);
       Uri contentUri = Uri.fromFile(f);
-      ALog.d(LIB_TAG, LOG_TAG, "capture video contentUri -->> " + contentUri);
+      ALog.i(LIB_TAG, LOG_TAG, "capture video contentUri -->> " + contentUri);
       viewModel.sendImageOrVideoMessage(contentUri, getContext());
       captureTempVideoPath = "";
     }
@@ -2308,7 +2291,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
     if (result.getResultCode() != Activity.RESULT_OK) {
       return;
     }
-    ALog.d(LIB_TAG, LOG_TAG, "forward Team result");
+    ALog.i(LIB_TAG, LOG_TAG, "forward Team result");
     Intent data = result.getData();
     if (data != null) {
       ArrayList<String> selectedList =
@@ -2323,7 +2306,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
     if (result.getResultCode() != Activity.RESULT_OK) {
       return;
     }
-    ALog.d(LIB_TAG, LOG_TAG, "send location result");
+    ALog.i(LIB_TAG, LOG_TAG, "send location result");
     Intent data = result.getData();
     if (data != null) {
       ChatLocationBean locationBean =
@@ -2339,13 +2322,62 @@ public abstract class ChatBaseFragment extends BaseFragment {
   @Override
   public void onStart() {
     super.onStart();
-    ALog.d(LIB_TAG, LOG_TAG, "onStart");
+    ALog.i(LIB_TAG, LOG_TAG, "onStart");
     viewModel.setChattingAccount();
     chatView.setNetWorkState(NetworkUtils.isConnected());
+    isForeground = true;
   }
 
   public void onNewIntent(Intent intent) {
-    ALog.d(LIB_TAG, LOG_TAG, "onNewIntent");
+    ALog.i(LIB_TAG, LOG_TAG, "onNewIntent");
+    anchorMessage = (IMMessageInfo) intent.getSerializableExtra(RouterConstant.KEY_MESSAGE_INFO);
+    if (anchorMessage == null) {
+      V2NIMMessage message = (V2NIMMessage) intent.getSerializableExtra(RouterConstant.KEY_MESSAGE);
+      if (message != null) {
+        anchorMessage = new IMMessageInfo(message);
+      }
+    }
+    ChatMessageBean anchorMessageBean = null;
+    if (anchorMessage != null) {
+      anchorMessageBean = new ChatMessageBean(anchorMessage);
+    }
+    if (anchorMessage != null) {
+      int position = -1;
+      if (anchorMessage != null) {
+        position = chatView.searchMessagePosition(anchorMessage.getMessage().getMessageClientId());
+      }
+      final int scrollPosition = position;
+      if (position >= 0) {
+        chatView
+            .getRootView()
+            .getViewTreeObserver()
+            .addOnGlobalLayoutListener(
+                new ViewTreeObserver.OnGlobalLayoutListener() {
+                  @Override
+                  public void onGlobalLayout() {
+                    chatView.getRootView().getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                    chatView
+                        .getRootView()
+                        .post(() -> chatView.getMessageListView().scrollToPosition(scrollPosition));
+                  }
+                });
+        chatView.getMessageListView().scrollToPosition(position);
+      } else {
+        chatView.clearMessageList();
+        // need to add anchor message to list panel
+        if (anchorMessage != null) {
+          chatView.appendMessage(anchorMessageBean);
+          viewModel.getMessageList(anchorMessage.getMessage(), false);
+        }
+      }
+    } else {
+      chatView.getMessageListView().scrollToEnd();
+    }
+  }
+
+  protected void reloadMessageList() {
+    chatView.clearMessageList();
+    viewModel.getMessageList(null, true);
   }
 
   protected void onMultiDelete() {
@@ -2456,12 +2488,28 @@ public abstract class ChatBaseFragment extends BaseFragment {
     return true;
   }
 
+  View.OnClickListener onCancelListener = v -> switchMultiSelect(false);
+
+  protected void switchMultiSelect(boolean show) {
+    chatView.showMultiSelect(show, onCancelListener);
+    if (topMessageViewBinding != null) {
+      if (show) {
+        // 进入多选模式，强制隐藏置顶消息
+        topMessageViewBinding.getRoot().setVisibility(View.GONE);
+      } else {
+        // 退出多选模式，根据当前是否有置顶消息决定是否恢复显示
+        boolean hasTopMessage = ChatUserCache.getInstance().getTopMessage() != null;
+        topMessageViewBinding.getRoot().setVisibility(hasTopMessage ? View.VISIBLE : View.GONE);
+      }
+    }
+  }
+
   private final NetworkUtils.NetworkStateListener networkStateListener =
       new NetworkUtils.NetworkStateListener() {
 
         @Override
         public void onConnected(NetworkUtils.NetworkType networkType) {
-          ALog.d(LIB_TAG, LOG_TAG, "onNewIntent");
+          ALog.i(LIB_TAG, LOG_TAG, "onNewIntent");
           chatView.setNetWorkState(true);
           refreshTeamMessageReceiptForNetBroken();
         }
@@ -2498,7 +2546,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
 
   @Override
   public void onDestroyView() {
-    ALog.d(LIB_TAG, LOG_TAG, "onDestroyView");
+    ALog.i(LIB_TAG, LOG_TAG, "onDestroyView");
     super.onDestroyView();
     IMKitClient.removeLoginDetailListener(loginListener);
     viewModel.clearChattingAccount();

@@ -45,9 +45,12 @@
             android:src="@drawable/ic_contact_empty"/>
 
         <TextView android:id="@+id/emptyTv"
-            android:layout_width="@dimen/dimen_118_dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
+            android:layout_marginTop="@dimen/dimen_8_dp"
+            android:textSize="@dimen/text_size_14"
+            android:textColor="@color/color_b3b7bc"
             android:gravity="center"/>
         </LinearLayout>
 

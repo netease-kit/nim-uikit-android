@@ -3,6 +3,8 @@
 // found in the LICENSE file.
 package com.netease.yunxin.kit.chatkit.ui;
 
+import java.util.regex.Pattern;
+
 /** Chat模块常量类。 */
 public class ChatKitUIConstant {
   public static final String LIB_TAG = "ChatKit-UI";
@@ -74,4 +76,16 @@ public class ChatKitUIConstant {
   public static final long MESSAGE_REVOKE_TIME_MIN = 2;
   //消息可撤回的最大时间限制
   public static final long MESSAGE_REVOKE_TIME_MAX = 10080;
+  //消息列表展示时间间隔，默认5分钟
+  public static final long SHOW_MESSAGE_TIME_DURATION = 300000;
+
+  // 手机号正则表达式
+  public static final Pattern PHONE_NUMBER_PATTERN =
+      Pattern.compile("(\\+?(\\d{1,4}[-\\s]?)?)?(\\(?\\d+\\)?[-\\s]?)?[\\d\\s-]{5,14}");
+  // 手机号链接scheme
+  public static final String TEL_SCHEME = "tel:";
+
+  // 网页链接scheme
+  public static final String[] WEB_SCHEME =
+      new String[] {"http://", "https://", "rtsp://", "ftp://"};
 }

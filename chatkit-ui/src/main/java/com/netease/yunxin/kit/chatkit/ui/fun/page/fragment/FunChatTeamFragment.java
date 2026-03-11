@@ -8,7 +8,6 @@ import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
 import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.KEY_TEAM_ID;
 import static com.netease.yunxin.kit.corekit.im2.utils.RouterConstant.PATH_FUN_TEAM_SETTING_PAGE;
 
-import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.Spannable;
@@ -17,7 +16,6 @@ import android.text.TextUtils;
 import android.text.style.ImageSpan;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewTreeObserver;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -36,12 +34,14 @@ import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitClient;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.cache.TeamUserManager;
+import com.netease.yunxin.kit.chatkit.ui.common.ChatUserCache;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatUtils;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.chatkit.ui.fun.view.MessageBottomLayout;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.page.viewmodel.ChatTeamViewModel;
 import com.netease.yunxin.kit.chatkit.ui.view.ait.AitManager;
+import com.netease.yunxin.kit.chatkit.utils.ConversationIdUtils;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.corekit.im2.IMKitClient;
@@ -93,6 +93,7 @@ public class FunChatTeamFragment extends FunChatFragment {
     if (TextUtils.isEmpty(accountId)) {
       accountId = teamInfo.getTeamId();
     }
+    mConversationId = ConversationIdUtils.conversationId(accountId, conversationType);
     anchorMessage = (IMMessageInfo) bundle.getSerializable(RouterConstant.KEY_MESSAGE_INFO);
     if (anchorMessage == null) {
       V2NIMMessage message = (V2NIMMessage) bundle.getSerializable(RouterConstant.KEY_MESSAGE);
@@ -132,7 +133,9 @@ public class FunChatTeamFragment extends FunChatFragment {
     if (teamInfo != null) {
       //      chatView.updateInputHintInfo(teamInfo.getName());
       chatView.getMessageListView().updateTeamInfo(teamInfo);
-      chatView.getTitleBar().getActionImageView().setVisibility(View.VISIBLE);
+      if (!chatView.isMultiSelect()) {
+        chatView.getTitleBar().getActionImageView().setVisibility(View.VISIBLE);
+      }
       String name = teamInfo.getName();
       if (ChatKitClient.isEarphoneMode()) {
         SpannableString spannable = new SpannableString(name + "v");
@@ -159,6 +162,7 @@ public class FunChatTeamFragment extends FunChatFragment {
     } else {
       chatView.setInputMute(false);
     }
+    ChatUserCache.getInstance().addConversationInfo(mConversationId, getConversationName(true));
   }
   // 初始化ViewModel
   @Override
@@ -365,57 +369,13 @@ public class FunChatTeamFragment extends FunChatFragment {
     alertDialog.show();
   }
 
-  // 收到定位消息，需要重新拉取消息并定位到该消息
-  @Override
-  public void onNewIntent(Intent intent) {
-    ALog.d(LIB_TAG, TAG, "onNewIntent");
-    anchorMessage = (IMMessageInfo) intent.getSerializableExtra(RouterConstant.KEY_MESSAGE_INFO);
-    if (anchorMessage == null) {
-      V2NIMMessage message = (V2NIMMessage) intent.getSerializableExtra(RouterConstant.KEY_MESSAGE);
-      if (message != null) {
-        anchorMessage = new IMMessageInfo(message);
-      }
-    }
-    ChatMessageBean anchorMessageBean = null;
-    if (anchorMessage != null) {
-      anchorMessageBean = new ChatMessageBean(anchorMessage);
-    }
-    if (anchorMessage != null) {
-      int position =
-          chatView
-              .getMessageListView()
-              .searchMessagePosition(anchorMessage.getMessage().getMessageClientId());
-      if (position >= 0) {
-        chatView
-            .getRootView()
-            .getViewTreeObserver()
-            .addOnGlobalLayoutListener(
-                new ViewTreeObserver.OnGlobalLayoutListener() {
-                  @Override
-                  public void onGlobalLayout() {
-                    chatView.getRootView().getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                    chatView
-                        .getRootView()
-                        .post(() -> chatView.getMessageListView().scrollToPosition(position));
-                  }
-                });
-        chatView.getMessageListView().scrollToPosition(position);
-      } else {
-        chatView.clearMessageList();
-        // need to add anchor message to list panel
-        chatView.appendMessage(anchorMessageBean);
-        viewModel.getMessageList(anchorMessage.getMessage(), false);
-      }
-    }
-  }
-
   // 获取会话名称，展示使用
   @Override
-  public String getConversationName() {
+  public String getConversationName(boolean useNick) {
     if (teamInfo != null) {
       return teamInfo.getName();
     }
-    return super.getConversationName();
+    return super.getConversationName(useNick);
   }
 
   // 获取会话底部布局Layout

@@ -319,6 +319,12 @@ public class PickerView extends View {
     mCanScrollLoop = canLoop;
   }
 
+  /** set selected item color */
+  public void setSelectColor(int color) {
+    mLightColor = color;
+    invalidate();
+  }
+
   public void startAnim() {
     if (!mCanShowAnim) return;
 

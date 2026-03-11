@@ -36,7 +36,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/dimen_12_dp"
         android:textSize="@dimen/text_size_14"
-        android:textColor="@color/color_14131b"
+        android:textColor="@color/color_contact_primary_text"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toRightOf="@+id/fl_iv_icon" />

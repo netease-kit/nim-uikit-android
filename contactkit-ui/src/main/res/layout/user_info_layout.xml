@@ -137,7 +137,7 @@
                     android:layout_alignParentEnd="true"
                     android:layout_centerVertical="true"
                     android:textSize="@dimen/text_size_12"
-                    android:textColor="@color/color_a6adb6" />
+                    android:textColor="@color/color_contact_user_info_sub_text" />
 
                 <View
                     android:layout_width="match_parent"
@@ -166,7 +166,7 @@
                     android:layout_alignParentEnd="true"
                     android:layout_centerVertical="true"
                     android:textSize="@dimen/text_size_12"
-                    android:textColor="@color/color_a6adb6" />
+                    android:textColor="@color/color_contact_user_info_sub_text" />
 
                 <View
                     android:layout_width="match_parent"
@@ -198,7 +198,7 @@
                     android:layout_marginStart="@dimen/dimen_45_dp"
                     android:maxLines="1"
                     android:ellipsize="end"
-                    android:textColor="@color/color_a6adb6" />
+                    android:textColor="@color/color_contact_user_info_sub_text" />
 
                 <View
                     android:layout_width="match_parent"
@@ -231,7 +231,7 @@
                     android:layout_marginStart="@dimen/dimen_75_dp"
                     android:maxLines="1"
                     android:ellipsize="end"
-                    android:textColor="@color/color_a6adb6" />
+                    android:textColor="@color/color_contact_user_info_sub_text" />
 
                 <View
                     android:layout_width="match_parent"
@@ -289,7 +289,7 @@
             android:gravity="center"
             android:text="@string/chat"
             android:textSize="@dimen/text_size_16"
-            android:textColor="@color/color_337eff"
+            android:textColor="@color/color_contact_blue_primary"
             android:paddingVertical="@dimen/dimen_14_dp" />
 
         <View

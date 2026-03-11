@@ -54,6 +54,7 @@
     <string name="black_list_tips">You won\'t receive any messages from them</string>
     <string name="contact_black_list_relieve">Release</string> 
     <string name="add_black_error">%s not blocked</string>
+    <string name="black_list_empty_text">No blocked members</string>
 
     <!-- userinfo page -->
     <string name="clear_all">Clear</string> 
@@ -156,5 +157,9 @@
         Application？</string>
     <string name="contact_dialog_sure">Sure</string>
     <string name="contact_dialog_cancel">Cancel</string>
+
+    <!-- ==================== Fun 皮肤专属字符串 ==================== -->
+    <string name="fun_contact_search_hint_text">搜索</string>
+    <!-- ==================== Fun 皮肤专属字符串 END ==================== -->
 
 </resources>

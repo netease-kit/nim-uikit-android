@@ -17,7 +17,6 @@
         android:layout_height="wrap_content"
         android:button="@null"
         android:textColor="@color/chat_ai_language_text_color_selector"
-        android:background="@drawable/chat_ai_language_selector"
         android:textSize="@dimen/text_size_16"
         android:drawableRight="@drawable/chat_ic_radio_button_selector"
         android:layout_gravity="center"

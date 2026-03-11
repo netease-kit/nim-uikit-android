@@ -35,6 +35,8 @@ public interface ChatMessageType {
   int CHAT_MESSAGE_MODE = 0;
   //合并转发详情页的消息
   int FORWARD_MESSAGE_MODE = 1;
+  // 仅展示消息模式，不展示消息的回复、PIN等信息，不支持多选等
+  int ONLY_MESSAGE_MODE = 2;
 
   // 多选消息自定义消息类型
   int MULTI_FORWARD_ATTACHMENT = 101;

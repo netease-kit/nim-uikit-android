@@ -80,7 +80,7 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:layout_marginEnd="@dimen/dimen_4_dp"
-            android:textColor="@color/color_f24957"
+            android:textColor="@color/color_conversation_badge_red"
             android:visibility="gone"
             android:textSize="13sp"
             android:text="@string/conversation_ait_tip"/>

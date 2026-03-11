@@ -13,7 +13,7 @@ import android.text.TextUtils;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentManager;
-import com.netease.nimlib.sdk.msg.model.IMMessage;
+import com.netease.nimlib.sdk.v2.message.V2NIMMessage;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.ui.R;
@@ -51,7 +51,8 @@ public class ChatP2PActivity extends ChatBaseActivity {
     chatFragment = new ChatP2PFragment();
     Bundle bundle = new Bundle();
     bundle.putSerializable(RouterConstant.CHAT_ID_KRY, accId);
-    IMMessage message = (IMMessage) getIntent().getSerializableExtra(RouterConstant.KEY_MESSAGE);
+    V2NIMMessage message =
+        (V2NIMMessage) getIntent().getSerializableExtra(RouterConstant.KEY_MESSAGE);
     if (message != null) {
       bundle.putSerializable(RouterConstant.KEY_MESSAGE, message);
     }
@@ -69,7 +70,7 @@ public class ChatP2PActivity extends ChatBaseActivity {
   @Override
   protected void onNewIntent(Intent intent) {
     super.onNewIntent(intent);
-    ALog.e(LIB_TAG, TAG, "onNewIntent");
+    ALog.i(LIB_TAG, TAG, "onNewIntent");
     chatFragment.onNewIntent(intent);
   }
 }

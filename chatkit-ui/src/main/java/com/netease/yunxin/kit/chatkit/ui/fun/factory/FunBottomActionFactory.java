@@ -53,8 +53,7 @@ public class FunBottomActionFactory {
               R.string.chat_message_translate_action));
     }
     if (IMKitConfigCenter.getEnableAIChatHelper()
-        && conversationType == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P
-        && !AIUserManager.isAIUser(accountId)) {
+        && conversationType == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P) {
       actions.add(
           new ActionItem(
               ActionConstants.ACTION_TYPE_AI_HELPER,

@@ -47,7 +47,11 @@ public class ConversationSelectorAdapter
 
     holder.binding.tvName.setText(
         getSelectSpanText(
-            holder.itemView.getContext().getResources().getColor(R.color.color_337eff),
+            holder
+                .itemView
+                .getContext()
+                .getResources()
+                .getColor(R.color.color_contact_blue_primary),
             conversationName,
             bean.recordHitInfo));
     if (bean.memberCount > 0) {

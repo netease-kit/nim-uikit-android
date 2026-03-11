@@ -54,7 +54,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/dimen_12_dp"
             android:textSize="@dimen/text_size_14"
-            android:textColor="@color/color_14131b"
+            android:textColor="@color/color_contact_primary_text"
             android:layout_marginEnd="@dimen/dimen_45_dp"
             android:maxLines="1"
             android:ellipsize="end" />
@@ -65,7 +65,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="-45dp"
             android:textSize="@dimen/text_size_14"
-            android:textColor="@color/color_14131b"
+            android:textColor="@color/color_contact_primary_text"
             android:maxLines="1"
             />
 

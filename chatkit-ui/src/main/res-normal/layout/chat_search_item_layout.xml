@@ -43,8 +43,7 @@
             android:gravity="center_vertical|start"
             android:singleLine="true"
             android:textColor="@color/color_333333"
-            android:textSize="16dp"
-            tools:ignore="SpUsage" />
+            android:textSize="12sp" />
 
         <TextView
             android:id="@+id/tv_message"
@@ -52,9 +51,8 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="20dp"
             android:paddingTop="4dp"
-            android:textColor="@color/color_666666"
-            android:textSize="12dp"
-            tools:ignore="SpUsage"
+            android:textColor="@color/color_333333"
+            android:textSize="16sp"
             android:maxLines="1"
             android:visibility="visible"/>
     </LinearLayout>

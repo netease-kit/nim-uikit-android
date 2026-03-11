@@ -95,6 +95,10 @@ public class ChatPopActionFactory {
     if (customPopMenu == null
         || customPopMenu.get() == null
         || customPopMenu.get().showDefaultPopMenu()) {
+      if (message.hasErrorCode()) {
+        actions.add(getDeleteAction(context, message));
+        return actions;
+      }
       if (message.getMessageData().getMessage().getSendingState()
               == V2NIMMessageSendingState.V2NIM_MESSAGE_SENDING_STATE_FAILED
           || message.getMessageData().getMessage().getSendingState()

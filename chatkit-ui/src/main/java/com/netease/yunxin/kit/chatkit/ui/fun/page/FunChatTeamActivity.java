@@ -26,7 +26,7 @@ public class FunChatTeamActivity extends ChatBaseActivity {
 
   FunChatTeamFragment chatFragment;
 
-  private static final String TAG = "ChatGroupActivity";
+  private static final String TAG = "FunChatTeamActivity";
 
   @Override
   public void initChat() {

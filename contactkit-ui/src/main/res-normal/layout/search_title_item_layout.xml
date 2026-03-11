@@ -27,7 +27,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="@dimen/dimen_1_dp"
-        android:background="@color/color_d9d9d9"
+        android:background="@color/color_contact_divider_line"
         android:layout_marginStart="@dimen/dimen_20_dp"
         android:layout_marginEnd="@dimen/dimen_20_dp"
         app:layout_constraintBottom_toBottomOf="parent"

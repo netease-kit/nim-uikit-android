@@ -74,11 +74,15 @@ public class ActionConstants {
 
   // 消息长按菜单-拨打电话
   public static final String POP_ACTION_TEL = "POP_ACTION_TEL";
+  // 消息长按定位，用于搜索定位
+  public static final String POP_ACTION_MESSAGE_LOCATION = "POP_ACTION_MESSAGE_LOCATION";
   //消息长按菜单-取消置顶
   public static final String POP_ACTION_CANCEL = "POP_ACTION_CANCEL";
 
   //消息列表payload
   public static final String PAYLOAD_STATUS = "messageStatus";
+  public static final String PAYLOAD_RELOAD = "messageReload";
+
   public static final String PAYLOAD_PROGRESS = "messageProgress";
   public static final String PAYLOAD_REVOKE = "messageRevoke";
   public static final String PAYLOAD_REPLY = "messageReply";

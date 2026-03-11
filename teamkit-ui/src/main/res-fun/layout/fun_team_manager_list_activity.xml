@@ -10,7 +10,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/color_ededed">
+    android:background="@color/fun_team_page_bg_color">
 
     <com.netease.yunxin.kit.common.ui.widgets.BackTitleBar
         android:id="@+id/viewTitle"
@@ -38,7 +38,7 @@
         android:layout_marginEnd="20dp"
         android:gravity="center_vertical|start"
         android:text="@string/team_add_manager"
-        android:textColor="@color/color_333333"
+        android:textColor="@color/color_team_primary_text"
         android:textSize="16dp"
         app:drawableEndCompat="@drawable/ic_right_arrow"
         app:layout_constraintEnd_toEndOf="parent"
@@ -51,7 +51,7 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/dimen_1_dp"
         app:layout_constraintTop_toBottomOf="@id/tvManager"
-        android:background="@color/color_e5e5e5"
+        android:background="@color/color_team_divider"
         android:layout_marginStart="@dimen/dimen_20_dp"/>
 
     <androidx.recyclerview.widget.RecyclerView

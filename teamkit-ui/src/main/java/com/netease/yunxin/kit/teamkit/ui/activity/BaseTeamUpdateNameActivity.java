@@ -59,7 +59,7 @@ public abstract class BaseTeamUpdateNameActivity extends BaseLocalActivity {
     checkViews();
     setContentView(rootView);
     viewModel = new ViewModelProvider(this).get(TeamSettingViewModel.class);
-    changeStatusBarColor(R.color.color_eff1f4);
+    changeStatusBarColor(R.color.color_team_page_bg);
     hasPrivilege = getIntent().getBooleanExtra(KEY_TEAM_UPDATE_INFO_PRIVILEGE, false);
     teamId = getIntent().getStringExtra(KEY_TEAM_ID);
     lastTeamName = getIntent().getStringExtra(KEY_TEAM_NAME);

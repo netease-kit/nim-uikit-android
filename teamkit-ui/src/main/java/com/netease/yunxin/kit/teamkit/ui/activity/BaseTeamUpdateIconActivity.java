@@ -74,7 +74,7 @@ public abstract class BaseTeamUpdateIconActivity extends BaseLocalActivity {
     groupPrivilege.setVisibility(hasUpdatePrivilege ? View.VISIBLE : View.GONE);
 
     ivIcon.setData(lastUrl, teamName, ColorUtils.avatarColor(teamId));
-    changeStatusBarColor(R.color.color_eff1f4);
+    changeStatusBarColor(R.color.color_team_page_bg);
     ivCamera.setOnClickListener(v -> choicePhoto());
 
     int index = TeamIconUtils.getDefaultIconUrlIndex(lastUrl, isCircle());

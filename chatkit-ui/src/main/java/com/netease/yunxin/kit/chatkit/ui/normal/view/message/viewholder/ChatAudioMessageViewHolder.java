@@ -89,7 +89,7 @@ public class ChatAudioMessageViewHolder extends NormalChatBaseMessageViewHolder 
   }
 
   private void initPlayAnim() {
-    if (MessageHelper.isReceivedMessage(currentMessage)) {
+    if (showReceiveUIStyle()) {
       audioBinding.animation.setImageResource(R.drawable.ani_message_audio_from);
     } else {
       audioBinding.animation.setImageResource(R.drawable.ani_message_audio_to);
@@ -97,7 +97,7 @@ public class ChatAudioMessageViewHolder extends NormalChatBaseMessageViewHolder 
   }
 
   private void endPlayAnim() {
-    if (MessageHelper.isReceivedMessage(currentMessage)) {
+    if (showReceiveUIStyle()) {
       audioBinding.animation.setImageResource(R.drawable.ic_message_from_audio);
     } else {
       audioBinding.animation.setImageResource(R.drawable.ic_message_to_audio);
@@ -218,7 +218,7 @@ public class ChatAudioMessageViewHolder extends NormalChatBaseMessageViewHolder 
         (RelativeLayout.LayoutParams) audioBinding.animation.getLayoutParams();
     RelativeLayout.LayoutParams timeLp =
         (RelativeLayout.LayoutParams) audioBinding.tvTime.getLayoutParams();
-    if (MessageHelper.isReceivedMessage(message)) {
+    if (showReceiveUIStyle()) {
       aniLp.removeRule(ALIGN_PARENT_RIGHT);
       aniLp.addRule(ALIGN_PARENT_LEFT);
       timeLp.removeRule(START_OF);

@@ -134,7 +134,7 @@ public abstract class BaseTeamSettingActivity extends BaseLocalActivity {
     checkViews();
     setContentView(rootView);
 
-    changeStatusBarColor(R.color.color_eff1f4);
+    changeStatusBarColor(R.color.color_team_page_bg);
     showLoading();
     teamId = getIntent().getStringExtra(KEY_TEAM_ID);
     if (teamId == null) {
@@ -433,7 +433,10 @@ public abstract class BaseTeamSettingActivity extends BaseLocalActivity {
     tvHistory.setOnClickListener(
         v -> {
           XKitRouter.withKey(getHistoryRouterPath())
-              .withParam(RouterConstant.CHAT_KRY, team)
+              .withParam(RouterConstant.CHAT_ID_KRY, team.getTeamId())
+              .withParam(
+                  RouterConstant.CHAT_CONVERSATION_TYPE_KRY,
+                  V2NIMConversationType.V2NIM_CONVERSATION_TYPE_TEAM.getValue())
               .withContext(BaseTeamSettingActivity.this)
               .navigate();
         });

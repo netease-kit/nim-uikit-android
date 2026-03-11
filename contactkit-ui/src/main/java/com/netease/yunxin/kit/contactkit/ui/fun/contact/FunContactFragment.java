@@ -48,7 +48,7 @@ public class FunContactFragment extends BaseContactFragment {
     contactLayout.getContactListView().setViewHolderFactory(new FunContactDefaultFactory());
     contactLayout
         .getContactListView()
-        .configIndexTextBGColor(getResources().getColor(R.color.color_58be6b));
+        .configIndexTextBGColor(getResources().getColor(R.color.fun_contact_primary_color));
     contactLayout.getDivideLineForTitle().setVisibility(View.GONE);
     addTopView(inflater, contactLayout.getBodyTopLayout());
     emptyView = viewBinding.emptyLayout;

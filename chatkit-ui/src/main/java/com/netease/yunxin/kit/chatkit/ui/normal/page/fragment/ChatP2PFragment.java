@@ -6,7 +6,6 @@ package com.netease.yunxin.kit.chatkit.ui.normal.page.fragment;
 
 import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
 
-import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
@@ -14,13 +13,11 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.ImageSpan;
-import android.view.ViewTreeObserver;
 import androidx.annotation.Nullable;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
-import com.netease.nimlib.sdk.v2.message.V2NIMMessage;
 import com.netease.nimlib.sdk.v2.message.V2NIMP2PMessageReadReceipt;
 import com.netease.nimlib.sdk.v2.user.V2NIMUser;
 import com.netease.yunxin.kit.alog.ALog;
@@ -80,19 +77,13 @@ public class ChatP2PFragment extends NormalChatFragment {
       requireActivity().finish();
       return;
     }
-    IMMessageInfo msgParam =
-        (IMMessageInfo) bundle.getSerializable(RouterConstant.KEY_MESSAGE_INFO);
-    if (msgParam == null) {
-      V2NIMMessage message = (V2NIMMessage) bundle.getSerializable(RouterConstant.KEY_MESSAGE);
-      if (message != null) {
-        msgParam = new IMMessageInfo(message);
-      }
-    }
-    if (msgParam != null
+    mConversationId = ConversationIdUtils.conversationId(accountId, conversationType);
+
+    if (anchorMessage != null
         && TextUtils.equals(
-            ConversationIdUtils.conversationTargetId(msgParam.getMessage().getConversationId()),
+            ConversationIdUtils.conversationTargetId(
+                anchorMessage.getMessage().getConversationId()),
             accountId)) {
-      anchorMessage = msgParam;
       chatView.appendMessage(new ChatMessageBean(anchorMessage));
     }
     // 初始化AitManager
@@ -157,6 +148,7 @@ public class ChatP2PFragment extends NormalChatFragment {
     List<String> accountList = new ArrayList<>();
     accountList.add(accountId);
     chatView.notifyUserInfoChanged(accountList);
+    ChatUserCache.getInstance().addConversationInfo(mConversationId, getConversationName(true));
   }
 
   @Override
@@ -169,7 +161,7 @@ public class ChatP2PFragment extends NormalChatFragment {
       chatConfig.chatListener.onConversationChange(accountId, conversationType);
     }
     if (chatConfig != null && chatConfig.messageProperties != null) {
-      viewModel.setShowReadStatus(chatConfig.messageProperties.showP2pMessageStatus);
+      viewModel.setShowReadStatus(chatConfig.messageProperties.showP2PMessageStatus);
     }
     ConversationRepo.clearUnreadCountByIds(
         Collections.singletonList(viewModel.getConversationId()), null);
@@ -234,64 +226,20 @@ public class ChatP2PFragment extends NormalChatFragment {
             });
   }
 
-  @Override
-  public void onNewIntent(Intent intent) {
-    ALog.d(LIB_TAG, TAG, "onNewIntent");
-    anchorMessage = (IMMessageInfo) intent.getSerializableExtra(RouterConstant.KEY_MESSAGE_INFO);
-    if (anchorMessage == null) {
-      V2NIMMessage message = (V2NIMMessage) intent.getSerializableExtra(RouterConstant.KEY_MESSAGE);
-      if (message != null) {
-        anchorMessage = new IMMessageInfo(message);
-      }
-    }
-    loadAnchorMessage();
-  }
-
-  private void loadAnchorMessage() {
-    ChatMessageBean anchorMessageBean = null;
-    if (anchorMessage != null) {
-      anchorMessageBean = new ChatMessageBean(anchorMessage);
-      int position =
-          chatView
-              .getMessageListView()
-              .searchMessagePosition(anchorMessage.getMessage().getMessageClientId());
-      if (position >= 0) {
-        chatView
-            .getMessageListView()
-            .getViewTreeObserver()
-            .addOnGlobalLayoutListener(
-                new ViewTreeObserver.OnGlobalLayoutListener() {
-                  @Override
-                  public void onGlobalLayout() {
-                    chatView
-                        .getMessageListView()
-                        .getViewTreeObserver()
-                        .removeOnGlobalLayoutListener(this);
-                    chatView
-                        .getRootView()
-                        .post(() -> chatView.getMessageListView().scrollToPosition(position));
-                  }
-                });
-        chatView.getMessageListView().scrollToPosition(position);
-      } else {
-        chatView.clearMessageList();
-        // need to add anchor message to list panel
-        chatView.appendMessage(anchorMessageBean);
-        viewModel.getMessageList(anchorMessage.getMessage(), false);
-      }
-    }
-  }
-
   public MessageBottomLayout getMessageBottomLayout() {
     return viewBinding.chatView.getBottomInputLayout();
   }
 
   @Override
-  public String getConversationName() {
+  public String getConversationName(boolean useNick) {
     if (friendInfo != null) {
-      return friendInfo.getName();
+      if (useNick) {
+        return friendInfo.getName();
+      } else {
+        return friendInfo.getUserName();
+      }
     }
-    return super.getConversationName();
+    return super.getConversationName(useNick);
   }
 
   @Override
@@ -321,7 +269,6 @@ public class ChatP2PFragment extends NormalChatFragment {
         this.friendInfo = friendInfo;
       }
     }
-
     refreshView();
   }
 }

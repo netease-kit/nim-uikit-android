@@ -26,7 +26,7 @@ public class TeamManagerActivity extends BaseTeamManagerActivity {
   @Override
   protected void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    changeStatusBarColor(R.color.color_eff1f4);
+    changeStatusBarColor(R.color.color_team_page_bg);
   }
 
   @Override

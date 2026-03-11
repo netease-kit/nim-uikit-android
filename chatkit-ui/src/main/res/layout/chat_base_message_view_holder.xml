@@ -213,7 +213,7 @@
             android:ellipsize="middle"
             android:gravity="start"
             android:singleLine="true"
-            android:textColor="@color/color_3eaf96"
+            android:textColor="@color/color_chat_message_sender_name"
             android:textSize="@dimen/text_size_11" />
     </LinearLayout>
 

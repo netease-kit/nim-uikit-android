@@ -8,6 +8,8 @@ import android.os.Bundle;
 import android.view.View;
 import com.netease.yunxin.kit.contactkit.ui.databinding.FunContactTeamProfileActivityBinding;
 import com.netease.yunxin.kit.contactkit.ui.team.BaseTeamProfileActivity;
+import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
+import com.netease.yunxin.kit.corekit.route.XKitRouter;
 
 public class FunTeamProfileActivity extends BaseTeamProfileActivity {
 
@@ -23,5 +25,14 @@ public class FunTeamProfileActivity extends BaseTeamProfileActivity {
     tvTeamOwner = binding.tvCommentName;
     tvChat = binding.tvChat;
     return binding.getRoot();
+  }
+
+  protected void goChat() {
+    String path = RouterConstant.PATH_FUN_CHAT_TEAM_PAGE;
+    XKitRouter.withKey(path)
+        .withParam(RouterConstant.CHAT_ID_KRY, teamId)
+        .withContext(FunTeamProfileActivity.this)
+        .navigate();
+    finish();
   }
 }

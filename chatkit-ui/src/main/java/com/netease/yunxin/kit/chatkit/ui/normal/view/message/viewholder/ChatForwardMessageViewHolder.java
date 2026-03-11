@@ -6,6 +6,7 @@ package com.netease.yunxin.kit.chatkit.ui.normal.view.message.viewholder;
 
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
+import android.text.TextUtils;
 import android.text.style.ImageSpan;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
@@ -40,7 +41,7 @@ public class ChatForwardMessageViewHolder extends NormalChatBaseMessageViewHolde
   @Override
   protected void onMessageBackgroundConfig(ChatMessageBean messageBean) {
     super.onMessageBackgroundConfig(messageBean);
-    boolean isReceivedMsg = MessageHelper.isReceivedMessage(messageBean) || isForwardMsg();
+    boolean isReceivedMsg = MessageHelper.isReceivedMessage(messageBean) || !isChatMsg();
     if (isReceivedMsg) {
       viewBinding.messageForwardLayout.setBackgroundResource(
           R.drawable.chat_forward_message_other_bg);
@@ -64,7 +65,6 @@ public class ChatForwardMessageViewHolder extends NormalChatBaseMessageViewHolde
                   .getContext()
                   .getString(R.string.chat_message_multi_record_title),
               attachment.sessionName);
-      viewBinding.messageMultiTitle.setText(titleText);
       if (attachment.abstractsList != null) {
         String contentFormat =
             getMessageContainer()
@@ -77,15 +77,44 @@ public class ChatForwardMessageViewHolder extends NormalChatBaseMessageViewHolde
                   contentFormat,
                   ChatUtils.getEllipsizeMiddleNick(attachment.abstractsList.get(i).senderNick),
                   attachment.abstractsList.get(i).content);
-          SpannableString sb =
-              MessageHelper.replaceEmoticons(
-                  parent.getContext(), content, MessageHelper.DEF_SCALE, ImageSpan.ALIGN_BOTTOM);
-          textBuilder.append(sb);
+          if (!TextUtils.isEmpty(currentMessage.keyword)) {
+            textBuilder.append(content);
+          } else {
+            SpannableString sb =
+                MessageHelper.replaceEmoticons(
+                    parent.getContext(), content, MessageHelper.DEF_SCALE, ImageSpan.ALIGN_BOTTOM);
+            textBuilder.append(sb);
+          }
+
           if (i < attachment.abstractsList.size() - 1) {
             textBuilder.append("\n");
           }
         }
-        viewBinding.messageText.setText(textBuilder);
+        if (!TextUtils.isEmpty(currentMessage.keyword)) {
+          MessageHelper.identifyFaceExpressionAndHighlight(
+              parent.getContext(),
+              viewBinding.messageMultiTitle,
+              titleText,
+              message.getKeyword(),
+              viewBinding
+                  .getRoot()
+                  .getContext()
+                  .getResources()
+                  .getColor(R.color.color_chat_message_highlight));
+          MessageHelper.identifyFaceExpressionAndHighlight(
+              parent.getContext(),
+              viewBinding.messageText,
+              textBuilder.toString(),
+              message.getKeyword(),
+              viewBinding
+                  .getRoot()
+                  .getContext()
+                  .getResources()
+                  .getColor(R.color.color_chat_message_highlight));
+        } else {
+          viewBinding.messageMultiTitle.setText(titleText);
+          viewBinding.messageText.setText(textBuilder);
+        }
       }
     }
   }

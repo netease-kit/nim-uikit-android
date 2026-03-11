@@ -52,7 +52,8 @@ public class FunTeamVerifyInfoViewHolder extends BaseContactViewHolder {
     }
 
     if (infoBean.getUnreadCount() > 0) {
-      binding.rootView.setBackgroundColor(context.getResources().getColor(R.color.color_ededef));
+      binding.rootView.setBackgroundColor(
+          context.getResources().getColor(R.color.color_contact_hover_bg));
     } else {
       binding.rootView.setBackgroundColor(context.getResources().getColor(R.color.color_white));
     }

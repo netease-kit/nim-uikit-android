@@ -44,6 +44,7 @@ import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.normal.factory.BottomActionFactory;
 import com.netease.yunxin.kit.chatkit.ui.textSelectionHelper.SelectableTextHelper;
 import com.netease.yunxin.kit.chatkit.ui.view.IItemActionListener;
+import com.netease.yunxin.kit.chatkit.ui.view.ai.AIHelperView;
 import com.netease.yunxin.kit.chatkit.ui.view.ait.AitManager;
 import com.netease.yunxin.kit.chatkit.ui.view.ait.AitTextChangeListener;
 import com.netease.yunxin.kit.chatkit.ui.view.emoji.IEmojiSelectedListener;
@@ -616,12 +617,9 @@ public class MessageBottomLayout extends FrameLayout
 
   // 选择图片
   public void onAlbumClick() {
-    if (mInputState == InputState.input) {
-      hideKeyboard();
-      postDelayed(() -> mProxy.pickMedia(), SHOW_DELAY_TIME);
-    } else {
-      mProxy.pickMedia();
-    }
+    hideCurrentInput();
+    postDelayed(() -> mProxy.pickMedia(), SHOW_DELAY_TIME);
+    mInputState = InputState.none;
   }
 
   // 拍照或录像
@@ -648,6 +646,8 @@ public class MessageBottomLayout extends FrameLayout
               default:
                 break;
             }
+            hideCurrentInput();
+            mInputState = InputState.none;
           }
 
           @Override
@@ -684,6 +684,8 @@ public class MessageBottomLayout extends FrameLayout
               default:
                 break;
             }
+            hideCurrentInput();
+            mInputState = InputState.none;
           }
 
           @Override
@@ -694,18 +696,17 @@ public class MessageBottomLayout extends FrameLayout
 
   // 发送位置信息
   public void onLocationClick() {
+    hideCurrentInput();
     mProxy.sendLocationLaunch();
+    mInputState = InputState.none;
   }
 
   // 发送文件
   public void onFileClick() {
-    if (mInputState == InputState.input) {
-      hideKeyboard();
-      postDelayed(() -> mProxy.sendFile(), SHOW_DELAY_TIME);
-    } else {
-      mProxy.sendFile();
-      clearReplyMsg();
-    }
+    hideCurrentInput();
+    postDelayed(() -> mProxy.sendFile(), SHOW_DELAY_TIME);
+    clearReplyMsg();
+    mInputState = InputState.none;
   }
 
   // 设置是否禁言

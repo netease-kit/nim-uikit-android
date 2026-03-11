@@ -84,9 +84,42 @@ public class BaseBlackListActivity extends BaseListActivity {
                   binding.contactListView.addContactData(result.getData());
                 }
               }
+              updateView();
             });
     checkNetwork();
     viewModel.getBlackList();
+  }
+
+  /** 根据列表是否为空更新空View显示状态 */
+  protected void updateView() {
+    boolean isEmpty = binding.contactListView.getItemCount() == 0;
+    if (isEmpty) {
+      binding.emptyLayout.setVisibility(View.VISIBLE);
+      int imgResId = getEmptyStateViewRes();
+      if (imgResId != 0) {
+        binding.emptyIv.setImageResource(imgResId);
+      }
+      int textResId = getEmptyStateTextRes();
+      if (textResId != 0) {
+        binding.emptyTv.setText(textResId);
+      } else {
+        binding.emptyTv.setText(R.string.black_list_empty_text);
+      }
+      binding.contactListView.setVisibility(View.GONE);
+    } else {
+      binding.emptyLayout.setVisibility(View.GONE);
+      binding.contactListView.setVisibility(View.VISIBLE);
+    }
+  }
+
+  /** 子类覆写以提供皮肤对应的空状态图片资源，返回 0 表示使用布局默认图片 */
+  protected int getEmptyStateViewRes() {
+    return 0;
+  }
+
+  /** 子类覆写以提供皮肤对应的空状态文案资源，返回 0 表示使用默认文案 */
+  protected int getEmptyStateTextRes() {
+    return 0;
   }
 
   protected void setBlackListViewHolder() {

@@ -94,7 +94,7 @@ public class ChatVideoMessageViewHolder extends ChatThumbBaseViewHolder {
   }
 
   private V2NIMMessageVideoAttachment getAttachment(ChatMessageBean messageBean) {
-    return (V2NIMMessageVideoAttachment) messageBean.getMessageData().getMessage().getAttachment();
+    return (V2NIMMessageVideoAttachment) messageBean.getAttachment();
   }
 
   @Override

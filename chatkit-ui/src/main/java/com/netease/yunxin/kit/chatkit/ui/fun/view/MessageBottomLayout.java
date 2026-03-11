@@ -42,9 +42,9 @@ import com.netease.yunxin.kit.chatkit.ui.fun.FunAudioRecordDialog;
 import com.netease.yunxin.kit.chatkit.ui.fun.factory.FunBottomActionFactory;
 import com.netease.yunxin.kit.chatkit.ui.interfaces.IMessageProxy;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
-import com.netease.yunxin.kit.chatkit.ui.normal.view.AIHelperView;
 import com.netease.yunxin.kit.chatkit.ui.textSelectionHelper.SelectableTextHelper;
 import com.netease.yunxin.kit.chatkit.ui.view.IItemActionListener;
+import com.netease.yunxin.kit.chatkit.ui.view.ai.AIHelperView;
 import com.netease.yunxin.kit.chatkit.ui.view.ait.AitManager;
 import com.netease.yunxin.kit.chatkit.ui.view.ait.AitTextChangeListener;
 import com.netease.yunxin.kit.chatkit.ui.view.emoji.IEmojiSelectedListener;
@@ -600,12 +600,12 @@ public class MessageBottomLayout extends FrameLayout
   public void switchAIHelper() {
     if (mInputState == InputState.aiHelper) {
       aiHelperShow(false);
-      mInputState = InputState.none;
+      updateState(InputState.none);
       return;
     }
     aiHelperShow(true);
     hideCurrentInput();
-    mInputState = InputState.aiHelper;
+    updateState(InputState.aiHelper);
   }
 
   public void aiHelperShow(boolean show) {
@@ -634,7 +634,7 @@ public class MessageBottomLayout extends FrameLayout
   public void switchRichInput(boolean titleForces, String title, String content) {
 
     hideCurrentInput();
-    mInputState = InputState.input;
+    updateState(InputState.input);
     if (!TextUtils.isEmpty(title)) {
       mBinding.chatRichEt.setVisibility(VISIBLE);
       MessageHelper.identifyFaceExpression(
@@ -763,12 +763,9 @@ public class MessageBottomLayout extends FrameLayout
 
   // 发送图片或者视频
   public void onAlbumClick() {
-    if (mInputState == InputState.input) {
-      hideKeyboard();
-      postDelayed(() -> mProxy.pickMedia(), SHOW_DELAY_TIME);
-    } else {
-      mProxy.pickMedia();
-    }
+    hideCurrentInput();
+    postDelayed(() -> mProxy.pickMedia(), SHOW_DELAY_TIME);
+    updateState(InputState.none);
   }
 
   // 拍摄照片或者视频
@@ -797,6 +794,8 @@ public class MessageBottomLayout extends FrameLayout
               default:
                 break;
             }
+            hideCurrentInput();
+            updateState(InputState.none);
           }
 
           @Override
@@ -834,6 +833,8 @@ public class MessageBottomLayout extends FrameLayout
               default:
                 break;
             }
+            hideCurrentInput();
+            updateState(InputState.none);
           }
 
           @Override
@@ -845,17 +846,16 @@ public class MessageBottomLayout extends FrameLayout
   // 发送位置信息
   public void onLocationClick() {
     mProxy.sendLocationLaunch();
+    hideCurrentInput();
+    updateState(InputState.none);
   }
 
   // 发送文件
   public void onFileClick() {
-    if (mInputState == InputState.input) {
-      hideKeyboard();
-      postDelayed(() -> mProxy.sendFile(), SHOW_DELAY_TIME);
-    } else {
-      mProxy.sendFile();
-      clearReplyMsg();
-    }
+    hideCurrentInput();
+    postDelayed(() -> mProxy.sendFile(), SHOW_DELAY_TIME);
+    clearReplyMsg();
+    updateState(InputState.none);
   }
 
   // 设置是否禁言

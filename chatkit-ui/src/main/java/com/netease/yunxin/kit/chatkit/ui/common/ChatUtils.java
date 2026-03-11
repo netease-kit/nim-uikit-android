@@ -340,6 +340,62 @@ public class ChatUtils {
     WatchImageActivity.launch(context, messages, index);
   }
 
+  public static void watchImage(
+      Context context, V2NIMMessage currentMessage, ArrayList<V2NIMMessage> imageMessages) {
+    int index = 0;
+    String path = MessageHelper.getMessageAttachPath(currentMessage);
+    if (path != null && !FileUtils.isFileExists(path)) {
+      ChatRepo.downloadAttachment(currentMessage, path, null);
+    }
+    ArrayList<V2NIMMessage> messages = new ArrayList<>();
+    int maxLimit = 100;
+    int halfLimit = 50;
+    int arraySize = imageMessages != null ? imageMessages.size() : 0;
+    for (int i = 0; i < arraySize; ++i) {
+      V2NIMMessage msg = imageMessages.get(i);
+      if (msg != null && currentMessage.getMessageClientId().equals(msg.getMessageClientId())) {
+        index = i;
+      }
+      messages.add(msg);
+    }
+    if (arraySize > maxLimit) {
+      int start = 0;
+      int end = arraySize;
+      if (index > halfLimit) {
+        if (index + halfLimit >= arraySize) {
+          start = arraySize - maxLimit;
+          index = index - start;
+        } else if (index + halfLimit < arraySize) {
+          start = index - halfLimit;
+          end = index + halfLimit;
+          index = halfLimit;
+        }
+      } else {
+        end = maxLimit;
+      }
+      messages = new ArrayList<>(messages.subList(start, end));
+    }
+    WatchImageActivity.launch(context, messages, index);
+  }
+
+  public static boolean watchVideo(Context context, V2NIMMessage message) {
+    if (message == null) {
+      return false;
+    }
+    String filePath = MessageHelper.getMessageAttachPath(message);
+    if (!TextUtils.isEmpty(filePath)) {
+      if (FileUtils.isFileExists(filePath)) {
+        WatchVideoActivity.launch(context, message);
+        return true;
+      } else if (!TextUtils.isEmpty(
+          ((V2NIMMessageFileAttachment) message.getAttachment()).getUrl())) {
+        ALog.d(LIB_TAG, TAG, "downloadMessageAttachment:" + message.getMessageClientId());
+        ChatRepo.downloadAttachment(message, filePath, null);
+      }
+    }
+    return false;
+  }
+
   public static boolean watchVideo(Context context, IMMessageInfo messageInfo) {
     if (messageInfo == null) {
       return false;
@@ -372,6 +428,24 @@ public class ChatUtils {
         return true;
       } else if (!TextUtils.isEmpty(
           ((V2NIMMessageFileAttachment) message.getAttachment()).getUrl())) {
+        ALog.d(LIB_TAG, TAG, "downloadMessageAttachment:" + message.getMessageClientId());
+        ChatRepo.downloadAttachment(message, filePath, null);
+      }
+    }
+    return false;
+  }
+
+  public static boolean openFile(Context context, V2NIMMessage message) {
+    if (message == null) {
+      return false;
+    }
+    String filePath = MessageHelper.getMessageAttachPath(message);
+    if (!TextUtils.isEmpty(filePath)) {
+      if (FileUtils.isFileExists(filePath)) {
+        ChatUtils.openFileWithApp(context, message);
+        return true;
+      } else if (message.getAttachment() instanceof V2NIMMessageFileAttachment
+          && !TextUtils.isEmpty(((V2NIMMessageFileAttachment) message.getAttachment()).getUrl())) {
         ALog.d(LIB_TAG, TAG, "downloadMessageAttachment:" + message.getMessageClientId());
         ChatRepo.downloadAttachment(message, filePath, null);
       }
@@ -633,5 +707,51 @@ public class ChatUtils {
       }
     }
     return false;
+  }
+
+  /**
+   * 更新列表中 ChatMessageBean 的 showTimeText 属性（从指定位置开始）
+   *
+   * @param list 消息列表
+   * @param startIndex 从列表的哪个位置开始遍历
+   */
+  public static void updateShowTimeText(List<ChatMessageBean> list, int startIndex) {
+    if (list == null || list.isEmpty()) {
+      return;
+    }
+
+    if (startIndex < 0 || startIndex >= list.size()) {
+      return;
+    }
+
+    // 找到上一个 showTimeText = true 的对象的 creatTime
+    long lastShowTime = -1;
+    for (int i = startIndex - 1; i >= 0; i--) {
+      ChatMessageBean bean = list.get(i);
+      if (bean.showTimeText) {
+        lastShowTime = bean.getCreateTime();
+        break;
+      }
+    }
+
+    // 如果前面没有显示时间的对象，则第一个遍历的对象默认显示时间
+    boolean firstShow = lastShowTime == -1;
+
+    for (int i = startIndex; i < list.size(); i++) {
+      ChatMessageBean bean = list.get(i);
+      if (firstShow) {
+        bean.showTimeText = true;
+        lastShowTime = bean.getCreateTime();
+        firstShow = false;
+      } else {
+        long timeDiff = Math.abs(bean.getCreateTime() - lastShowTime);
+        if (timeDiff > ChatKitUIConstant.SHOW_MESSAGE_TIME_DURATION) {
+          bean.showTimeText = true;
+          lastShowTime = bean.getCreateTime();
+        } else {
+          bean.showTimeText = false;
+        }
+      }
+    }
   }
 }

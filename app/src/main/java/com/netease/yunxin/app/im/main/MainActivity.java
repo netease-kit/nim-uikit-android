@@ -63,7 +63,7 @@ import com.netease.yunxin.kit.chatkit.ui.IChatInputMenu;
 import com.netease.yunxin.kit.chatkit.ui.builder.IChatViewCustom;
 import com.netease.yunxin.kit.chatkit.ui.custom.ChatConfigManager;
 import com.netease.yunxin.kit.chatkit.ui.interfaces.IChatView;
-import com.netease.yunxin.kit.chatkit.ui.normal.view.AIHelperView;
+import com.netease.yunxin.kit.chatkit.ui.view.ai.AIHelperView;
 import com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants;
 import com.netease.yunxin.kit.chatkit.utils.ConversationIdUtils;
 import com.netease.yunxin.kit.common.ui.activities.BaseLocalActivity;

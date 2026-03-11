@@ -1,18 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- ==================== 语义命名颜色（公共） ==================== -->
+    <!-- 基础白色 -->
     <color name="color_white">#FFFFFF</color>
-    <color name="color_333333">#333333</color>
-    <color name="color_337eff">#337eff</color>
-    <color name="color_ededef">#ededef</color>
-    <color name="color_666666">#666666</color>
-    <color name="color_f24957">#f24957</color>
-    <color name="color_999999">#999999</color>
-    <color name="color_cccccc">#cccccc</color>
-    <color name="color_e9eff5">#e9eff5</color>
-    <color name="color_fee3e6">#fee3e6</color>
-    <color name="color_fc596a">#fc596a</color>
-    <color name="color_50_000000">#7f000000</color>
-    <color name="color_fceeee">#fceeee</color>
-    <color name="color_5a5a5a">#5a5a5a</color>
+    <!-- 主文字色 -->
+    <color name="color_conversation_primary_text">#333333</color>
+    <!-- 分割线/按压态背景色 -->
+    <color name="color_conversation_divider">#ededef</color>
+    <!-- 徽标红/角标红 -->
+    <color name="color_conversation_badge_red">#f24957</color>
+    <!-- 副文字色 -->
+    <color name="color_conversation_secondary_text">#999999</color>
+    <!-- 时间文字色 -->
+    <color name="color_conversation_time_text">#cccccc</color>
+    <!-- 搜索栏背景色 -->
+    <color name="color_conversation_search_bg">#e9eff5</color>
+    <!-- 网络异常提示背景色（浅红） -->
+    <color name="color_conversation_network_error_bg">#fee3e6</color>
+    <!-- 网络异常提示文字色（红） -->
+    <color name="color_conversation_network_error_text">#fc596a</color>
+
+    <!-- ==================== Normal 皮肤专属颜色 ==================== -->
+    <!-- (Normal 皮肤无专属颜色，使用公共色) -->
+
+    <!-- ==================== Fun 皮肤专属颜色 ==================== -->
+    <color name="fun_conversation_page_bg_color">#ededed</color>
+    <color name="fun_conversation_secondary_page_bg_color">#ededed</color>
+    <!-- 搜索栏占位字体色（50% 透明黑） -->
+    <color name="fun_conversation_search_text_color">#4d000000</color>
+    <color name="fun_conversation_item_bg_color">#ffffff</color>
+    <color name="fun_conversation_item_title_text_color">#333333</color>
+    <color name="fun_conversation_item_sub_title_text_color">#999999</color>
+    <color name="fun_conversation_item_time_text_color">#cccccc</color>
+    <color name="fun_conversation_item_divide_line_color">#d8d8d8</color>
+    <!-- 置顶会话背景色 -->
+    <color name="fun_conversation_item_stick_bg_color">#ededef</color>
+    <!-- 创建群聊和添加好友PopupWindow 字体颜色 -->
+    <color name="fun_conversation_add_pop_text_color">#ffffff</color>
+    <color name="fun_conversation_add_pop_bg_color">#4c4c4c</color>
+    <!-- Fun 网络异常提示背景色（浅红） -->
+    <color name="fun_conversation_network_error_bg">#fceeee</color>
+    <!-- Fun 搜索栏文字色（50% 黑） -->
+    <color name="fun_conversation_search_hint_color">#7f000000</color>
+    <!-- Fun 弹窗背景色 -->
+    <color name="fun_conversation_pop_bg_color">#5a5a5a</color>
+    <!-- ==================== Fun 皮肤专属颜色 END ==================== -->
 
 </resources>

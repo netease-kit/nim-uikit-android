@@ -11,6 +11,8 @@ import com.netease.nimlib.sdk.v2.team.model.V2NIMTeam;
 import com.netease.nimlib.sdk.v2.team.model.V2NIMTeamJoinActionInfo;
 import com.netease.nimlib.sdk.v2.user.V2NIMUser;
 import com.netease.yunxin.kit.alog.ALog;
+import com.netease.yunxin.kit.chatkit.cache.FriendUserCache;
+import com.netease.yunxin.kit.corekit.im2.model.UserWithFriend;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -131,6 +133,12 @@ public class TeamVerifyInfoBean extends BaseContactBean {
 
   public String getOperatorUserName() {
     if (operatorUser != null) {
+      if (FriendUserCache.isFriend(operatorUser.getAccountId())) {
+        UserWithFriend friendUser = FriendUserCache.getFriendByAccount(operatorUser.getAccountId());
+        if (friendUser != null) {
+          return friendUser.getName();
+        }
+      }
       return operatorUser.getName();
     } else {
       return actionInfo.getOperatorAccountId();

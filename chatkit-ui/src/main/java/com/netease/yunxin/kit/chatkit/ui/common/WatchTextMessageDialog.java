@@ -4,12 +4,8 @@
 
 package com.netease.yunxin.kit.chatkit.ui.common;
 
-import static com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants.POP_ACTION_COPY;
-import static com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants.POP_ACTION_TEL;
-
 import android.annotation.SuppressLint;
-import android.content.Intent;
-import android.net.Uri;
+import android.content.DialogInterface;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -23,15 +19,12 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentManager;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
-import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.custom.RichTextAttachment;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatMessageDialogLayoutBinding;
 import com.netease.yunxin.kit.chatkit.ui.interfaces.IMessageItemClickListener;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.view.MarkDownViwUtils;
 import com.netease.yunxin.kit.common.ui.dialog.BaseDialog;
-import com.netease.yunxin.kit.common.ui.dialog.BottomChoiceDialog;
-import com.netease.yunxin.kit.common.ui.dialog.BottomHeaderChoiceDialog;
 import java.util.Objects;
 
 /** 查看文本消息的弹窗,支持文本消息和富文本消息 PIN页面点击文本消息或者富文本消息，弹出此弹窗 */
@@ -42,6 +35,7 @@ public class WatchTextMessageDialog extends BaseDialog {
   private float curEventX;
   private float curEventY;
   private final Integer rootBgRes;
+  private DialogInterface.OnDismissListener onDismissListener;
 
   public WatchTextMessageDialog(Integer rootBgRes) {
     super();
@@ -54,6 +48,18 @@ public class WatchTextMessageDialog extends BaseDialog {
 
   public void setMessageInfo(IMMessageInfo message) {
     messageInfo = message;
+  }
+
+  public void setOnDismissListener(DialogInterface.OnDismissListener listener) {
+    this.onDismissListener = listener;
+  }
+
+  @Override
+  public void onDismiss(@NonNull DialogInterface dialog) {
+    super.onDismiss(dialog);
+    if (onDismissListener != null) {
+      onDismissListener.onDismiss(dialog);
+    }
   }
 
   @SuppressLint("ClickableViewAccessibility")
@@ -112,35 +118,9 @@ public class WatchTextMessageDialog extends BaseDialog {
           viewBinding.messageTitle,
           new IMessageItemClickListener() {
             @Override
-            public boolean onMessageTelClick(
-                View view, int position, ChatMessageBean messageInfo, String target) {
-              BottomHeaderChoiceDialog dialog =
-                  new BottomHeaderChoiceDialog(
-                      getContext(), ChatDialogUtils.assembleMessageTelActions());
-              dialog.setTitle(String.format(getString(R.string.chat_tel_tips_title), target));
-              dialog.setOnChoiceListener(
-                  new BottomChoiceDialog.OnChoiceListener() {
-                    @Override
-                    public void onChoice(@NonNull String type) {
-                      switch (type) {
-                        case POP_ACTION_TEL:
-                          Intent intent = new Intent(Intent.ACTION_DIAL); // 仅打开拨号界面
-                          intent.setData(Uri.parse("tel:" + target)); // 自动填充电话号码
-                          startActivity(intent);
-                          break;
-                        case POP_ACTION_COPY:
-                          MessageHelper.copyText(target, true);
-
-                          break;
-                        default:
-                          break;
-                      }
-                    }
-
-                    @Override
-                    public void onCancel() {}
-                  });
-              dialog.show();
+            public boolean onMessageClickableSpanClick(
+                View view, int position, ChatMessageBean messageInfo, String url) {
+              MessageClickUtils.handleClickableSpanClick(getContext(), url);
               return true;
             }
           },
@@ -163,35 +143,9 @@ public class WatchTextMessageDialog extends BaseDialog {
           viewBinding.message,
           new IMessageItemClickListener() {
             @Override
-            public boolean onMessageTelClick(
+            public boolean onMessageClickableSpanClick(
                 View view, int position, ChatMessageBean messageInfo, String target) {
-              BottomHeaderChoiceDialog dialog =
-                  new BottomHeaderChoiceDialog(
-                      getContext(), ChatDialogUtils.assembleMessageTelActions());
-              dialog.setTitle(String.format(getString(R.string.chat_tel_tips_title), target));
-              dialog.setOnChoiceListener(
-                  new BottomChoiceDialog.OnChoiceListener() {
-                    @Override
-                    public void onChoice(@NonNull String type) {
-                      switch (type) {
-                        case POP_ACTION_TEL:
-                          Intent intent = new Intent(Intent.ACTION_DIAL); // 仅打开拨号界面
-                          intent.setData(Uri.parse("tel:" + target)); // 自动填充电话号码
-                          startActivity(intent);
-                          break;
-                        case POP_ACTION_COPY:
-                          MessageHelper.copyText(target, true);
-
-                          break;
-                        default:
-                          break;
-                      }
-                    }
-
-                    @Override
-                    public void onCancel() {}
-                  });
-              dialog.show();
+              MessageClickUtils.handleClickableSpanClick(getContext(), target);
               return true;
             }
           },

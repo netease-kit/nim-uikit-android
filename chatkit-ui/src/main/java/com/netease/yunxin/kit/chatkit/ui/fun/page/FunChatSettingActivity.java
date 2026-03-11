@@ -113,7 +113,15 @@ public class FunChatSettingActivity extends BaseLocalActivity {
     } else {
       binding.pinLayout.setVisibility(View.GONE);
     }
-
+    binding.searchLayout.setOnClickListener(
+        v ->
+            XKitRouter.withKey(RouterConstant.PATH_FUN_CHAT_SEARCH_PAGE)
+                .withParam(
+                    RouterConstant.CHAT_CONVERSATION_TYPE_KRY,
+                    V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P.getValue())
+                .withParam(RouterConstant.CHAT_ID_KRY, accId)
+                .withContext(FunChatSettingActivity.this)
+                .navigate());
     binding.notifyLayout.setOnClickListener(
         v -> {
           if (!NetworkUtils.isConnected()) {

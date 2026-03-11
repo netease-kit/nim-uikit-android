@@ -57,30 +57,6 @@ public class ImageChoiceDialog extends PhotoChoiceDialog {
                   }
                 }
               });
-      //      IMKitCustomFactory.getMessageChooseListener()
-      //          .onImageChoose(
-      //              mActivity,
-      //              config,
-      //              new FetchCallback<ArrayList<LocalFileInfo>>() {
-      //                @Override
-      //                public void onError(int errorCode, @Nullable String errorMsg) {
-      //                  if (callback != null) {
-      //                    ImageChoiceDialog.this.onFailed(errorCode);
-      //                  }
-      //                }
-      //
-      //                @Override
-      //                public void onSuccess(ArrayList<LocalFileInfo> localFileInfos) {
-      //                  if (localFileInfos != null && localFileInfos.size() > 0) {
-      //                    File file = new File(localFileInfos.get(0).getPath());
-      //                    if (file.exists()) {
-      //                      ImageChoiceDialog.this.onSuccess(file);
-      //                    } else {
-      //                      ImageChoiceDialog.this.onFailed(-1);
-      //                    }
-      //                  }
-      //                }
-      //              });
     } else {
       super.onGetFromAlbumClick(view);
     }

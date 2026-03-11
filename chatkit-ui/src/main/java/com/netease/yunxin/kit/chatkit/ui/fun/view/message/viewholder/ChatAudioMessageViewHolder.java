@@ -89,7 +89,7 @@ public class ChatAudioMessageViewHolder extends FunChatBaseMessageViewHolder {
   }
 
   private void initPlayAnim() {
-    if (MessageHelper.isReceivedMessage(currentMessage)) {
+    if (showReceiveUIStyle()) {
       audioBinding.animation.setImageResource(R.drawable.ani_message_audio_from);
     } else {
       audioBinding.animation.setImageResource(R.drawable.ani_message_audio_to);
@@ -97,7 +97,7 @@ public class ChatAudioMessageViewHolder extends FunChatBaseMessageViewHolder {
   }
 
   private void endPlayAnim() {
-    if (MessageHelper.isReceivedMessage(currentMessage)) {
+    if (showReceiveUIStyle()) {
       audioBinding.animation.setImageResource(R.drawable.ic_message_from_audio);
     } else {
       audioBinding.animation.setImageResource(R.drawable.ic_message_to_audio);
@@ -169,7 +169,7 @@ public class ChatAudioMessageViewHolder extends FunChatBaseMessageViewHolder {
       audioBinding.tvVoice.setText(message.getVoiceToText());
       LinearLayout.LayoutParams layoutParams =
           (LinearLayout.LayoutParams) audioBinding.tvVoice.getLayoutParams();
-      if (MessageHelper.isReceivedMessage(message)) {
+      if (showReceiveUIStyle()) {
         audioBinding.tvVoice.setBackgroundResource(
             R.drawable.fun_bg_message_voice_to_text_received);
         layoutParams.setMarginStart(SizeUtils.dp2px(7));
@@ -234,7 +234,7 @@ public class ChatAudioMessageViewHolder extends FunChatBaseMessageViewHolder {
         (RelativeLayout.LayoutParams) audioBinding.animation.getLayoutParams();
     RelativeLayout.LayoutParams timeLp =
         (RelativeLayout.LayoutParams) audioBinding.tvTime.getLayoutParams();
-    if (MessageHelper.isReceivedMessage(message)) {
+    if (showReceiveUIStyle()) {
       aniLp.removeRule(ALIGN_PARENT_RIGHT);
       aniLp.addRule(ALIGN_PARENT_LEFT);
       timeLp.removeRule(START_OF);

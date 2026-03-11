@@ -140,6 +140,7 @@
     <string name="uikit_online_switch_title">Message Typing Status</string>
     <string name="uikit_call_switch_title">Prohibit strangers from making calls</string>
     <string name="uikit_image_pick_switch_title">Use image picker plugin</string>
+    <string name="uikit_cloud_search_switch_title">Cloud search</string>
     <string name="uikit_team_manager_limit_title">Team Manager count limit</string>
     <string name="uikit_anti_spam_switch_title">Text anti-spam prompt</string>
 

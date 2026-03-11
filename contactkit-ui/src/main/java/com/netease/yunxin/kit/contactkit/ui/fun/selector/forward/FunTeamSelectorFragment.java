@@ -43,7 +43,8 @@ public class FunTeamSelectorFragment extends BaseTeamSelectorFragment {
     int end = start + viewModel.getSearchKey().length();
     RecordHitInfo recordHitInfo = new RecordHitInfo(start, end);
     binding.tvNoResult.setText(
-        getSelectSpanText(getResources().getColor(R.color.color_58be6b), showText, recordHitInfo));
+        getSelectSpanText(
+            getResources().getColor(R.color.fun_contact_primary_color), showText, recordHitInfo));
     super.showSearchResultEmptyView();
   }
 }

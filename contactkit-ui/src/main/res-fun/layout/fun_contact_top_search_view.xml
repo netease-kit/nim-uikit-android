@@ -35,7 +35,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/dimen_5_dp"
         android:text="@string/fun_contact_search"
-        android:textColor="@color/color_4d000000"
+        android:textColor="#4d000000"
         android:textSize="@dimen/dimen_16_dp"
         app:layout_constraintStart_toEndOf="@id/ivTip"
         android:layout_gravity="center_vertical"

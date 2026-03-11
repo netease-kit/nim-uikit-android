@@ -16,7 +16,7 @@
         android:id="@+id/llyReply"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/color_eff1f4"
+            android:background="@color/color_chat_input_reply_bg"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingHorizontal="@dimen/dimen_8_dp"
@@ -35,7 +35,7 @@
             android:layout_width="@dimen/dimen_1_dp"
             android:layout_height="@dimen/dimen_14_dp"
             android:layout_marginHorizontal="@dimen/dimen_6_dp"
-            android:background="@color/color_d8eae4" />
+                android:background="@color/color_chat_input_reply_divider" />
 
         <TextView
             android:id="@+id/tvReplyContent"
@@ -43,7 +43,7 @@
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:maxLines="1"
-            android:textColor="@color/color_929299"
+                android:textColor="@color/color_chat_input_reply_text"
             android:textSize="@dimen/text_size_12" />
 
     </LinearLayout>
@@ -197,7 +197,7 @@
             android:visibility="gone" />
     </FrameLayout>
 
-    <com.netease.yunxin.kit.chatkit.ui.normal.view.AIHelperView
+    <com.netease.yunxin.kit.chatkit.ui.view.ai.AIHelperView
         android:id="@+id/chat_message_ai_helper_view"
         android:layout_width="match_parent"
         android:layout_height="280dp"

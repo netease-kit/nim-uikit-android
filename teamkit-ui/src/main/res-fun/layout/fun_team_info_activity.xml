@@ -10,7 +10,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/color_ededed">
+    android:background="@color/fun_team_page_bg_color">
 
     <com.netease.yunxin.kit.common.ui.widgets.BackTitleBar
         android:id="@+id/viewTitle"
@@ -42,7 +42,7 @@
         android:layout_marginEnd="16dp"
         android:gravity="center_vertical|start"
         android:text="@string/team_icon_title"
-        android:textColor="@color/color_333333"
+        android:textColor="@color/color_team_primary_text"
         android:textSize="16dp"
         app:drawableEndCompat="@drawable/ic_right_arrow"
         app:layout_constraintEnd_toEndOf="@id/infoBg"
@@ -65,7 +65,7 @@
         android:layout_width="0dp"
         android:layout_height="0.5dp"
         android:layout_marginStart="16dp"
-        android:background="@color/color_e5e5e5"
+        android:background="@color/color_team_divider"
         app:layout_constraintEnd_toEndOf="@id/infoBg"
         app:layout_constraintStart_toStartOf="@id/infoBg"
         app:layout_constraintTop_toBottomOf="@id/tvIcon" />
@@ -78,7 +78,7 @@
         android:layout_marginEnd="16dp"
         android:gravity="center_vertical|start"
         android:text="@string/team_name_title"
-        android:textColor="@color/color_333333"
+        android:textColor="@color/color_team_primary_text"
         android:textSize="16dp"
         app:drawableEndCompat="@drawable/ic_right_arrow"
         app:layout_constraintEnd_toEndOf="@id/infoBg"
@@ -91,7 +91,7 @@
         android:layout_width="0dp"
         android:layout_height="0.5dp"
         android:layout_marginStart="16dp"
-        android:background="@color/color_e5e5e5"
+        android:background="@color/color_team_divider"
         app:layout_constraintEnd_toEndOf="@id/infoBg"
         app:layout_constraintStart_toStartOf="@id/infoBg"
         app:layout_constraintTop_toBottomOf="@id/tvName" />
@@ -104,7 +104,7 @@
         android:layout_marginEnd="16dp"
         android:gravity="center_vertical|start"
         android:text="@string/team_introduce_title"
-        android:textColor="@color/color_333333"
+        android:textColor="@color/color_team_primary_text"
         android:textSize="16dp"
         android:visibility="visible"
         app:drawableEndCompat="@drawable/ic_right_arrow"

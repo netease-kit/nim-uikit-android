@@ -612,7 +612,11 @@ public class ConversationViewModel extends BaseViewModel {
           }
           List<String> conversationIdList = new ArrayList<>();
           for (V2NIMUserStatus userStatus : userStatusList) {
-            if (userStatus != null && userStatus.getAccountId() != null) {
+            if (userStatus != null && !TextUtils.isEmpty(userStatus.getAccountId())) {
+              ALog.i(
+                  LIB_TAG,
+                  TAG,
+                  "onUserStatusChanged,userStatus getAccountId:" + userStatus.getAccountId());
               String conversationId =
                   ConversationIdUtils.conversationId(
                       userStatus.getAccountId(), V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P);

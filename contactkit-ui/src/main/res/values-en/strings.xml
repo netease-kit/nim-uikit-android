@@ -156,4 +156,8 @@
     <string name="contact_dialog_sure">Sure</string>
     <string name="contact_dialog_cancel">Cancel</string>
 
+    <!-- ==================== Fun 皮肤专属字符串 ==================== -->
+    <string name="fun_contact_search_hint_text">Search</string>
+    <!-- ==================== Fun 皮肤专属字符串 END ==================== -->
+
 </resources>

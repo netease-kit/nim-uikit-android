@@ -49,7 +49,7 @@ public class NormalChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
   @Override
   protected void onMessageBackgroundConfig(ChatMessageBean messageBean) {
     super.onMessageBackgroundConfig(messageBean);
-    boolean isReceivedMsg = MessageHelper.isReceivedMessage(messageBean) || isForwardMsg();
+    boolean isReceivedMsg = MessageHelper.isReceivedMessage(messageBean) || !isChatMsg();
     CommonUIOption commonUIOption = uiOptions.commonUIOption;
     boolean isCustomBgValid = true;
     if (isReceivedMsg) {

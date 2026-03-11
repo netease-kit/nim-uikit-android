@@ -43,7 +43,8 @@ public class FriendSelectorFragment extends BaseFriendSelectorFragment {
     int end = start + viewModel.getSearchKey().length();
     RecordHitInfo recordHitInfo = new RecordHitInfo(start, end);
     binding.tvNoResult.setText(
-        getSelectSpanText(getResources().getColor(R.color.color_337eff), showText, recordHitInfo));
+        getSelectSpanText(
+            getResources().getColor(R.color.color_contact_blue_primary), showText, recordHitInfo));
 
     super.showSearchResultEmptyView();
   }

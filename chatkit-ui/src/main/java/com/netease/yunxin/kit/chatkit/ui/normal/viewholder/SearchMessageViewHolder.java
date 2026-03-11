@@ -4,8 +4,11 @@
 
 package com.netease.yunxin.kit.chatkit.ui.normal.viewholder;
 
+import android.content.Context;
 import android.view.View;
 import androidx.annotation.NonNull;
+import com.netease.nimlib.sdk.v2.message.V2NIMMessage;
+import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatSearchItemLayoutBinding;
@@ -37,13 +40,18 @@ public class SearchMessageViewHolder extends BaseViewHolder<ChatSearchBean> {
   public void onBindData(ChatSearchBean data, int position) {
     if (data != null) {
       setUserInfo(data);
-      EllipsizeUtils.ellipsizeAndHighlight(
-          viewBinding.tvMessage,
-          data.getMessage().getText(),
-          data.getKeyword(),
-          viewBinding.getRoot().getContext().getResources().getColor(R.color.color_337eff),
-          true,
-          true);
+      String display = getDisplayText(viewBinding.getRoot().getContext(), data.getMessage());
+      if (data.getMessage().getMessageType() == V2NIMMessageType.V2NIM_MESSAGE_TYPE_TEXT) {
+        EllipsizeUtils.ellipsizeAndHighlight(
+            viewBinding.tvMessage,
+            display,
+            data.getKeyword(),
+            viewBinding.getRoot().getContext().getResources().getColor(R.color.color_337eff),
+            true,
+            true);
+      } else {
+        viewBinding.tvMessage.setText(display);
+      }
       viewBinding.tvTime.setText(
           TimeFormatLocalUtils.formatMillisecond(
               viewBinding.getRoot().getContext(),
@@ -80,5 +88,28 @@ public class SearchMessageViewHolder extends BaseViewHolder<ChatSearchBean> {
             data.getAccount(), data.getMessage().getConversationType());
     viewBinding.cavIcon.setData(avatar, avatarName, AvatarColor.avatarColor(data.getAccount()));
     viewBinding.tvNickName.setText(name);
+  }
+
+  private String getDisplayText(Context context, V2NIMMessage message) {
+    V2NIMMessageType type = message.getMessageType();
+    if (type == V2NIMMessageType.V2NIM_MESSAGE_TYPE_TEXT) {
+      return message.getText();
+    } else if (type == V2NIMMessageType.V2NIM_MESSAGE_TYPE_FILE) {
+      return context.getString(R.string.msg_type_file);
+    } else if (type == V2NIMMessageType.V2NIM_MESSAGE_TYPE_IMAGE) {
+      return context.getString(R.string.msg_type_image);
+    } else if (type == V2NIMMessageType.V2NIM_MESSAGE_TYPE_AUDIO) {
+      return context.getString(R.string.msg_type_audio);
+    } else if (type == V2NIMMessageType.V2NIM_MESSAGE_TYPE_LOCATION) {
+      return context.getString(R.string.msg_type_location);
+    } else if (type == V2NIMMessageType.V2NIM_MESSAGE_TYPE_VIDEO) {
+      return context.getString(R.string.msg_type_video);
+    } else if (type == V2NIMMessageType.V2NIM_MESSAGE_TYPE_CUSTOM) {
+      return context.getString(R.string.msg_type_custom);
+    } else if (type == V2NIMMessageType.V2NIM_MESSAGE_TYPE_CALL) {
+      return context.getString(R.string.msg_type_rtc_audio);
+    } else {
+      return context.getString(R.string.msg_type_no_tips);
+    }
   }
 }

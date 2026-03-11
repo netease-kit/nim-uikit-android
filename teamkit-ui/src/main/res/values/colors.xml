@@ -6,25 +6,42 @@
   -->
 
 <resources>
+    <!-- ==================== 语义命名颜色（公共） ==================== -->
+    <!-- 基础白色 -->
     <color name="color_white">#FFFFFF</color>
-    <color name="color_e6605c">#ffe6605c</color>
-    <color name="color_e0ecff">#ffe0ecff</color>
-    <color name="color_b9d3ff">#ffb9d3ff</color>
-    <color name="color_dedede">#ffdedede</color>
-    <color name="color_a6adb6">#a6adb6</color>
-    <color name="color_eff1f4">#eff1f4</color>
-    <color name="color_fff4f4f4">#fff4f4f4</color>
-    <color name="color_ededef">#ededef</color>
-    <color name="color_dbdde4">#dbdde4</color>
-    <color name="color_337eff">#337eff</color>
-    <color name="color_b3b7bc">#b3b7bc</color>
-    <color name="color_999999">#999999</color>
-    <color name="color_f2f4f5">#f2f4f5</color>
-    <color name="color_e5e5e5">#e5e5e5</color>
-    <color name="color_58be6b">#58BE6B</color>
-    <color name="color_10_58be6b">#1958BE6B</color>
-    <color name="color_f7f7f7">#f7f7f7</color>
-    <color name="color_ededed">#EDEDED</color>
-    <color name="color_ea8339">#EA8339</color>
+    <!-- 主文字色（深黑） -->
+    <color name="color_team_primary_text">#333333</color>
+    <!-- 副标题/说明文字色（中灰） -->
+    <color name="color_team_tertiary_text">#666666</color>
+    <!-- 蓝色主色（按钮/链接/开关激活色） -->
+    <color name="color_team_blue_primary">#337eff</color>
+    <!-- 页面/卡片背景色（浅灰） -->
+    <color name="color_team_page_bg">#eff1f4</color>
+    <!-- 副文字色/Hint 色 -->
+    <color name="color_team_secondary_text">#999999</color>
+    <!-- 分割线颜色 -->
+    <color name="color_team_divider">#e5e5e5</color>
+    <!-- 开关关闭态轨道/thumb 描边色 -->
+    <color name="color_team_switch_off">#dbdde4</color>
+    <!-- 文字 Hint/搜索框 hint 色 -->
+    <color name="color_team_input_hint">#a6adb6</color>
+    <!-- 字数限制提示文字色 -->
+    <color name="color_team_char_count_hint">#b3b7bc</color>
+    <!-- 退出/解散群 危险操作文字色（红） -->
+    <color name="color_team_danger_red">#e6605c</color>
+
+    <!-- ==================== Normal 皮肤专属颜色 ==================== -->
+    <!-- (Normal 皮肤颜色使用公共色，无专属颜色) -->
+
+    <!-- ==================== Fun 皮肤专属颜色 ==================== -->
+    <!-- Fun 页面背景色（浅灰） -->
+    <color name="fun_team_page_bg_color">#EDEDED</color>
+    <!-- Fun 绿色主色（按钮/开关激活/群主标签描边） -->
+    <color name="fun_team_green_primary">#58BE6B</color>
+    <!-- Fun 弹窗/对话框内容区背景 -->
+    <color name="fun_team_dialog_content_bg">#f7f7f7</color>
+    <!-- Fun 群主角色标签管理员颜色（橙色，用于 manager 徽章） -->
+    <color name="fun_team_manager_color">#EA8339</color>
+    <!-- ==================== Fun 皮肤专属颜色 END ==================== -->
 
 </resources>

@@ -6,6 +6,7 @@ package com.netease.yunxin.kit.common.ui.widgets.datepicker;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.graphics.Color;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.View;
@@ -27,7 +28,7 @@ public class CustomDatePicker implements View.OnClickListener, PickerView.OnSele
 
   private Dialog mPickerDialog;
   private PickerView mDpvYear, mDpvMonth, mDpvDay, mDpvHour, mDpvMinute;
-  private TextView mTvHourUnit, mTvMinuteUnit;
+  private TextView mTvHourUnit, mTvMinuteUnit, mTvDayUnit;
   private int mBeginYear,
       mBeginMonth,
       mBeginDay,
@@ -47,6 +48,10 @@ public class CustomDatePicker implements View.OnClickListener, PickerView.OnSele
 
   private boolean mCanShowPreciseTime;
   private int mScrollUnits = SCROLL_UNIT_HOUR + SCROLL_UNIT_MINUTE;
+  private boolean mYearMonthOnly = false;
+
+  /** 选中颜色，默认 -1 表示不设置（使用 PickerView 默认颜色） */
+  private int mSelectColor = Color.TRANSPARENT;
 
   private static final int SCROLL_UNIT_HOUR = 0b1;
   private static final int SCROLL_UNIT_MINUTE = 0b10;
@@ -70,8 +75,41 @@ public class CustomDatePicker implements View.OnClickListener, PickerView.OnSele
         DateFormatUtils.str2Long(endDateStr, true));
   }
 
+  /**
+   * 构造方法，支持指定默认选中时间
+   *
+   * @param context 上下文
+   * @param callback 选中回调
+   * @param beginDateStr 开始时间字符串，格式 yyyy-MM-dd 或 yyyy-MM-dd HH:mm
+   * @param endDateStr 结束时间字符串，格式 yyyy-MM-dd 或 yyyy-MM-dd HH:mm
+   * @param selectColor 选中颜色（按钮与列表选中项），传 0 则使用默认颜色
+   */
+  public CustomDatePicker(
+      Context context, Callback callback, String beginDateStr, String endDateStr, int selectColor) {
+    this(
+        context,
+        callback,
+        DateFormatUtils.str2Long(beginDateStr, true),
+        DateFormatUtils.str2Long(endDateStr, true),
+        selectColor);
+  }
+
   public CustomDatePicker(
       Context context, Callback callback, long beginTimestamp, long endTimestamp) {
+    this(context, callback, beginTimestamp, endTimestamp, 0);
+  }
+
+  /**
+   * 构造方法，支持指定默认选中时间和选中颜色
+   *
+   * @param context 上下文
+   * @param callback 选中回调
+   * @param beginTimestamp 开始时间戳（毫秒）
+   * @param endTimestamp 结束时间戳（毫秒）
+   * @param selectColor 选中颜色（按钮与列表选中项），传 0 则使用默认颜色
+   */
+  public CustomDatePicker(
+      Context context, Callback callback, long beginTimestamp, long endTimestamp, int selectColor) {
     if (context == null || callback == null || beginTimestamp >= endTimestamp) {
       mCanDialogShow = false;
       return;
@@ -84,9 +122,13 @@ public class CustomDatePicker implements View.OnClickListener, PickerView.OnSele
     mEndTime = Calendar.getInstance();
     mEndTime.setTimeInMillis(endTimestamp);
     mSelectedTime = Calendar.getInstance();
+    if (selectColor != 0) {
+      mSelectColor = selectColor;
+    }
 
     initView();
     initData();
+
     mCanDialogShow = true;
   }
 
@@ -104,10 +146,19 @@ public class CustomDatePicker implements View.OnClickListener, PickerView.OnSele
       window.setAttributes(lp);
     }
 
-    mPickerDialog.findViewById(R.id.tv_cancel).setOnClickListener(this);
-    mPickerDialog.findViewById(R.id.tv_confirm).setOnClickListener(this);
+    TextView tvCancel = mPickerDialog.findViewById(R.id.tv_cancel);
+    tvCancel.setOnClickListener(this);
+    TextView tvConfirm = mPickerDialog.findViewById(R.id.tv_confirm);
+    tvConfirm.setOnClickListener(this);
+    if (mSelectColor != Color.TRANSPARENT) {
+      tvCancel.setTextColor(mSelectColor);
+      tvConfirm.setTextColor(mSelectColor);
+      TextView tvTitle = mPickerDialog.findViewById(R.id.tv_title);
+      if (tvTitle != null) tvTitle.setTextColor(mSelectColor);
+    }
     mTvHourUnit = mPickerDialog.findViewById(R.id.tv_hour_unit);
     mTvMinuteUnit = mPickerDialog.findViewById(R.id.tv_minute_unit);
+    mTvDayUnit = mPickerDialog.findViewById(R.id.tv_day_unit);
 
     mDpvYear = mPickerDialog.findViewById(R.id.dpv_year);
     mDpvYear.setOnSelectListener(this);
@@ -119,6 +170,18 @@ public class CustomDatePicker implements View.OnClickListener, PickerView.OnSele
     mDpvHour.setOnSelectListener(this);
     mDpvMinute = mPickerDialog.findViewById(R.id.dpv_minute);
     mDpvMinute.setOnSelectListener(this);
+
+    applySelectColor();
+  }
+
+  /** 将选中颜色应用到所有 PickerView */
+  private void applySelectColor() {
+    if (mSelectColor == Color.TRANSPARENT) return;
+    mDpvYear.setSelectColor(mSelectColor);
+    mDpvMonth.setSelectColor(mSelectColor);
+    mDpvDay.setSelectColor(mSelectColor);
+    mDpvHour.setSelectColor(mSelectColor);
+    mDpvMinute.setSelectColor(mSelectColor);
   }
 
   @Override
@@ -126,6 +189,11 @@ public class CustomDatePicker implements View.OnClickListener, PickerView.OnSele
     int id = v.getId();
     if (id == R.id.tv_cancel) {
     } else if (id == R.id.tv_confirm) {
+      if (mYearMonthOnly) {
+        mSelectedTime.set(Calendar.DAY_OF_MONTH, 1);
+        mSelectedTime.set(Calendar.HOUR_OF_DAY, 0);
+        mSelectedTime.set(Calendar.MINUTE, 0);
+      }
       if (mCallback != null) {
         mCallback.onTimeSelected(mSelectedTime.getTimeInMillis());
       }
@@ -154,7 +222,11 @@ public class CustomDatePicker implements View.OnClickListener, PickerView.OnSele
     } else if (id == R.id.dpv_month) { // 防止类似 2018/12/31 滚动到11月时因溢出变成 2018/12/01
       int lastSelectedMonth = mSelectedTime.get(Calendar.MONTH) + 1;
       mSelectedTime.add(Calendar.MONTH, timeUnit - lastSelectedMonth);
-      linkageDayUnit(true, LINKAGE_DELAY_DEFAULT);
+      if (mYearMonthOnly) {
+        mSelectedTime.set(Calendar.DAY_OF_MONTH, 1);
+      } else {
+        linkageDayUnit(true, LINKAGE_DELAY_DEFAULT);
+      }
     } else if (id == R.id.dpv_day) {
       mSelectedTime.set(Calendar.DAY_OF_MONTH, timeUnit);
       linkageHourUnit(true, LINKAGE_DELAY_DEFAULT);
@@ -294,15 +366,20 @@ public class CustomDatePicker implements View.OnClickListener, PickerView.OnSele
       mDpvMonth.startAnim();
     }
 
-    // 联动“日”变化
-    mDpvMonth.postDelayed(
-        new Runnable() {
-          @Override
-          public void run() {
-            linkageDayUnit(showAnim, delay);
-          }
-        },
-        delay);
+    // 联动“日”变化（仅在非“年月模式”时联动）
+    if (!mYearMonthOnly) {
+      mDpvMonth.postDelayed(
+          new Runnable() {
+            @Override
+            public void run() {
+              linkageDayUnit(showAnim, delay);
+            }
+          },
+          delay);
+    } else {
+      mSelectedTime.set(Calendar.DAY_OF_MONTH, 1);
+      setCanScroll();
+    }
   }
 
   private void linkageDayUnit(final boolean showAnim, final long delay) {
@@ -538,6 +615,59 @@ public class CustomDatePicker implements View.OnClickListener, PickerView.OnSele
         mScrollUnits ^= unit;
       }
     }
+  }
+
+  /** 设置“年月选择”模式。开启后仅可选择年和月，隐藏“日/时/分”，确认返回该月的第一天0点时间戳。 不影响现有接口和默认行为。 */
+  public void setYearMonthMode(boolean yearMonthOnly) {
+    if (!canShow()) {
+      mYearMonthOnly = yearMonthOnly;
+      return;
+    }
+    mYearMonthOnly = yearMonthOnly;
+    if (mYearMonthOnly) {
+      // 关闭精确时间，隐藏日/时/分
+      initScrollUnit(SCROLL_UNIT_HOUR, SCROLL_UNIT_MINUTE);
+      if (mDpvDay != null) mDpvDay.setVisibility(View.GONE);
+      if (mTvDayUnit != null) mTvDayUnit.setVisibility(View.GONE);
+      if (mDpvHour != null) mDpvHour.setVisibility(View.GONE);
+      if (mTvHourUnit != null) mTvHourUnit.setVisibility(View.GONE);
+      if (mDpvMinute != null) mDpvMinute.setVisibility(View.GONE);
+      if (mTvMinuteUnit != null) mTvMinuteUnit.setVisibility(View.GONE);
+      // 日统一设置为1
+      mSelectedTime.set(Calendar.DAY_OF_MONTH, 1);
+    } else {
+      // 恢复显示日；时/分按当前“精确时间”设置决定显示
+      if (mDpvDay != null) mDpvDay.setVisibility(View.VISIBLE);
+      if (mTvDayUnit != null) mTvDayUnit.setVisibility(View.VISIBLE);
+      if (mCanShowPreciseTime) {
+        if (mDpvHour != null) mDpvHour.setVisibility(View.VISIBLE);
+        if (mTvHourUnit != null) mTvHourUnit.setVisibility(View.VISIBLE);
+        if (mDpvMinute != null) mDpvMinute.setVisibility(View.VISIBLE);
+        if (mTvMinuteUnit != null) mTvMinuteUnit.setVisibility(View.VISIBLE);
+      } else {
+        if (mDpvHour != null) mDpvHour.setVisibility(View.GONE);
+        if (mTvHourUnit != null) mTvHourUnit.setVisibility(View.GONE);
+        if (mDpvMinute != null) mDpvMinute.setVisibility(View.GONE);
+        if (mTvMinuteUnit != null) mTvMinuteUnit.setVisibility(View.GONE);
+      }
+    }
+  }
+
+  /**
+   * 动态设置选中颜色（按钮与列表选中项）。 可在构造后调用，也可在 show 前调用。
+   *
+   * @param color 颜色值，如 Color.parseColor("#FF5200")
+   */
+  public void setSelectColor(int color) {
+    mSelectColor = color;
+    if (!canShow()) return;
+    TextView tvCancel = mPickerDialog.findViewById(R.id.tv_cancel);
+    if (tvCancel != null) tvCancel.setTextColor(color);
+    TextView tvTitle = mPickerDialog.findViewById(R.id.tv_title);
+    if (tvTitle != null) tvTitle.setTextColor(color);
+    TextView tvConfirm = mPickerDialog.findViewById(R.id.tv_confirm);
+    if (tvConfirm != null) tvConfirm.setTextColor(color);
+    applySelectColor();
   }
 
   public void setScrollLoop(boolean canLoop) {

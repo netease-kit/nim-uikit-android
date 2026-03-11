@@ -66,7 +66,7 @@ public class ChatImageMessageViewHolder extends ChatThumbBaseViewHolder {
   @Override
   protected float[] getCorners() {
     int corner = SizeUtils.dp2px(12);
-    boolean msgIn = isForwardMsg() || MessageHelper.isReceivedMessage(currentMessage);
+    boolean msgIn = !isChatMsg() || MessageHelper.isReceivedMessage(currentMessage);
     float radiusTopLeft = msgIn ? 0 : corner;
     float radiusTopRight = msgIn ? corner : 0;
     return new float[] {radiusTopLeft, radiusTopRight, corner, corner};

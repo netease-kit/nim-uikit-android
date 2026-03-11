@@ -6,7 +6,6 @@ package com.netease.yunxin.kit.chatkit.ui.fun.page.fragment;
 
 import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
 
-import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
@@ -14,7 +13,6 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.ImageSpan;
-import android.view.ViewTreeObserver;
 import androidx.annotation.Nullable;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.lifecycle.Observer;
@@ -81,6 +79,7 @@ public class FunChatP2PFragment extends FunChatFragment {
       requireActivity().finish();
       return;
     }
+    mConversationId = ConversationIdUtils.conversationId(accountId, conversationType);
     IMMessageInfo msgParam =
         (IMMessageInfo) bundle.getSerializable(RouterConstant.KEY_MESSAGE_INFO);
     if (msgParam == null) {
@@ -158,6 +157,7 @@ public class FunChatP2PFragment extends FunChatFragment {
     List<String> accountList = new ArrayList<>();
     accountList.add(accountId);
     chatView.notifyUserInfoChanged(accountList);
+    ChatUserCache.getInstance().addConversationInfo(mConversationId, getConversationName(true));
   }
 
   @Override
@@ -170,7 +170,7 @@ public class FunChatP2PFragment extends FunChatFragment {
       chatConfig.chatListener.onConversationChange(accountId, conversationType);
     }
     if (chatConfig != null && chatConfig.messageProperties != null) {
-      viewModel.setShowReadStatus(chatConfig.messageProperties.showP2pMessageStatus);
+      viewModel.setShowReadStatus(chatConfig.messageProperties.showP2PMessageStatus);
     }
   }
 
@@ -233,64 +233,20 @@ public class FunChatP2PFragment extends FunChatFragment {
             });
   }
 
-  @Override
-  public void onNewIntent(Intent intent) {
-    ALog.d(LIB_TAG, TAG, "onNewIntent");
-    anchorMessage = (IMMessageInfo) intent.getSerializableExtra(RouterConstant.KEY_MESSAGE_INFO);
-    if (anchorMessage == null) {
-      V2NIMMessage message = (V2NIMMessage) intent.getSerializableExtra(RouterConstant.KEY_MESSAGE);
-      if (message != null) {
-        anchorMessage = new IMMessageInfo(message);
-      }
-    }
-    loadAnchorMessage();
-  }
-
-  private void loadAnchorMessage() {
-    ChatMessageBean anchorMessageBean;
-    if (anchorMessage != null) {
-      anchorMessageBean = new ChatMessageBean(anchorMessage);
-      int position =
-          chatView
-              .getMessageListView()
-              .searchMessagePosition(anchorMessage.getMessage().getMessageClientId());
-      if (position >= 0) {
-        chatView
-            .getMessageListView()
-            .getViewTreeObserver()
-            .addOnGlobalLayoutListener(
-                new ViewTreeObserver.OnGlobalLayoutListener() {
-                  @Override
-                  public void onGlobalLayout() {
-                    chatView
-                        .getMessageListView()
-                        .getViewTreeObserver()
-                        .removeOnGlobalLayoutListener(this);
-                    chatView
-                        .getRootView()
-                        .post(() -> chatView.getMessageListView().scrollToPosition(position));
-                  }
-                });
-        chatView.getMessageListView().scrollToPosition(position);
-      } else {
-        chatView.clearMessageList();
-        // need to add anchor message to list panel
-        chatView.appendMessage(anchorMessageBean);
-        viewModel.getMessageList(anchorMessage.getMessage(), false);
-      }
-    }
-  }
-
   public MessageBottomLayout getMessageBottomLayout() {
     return viewBinding.chatView.getBottomInputLayout();
   }
 
   @Override
-  public String getConversationName() {
+  public String getConversationName(boolean useNick) {
     if (friendInfo != null) {
-      return friendInfo.getName();
+      if (useNick) {
+        return friendInfo.getName();
+      } else {
+        return friendInfo.getUserName();
+      }
     }
-    return super.getConversationName();
+    return super.getConversationName(useNick);
   }
 
   @Override

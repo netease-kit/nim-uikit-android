@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="4dp">
+
+    <TextView
+        android:id="@+id/tvDay"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:gravity="center"
+        android:textColor="@drawable/fun_text_selected_color"
+        android:textSize="14sp"
+        android:background="@drawable/fun_bg_calendar_day_selector" />
+
+    <TextView
+        android:id="@+id/tvTodayLabel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="@string/chat_calendar_today"
+        android:textColor="@drawable/fun_sub_text_selected_color"
+        android:textSize="10sp"
+        android:visibility="gone" />
+
+</LinearLayout>

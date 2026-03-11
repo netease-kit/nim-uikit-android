@@ -157,7 +157,7 @@ public final class PopItemFactory {
       drawable.setBounds(0, 0, drawable.getMinimumWidth(), drawable.getMinimumHeight());
       textView.setCompoundDrawables(drawable, null, null, null);
     }
-    textView.setTextColor(ContextCompat.getColor(context, R.color.color_333333));
+    textView.setTextColor(ContextCompat.getColor(context, R.color.color_conversation_primary_text));
     textView.setCompoundDrawablePadding(
         (int) context.getResources().getDimension(R.dimen.pop_text_margin_right_top));
     return textView;

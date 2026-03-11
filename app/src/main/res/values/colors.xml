@@ -35,5 +35,11 @@
     <color name="color_F159A2">#F159A2</color>
     <color name="color_E75257">#E75257</color>
     <color name="color_598CF1">#598CF1</color>
+    <!-- 红点/徽标红色 -->
+    <color name="color_f24957">#f24957</color>
+    <!-- 开关关闭态描边/轨道色 -->
+    <color name="color_dbdde4">#dbdde4</color>
+    <!-- 蓝色主色 -->
+    <color name="color_337eff">#337eff</color>
 
 </resources>

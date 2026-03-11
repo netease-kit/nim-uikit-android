@@ -74,7 +74,7 @@ public class ChatTextMessageViewHolder extends FunChatBaseMessageViewHolder {
 
   private void setMessageText(ChatMessageBean message) {
     // 设置消息文本
-    if (MessageHelper.isReceivedMessage(message)) {
+    if (showReceiveUIStyle()) {
       if (properties.getReceiveMessageTextSize() != null) {
         textBinding.messageText.setTextSize(properties.getReceiveMessageTextSize());
       }
@@ -97,8 +97,19 @@ public class ChatTextMessageViewHolder extends FunChatBaseMessageViewHolder {
         V2NIMMessageAIStreamStatus aiStreamStatus = message.getAIConfig().getAIStreamStatus();
         if (aiStreamStatus
             != V2NIMMessageAIStreamStatus.V2NIM_MESSAGE_AI_STREAM_STATUS_PLACEHOLDER) {
-          String text = message.getMessageData().getMessage().getText();
-          if (TextUtils.isEmpty(text)
+          String text = message.getMessageData().getText();
+          if (!TextUtils.isEmpty(currentMessage.getKeyword())) {
+            MessageHelper.identifyFaceExpressionAndHighlight(
+                textBinding.getRoot().getContext(),
+                textBinding.messageText,
+                message.getMessageData().getText(),
+                currentMessage.getKeyword(),
+                textBinding
+                    .getRoot()
+                    .getContext()
+                    .getResources()
+                    .getColor(R.color.fun_chat_message_highlight_color));
+          } else if (TextUtils.isEmpty(text)
               && aiStreamStatus
                   == V2NIMMessageAIStreamStatus.V2NIM_MESSAGE_AI_STREAM_STATUS_ABORTED) {
             text = textBinding.getRoot().getContext().getString(R.string.chat_ai_error);
@@ -114,11 +125,22 @@ public class ChatTextMessageViewHolder extends FunChatBaseMessageViewHolder {
           setSelectStatus(message);
         }
       } else {
-        if (isForwardMsg() || !IMKitConfigCenter.getEnableAtMessage()) {
+        if (!TextUtils.isEmpty(currentMessage.getKeyword())) {
+          MessageHelper.identifyFaceExpressionAndHighlight(
+              textBinding.getRoot().getContext(),
+              textBinding.messageText,
+              message.getMessageData().getText(),
+              currentMessage.getKeyword(),
+              textBinding
+                  .getRoot()
+                  .getContext()
+                  .getResources()
+                  .getColor(R.color.fun_chat_message_highlight_color));
+        } else if (!isChatMsg() || !IMKitConfigCenter.getEnableAtMessage()) {
           MessageHelper.identifyFaceExpression(
               textBinding.getRoot().getContext(),
               textBinding.messageText,
-              message.getMessageData().getMessage().getText(),
+              message.getMessageData().getText(),
               ImageSpan.ALIGN_BOTTOM);
         } else {
           MessageHelper.identifyExpression(
@@ -133,11 +155,14 @@ public class ChatTextMessageViewHolder extends FunChatBaseMessageViewHolder {
           parent.getContext().getResources().getString(R.string.chat_message_not_support_tips));
     }
     // 指定模式（例如只识别电话和邮箱）
-    TextLinkifyUtils.addLinks(textBinding.messageText, itemClickListener, position, currentMessage);
+    if (TextUtils.isEmpty(currentMessage.keyword)) {
+      TextLinkifyUtils.addLinks(
+          textBinding.messageText, itemClickListener, position, currentMessage);
+    }
   }
 
   private void updateOperateView() {
-    if (currentMessage.isAIResponseMsg()) {
+    if (currentMessage.isAIResponseMsg() && isChatMsg()) {
       V2NIMMessageAIStreamStatus aiStreamStatus = currentMessage.getAIConfig().getAIStreamStatus();
       V2NIMMessageRefer threadInfo = currentMessage.getReplyMessageRefer();
       if (aiStreamStatus == V2NIMMessageAIStreamStatus.V2NIM_MESSAGE_AI_STREAM_STATUS_PLACEHOLDER) {
@@ -210,7 +235,13 @@ public class ChatTextMessageViewHolder extends FunChatBaseMessageViewHolder {
 
     //    设置点击事件
     if (!isMultiSelect) {
-      textBinding.messageText.setOnClickListener(v -> SelectableTextHelper.getInstance().dismiss());
+      if (itemClickListener != null) {
+        textBinding.messageText.setOnClickListener(
+            v -> {
+              SelectableTextHelper.getInstance().dismiss();
+              itemClickListener.onMessageClick(textBinding.messageText, position, currentMessage);
+            });
+      }
     } else {
       textBinding.messageText.setOnClickListener(this::clickSelect);
     }

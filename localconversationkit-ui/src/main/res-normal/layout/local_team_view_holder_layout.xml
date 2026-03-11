@@ -50,7 +50,7 @@
             android:layout_marginEnd="@dimen/dimen_100_dp"
             android:ellipsize="end"
             android:maxLines="1"
-            android:textColor="@color/color_333333"
+            android:textColor="@color/color_conversation_primary_text"
             android:textSize="@dimen/text_size_16" />
 
         <LinearLayout
@@ -66,7 +66,7 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:layout_marginEnd="@dimen/dimen_4_dp"
-            android:textColor="@color/color_f24957"
+            android:textColor="@color/color_conversation_badge_red"
             android:visibility="gone"
             android:text="@string/conversation_ait_tip"/>
 
@@ -76,7 +76,7 @@
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:maxLines="1"
-            android:textColor="@color/color_999999"/>
+            android:textColor="@color/color_conversation_secondary_text"/>
         </LinearLayout>
         <TextView
             android:id="@+id/conversation_time"
@@ -87,7 +87,7 @@
             android:ellipsize="end"
             android:maxWidth="@dimen/dimen_100_dp"
             android:maxLines="1"
-            android:textColor="@color/color_cccccc"
+            android:textColor="@color/color_conversation_time_text"
             android:textSize="@dimen/text_size_12" />
 
         <ImageView android:id="@+id/conversation_mute_iv"

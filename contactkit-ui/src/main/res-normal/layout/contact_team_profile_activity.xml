@@ -142,7 +142,7 @@
         android:gravity="center"
         android:text="@string/chat"
         android:textSize="@dimen/text_size_16"
-        android:textColor="@color/color_337eff"
+        android:textColor="@color/color_contact_blue_primary"
         android:paddingVertical="@dimen/dimen_14_dp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"

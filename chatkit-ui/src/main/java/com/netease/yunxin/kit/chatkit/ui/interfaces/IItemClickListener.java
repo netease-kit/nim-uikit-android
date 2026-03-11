@@ -21,7 +21,8 @@ public interface IItemClickListener<T> {
     return false;
   }
 
-  default boolean onMessageTelClick(View view, int position, T messageInfo, String target) {
+  default boolean onMessageClickableSpanClick(
+      View view, int position, T messageInfo, String target) {
     return false;
   }
 }

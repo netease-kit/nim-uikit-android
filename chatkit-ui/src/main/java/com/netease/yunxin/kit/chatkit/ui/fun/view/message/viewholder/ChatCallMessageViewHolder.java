@@ -61,7 +61,7 @@ public class ChatCallMessageViewHolder extends FunChatBaseMessageViewHolder {
     boolean isSelf = message.isSelf();
     int callTypeIconRes;
 
-    if (isForwardMsg()) {
+    if (!isChatMsg()) {
       String callText = "";
       if (attachment != null && attachment.callType == 1) {
         callText =

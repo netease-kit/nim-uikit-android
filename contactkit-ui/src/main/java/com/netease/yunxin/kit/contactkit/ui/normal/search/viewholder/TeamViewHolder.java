@@ -52,7 +52,11 @@ public class TeamViewHolder extends BaseViewHolder<SearchTeamBean> {
     if (hitInfo != null) {
       spannable.setSpan(
           new ForegroundColorSpan(
-              viewBinding.getRoot().getContext().getResources().getColor(R.color.color_337eff)),
+              viewBinding
+                  .getRoot()
+                  .getContext()
+                  .getResources()
+                  .getColor(R.color.color_contact_blue_primary)),
           hitInfo.start,
           hitInfo.end,
           Spanned.SPAN_INCLUSIVE_EXCLUSIVE);

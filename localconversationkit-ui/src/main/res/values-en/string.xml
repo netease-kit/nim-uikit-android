@@ -38,4 +38,8 @@
     <string name="msg_type_no_tips">[Unknown Message]</string>
     <string name="msg_type_revoke_tips">Message Recalled</string>
 
+    <!-- ==================== Fun 皮肤专属字符串 ==================== -->
+    <string name="fun_conversation_search_text">Search</string>
+    <!-- ==================== Fun 皮肤专属字符串 END ==================== -->
+
 </resources>

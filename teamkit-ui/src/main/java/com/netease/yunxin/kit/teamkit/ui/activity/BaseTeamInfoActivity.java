@@ -63,7 +63,7 @@ public abstract class BaseTeamInfoActivity extends BaseLocalActivity {
     checkViews();
     setContentView(rootView);
     // 设置状态栏颜色
-    changeStatusBarColor(R.color.color_eff1f4);
+    changeStatusBarColor(R.color.color_team_page_bg);
     viewModel = new ViewModelProvider(this).get(TeamInfoViewModel.class);
     // 初始化页面数据
     initData();

@@ -121,6 +121,12 @@ public class BaseTeamMemberListAdapter<R extends ViewBinding>
           notifyItemChanged(i);
         }
       }
+      // 更新backupTotalData
+      for (int i = 0; i < backupTotalData.size(); i++) {
+        if (backupTotalData.get(i).getAccountId().equals(userAccount)) {
+          backupTotalData.set(i, user);
+        }
+      }
     }
   }
 
@@ -136,8 +142,15 @@ public class BaseTeamMemberListAdapter<R extends ViewBinding>
             dataSource.set(i, user);
           }
         }
+        // 更新backupTotalData
+        for (int i = 0; i < backupTotalData.size(); i++) {
+          if (backupTotalData.get(i).getAccountId().equals(userAccount)) {
+            backupTotalData.set(i, user);
+          }
+        }
       }
       Collections.sort(dataSource, comparator);
+      Collections.sort(backupTotalData, comparator);
       notifyDataSetChanged();
     }
   }

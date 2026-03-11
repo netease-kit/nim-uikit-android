@@ -4,11 +4,10 @@
 
 package com.netease.yunxin.kit.chatkit.ui.common;
 
+import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.PHONE_NUMBER_PATTERN;
+import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.TEL_SCHEME;
+
 import android.graphics.Color;
-import android.graphics.Path;
-import android.graphics.RectF;
-import android.graphics.Region;
-import android.text.Layout;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextPaint;
@@ -21,13 +20,8 @@ import android.view.View;
 import android.widget.TextView;
 import com.netease.yunxin.kit.chatkit.ui.interfaces.IMessageItemClickListener;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Pattern;
 
 public class TextLinkifyUtils {
-  public static final Pattern PHONE_NUMBER_PATTERN =
-      Pattern.compile("(\\+?(\\d{1,4}[-\\s]?)?)?(\\(?\\d+\\)?[-\\s]?)?[\\d\\s-]{5,14}");
 
   public static void addLinks(
       TextView textView,
@@ -36,12 +30,10 @@ public class TextLinkifyUtils {
       ChatMessageBean currentMessage) {
     SpannableString spannable = new SpannableString(textView.getText());
     Linkify.addLinks(spannable, Linkify.EMAIL_ADDRESSES | Linkify.WEB_URLS);
-    Linkify.addLinks(spannable, PHONE_NUMBER_PATTERN, "tel:");
+    Linkify.addLinks(spannable, PHONE_NUMBER_PATTERN, TEL_SCHEME);
 
     // 2. 移除默认的 ClickableSpan，替换为自定义的
-    if (itemClickListener != null) {
-      replaceClickableSpans(spannable, itemClickListener, position, currentMessage);
-    }
+    replaceClickableSpans(spannable, itemClickListener, position, currentMessage);
     textView.setText(spannable);
     textView.setMovementMethod(
         new LinkMovementMethod() {
@@ -74,8 +66,11 @@ public class TextLinkifyUtils {
                 }
                 return true; // 消费事件，不传递给 TextView
               } else {
-                // 未点击 Span，事件传递给 TextView
-                return super.onTouchEvent(widget, buffer, event);
+                // 未点击 Span，交由 TextView 的 OnClickListener 处理
+                if (action == MotionEvent.ACTION_UP) {
+                  widget.performClick();
+                }
+                return false; // 不消费，让事件继续传递给父级
               }
             }
             return super.onTouchEvent(widget, buffer, event);
@@ -86,7 +81,7 @@ public class TextLinkifyUtils {
   public static void addLinks(TextView textView) {
     SpannableString spannable = new SpannableString(textView.getText());
     Linkify.addLinks(spannable, Linkify.EMAIL_ADDRESSES | Linkify.WEB_URLS);
-    Linkify.addLinks(textView, PHONE_NUMBER_PATTERN, "tel:");
+    Linkify.addLinks(textView, PHONE_NUMBER_PATTERN, TEL_SCHEME);
 
     // 3. 设置自定义的 MovementMethod（可选，用于处理点击）
     textView.setText(spannable);
@@ -106,78 +101,30 @@ public class TextLinkifyUtils {
       int end = spannable.getSpanEnd(span);
       int flags = spannable.getSpanFlags(span);
       String url = span.getURL(); // 获取链接内容（如 "tel:13800138000" 或 "https://..."）
-      if (url.startsWith("tel:")) {
-        // 创建自定义 ClickableSpan 拦截点击
-        ClickableSpan customSpan =
-            new ClickableSpan() {
-              @Override
-              public void onClick(View widget) {
-                // 自定义点击处理逻辑
-                if (url.startsWith("tel:")) {
-                  String phone = url.substring("tel:".length());
-                  itemClickListener.onMessageTelClick(widget, position, currentMessage, phone);
-                  widget.setOnClickListener(null);
-                }
+      // 创建自定义 ClickableSpan 拦截点击
+      ClickableSpan customSpan =
+          new ClickableSpan() {
+            @Override
+            public void onClick(View widget) {
+              // 自定义点击处理逻辑
+              if (itemClickListener != null) {
+                itemClickListener.onMessageClickableSpanClick(
+                    widget, position, currentMessage, url);
               }
+            }
 
-              // 自定义链接样式（去掉下划线，设置颜色）
-              @Override
-              public void updateDrawState(TextPaint ds) {
-                super.updateDrawState(ds);
-                ds.setUnderlineText(false); // 去掉下划线
-                ds.setColor(Color.parseColor("#007AFF")); // 设置链接颜色
-              }
-            };
+            // 自定义链接样式（去掉下划线，设置颜色）
+            @Override
+            public void updateDrawState(TextPaint ds) {
+              super.updateDrawState(ds);
+              ds.setUnderlineText(false); // 去掉下划线
+              ds.setColor(Color.parseColor("#007AFF")); // 设置链接颜色
+            }
+          };
 
-        // 移除默认的 URLSpan，替换为自定义的 ClickableSpan
-        spannable.removeSpan(span);
-        spannable.setSpan(customSpan, start, end, flags);
-      }
-    }
-  }
-
-  public static ClickableSpan[] findSpansByLocation(TextView textView, int x, int y) {
-    if (textView == null || !(textView.getText() instanceof Spannable)) {
-      return null;
-    }
-    Spannable spannable = (Spannable) textView.getText();
-    Layout layout = textView.getLayout();
-    int offset = getPreciseOffset(textView, x, y);
-    ClickableSpan[] spans = spannable.getSpans(offset, offset, ClickableSpan.class);
-    List<ClickableSpan> result = new ArrayList<>();
-    for (ClickableSpan span : spans) {
-      int spanStart = spannable.getSpanStart(span);
-      int spanEnd = spannable.getSpanEnd(span);
-      Path path = new Path();
-      layout.getSelectionPath(spanStart, spanEnd, path);
-      RectF rect = new RectF();
-      path.computeBounds(rect, true);
-      Region region = new Region();
-      Region pathClipRegion =
-          new Region((int) rect.left, (int) rect.top, (int) rect.right, (int) rect.bottom);
-      region.setPath(path, pathClipRegion);
-      if (region.contains(x, y)) {
-        result.add(span);
-      }
-    }
-    return result.toArray(new ClickableSpan[] {});
-  }
-
-  private static int getPreciseOffset(TextView textView, int x, int y) {
-    Layout layout = textView.getLayout();
-    if (layout != null) {
-      int topVisibleLine = layout.getLineForVertical(y);
-      int offset = layout.getOffsetForHorizontal(topVisibleLine, x);
-
-      int offsetX = (int) layout.getPrimaryHorizontal(offset);
-
-      if (offsetX > x) {
-        return layout.getOffsetToLeftOf(offset);
-      } else {
-        return offset;
-      }
-    } else {
-      return -1;
+      // 移除默认的 URLSpan，替换为自定义的 ClickableSpan
+      spannable.removeSpan(span);
+      spannable.setSpan(customSpan, start, end, flags);
     }
   }
 }

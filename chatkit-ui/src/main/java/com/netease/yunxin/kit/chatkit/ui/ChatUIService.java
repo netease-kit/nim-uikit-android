@@ -14,20 +14,20 @@ import com.netease.yunxin.kit.chatkit.ui.fun.page.FunChatForwardActivity;
 import com.netease.yunxin.kit.chatkit.ui.fun.page.FunChatP2PActivity;
 import com.netease.yunxin.kit.chatkit.ui.fun.page.FunChatPinActivity;
 import com.netease.yunxin.kit.chatkit.ui.fun.page.FunChatReaderActivity;
-import com.netease.yunxin.kit.chatkit.ui.fun.page.FunChatSearchActivity;
 import com.netease.yunxin.kit.chatkit.ui.fun.page.FunChatSettingActivity;
 import com.netease.yunxin.kit.chatkit.ui.fun.page.FunChatTeamActivity;
 import com.netease.yunxin.kit.chatkit.ui.fun.page.FunCollectionActivity;
+import com.netease.yunxin.kit.chatkit.ui.fun.search.FunChatSearchHistoryActivity;
 import com.netease.yunxin.kit.chatkit.ui.normal.page.ChatAIActivity;
 import com.netease.yunxin.kit.chatkit.ui.normal.page.ChatForwardActivity;
 import com.netease.yunxin.kit.chatkit.ui.normal.page.ChatP2PActivity;
 import com.netease.yunxin.kit.chatkit.ui.normal.page.ChatPinActivity;
 import com.netease.yunxin.kit.chatkit.ui.normal.page.ChatReaderActivity;
-import com.netease.yunxin.kit.chatkit.ui.normal.page.ChatSearchActivity;
 import com.netease.yunxin.kit.chatkit.ui.normal.page.ChatSettingActivity;
 import com.netease.yunxin.kit.chatkit.ui.normal.page.ChatTeamActivity;
 import com.netease.yunxin.kit.chatkit.ui.normal.page.CollectionActivity;
 import com.netease.yunxin.kit.chatkit.ui.normal.page.CollectionDetailActivity;
+import com.netease.yunxin.kit.chatkit.ui.normal.search.ChatHistoryActivity;
 import com.netease.yunxin.kit.corekit.im2.IMKitClient;
 import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
@@ -56,7 +56,7 @@ public class ChatUIService extends ChatService {
     XKitRouter.registerRouter(RouterConstant.PATH_CHAT_P2P_PAGE, ChatP2PActivity.class);
     XKitRouter.registerRouter(RouterConstant.PATH_CHAT_AI_P2P_PAGE, ChatAIActivity.class);
     XKitRouter.registerRouter(RouterConstant.PATH_CHAT_TEAM_PAGE, ChatTeamActivity.class);
-    XKitRouter.registerRouter(RouterConstant.PATH_CHAT_SEARCH_PAGE, ChatSearchActivity.class);
+    XKitRouter.registerRouter(RouterConstant.PATH_CHAT_SEARCH_PAGE, ChatHistoryActivity.class);
     XKitRouter.registerRouter(RouterConstant.PATH_CHAT_PIN_PAGE, ChatPinActivity.class);
     XKitRouter.registerRouter(RouterConstant.PATH_CHAT_SETTING_PAGE, ChatSettingActivity.class);
     XKitRouter.registerRouter(RouterConstant.PATH_CHAT_ACK_PAGE, ChatReaderActivity.class);
@@ -70,7 +70,7 @@ public class ChatUIService extends ChatService {
     XKitRouter.registerRouter(RouterConstant.PATH_FUN_CHAT_AI_PAGE, FunChatAIActivity.class);
     XKitRouter.registerRouter(RouterConstant.PATH_FUN_CHAT_TEAM_PAGE, FunChatTeamActivity.class);
     XKitRouter.registerRouter(
-        RouterConstant.PATH_FUN_CHAT_SEARCH_PAGE, FunChatSearchActivity.class);
+        RouterConstant.PATH_FUN_CHAT_SEARCH_PAGE, FunChatSearchHistoryActivity.class);
 
     XKitRouter.registerRouter(RouterConstant.PATH_FUN_CHAT_PIN_PAGE, FunChatPinActivity.class);
     XKitRouter.registerRouter(

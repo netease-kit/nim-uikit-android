@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2022 NetEase, Inc. All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be
+  ~ found in the LICENSE file.
+  -->
+
+<resources>
+    <string name="chat_message_location_distance">%.0fm内&#160;|&#160;%s</string>
+    <string name="location_amap_nav_title">高德地图</string>
+    <string name="location_tencent_nav_title">腾讯地图</string>
+    <string name="chat_location_disable">无定位信息，请开启定位</string>
+    <string name="chat_location_send_empty">请选择你要发送的位置信息</string>
+</resources>

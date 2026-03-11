@@ -77,7 +77,7 @@ public class TeamUserManager {
     if (TextUtils.equals(this.teamId, teamId)) {
       return;
     }
-    ALog.d(LIB_TAG, TAG, "init");
+    ALog.i(LIB_TAG, TAG, "init");
     clear();
     this.teamId = teamId;
     registerListener();
@@ -85,7 +85,7 @@ public class TeamUserManager {
 
   //清除缓存
   public void clear() {
-    ALog.d(LIB_TAG, TAG, "clear");
+    ALog.i(LIB_TAG, TAG, "clear");
     teamMemberMap.clear();
     userInfoMap.clear();
     currentTeam = null;
@@ -677,14 +677,10 @@ public class TeamUserManager {
     }
     if (!account.isEmpty()) {
       UserWithFriend friendInfo = FriendUserCache.getFriendByAccount(account);
-      if (friendInfo != null && !TextUtils.isEmpty(friendInfo.getAlias())) {
-        return friendInfo.getAlias();
+      if (friendInfo != null) {
+        return friendInfo.getAvatarName();
       }
       V2NIMUser userInfo = userInfoMap.get(account);
-      //使用好友信息填充用户信息
-      if (userInfo == null && friendInfo != null) {
-        userInfo = friendInfo.getUserInfo();
-      }
       if (userInfo != null && !TextUtils.isEmpty(userInfo.getName())) {
         return userInfo.getName();
       }
@@ -716,7 +712,7 @@ public class TeamUserManager {
       new TeamListenerImpl() {
         @Override
         public void onTeamInfoUpdated(V2NIMTeam team) {
-          ALog.d(TAG, "onTeamInfoUpdated:");
+          ALog.i(TAG, "onTeamInfoUpdated:");
           if (team == null || !TextUtils.equals(team.getTeamId(), teamId)) {
             return;
           }
@@ -728,12 +724,12 @@ public class TeamUserManager {
 
         @Override
         public void onTeamMemberJoined(List<V2NIMTeamMember> teamMembers) {
-          ALog.d(TAG, "onTeamMemberJoined");
+          ALog.i(TAG, "onTeamMemberJoined");
           if (teamMembers == null || teamMembers.isEmpty()) {
             return;
           }
           V2NIMTeamMember teamMember = teamMembers.get(0);
-          ALog.d(TAG, "onTeamMemberJoined, team member:" + teamMember.getAccountId());
+          ALog.i(TAG, "onTeamMemberJoined, team member:" + teamMember.getAccountId());
           if (TextUtils.equals(teamMember.getTeamId(), teamId)) {
             fetchMemberUserInfoAndNotify(teamMembers, true);
           }
@@ -742,7 +738,7 @@ public class TeamUserManager {
         @Override
         public void onTeamMemberKicked(
             String operatorAccountId, List<V2NIMTeamMember> teamMembers) {
-          ALog.d(TAG, "onTeamMemberKicked");
+          ALog.i(TAG, "onTeamMemberKicked");
           if (teamMembers == null || teamMembers.isEmpty()) {
             return;
           }
@@ -762,7 +758,7 @@ public class TeamUserManager {
 
         @Override
         public void onTeamMemberLeft(List<V2NIMTeamMember> teamMembers) {
-          ALog.d(TAG, "onTeamMemberLeft");
+          ALog.i(TAG, "onTeamMemberLeft");
           if (teamMembers == null || teamMembers.isEmpty()) {
             return;
           }
@@ -783,7 +779,7 @@ public class TeamUserManager {
 
         @Override
         public void onTeamMemberInfoUpdated(List<V2NIMTeamMember> teamMembers) {
-          ALog.d(TAG, "onTeamMemberInfoUpdated");
+          ALog.i(TAG, "onTeamMemberInfoUpdated");
           if (teamMembers == null || teamMembers.isEmpty()) {
             return;
           }

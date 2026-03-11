@@ -18,7 +18,7 @@
         android:layout_height="51dp"
         android:gravity="center"
         android:text="@string/common_take_photo"
-        android:textColor="@color/color_333333"
+        android:textColor="@color/color_team_primary_text"
         android:textSize="16dp"
         app:layout_constraintBottom_toTopOf="@+id/tvGetFromAlbum"
         app:layout_constraintEnd_toEndOf="parent"
@@ -28,7 +28,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="0.5dp"
-        android:background="@color/color_ededed"
+        android:background="@color/fun_team_page_bg_color"
         app:layout_constraintTop_toBottomOf="@id/tvTakePhoto" />
 
     <TextView
@@ -38,7 +38,7 @@
         android:layout_marginBottom="12dp"
         android:gravity="center"
         android:text="@string/common_get_from_album"
-        android:textColor="@color/color_333333"
+        android:textColor="@color/color_team_primary_text"
         android:textSize="16dp"
         app:layout_constraintBottom_toTopOf="@id/tvCancel"
         app:layout_constraintEnd_toEndOf="parent"
@@ -48,7 +48,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="6dp"
-        android:background="@color/color_f7f7f7"
+        android:background="@color/fun_team_dialog_content_bg"
         app:layout_constraintTop_toBottomOf="@id/tvGetFromAlbum" />
 
     <TextView
@@ -57,7 +57,7 @@
         android:layout_height="42dp"
         android:gravity="center"
         android:text="@string/cancel"
-        android:textColor="@color/color_333333"
+        android:textColor="@color/color_team_primary_text"
         android:textSize="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

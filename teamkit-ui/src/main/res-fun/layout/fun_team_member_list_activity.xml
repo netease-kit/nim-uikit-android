@@ -10,7 +10,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/color_ededed">
+    android:background="@color/fun_team_page_bg_color">
 
     <com.netease.yunxin.kit.common.ui.widgets.BackTitleBar
         android:id="@+id/viewTitle"
@@ -35,8 +35,8 @@
         android:maxLines="1"
         android:paddingStart="15dp"
         android:paddingEnd="15dp"
-        android:textColor="@color/color_333333"
-        android:textColorHint="@color/color_a6adb6"
+        android:textColor="@color/color_team_primary_text"
+        android:textColorHint="@color/color_team_input_hint"
         android:textSize="14dp"
         android:inputType="text"
         app:layout_constraintEnd_toEndOf="parent"

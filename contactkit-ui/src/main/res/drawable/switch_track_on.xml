@@ -14,6 +14,6 @@
         android:width="@dimen/dimen_60_dp"
         android:height="@dimen/dimen_20_dp" />
 
-    <solid android:color="@color/color_337eff" />
+    <solid android:color="@color/color_contact_blue_primary" />
 
 </shape>

@@ -114,6 +114,17 @@ public class MultiForwardAttachment extends CustomAttachment {
     }
   }
 
+  public String getAbstracts() {
+    if (abstractsList == null || abstractsList.isEmpty()) {
+      return "";
+    }
+    StringBuilder sb = new StringBuilder();
+    for (Abstracts abstracts : abstractsList) {
+      sb.append(abstracts.content).append("\n");
+    }
+    return sb.toString();
+  }
+
   public static class Abstracts implements Serializable {
     public String senderNick;
     public String content;

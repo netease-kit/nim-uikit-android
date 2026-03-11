@@ -39,7 +39,11 @@ public class TeamSelectorAdapter
     }
     holder.binding.tvName.setText(
         getSelectSpanText(
-            holder.itemView.getContext().getResources().getColor(R.color.color_337eff),
+            holder
+                .itemView
+                .getContext()
+                .getResources()
+                .getColor(R.color.color_contact_blue_primary),
             bean.data.getName(),
             bean.recordHitInfo));
     holder.binding.tvCount.setText("(" + bean.data.getMemberCount() + ")");

@@ -79,7 +79,7 @@ public abstract class BaseTeamManagerActivity extends BaseLocalActivity {
     super.onCreate(savedInstanceState);
     rootView = initViewAndGetRootView(savedInstanceState);
     setContentView(rootView);
-    changeStatusBarColor(R.color.color_eff1f4);
+    changeStatusBarColor(R.color.color_team_page_bg);
     initData();
   }
 
@@ -203,13 +203,20 @@ public abstract class BaseTeamManagerActivity extends BaseLocalActivity {
         v ->
             getTeamIdentifyDialog()
                 .show(
-                    type ->
-                        viewModel.updateTopStickyPrivilege(
-                            teamInfo,
-                            type == TYPE_TEAM_ALL_MEMBER
-                                ? TYPE_EXTENSION_ALLOW_ALL
-                                : TYPE_EXTENSION_ALLOW_MANAGER)));
-
+                    type -> {
+                      if (teamMember.getMemberRole()
+                          == V2NIMTeamMemberRole.V2NIM_TEAM_MEMBER_ROLE_NORMAL) {
+                        Toast.makeText(
+                                this, R.string.team_operate_no_permission_tip, Toast.LENGTH_SHORT)
+                            .show();
+                        return;
+                      }
+                      viewModel.updateTopStickyPrivilege(
+                          teamInfo,
+                          type == TYPE_TEAM_ALL_MEMBER
+                              ? TYPE_EXTENSION_ALLOW_ALL
+                              : TYPE_EXTENSION_ALLOW_MANAGER);
+                    }));
     if (TextUtils.equals(IMKitClient.account(), teamInfo.getOwnerAccountId())) {
       viewEditManager.setVisibility(View.VISIBLE);
     } else {

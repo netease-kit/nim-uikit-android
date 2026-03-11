@@ -13,5 +13,5 @@
     android:layout_marginTop="@dimen/dimen_12_dp"
     android:ellipsize="end"
     android:maxLines="1"
-    android:textColor="@color/color_929299"
+    android:textColor="@color/color_chat_input_reply_text"
     android:textSize="@dimen/text_size_13" />

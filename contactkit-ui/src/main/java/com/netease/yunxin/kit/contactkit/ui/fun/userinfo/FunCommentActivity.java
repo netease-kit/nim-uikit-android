@@ -20,7 +20,7 @@ public class FunCommentActivity extends BaseCommentActivity {
     FunCommentActivityLayoutBinding binding =
         FunCommentActivityLayoutBinding.inflate(getLayoutInflater());
     titleBar = binding.title;
-    titleBar.setActionTextColor(getResources().getColor(R.color.color_58be6b));
+    titleBar.setActionTextColor(getResources().getColor(R.color.fun_contact_primary_color));
     edtComment = binding.edtComment;
     return binding.getRoot();
   }

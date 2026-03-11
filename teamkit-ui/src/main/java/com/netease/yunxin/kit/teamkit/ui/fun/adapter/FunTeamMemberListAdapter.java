@@ -87,13 +87,21 @@ public class FunTeamMemberListAdapter
         if (data.getMemberRole() == V2NIMTeamMemberRole.V2NIM_TEAM_MEMBER_ROLE_OWNER) {
           binding.tvIdentify.setText(binding.getRoot().getContext().getText(R.string.team_owner));
           binding.tvIdentify.setTextColor(
-              binding.getRoot().getContext().getResources().getColor(R.color.color_58be6b));
+              binding
+                  .getRoot()
+                  .getContext()
+                  .getResources()
+                  .getColor(R.color.fun_team_green_primary));
           binding.tvIdentify.setBackgroundResource(R.drawable.fun_bg_item_team_owner);
         } else {
           binding.tvIdentify.setText(
               binding.getRoot().getContext().getText(R.string.team_type_manager));
           binding.tvIdentify.setTextColor(
-              binding.getRoot().getContext().getResources().getColor(R.color.color_ea8339));
+              binding
+                  .getRoot()
+                  .getContext()
+                  .getResources()
+                  .getColor(R.color.fun_team_manager_color));
           binding.tvIdentify.setBackgroundResource(R.drawable.fun_bg_item_team_manager);
         }
 

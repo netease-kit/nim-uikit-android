@@ -54,7 +54,7 @@
         android:layout_marginEnd="@dimen/dimen_100_dp"
         android:ellipsize="end"
         android:maxLines="1"
-        android:textColor="@color/color_333333"
+        android:textColor="@color/color_conversation_primary_text"
         android:textSize="@dimen/text_size_16" />
 
 </LinearLayout>

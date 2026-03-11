@@ -86,13 +86,13 @@ public class TopStickyMessage {
   public static TopStickyMessage fromJson(JSONObject jsonObject) {
     try {
       String idClient = jsonObject.optString(ChatConstants.KEY_STICKY_MESSAGE_CLIENT_ID);
-      long time = jsonObject.getLong(ChatConstants.KEY_STICKY_MESSAGE_TIME);
-      int scene = jsonObject.getInt(ChatConstants.KEY_STICKY_MESSAGE_SCENE);
+      long time = jsonObject.optLong(ChatConstants.KEY_STICKY_MESSAGE_TIME);
+      int scene = jsonObject.optInt(ChatConstants.KEY_STICKY_MESSAGE_SCENE);
       String from = jsonObject.optString(ChatConstants.KEY_STICKY_MESSAGE_FROM);
       String to = jsonObject.optString(ChatConstants.KEY_STICKY_MESSAGE_TO);
       String idServer = jsonObject.optString(ChatConstants.KEY_STICKY_MESSAGE_SERVER_ID);
       String operator = jsonObject.optString(ChatConstants.KEY_STICKY_MESSAGE_OPERATOR);
-      int operation = jsonObject.getInt(ChatConstants.KEY_STICKY_MESSAGE_OPERATION);
+      int operation = jsonObject.optInt(ChatConstants.KEY_STICKY_MESSAGE_OPERATION);
       String receiverId = jsonObject.optString(ChatConstants.KEY_STICKY_MESSAGE_RECEIVER_ID);
       return new TopStickyMessage(
           idClient,

@@ -9,6 +9,6 @@
     android:shape="rectangle">
 
     <corners android:radius="4dp" />
-    <solid android:color="@color/fun_contact_search_edit_bg_color"/>
+    <solid android:color="#FFFFFF"/>
 
 </shape>

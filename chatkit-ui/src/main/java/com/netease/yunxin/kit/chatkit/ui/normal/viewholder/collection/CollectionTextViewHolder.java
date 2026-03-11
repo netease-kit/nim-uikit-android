@@ -63,13 +63,16 @@ public class CollectionTextViewHolder extends CollectionBaseViewHolder {
         textBinding.messageText,
         new IMessageItemClickListener() {
           @Override
-          public boolean onMessageTelClick(
+          public boolean onMessageClickableSpanClick(
               View view, int position, ChatMessageBean messageInfo, String target) {
-            itemListener.onMessageTelClick(view, position, messageInfo, target);
+            itemListener.onMessageClickableSpanClick(view, position, messageInfo, target);
             return true;
           }
         },
         position,
         null);
+    // 非链接文本区域点击响应 item 点击事件
+    textBinding.messageText.setOnClickListener(
+        v -> itemListener.onMessageClick(v, position, currentCollection));
   }
 }

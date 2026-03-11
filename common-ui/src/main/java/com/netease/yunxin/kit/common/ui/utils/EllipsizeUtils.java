@@ -130,7 +130,7 @@ public class EllipsizeUtils {
       @ColorInt final int highlightColor,
       final boolean highlightAll,
       final boolean ignoreCase) {
-    if (TextUtils.isEmpty(content) || TextUtils.isEmpty(keyword)) {
+    if (TextUtils.isEmpty(content)) {
       textView.setText(null);
       return;
     }

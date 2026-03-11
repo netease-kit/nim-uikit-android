@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- selected 为 true 时的颜色（比如红色） -->
+    <item android:color="#0ABA07" android:state_selected="true" />
+    <!-- 默认状态（selected 为 false）的颜色（比如黑色） -->
+    <item android:color="#333333" android:state_selected="false" />
+    <!-- 兜底颜色（防止状态匹配失败） -->
+    <item android:color="#333333" />
+</selector>

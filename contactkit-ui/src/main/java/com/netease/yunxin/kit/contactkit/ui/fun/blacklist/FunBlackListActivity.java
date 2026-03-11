@@ -12,8 +12,8 @@ import androidx.annotation.Nullable;
 import com.netease.yunxin.kit.contactkit.ui.R;
 import com.netease.yunxin.kit.contactkit.ui.blacklist.BaseBlackListActivity;
 import com.netease.yunxin.kit.contactkit.ui.fun.selector.FunContactSelectorActivity;
+import com.netease.yunxin.kit.contactkit.ui.fun.view.FunContactViewHolderFactory;
 import com.netease.yunxin.kit.contactkit.ui.model.IViewTypeConstant;
-import com.netease.yunxin.kit.contactkit.ui.normal.view.ContactViewHolderFactory;
 import com.netease.yunxin.kit.contactkit.ui.view.viewholder.BaseContactViewHolder;
 import com.netease.yunxin.kit.contactkit.ui.view.viewholder.BlackListViewHolder;
 
@@ -31,6 +31,11 @@ public class FunBlackListActivity extends BaseBlackListActivity {
   }
 
   // 配置差异化UI
+
+  @Override
+  protected int getEmptyStateViewRes() {
+    return R.drawable.fun_ic_contact_empty;
+  }
 
   @Override
   protected void initView() {
@@ -52,7 +57,7 @@ public class FunBlackListActivity extends BaseBlackListActivity {
   @Override
   protected void setBlackListViewHolder() {
     binding.contactListView.setViewHolderFactory(
-        new ContactViewHolderFactory() {
+        new FunContactViewHolderFactory() {
           @Override
           protected BaseContactViewHolder getCustomViewHolder(ViewGroup view, int viewType) {
             if (viewType == IViewTypeConstant.CONTACT_BLACK_LIST) {

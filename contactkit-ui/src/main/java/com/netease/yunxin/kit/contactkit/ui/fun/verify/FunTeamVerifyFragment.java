@@ -7,10 +7,10 @@ package com.netease.yunxin.kit.contactkit.ui.fun.verify;
 import android.view.ViewGroup;
 import com.netease.yunxin.kit.contactkit.ui.IContactFactory;
 import com.netease.yunxin.kit.contactkit.ui.R;
+import com.netease.yunxin.kit.contactkit.ui.fun.view.FunContactViewHolderFactory;
 import com.netease.yunxin.kit.contactkit.ui.fun.view.viewholder.FunTeamVerifyInfoViewHolder;
 import com.netease.yunxin.kit.contactkit.ui.model.IViewTypeConstant;
 import com.netease.yunxin.kit.contactkit.ui.model.TeamVerifyInfoBean;
-import com.netease.yunxin.kit.contactkit.ui.normal.view.ContactViewHolderFactory;
 import com.netease.yunxin.kit.contactkit.ui.utils.ContactUtils;
 import com.netease.yunxin.kit.contactkit.ui.verify.TeamVerifyBaseFragment;
 import com.netease.yunxin.kit.contactkit.ui.view.viewholder.BaseContactViewHolder;
@@ -19,7 +19,7 @@ public class FunTeamVerifyFragment extends TeamVerifyBaseFragment {
 
   @Override
   protected IContactFactory configViewHolderFactory() {
-    return new ContactViewHolderFactory() {
+    return new FunContactViewHolderFactory() {
       @Override
       protected BaseContactViewHolder getCustomViewHolder(ViewGroup view, int viewType) {
         if (viewType == IViewTypeConstant.CONTACT_TEAM_VERIFY_INFO) {

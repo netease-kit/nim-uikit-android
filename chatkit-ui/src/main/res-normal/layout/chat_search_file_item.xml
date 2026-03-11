@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingStart="16dp"
+    android:paddingEnd="16dp"
+    android:paddingTop="12dp"
+    android:paddingBottom="12dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.netease.yunxin.kit.common.ui.widgets.ContactAvatarView
+            android:id="@+id/message_avatar"
+            android:layout_width="@dimen/dimen_32_dp"
+            android:layout_height="@dimen/dimen_32_dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/otherUsername"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:textSize="@dimen/text_size_14"
+            android:textColor="@color/color_333333"
+            app:layout_constraintStart_toEndOf="@id/message_avatar"
+            app:layout_constraintTop_toTopOf="@id/message_avatar"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="@dimen/dimen_8_dp"
+            app:layout_constraintEnd_toStartOf="@id/tvTime" />
+
+        <TextView
+            android:id="@+id/tvTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/color_999999"
+            android:textSize="@dimen/text_size_12"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/otherUsername" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/file_container"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dimen_56_dp"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/bg_gray_shape_corner">
+
+        <ImageView android:id="@+id/file_type_iv"
+            android:layout_width="@dimen/dimen_32_dp"
+            android:layout_height="@dimen/dimen_32_dp"
+            android:src="@drawable/ic_unknown_file"
+            android:scaleType="fitXY"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginStart="@dimen/dimen_14_dp"/>
+
+        <TextView
+            android:id="@+id/display_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toEndOf="@id/file_type_iv"
+            app:layout_constraintEnd_toStartOf="@id/iv_more_action"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginTop="@dimen/dimen_12_dp"
+            android:layout_marginLeft="@dimen/dimen_12_dp"
+            android:layout_marginBottom="@dimen/dimen_6_dp"
+            android:textColor="@color/color_333333"
+            android:textSize="@dimen/dimen_14_dp"
+            android:typeface="monospace"
+            android:ellipsize="middle"
+            android:singleLine="true" />
+
+        <TextView
+            android:id="@+id/display_size"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toEndOf="@id/file_type_iv"
+            app:layout_constraintEnd_toStartOf="@id/iv_more_action"
+            app:layout_constraintTop_toBottomOf="@+id/display_name"
+            android:textColor="@color/color_999999"
+            android:layout_marginLeft="@dimen/dimen_12_dp"
+            android:textSize="@dimen/dimen_10_dp"
+            android:typeface="monospace"
+            android:singleLine="true"
+            android:ellipsize="middle" />
+
+        <FrameLayout
+            android:id="@+id/file_progress_fl"
+            android:layout_width="@dimen/dimen_32_dp"
+            android:layout_height="@dimen/dimen_32_dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginStart="@dimen/dimen_14_dp"
+            android:visibility="gone"
+            android:background="@drawable/bg_file_mask">
+
+            <com.google.android.material.progressindicator.CircularProgressIndicator
+                android:id="@+id/progress_bar"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:indicatorColor="@color/color_white"
+                app:trackColor="@color/color_4d000000"
+                app:trackCornerRadius="@dimen/dimen_1_dp"
+                app:trackThickness="@dimen/dimen_2_dp"
+                app:indicatorSize="@dimen/dimen_20_dp"
+                android:layout_gravity="center"/>
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/progress_bar_inside_icon"
+                android:layout_width="@dimen/dimen_6_dp"
+                android:layout_height="@dimen/dimen_9_dp"
+                android:src="@drawable/ic_video_pause_thumb"
+                android:layout_gravity="center"/>
+        </FrameLayout>
+
+        <ImageView
+            android:id="@+id/iv_more_action"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginEnd="12dp"
+            android:layout_marginTop="12dp"
+            android:src="@drawable/ic_chat_vertical_more" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</LinearLayout>

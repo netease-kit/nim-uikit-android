@@ -28,5 +28,33 @@
             android:layout_gravity="center"
             android:text="@string/chat_team_error_tip_content"/>
     </FrameLayout>
+    <LinearLayout android:id="@+id/messageTipsLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_gravity="bottom|end"
+        android:layout_marginBottom="@dimen/dimen_120_dp"
+        android:background="@drawable/bg_shape_left_radius"
+        android:visibility="visible">
 
+        <ImageView
+            android:layout_width="@dimen/dimen_40_dp"
+            android:layout_height="@dimen/dimen_40_dp"
+            android:src="@drawable/ic_chat_message_arrow_bottom"
+            android:scaleType="centerInside"
+            />
+
+        <TextView android:id="@+id/messageTipsTv"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/dimen_40_dp"
+            android:background="@color/color_white"
+            android:gravity="center_vertical"
+            android:textColor="@color/color_chat_new_message_tips"
+            android:textSize="@dimen/text_size_14"
+            android:paddingEnd="@dimen/dimen_8_dp"
+            android:layout_marginBottom="1dp"
+            android:layout_marginTop="@dimen/dimen_1_dp"
+            android:layout_marginEnd="1dp"/>
+
+    </LinearLayout>
 </FrameLayout>

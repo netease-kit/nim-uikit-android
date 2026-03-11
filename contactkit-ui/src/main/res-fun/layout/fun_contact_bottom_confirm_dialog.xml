@@ -18,7 +18,7 @@
         android:layout_width="0dp"
         android:layout_height="51dp"
         android:gravity="center"
-        android:textColor="@color/color_8f8f8f"
+        android:textColor="#8F8F8F"
         android:textSize="13dp"
         app:layout_constraintBottom_toTopOf="@+id/tv_positive"
         app:layout_constraintEnd_toEndOf="parent"
@@ -48,7 +48,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="6dp"
-        android:background="@color/color_f7f7f7"
+        android:background="#F7F7F7"
         app:layout_constraintTop_toBottomOf="@id/tv_positive" />
 
     <TextView

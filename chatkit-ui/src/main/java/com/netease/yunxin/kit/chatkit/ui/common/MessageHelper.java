@@ -40,6 +40,7 @@ import com.netease.nimlib.sdk.v2.message.V2NIMMessageRefer;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessageRevokeNotification;
 import com.netease.nimlib.sdk.v2.message.attachment.V2NIMMessageAudioAttachment;
 import com.netease.nimlib.sdk.v2.message.attachment.V2NIMMessageFileAttachment;
+import com.netease.nimlib.sdk.v2.message.attachment.V2NIMMessageLocationAttachment;
 import com.netease.nimlib.sdk.v2.message.attachment.V2NIMMessageNotificationAttachment;
 import com.netease.nimlib.sdk.v2.message.config.V2NIMMessageAIConfig;
 import com.netease.nimlib.sdk.v2.message.config.V2NIMMessageConfig;
@@ -238,7 +239,7 @@ public class MessageHelper {
           ? account
           : IMKitClient.currentUser().getName();
     }
-    return ChatUserCache.getInstance().getNickname(account, type);
+    return ChatUserCache.getInstance().getAvatarName(account, type);
   }
 
   /**
@@ -671,6 +672,112 @@ public class MessageHelper {
     }
     return mSpannableString;
   }
+  /**
+   * 识别emoji表情（发送过程中，emoji表情是按照编码发送），并替换成图片设置到TextView中, 同时高亮要搜索的关键词
+   *
+   * @param context 上下文
+   * @param textView TextView
+   * @param value 消息内容
+   * @param keyword 要高亮的关键词
+   * @param highlightColor 高亮颜色
+   */
+  public static void identifyFaceExpressionAndHighlight(
+      Context context, View textView, String value, @Nullable String keyword, int highlightColor) {
+    SpannableString spannableString =
+        replaceEmoticonsAndHighlight(
+            context, value, DEF_SCALE, ImageSpan.ALIGN_BOTTOM, keyword, highlightColor);
+    viewSetText(textView, spannableString);
+  }
+
+  /**
+   * 高亮要搜索的关键词
+   *
+   * @param context 上下文
+   * @param textView TextView
+   * @param value 消息内容
+   * @param keyword 要高亮的关键词
+   * @param highlightColor 高亮颜色
+   */
+  public static void identifyHighlight(
+      Context context, View textView, String value, @Nullable String keyword, int highlightColor) {
+    SpannableString spannableString = replaceHighlight(value, keyword, highlightColor);
+    viewSetText(textView, spannableString);
+  }
+
+  /**
+   * 替换emoji表情（发送过程中，emoji表情是按照编码发送），并高亮要搜索的关键词
+   *
+   * @param context 上下文
+   * @param value 消息内容
+   * @param scale emoji表情图片缩放比例
+   * @param align emoji表情图片对齐方式
+   * @param keyword 要高亮的关键词
+   * @param highlightColor 高亮颜色
+   */
+  public static SpannableString replaceEmoticonsAndHighlight(
+      Context context,
+      String value,
+      float scale,
+      int align,
+      @Nullable String keyword,
+      int highlightColor) {
+    if (TextUtils.isEmpty(value)) {
+      value = "";
+    }
+    SpannableString spannable = new SpannableString(value);
+    Matcher emoteMatcher = ChatEmojiManager.INSTANCE.getPattern().matcher(value);
+    List<int[]> emoteRanges = new ArrayList<>();
+    while (emoteMatcher.find()) {
+      int start = emoteMatcher.start();
+      int end = emoteMatcher.end();
+      String emote = value.substring(start, end);
+      Drawable d = ChatEmojiManager.INSTANCE.getEmoteDrawable(emote, scale);
+      if (d != null) {
+        ImageSpan span = new ImageSpan(d, align);
+        spannable.setSpan(span, start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        emoteRanges.add(new int[] {start, end});
+      }
+    }
+    if (!TextUtils.isEmpty(keyword)) {
+      Pattern p = Pattern.compile(Pattern.quote(keyword), Pattern.CASE_INSENSITIVE);
+      Matcher m = p.matcher(value);
+      while (m.find()) {
+        int s = m.start();
+        int e = m.end();
+        boolean overlap = false;
+        for (int[] r : emoteRanges) {
+          if (!(e <= r[0] || s >= r[1])) {
+            overlap = true;
+            break;
+          }
+        }
+        if (!overlap) {
+          spannable.setSpan(
+              new ForegroundColorSpan(highlightColor), s, e, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+      }
+    }
+    return spannable;
+  }
+
+  public static SpannableString replaceHighlight(
+      String value, @Nullable String keyword, int highlightColor) {
+    if (TextUtils.isEmpty(value)) {
+      value = "";
+    }
+    SpannableString spannable = new SpannableString(value);
+    if (!TextUtils.isEmpty(keyword)) {
+      Pattern p = Pattern.compile(Pattern.quote(keyword), Pattern.CASE_INSENSITIVE);
+      Matcher m = p.matcher(value);
+      while (m.find()) {
+        int s = m.start();
+        int e = m.end();
+        spannable.setSpan(
+            new ForegroundColorSpan(highlightColor), s, e, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+      }
+    }
+    return spannable;
+  }
 
   /**
    * 替换emoji表情（发送过程中，emoji表情是按照编码发送）
@@ -1102,6 +1209,35 @@ public class MessageHelper {
   }
 
   /**
+   * 创建合并转发消息体内容
+   *
+   * @param msgList
+   * @return
+   */
+  public static String getMultiTransmitContent(List<IMMessageInfo> msgList) {
+    if (msgList == null || msgList.isEmpty()) {
+      return "";
+    }
+    IMMessageInfo msg = msgList.get(0);
+    if (msg.getMessage().getMessageType() == V2NIMMessageType.V2NIM_MESSAGE_TYPE_FILE
+        || msg.getMessage().getMessageType() == V2NIMMessageType.V2NIM_MESSAGE_TYPE_IMAGE
+        || msg.getMessage().getMessageType() == V2NIMMessageType.V2NIM_MESSAGE_TYPE_VIDEO) {
+      if (msg.getMessage().getAttachment() instanceof V2NIMMessageFileAttachment) {
+        V2NIMMessageFileAttachment attachment =
+            (V2NIMMessageFileAttachment) msg.getMessage().getAttachment();
+        return attachment.getName();
+      }
+    } else if (msg.getMessage().getMessageType() == V2NIMMessageType.V2NIM_MESSAGE_TYPE_LOCATION) {
+      if (msg.getMessage().getAttachment() instanceof V2NIMMessageLocationAttachment) {
+        V2NIMMessageLocationAttachment attachment =
+            (V2NIMMessageLocationAttachment) msg.getMessage().getAttachment();
+        return attachment.getAddress();
+      }
+    }
+    return getMsgBrief(msg, false);
+  }
+
+  /**
    * 创建富文本消息
    *
    * @param title 标题
@@ -1114,7 +1250,7 @@ public class MessageHelper {
     attachment.body = content;
     attachment.title = title;
     if (!TextUtils.isEmpty(attachment.toJsonStr())) {
-      return V2NIMMessageCreator.createCustomMessage(null, attachment.toJsonStr());
+      return V2NIMMessageCreator.createCustomMessage(title, attachment.toJsonStr());
     }
     return null;
   }

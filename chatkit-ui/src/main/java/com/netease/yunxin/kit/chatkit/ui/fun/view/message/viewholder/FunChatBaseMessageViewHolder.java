@@ -150,7 +150,7 @@ public class FunChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
       baseViewBinding.messageContainer.setBackgroundResource(R.color.title_transfer);
       return;
     }
-    boolean isReceivedMsg = MessageHelper.isReceivedMessage(messageBean) || isForwardMsg();
+    boolean isReceivedMsg = MessageHelper.isReceivedMessage(messageBean) || !isChatMsg();
     CommonUIOption commonUIOption = uiOptions.commonUIOption;
     boolean isCustomBgValid = true;
     View backgroundView = getMessageBackgroundView();
@@ -261,7 +261,7 @@ public class FunChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
   @Override
   protected void setStatus(ChatMessageBean data) {
     baseViewBinding.readProcess.setColor(
-        parent.getContext().getResources().getColor(R.color.color_58be6b));
+        parent.getContext().getResources().getColor(R.color.fun_chat_message_read_process));
     super.setStatus(data);
     MessageStatusUIOption messageStatusUIOption = uiOptions.messageStatusUIOption;
     if (messageStatusUIOption.readProcessClickListener != null) {

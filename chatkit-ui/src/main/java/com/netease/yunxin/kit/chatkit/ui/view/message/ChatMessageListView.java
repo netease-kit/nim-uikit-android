@@ -50,13 +50,24 @@ public class ChatMessageListView extends RecyclerView implements IMessageData {
 
   private IMessageReader messageReader;
 
-  private OnListViewEventListener onListViewEventListener;
+  private List<OnListViewEventListener> onListViewEventListeners = new ArrayList<>();
   private GestureDetector gestureDetector;
   private boolean isScroll = false;
 
   private boolean hasMoreForwardMessages;
 
   private boolean hasMoreNewerMessages;
+
+  // 防抖滚动任务：多条消息快速到来时只执行最后一次滚底
+  private final Runnable scrollToEndRunnable =
+      () -> {
+        if (messageAdapter != null) {
+          int count = messageAdapter.getItemCount();
+          if (count > 0) {
+            scrollToPosition(count - 1);
+          }
+        }
+      };
 
   private LinearLayoutManager layoutManager;
 
@@ -88,8 +99,10 @@ public class ChatMessageListView extends RecyclerView implements IMessageData {
               @Override
               public boolean onSingleTapUp(MotionEvent e) {
                 if (!isScroll) {
-                  if (onListViewEventListener != null) {
-                    onListViewEventListener.onListViewStartScroll();
+                  if (!onListViewEventListeners.isEmpty()) {
+                    for (OnListViewEventListener listener : onListViewEventListeners) {
+                      listener.onListViewStartScroll();
+                    }
                   }
                   isScroll = true;
                 }
@@ -100,8 +113,10 @@ public class ChatMessageListView extends RecyclerView implements IMessageData {
               public boolean onScroll(
                   MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
                 if (!isScroll) {
-                  if (onListViewEventListener != null) {
-                    onListViewEventListener.onListViewStartScroll();
+                  if (!onListViewEventListeners.isEmpty()) {
+                    for (OnListViewEventListener listener : onListViewEventListeners) {
+                      listener.onListViewStartScroll();
+                    }
                   }
                   isScroll = true;
                 }
@@ -117,6 +132,20 @@ public class ChatMessageListView extends RecyclerView implements IMessageData {
     setItemAnimator(null);
     messageAdapter = new ChatMessageAdapter();
     setAdapter(messageAdapter);
+  }
+
+  @Override
+  public void scrollToPosition(int position) {
+    super.scrollToPosition(position);
+    this.postDelayed(
+        () -> {
+          if (!onListViewEventListeners.isEmpty()) {
+            for (OnListViewEventListener listener : onListViewEventListeners) {
+              listener.onListViewScrollEnd();
+            }
+          }
+        },
+        100);
   }
 
   //设置列表RecyclerView的数据加载停靠位置
@@ -140,8 +169,16 @@ public class ChatMessageListView extends RecyclerView implements IMessageData {
     }
   }
 
-  public void setOnListViewEventListener(OnListViewEventListener onListViewEventListener) {
-    this.onListViewEventListener = onListViewEventListener;
+  public void addOnListViewEventListener(OnListViewEventListener onListViewEventListener) {
+    if (onListViewEventListener != null) {
+      onListViewEventListeners.add(onListViewEventListener);
+    }
+  }
+
+  public void removeOnListViewEventListener(OnListViewEventListener onListViewEventListener) {
+    if (onListViewEventListener != null) {
+      onListViewEventListeners.remove(onListViewEventListener);
+    }
   }
 
   public IMessageItemClickListener getItemClickListener() {
@@ -177,6 +214,8 @@ public class ChatMessageListView extends RecyclerView implements IMessageData {
   @Override
   public void clearMessageList() {
     messageAdapter.clearMessageList();
+    hasMoreNewerMessages = false;
+    hasMoreForwardMessages = false;
   }
 
   @Override
@@ -194,7 +233,11 @@ public class ChatMessageListView extends RecyclerView implements IMessageData {
 
   @Override
   public void appendMessageList(List<ChatMessageBean> messageList) {
-    appendMessageList(messageList, true);
+    if (isLastItemVisible() || messageAdapter.getItemCount() == 0) {
+      appendMessageList(messageList, true);
+    } else {
+      appendMessageList(messageList, false);
+    }
   }
 
   @Override
@@ -219,7 +262,7 @@ public class ChatMessageListView extends RecyclerView implements IMessageData {
   public void updateMessageStatus(ChatMessageBean message) {
     if (messageAdapter != null) {
       int index = messageAdapter.updateMessageStatus(message);
-      if (index < 0) {
+      if (index < 0 && needScrollToBottom()) {
         scrollToEnd();
       }
     }
@@ -237,8 +280,10 @@ public class ChatMessageListView extends RecyclerView implements IMessageData {
     if (messageAdapter != null && message != null) {
       String uuid = message.getMessageClientId();
       ChatMessageBean messageBean = messageAdapter.searchMessage(uuid);
-      messageBean.setMessageData(new IMMessageInfo(message));
-      messageAdapter.updateMessage(messageBean, payload);
+      if (messageBean != null) {
+        messageBean.setMessageData(new IMMessageInfo(message));
+        messageAdapter.updateMessage(messageBean, payload);
+      }
     }
   }
 
@@ -246,7 +291,9 @@ public class ChatMessageListView extends RecyclerView implements IMessageData {
   public void updateMessage(String msgClientId, Object payload) {
     if (messageAdapter != null && !TextUtils.isEmpty(msgClientId)) {
       ChatMessageBean messageBean = messageAdapter.searchMessage(msgClientId);
-      messageAdapter.updateMessage(messageBean, payload);
+      if (messageBean != null) {
+        messageAdapter.updateMessage(messageBean, payload);
+      }
     }
   }
 
@@ -275,6 +322,10 @@ public class ChatMessageListView extends RecyclerView implements IMessageData {
    * @param message 消息
    */
   public void insertMessage(ChatMessageBean message) {
+    insertMessage(message, true);
+  }
+
+  public void insertMessage(ChatMessageBean message, boolean scroll) {
     if (messageAdapter != null) {
       int messageIndex = messageAdapter.searchMessagePosition(message.getMsgClientId());
       // 失败重发，如果想要让重发消息展示在最下方，需要再这里remove，然后insertMessageSortByTime
@@ -283,7 +334,7 @@ public class ChatMessageListView extends RecyclerView implements IMessageData {
         return;
       }
       int index = messageAdapter.insertMessageSortByTime(message);
-      if (index == -1) {
+      if (index == -1 && scroll) {
         scrollToEnd();
       }
     }
@@ -369,11 +420,10 @@ public class ChatMessageListView extends RecyclerView implements IMessageData {
   }
 
   public void scrollToEnd() {
-    if (messageAdapter != null) {
-      int itemCount = messageAdapter.getItemCount();
-      if (itemCount > 0) {
-        post(() -> scrollToPosition(itemCount - 1));
-      }
+    if (messageAdapter != null && messageAdapter.getItemCount() > 0) {
+      // 先移除已排队的旧任务，再 post 新任务，保证多条消息快速到来时只滚到最终底部
+      removeCallbacks(scrollToEndRunnable);
+      post(scrollToEndRunnable);
     }
   }
 
@@ -391,6 +441,13 @@ public class ChatMessageListView extends RecyclerView implements IMessageData {
     return -1;
   }
 
+  public int searchMessagePositionByTime(long messageCreateTime) {
+    if (messageAdapter != null) {
+      return messageAdapter.searchMessagePositionByTime(messageCreateTime);
+    }
+    return -1;
+  }
+
   @SuppressLint("ClickableViewAccessibility")
   @Override
   public boolean onTouchEvent(MotionEvent e) {
@@ -399,8 +456,10 @@ public class ChatMessageListView extends RecyclerView implements IMessageData {
     if (e.getAction() == MotionEvent.ACTION_CANCEL || e.getAction() == MotionEvent.ACTION_UP) {
       isScroll = false;
     }
-    if (onListViewEventListener != null) {
-      onListViewEventListener.onListViewTouched();
+    if (!onListViewEventListeners.isEmpty()) {
+      for (OnListViewEventListener listener : onListViewEventListeners) {
+        listener.onListViewTouched();
+      }
     }
     return super.onTouchEvent(e);
   }
@@ -413,6 +472,15 @@ public class ChatMessageListView extends RecyclerView implements IMessageData {
         scrollBy(0, oldh - h);
       } else {
         scrollToEnd();
+        this.postDelayed(
+            () -> {
+              if (!onListViewEventListeners.isEmpty()) {
+                for (OnListViewEventListener listener : onListViewEventListeners) {
+                  listener.onListViewScrollEnd();
+                }
+              }
+            },
+            100);
       }
     }
     super.onSizeChanged(w, h, oldw, oldh);
@@ -425,20 +493,23 @@ public class ChatMessageListView extends RecyclerView implements IMessageData {
       if (loadHandler != null && getLayoutManager() != null) {
         LinearLayoutManager layoutManager = (LinearLayoutManager) getLayoutManager();
         int firstPosition = layoutManager.findFirstCompletelyVisibleItemPosition();
-        int lastPosition = layoutManager.findLastCompletelyVisibleItemPosition();
-        if (firstPosition == 0 && hasMoreForwardMessages) {
+        if (firstPosition <= 0 && hasMoreForwardMessages) {
           loadHandler.loadMoreForward(messageAdapter.getFirstMessage());
         } else if (isLastItemVisibleCompleted() && hasMoreNewerMessages) {
           loadHandler.loadMoreBackground(messageAdapter.getLastMessage());
         }
       }
       refreshTeamMessageReceipt();
-      if (onListViewEventListener != null) {
-        onListViewEventListener.onListViewScrollEnd();
+      if (!onListViewEventListeners.isEmpty()) {
+        for (OnListViewEventListener listener : onListViewEventListeners) {
+          listener.onListViewScrollEnd();
+        }
       }
     } else {
-      if (onListViewEventListener != null) {
-        onListViewEventListener.onListViewScrolling();
+      if (!onListViewEventListeners.isEmpty()) {
+        for (OnListViewEventListener listener : onListViewEventListeners) {
+          listener.onListViewScrolling();
+        }
       }
     }
   }
@@ -485,7 +556,6 @@ public class ChatMessageListView extends RecyclerView implements IMessageData {
   }
 
   public void refreshTeamMessageReceipt() {
-    LinearLayoutManager layoutManager = (LinearLayoutManager) getLayoutManager();
     if (layoutManager != null && loadHandler != null) {
       int firstVisible = layoutManager.findFirstVisibleItemPosition();
       int lastVisible = layoutManager.findLastVisibleItemPosition();
@@ -500,6 +570,14 @@ public class ChatMessageListView extends RecyclerView implements IMessageData {
       loadHandler.onVisibleItemChange(
           messageAdapter.getMessageList().subList(firstVisible, lastVisible + 1));
     }
+  }
+
+  public int findLastVisibleItemPosition() {
+    return layoutManager.findLastVisibleItemPosition();
+  }
+
+  public int findLastCompletelyVisibleItemPosition() {
+    return layoutManager.findLastCompletelyVisibleItemPosition();
   }
 
   /**
@@ -520,24 +598,38 @@ public class ChatMessageListView extends RecyclerView implements IMessageData {
   }
 
   private boolean needScrollToBottom() {
-    LinearLayoutManager linearLayoutManager = (LinearLayoutManager) getLayoutManager();
-    if (linearLayoutManager == null) {
+    if (layoutManager == null) {
       return false;
     }
-    int firstPosition = linearLayoutManager.findFirstVisibleItemPosition();
-    int count = linearLayoutManager.getChildCount();
-    return firstPosition + count >= linearLayoutManager.getItemCount() - 1 && !hasMoreNewerMessages;
+    int firstPosition = layoutManager.findFirstVisibleItemPosition();
+    int count = layoutManager.getChildCount();
+    return firstPosition + count >= layoutManager.getItemCount() - 1 && !hasMoreNewerMessages;
   }
 
-  private boolean isLastItemVisibleCompleted() {
-    LinearLayoutManager linearLayoutManager = (LinearLayoutManager) getLayoutManager();
-    if (linearLayoutManager == null) {
+  public boolean isLastItemVisibleCompleted() {
+    if (layoutManager == null) {
       return false;
     }
-    int lastPosition = linearLayoutManager.findLastCompletelyVisibleItemPosition();
-    int childCount = linearLayoutManager.getChildCount();
-    int firstPosition = linearLayoutManager.findFirstVisibleItemPosition();
-    return lastPosition >= firstPosition + childCount - 1;
+    int lastPosition = layoutManager.findLastCompletelyVisibleItemPosition();
+    int childCount = messageAdapter.getItemCount();
+    return lastPosition >= childCount - 1;
+  }
+
+  public boolean isLastItemVisible() {
+    if (layoutManager == null) {
+      return false;
+    }
+    int lastPosition = layoutManager.findLastVisibleItemPosition();
+    int childCount = messageAdapter.getItemCount();
+    return lastPosition >= childCount - 1;
+  }
+
+  public ChatMessageBean getLastCompletelyVisibleMessage() {
+    if (messageAdapter != null && messageAdapter.getItemCount() > 0) {
+      int lastPosition = layoutManager.findLastCompletelyVisibleItemPosition();
+      return lastPosition >= 0 ? messageAdapter.getMessageList().get(lastPosition) : null;
+    }
+    return null;
   }
 
   public ArrayList<ChatMessageBean> filterMessagesByType(int typeValue) {

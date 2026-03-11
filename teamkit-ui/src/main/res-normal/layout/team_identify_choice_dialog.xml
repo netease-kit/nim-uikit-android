@@ -24,7 +24,7 @@
         android:layout_height="42dp"
         android:gravity="center"
         android:text="@string/team_all_member"
-        android:textColor="@color/color_333333"
+        android:textColor="@color/color_team_primary_text"
         android:textSize="14dp"
         app:layout_constraintBottom_toTopOf="@+id/tvTeamOwner"
         app:layout_constraintEnd_toEndOf="parent"
@@ -34,7 +34,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="0.5dp"
-        android:background="@color/color_dedede"
+        android:background="#dedede"
         app:layout_constraintTop_toBottomOf="@id/tvTeamAllMember" />
 
     <TextView
@@ -44,7 +44,7 @@
         android:layout_marginBottom="12dp"
         android:gravity="center"
         android:text="@string/team_owner_and_manager"
-        android:textColor="@color/color_333333"
+        android:textColor="@color/color_team_primary_text"
         android:textSize="14dp"
         app:layout_constraintBottom_toTopOf="@id/tvCancel"
         app:layout_constraintEnd_toEndOf="parent"
@@ -58,7 +58,7 @@
         android:background="@drawable/bg_team_identify_choice_dialog"
         android:gravity="center"
         android:text="@string/team_cancel"
-        android:textColor="@color/color_333333"
+        android:textColor="@color/color_team_primary_text"
         android:textSize="14dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

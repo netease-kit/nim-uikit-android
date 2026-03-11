@@ -7,7 +7,6 @@ package com.netease.yunxin.kit.chatkit.ui.page.viewmodel;
 import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
 
 import android.content.Context;
-import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
@@ -21,7 +20,6 @@ import com.netease.nimlib.sdk.v2.ai.enums.V2NIMAIModelRoleType;
 import com.netease.nimlib.sdk.v2.ai.model.V2NIMAIUser;
 import com.netease.nimlib.sdk.v2.ai.params.V2NIMAIModelCallMessage;
 import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
-import com.netease.nimlib.sdk.v2.conversation.model.V2NIMConversation;
 import com.netease.nimlib.sdk.v2.message.V2NIMClearHistoryNotification;
 import com.netease.nimlib.sdk.v2.message.V2NIMCollection;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessage;
@@ -33,7 +31,6 @@ import com.netease.nimlib.sdk.v2.message.V2NIMMessageQuickCommentNotification;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessageRefer;
 import com.netease.nimlib.sdk.v2.message.V2NIMP2PMessageReadReceipt;
 import com.netease.nimlib.sdk.v2.message.V2NIMTeamMessageReadReceipt;
-import com.netease.nimlib.sdk.v2.message.attachment.V2NIMMessageAudioAttachment;
 import com.netease.nimlib.sdk.v2.message.config.V2NIMMessageAIConfig;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageAIRegenOpType;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageAIStreamStopOpType;
@@ -46,7 +43,6 @@ import com.netease.nimlib.sdk.v2.message.params.V2NIMAddCollectionParams;
 import com.netease.nimlib.sdk.v2.message.params.V2NIMMessageAIRegenParams;
 import com.netease.nimlib.sdk.v2.message.params.V2NIMMessageAIStreamStopParams;
 import com.netease.nimlib.sdk.v2.message.params.V2NIMSendMessageParams;
-import com.netease.nimlib.sdk.v2.message.params.V2NIMVoiceToTextParams;
 import com.netease.nimlib.sdk.v2.message.result.V2NIMSendMessageResult;
 import com.netease.nimlib.sdk.v2.utils.V2NIMConversationIdUtil;
 import com.netease.yunxin.kit.alog.ALog;
@@ -56,13 +52,8 @@ import com.netease.yunxin.kit.chatkit.listener.MessageRevokeNotification;
 import com.netease.yunxin.kit.chatkit.listener.MessageUpdateType;
 import com.netease.yunxin.kit.chatkit.manager.AIUserManager;
 import com.netease.yunxin.kit.chatkit.map.ChatLocationBean;
-import com.netease.yunxin.kit.chatkit.media.ImageUtil;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
-import com.netease.yunxin.kit.chatkit.model.RecentForward;
 import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
-import com.netease.yunxin.kit.chatkit.repo.ConversationRepo;
-import com.netease.yunxin.kit.chatkit.repo.ResourceRepo;
-import com.netease.yunxin.kit.chatkit.repo.SettingRepo;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitClient;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant;
 import com.netease.yunxin.kit.chatkit.ui.R;
@@ -70,7 +61,8 @@ import com.netease.yunxin.kit.chatkit.ui.common.ChatUserCache;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatUtils;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageCreator;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
-import com.netease.yunxin.kit.chatkit.ui.custom.MultiForwardAttachment;
+import com.netease.yunxin.kit.chatkit.ui.common.MessageOperateUtils;
+import com.netease.yunxin.kit.chatkit.ui.common.MessageParamBuildUtils;
 import com.netease.yunxin.kit.chatkit.ui.model.AnchorScrollInfo;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.model.MessageRevokeInfo;
@@ -81,10 +73,6 @@ import com.netease.yunxin.kit.common.ui.utils.ToastX;
 import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
-import com.netease.yunxin.kit.common.utils.EncryptUtils;
-import com.netease.yunxin.kit.common.utils.FileUtils;
-import com.netease.yunxin.kit.common.utils.ImageUtils;
-import com.netease.yunxin.kit.common.utils.UriUtils;
 import com.netease.yunxin.kit.corekit.im2.IMKitClient;
 import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
 import com.netease.yunxin.kit.corekit.im2.extend.ProgressFetchCallback;
@@ -92,7 +80,6 @@ import com.netease.yunxin.kit.corekit.im2.model.IMMessageProgress;
 import com.netease.yunxin.kit.corekit.im2.model.UserWithFriend;
 import com.netease.yunxin.kit.corekit.im2.provider.V2MessageProvider;
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -160,8 +147,6 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
   private V2NIMConversationType mSessionType;
   // 是否群聊
   protected boolean mIsTeamGroup = false;
-  // 是否需要消息回执
-  protected boolean needACK = false;
   // 是否显示已读状态
   protected boolean showRead = true;
   // 是否有加载更多消息
@@ -179,16 +164,20 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
    */
   protected void setSentMessageReadCount(IMMessageInfo message) {}
 
+  public void onSentMessagePrepare(IMMessageInfo message) {
+    setSentMessageReadCount(message);
+  }
+
   // 消息监听
   private final ChatListener messageListener =
       new ChatListener() {
 
         @Override
         public void onReceiveMessagesModified(@Nullable List<V2NIMMessage> messages) {
-          ALog.d(LIB_TAG, TAG, "onReceiveMessagesModified msg");
+          ALog.i(LIB_TAG, TAG, "onReceiveMessagesModified msg");
           List<ChatMessageBean> messageList = new ArrayList<>();
           for (V2NIMMessage msg : messages) {
-            ALog.d(
+            ALog.i(
                 LIB_TAG,
                 TAG,
                 "onReceiveMessagesModified msg:"
@@ -227,7 +216,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
         @Override
         public void onSendMessage(@NonNull V2NIMMessage message) {
           if (message.getConversationId().equals(mConversationId)) {
-            ALog.d(LIB_TAG, TAG, "onSendMessage -->> " + message.getMessageClientId());
+            ALog.i(LIB_TAG, TAG, "onSendMessage -->> " + message.getMessageClientId());
             IMMessageInfo messageInfo = new IMMessageInfo(message);
             setSentMessageReadCount(messageInfo);
             boolean isSending =
@@ -243,7 +232,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
             @NonNull V2NIMMessage message, int progress) {
           if (message.getConversationId() != null
               && message.getConversationId().equals(mConversationId)) {
-            ALog.d(LIB_TAG, TAG, "onMessageAttachmentDownloadProgress -->> " + progress);
+            ALog.i(LIB_TAG, TAG, "onMessageAttachmentDownloadProgress -->> " + progress);
             FetchResult<IMMessageProgress> result = new FetchResult<>(LoadStatus.Success);
             result.setData(new IMMessageProgress(message.getMessageClientId(), progress));
             result.setType(FetchResult.FetchType.Update);
@@ -263,10 +252,11 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
           if (!firstMessage.getMessage().getConversationId().equals(mConversationId)) {
             return;
           }
-          ALog.d(LIB_TAG, TAG, "onMessagesUpdate -->> " + messages.size() + ", type:" + type);
+          ALog.i(LIB_TAG, TAG, "onMessagesUpdate -->> " + messages.size() + ", type:" + type);
           FetchResult<Pair<MessageUpdateType, List<ChatMessageBean>>> messageUpdateResult =
               new FetchResult<>(LoadStatus.Success);
-          messageUpdateResult.setData(new Pair<>(type, convert(messages)));
+          messageUpdateResult.setData(
+              new Pair<>(type, MessageParamBuildUtils.convertToChatBeans(messages)));
           messageUpdateResult.setType(FetchResult.FetchType.Update);
           messageUpdateResult.setTypeIndex(-1);
           updateMessageLiveData.setValue(messageUpdateResult);
@@ -279,10 +269,10 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
           if (!firstMessage.getMessage().getConversationId().equals(mConversationId)) {
             return;
           }
-          ALog.d(LIB_TAG, TAG, "receive msg -->> " + messages.size());
+          ALog.i(LIB_TAG, TAG, "receive msg -->> " + messages.size());
           FetchResult<List<ChatMessageBean>> messageRecFetchResult =
               new FetchResult<>(LoadStatus.Success);
-          messageRecFetchResult.setData(convert(messages));
+          messageRecFetchResult.setData(MessageParamBuildUtils.convertToChatBeans(messages));
           messageRecFetchResult.setType(FetchResult.FetchType.Add);
           messageRecFetchResult.setTypeIndex(-1);
           messageRecLiveData.setValue(messageRecFetchResult);
@@ -295,7 +285,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
         @Override
         public void onMessageDeletedNotifications(
             @Nullable List<? extends V2NIMMessageDeletedNotification> messages) {
-          ALog.d(
+          ALog.i(
               LIB_TAG,
               TAG,
               "msg delete batch -->> " + (messages == null ? "null" : messages.size()));
@@ -323,12 +313,12 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
         @Override
         public void onMessagePinNotification(
             @Nullable V2NIMMessagePinNotification pinNotification) {
-          ALog.d(LIB_TAG, TAG, "onMessagePinNotification");
+          ALog.i(LIB_TAG, TAG, "onMessagePinNotification");
           if (pinNotification != null
               && Objects.equals(
                   pinNotification.getPin().getMessageRefer().getConversationId(),
                   mConversationId)) {
-            ALog.d(
+            ALog.i(
                 LIB_TAG, TAG, "onMessagePinNotification:" + pinNotification.getPinState().name());
             if (pinNotification.getPinState()
                 == V2NIMMessagePinState.V2NIM_MESSAGE_PIN_STEATE_PINNED) {
@@ -444,7 +434,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
         new FetchCallback<List<V2NIMMessagePin>>() {
           @Override
           public void onError(int errorCode, @Nullable String errorMsg) {
-            ALog.d(
+            ALog.i(
                 LIB_TAG,
                 TAG,
                 "getPinedMessageList,onFailed:" + errorCode + " errorMsg:" + errorMsg);
@@ -452,7 +442,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
 
           @Override
           public void onSuccess(@Nullable List<V2NIMMessagePin> data) {
-            ALog.d(
+            ALog.i(
                 LIB_TAG,
                 TAG,
                 "getPinedMessageList,onSuccess:" + (data == null ? "0" : data.size()));
@@ -471,73 +461,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
    * @param messageList 消息列表
    */
   public void deleteMessage(List<ChatMessageBean> messageList) {
-    if (messageList == null || messageList.isEmpty()) {
-      return;
-    }
-    if (messageList.size() < 2) {
-      ChatRepo.deleteMessage(
-          messageList.get(0).getMessageData().getMessage(),
-          null,
-          false,
-          new FetchCallback<Void>() {
-            @Override
-            public void onError(int errorCode, @Nullable String errorMsg) {
-              FetchResult<List<V2NIMMessageRefer>> fetchResult =
-                  new FetchResult<>(LoadStatus.Error);
-              fetchResult.setError(-1, R.string.chat_message_delete_error);
-              deleteMessageLiveData.setValue(fetchResult);
-              ALog.d(LIB_TAG, TAG, "deleteMessage,onFailed:" + errorCode + " errorMsg:" + errorMsg);
-            }
-
-            @Override
-            public void onSuccess(@Nullable Void data) {
-              doActionAfterDelete(messageList);
-            }
-          });
-    } else {
-      List<V2NIMMessage> deleteList = new ArrayList<>();
-      boolean onlyDeleteLocal = true;
-      for (ChatMessageBean messageBean : messageList) {
-        deleteList.add(messageBean.getMessageData().getMessage());
-        //只要有一条成功的消息就不会只删除本地
-        if (!TextUtils.isEmpty(messageBean.getMessageData().getMessage().getMessageServerId())) {
-          onlyDeleteLocal = false;
-        }
-      }
-      ChatRepo.deleteMessages(
-          deleteList,
-          null,
-          onlyDeleteLocal,
-          new FetchCallback<Void>() {
-            @Override
-            public void onError(int errorCode, @Nullable String errorMsg) {
-              FetchResult<List<V2NIMMessageRefer>> fetchResult =
-                  new FetchResult<>(LoadStatus.Error);
-              fetchResult.setError(-1, R.string.chat_message_delete_error);
-              deleteMessageLiveData.setValue(fetchResult);
-              ALog.d(
-                  LIB_TAG, TAG, "deleteMessages,onFailed:" + errorCode + " errorMsg:" + errorMsg);
-            }
-
-            @Override
-            public void onSuccess(@Nullable Void data) {
-              doActionAfterDelete(messageList);
-            }
-          });
-    }
-  }
-  // 执行删除消息后的操作
-  private void doActionAfterDelete(List<ChatMessageBean> messageBean) {
-    List<V2NIMMessageRefer> deleteMessageList = new ArrayList<>();
-    for (ChatMessageBean message : messageBean) {
-      deleteMessageList.add(message.getMessageData().getMessage());
-    }
-    FetchResult<List<V2NIMMessageRefer>> result = new FetchResult<>(LoadStatus.Success);
-    result.setData(deleteMessageList);
-    result.setType(FetchResult.FetchType.Remove);
-    result.setTypeIndex(-1);
-    deleteMessageLiveData.setValue(result);
-    ALog.d(LIB_TAG, TAG, "deleteMessage, onSuccess");
+    MessageOperateUtils.deleteMessages(messageList, deleteMessageLiveData);
   }
 
   // 好友变更通知，子类根据自己需要重写
@@ -545,13 +469,9 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
   // 撤回消息
   public void revokeMessage(ChatMessageBean messageBean) {
     if (messageBean != null && messageBean.getMessageData() != null) {
-      ALog.d(
-          LIB_TAG,
-          TAG,
-          "revokeMessage " + messageBean.getMessageData().getMessage().getMessageClientId());
-      revokedMessageClientId = messageBean.getMessageData().getMessage().getMessageClientId();
+      revokedMessageClientId = messageBean.getMsgClientId();
       ChatRepo.revokeMessage(
-          messageBean.getMessageData().getMessage(),
+          messageBean.getMessage(),
           null,
           new FetchCallback<Void>() {
             @Override
@@ -564,23 +484,23 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
                       ? R.string.chat_message_revoke_over_time
                       : R.string.chat_message_revoke_error);
               revokeMessageLiveData.setValue(fetchResult);
-              ALog.d(LIB_TAG, TAG, "revokeMessage,onFailed:" + errorCode + " errorMsg:" + errorMsg);
+              ALog.i(LIB_TAG, TAG, "revokeMessage,onFailed:" + errorCode + " errorMsg:" + errorMsg);
             }
 
             @Override
             public void onSuccess(@Nullable Void data) {
               if (!TextUtils.isEmpty(messageBean.getPinAccid())) {
-                ChatRepo.unpinMessage(messageBean.getMessageData().getMessage(), null);
+                ChatRepo.unpinMessage(messageBean.getMessage(), null);
               }
 
               FetchResult<List<MessageRevokeInfo>> fetchResult =
                   new FetchResult<>(LoadStatus.Success);
               MessageRevokeInfo messageRevokeInfo =
-                  new MessageRevokeInfo(messageBean.getMessageData().getMessage(), null);
+                  new MessageRevokeInfo(messageBean.getMessage(), null);
               fetchResult.setData(Collections.singletonList(messageRevokeInfo));
               revokeMessageLiveData.setValue(fetchResult);
 
-              ALog.d(LIB_TAG, TAG, "revokeMessage, onSuccess");
+              ALog.i(LIB_TAG, TAG, "revokeMessage, onSuccess");
             }
           });
     }
@@ -588,64 +508,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
 
   //语音转文字
   public void voiceToText(ChatMessageBean messageBean) {
-    if (messageBean != null
-        && messageBean.getMessageData() != null
-        && messageBean.getMessageData().getMessage().getMessageType()
-            == V2NIMMessageType.V2NIM_MESSAGE_TYPE_AUDIO) {
-      V2NIMMessageAudioAttachment audioAttachment =
-          (V2NIMMessageAudioAttachment) messageBean.getMessageData().getMessage().getAttachment();
-      V2NIMVoiceToTextParams.V2NIMVoiceToTextParamsBuilder paramsBuilder =
-          V2NIMVoiceToTextParams.V2NIMVoiceToTextParamsBuilder.builder(
-              audioAttachment.getDuration());
-      String path = audioAttachment.getPath();
-      if (!TextUtils.isEmpty(audioAttachment.getUrl())) {
-        paramsBuilder.withVoiceUrl(audioAttachment.getUrl());
-      } else if (!TextUtils.isEmpty(path) && FileUtils.isFileExists(path)) {
-        paramsBuilder.withVoicePath(path);
-      } else {
-        ALog.d(
-            LIB_TAG,
-            TAG,
-            "voiceToText,param error path = " + path + " url = " + audioAttachment.getUrl());
-        return;
-      }
-      paramsBuilder.withSceneName(audioAttachment.getSceneName());
-      V2NIMVoiceToTextParams params = paramsBuilder.build();
-      ChatRepo.voiceToText(
-          params,
-          new FetchCallback<String>() {
-            @Override
-            public void onSuccess(@Nullable String data) {
-              if (!TextUtils.isEmpty(data)) {
-                FetchResult<Pair<MessageUpdateType, List<ChatMessageBean>>> messageUpdateResult =
-                    new FetchResult<>(LoadStatus.Success);
-                List<ChatMessageBean> messageList = new ArrayList<>();
-                messageBean.setVoiceToText(data);
-                messageList.add(messageBean);
-                messageUpdateResult.setData(new Pair<>(MessageUpdateType.VoiceToText, messageList));
-                messageUpdateResult.setType(FetchResult.FetchType.Update);
-                messageUpdateResult.setTypeIndex(-1);
-                updateMessageLiveData.setValue(messageUpdateResult);
-              } else {
-                FetchResult<Pair<MessageUpdateType, List<ChatMessageBean>>> messageUpdateResult =
-                    new FetchResult<>(LoadStatus.Error);
-                messageUpdateResult.setError(0, R.string.chat_voice_to_text_failed);
-                messageUpdateResult.setData(null);
-                updateMessageLiveData.setValue(messageUpdateResult);
-              }
-            }
-
-            @Override
-            public void onError(int errorCode, @Nullable String errorMsg) {
-              FetchResult<Pair<MessageUpdateType, List<ChatMessageBean>>> messageUpdateResult =
-                  new FetchResult<>(LoadStatus.Error);
-              messageUpdateResult.setError(0, R.string.chat_voice_to_text_failed);
-              messageUpdateResult.setData(null);
-              updateMessageLiveData.setValue(messageUpdateResult);
-              ALog.d(LIB_TAG, TAG, "voiceToText,onFailed:" + errorCode + " errorMsg:" + errorMsg);
-            }
-          });
-    }
+    MessageOperateUtils.voiceToText(messageBean, updateMessageLiveData);
   }
 
   // 获取发送消息LiveData
@@ -663,7 +526,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
     this.mChatAccountId = accountId;
     this.mConversationId = V2NIMConversationIdUtil.conversationId(accountId, sessionType);
     this.mSessionType = sessionType;
-    ALog.d(
+    ALog.i(
         LIB_TAG,
         TAG,
         "init accountId:"
@@ -673,21 +536,11 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
             + " conversationId:"
             + mConversationId);
     ChatUserCache.getInstance().clear();
-    SettingRepo.getShowReadStatus(
-        new FetchCallback<Boolean>() {
-          @Override
-          public void onError(int errorCode, @Nullable String errorMsg) {}
-
-          @Override
-          public void onSuccess(@Nullable Boolean param) {
-            needACK = Boolean.TRUE.equals(param);
-          }
-        });
   }
 
   // 设置当前会话账号，清理未读数
   public void setChattingAccount() {
-    ALog.d(LIB_TAG, TAG, "setChattingAccount sessionId:" + mConversationId);
+    ALog.i(LIB_TAG, TAG, "setChattingAccount sessionId:" + mConversationId);
     if (!TextUtils.isEmpty(mConversationId)) {
       ChatRepo.setCurrentConversationId(mConversationId);
       AitService.getInstance().clearAitInfo(mConversationId);
@@ -716,27 +569,21 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
 
   // 注册监听
   public void addListener() {
-    ALog.d(LIB_TAG, TAG, "registerObservers ");
+    ALog.i(LIB_TAG, TAG, "registerObservers ");
     ChatRepo.addMessageListener(messageListener);
   }
 
   // 移除监听
   public void removeListener() {
-    ALog.d(LIB_TAG, TAG, "unregisterObservers ");
+    ALog.i(LIB_TAG, TAG, "unregisterObservers ");
     ChatUserCache.getInstance().clear();
     ChatRepo.removeMessageListener(messageListener);
   }
 
   // 发送文本消息
-  public void sendTextMessage(String content, List<String> pushList) {
-    ALog.d(LIB_TAG, TAG, "sendTextMessage:" + (content != null ? content.length() : "null"));
-    sendTextMessage(content, pushList, null);
-  }
-
-  // 发送文本消息
   public void sendTextMessage(
       String content, List<String> pushList, Map<String, Object> remoteExtension) {
-    ALog.d(LIB_TAG, TAG, "sendTextMessage:" + (content != null ? content.length() : "null"));
+    ALog.i(LIB_TAG, TAG, "sendTextMessage:" + (content != null ? content.length() : "null"));
     V2NIMMessage textMessage = V2NIMMessageCreator.createTextMessage(content);
     sendMessage(textMessage, pushList, remoteExtension);
   }
@@ -756,7 +603,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
       Map<String, Object> remoteExtension,
       V2NIMAIUser aiUser,
       List<V2NIMAIModelCallMessage> aiMessages) {
-    ALog.d(LIB_TAG, TAG, "sendTextMessage:" + (content != null ? content.length() : "null"));
+    ALog.i(LIB_TAG, TAG, "sendTextMessage:" + (content != null ? content.length() : "null"));
     V2NIMMessage textMessage = V2NIMMessageCreator.createTextMessage(content);
     sendMessage(textMessage, pushList, remoteExtension, aiUser, aiMessages);
   }
@@ -766,7 +613,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
     if (messageInfo == null) {
       return;
     }
-    ALog.d(LIB_TAG, TAG, "addMsgCollection:" + messageInfo.getMessage().getMessageClientId());
+    ALog.i(LIB_TAG, TAG, "addMsgCollection:" + messageInfo.getMessage().getMessageClientId());
     V2NIMAddCollectionParams params =
         MessageHelper.createCollectionParams(conversationName, messageInfo.getMessage());
     ChatRepo.addCollection(
@@ -788,7 +635,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
   // 发送语音消息
   public void sendAudioMessage(File audio, int audioLength) {
     if (audio != null) {
-      ALog.d(LIB_TAG, TAG, "sendAudioMessage:" + audio.getPath());
+      ALog.i(LIB_TAG, TAG, "sendAudioMessage:" + audio.getPath());
       V2NIMMessage audioMessage =
           V2NIMMessageCreator.createAudioMessage(
               audio.getPath(), audio.getName(), null, audioLength);
@@ -797,33 +644,12 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
   }
 
   // 发送图片消息,参数为图片文件地址path
-  public void sendImageMessage(String imagePath) {
-    if (imagePath != null) {
-      ALog.d(LIB_TAG, TAG, "sendImageMessage:" + imagePath);
-      long limitSize = ChatUtils.getFileLimitSize() * 1024 * 1024;
-      File file = new File(imagePath);
-      if (file.exists() && file.length() > limitSize) {
-        String fileSizeLimit = String.valueOf(ChatUtils.getFileLimitSize());
-        String limitText =
-            String.format(
-                IMKitClient.getApplicationContext()
-                    .getString(R.string.chat_message_file_size_limit_tips),
-                fileSizeLimit);
-        ToastX.showShortToast(limitText);
-        return;
-      }
-      sendImageMessage(file);
-    }
-  }
-
-  // 发送图片消息
-  public void sendImageMessage(File imageFile) {
+  public void sendImageMessage(String imagePath, String fileName, int width, int height) {
+    File imageFile = MessageOperateUtils.checkImageFile(imagePath);
     if (imageFile != null) {
-      ALog.d(LIB_TAG, TAG, "sendImageMessage:" + imageFile.getPath());
-      int[] bounds = ImageUtils.getSize(imageFile);
+      ALog.i(LIB_TAG, TAG, "sendImageMessage:" + imagePath);
       V2NIMMessage imageMessage =
-          V2NIMMessageCreator.createImageMessage(
-              imageFile.getPath(), imageFile.getName(), null, bounds[0], bounds[1]);
+          MessageParamBuildUtils.createImageMessage(imageFile, fileName, width, height);
       sendMessage(imageMessage, null, null);
     }
   }
@@ -831,7 +657,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
   // 发送自定义消息
   public void sendCustomMessage(Map<String, Object> attachment, String content) {
     if (attachment != null) {
-      ALog.d(LIB_TAG, TAG, "sendCustomMessage:" + attachment.getClass().getName());
+      ALog.i(LIB_TAG, TAG, "sendCustomMessage:" + attachment.getClass().getName());
       String attachStr = new JSONObject(attachment).toString();
       V2NIMMessage customMsg = V2NIMMessageCreator.createCustomMessage(content, attachStr);
       sendMessage(customMsg, null, null);
@@ -841,37 +667,13 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
   // 发送转发消息(单条转发)
   public void sendForwardMessage(
       ChatMessageBean message, String inputMsg, List<String> conversationIds) {
-    ALog.d(LIB_TAG, TAG, "sendForwardMessage:" + conversationIds.size());
-    MessageHelper.sendForwardMessage(message, inputMsg, conversationIds, false, needACK);
+    ALog.i(LIB_TAG, TAG, "sendForwardMessage:" + conversationIds.size());
+    MessageHelper.sendForwardMessage(message, inputMsg, conversationIds, false, showRead);
   }
   // 发送转发消息（逐条转发）
   public void sendForwardMessages(
       String inputMsg, List<String> conversationIds, List<ChatMessageBean> messages) {
-    MessageHelper.sendForwardMessages(inputMsg, conversationIds, messages, false, needACK);
-  }
-
-  /** AI 消息本地保存一个欢迎语 */
-  public void saveWelcomeMessage() {
-    String content = AIUserManager.getWelcomeText(mChatAccountId);
-    if (TextUtils.isEmpty(content)) {
-      return;
-    }
-    V2NIMMessage welcomeMessage = V2NIMMessageCreator.createTextMessage(content);
-    ConversationRepo.createConversation(
-        mConversationId,
-        new FetchCallback<V2NIMConversation>() {
-          @Override
-          public void onError(int errorCode, @Nullable String errorMsg) {
-            ALog.e(TAG, "createConversation onError:" + errorCode + " errorMsg:" + errorMsg);
-          }
-
-          @Override
-          public void onSuccess(@Nullable V2NIMConversation data) {
-            //成功之后插入
-            ChatRepo.insertMessageToLocal(
-                welcomeMessage, mConversationId, mChatAccountId, System.currentTimeMillis(), null);
-          }
-        });
+    MessageHelper.sendForwardMessages(inputMsg, conversationIds, messages, false, showRead);
   }
 
   // 发送合并转发消息
@@ -880,70 +682,13 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
       String inputMsg,
       List<String> conversationIds,
       List<ChatMessageBean> messages) {
-    ALog.d(LIB_TAG, TAG, "sendMultiForwardMessage");
-    if (conversationIds == null
-        || conversationIds.isEmpty()
-        || messages == null
-        || messages.isEmpty()) {
-      return;
-    }
-
-    List<IMMessageInfo> iMessageList = new ArrayList<>();
-    for (ChatMessageBean message : messages) {
-      iMessageList.add(message.getMessageData());
-    }
-
-    //合并转发消息，序列化消息
-    String msgInfo = MessageHelper.createMultiForwardMsg(iMessageList);
-    try {
-
-      File localFile = SendMediaHelper.createTextFile();
-      //      保存到本地并上传到nos
-      ResourceRepo.writeLocalFileAndUploadNOS(
-          localFile,
-          msgInfo,
-          new FetchCallback<String>() {
-            @Override
-            public void onError(int errorCode, @Nullable String errorMsg) {
-              ALog.e(
-                  LIB_TAG,
-                  TAG,
-                  "writeLocalFileAndUploadNOS onError:" + errorCode + " errorMsg:" + errorMsg);
-            }
-
-            @Override
-            public void onSuccess(@Nullable String param) {
-              if (param != null) {
-                String fileMD5 = EncryptUtils.md5(localFile);
-                MultiForwardAttachment attachment =
-                    MessageHelper.createMultiTransmitAttachment(
-                        displayName, mChatAccountId, param, iMessageList);
-                attachment.md5 = fileMD5;
-                List<RecentForward> recentForwards = new ArrayList<>();
-                for (String conversationId : conversationIds) {
-                  V2NIMMessage multiForwardMessage =
-                      V2NIMMessageCreator.createCustomMessage(displayName, attachment.toJsonStr());
-                  sendMessageStrExtension(multiForwardMessage, conversationId, null, null);
-                  String sessionId = V2NIMConversationIdUtil.conversationTargetId(conversationId);
-                  V2NIMConversationType sessionType =
-                      V2NIMConversationIdUtil.conversationType(conversationId);
-                  recentForwards.add(new RecentForward(sessionId, sessionType));
-                }
-                SettingRepo.saveRecentForward(recentForwards);
-
-                MessageHelper.sendNoteMessage(inputMsg, conversationIds, needACK);
-              }
-            }
-          });
-
-    } catch (IOException e) {
-      ALog.e(LIB_TAG, TAG, "sendMultiForwardMessage IOException:" + e.getMessage());
-    }
+    MessageOperateUtils.sendMultiForwardMessage(
+        displayName, inputMsg, mChatAccountId, conversationIds, messages, showRead);
   }
 
   // 发送位置消息
   public void sendLocationMessage(ChatLocationBean locationBean) {
-    ALog.d(LIB_TAG, TAG, "sendLocationMessage:" + locationBean);
+    ALog.i(LIB_TAG, TAG, "sendLocationMessage:" + locationBean);
     V2NIMMessage locationMsg =
         V2NIMMessageCreator.createLocationMessage(
             locationBean.getLat(), locationBean.getLng(), locationBean.getAddress());
@@ -955,7 +700,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
   public void sendVideoMessage(
       String videoFile, int duration, int width, int height, String displayName) {
     if (videoFile != null) {
-      ALog.d(LIB_TAG, TAG, "sendVideoMessage:" + videoFile);
+      ALog.i(LIB_TAG, TAG, "sendVideoMessage:" + videoFile);
       File videoFileObj = new File(videoFile);
       if (!videoFileObj.exists()) {
         ALog.e(LIB_TAG, TAG, "sendVideoMessage videoFile not exist:" + videoFile);
@@ -968,105 +713,30 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
     }
   }
 
-  // 发送视频消息
-  public void sendVideoMessage(
-      File videoFile, int duration, int width, int height, String displayName) {
-    if (videoFile != null) {
-      ALog.d(LIB_TAG, TAG, "sendVideoMessage:" + videoFile.getPath());
-      V2NIMMessage msg =
-          V2NIMMessageCreator.createVideoMessage(
-              videoFile.getPath(), displayName, null, duration, width, height);
-      sendMessage(msg, null, null);
-    }
-  }
-
   // 发送文件消息
   public void sendFileMessage(File docsFile, String displayName) {
     if (docsFile != null) {
-      ALog.d(LIB_TAG, TAG, "sendFileMessage:" + docsFile.getPath());
+      ALog.i(LIB_TAG, TAG, "sendFileMessage:" + docsFile.getPath());
       if (TextUtils.isEmpty(displayName)) {
         displayName = docsFile.getName();
       }
       V2NIMMessage msg =
           V2NIMMessageCreator.createFileMessage(docsFile.getPath(), displayName, null);
+      msg.setText(displayName);
       sendMessage(msg, null, null);
     }
   }
 
   public void sendImageOrVideoMessage(Uri uri, Context context) {
-    ALog.d(LIB_TAG, TAG, "sendImageOrVideoMessage:" + uri);
-    if (uri == null) {
-      return;
-    }
-    //文件大小限制，单位字节
-    long limitSize = ChatUtils.getFileLimitSize() * 1024 * 1024;
-    String mimeType = "";
-    try {
-      String realPath = UriUtils.uri2FileRealPath(uri);
-      mimeType = FileUtils.getFileExtension(realPath);
-    } catch (IllegalStateException e) {
-      ToastX.showShortToast(R.string.chat_message_type_resource_error);
-      return;
-    }
-    if (ImageUtil.isValidPictureFile(mimeType)) {
-      File file = UriUtils.uri2File(uri);
-      if (file != null && file.length() > limitSize) {
-        String fileSizeLimit = String.valueOf(ChatUtils.getFileLimitSize());
-        String limitText =
-            String.format(
-                context.getString(R.string.chat_message_file_size_limit_tips), fileSizeLimit);
-        ToastX.showShortToast(limitText);
-        return;
-      }
-      sendImageMessage(file);
-    } else if (ImageUtil.isValidVideoFile(mimeType)) {
-      File file = UriUtils.uri2File(uri);
-      if (file != null && file.length() > limitSize) {
-        String fileSizeLimit = String.valueOf(ChatUtils.getFileLimitSize());
-        String limitText =
-            String.format(
-                context.getString(R.string.chat_message_file_size_limit_tips), fileSizeLimit);
-        ToastX.showShortToast(limitText);
-        return;
-      }
-      MediaMetadataRetriever mmr = new MediaMetadataRetriever();
-      try {
-        mmr.setDataSource(file.getPath());
-        String duration = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
-        String width = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH);
-        String height = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT);
-        String orientation =
-            mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION);
-        if (TextUtils.equals(orientation, Orientation_Vertical)) {
-          String local = width;
-          width = height;
-          height = local;
-        }
-        ALog.d(LIB_TAG, TAG, "width:" + width + "height" + height + "orientation:" + orientation);
-        sendVideoMessage(
-            file,
-            Integer.parseInt(duration),
-            Integer.parseInt(width),
-            Integer.parseInt(height),
-            file.getName());
-      } catch (Exception e) {
-        e.printStackTrace();
-      } finally {
-        try {
-          mmr.release();
-        } catch (IOException e) {
-          e.printStackTrace();
-        }
-      }
-    } else {
-      ToastX.showShortToast(R.string.chat_message_type_not_support_tips);
-      ALog.d(LIB_TAG, TAG, "invalid file type");
+    V2NIMMessage msg = MessageOperateUtils.processUriAndSend(uri, context);
+    if (msg != null) {
+      sendMessage(msg, null, null);
     }
   }
 
   // 发送文件消息
   public void sendFile(Uri uri) {
-    ALog.d(LIB_TAG, TAG, "sendFile:" + (uri != null ? uri.getPath() : "uri is null"));
+    ALog.i(LIB_TAG, TAG, "sendFile:" + (uri != null ? uri.getPath() : "uri is null"));
     if (uri == null) {
       return;
     }
@@ -1084,7 +754,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
 
   // 同步发送消息
   private void postMessageSend(IMMessageInfo message, boolean sending) {
-    ALog.d(LIB_TAG, TAG, "postMessageSend:" + sending);
+    ALog.i(LIB_TAG, TAG, "postMessageSend:" + sending);
     sendMessageFetchResult.setLoadStatus(LoadStatus.Success);
     if (!sending) {
       sendMessageFetchResult.setType(FetchResult.FetchType.Update);
@@ -1119,11 +789,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
       Map<String, Object> remoteExtension,
       V2NIMAIUser aiUser,
       List<V2NIMAIModelCallMessage> aiMessages) {
-    String remoteStr = null;
-    if (remoteExtension != null) {
-      JSONObject jsonObject = new JSONObject(remoteExtension);
-      remoteStr = jsonObject.toString();
-    }
+    String remoteStr = MessageParamBuildUtils.toJson(remoteExtension);
     sendMessageStrExtension(message, mConversationId, pushList, remoteStr, aiUser, aiMessages);
   }
 
@@ -1141,7 +807,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
           new FetchCallback<List<IMMessageInfo>>() {
             @Override
             public void onError(int errorCode, @Nullable String errorMsg) {
-              ALog.d(LIB_TAG, TAG, "resendMessage replyMessage onError -->> " + errorCode);
+              ALog.i(LIB_TAG, TAG, "resendMessage replyMessage onError -->> " + errorCode);
               sendMessageStrExtension(message, mConversationId, null, null);
             }
 
@@ -1175,26 +841,9 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
       V2NIMAIUser aiAgent,
       List<V2NIMAIModelCallMessage> aiMessage) {
     if (message != null) {
-      ALog.d(
-          LIB_TAG,
-          TAG,
-          "sendMessage:"
-              + message.getMessageClientId()
-              + " needACK:"
-              + needACK
-              + " showRead:"
-              + showRead);
-
       V2NIMSendMessageParams params =
           MessageCreator.createSendMessageParam(
-              message,
-              conversationId,
-              pushList,
-              remoteExtension,
-              aiAgent,
-              aiMessage,
-              needACK,
-              showRead);
+              message, conversationId, pushList, remoteExtension, aiAgent, aiMessage, showRead);
       ChatRepo.sendMessage(
           message,
           conversationId,
@@ -1203,7 +852,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
 
             @Override
             public void onProgress(int progress) {
-              ALog.d(LIB_TAG, TAG, "sendMessage progress -->> " + progress);
+              ALog.i(LIB_TAG, TAG, "sendMessage progress -->> " + progress);
               if (TextUtils.equals(conversationId, mConversationId)
                   && message.getMessageClientId() != null) {
                 FetchResult<IMMessageProgress> result = new FetchResult<>(LoadStatus.Success);
@@ -1216,16 +865,14 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
 
             @Override
             public void onSuccess(@Nullable V2NIMSendMessageResult data) {
-              ALog.d(LIB_TAG, TAG, "sendMessage onSuccess -->> ");
+              ALog.i(LIB_TAG, TAG, "sendMessage onSuccess -->> ");
               if (data != null
                   && TextUtils.equals(data.getMessage().getConversationId(), mConversationId)) {
-                ALog.d(LIB_TAG, TAG, "sendMessage onSuccess -->> " + mConversationId);
-                //                postMessageSend(new IMMessageInfo(data.getMessage()), false);
+                ALog.i(LIB_TAG, TAG, "sendMessage onSuccess -->> " + mConversationId);
                 V2NIMMessageAIConfig aiConfig = data.getMessage().getAIConfig();
                 if (aiConfig != null) {
                   ToastX.showShortToast(R.string.chat_ai_message_progressing);
                 }
-
                 if (IMKitConfigCenter.getEnableAntiSpamTipMessage()
                     && data.getAntispamResult() != null) {
                   String tips =
@@ -1244,7 +891,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
 
             @Override
             public void onError(int errorCode, @Nullable String errorMsg) {
-              ALog.d(
+              ALog.i(
                   LIB_TAG, TAG, "sendMessage onError -->> " + errorCode + " errorMsg:" + errorMsg);
             }
           });
@@ -1256,14 +903,14 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
 
   // 获取消息列表
   public void getMessageList(V2NIMMessage anchor, boolean needToScrollEnd) {
-    ALog.d(LIB_TAG, TAG, "initFetch:" + (anchor == null ? "null" : anchor.getMessageClientId()));
+    ALog.i(LIB_TAG, TAG, "initFetch:" + (anchor == null ? "null" : anchor.getMessageClientId()));
     addListener();
     V2NIMMessageListOption.V2NIMMessageListOptionBuilder optionBuilder =
         V2NIMMessageListOption.V2NIMMessageListOptionBuilder.builder(mConversationId)
             .withLimit(messagePageSize)
             .withDirection(V2NIMMessageQueryDirection.V2NIM_QUERY_DIRECTION_DESC);
     if (anchor == null) {
-      ALog.d(
+      ALog.i(
           LIB_TAG,
           TAG,
           "Performance getMessageList start timestamp:" + SystemClock.elapsedRealtime());
@@ -1271,16 +918,21 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
           optionBuilder.build(),
           new FetchCallback<List<IMMessageInfo>>() {
             @Override
-            public void onError(int errorCode, @Nullable String errorMsg) {}
+            public void onError(int errorCode, @Nullable String errorMsg) {
+              ALog.e(LIB_TAG, TAG, "getMessageList error: " + errorCode + ", " + errorMsg);
+            }
 
             @Override
             public void onSuccess(@Nullable List<IMMessageInfo> param) {
-              ALog.d(
+              ALog.i(LIB_TAG, TAG, "getMessageList onSuccess");
+              ALog.i(
                   LIB_TAG,
                   TAG,
                   "Performance getMessageList onSuccess timestamp:"
                       + SystemClock.elapsedRealtime());
               if (param != null) {
+                ALog.i(LIB_TAG, TAG, "getMessageList onSuccess:" + param.size());
+
                 Collections.reverse(param);
                 onListFetchSuccess(param, V2NIMMessageQueryDirection.V2NIM_QUERY_DIRECTION_DESC);
               }
@@ -1290,58 +942,95 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
             }
           });
     } else {
+      // anchor 不为空时，先重新拉取该消息并通知页面更新，保证消息数据的准确性
+      refreshAnchorMessage(anchor);
       fetchMessageListBothDirect(anchor, needToScrollEnd);
     }
   }
 
-  /** called when entering the chat page */
-  public void getMessageList(V2NIMMessage anchor) {
-    getMessageList(anchor, true);
+  /**
+   * 重新从服务器拉取 anchor 消息并通知页面更新该消息的最新数据
+   *
+   * @param anchor 需要刷新的锚点消息
+   */
+  private void refreshAnchorMessage(V2NIMMessage anchor) {
+    if (anchor == null || TextUtils.isEmpty(anchor.getMessageClientId())) {
+      return;
+    }
+    ALog.i(LIB_TAG, TAG, "refreshAnchorMessage:" + anchor.getMessageClientId());
+    List<String> ids = Collections.singletonList(anchor.getMessageClientId());
+    ChatRepo.getMessageListByIds(
+        ids,
+        mConversationId,
+        true,
+        true,
+        new FetchCallback<List<IMMessageInfo>>() {
+          @Override
+          public void onError(int errorCode, @Nullable String errorMsg) {
+            ALog.e(LIB_TAG, TAG, "refreshAnchorMessage onError:" + errorCode + " msg:" + errorMsg);
+          }
+
+          @Override
+          public void onSuccess(@Nullable List<IMMessageInfo> param) {
+            if (param == null || param.isEmpty()) {
+              return;
+            }
+            ALog.i(LIB_TAG, TAG, "refreshAnchorMessage onSuccess size:" + param.size());
+            List<ChatMessageBean> beanList = MessageParamBuildUtils.convertToChatBeans(param);
+            FetchResult<Pair<MessageUpdateType, List<ChatMessageBean>>> result =
+                new FetchResult<>(LoadStatus.Success);
+            result.setData(new Pair<>(MessageUpdateType.ReloadMessage, beanList));
+            result.setTypeIndex(-1);
+            updateMessageLiveData.setValue(result);
+          }
+        });
   }
 
   // 获取更多消息列表
   public void fetchMoreMessage(
       V2NIMMessage anchor, V2NIMMessageQueryDirection direction, boolean needToScrollEnd) {
-    ALog.d(LIB_TAG, TAG, "fetchMoreMessage:" + " direction:" + direction);
-    ALog.d(
+    ALog.i(
         LIB_TAG,
         TAG,
         "Performance fetchMoreMessage start timestamp:" + SystemClock.elapsedRealtime());
-    V2NIMMessageListOption.V2NIMMessageListOptionBuilder optionBuilder =
-        V2NIMMessageListOption.V2NIMMessageListOptionBuilder.builder(mConversationId)
-            .withLimit(messagePageSize)
-            .withAnchorMessage(anchor)
-            .withDirection(direction);
+    getMessageListByOptions(anchor, 0, direction, needToScrollEnd);
+  }
 
-    if (direction == V2NIMMessageQueryDirection.V2NIM_QUERY_DIRECTION_DESC) {
-      optionBuilder.withEndTime(anchor.getCreateTime());
-    } else {
-      optionBuilder.withBeginTime(anchor.getCreateTime());
-    }
-
+  private void getMessageListByOptions(
+      V2NIMMessage anchor,
+      long startTime,
+      V2NIMMessageQueryDirection direction,
+      boolean needToScrollEnd) {
+    V2NIMMessageListOption optionBuilder =
+        MessageParamBuildUtils.buildMessageOptions(
+            anchor, startTime, mConversationId, messagePageSize, direction);
+    ALog.i(LIB_TAG, TAG, "getMessageListByOptions :" + mConversationId);
     ChatRepo.getMessageList(
-        optionBuilder.build(),
+        optionBuilder,
         new FetchCallback<List<IMMessageInfo>>() {
           @Override
           public void onError(int errorCode, @Nullable String errorMsg) {
             onListFetchFailed(errorCode);
-            ALog.d(LIB_TAG, TAG, "fetchMoreMessage:" + errorCode + " errorMsg:" + errorMsg);
+            ALog.i(
+                LIB_TAG,
+                TAG,
+                "getMessageListByOptions:" + errorCode + " errorMsg" + ":" + errorMsg);
           }
 
           @Override
           public void onSuccess(@Nullable List<IMMessageInfo> data) {
-            ALog.d(
+            ALog.i(
                 LIB_TAG,
                 TAG,
-                "Performance fetchMoreMessage onSuccess timestamp:"
+                "Performance getMessageListByOptions onSuccess timestamp:"
                     + SystemClock.elapsedRealtime());
             if (data != null && !data.isEmpty()) {
               if (direction == V2NIMMessageQueryDirection.V2NIM_QUERY_DIRECTION_DESC) {
                 Collections.reverse(data);
               }
-              ALog.d(LIB_TAG, TAG, "fetchMoreMessage,reverse:" + data.size());
-              onListFetchSuccess(anchor, needToScrollEnd, data, direction);
             }
+            ALog.i(LIB_TAG, TAG, "getMessageListByOptions,reverse:" + data.size());
+            onListFetchSuccess(anchor, needToScrollEnd, data, direction);
           }
         });
   }
@@ -1351,7 +1040,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
   }
 
   public void fetchMessageListBothDirect(V2NIMMessage anchor, boolean needToScrollEnd) {
-    ALog.d(LIB_TAG, TAG, "fetchMessageListBothDirect");
+    ALog.i(LIB_TAG, TAG, "fetchMessageListBothDirect");
     // 此处避免在获取 anchor 消息后被之前消息添加导致ui移位，因此将 anchor 之前消息请求添加到后续的主线程事件队列中
     new Handler(Looper.getMainLooper())
         .post(
@@ -1372,7 +1061,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
       boolean needToScrollEnd,
       List<IMMessageInfo> param,
       V2NIMMessageQueryDirection direction) {
-    ALog.d(
+    ALog.i(
         LIB_TAG,
         TAG,
         "onListFetchSuccess -->> size:"
@@ -1383,9 +1072,14 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
     LoadStatus loadStatus =
         (param == null || param.isEmpty()) ? LoadStatus.Finish : LoadStatus.Success;
     messageFetchResult.setLoadStatus(loadStatus);
-    messageFetchResult.setData(convert(param));
+    messageFetchResult.setData(MessageParamBuildUtils.convertToChatBeans(param));
     if (anchorMsg != null && !needToScrollEnd) {
       messageFetchResult.setExtraInfo(new AnchorScrollInfo(anchorMsg));
+    }
+    if (needToScrollEnd) {
+      messageFetchResult.setType(FetchResult.FetchType.Init);
+    } else {
+      messageFetchResult.setType(FetchResult.FetchType.Add);
     }
     messageFetchResult.setTypeIndex(
         direction == V2NIMMessageQueryDirection.V2NIM_QUERY_DIRECTION_DESC ? 0 : -1);
@@ -1393,7 +1087,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
     if (anchorMsg == null) {
       //AI用户首次加载消息，如果消息为空则本地保存一条欢迎语
       if (AIUserManager.isAIUser(mChatAccountId) && (param == null || param.isEmpty())) {
-        saveWelcomeMessage();
+        MessageOperateUtils.saveWelcomeMessage(mConversationId, mChatAccountId);
       }
       //首次加载消息，获取消息的发送者信息
       getTeamMemberInfoWithMessage(param);
@@ -1403,22 +1097,11 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
   protected void getTeamMemberInfoWithMessage(List<IMMessageInfo> messages) {}
 
   private void onListFetchFailed(int code) {
-    ALog.d(LIB_TAG, TAG, "onListFetchFailed code:" + code);
+    ALog.i(LIB_TAG, TAG, "onListFetchFailed code:" + code);
     messageFetchResult.setError(code, R.string.chat_message_fetch_error);
     messageFetchResult.setData(null);
     messageFetchResult.setTypeIndex(-1);
     messageLiveData.setValue(messageFetchResult);
-  }
-
-  private List<ChatMessageBean> convert(List<IMMessageInfo> messageList) {
-    if (messageList == null) {
-      return null;
-    }
-    ArrayList<ChatMessageBean> result = new ArrayList<>(messageList.size());
-    for (IMMessageInfo message : messageList) {
-      result.add(new ChatMessageBean(message));
-    }
-    return result;
   }
 
   // **********reply message**************
@@ -1428,7 +1111,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
       List<String> pushList,
       Map<String, Object> remoteExtension,
       V2NIMAIUser aiUser) {
-    ALog.d(
+    ALog.i(
         LIB_TAG,
         TAG,
         "replyMessage,message" + (message == null ? "null" : message.getMessageClientId()));
@@ -1462,7 +1145,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
       List<String> pushList,
       Map<String, Object> remoteExtension,
       V2NIMAIUser aiUser) {
-    ALog.d(
+    ALog.i(
         LIB_TAG,
         TAG,
         "replyTextMessage,message" + (message == null ? "null" : message.getMessageClientId()));
@@ -1487,21 +1170,10 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
     }
     List<V2NIMAIModelCallMessage> aiMessageList =
         aiMessage == null ? null : Collections.singletonList(aiMessage);
-    String remoteStr = null;
-    if (remoteExtension != null) {
-      JSONObject jsonObject = new JSONObject(remoteExtension);
-      remoteStr = jsonObject.toString();
-    }
+    String remoteStr = MessageParamBuildUtils.toJson(remoteExtension);
     V2NIMSendMessageParams params =
         MessageCreator.createSendMessageParam(
-            message,
-            mConversationId,
-            pushList,
-            remoteStr,
-            aiUser,
-            aiMessageList,
-            needACK,
-            showRead);
+            message, mConversationId, pushList, remoteStr, aiUser, aiMessageList, showRead);
     ChatRepo.replyMessage(
         message,
         replyMessage,
@@ -1511,7 +1183,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
 
           @Override
           public void onProgress(int progress) {
-            ALog.d(LIB_TAG, TAG, "replyMessage progress -->> " + progress);
+            ALog.i(LIB_TAG, TAG, "replyMessage progress -->> " + progress);
             if (TextUtils.equals(replyMessage.getConversationId(), mConversationId)
                 && message.getMessageClientId() != null) {
               FetchResult<IMMessageProgress> result = new FetchResult<>(LoadStatus.Success);
@@ -1524,10 +1196,10 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
 
           @Override
           public void onSuccess(@Nullable V2NIMSendMessageResult data) {
-            ALog.d(LIB_TAG, TAG, "replyMessage onSuccess -->> ");
+            ALog.i(LIB_TAG, TAG, "replyMessage onSuccess -->> ");
             if (data != null
                 && TextUtils.equals(data.getMessage().getConversationId(), mConversationId)) {
-              ALog.d(LIB_TAG, TAG, "replyMessage onSuccess -->> " + mConversationId);
+              ALog.i(LIB_TAG, TAG, "replyMessage onSuccess -->> " + mConversationId);
               //                postMessageSend(new IMMessageInfo(data.getMessage()), false);
               V2NIMMessageAIConfig aiConfig = data.getMessage().getAIConfig();
               if (aiConfig != null) {
@@ -1538,7 +1210,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
 
           @Override
           public void onError(int errorCode, @Nullable String errorMsg) {
-            ALog.d(
+            ALog.i(
                 LIB_TAG, TAG, "replyMessage onError -->> " + errorCode + " errorMsg:" + errorMsg);
           }
         });
@@ -1555,13 +1227,13 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
         new FetchCallback<Void>() {
           @Override
           public void onError(int errorCode, @Nullable String errorMsg) {
-            ALog.d(LIB_TAG, TAG, "stopAIStreamMessage onError" + errorCode);
+            ALog.i(LIB_TAG, TAG, "stopAIStreamMessage onError" + errorCode);
             ToastX.showShortToast(R.string.chat_ai_search_error);
           }
 
           @Override
           public void onSuccess(@Nullable Void data) {
-            ALog.d(LIB_TAG, TAG, "stopAIStreamMessage onSuccess");
+            ALog.i(LIB_TAG, TAG, "stopAIStreamMessage onSuccess");
           }
         });
   }
@@ -1576,7 +1248,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
         new FetchCallback<Void>() {
           @Override
           public void onError(int errorCode, @Nullable String errorMsg) {
-            ALog.d(LIB_TAG, TAG, "regenAIMessage onError" + errorCode);
+            ALog.i(LIB_TAG, TAG, "regenAIMessage onError" + errorCode);
             if (errorCode == ChatKitUIConstant.ERROR_CODE_AI_REGEN_NONE) {
               ToastX.showShortToast(R.string.chat_message_removed_tip);
             } else {
@@ -1586,7 +1258,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
 
           @Override
           public void onSuccess(@Nullable Void data) {
-            ALog.d(LIB_TAG, TAG, "regenAIMessage onSuccess");
+            ALog.i(LIB_TAG, TAG, "regenAIMessage onSuccess");
             ToastX.showShortToast(R.string.chat_ai_message_progressing);
           }
         });
@@ -1611,7 +1283,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
     if (messageInfo == null) {
       return;
     }
-    ALog.d(LIB_TAG, TAG, "addMessagePin,message" + messageInfo.getMessage().getMessageClientId());
+    ALog.i(LIB_TAG, TAG, "addMessagePin,message" + messageInfo.getMessage().getMessageClientId());
     ChatRepo.pinMessage(
         messageInfo.getMessage(),
         ext,
@@ -1621,12 +1293,12 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
             if (errorCode == ChatKitUIConstant.ERROR_CODE_PIN_MSG_LIMIT) {
               ToastX.showShortToast(R.string.chat_pin_limit_tips);
             }
-            ALog.d(LIB_TAG, TAG, "addMessagePin,onError" + errorCode + " errorMsg:" + errorMsg);
+            ALog.i(LIB_TAG, TAG, "addMessagePin,onError" + errorCode + " errorMsg:" + errorMsg);
           }
 
           @Override
           public void onSuccess(@Nullable Void data) {
-            ALog.d(
+            ALog.i(
                 LIB_TAG,
                 TAG,
                 "addMessagePin, message onSuccess" + messageInfo.getMessage().getMessageClientId());
@@ -1640,14 +1312,14 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
         || messageInfo.getPinOption().getMessageRefer() == null) {
       return;
     }
-    ALog.d(LIB_TAG, TAG, "removeMsgPin,message" + messageInfo.getMessage().getMessageClientId());
+    ALog.i(LIB_TAG, TAG, "removeMsgPin,message" + messageInfo.getMessage().getMessageClientId());
     ChatRepo.unpinMessage(messageInfo.getPinOption().getMessageRefer(), null);
   }
 
   /** 更新语音播放模式 */
   public void updateVoicePlayModel() {
     boolean currentValue = ChatKitClient.isEarphoneMode();
-    ALog.d(LIB_TAG, TAG, "updateVoicePlayModel, currentValue:" + currentValue);
+    ALog.i(LIB_TAG, TAG, "updateVoicePlayModel, currentValue:" + currentValue);
     ChatKitClient.setEarphoneMode(!currentValue);
     FetchResult<List<String>> userInfoFetchResult = new FetchResult<>(LoadStatus.Finish);
     userInfoFetchResult.setData(Collections.singletonList(mChatAccountId));

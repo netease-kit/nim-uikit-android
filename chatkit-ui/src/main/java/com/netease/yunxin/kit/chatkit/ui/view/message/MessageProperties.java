@@ -46,7 +46,7 @@ public class MessageProperties {
   // 是否显示贴纸消息
   public boolean showStickerMessage = false;
   // 是否显示点对点消息状态
-  public boolean showP2pMessageStatus = true;
+  public boolean showP2PMessageStatus = true;
   // 是否显示群聊消息状态
   public boolean showTeamMessageStatus = true;
 
@@ -307,8 +307,8 @@ public class MessageProperties {
    *
    * @param show 是否显示点对点消息状态
    */
-  public void setShowP2pMessageStatus(boolean show) {
-    this.showP2pMessageStatus = show;
+  public void setShowP2PMessageStatus(boolean show) {
+    this.showP2PMessageStatus = show;
   }
 
   /**
@@ -316,8 +316,8 @@ public class MessageProperties {
    *
    * @return 是否显示点对点消息状态
    */
-  public boolean getShowP2pMessageStatus() {
-    return this.showP2pMessageStatus;
+  public boolean getShowP2PMessageStatus() {
+    return this.showP2PMessageStatus;
   }
 
   /**

@@ -144,6 +144,7 @@
     <string name="uikit_image_pick_switch_title">使用图片选择器插件</string>
     <string name="uikit_team_manager_limit_title">允许添加的管理员人数( -1 表示无限制)</string>
     <string name="uikit_anti_spam_switch_title">文本安全提示功能</string>
+    <string name="uikit_cloud_search_switch_title">云搜索功能</string>
 
     <!-- -->
     <string name="uikit_save_success">保存成功</string>

@@ -16,6 +16,7 @@ import com.netease.nimlib.sdk.v2.message.attachment.V2NIMMessageFileAttachment;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatUtils;
+import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatBaseMessageViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.databinding.NormalChatMessageFileViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
@@ -66,7 +67,16 @@ public class ChatFileMessageViewHolder extends NormalChatBaseMessageViewHolder {
     if (attachment == null) {
       return;
     }
-    binding.displayName.setText(attachment.getName());
+    if (!TextUtils.isEmpty(currentMessage.keyword)) {
+      MessageHelper.identifyHighlight(
+          parent.getContext(),
+          binding.displayName,
+          attachment.getName(),
+          currentMessage.getKeyword(),
+          parent.getContext().getResources().getColor(R.color.color_chat_message_highlight));
+    } else {
+      binding.displayName.setText(attachment.getName());
+    }
     binding.displaySize.setText(ChatUtils.formatFileSize(attachment.getSize()));
     String fileType = attachment.getExt();
     if (TextUtils.isEmpty(fileType)) {

@@ -53,9 +53,9 @@ public class FunCollectionRichTextViewHolder extends FunCollectionBaseViewHolder
             viewBinding.messageTitle,
             new IMessageItemClickListener() {
               @Override
-              public boolean onMessageTelClick(
+              public boolean onMessageClickableSpanClick(
                   View view, int position, ChatMessageBean messageInfo, String target) {
-                itemListener.onMessageTelClick(view, position, messageInfo, target);
+                itemListener.onMessageClickableSpanClick(view, position, messageInfo, target);
                 return true;
               }
             },
@@ -67,14 +67,18 @@ public class FunCollectionRichTextViewHolder extends FunCollectionBaseViewHolder
             viewBinding.messageContent,
             new IMessageItemClickListener() {
               @Override
-              public boolean onMessageTelClick(
+              public boolean onMessageClickableSpanClick(
                   View view, int position, ChatMessageBean messageInfo, String target) {
-                itemListener.onMessageTelClick(view, position, messageInfo, target);
+                itemListener.onMessageClickableSpanClick(view, position, messageInfo, target);
                 return true;
               }
             },
             position,
             null);
+        viewBinding.messageContent.setOnClickListener(
+            v -> itemListener.onMessageClick(v, position, message));
+        viewBinding.messageTitle.setOnClickListener(
+            v -> itemListener.onMessageClick(v, position, message));
       }
     }
   }

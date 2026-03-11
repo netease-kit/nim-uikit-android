@@ -14,6 +14,7 @@ import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitClient;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant;
 import com.netease.yunxin.kit.chatkit.ui.R;
+import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatBaseMessageViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.databinding.FunChatMessageLocationViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
@@ -47,8 +48,23 @@ public class ChatLocationMessageViewHolder extends FunChatBaseMessageViewHolder 
     if (attachment == null) {
       return;
     }
-    binding.locationItemTitle.setText(message.getMessageData().getMessage().getText());
-    binding.locationItemAddress.setText(attachment.getAddress());
+    if (!TextUtils.isEmpty(currentMessage.keyword)) {
+      MessageHelper.identifyHighlight(
+          parent.getContext(),
+          binding.locationItemTitle,
+          message.getMessageData().getText(),
+          currentMessage.getKeyword(),
+          parent.getContext().getResources().getColor(R.color.fun_chat_message_highlight_color));
+      MessageHelper.identifyHighlight(
+          parent.getContext(),
+          binding.locationItemAddress,
+          attachment.getAddress(),
+          currentMessage.getKeyword(),
+          parent.getContext().getResources().getColor(R.color.fun_chat_message_highlight_color));
+    } else {
+      binding.locationItemTitle.setText(message.getMessageData().getText());
+      binding.locationItemAddress.setText(attachment.getAddress());
+    }
     if (itemClickListener != null) {
       binding.locationClick.setOnClickListener(
           v -> itemClickListener.onMessageClick(v, position, currentMessage));

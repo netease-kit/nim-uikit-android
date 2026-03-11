@@ -31,7 +31,7 @@
             android:layout_width="match_parent"
             android:layout_height="@dimen/dimen_1_dp"
             android:alpha="0.6"
-            android:background="@color/color_e9eff5"
+            android:background="@color/color_conversation_search_bg"
             tools:ignore="MissingConstraints" />
     </LinearLayout>
 
@@ -51,10 +51,10 @@
             android:id="@+id/conversation_network_error_tv"
             android:layout_width="match_parent"
             android:layout_height="36dp"
-            android:background="@color/color_fee3e6"
+            android:background="@color/color_conversation_network_error_bg"
             android:gravity="center"
             android:text="@string/conversation_network_error_tip"
-            android:textColor="@color/color_fc596a"
+            android:textColor="@color/color_conversation_network_error_text"
             android:textSize="14dp"
             android:visibility="gone" />
 

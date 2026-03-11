@@ -10,12 +10,14 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
+    android:id="@+id/messageLayout"
     android:paddingBottom="@dimen/dimen_6_dp">
 
     <TextView
         android:id="@+id/messageTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:minWidth="@dimen/dimen_60_dp"
         android:textSize="@dimen/text_size_16"
         android:paddingTop="@dimen/dimen_12_dp"
         android:paddingBottom="@dimen/dimen_6_dp"
@@ -26,7 +28,7 @@
         android:textStyle="bold"
         android:textColorLink="@color/color_007aff"
         android:linksClickable="true"
-        android:maxLines="2"/>
+        android:maxLines="3"/>
     <TextView
         android:id="@+id/messageContent"
         android:layout_width="wrap_content"

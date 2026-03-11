@@ -48,7 +48,8 @@ public class FunContactSelectorActivity extends BaseContactSelectorActivity {
         .setIndexDecorationBg(getResources().getColor(R.color.title_transfer))
         .setColorTitleBottomLine(getResources().getColor(R.color.title_transfer));
     contactListView.setViewHolderFactory(new FunContactDefaultFactory());
-    contactListView.configIndexTextBGColor(getResources().getColor(R.color.color_58be6b));
+    contactListView.configIndexTextBGColor(
+        getResources().getColor(R.color.fun_contact_primary_color));
     emptyGroup = binding.emptyLayout;
     rvSelected = binding.rvSelected;
     titleBar = binding.title;

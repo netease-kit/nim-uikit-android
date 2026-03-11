@@ -147,7 +147,7 @@ public abstract class BaseContactSelectorActivity extends BaseLocalActivity {
         .setTitle(R.string.select)
         .setActionText(getString(R.string.selector_sure_without_num))
         .setLeftText(R.string.fun_selector_close)
-        .setActionTextColor(getResources().getColor(R.color.color_337eff))
+        .setActionTextColor(getResources().getColor(R.color.color_contact_blue_primary))
         .setActionListener(
             v -> {
               if (checkNetworkEnable && !NetworkUtils.isConnected()) {

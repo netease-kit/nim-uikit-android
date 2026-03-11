@@ -55,7 +55,8 @@ public class FunVerifyInfoViewHolder extends BaseContactViewHolder {
     }
 
     if (infoBean.data.getUnread()) {
-      binding.rootView.setBackgroundColor(context.getResources().getColor(R.color.color_ededef));
+      binding.rootView.setBackgroundColor(
+          context.getResources().getColor(R.color.color_contact_hover_bg));
     } else {
       binding.rootView.setBackgroundColor(context.getResources().getColor(R.color.color_white));
     }
