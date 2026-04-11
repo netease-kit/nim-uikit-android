@@ -8,7 +8,7 @@ import android.text.TextUtils;
 
 public class ChatMapUtils {
   public static String AMPS_SERVER_URL =
-      "https://restapi.amap.com/v3/staticmap?" + "location=%s,%s&zoom=15&size=500*200&key=%s";
+      "https://restapi.amap.com/v3/staticmap?" + "location=%s,%s&key=%s&zoom=15&size=500*200";
 
   public static String generateAMapImageUrl(double latitude, double longitude) {
     if (LocationKitClient.getLocationConfig() == null

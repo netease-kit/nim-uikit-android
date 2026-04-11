@@ -71,24 +71,56 @@ public class FunConversationFragment extends ConversationBaseFragment {
             ConversationKitClient.getConversationUIConfig().titleBarRightClick.onClick(v);
             return;
           }
-          // 组件支持是否使用群的配置，如果关闭则相关群的功能都不在展示
+          Context context = getContext();
+          int memberLimit = ConversationConstant.MAX_TEAM_MEMBER;
+          // 构建默认条目列表（Fun 版含分割线）
+          List<ContentListPopView.Item> defaultItems = new java.util.ArrayList<>();
           if (IMKitConfigCenter.getEnableTeam()) {
-            Context context = getContext();
-            int memberLimit = ConversationConstant.MAX_TEAM_MEMBER;
-            ContentListPopView contentListPopView =
+            defaultItems.add(FunPopItemFactory.getAddFriendItem(context));
+            defaultItems.add(FunPopItemFactory.getDivideLineItem(context));
+            defaultItems.add(FunPopItemFactory.getSearchGroupTeamItem(context));
+            defaultItems.add(FunPopItemFactory.getDivideLineItem(context));
+            defaultItems.add(FunPopItemFactory.getCreateGroupTeamItem(context, memberLimit));
+            defaultItems.add(FunPopItemFactory.getDivideLineItem(context));
+            defaultItems.add(FunPopItemFactory.getCreateAdvancedTeamItem(context, memberLimit));
+          }
+          // 如果外部配置了弹窗菜单条目提供者，将默认列表传入，由外部决定最终条目
+          ConversationUIConfig uiConfig = ConversationKitClient.getConversationUIConfig();
+          if (uiConfig != null && uiConfig.popMenuItemProvider != null) {
+            List<ContentListPopView.Item> finalItems =
+                uiConfig.popMenuItemProvider.getPopMenuItems(defaultItems);
+            if (finalItems != null) {
+              ContentListPopView.Builder builder =
+                  new ContentListPopView.Builder(context)
+                      .enableShadow(false)
+                      .backgroundRes(R.drawable.fun_conversation_view_pop_bg);
+              for (ContentListPopView.Item item : finalItems) {
+                builder.addItem(item);
+              }
+              builder
+                  .build()
+                  .showAsDropDown(
+                      v,
+                      (int) requireContext().getResources().getDimension(R.dimen.pop_margin_right),
+                      0);
+              return;
+            }
+          }
+          // 默认逻辑：有群功能展示弹窗，否则跳转添加好友
+          if (IMKitConfigCenter.getEnableTeam()) {
+            ContentListPopView.Builder builder =
                 new ContentListPopView.Builder(context)
-                    .addItem(FunPopItemFactory.getAddFriendItem(context))
-                    .addItem(FunPopItemFactory.getDivideLineItem(context))
-                    .addItem(FunPopItemFactory.getSearchGroupTeamItem(context))
-                    .addItem(FunPopItemFactory.getDivideLineItem(context))
-                    .addItem(FunPopItemFactory.getCreateGroupTeamItem(context, memberLimit))
-                    .addItem(FunPopItemFactory.getDivideLineItem(context))
-                    .addItem(FunPopItemFactory.getCreateAdvancedTeamItem(context, memberLimit))
                     .enableShadow(false)
-                    .backgroundRes(R.drawable.fun_conversation_view_pop_bg)
-                    .build();
-            contentListPopView.showAsDropDown(
-                v, (int) requireContext().getResources().getDimension(R.dimen.pop_margin_right), 0);
+                    .backgroundRes(R.drawable.fun_conversation_view_pop_bg);
+            for (ContentListPopView.Item item : defaultItems) {
+              builder.addItem(item);
+            }
+            builder
+                .build()
+                .showAsDropDown(
+                    v,
+                    (int) requireContext().getResources().getDimension(R.dimen.pop_margin_right),
+                    0);
           } else {
             // 如果关闭则只展示添加好友的功能，跳转到添加好友页面
             XKitRouter.withKey(RouterConstant.PATH_FUN_ADD_FRIEND_PAGE)

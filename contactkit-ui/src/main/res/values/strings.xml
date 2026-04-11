@@ -1,20 +1,19 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright (c) 2022 NetEase, Inc.  All rights reserved.
   ~ Use of this source code is governed by a MIT license that can be found in the LICENSE file.
   -->
 
 <resources>
     <!-- contact list -->
-    <string name="contact_title">Contacts</string>  
-    <string name="contact_list_verify_msg">Verifications</string> 
+    <string name="contact_title">Contacts</string>
+    <string name="contact_list_verify_msg">Verifications</string>
     <string name="contact_list_black_list">Blocklist</string>
-    <string name="contact_list_my_group">My Groups</string> 
-    <string name="contact_list_my_computer">My Computer</string> 
+    <string name="contact_list_my_group">My Groups</string>
+    <string name="contact_list_my_computer">My Computer</string>
 
     <!-- add friend page-->
     <string name="add_friend_title">Add Contacts</string>
-    <string name="add_friend_search_hint">Enter Account</string> 
+    <string name="add_friend_search_hint">Enter Account</string>
     <string name="add_friend_search_empty_tips">User not found</string>
 
     <!-- join team page-->
@@ -29,12 +28,12 @@
     <string name="contact_verify_rejected">Declined</string>
     <string name="contact_verify_expired">Expired</string>
     <string name="friend_apply">New Friends</string>
-    <string name="invited_to_join_group">invite you to groups&#160;%s</string> 
+    <string name="invited_to_join_group">invite you to groups&#160;%s</string>
     <string name="apply_to_join_group">request to join group%s</string>
     <string name="accept_your_friend_apply">accepted your request</string>
     <string name="direct_add_your_friend_apply">added your contact</string>
     <string name="reject_your_friend_apply">declined your invitation</string>
-    <string name="verify_msg">Verifications</string>  
+    <string name="verify_msg">Verifications</string>
     <string name="verify_max_count_text">99+</string>
     <string name="verify_agree_message_text">I\'ve accepted your friend request. Now let\'s
         chat</string>
@@ -47,31 +46,31 @@
     <string name="friend_verify_title">Friend</string>
 
     <!-- my team page -->
-    <string name="my_team">My Groups</string> 
+    <string name="my_team">My Groups</string>
 
     <!-- black page -->
     <string name="black_list">Blocklist </string>
     <string name="black_list_tips">You won\'t receive any messages from them</string>
-    <string name="contact_black_list_relieve">Release</string> 
+    <string name="contact_black_list_relieve">Release</string>
     <string name="add_black_error">%s not blocked</string>
     <string name="black_list_empty_text">No blocked members</string>
 
     <!-- userinfo page -->
-    <string name="clear_all">Clear</string> 
-    <string name="birthday">Birthday</string> 
-    <string name="phone">Mobile</string> 
+    <string name="clear_all">Clear</string>
+    <string name="birthday">Birthday</string>
+    <string name="phone">Mobile</string>
     <string name="email">Email </string>
-    <string name="personal_signature">What’s up</string>
+    <string name="personal_signature">What\'s up</string>
     <string name="comment_name">Alias</string>
     <string name="notify_message">Notification</string>
     <string name="add_black_list">Block</string>
-    <string name="chat">Chat</string> 
+    <string name="chat">Chat</string>
     <string name="delete_friend">Delete Contacts</string>
     <string name="add_friend">Add Contacts</string>
-    <string name="contact_user_info_account">Account:%s</string> 
+    <string name="contact_user_info_account">Account:%s</string>
     <string name="contact_user_info_nickname">Alias:%s</string>
     <string name="delete_contact_account">Delete “%s”</string>
-    <string name="save">Save</string> 
+    <string name="save">Save</string>
     <string name="add_friend_operate_success">Friend request sent</string>
     <string name="add_friend_operate_fail">Friend request failed: %s</string>
 
@@ -83,15 +82,15 @@
     <string name="team_apply_join_tip">Apply Send Success</string>
 
     <!--添加好友页面 -->
-    <string name="add_friend_search_error">Failed to search</string> 
+    <string name="add_friend_search_error">Failed to search</string>
 
 
     <!-- error toast -->
-    <string name="agree_add_friend_fail">Failed</string> 
-    <string name="disagree_add_friend_fail">Failed</string> 
-    <string name="agree_apply_join_team_fail">Failed</string> 
+    <string name="agree_add_friend_fail">Failed</string>
+    <string name="disagree_add_friend_fail">Failed</string>
+    <string name="agree_apply_join_team_fail">Failed</string>
     <string name="disagree_apply_join_team_fail">Failed</string>
-    <string name="agree_invite_team_fail">Failed</string> 
+    <string name="agree_invite_team_fail">Failed</string>
     <string name="disagree_invite_team_fail">Failed</string>
     <string name="remove_black_fail">Failed to remove blocklist</string>
     <string name="verify_duplicate_fail">Already done on other devices</string>
@@ -143,6 +142,43 @@
     <string name="ai_user_title">AI User</string>
     <string name="contact_ai_user_title">My AI User</string>
     <string name="contact_ai_user_empty_tips">No AI User</string>
+    <string name="contact_robot_title">My Robot</string>
+    <string name="contact_robot_empty_tips">No robots yet. Tap the top-right button to create one.</string>
+    <string name="contact_robot_limit_tips">机器人数量已达上限，请选择已有机器人或去删除机器人</string>
+    <string name="contact_robot_qrcode_bind_used">该二维码已被绑定</string>
+    <string name="contact_robot_info_title">Robot</string>
+    <string name="contact_robot_edit">Edit</string>
+    <string name="contact_robot_view_config">View Config</string>
+    <string name="contact_robot_view_config_page_title">Config String</string>
+    <string name="contact_robot_view_config_label">Config String</string>
+    <string name="contact_robot_view_config_copy">Copy Full Config String</string>
+    <string name="contact_robot_view_config_copied">Copied to clipboard</string>
+    <string name="contact_robot_view_config_tip">Keep it safe, do not share with others</string>
+    <string name="contact_robot_refresh_token">Refresh Token</string>
+    <string name="contact_robot_chat">Chat</string>
+    <string name="contact_robot_delete">Delete Robot</string>
+    <string name="contact_robot_delete_confirm_title">Delete Robot?</string>
+    <string name="contact_robot_delete_confirm_message">After deletion, the robot in use will be disconnected and needs to be reconfigured</string>
+    <string name="contact_robot_delete_confirm_positive">Delete</string>
+    <string name="contact_robot_delete_success">Robot deleted</string>
+    <string name="contact_robot_coming_soon">Coming soon</string>
+    <string name="contact_robot_refresh_token_confirm_title">Refresh Token?</string>
+    <string name="contact_robot_refresh_token_confirm_message">After refreshing, the old Token will be immediately invalidated and the robot in use needs to be reconfigured</string>
+    <string name="contact_robot_refresh_token_success">Token refreshed successfully</string>
+    <string name="contact_robot_edit_title">Edit Robot</string>
+    <string name="contact_robot_edit_avatar">Avatar</string>
+    <string name="contact_robot_edit_name">Nickname</string>
+    <string name="contact_robot_edit_save">Save</string>
+    <string name="contact_robot_edit_name_title">Edit Nickname</string>
+    <string name="contact_robot_edit_name_page_title">昵称</string>
+    <string name="contact_robot_edit_name_done">完成</string>
+    <string name="contact_robot_edit_name_hint">Enter robot nickname</string>
+    <string name="contact_robot_create_title">Create Robot</string>
+    <string name="contact_robot_create_name_required">Please enter a nickname first</string>
+    <string name="contact_robot_bind_title">Bind Robot</string>
+    <string name="contact_robot_bind_create">New Robot</string>
+    <string name="contact_robot_bind_select_hint">Select an existing robot</string>
+    <string name="contact_robot_bind_success">Robot bound successfully</string>
 
     <!--    common-->
     <string name="cancel"> Cancel </string>
@@ -159,7 +195,7 @@
     <string name="contact_dialog_cancel">Cancel</string>
 
     <!-- ==================== Fun 皮肤专属字符串 ==================== -->
-    <string name="fun_contact_search_hint_text">搜索</string>
+    <string name="fun_contact_search_hint_text">Search</string>
     <!-- ==================== Fun 皮肤专属字符串 END ==================== -->
 
 </resources>

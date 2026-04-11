@@ -6,9 +6,27 @@ package com.netease.yunxin.kit.conversationkit.local.ui;
 
 import android.graphics.drawable.Drawable;
 import android.view.View;
+import com.netease.yunxin.kit.common.ui.widgets.ContentListPopView;
+import java.util.List;
 
 /** 会话UI配置 */
 public class LocalConversationUIConfig {
+
+  /**
+   * 标题栏右侧加号弹窗菜单条目提供者接口。
+   *
+   * <p>外部可实现该接口，动态返回需要展示在 {@link ContentListPopView} 中的条目列表。 当该字段不为 null
+   * 时，弹窗将完全使用外部提供的条目，覆盖默认的「添加好友/建群」等默认条目。
+   */
+  public interface PopMenuItemProvider {
+    /**
+     * 根据默认条目列表，返回最终需要显示的弹窗菜单条目列表。
+     *
+     * @param defaultItems 内部默认构建好的条目列表（可直接修改后返回，也可忽略重建）
+     * @return 最终显示的条目列表；返回 null 时退回默认逻辑
+     */
+    List<ContentListPopView.Item> getPopMenuItems(List<ContentListPopView.Item> defaultItems);
+  }
 
   // 默认值，如果是该值，则任务该字段未设置
   public static Integer INT_DEFAULT_NULL = 0;
@@ -69,4 +87,12 @@ public class LocalConversationUIConfig {
   public LocalConversationCustom conversationCustom;
   // 会话列表定制能力，页面加载时，回调该接口，并传入当前Fragment
   public ILocalConversationViewLayout customLayout;
+
+  /**
+   * 标题栏右侧加号弹窗菜单条目提供者。
+   *
+   * <p>当该字段不为 null 且 {@link PopMenuItemProvider#getPopMenuItems()} 返回非空列表时，
+   * 弹窗将使用外部提供的条目列表，完全覆盖默认的「添加好友/建群」等内置条目。 当返回 null 或空列表时，退回默认逻辑。
+   */
+  public PopMenuItemProvider popMenuItemProvider;
 }

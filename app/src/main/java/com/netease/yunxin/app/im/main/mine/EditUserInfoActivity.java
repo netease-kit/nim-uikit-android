@@ -28,6 +28,7 @@ import com.netease.yunxin.app.im.databinding.ActivityEditNicknameBinding;
 import com.netease.yunxin.app.im.utils.AppUtils;
 import com.netease.yunxin.app.im.utils.Constant;
 import com.netease.yunxin.kit.chatkit.repo.ContactRepo;
+import com.netease.yunxin.kit.chatkit.utils.ErrorUtils;
 import com.netease.yunxin.kit.common.ui.activities.BaseLocalActivity;
 import com.netease.yunxin.kit.common.ui.utils.ToastX;
 import com.netease.yunxin.kit.common.utils.SizeUtils;
@@ -71,25 +72,7 @@ public class EditUserInfoActivity extends BaseLocalActivity {
               new FetchCallback<Void>() {
                 @Override
                 public void onError(int errorCode, @Nullable String errorMsg) {
-                  if (errorCode == Constant.NETWORK_ERROR_CODE) {
-                    Toast.makeText(
-                            getApplicationContext(),
-                            getString(R.string.network_error),
-                            Toast.LENGTH_SHORT)
-                        .show();
-                  } else if (errorCode == Constant.ANTI_ERROR_CODE) {
-                    Toast.makeText(
-                            getApplicationContext(),
-                            getString(R.string.anti_error),
-                            Toast.LENGTH_SHORT)
-                        .show();
-                  } else {
-                    Toast.makeText(
-                            getApplicationContext(),
-                            getString(R.string.request_fail) + errorCode,
-                            Toast.LENGTH_SHORT)
-                        .show();
-                  }
+                  ErrorUtils.showErrorCodeToast(EditUserInfoActivity.this, errorCode);
                 }
 
                 @Override
@@ -180,8 +163,9 @@ public class EditUserInfoActivity extends BaseLocalActivity {
     }
     binding.etNickname.setText(remoteInfo);
     if (!TextUtils.isEmpty(remoteInfo)) {
-
-      binding.etNickname.setSelection(remoteInfo.length());
+      // Use the Editable length after setText to avoid IndexOutOfBoundsException
+      // when remoteInfo contains emoji characters processed by emoji2 SpannableBuilder.
+      binding.etNickname.setSelection(binding.etNickname.getText().length());
     }
   }
 

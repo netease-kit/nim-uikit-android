@@ -30,4 +30,7 @@ public interface IViewTypeConstant {
 
   // 群验证消息
   int CONTACT_TEAM_VERIFY_INFO = 15;
+
+  // 机器人
+  int CONTACT_ROBOT = 16;
 }

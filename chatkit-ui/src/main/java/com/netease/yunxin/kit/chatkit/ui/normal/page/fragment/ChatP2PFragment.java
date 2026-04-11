@@ -54,6 +54,9 @@ public class ChatP2PFragment extends NormalChatFragment {
 
   public IMMessageInfo anchorMessage;
 
+  /** 标记当前会话对端是否为 AI 机器人，用于头像点击跳转判断 */
+  private boolean isAIBot = false;
+
   private final Handler handler = new Handler();
 
   private final Runnable stopTypingRunnable = () -> chatView.setTypeState(false);
@@ -115,6 +118,11 @@ public class ChatP2PFragment extends NormalChatFragment {
                   .navigate();
             });
   }
+
+  //  @Override
+  //  public String getUserInfoRoutePath() {
+  //    return isAIBot ? RouterConstant.PATH_MY_ROBOT_INFO_PAGE : super.getUserInfoRoutePath();
+  //  }
 
   public void refreshView() {
     String name = accountId;
@@ -215,6 +223,19 @@ public class ChatP2PFragment extends NormalChatFragment {
               if (result.getLoadStatus() == LoadStatus.Success) {
                 friendInfo = result.getData();
                 refreshView();
+              }
+            });
+    ((ChatP2PViewModel) viewModel)
+        .getIsAIBotLiveData()
+        .observe(
+            getViewLifecycleOwner(),
+            result -> {
+              if (Boolean.TRUE.equals(result)) {
+                isAIBot = true;
+                MessageBottomLayout bottomLayout = getMessageBottomLayout();
+                if (bottomLayout != null) {
+                  bottomLayout.setIsAIBot(true);
+                }
               }
             });
     ((ChatP2PViewModel) viewModel)

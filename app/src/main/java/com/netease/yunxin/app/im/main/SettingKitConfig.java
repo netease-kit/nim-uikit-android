@@ -13,4 +13,5 @@ public class SettingKitConfig {
   public boolean hasOnlineStatus = true;
   public boolean hasStrangeCallLimit = true;
   public boolean hasTeamApplyMode = false;
+  public boolean enableCloudSearch = false;
 }

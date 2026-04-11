@@ -41,6 +41,7 @@ public class Constant {
   public static final String PUSH_CONFIG_FILE = "push_config";
   public static final String PUSH_CONFIG_TOGGLE = "push_config_switch";
   public static final String PUSH_CONFIG_CONTENT = "push_config_content";
+  public static final String SEARCH_CONFIG_CONTENT = "search_config_content";
   public static final int CHINA_CONFIG = 0;
   public static final int OVERSEA_CONFIG = 1;
 

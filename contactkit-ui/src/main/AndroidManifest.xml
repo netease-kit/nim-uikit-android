@@ -74,6 +74,35 @@
             android:exported="false"
             android:screenOrientation="portrait" />
         <activity
+            android:name=".normal.robot.RobotListActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".normal.robot.RobotInfoActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".normal.robot.RobotEditActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".normal.robot.RobotCreateActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".normal.robot.RobotBindActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".normal.robot.RobotEditNameActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateAlwaysVisible|adjustResize" />
+        <activity
+            android:name=".normal.robot.RobotViewConfigActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
             android:name=".normal.selector.ai.AIContactSelectorActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
@@ -137,6 +166,35 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".fun.ai.FunAIUserListActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".fun.robot.FunRobotListActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".fun.robot.FunRobotInfoActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".fun.robot.FunRobotBindActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".fun.robot.FunRobotCreateActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".fun.robot.FunRobotEditActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".fun.robot.FunRobotEditNameActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateAlwaysVisible|adjustResize" />
+        <activity
+            android:name=".fun.robot.FunRobotViewConfigActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
         <activity

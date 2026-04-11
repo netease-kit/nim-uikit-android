@@ -9,4 +9,6 @@
     <style name="AppSelectorRadioBtn" parent="Widget.AppCompat.CompoundButton.RadioButton">
         <item name="android:button">@drawable/app_radio_blue_selector</item>
     </style>
+    <style name="zxing_CaptureTheme" parent="android:Theme.Holo.NoActionBar.Fullscreen"/>
+
 </resources>

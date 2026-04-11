@@ -17,7 +17,7 @@ import java.util.List;
 public class FunBottomActionFactory {
 
   public static List<ActionItem> assembleInputMoreActions(
-      String accountId, V2NIMConversationType conversationType) {
+      String accountId, V2NIMConversationType conversationType, boolean isAIBot) {
     ArrayList<ActionItem> actions = new ArrayList<>();
     actions.add(
         new ActionItem(
@@ -38,7 +38,8 @@ public class FunBottomActionFactory {
         new ActionItem(
             ActionConstants.ACTION_TYPE_FILE, R.drawable.ic_send_file, R.string.chat_message_file));
     if (conversationType == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P
-        && !AIUserManager.isAIUser(accountId)) {
+        && !AIUserManager.isAIUser(accountId)
+        && !isAIBot) {
       actions.add(
           new ActionItem(
               ActionConstants.ACTION_TYPE_VIDEO_CALL,

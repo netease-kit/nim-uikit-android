@@ -183,6 +183,13 @@ public class FunContactFragment extends BaseContactFragment {
       groupBean.showRightArrow = false;
       contactDataList.add(groupBean);
     }
+    // 我的机器人
+    ContactEntranceBean robotBean =
+        new ContactEntranceBean(
+            R.drawable.fun_ic_contact_ai_bot, context.getString(R.string.contact_robot_title));
+    robotBean.router = RouterConstant.PATH_FUN_MY_ROBOT_PAGE;
+    robotBean.showRightArrow = false;
+    contactDataList.add(robotBean);
     //AI数字人
     if (IMKitConfigCenter.getEnableAIUser()) {
       ContactEntranceBean aiUserBean =
@@ -192,7 +199,6 @@ public class FunContactFragment extends BaseContactFragment {
       aiUserBean.showRightArrow = false;
       contactDataList.add(aiUserBean);
     }
-
     return contactDataList;
   }
 

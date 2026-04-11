@@ -9,6 +9,7 @@ import android.widget.TextView;
 import io.noties.markwon.Markwon;
 import io.noties.markwon.ext.tables.TablePlugin;
 import io.noties.markwon.ext.tasklist.TaskListPlugin;
+import io.noties.markwon.image.ImagesPlugin;
 import io.noties.markwon.linkify.LinkifyPlugin;
 
 public class MarkDownViwUtils {
@@ -24,6 +25,7 @@ public class MarkDownViwUtils {
                 .usePlugin(TablePlugin.create(context))
                 .usePlugin(TablePlugin.create(context))
                 .usePlugin(LinkifyPlugin.create())
+                .usePlugin(ImagesPlugin.create())
                 .build();
       }
     }

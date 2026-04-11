@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
 import com.netease.nimlib.sdk.v2.V2NIMError;
+import com.netease.nimlib.sdk.v2.ai.model.V2NIMUserAIBot;
 import com.netease.nimlib.sdk.v2.auth.enums.V2NIMDataSyncState;
 import com.netease.nimlib.sdk.v2.auth.enums.V2NIMDataSyncType;
 import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
@@ -28,8 +29,10 @@ import com.netease.nimlib.sdk.v2.subscription.model.V2NIMUserStatus;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
 import com.netease.yunxin.kit.chatkit.OnlineStatusManager;
+import com.netease.yunxin.kit.chatkit.cache.FriendUserCache;
 import com.netease.yunxin.kit.chatkit.impl.LoginDetailListenerImpl;
 import com.netease.yunxin.kit.chatkit.manager.AIUserManager;
+import com.netease.yunxin.kit.chatkit.manager.UserAIBotManager;
 import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
 import com.netease.yunxin.kit.chatkit.repo.ContactRepo;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatUserCache;
@@ -71,6 +74,9 @@ public class ChatP2PViewModel extends ChatBaseViewModel {
 
   // 更新在线状态
   private final MutableLiveData<FetchResult<String>> updateLiveData = new MutableLiveData<>();
+
+  // 是否为 AI 机器人（非 AIUser 类型的机器人）
+  private final MutableLiveData<Boolean> isAIBotLiveData = new MutableLiveData<>();
 
   // 正在输入功能监听，监听通知消息来展示对方是否正在输入
   private final V2NIMNotificationListener notificationListener =
@@ -206,11 +212,18 @@ public class ChatP2PViewModel extends ChatBaseViewModel {
     return updateLiveData;
   }
 
+  public MutableLiveData<Boolean> getIsAIBotLiveData() {
+    return isAIBotLiveData;
+  }
+
   public void getP2PData(V2NIMMessage anchorMessage) {
     getFriendInfo(mChatAccountId);
     getMessageList(anchorMessage, false);
     getP2PMessageReadReceipts();
     subscribeOnlineStatus(false);
+    if (!FriendUserCache.isFriend(mChatAccountId) && !AIUserManager.isAIUser(mChatAccountId)) {
+      checkIfAIBot(mChatAccountId);
+    }
   }
 
   private void subscribeOnlineStatus(boolean needRefresh) {
@@ -250,6 +263,22 @@ public class ChatP2PViewModel extends ChatBaseViewModel {
           @Override
           public void onError(int errorCode, @Nullable String errorMsg) {
             ALog.e(TAG, "getFriendInfo error:" + errorCode + " errorMsg:" + errorMsg);
+          }
+        });
+  }
+
+  private void checkIfAIBot(String accId) {
+    UserAIBotManager.getUserAIBot(
+        accId,
+        new FetchCallback<V2NIMUserAIBot>() {
+          @Override
+          public void onSuccess(@Nullable V2NIMUserAIBot bot) {
+            isAIBotLiveData.postValue(bot != null);
+          }
+
+          @Override
+          public void onError(int errorCode, @Nullable String errorMsg) {
+            ALog.d(LIB_TAG, TAG, "checkIfAIBot: not a bot, errorCode=" + errorCode);
           }
         });
   }

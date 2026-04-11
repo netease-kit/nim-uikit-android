@@ -22,7 +22,7 @@ import com.netease.yunxin.kit.chatkit.map.ChatLocationBean;
 import com.netease.yunxin.kit.chatkit.map.ILocationSearchCallback;
 import com.netease.yunxin.kit.chatkit.map.IPageMapProvider;
 import com.netease.yunxin.kit.chatkit.map.MapMode;
-import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
+import com.netease.yunxin.kit.common.ui.activities.BaseLocalActivity;
 import com.netease.yunxin.kit.common.utils.KeyboardUtils;
 import com.netease.yunxin.kit.common.utils.LocationUtils;
 import com.netease.yunxin.kit.common.utils.NetworkUtils;
@@ -30,7 +30,7 @@ import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.locationkit.databinding.ActivityLocationBinding;
 import java.util.List;
 
-public class LocationPageActivity extends BaseActivity {
+public class LocationPageActivity extends BaseLocalActivity {
   private static final String TAG = "LocationPageActivity";
 
   public static final String SEND_LOCATION_RESULT = "location_select_result";

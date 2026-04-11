@@ -51,6 +51,7 @@
             android:layout_marginTop="@dimen/dimen_8_dp"
             android:textSize="@dimen/text_size_14"
             android:textColor="@color/color_b3b7bc"
+            android:text="@string/contact_robot_empty_tips"
             android:gravity="center"/>
         </LinearLayout>
 

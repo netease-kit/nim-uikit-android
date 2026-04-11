@@ -739,6 +739,13 @@ public class MessageBottomLayout extends FrameLayout
     updateState(InputState.more);
   }
 
+  /** 标记当前会话对端是否为 AI 机器人（非 AIUser），用于控制底部菜单项 */
+  private boolean mIsAIBot = false;
+
+  public void setIsAIBot(boolean isAIBot) {
+    this.mIsAIBot = isAIBot;
+  }
+
   // 显示更多按钮菜单
   public void morePanelShow(boolean show, long delay) {
     // init more panel
@@ -747,7 +754,8 @@ public class MessageBottomLayout extends FrameLayout
           mBinding.actionsPanelVp,
           FunBottomActionFactory.assembleInputMoreActions(
               V2NIMConversationIdUtil.conversationTargetId(mProxy.getConversationId()),
-              mProxy.getConversationType()),
+              mProxy.getConversationType(),
+              mIsAIBot),
           this);
     }
     postDelayed(() -> mBinding.actionsPanelVp.setVisibility(show ? VISIBLE : GONE), delay);

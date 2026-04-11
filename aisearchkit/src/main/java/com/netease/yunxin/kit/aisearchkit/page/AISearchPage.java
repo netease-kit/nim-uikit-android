@@ -17,11 +17,11 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import com.netease.yunxin.kit.aisearchkit.R;
 import com.netease.yunxin.kit.aisearchkit.databinding.AiSearchPageLayoutBinding;
 import com.netease.yunxin.kit.alog.ALog;
-import com.netease.yunxin.kit.common.ui.activities.BaseActivity;
+import com.netease.yunxin.kit.common.ui.activities.BaseLocalActivity;
 import com.netease.yunxin.kit.common.ui.utils.ToastX;
 import com.netease.yunxin.kit.common.utils.NetworkUtils;
 
-public class AISearchPage extends BaseActivity {
+public class AISearchPage extends BaseLocalActivity {
 
   private static final String TAG = "AISearchPage";
 
@@ -116,7 +116,7 @@ public class AISearchPage extends BaseActivity {
             viewModel.aiSearch(searchKey);
             binding.aiSearchEdit.setText("");
           } else {
-            ToastX.showShortToast(R.string.ai_search_network_error_tip);
+            ToastX.showShortToast(R.string.ai_search_network_error);
           }
         });
 
@@ -140,9 +140,10 @@ public class AISearchPage extends BaseActivity {
           }
         });
   }
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        viewModel.onDestroy();
-    }
+
+  @Override
+  protected void onDestroy() {
+    super.onDestroy();
+    viewModel.onDestroy();
+  }
 }

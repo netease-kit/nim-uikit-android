@@ -10,12 +10,16 @@ import android.text.TextUtils;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
+import com.netease.nimlib.sdk.v2.ai.model.V2NIMUserAIBot;
+import com.netease.nimlib.sdk.v2.ai.params.V2NIMGetUserAIBotParams;
 import com.netease.nimlib.sdk.v2.friend.enums.V2NIMFriendAddMode;
 import com.netease.yunxin.kit.alog.ALog;
+import com.netease.yunxin.kit.chatkit.repo.AIRepo;
 import com.netease.yunxin.kit.chatkit.repo.ContactRepo;
 import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
+import com.netease.yunxin.kit.contactkit.ui.ContactConstant;
 import com.netease.yunxin.kit.contactkit.ui.FriendObserveImpl;
 import com.netease.yunxin.kit.contactkit.ui.model.ContactUserInfoBean;
 import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
@@ -40,6 +44,9 @@ public class UserInfoViewModel extends BaseViewModel {
       new MutableLiveData<>();
   private final FetchResult<UserWithFriend> friendChangeFetchResult =
       new FetchResult<>(LoadStatus.Finish);
+
+  // 是否为 AI 机器人
+  private final MutableLiveData<Boolean> isAIBotLiveData = new MutableLiveData<>();
 
   private String accountId;
 
@@ -89,6 +96,35 @@ public class UserInfoViewModel extends BaseViewModel {
 
   public MutableLiveData<FetchResult<UserWithFriend>> getFriendChangeLiveData() {
     return friendChangeLiveData;
+  }
+
+  public MutableLiveData<Boolean> getIsAIBotLiveData() {
+    return isAIBotLiveData;
+  }
+
+  public void checkIfRobot(String accId) {
+    V2NIMGetUserAIBotParams params = new V2NIMGetUserAIBotParams();
+    params.setAccid(accId);
+    AIRepo.getUserAIBot(
+        params,
+        new FetchCallback<V2NIMUserAIBot>() {
+          @Override
+          public void onSuccess(@Nullable V2NIMUserAIBot bot) {
+            isAIBotLiveData.postValue(bot != null);
+          }
+
+          @Override
+          public void onError(int errorCode, @Nullable String errorMsg) {
+            if (errorCode == ContactConstant.ERROR_NOT_ROBOT) {
+              isAIBotLiveData.postValue(false);
+            } else if (errorCode == ContactConstant.ERROR_ROBOT_IS_NOT_BELONG) {
+              isAIBotLiveData.postValue(true);
+            } else {
+              isAIBotLiveData.postValue(true);
+            }
+            ALog.d(LIB_TAG, TAG, "checkIfRobot: not a bot, errorCode=" + errorCode);
+          }
+        });
   }
 
   public void getUserWithFriend(String account) {

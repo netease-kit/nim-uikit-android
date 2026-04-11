@@ -56,6 +56,9 @@ public class FunChatP2PFragment extends FunChatFragment {
 
   public IMMessageInfo anchorMessage;
 
+  /** 标记当前会话对端是否为 AI 机器人，用于头像点击跳转判断 */
+  private boolean isAIBot = false;
+
   private final Handler handler = new Handler();
 
   private final Runnable stopTypingRunnable = () -> chatView.setTypeState(false);
@@ -225,6 +228,19 @@ public class FunChatP2PFragment extends FunChatFragment {
               }
             });
     ((ChatP2PViewModel) viewModel)
+        .getIsAIBotLiveData()
+        .observe(
+            getViewLifecycleOwner(),
+            result -> {
+              if (Boolean.TRUE.equals(result)) {
+                isAIBot = true;
+                MessageBottomLayout bottomLayout = getMessageBottomLayout();
+                if (bottomLayout != null) {
+                  bottomLayout.setIsAIBot(true);
+                }
+              }
+            });
+    ((ChatP2PViewModel) viewModel)
         .getUpdateLiveData()
         .observe(
             getViewLifecycleOwner(),
@@ -236,6 +252,11 @@ public class FunChatP2PFragment extends FunChatFragment {
   public MessageBottomLayout getMessageBottomLayout() {
     return viewBinding.chatView.getBottomInputLayout();
   }
+
+  //  @Override
+  //  public String getUserInfoRoutePath() {
+  //    return isAIBot ? RouterConstant.PATH_MY_ROBOT_INFO_PAGE : super.getUserInfoRoutePath();
+  //  }
 
   @Override
   public String getConversationName(boolean useNick) {

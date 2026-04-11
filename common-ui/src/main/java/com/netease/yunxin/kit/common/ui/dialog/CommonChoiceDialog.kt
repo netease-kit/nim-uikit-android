@@ -26,6 +26,10 @@ class CommonChoiceDialog : BaseDialog() {
 
     var negative: String? = null
 
+    var positiveTextColor: Int? = null
+
+    var negativeTextColor: Int? = null
+
     companion object {
         const val TAG = "CommonChoiceDialog"
     }
@@ -44,6 +48,8 @@ class CommonChoiceDialog : BaseDialog() {
         binding?.tvDialogContent?.text = content
         binding?.tvDialogPositive?.text = positive
         binding?.tvDialogNegative?.text = negative
+        positiveTextColor?.let { binding?.tvDialogPositive?.setTextColor(it) }
+        negativeTextColor?.let { binding?.tvDialogNegative?.setTextColor(it) }
         return binding?.root
     }
 

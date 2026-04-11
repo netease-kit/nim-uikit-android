@@ -139,6 +139,12 @@ public class ContactFragment extends BaseContactFragment {
       groupBean.router = RouterConstant.PATH_MY_TEAM_PAGE;
       contactDataList.add(groupBean);
     }
+    // 我的机器人
+    ContactEntranceBean robotBean =
+        new ContactEntranceBean(
+            R.drawable.ic_contact_my_robot, context.getString(R.string.contact_robot_title));
+    robotBean.router = RouterConstant.PATH_MY_ROBOT_PAGE;
+    contactDataList.add(robotBean);
     if (IMKitConfigCenter.getEnableAIUser()) {
       ContactEntranceBean aiUserBean =
           new ContactEntranceBean(

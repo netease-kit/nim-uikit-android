@@ -147,7 +147,13 @@
         <activity android:name=".main.mine.setting.SettingUIKitActivity"
             android:screenOrientation="portrait"
             android:exported="false" />
-
+        <activity
+            android:name=".main.ScanActivity"
+            android:clearTaskOnLaunch="true"
+            android:screenOrientation="sensorPortrait"
+            android:stateNotNeeded="true"
+            android:theme="@style/zxing_CaptureTheme"
+            android:windowSoftInputMode="stateAlwaysHidden" />
         <!-- 声明云信后台服务 -->
         <service
             android:name="com.netease.nimlib.service.NimService"
@@ -284,6 +290,13 @@
                 <action android:name="com.vivo.pushclient.action.RECEIVE"/>
             </intent-filter>
         </receiver>
+
+        <meta-data
+            android:name="com.vivo.push.api_key"
+            android:value="922b90ed97e9b1aaee38b92cbe6df280"/>
+        <meta-data
+            android:name="com.vivo.push.app_id"
+            android:value="105556578"/>
 
         <!--Oppo推送配置项 需要配置以下两项-->
         <service

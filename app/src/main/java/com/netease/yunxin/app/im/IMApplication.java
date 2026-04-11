@@ -17,7 +17,6 @@ import com.netease.nimlib.sdk.SDKOptions;
 import com.netease.yunxin.app.im.crash.AppCrashHandler;
 import com.netease.yunxin.app.im.main.MainActivity;
 import com.netease.yunxin.app.im.main.mine.MineInfoActivity;
-import com.netease.yunxin.app.im.push.PushMessageHandler;
 import com.netease.yunxin.app.im.utils.Constant;
 import com.netease.yunxin.app.im.utils.DataUtils;
 import com.netease.yunxin.app.im.welcome.WelcomeActivity;
@@ -83,8 +82,6 @@ public class IMApplication extends MultiDexApplication {
     HeytapPushManager.init(this, true);
     //设置推送提醒开关，根据用户设置的推送提醒开关状态，设置是否接收推送消息
     IMKitClient.toggleNotification(DataUtils.getToggleNotification(this));
-    // 注册推送消息处理器，用于处理推送消息
-    IMKitClient.registerMixPushMessageHandler(new PushMessageHandler());
     // 设置图片选择引擎，用于选择图片
     ChatKitClient.setPictureChooseEngine(new PictureEngine());
     ALog.d(TAG, "Performance application init Finished timestamp:" + SystemClock.elapsedRealtime());

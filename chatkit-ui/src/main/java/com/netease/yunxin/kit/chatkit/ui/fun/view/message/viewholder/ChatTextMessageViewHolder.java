@@ -16,6 +16,7 @@ import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageAIStreamStatus;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
+import com.netease.yunxin.kit.chatkit.manager.UserAIBotManager;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.chatkit.ui.common.TextLinkifyUtils;
@@ -92,12 +93,12 @@ public class ChatTextMessageViewHolder extends FunChatBaseMessageViewHolder {
 
     if (message.getMessageData().getMessage().getMessageType()
         == V2NIMMessageType.V2NIM_MESSAGE_TYPE_TEXT) {
+      String text = message.getMessageData().getText();
       if (message.isAIResponseMsg()) {
         updateOperateView();
         V2NIMMessageAIStreamStatus aiStreamStatus = message.getAIConfig().getAIStreamStatus();
         if (aiStreamStatus
             != V2NIMMessageAIStreamStatus.V2NIM_MESSAGE_AI_STREAM_STATUS_PLACEHOLDER) {
-          String text = message.getMessageData().getText();
           if (!TextUtils.isEmpty(currentMessage.getKeyword())) {
             MessageHelper.identifyFaceExpressionAndHighlight(
                 textBinding.getRoot().getContext(),
@@ -124,6 +125,9 @@ public class ChatTextMessageViewHolder extends FunChatBaseMessageViewHolder {
                 != V2NIMMessageAIStreamStatus.V2NIM_MESSAGE_AI_STREAM_STATUS_STREAMING) {
           setSelectStatus(message);
         }
+      } else if (UserAIBotManager.isUserAIBot(message.getSenderId())) {
+        MarkDownViwUtils.makeMarkDown(
+            textBinding.getRoot().getContext(), textBinding.messageText, text);
       } else {
         if (!TextUtils.isEmpty(currentMessage.getKeyword())) {
           MessageHelper.identifyFaceExpressionAndHighlight(

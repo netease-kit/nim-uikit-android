@@ -12,6 +12,10 @@ import com.netease.yunxin.kit.contactkit.ui.fun.addfriend.FunAddFriendActivity;
 import com.netease.yunxin.kit.contactkit.ui.fun.ai.FunAIUserListActivity;
 import com.netease.yunxin.kit.contactkit.ui.fun.blacklist.FunBlackListActivity;
 import com.netease.yunxin.kit.contactkit.ui.fun.contact.FunContactActivity;
+import com.netease.yunxin.kit.contactkit.ui.fun.robot.FunRobotBindActivity;
+import com.netease.yunxin.kit.contactkit.ui.fun.robot.FunRobotCreateActivity;
+import com.netease.yunxin.kit.contactkit.ui.fun.robot.FunRobotInfoActivity;
+import com.netease.yunxin.kit.contactkit.ui.fun.robot.FunRobotListActivity;
 import com.netease.yunxin.kit.contactkit.ui.fun.search.FunSearchActivity;
 import com.netease.yunxin.kit.contactkit.ui.fun.selector.FunContactSelectorActivity;
 import com.netease.yunxin.kit.contactkit.ui.fun.selector.ai.FunAIContactSelectorActivity;
@@ -26,6 +30,10 @@ import com.netease.yunxin.kit.contactkit.ui.normal.addfriend.AddFriendActivity;
 import com.netease.yunxin.kit.contactkit.ui.normal.ai.AIUserListActivity;
 import com.netease.yunxin.kit.contactkit.ui.normal.blacklist.BlackListActivity;
 import com.netease.yunxin.kit.contactkit.ui.normal.contact.ContactActivity;
+import com.netease.yunxin.kit.contactkit.ui.normal.robot.RobotBindActivity;
+import com.netease.yunxin.kit.contactkit.ui.normal.robot.RobotCreateActivity;
+import com.netease.yunxin.kit.contactkit.ui.normal.robot.RobotInfoActivity;
+import com.netease.yunxin.kit.contactkit.ui.normal.robot.RobotListActivity;
 import com.netease.yunxin.kit.contactkit.ui.normal.search.GlobalSearchActivity;
 import com.netease.yunxin.kit.contactkit.ui.normal.selector.ContactSelectorActivity;
 import com.netease.yunxin.kit.contactkit.ui.normal.selector.ai.AIContactSelectorActivity;
@@ -129,6 +137,25 @@ public class ContactUIService extends ChatService {
     // 通用版消息转发选择器
     XKitRouter.registerRouter(
         RouterConstant.PATH_FUN_FORWARD_SELECTOR_PAGE, FunForwardSelectorActivity.class);
+    // 协同版机器人列表
+    XKitRouter.registerRouter(RouterConstant.PATH_MY_ROBOT_PAGE, RobotListActivity.class);
+    // 通用版机器人列表
+    XKitRouter.registerRouter(RouterConstant.PATH_FUN_MY_ROBOT_PAGE, FunRobotListActivity.class);
+    // 协同版机器人信息页
+    XKitRouter.registerRouter(RouterConstant.PATH_MY_ROBOT_INFO_PAGE, RobotInfoActivity.class);
+    // 通用版机器人信息页
+    XKitRouter.registerRouter(
+        RouterConstant.PATH_FUN_MY_ROBOT_INFO_PAGE, FunRobotInfoActivity.class);
+    // 协同版机器人创建页
+    XKitRouter.registerRouter(RouterConstant.PATH_MY_ROBOT_CREATE_PAGE, RobotCreateActivity.class);
+    // 通用版机器人创建页
+    XKitRouter.registerRouter(
+        RouterConstant.PATH_FUN_MY_ROBOT_CREATE_PAGE, FunRobotCreateActivity.class);
+    // 协同版机器人绑定页
+    XKitRouter.registerRouter(RouterConstant.PATH_MY_ROBOT_BIND_PAGE, RobotBindActivity.class);
+    // 通用版机器人绑定页
+    XKitRouter.registerRouter(
+        RouterConstant.PATH_FUN_MY_ROBOT_BIND_PAGE, FunRobotBindActivity.class);
     return this;
   }
 }

@@ -66,7 +66,8 @@ public class AISearchKit extends ChatService {
                       context.startActivity(intent);
                     }
                   },
-                  content);
+                  content,
+                  R.string.ai_search);
           if (IMKitConfigCenter.getEnableAIUser() && AIUserManager.getAISearchUser() != null) {
             return Collections.singletonList(action);
           } else {

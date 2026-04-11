@@ -8,11 +8,9 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
-
 import androidx.annotation.DrawableRes;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
-
 import com.netease.yunxin.app.im.AppSkinConfig;
 import com.netease.yunxin.app.im.PictureEngine;
 import com.netease.yunxin.app.im.R;
@@ -59,6 +57,7 @@ public class SettingUIKitActivity extends BaseLocalActivity {
     viewBinding.kitAntiSpamSc.setChecked(IMKitConfigCenter.getEnableAntiSpamTipMessage());
     viewBinding.settingTitleBar.setOnBackIconClickListener(v -> onBackPressed());
     viewBinding.aiStreamModeSc.setChecked(viewModel.getAIStream(this));
+    viewBinding.kitCloudSearchSc.setChecked(IMKitConfigCenter.getEnableCloudSearch());
     viewBinding.aiStreamModeSc.setOnClickListener(
         v -> {
           boolean checked = viewBinding.aiStreamModeSc.isChecked();
@@ -170,6 +169,16 @@ public class SettingUIKitActivity extends BaseLocalActivity {
             }
           }
         });
+
+    viewBinding.kitCloudSearchSc.setOnClickListener(
+        new View.OnClickListener() {
+          @Override
+          public void onClick(View v) {
+            IMKitConfigCenter.setEnableCloudSearch(viewBinding.kitCloudSearchSc.isChecked());
+            DataUtils.saveCloudSearchConfigSwitch(
+                SettingUIKitActivity.this, viewBinding.kitCloudSearchSc.isChecked());
+          }
+        });
   }
 
   private void updateCommonView(@DrawableRes int thumbRes, @DrawableRes int trackRes) {
@@ -203,5 +212,11 @@ public class SettingUIKitActivity extends BaseLocalActivity {
 
     viewBinding.kitAntiSpamSc.setThumbResource(thumbRes);
     viewBinding.kitAntiSpamSc.setTrackResource(trackRes);
+
+    viewBinding.kitCloudSearchSc.setThumbResource(thumbRes);
+    viewBinding.kitCloudSearchSc.setTrackResource(trackRes);
+
+    viewBinding.kitImagePickSc.setThumbResource(thumbRes);
+    viewBinding.kitImagePickSc.setTrackResource(trackRes);
   }
 }

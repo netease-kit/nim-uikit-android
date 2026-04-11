@@ -16,7 +16,7 @@ android {
     defaultConfig {
         minSdk = 24
         consumerProguardFiles("consumer-rules.pro")
-        buildConfigField("String", "versionName", "\"10.9.10\"")
+        buildConfigField("String", "versionName", "\"10.9.21\"")
     }
 
     buildTypes {
@@ -38,10 +38,10 @@ dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
     // imuikit 底层库
 //    api(project(":common-ui"))
-    api("com.netease.yunxin.kit.common:common-ui:1.10.0")
     api("com.netease.yunxin.kit:alog:1.1.1")
-    api("com.netease.yunxin.kit.chat:chatkit:10.9.10")
-    api("com.netease.yunxin.kit.core:corekit-plugin:1.10.1")
+    api("com.netease.yunxin.kit.chat:chatkit:10.9.22")
+    api("com.netease.yunxin.kit.core:corekit-plugin:1.13.0")
+    api("com.netease.yunxin.kit.common:common-ui:1.11.1")
 
     api("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
     api("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.22")
@@ -54,5 +54,6 @@ dependencies {
     implementation("io.noties.markwon:ext-tables:4.6.2")
     implementation("io.noties.markwon:ext-tasklist:4.6.2")
     implementation("io.noties.markwon:linkify:4.6.2")
+    implementation("io.noties.markwon:image:4.6.2")
 }
 

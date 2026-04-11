@@ -140,6 +140,40 @@
     <string name="ai_user_title">数字人</string>
     <string name="contact_ai_user_title">我的数字人</string>
     <string name="contact_ai_user_empty_tips">暂无数字人</string>
+    <string name="contact_robot_title">我的机器人</string>
+    <string name="contact_robot_empty_tips">暂无机器人，点击右上角创建</string>
+    <string name="contact_robot_limit_tips">机器人数量已达上限，请选择已有机器人或去删除机器人</string>
+    <string name="contact_robot_info_title">机器人</string>
+    <string name="contact_robot_edit">编辑</string>
+    <string name="contact_robot_view_config">查看配置串</string>
+    <string name="contact_robot_view_config_page_title">配置串</string>
+    <string name="contact_robot_view_config_label">配置串</string>
+    <string name="contact_robot_view_config_copy">复制完整配置串</string>
+    <string name="contact_robot_view_config_copied">已复制到剪切板</string>
+    <string name="contact_robot_view_config_tip">请妥善保管，不要泄露给他人</string>
+    <string name="contact_robot_refresh_token">刷新Token</string>
+    <string name="contact_robot_chat">聊天</string>
+    <string name="contact_robot_delete">删除机器人</string>
+    <string name="contact_robot_delete_confirm_title">确认删除机器人？</string>
+    <string name="contact_robot_delete_confirm_message">删除后，正在使用的机器人将断开连接，需要重新配置</string>
+    <string name="contact_robot_delete_confirm_positive">删除</string>
+    <string name="contact_robot_delete_success">机器人已删除</string>
+    <string name="contact_robot_coming_soon">功能即将上线</string>
+    <string name="contact_robot_refresh_token_confirm_title">确认刷新Token?</string>
+    <string name="contact_robot_refresh_token_confirm_message">刷新后，旧Token将立即失效，正在使用的机器人需要重新配置</string>
+    <string name="contact_robot_refresh_token_success">Token刷新成功</string>
+    <string name="contact_robot_edit_title">编辑机器人</string>
+    <string name="contact_robot_edit_avatar">头像</string>
+    <string name="contact_robot_edit_name">昵称</string>
+    <string name="contact_robot_edit_save">保存</string>
+    <string name="contact_robot_edit_name_title">修改昵称</string>
+    <string name="contact_robot_edit_name_hint">请输入机器人昵称</string>
+    <string name="contact_robot_create_title">创建机器人</string>
+    <string name="contact_robot_create_name_required">请先输入昵称</string>
+    <string name="contact_robot_bind_title">绑定机器人</string>
+    <string name="contact_robot_bind_create">新建机器人</string>
+    <string name="contact_robot_bind_select_hint">选择已有的机器人</string>
+    <string name="contact_robot_bind_success">机器人绑定成功</string>
 
     <!--    common-->
     <string name="cancel">取消</string>
@@ -153,4 +187,9 @@
     <string name="contact_dialog_clear_friend_verify_content">是否清空好友验证消息？</string>
     <string name="contact_dialog_sure">确认</string>
     <string name="contact_dialog_cancel">取消</string>
+
+    <!-- ==================== Fun 皮肤专属字符串 ==================== -->
+    <string name="fun_contact_search_hint_text">搜索</string>
+    <!-- ==================== Fun 皮肤专属字符串 END ==================== -->
+
 </resources>

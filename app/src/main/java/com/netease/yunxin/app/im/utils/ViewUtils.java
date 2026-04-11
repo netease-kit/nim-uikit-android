@@ -18,9 +18,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.TextView;
-
 import androidx.core.content.ContextCompat;
-
 import com.netease.yunxin.app.im.R;
 import com.netease.yunxin.kit.common.ui.activities.BrowseActivity;
 import com.netease.yunxin.kit.common.utils.SizeUtils;

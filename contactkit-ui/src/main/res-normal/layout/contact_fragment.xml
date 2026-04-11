@@ -20,7 +20,7 @@
     <LinearLayout android:id="@+id/empty_layout"
         android:layout_width="match_parent"
         android:layout_height="@dimen/dimen_188_dp"
-        android:layout_marginTop="400dp"
+        android:layout_marginTop="500dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

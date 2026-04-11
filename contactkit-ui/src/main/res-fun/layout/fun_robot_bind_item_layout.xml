@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2022 NetEase, Inc. All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be
+  ~ found in the LICENSE file.
+  -->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?attr/selectableItemBackground"
+    android:minHeight="@dimen/dimen_56_dp"
+    android:paddingHorizontal="@dimen/dimen_20_dp"
+    android:paddingVertical="@dimen/dimen_10_dp">
+
+    <!-- 头像：正方形，无圆角 -->
+    <com.netease.yunxin.kit.common.ui.widgets.ContactAvatarView
+        android:id="@+id/avatar_view"
+        android:layout_width="@dimen/dimen_46_dp"
+        android:layout_height="@dimen/dimen_46_dp"
+        android:layout_centerVertical="true"
+        app:avatarCorner="6dp"
+        app:avatarTextSize="@dimen/text_size_16" />
+
+    <!-- 名称 + 副标题 -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginStart="@dimen/dimen_15_dp"
+        android:layout_marginEnd="@dimen/dimen_30_dp"
+        android:layout_toStartOf="@+id/iv_arrow"
+        android:layout_toEndOf="@+id/avatar_view"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tv_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textColor="@color/title_color"
+            android:textSize="@dimen/text_size_16" />
+
+        <TextView
+            android:id="@+id/tv_subtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dimen_4_dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textColor="@color/color_999999"
+            android:textSize="@dimen/text_size_13"
+            android:visibility="gone" />
+    </LinearLayout>
+
+    <!-- 右箭头 -->
+    <ImageView
+        android:id="@+id/iv_arrow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:src="@drawable/ic_right_arrow" />
+
+    <!-- 底部分隔线 -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dimen_1_dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="@dimen/dimen_80_dp"
+        android:background="@color/color_f5f8fc" />
+
+</RelativeLayout>

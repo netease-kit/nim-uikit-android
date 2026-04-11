@@ -67,19 +67,47 @@ public class ConversationFragment extends ConversationBaseFragment {
             ConversationKitClient.getConversationUIConfig().titleBarRightClick.onClick(v);
             return;
           }
-          // 如果配置了群组功能，则展示群组相关的弹窗
+          Context context = getContext();
+          int memberLimit = ConversationConstant.MAX_TEAM_MEMBER;
+          // 构建默认条目列表
+          List<ContentListPopView.Item> defaultItems = new java.util.ArrayList<>();
           if (IMKitConfigCenter.getEnableTeam()) {
-            Context context = getContext();
-            int memberLimit = ConversationConstant.MAX_TEAM_MEMBER;
-            ContentListPopView contentListPopView =
-                new ContentListPopView.Builder(context)
-                    .addItem(PopItemFactory.getAddFriendItem(context))
-                    .addItem(PopItemFactory.getSearchGroupTeamItem(context))
-                    .addItem(PopItemFactory.getCreateGroupTeamItem(context, memberLimit))
-                    .addItem(PopItemFactory.getCreateAdvancedTeamItem(context, memberLimit))
-                    .build();
-            contentListPopView.showAsDropDown(
-                v, (int) requireContext().getResources().getDimension(R.dimen.pop_margin_right), 0);
+            defaultItems.add(PopItemFactory.getAddFriendItem(context));
+            defaultItems.add(PopItemFactory.getSearchGroupTeamItem(context));
+            defaultItems.add(PopItemFactory.getCreateGroupTeamItem(context, memberLimit));
+            defaultItems.add(PopItemFactory.getCreateAdvancedTeamItem(context, memberLimit));
+          }
+          // 如果外部配置了弹窗菜单条目提供者，将默认列表传入，由外部决定最终条目
+          ConversationUIConfig uiConfig = ConversationKitClient.getConversationUIConfig();
+          if (uiConfig != null && uiConfig.popMenuItemProvider != null) {
+            List<ContentListPopView.Item> finalItems =
+                uiConfig.popMenuItemProvider.getPopMenuItems(defaultItems);
+            if (finalItems != null) {
+              ContentListPopView.Builder builder = new ContentListPopView.Builder(context);
+              for (ContentListPopView.Item item : finalItems) {
+                builder.addItem(item);
+              }
+              builder
+                  .build()
+                  .showAsDropDown(
+                      v,
+                      (int) requireContext().getResources().getDimension(R.dimen.pop_margin_right),
+                      0);
+              return;
+            }
+          }
+          // 默认逻辑：有群功能展示弹窗，否则跳转添加好友
+          if (IMKitConfigCenter.getEnableTeam()) {
+            ContentListPopView.Builder builder = new ContentListPopView.Builder(context);
+            for (ContentListPopView.Item item : defaultItems) {
+              builder.addItem(item);
+            }
+            builder
+                .build()
+                .showAsDropDown(
+                    v,
+                    (int) requireContext().getResources().getDimension(R.dimen.pop_margin_right),
+                    0);
           } else {
             // 如果没有配置标题栏右侧点击事件，则默认跳转到添加好友页面
             XKitRouter.withKey(RouterConstant.PATH_ADD_FRIEND_PAGE)

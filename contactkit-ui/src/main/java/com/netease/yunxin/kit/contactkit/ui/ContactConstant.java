@@ -32,4 +32,11 @@ public class ContactConstant {
   public static final int ERROR_TEAM_MEMBER_LIMIT = 108437;
   // 同意邀请群人数达到上限
   public static final int ERROR_TEAM_MEMBER_JOIN_LIMIT = 108305;
+  // 不是ai机器人账号
+  public static final int ERROR_NOT_ROBOT = 102308;
+  // AI机器人账号不属于当前用户
+  public static final int ERROR_ROBOT_IS_NOT_BELONG = 102310;
+
+  //102311: 该二维码已被绑定
+  public static final int ERROR_QRCODE_BIND_USED = 102311;
 }

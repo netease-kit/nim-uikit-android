@@ -36,6 +36,8 @@ public abstract class BaseUserInfoActivity extends BaseLocalActivity {
   protected UserInfoViewModel viewModel;
   protected ContactUserInfoBean userInfoData;
   protected String accId;
+  /** 标记当前用户是否为 AI 机器人，影响 goChat() 路由选择 */
+  private boolean isRobot = false;
 
   private View rootView;
   protected BackTitleBar titleBar;
@@ -161,7 +163,9 @@ public abstract class BaseUserInfoActivity extends BaseLocalActivity {
 
   protected void goChat() {
     String path = RouterConstant.PATH_CHAT_P2P_PAGE;
-    if (AIUserManager.isAIUser(userInfoData.data.getAccountId())) {
+    if (isRobot) {
+      path = getRobotChatRouterPath();
+    } else if (AIUserManager.isAIUser(userInfoData.data.getAccountId())) {
       path = RouterConstant.PATH_CHAT_AI_P2P_PAGE;
     }
     XKitRouter.withKey(path)
@@ -169,6 +173,11 @@ public abstract class BaseUserInfoActivity extends BaseLocalActivity {
         .withContext(BaseUserInfoActivity.this)
         .navigate();
     finish();
+  }
+
+  /** 机器人聊天路由，Fun 版子类可覆写 */
+  protected String getRobotChatRouterPath() {
+    return RouterConstant.PATH_CHAT_P2P_PAGE;
   }
 
   protected Class<? extends Activity> getCommentActivity() {
@@ -222,6 +231,10 @@ public abstract class BaseUserInfoActivity extends BaseLocalActivity {
                   && mapFetchResult.getData() != null) {
                 userInfoData = mapFetchResult.getData();
                 contactInfoView.setData(userInfoData);
+                // 不是好友、也不是 AIUser，查询是否为 AI 机器人
+                if (!userInfoData.isFriend && !AIUserManager.isAIUser(accId)) {
+                  viewModel.checkIfRobot(accId);
+                }
               } else {
                 if (!NetworkUtils.isConnected()) {
                   Toast.makeText(this, R.string.contact_network_error_tip, Toast.LENGTH_SHORT)
@@ -257,6 +270,16 @@ public abstract class BaseUserInfoActivity extends BaseLocalActivity {
                 } else {
                   viewModel.getUserWithFriend(accId);
                 }
+              }
+            });
+    viewModel
+        .getIsAIBotLiveData()
+        .observe(
+            this,
+            isBot -> {
+              if (Boolean.TRUE.equals(isBot)) {
+                isRobot = true;
+                contactInfoView.applyRobotMode();
               }
             });
     viewModel.getUserWithFriend(accId);

@@ -7,19 +7,27 @@ package com.netease.yunxin.app.im.main;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
-
+import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-
+import com.journeyapps.barcodescanner.ScanContract;
+import com.journeyapps.barcodescanner.ScanOptions;
 import com.netease.lava.nertc.sdk.NERtcOption;
 import com.netease.nimlib.sdk.avsignalling.constant.ChannelType;
 import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
+import com.netease.nimlib.sdk.uinfo.model.UserInfo;
 import com.netease.nimlib.sdk.v2.V2NIMError;
 import com.netease.nimlib.sdk.v2.ai.model.V2NIMAIUser;
 import com.netease.nimlib.sdk.v2.auth.V2NIMLoginListener;
@@ -56,22 +64,21 @@ import com.netease.yunxin.kit.chatkit.manager.AIUserAgentProvider;
 import com.netease.yunxin.kit.chatkit.manager.AIUserManager;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
-import com.netease.yunxin.kit.chatkit.repo.SettingRepo;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitClient;
 import com.netease.yunxin.kit.chatkit.ui.ChatUIConfig;
 import com.netease.yunxin.kit.chatkit.ui.IChatInputMenu;
 import com.netease.yunxin.kit.chatkit.ui.builder.IChatViewCustom;
-import com.netease.yunxin.kit.chatkit.ui.custom.ChatConfigManager;
 import com.netease.yunxin.kit.chatkit.ui.interfaces.IChatView;
 import com.netease.yunxin.kit.chatkit.ui.view.ai.AIHelperView;
 import com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants;
 import com.netease.yunxin.kit.chatkit.utils.ConversationIdUtils;
 import com.netease.yunxin.kit.common.ui.activities.BaseLocalActivity;
 import com.netease.yunxin.kit.common.ui.utils.AppLanguageConfig;
+import com.netease.yunxin.kit.common.ui.widgets.ContentListPopView;
+import com.netease.yunxin.kit.common.utils.SizeUtils;
 import com.netease.yunxin.kit.contactkit.ui.contact.BaseContactFragment;
 import com.netease.yunxin.kit.contactkit.ui.fun.contact.FunContactFragment;
 import com.netease.yunxin.kit.contactkit.ui.normal.contact.ContactFragment;
-import com.netease.yunxin.kit.conversationkit.local.ui.ILocalConversationViewLayout;
 import com.netease.yunxin.kit.conversationkit.local.ui.LocalConversationKitClient;
 import com.netease.yunxin.kit.conversationkit.local.ui.LocalConversationUIConfig;
 import com.netease.yunxin.kit.conversationkit.local.ui.fun.page.FunLocalConversationFragment;
@@ -80,6 +87,7 @@ import com.netease.yunxin.kit.conversationkit.local.ui.page.LocalConversationBas
 import com.netease.yunxin.kit.conversationkit.ui.ConversationKitClient;
 import com.netease.yunxin.kit.conversationkit.ui.ConversationUIConfig;
 import com.netease.yunxin.kit.conversationkit.ui.IConversationViewLayout;
+import com.netease.yunxin.kit.conversationkit.ui.fun.FunPopItemFactory;
 import com.netease.yunxin.kit.conversationkit.ui.fun.page.FunConversationFragment;
 import com.netease.yunxin.kit.conversationkit.ui.normal.page.ConversationFragment;
 import com.netease.yunxin.kit.conversationkit.ui.page.ConversationBaseFragment;
@@ -93,14 +101,12 @@ import com.netease.yunxin.kit.corekit.route.XKitRouter;
 import com.netease.yunxin.nertc.ui.CallKitNotificationConfig;
 import com.netease.yunxin.nertc.ui.CallKitUI;
 import com.netease.yunxin.nertc.ui.CallKitUIOptions;
-
-import org.jetbrains.annotations.NotNull;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import org.jetbrains.annotations.NotNull;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /** Demo 主页面 */
 public class MainActivity extends BaseLocalActivity {
@@ -132,6 +138,9 @@ public class MainActivity extends BaseLocalActivity {
   private static final String NOTIFICATION_MESSAGE = "com.netease.nim.EXTRA.NOTIFY_CONTENT";
   private String aiHelperLastMsgClientId = null;
   private String aiHelperLastAccountId = null;
+
+  // 扫码 Launcher，注册后在 loadCustomConfig 弹窗 item 中使用
+  private ActivityResultLauncher<ScanOptions> scanLauncher;
 
   // 翻译数字人账号
   private static final String AI_TRANSLATION_USER_ACCOUNT = "translation";
@@ -172,7 +181,16 @@ public class MainActivity extends BaseLocalActivity {
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    ALog.d(Constant.PROJECT_TAG, "MainActivity:onCreate");
+    // 注册扫码结果回调，必须在 onCreate 中、首次使用前调用
+    scanLauncher =
+        registerForActivityResult(
+            new ScanContract(),
+            result -> {
+              if (result.getContents() != null) {
+                onScanResult(result.getContents());
+              }
+            });
+    ALog.i(Constant.PROJECT_TAG, "MainActivity:onCreate");
     if (TextUtils.isEmpty(IMKitClient.account())) {
       Intent intent = new Intent(this, WelcomeActivity.class);
       startActivity(intent);
@@ -205,19 +223,6 @@ public class MainActivity extends BaseLocalActivity {
 
   // 初始化数据
   private void initData() {
-    // 是否展示已读未读状态开关
-    SettingRepo.getShowReadStatus(
-        new FetchCallback<Boolean>() {
-          @Override
-          public void onError(int errorCode, @Nullable String errorMsg) {}
-
-          @Override
-          public void onSuccess(@Nullable Boolean param) {
-            // 设置是否展示已读未读状态
-            ChatConfigManager.showReadStatus = param;
-          }
-        });
-
     //设置功能数字人信息
     AIUserManager.setProvider(
         new AIUserAgentProvider() {
@@ -330,7 +335,7 @@ public class MainActivity extends BaseLocalActivity {
     // 判断是否是通用皮肤
     boolean isCommonSkin =
         AppSkinConfig.getInstance().getAppSkinStyle() == AppSkinConfig.AppSkin.commonSkin;
-    ALog.d(Constant.PROJECT_TAG, "MainActivity:initView currentIndex = " + currentIndex);
+    ALog.i(Constant.PROJECT_TAG, "MainActivity:initView currentIndex = " + currentIndex);
     List<Fragment> fragments = new ArrayList<>();
     boolean cloudConversation = DataUtils.getCloudConversationConfigSwitch(this);
     // 根据皮肤类型加载不同的Fragment
@@ -354,7 +359,7 @@ public class MainActivity extends BaseLocalActivity {
       }
       mContactFragment = new ContactFragment();
     }
-    loadCustomConfig();
+    loadCustomConfig(isCommonSkin);
     if (mConversationFragment != null) {
       fragments.add(mConversationFragment);
     } else {
@@ -392,7 +397,7 @@ public class MainActivity extends BaseLocalActivity {
   @Override
   public void onSaveInstanceState(@NonNull Bundle outState) {
     super.onSaveInstanceState(outState);
-    ALog.d(Constant.PROJECT_TAG, "MainActivity:onSaveInstanceState currentIndex = " + currentIndex);
+    ALog.i(Constant.PROJECT_TAG, "MainActivity:onSaveInstanceState currentIndex = " + currentIndex);
     outState.putInt(CURRENT_INDEX, currentIndex);
     outState.putBoolean(CONVERSATION_POT, haveUnreadConversation);
     outState.putBoolean(CONTACT_POT, haveUnreadContact);
@@ -415,7 +420,7 @@ public class MainActivity extends BaseLocalActivity {
 
   @Override
   protected void onDestroy() {
-    ALog.d(Constant.PROJECT_TAG, "MainActivity:onDestroy");
+    ALog.i(Constant.PROJECT_TAG, "MainActivity:onDestroy");
     EventCenter.unregisterEventNotify(skinNotify);
     EventCenter.unregisterEventNotify(langeNotify);
     super.onDestroy();
@@ -490,7 +495,7 @@ public class MainActivity extends BaseLocalActivity {
     if (mConversationFragment != null) {
       mConversationFragment.setConversationCallback(
           count -> {
-            ALog.d("mainActivity,initConversationFragment", "unread count:" + count);
+            ALog.i("mainActivity,initConversationFragment", "unread count:" + count);
             if (count > 0) {
               activityMainBinding.conversationDot.setVisibility(View.VISIBLE);
               haveUnreadConversation = true;
@@ -502,7 +507,7 @@ public class MainActivity extends BaseLocalActivity {
     } else {
       mLocalConversationFragment.setConversationCallback(
           count -> {
-            ALog.d("mainActivity,initConversationFragment", "unread count:" + count);
+            ALog.i("mainActivity,initConversationFragment", "unread count:" + count);
             if (count > 0) {
               activityMainBinding.conversationDot.setVisibility(View.VISIBLE);
               haveUnreadConversation = true;
@@ -565,7 +570,7 @@ public class MainActivity extends BaseLocalActivity {
                           + (invitedInfo.callType == ChannelType.AUDIO.getValue()
                               ? getString(R.string.incoming_call_notify_audio)
                               : getString(R.string.incoming_call_notify_video));
-                  ALog.d("=======" + content);
+                  ALog.i("=======" + content);
                   return new CallKitNotificationConfig(R.mipmap.ic_logo, null, null, content);
                 })
             // 收到被叫时若 app 在后台，在恢复到前台时是否自动唤起被叫页面，默认为 true
@@ -641,15 +646,22 @@ public class MainActivity extends BaseLocalActivity {
   }
 
   // 加载配置，示例代码，CustomConfig展示如何通过接口来设置界面UI
-  private void loadCustomConfig() {
+  private void loadCustomConfig(boolean isCommonSkin) {
     if (mLocalConversationFragment != null) {
       LocalConversationUIConfig conversationUIConfig = new LocalConversationUIConfig();
       conversationUIConfig.customLayout =
-          new ILocalConversationViewLayout() {
-            @Override
-            public void customizeConversationLayout(LocalConversationBaseFragment fragment) {
+          fragment ->
               ViewUtils.addTipsView(fragment.getBodyTopLayout(), fragment.getContext(), false);
+      // 配置弹窗菜单：在默认条目末尾追加「扫一扫」
+      conversationUIConfig.popMenuItemProvider =
+          defaultItems -> {
+            if (isCommonSkin) {
+              defaultItems.add(FunPopItemFactory.getDivideLineItem(MainActivity.this));
+              defaultItems.add(buildFunScanMenuItem(MainActivity.this));
+            } else {
+              defaultItems.add(buildScanMenuItem(MainActivity.this));
             }
+            return defaultItems;
           };
       LocalConversationKitClient.setConversationUIConfig(conversationUIConfig);
     } else {
@@ -658,8 +670,21 @@ public class MainActivity extends BaseLocalActivity {
           new IConversationViewLayout() {
             @Override
             public void customizeConversationLayout(ConversationBaseFragment fragment) {
+
               ViewUtils.addTipsView(fragment.getBodyTopLayout(), fragment.getContext(), false);
             }
+          };
+      // 配置弹窗菜单：在默认条目末尾追加「扫一扫」
+      conversationUIConfig.popMenuItemProvider =
+          defaultItems -> {
+            if (isCommonSkin) {
+              defaultItems.add(FunPopItemFactory.getDivideLineItem(MainActivity.this));
+
+              defaultItems.add(buildFunScanMenuItem(MainActivity.this));
+            } else {
+              defaultItems.add(buildScanMenuItem(MainActivity.this));
+            }
+            return defaultItems;
           };
       ConversationKitClient.setConversationUIConfig(conversationUIConfig);
     }
@@ -705,6 +730,7 @@ public class MainActivity extends BaseLocalActivity {
             return true;
           }
         };
+
     ChatKitClient.setChatUIConfig(uiConfig);
   }
 
@@ -750,6 +776,7 @@ public class MainActivity extends BaseLocalActivity {
     IMKitConfigCenter.setEnablePinMessage(config.hasPin);
     IMKitConfigCenter.setEnableTypingStatus(config.hasOnlineStatus);
     IMKitConfigCenter.setEnableTeamJoinAgreeModelAuth(config.hasTeamApplyMode);
+    IMKitConfigCenter.setEnableCloudSearch(config.enableCloudSearch);
   }
 
   public void parseAndGoChat(Intent intent) {
@@ -786,6 +813,150 @@ public class MainActivity extends BaseLocalActivity {
           }
         }
       }
+    }
+  }
+
+  /**
+   * 构建「扫一扫」弹窗菜单条目，严格对齐 PopItemFactory.getAddFriendItem 的构建方式。
+   *
+   * <p>必须使用 Activity Context（而非 ApplicationContext），否则 getDimension 结果可能因 Display Metrics
+   * 差异导致高度/大小与其他默认条目不一致。
+   *
+   * @param context Activity Context
+   * @return 配置好的 ContentListPopView.Item
+   */
+  private ContentListPopView.Item buildScanMenuItem(Context context) {
+    int itemHeight = (int) context.getResources().getDimension(R.dimen.dimen_16_dp);
+    int marginLeft = (int) context.getResources().getDimension(R.dimen.dimen_15_dp);
+    int marginTopBottom =
+        (int) context.getResources().getDimension(R.dimen.dimen_8_dp);
+    int padding = (int) context.getResources().getDimension(R.dimen.dimen_8_dp);
+
+    TextView textView = new TextView(context);
+    textView.setGravity(Gravity.CENTER_VERTICAL);
+    textView.setTextSize(14);
+    textView.setMaxLines(1);
+    textView.setText(R.string.app_scan_qr_code);
+    textView.setPadding(padding, 0, SizeUtils.dp2px(12), 0);
+    Drawable scanIcon = ContextCompat.getDrawable(context, R.drawable.app_ic_scan);
+    if (scanIcon != null) {
+      scanIcon.setBounds(0, 0, scanIcon.getMinimumWidth(), scanIcon.getMinimumHeight());
+      textView.setCompoundDrawables(scanIcon, null, null, null);
+    }
+    textView.setTextColor(
+        ContextCompat.getColor(
+            context,
+            com.netease.yunxin.kit.conversationkit.ui.R.color.color_conversation_primary_text));
+    textView.setCompoundDrawablePadding(marginTopBottom);
+
+    // 末尾 item：只设 bottom margin，与 PopItemFactory.getCreateAdvancedTeamItem 保持一致
+    LinearLayout.LayoutParams params =
+        new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, itemHeight);
+    params.setMargins(marginLeft, 0, 0, marginTopBottom);
+
+    return new ContentListPopView.Item.Builder()
+        .configView(textView)
+        .configParams(params)
+        .configClickListener(v -> launchQrScanner())
+        .build();
+  }
+
+  private ContentListPopView.Item buildFunScanMenuItem(Context context) {
+    int itemHeight = (int) context.getResources().getDimension(R.dimen.dimen_32_dp);
+    int marginLeft = (int) context.getResources().getDimension(R.dimen.dimen_8_dp);
+    int marginTopBottom = marginLeft;
+    int padding = marginLeft;
+    int drawableLeft = (int) context.getResources().getDimension(R.dimen.dimen_12_dp);
+
+    TextView textView = new TextView(context);
+    textView.setGravity(Gravity.CENTER_VERTICAL);
+    textView.setTextSize(14);
+    textView.setMaxLines(1);
+    textView.setText(R.string.app_scan_qr_code);
+    textView.setPadding(padding, 0, SizeUtils.dp2px(12), 0);
+    Drawable scanIcon = ContextCompat.getDrawable(context, R.drawable.fun_app_ic_scan);
+    if (scanIcon != null) {
+      scanIcon.setBounds(0, 0, scanIcon.getMinimumWidth(), scanIcon.getMinimumHeight());
+      textView.setCompoundDrawables(scanIcon, null, null, null);
+    }
+    textView.setTextColor(
+        ContextCompat.getColor(
+            context,
+            com.netease.yunxin.kit.conversationkit.ui.R.color.fun_conversation_add_pop_text_color));
+    textView.setCompoundDrawablePadding(drawableLeft);
+
+    // 末尾 item：只设 bottom margin，与 PopItemFactory.getCreateAdvancedTeamItem 保持一致
+    LinearLayout.LayoutParams params =
+        new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, itemHeight);
+    params.setMargins(marginLeft, 0, 0, marginTopBottom);
+
+    return new ContentListPopView.Item.Builder()
+        .configView(textView)
+        .configParams(params)
+        .configClickListener(v -> launchQrScanner())
+        .build();
+  }
+
+  /** 启动 ZXing 相机扫码页面 */
+  private void launchQrScanner() {
+    ScanOptions options = new ScanOptions();
+    // 只识别 QR_CODE，可按需扩展
+    options.setDesiredBarcodeFormats(ScanOptions.QR_CODE);
+    options.setPrompt(getString(R.string.app_scan_prompt));
+    // 开启蜂鸣音
+    options.setBeepEnabled(true);
+    // 开启补光灯
+    options.setTorchEnabled(false);
+    // 锁定竖屏
+    options.setOrientationLocked(true);
+    options.setCaptureActivity(ScanActivity.class);
+    scanLauncher.launch(options);
+  }
+
+  /**
+   * 处理扫码结果。
+   *
+   * <p>解析二维码 JSON 格式：{"qrCode": "xxx", "expireAt": 3187732225000} <br>
+   * 提取 qrCode 字段，校验 expireAt 是否已过期，未过期则跳转到绑定机器人页面。
+   *
+   * @param content 扫描到的二维码内容（JSON 字符串）
+   */
+  private void onScanResult(String content) {
+    ALog.i(Constant.PROJECT_TAG, "onScanResult: " + content);
+    try {
+      JSONObject json = new JSONObject(content);
+      String qrCodeId = json.optString("qrCode", null);
+      long expireAt = json.optLong("expireAt", 0L);
+
+      if (TextUtils.isEmpty(qrCodeId)) {
+        ALog.w(Constant.PROJECT_TAG, "onScanResult: qrCode 字段为空");
+        Toast.makeText(this, R.string.app_scan_invalid_qr_code, Toast.LENGTH_SHORT).show();
+        return;
+      }
+
+      long currentTimeMs = System.currentTimeMillis();
+      if (expireAt > 0 && currentTimeMs > expireAt) {
+        ALog.w(Constant.PROJECT_TAG, "onScanResult: 二维码已过期, expireAt=" + expireAt);
+        Toast.makeText(this, R.string.app_scan_qr_code_expired, Toast.LENGTH_SHORT).show();
+        return;
+      }
+
+      // 二维码有效，跳转到机器人绑定页面，传入 qrCodeId
+      ALog.i(Constant.PROJECT_TAG, "onScanResult: 跳转绑定页, qrCodeId=" + qrCodeId);
+      boolean isCommonSkin =
+          AppSkinConfig.getInstance().getAppSkinStyle() == AppSkinConfig.AppSkin.commonSkin;
+      String routerPath =
+          isCommonSkin
+              ? RouterConstant.PATH_FUN_MY_ROBOT_BIND_PAGE
+              : RouterConstant.PATH_MY_ROBOT_BIND_PAGE;
+      XKitRouter.withKey(routerPath)
+          .withContext(this)
+          .withParam(RouterConstant.KEY_ROBOT_QR_CODE_ID, qrCodeId)
+          .navigate();
+
+    } catch (JSONException e) {
+      ALog.e(Constant.PROJECT_TAG, "onScanResult: JSON 解析失败, content=" + content, e);
+      Toast.makeText(this, R.string.app_scan_invalid_qr_code, Toast.LENGTH_SHORT).show();
     }
   }
 

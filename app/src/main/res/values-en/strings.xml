@@ -6,11 +6,14 @@
 
 <resources>
     <string name="app_name">Netease IM</string>
+    <string name="app_scan_qr_code">Scan QR Code</string>
+    <string name="app_scan_prompt">Place the QR code inside the frame</string>
+    <string name="app_scan_invalid_qr_code">Scan failed, please try again</string>
+    <string name="app_scan_qr_code_expired">QR code has expired</string>
     <string name="yunxin_name">Netease CommsEase</string>
     <string name="yunxin_desc">Stable instant messaging service</string>
     <string name="yunxin_tips">For test only. Beware of money transfer, lottery winnings strange call scams.</string>
     <string name="yunxin_report_tips">Report</string>
-
     <string name="welcome_button">register/login</string>
     <string name="email_login">Email Login</string>
     <string name="server_config">Select Node</string>
@@ -140,9 +143,9 @@
     <string name="uikit_online_switch_title">Message Typing Status</string>
     <string name="uikit_call_switch_title">Prohibit strangers from making calls</string>
     <string name="uikit_image_pick_switch_title">Use image picker plugin</string>
+    <string name="uikit_anti_spam_switch_title">Text anti-spam prompt</string>
     <string name="uikit_cloud_search_switch_title">Cloud search</string>
     <string name="uikit_team_manager_limit_title">Team Manager count limit</string>
-    <string name="uikit_anti_spam_switch_title">Text anti-spam prompt</string>
 
     <string name="uikit_save_success">Save successfully</string>
     <string name="uikit_kickoff_tips">Account kicked offline</string>

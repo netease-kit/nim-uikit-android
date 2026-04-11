@@ -155,6 +155,20 @@ public class ContactInfoView extends FrameLayout {
     }
   }
 
+  /** 将当前视图切换为机器人模式，UI 与 AI 数字人保持一致： 隐藏好友操作区、隐藏备注、隐藏删除按钮，按钮文字显示"聊天"。 */
+  public void applyRobotMode() {
+    binding.llyFriend.setVisibility(GONE);
+    binding.rlyComment.setVisibility(GONE);
+    binding.tvDelete.setVisibility(GONE);
+    binding.tvChat.setText(R.string.chat);
+    binding.tvChat.setOnClickListener(
+        v -> {
+          if (userCallback != null) {
+            userCallback.goChat();
+          }
+        });
+  }
+
   public void configSCBlackSwitch(int trackRes, int thumbRes) {
     binding.scBlackList.setTrackResource(trackRes);
     binding.scBlackList.setThumbResource(thumbRes);

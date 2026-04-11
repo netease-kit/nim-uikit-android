@@ -89,29 +89,56 @@ public class FunLocalConversationFragment extends LocalConversationBaseFragment 
             LocalConversationKitClient.getConversationUIConfig().titleBarRightClick.onClick(v);
             return;
           }
-
-          // 组件支持是否使用群功能（通过IM配置中心控制）
+          Context context = getContext();
+          int memberLimit = ConversationConstant.MAX_TEAM_MEMBER;
+          // 构建默认条目列表（Fun 版含分割线）
+          List<ContentListPopView.Item> defaultItems = new java.util.ArrayList<>();
           if (IMKitConfigCenter.getEnableTeam()) {
-            Context context = getContext();
-            int memberLimit = ConversationConstant.MAX_TEAM_MEMBER; // 群成员上限
-            // 构建功能弹窗（包含添加好友、创建群聊等选项）
-            ContentListPopView contentListPopView =
+            defaultItems.add(FunPopItemFactory.getAddFriendItem(context));
+            defaultItems.add(FunPopItemFactory.getDivideLineItem(context));
+            defaultItems.add(FunPopItemFactory.getSearchGroupTeamItem(context));
+            defaultItems.add(FunPopItemFactory.getDivideLineItem(context));
+            defaultItems.add(FunPopItemFactory.getCreateGroupTeamItem(context, memberLimit));
+            defaultItems.add(FunPopItemFactory.getDivideLineItem(context));
+            defaultItems.add(FunPopItemFactory.getCreateAdvancedTeamItem(context, memberLimit));
+          }
+          // 如果外部配置了弹窗菜单条目提供者，将默认列表传入，由外部决定最终条目
+          LocalConversationUIConfig uiConfig = LocalConversationKitClient.getConversationUIConfig();
+          if (uiConfig != null && uiConfig.popMenuItemProvider != null) {
+            List<ContentListPopView.Item> finalItems =
+                uiConfig.popMenuItemProvider.getPopMenuItems(defaultItems);
+            if (finalItems != null) {
+              ContentListPopView.Builder builder =
+                  new ContentListPopView.Builder(context)
+                      .enableShadow(false)
+                      .backgroundRes(R.drawable.fun_conversation_view_pop_bg);
+              for (ContentListPopView.Item item : finalItems) {
+                builder.addItem(item);
+              }
+              builder
+                  .build()
+                  .showAsDropDown(
+                      v,
+                      (int) requireContext().getResources().getDimension(R.dimen.pop_margin_right),
+                      0);
+              return;
+            }
+          }
+          // 默认逻辑：有群功能展示弹窗，否则跳转添加好友
+          if (IMKitConfigCenter.getEnableTeam()) {
+            ContentListPopView.Builder builder =
                 new ContentListPopView.Builder(context)
-                    .addItem(FunPopItemFactory.getAddFriendItem(context)) // 添加好友选项
-                    .addItem(FunPopItemFactory.getDivideLineItem(context)) // 分割线
-                    .addItem(FunPopItemFactory.getSearchGroupTeamItem(context)) // 搜索群聊选项
-                    .addItem(FunPopItemFactory.getDivideLineItem(context)) // 分割线
-                    .addItem(
-                        FunPopItemFactory.getCreateGroupTeamItem(context, memberLimit)) // 创建普通群聊
-                    .addItem(FunPopItemFactory.getDivideLineItem(context)) // 分割线
-                    .addItem(
-                        FunPopItemFactory.getCreateAdvancedTeamItem(context, memberLimit)) // 创建高级群聊
-                    .enableShadow(false) // 禁用阴影效果
-                    .backgroundRes(R.drawable.fun_conversation_view_pop_bg) // 自定义背景
-                    .build();
-            // 在按钮下方显示弹窗，设置右侧偏移量
-            contentListPopView.showAsDropDown(
-                v, (int) requireContext().getResources().getDimension(R.dimen.pop_margin_right), 0);
+                    .enableShadow(false)
+                    .backgroundRes(R.drawable.fun_conversation_view_pop_bg);
+            for (ContentListPopView.Item item : defaultItems) {
+              builder.addItem(item);
+            }
+            builder
+                .build()
+                .showAsDropDown(
+                    v,
+                    (int) requireContext().getResources().getDimension(R.dimen.pop_margin_right),
+                    0);
           } else {
             // 若群功能关闭，仅显示"添加好友"功能，跳转至添加好友页面
             XKitRouter.withKey(RouterConstant.PATH_FUN_ADD_FRIEND_PAGE)

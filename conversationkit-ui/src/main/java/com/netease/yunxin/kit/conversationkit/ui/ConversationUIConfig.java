@@ -6,9 +6,35 @@ package com.netease.yunxin.kit.conversationkit.ui;
 
 import android.graphics.drawable.Drawable;
 import android.view.View;
+import com.netease.yunxin.kit.common.ui.widgets.ContentListPopView;
+import java.util.List;
 
 /** 会话UI配置 */
 public class ConversationUIConfig {
+
+  /**
+   * 标题栏右侧加号弹窗菜单条目提供者接口。
+   *
+   * <p>外部实现该接口后，内部会将默认条目列表（添加好友、建群等）作为参数传入， 外部可在此基础上增删改，并返回最终需要展示的条目列表。
+   *
+   * <p>示例：在默认列表末尾追加一个自定义条目：
+   *
+   * <pre>
+   * config.popMenuItemProvider = defaultItems -> {
+   *     defaultItems.add(myCustomItem);
+   *     return defaultItems;
+   * };
+   * </pre>
+   */
+  public interface PopMenuItemProvider {
+    /**
+     * 根据默认条目列表，返回最终需要显示的弹窗菜单条目列表。
+     *
+     * @param defaultItems 内部默认构建好的条目列表（可直接修改后返回，也可忽略重建）
+     * @return 最终显示的条目列表；返回 null 时退回默认逻辑
+     */
+    List<ContentListPopView.Item> getPopMenuItems(List<ContentListPopView.Item> defaultItems);
+  }
 
   // 默认值，如果是该值，则任务该字段未设置
   public static Integer INT_DEFAULT_NULL = 0;
@@ -69,4 +95,12 @@ public class ConversationUIConfig {
   public ConversationCustom conversationCustom;
   // 会话列表定制能力，页面加载时，回调该接口，并传入当前Fragment
   public IConversationViewLayout customLayout;
+
+  /**
+   * 标题栏右侧加号弹窗菜单条目提供者。
+   *
+   * <p>设置后内部会将默认条目列表传入 {@link PopMenuItemProvider#getPopMenuItems}， 外部可在默认列表基础上增删改后返回；返回 null
+   * 时退回默认逻辑。
+   */
+  public PopMenuItemProvider popMenuItemProvider;
 }

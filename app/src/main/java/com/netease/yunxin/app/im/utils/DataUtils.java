@@ -29,6 +29,7 @@ public class DataUtils {
   private static Boolean toggleNotification = null;
   private static Boolean togglePushConfig = null;
   private static String pushConfigContent = null;
+  private static Boolean searchCloud = null;
 
   /** read appKey from manifest */
   public static String readAppKey(Context context) {
@@ -109,11 +110,12 @@ public class DataUtils {
               Constant.CONVERSATION_CONFIG_FILE, Context.MODE_MULTI_PROCESS);
       cloudConversation = sharedPreferences.getBoolean(Constant.CONVERSATION_LOCAL_CONFIG, false);
       teamApplyMode = sharedPreferences.getBoolean(Constant.TEAM_MODE_CONFIG, true);
+      searchCloud = sharedPreferences.getBoolean(Constant.SEARCH_CONFIG_CONTENT, false);
     }
     return cloudConversation;
   }
 
-  // 保存私有化配置开关
+  // 保存本地会话配置开关
   public static void saveCloudConversationConfigSwitch(Context context, boolean configSwitch) {
     SharedPreferences.Editor editor =
         context
@@ -121,6 +123,28 @@ public class DataUtils {
             .edit();
     editor.putBoolean(Constant.CONVERSATION_LOCAL_CONFIG, configSwitch);
     cloudConversation = configSwitch;
+    editor.commit();
+  }
+
+  // 获取本地会话配置开关
+  public static boolean getCloudSearchConfigSwitch(Context context) {
+    if (searchCloud == null) {
+      SharedPreferences sharedPreferences =
+          context.getSharedPreferences(
+              Constant.CONVERSATION_CONFIG_FILE, Context.MODE_MULTI_PROCESS);
+      searchCloud = sharedPreferences.getBoolean(Constant.SEARCH_CONFIG_CONTENT, false);
+    }
+    return searchCloud;
+  }
+
+  // 保存私有化配置开关
+  public static void saveCloudSearchConfigSwitch(Context context, boolean configSwitch) {
+    SharedPreferences.Editor editor =
+        context
+            .getSharedPreferences(Constant.CONVERSATION_CONFIG_FILE, Context.MODE_MULTI_PROCESS)
+            .edit();
+    editor.putBoolean(Constant.SEARCH_CONFIG_CONTENT, configSwitch);
+    searchCloud = configSwitch;
     editor.commit();
   }
 
@@ -265,6 +289,7 @@ public class DataUtils {
       kitConfig = new SettingKitConfig();
     }
     kitConfig.hasTeamApplyMode = getTeamModeConfigSwitch(IMKitClient.getApplicationContext());
+    kitConfig.enableCloudSearch = getCloudSearchConfigSwitch(IMKitClient.getApplicationContext());
     return kitConfig;
   }
 

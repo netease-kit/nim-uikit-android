@@ -38,7 +38,7 @@ public class BottomActionFactory {
   }
 
   public static List<ActionItem> assembleInputMoreActions(
-      String sessionId, V2NIMConversationType conversationType) {
+      String sessionId, V2NIMConversationType conversationType, boolean isAIBot) {
     ArrayList<ActionItem> actions = new ArrayList<>();
     actions.add(
         new ActionItem(
@@ -54,7 +54,8 @@ public class BottomActionFactory {
         new ActionItem(
             ActionConstants.ACTION_TYPE_FILE, R.drawable.ic_send_file, R.string.chat_message_file));
     if (conversationType == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P
-        && !AIUserManager.isAIUser(sessionId)) {
+        && !AIUserManager.isAIUser(sessionId)
+        && !isAIBot) {
       actions.add(
           new ActionItem(
               ActionConstants.ACTION_TYPE_VIDEO_CALL,
