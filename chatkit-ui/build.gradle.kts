@@ -42,6 +42,7 @@ dependencies {
     api("com.netease.yunxin.kit.chat:chatkit:10.9.22")
     api("com.netease.yunxin.kit.core:corekit-plugin:1.13.0")
     api("com.netease.yunxin.kit.common:common-ui:1.11.1")
+    api("com.netease.nimlib:lucene:10.9.81")
 
     api("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
     api("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.22")

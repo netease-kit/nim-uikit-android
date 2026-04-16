@@ -89,6 +89,7 @@ dependencies {
     //呼叫组件 UI 包
     implementation("com.netease.yunxin.kit.call:call-ui:3.7.1")
     implementation("com.netease.nimlib:avsignalling:10.9.81") //信令组件
+    api("com.netease.nimlib:lucene:10.9.81") // 历史消息检索功能
     api("com.netease.yunxin.kit.common:common-picturechoose:1.1.0") //图片选择组件
     implementation("com.journeyapps:zxing-android-embedded:4.3.0") // 二维码扫描
     implementation("com.airbnb.android:lottie:5.0.3")
