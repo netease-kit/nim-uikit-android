@@ -157,6 +157,46 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
   // 视频图片旋转角度，适配部分机型发送图片旋转问题
   private final String Orientation_Vertical = "90";
 
+  /** 正在翻译中的消息 ID 集合（in-flight set），防止同一条消息被重复触发翻译。 新增翻译请求时加入，请求完成（成功/失败）后移除。 */
+  private final java.util.Set<String> translatingMessageIds =
+      java.util.Collections.synchronizedSet(new java.util.HashSet<>());
+
+  /**
+   * 自动翻译：对新收到的消息逐条判断是否满足自动翻译条件，满足则异步触发翻译。 触发条件（全部满足）： 1. autoTranslationEnableTime > 0（开关已开启） 2.
+   * 非自己发送的消息（isSelf == false） 3. 消息类型为文本消息（V2NIM_MESSAGE_TYPE_TEXT） 4. message.createTime >
+   * autoTranslationEnableTime（开关开启后收到的消息） 5. translationInfo == null（尚无翻译缓存，避免重复翻译） 6. 消息 ID 不在
+   * in-flight set 中（无正在进行中的翻译请求）
+   */
+  private void autoTranslateIfNeeded(List<ChatMessageBean> chatBeans) {
+    long autoTranslationEnableTime = IMKitConfigCenter.INSTANCE.getAutoTranslationEnableTime();
+    if (autoTranslationEnableTime <= 0) {
+      return; // 自动翻译开关未开启
+    }
+    String targetLanguage = IMKitConfigCenter.INSTANCE.getTranslationTargetLanguage();
+    if (TextUtils.isEmpty(targetLanguage)) {
+      targetLanguage = "zh-CHS";
+    }
+    final String lang = targetLanguage;
+    for (ChatMessageBean bean : chatBeans) {
+      if (bean == null || bean.getMessageData() == null) continue;
+      V2NIMMessage msg = bean.getMessageData().getMessage();
+      if (msg == null) continue;
+      // 条件 2：非自己发送
+      if (msg.isSelf()) continue;
+      // 条件 3：文本消息
+      if (msg.getMessageType() != V2NIMMessageType.V2NIM_MESSAGE_TYPE_TEXT) continue;
+      // 条件 4：开关开启后收到的消息
+      if (msg.getCreateTime() <= autoTranslationEnableTime) continue;
+      // 条件 5：尚无翻译缓存
+      if (bean.getTranslationInfo() != null) continue;
+      // 条件 6：不在翻译进行中
+      if (translatingMessageIds.contains(msg.getMessageClientId())) continue;
+      ALog.i(LIB_TAG, TAG, "autoTranslate: " + msg.getMessageClientId());
+      translatingMessageIds.add(msg.getMessageClientId());
+      autoTranslateOne(bean, lang);
+    }
+  }
+
   /**
    * 设置已发送消息的已读状态
    *
@@ -166,6 +206,48 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
 
   public void onSentMessagePrepare(IMMessageInfo message) {
     setSentMessageReadCount(message);
+  }
+
+  /**
+   * 历史消息可见区域补翻扫描：在列表静止且消息已渲染到屏幕后调用。 对可见范围内满足自动翻译条件的历史消息补发翻译请求。 单次最多触发 MAX_AUTO_TRANSLATE_PER_SCAN
+   * 条，避免并发过多。
+   *
+   * @param visibleBeans 当前屏幕可见区域的消息列表
+   */
+  private static final int MAX_AUTO_TRANSLATE_PER_SCAN = 5;
+
+  public void autoTranslateVisibleHistory(List<ChatMessageBean> visibleBeans) {
+    // 第一步：开关未开启则直接退出（性能优化：避免无效循环）
+    long autoTranslationEnableTime = IMKitConfigCenter.INSTANCE.getAutoTranslationEnableTime();
+    if (autoTranslationEnableTime <= 0) {
+      return;
+    }
+    String targetLanguage = IMKitConfigCenter.INSTANCE.getTranslationTargetLanguage();
+    if (TextUtils.isEmpty(targetLanguage)) {
+      targetLanguage = "zh-CHS";
+    }
+    final String lang = targetLanguage;
+    int triggered = 0;
+    for (ChatMessageBean bean : visibleBeans) {
+      if (triggered >= MAX_AUTO_TRANSLATE_PER_SCAN) break;
+      if (bean == null || bean.getMessageData() == null) continue;
+      V2NIMMessage msg = bean.getMessageData().getMessage();
+      if (msg == null) continue;
+      // 条件 2：非自己发送
+      if (msg.isSelf()) continue;
+      // 条件 3：文本消息
+      if (msg.getMessageType() != V2NIMMessageType.V2NIM_MESSAGE_TYPE_TEXT) continue;
+      // 条件 4：开关开启后产生的消息
+      if (msg.getCreateTime() <= autoTranslationEnableTime) continue;
+      // 条件 5：尚无翻译缓存
+      if (bean.getTranslationInfo() != null) continue;
+      // 条件 6：不在翻译进行中
+      if (translatingMessageIds.contains(msg.getMessageClientId())) continue;
+      ALog.i(LIB_TAG, TAG, "autoTranslateHistory: " + msg.getMessageClientId());
+      translatingMessageIds.add(msg.getMessageClientId());
+      autoTranslateOne(bean, lang);
+      triggered++;
+    }
   }
 
   // 消息监听
@@ -270,12 +352,15 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
             return;
           }
           ALog.i(LIB_TAG, TAG, "receive msg -->> " + messages.size());
+          List<ChatMessageBean> chatBeans = MessageParamBuildUtils.convertToChatBeans(messages);
           FetchResult<List<ChatMessageBean>> messageRecFetchResult =
               new FetchResult<>(LoadStatus.Success);
-          messageRecFetchResult.setData(MessageParamBuildUtils.convertToChatBeans(messages));
+          messageRecFetchResult.setData(chatBeans);
           messageRecFetchResult.setType(FetchResult.FetchType.Add);
           messageRecFetchResult.setTypeIndex(-1);
           messageRecLiveData.setValue(messageRecFetchResult);
+          // 自动翻译：判断是否需要对新消息触发翻译
+          autoTranslateIfNeeded(chatBeans);
         }
 
         @Override
@@ -511,6 +596,38 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
     MessageOperateUtils.voiceToText(messageBean, updateMessageLiveData);
   }
 
+  // 翻译消息（手动触发，供 Fragment 调用）
+  public void translateMessage(ChatMessageBean messageBean, String targetLanguage) {
+    MessageOperateUtils.translateMessage(messageBean, targetLanguage, updateMessageLiveData);
+  }
+
+  /**
+   * 自动翻译单条消息：翻译完成（成功/失败）后自动从 in-flight set 移除，防止重复触发。 仅供 autoTranslateIfNeeded /
+   * autoTranslateVisibleHistory 内部使用。
+   *
+   * <p>使用独立的临时 LiveData 承接 MessageOperateUtils 的结果，结果到达后： 1. 从 in-flight set 移除消息 ID； 2. 将结果转发给主
+   * updateMessageLiveData，触发 UI 刷新。
+   */
+  private void autoTranslateOne(ChatMessageBean messageBean, String targetLanguage) {
+    String messageId = messageBean.getMessageData().getMessage().getMessageClientId();
+    MutableLiveData<FetchResult<Pair<MessageUpdateType, List<ChatMessageBean>>>> tempLiveData =
+        new MutableLiveData<>();
+    // 使用 observeForever 监听临时 LiveData，结果到达后清理
+    final androidx.lifecycle.Observer<FetchResult<Pair<MessageUpdateType, List<ChatMessageBean>>>>[]
+        observerHolder = new androidx.lifecycle.Observer[1];
+    observerHolder[0] =
+        result -> {
+          // 移除 observer，避免内存泄漏
+          tempLiveData.removeObserver(observerHolder[0]);
+          // 从 in-flight set 移除（无论成功失败）
+          translatingMessageIds.remove(messageId);
+          // 转发结果到主 LiveData 触发 UI 刷新
+          updateMessageLiveData.setValue(result);
+        };
+    tempLiveData.observeForever(observerHolder[0]);
+    MessageOperateUtils.translateMessage(messageBean, targetLanguage, tempLiveData);
+  }
+
   // 获取发送消息LiveData
   public MutableLiveData<FetchResult<ChatMessageBean>> getSendMessageLiveData() {
     return sendMessageLiveData;
@@ -670,6 +787,14 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
     ALog.i(LIB_TAG, TAG, "sendForwardMessage:" + conversationIds.size());
     MessageHelper.sendForwardMessage(message, inputMsg, conversationIds, false, showRead);
   }
+  // 发送译文转发消息：以译文纯文本为内容，发到多个目标会话
+  public void sendTranslationForwardMessage(
+      String translatedText, String inputMsg, List<String> conversationIds) {
+    ALog.i(LIB_TAG, TAG, "sendTranslationForwardMessage to " + conversationIds.size());
+    MessageHelper.sendTranslationForwardMessage(
+        translatedText, inputMsg, conversationIds, showRead);
+  }
+
   // 发送转发消息（逐条转发）
   public void sendForwardMessages(
       String inputMsg, List<String> conversationIds, List<ChatMessageBean> messages) {

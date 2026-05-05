@@ -117,6 +117,26 @@ public class ChatPopMenu {
   }
 
   /**
+   * 弹出pop Window，使用自定义 action 列表（如译文长按菜单）
+   *
+   * @param anchorView 锚点 View
+   * @param actions 自定义 action 列表
+   * @param isSelf 是否是自己发送的消息（影响弹窗水平位置）
+   * @param minY 最小 Y 值（防止弹窗超出顶部）
+   */
+  @SuppressLint("NotifyDataSetChanged")
+  public void show(View anchorView, List<PluginAction> actions, boolean isSelf, int minY) {
+    ALog.d(LIB_TAG, TAG, "show custom actions, size=" + actions.size());
+    chatPopMenuActionList.clear();
+    chatPopMenuActionList.addAll(actions);
+    adapter.notifyDataSetChanged();
+    if (chatPopMenuActionList.isEmpty()) {
+      return;
+    }
+    showWindow(anchorView, isSelf, minY);
+  }
+
+  /**
    * 显示pop window
    *
    * @param anchorView 标的view

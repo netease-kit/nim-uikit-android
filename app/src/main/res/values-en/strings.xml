@@ -150,4 +150,28 @@
     <string name="uikit_save_success">Save successfully</string>
     <string name="uikit_kickoff_tips">Account kicked offline</string>
 
+    <!-- Message Translation settings -->
+    <string name="translation_setting_title">Translation</string>
+    <string name="translation_target_language">Translate to</string>
+    <string name="translation_auto_translate">Auto Translate</string>
+    <string name="translation_select_language">Translate text to</string>
+    <string name="translation_failed">Translation failed</string>
+
+    <!-- Translation target language list -->
+    <string name="translation_lang_zh_chs">Simplified Chinese</string>
+    <string name="translation_lang_zh_cht">Traditional Chinese</string>
+    <string name="translation_lang_ar">Arabic</string>
+    <string name="translation_lang_de">German</string>
+    <string name="translation_lang_en">English</string>
+    <string name="translation_lang_es">Spanish</string>
+    <string name="translation_lang_fr">French</string>
+    <string name="translation_lang_id">Indonesian</string>
+    <string name="translation_lang_it">Italian</string>
+    <string name="translation_lang_ja">Japanese</string>
+    <string name="translation_lang_ko">Korean</string>
+    <string name="translation_lang_pt">Portuguese</string>
+    <string name="translation_lang_ru">Russian</string>
+    <string name="translation_lang_th">Thai</string>
+    <string name="translation_lang_vi">Vietnamese</string>
+
 </resources>

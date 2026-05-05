@@ -83,7 +83,7 @@
     <!-- Fun 历史记录搜索页面 -->
     <color name="fun_chat_search_empty_text_color">#AAAAAA</color>
     <color name="fun_chat_search_name_color">#737373</color>
-    <color name="fun_chat_search_message_color">#333333</color>
+    <color name="fun_chat_search_message_color">#737373</color>
     <color name="fun_chat_search_message_hit_color">#58BE6B</color>
     <color name="fun_chat_search_time_color">#cccccc</color>
     <color name="fun_chat_search_item_bg_color">#FFFFFF</color>
@@ -98,4 +98,11 @@
     <color name="fun_chat_search_item_selected_color">#58BE6B</color>
     <color name="fun_chat_search_item_split_line_color">#C9C9C9</color>
     <color name="fun_chat_search_sub_text_color">#B1B1B1</color>
+
+    <!-- 翻译分割线颜色 -->
+    <color name="color_chat_translation_divider">#14000000</color>
+    <!-- 翻译标签文字颜色 -->
+    <color name="color_chat_translation_tag">#656A72</color>
+
+    <!-- chat message -->
 </resources>

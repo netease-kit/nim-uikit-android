@@ -194,7 +194,9 @@ public class AitBlock {
       }
       int start = jsonObject.getInt("start");
       int end = jsonObject.getInt("end");
-      boolean broken = jsonObject.getBoolean("broken");
+      // 服务端下发的 yxAtMsg 数据不含 broken 字段（broken 是客户端输入时的临时状态）
+      // 使用 optBoolean 避免 JSONException，默认 false（未被破坏）
+      boolean broken = jsonObject.optBoolean("broken", false);
       AitSegment segment = new AitSegment(start, end);
       segment.broken = broken;
       return segment;

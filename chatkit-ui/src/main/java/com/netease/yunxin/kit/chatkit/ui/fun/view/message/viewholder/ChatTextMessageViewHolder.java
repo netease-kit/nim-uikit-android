@@ -4,8 +4,6 @@
 
 package com.netease.yunxin.kit.chatkit.ui.fun.view.message.viewholder;
 
-import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
-
 import android.text.TextUtils;
 import android.text.style.ImageSpan;
 import android.view.LayoutInflater;
@@ -14,7 +12,6 @@ import androidx.annotation.NonNull;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessageRefer;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageAIStreamStatus;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
-import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
 import com.netease.yunxin.kit.chatkit.manager.UserAIBotManager;
 import com.netease.yunxin.kit.chatkit.ui.R;
@@ -43,12 +40,23 @@ public class ChatTextMessageViewHolder extends FunChatBaseMessageViewHolder {
             LayoutInflater.from(parent.getContext()), getMessageContainer(), true);
   }
 
+  /** 文本消息背景只设置给原文气泡（flMessageBody）， 译文气泡（llTranslation）使用独立背景 fun_bg_message_translate。 */
+  @Override
+  protected View getMessageBackgroundView() {
+    if (textBinding != null) {
+      return textBinding.flMessageBody;
+    }
+    return super.getMessageBackgroundView();
+  }
+
   @Override
   public void bindData(ChatMessageBean message, ChatMessageBean lastMessage) {
     super.bindData(message, lastMessage);
     baseViewBinding.messageUpdateRefresh.setImageResource(R.drawable.fun_ic_chat_ai_refresh);
     baseViewBinding.messageUpdateStop.setImageResource(R.drawable.fun_ic_chat_ai_stop);
     setMessageText(message);
+    syncRootGravity();
+    bindTranslation(message);
     initEvent();
   }
 
@@ -64,13 +72,55 @@ public class ChatTextMessageViewHolder extends FunChatBaseMessageViewHolder {
   }
 
   @Override
-  protected void onMessageUpdate(ChatMessageBean data) {
-    super.onMessageUpdate(data);
-    ALog.d(
-        LIB_TAG,
-        "ChatTextMessageViewHolder",
-        "onMessageUpdate:" + data.getMessageData().getMessage().getText());
-    setMessageText(data);
+  protected void onTranslationUpdate(ChatMessageBean message) {
+    bindTranslation(message);
+  }
+
+  /** 同步根容器的 gravity，保证发送方消息的原文气泡和译文气泡都右对齐， 避免译文出现时内容宽度撑大后与右侧头像间距异常。 */
+  private void syncRootGravity() {
+    if (textBinding == null) return;
+    android.widget.LinearLayout root = (android.widget.LinearLayout) textBinding.getRoot();
+    if (showReceiveUIStyle()) {
+      root.setGravity(android.view.Gravity.START);
+    } else {
+      root.setGravity(android.view.Gravity.END);
+    }
+  }
+
+  /** 绑定译文展示区域（Fun 皮肤：独立译文气泡） */
+  private void bindTranslation(ChatMessageBean message) {
+    com.netease.yunxin.kit.chatkit.model.TranslationInfo info = message.getTranslationInfo();
+    boolean hasTranslation =
+        info != null
+            && !android.text.TextUtils.isEmpty(info.getTranslatedText())
+            && message.isTranslationVisible();
+    if (hasTranslation) {
+      textBinding.llTranslation.setVisibility(View.VISIBLE);
+      textBinding.translationText.setText(info.getTranslatedText());
+      // 发送方：译文气泡右侧紧贴气泡边缘；接收方：左侧
+      android.view.ViewGroup.MarginLayoutParams lp =
+          (android.view.ViewGroup.MarginLayoutParams) textBinding.llTranslation.getLayoutParams();
+      int margin = com.netease.yunxin.kit.common.utils.SizeUtils.dp2px(5);
+      if (showReceiveUIStyle()) {
+        lp.setMarginStart(margin);
+        lp.setMarginEnd(0);
+      } else {
+        lp.setMarginStart(0);
+        lp.setMarginEnd(margin);
+      }
+      textBinding.llTranslation.setLayoutParams(lp);
+      // 译文气泡长按：弹出复制/转发/隐藏菜单
+      textBinding.llTranslation.setOnLongClickListener(
+          v -> {
+            if (itemClickListener != null) {
+              itemClickListener.onTranslationLongClick(v, position, message);
+            }
+            return true;
+          });
+    } else {
+      textBinding.llTranslation.setVisibility(View.GONE);
+      textBinding.llTranslation.setOnLongClickListener(null);
+    }
   }
 
   private void setMessageText(ChatMessageBean message) {

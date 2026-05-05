@@ -27,7 +27,6 @@ import com.netease.lava.nertc.sdk.NERtcOption;
 import com.netease.nimlib.sdk.avsignalling.constant.ChannelType;
 import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
-import com.netease.nimlib.sdk.uinfo.model.UserInfo;
 import com.netease.nimlib.sdk.v2.V2NIMError;
 import com.netease.nimlib.sdk.v2.ai.model.V2NIMAIUser;
 import com.netease.nimlib.sdk.v2.auth.V2NIMLoginListener;
@@ -826,10 +825,10 @@ public class MainActivity extends BaseLocalActivity {
    * @return 配置好的 ContentListPopView.Item
    */
   private ContentListPopView.Item buildScanMenuItem(Context context) {
-    int itemHeight = (int) context.getResources().getDimension(R.dimen.dimen_16_dp);
-    int marginLeft = (int) context.getResources().getDimension(R.dimen.dimen_15_dp);
+    int itemHeight = (int) context.getResources().getDimension(R.dimen.dimen_20_dp);
+    int marginLeft = (int) context.getResources().getDimension(R.dimen.pop_text_margin_left);
     int marginTopBottom =
-        (int) context.getResources().getDimension(R.dimen.dimen_8_dp);
+        (int) context.getResources().getDimension(R.dimen.pop_text_margin_right_top);
     int padding = (int) context.getResources().getDimension(R.dimen.dimen_8_dp);
 
     TextView textView = new TextView(context);

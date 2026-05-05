@@ -42,6 +42,9 @@ public class Constant {
   public static final String PUSH_CONFIG_TOGGLE = "push_config_switch";
   public static final String PUSH_CONFIG_CONTENT = "push_config_content";
   public static final String SEARCH_CONFIG_CONTENT = "search_config_content";
+  public static final String TRANSLATION_CONFIG_FILE = "imkit_translation_config";
+  public static final String TRANSLATION_TARGET_LANGUAGE = "translation_target_language";
+  public static final String TRANSLATION_AUTO_ENABLE_TIME = "translation_auto_enable_time";
   public static final int CHINA_CONFIG = 0;
   public static final int OVERSEA_CONFIG = 1;
 

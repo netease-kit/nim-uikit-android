@@ -153,5 +153,28 @@
     <string name="uikit_save_success">保存成功</string>
     <string name="uikit_kickoff_tips">该账户被踢下线</string>
 
+    <!-- 消息翻译设置页 -->
+    <string name="translation_setting_title">翻译</string>
+    <string name="translation_target_language">将文字翻译为</string>
+    <string name="translation_auto_translate">自动翻译</string>
+    <string name="translation_select_language">将文字翻译为</string>
+    <string name="translation_failed">翻译失败</string>
+
+    <!-- 翻译目标语言列表 -->
+    <string name="translation_lang_zh_chs">简体中文</string>
+    <string name="translation_lang_zh_cht">繁体中文</string>
+    <string name="translation_lang_ar">阿拉伯语</string>
+    <string name="translation_lang_de">德语</string>
+    <string name="translation_lang_en">英语</string>
+    <string name="translation_lang_es">西班牙语</string>
+    <string name="translation_lang_fr">法语</string>
+    <string name="translation_lang_id">印度尼西亚语</string>
+    <string name="translation_lang_it">意大利语</string>
+    <string name="translation_lang_ja">日语</string>
+    <string name="translation_lang_ko">韩语</string>
+    <string name="translation_lang_pt">葡萄牙语</string>
+    <string name="translation_lang_ru">俄语</string>
+    <string name="translation_lang_th">泰语</string>
+    <string name="translation_lang_vi">越南语</string>
 
 </resources>

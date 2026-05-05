@@ -83,6 +83,7 @@ import com.netease.yunxin.kit.chatkit.ui.custom.NERTCCallAttachment;
 import com.netease.yunxin.kit.chatkit.ui.custom.RichTextAttachment;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatTopMessageLayoutBinding;
 import com.netease.yunxin.kit.chatkit.ui.dialog.ChatBaseForwardSelectDialog;
+import com.netease.yunxin.kit.chatkit.ui.factory.ChatPopActionFactory;
 import com.netease.yunxin.kit.chatkit.ui.fun.view.message.viewholder.ChatAudioMessageViewHolder;
 import com.netease.yunxin.kit.chatkit.ui.interfaces.IChatView;
 import com.netease.yunxin.kit.chatkit.ui.interfaces.IMessageItemClickListener;
@@ -118,6 +119,7 @@ import com.netease.yunxin.kit.corekit.im2.IMKitClient;
 import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
 import com.netease.yunxin.kit.corekit.im2.model.IMMessageProgress;
 import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
+import com.netease.yunxin.kit.corekit.model.PluginAction;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 import java.io.File;
 import java.io.IOException;
@@ -173,6 +175,8 @@ public abstract class ChatBaseFragment extends BaseFragment {
 
   // 当前要转发的消息
   protected ChatMessageBean forwardMessage;
+  /** 待转发的译文文本，由 onTranslationForward 设置，在 showForwardConfirmDialog 中消费 */
+  protected String translationForwardText;
 
   protected TopPopupWindow permissionPop;
 
@@ -661,6 +665,14 @@ public abstract class ChatBaseFragment extends BaseFragment {
               public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 if (popMenu != null && popMenu.isShowing()) {
                   popMenu.hide();
+                }
+              }
+
+              @Override
+              public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                // 列表滚动静止时，触发历史消息可见区域补翻扫描
+                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                  triggerAutoTranslateVisibleHistory();
                 }
               }
             });
@@ -1492,6 +1504,21 @@ public abstract class ChatBaseFragment extends BaseFragment {
         }
 
         @Override
+        public void onTranslationLongClick(View view, int position, ChatMessageBean messageBean) {
+          if (getContext() == null) return;
+          // 复用 ChatPopMenu，构建三个译文专属 action：复制、转发（仅译文）、隐藏
+          if (popMenu != null && popMenu.isShowing()) {
+            popMenu.hide();
+          }
+          popMenu = new ChatPopMenu();
+          List<PluginAction> actions = buildTranslationActions(getContext(), messageBean);
+          int[] location = new int[2];
+          chatView.getMessageListView().getLocationOnScreen(location);
+          boolean isSelf = messageBean.getMessageData().getMessage().isSelf();
+          popMenu.show(view, actions, isSelf, location[1]);
+        }
+
+        @Override
         public boolean onCustomViewClick(View view, int position, ChatMessageBean messageInfo) {
           return (delegateListener != null
               && delegateListener.onCustomViewClick(view, position, messageInfo));
@@ -1543,6 +1570,12 @@ public abstract class ChatBaseFragment extends BaseFragment {
             }
           }
         });
+  }
+
+  /** 委托 {@link ChatPopActionFactory} 构建译文长按菜单 action 列表。 */
+  protected List<PluginAction> buildTranslationActions(
+      Context context, ChatMessageBean messageBean) {
+    return ChatPopActionFactory.getInstance().getTranslationActions(context, messageBean);
   }
 
   protected void clickMessage(IMMessageInfo messageInfo, int position, boolean isReply) {
@@ -1834,6 +1867,51 @@ public abstract class ChatBaseFragment extends BaseFragment {
         }
 
         @Override
+        public boolean onTranslate(ChatMessageBean messageBean) {
+          if (chatConfig != null
+              && chatConfig.popMenuClickListener != null
+              && chatConfig.popMenuClickListener.onTranslate(messageBean)) {
+            return true;
+          }
+          String targetLanguage = IMKitConfigCenter.INSTANCE.getTranslationTargetLanguage();
+          if (TextUtils.isEmpty(targetLanguage)) {
+            targetLanguage = "zh";
+          }
+          viewModel.translateMessage(messageBean, targetLanguage);
+          return true;
+        }
+
+        @Override
+        public boolean onHideTranslation(ChatMessageBean messageBean) {
+          if (chatConfig != null
+              && chatConfig.popMenuClickListener != null
+              && chatConfig.popMenuClickListener.onHideTranslation(messageBean)) {
+            return true;
+          }
+          messageBean.setTranslationVisible(false);
+          chatView.updateMessage(messageBean, ActionConstants.PAYLOAD_TRANSLATION);
+          return true;
+        }
+
+        @Override
+        public boolean onTranslationForward(ChatMessageBean messageBean) {
+          if (chatConfig != null
+              && chatConfig.popMenuClickListener != null
+              && chatConfig.popMenuClickListener.onTranslationForward(messageBean)) {
+            return true;
+          }
+          if (messageBean.getTranslationInfo() == null
+              || TextUtils.isEmpty(messageBean.getTranslationInfo().getTranslatedText())) {
+            return false;
+          }
+          // 保存译文文本供 showForwardConfirmDialog 使用，走与消息转发完全相同的
+          // 会话选择 → 确认框 → 发送 流程
+          translationForwardText = messageBean.getTranslationInfo().getTranslatedText();
+          onStartForward(ActionConstants.POP_ACTION_TRANSLATION_FORWARD);
+          return true;
+        }
+
+        @Override
         public boolean onTransferToText(ChatMessageBean messageBean) {
           if (chatConfig != null
               && chatConfig.popMenuClickListener != null
@@ -2065,6 +2143,28 @@ public abstract class ChatBaseFragment extends BaseFragment {
         chatView.appendMessageList(listFetchResult.getData());
       }
     }
+    // 消息数据加载完成后，触发一次可见区域历史消息补翻扫描
+    // 使用 post 确保 RecyclerView 已完成布局渲染，可见条目已更新
+    chatView.getMessageListView().post(this::triggerAutoTranslateVisibleHistory);
+  }
+
+  /** 触发历史消息可见区域自动翻译扫描。 取当前可见区域内的消息列表，交由 ViewModel 判断并触发翻译。 仅在自动翻译开关开启时实际执行（ViewModel 内部会做开关判断）。 */
+  private void triggerAutoTranslateVisibleHistory() {
+    if (viewModel == null || chatView == null) return;
+    LinearLayoutManager layoutManager =
+        (LinearLayoutManager) chatView.getMessageListView().getLayoutManager();
+    ChatMessageAdapter messageAdapter = chatView.getMessageListView().getMessageAdapter();
+    if (layoutManager == null || messageAdapter == null) return;
+    List<ChatMessageBean> messages = messageAdapter.getMessageList();
+    if (messages == null || messages.isEmpty()) return;
+    // 当前滚动状态：非 IDLE 则跳过（ViewModel 内也会判断，这里提前短路节省开销）
+    if (chatView.getMessageListView().getScrollState() != RecyclerView.SCROLL_STATE_IDLE) return;
+    int firstVisible = Math.max(layoutManager.findFirstVisibleItemPosition(), 0);
+    int lastVisible = Math.min(layoutManager.findLastVisibleItemPosition() + 1, messages.size());
+    if (firstVisible > lastVisible) return;
+    List<ChatMessageBean> visibleBeans =
+        new java.util.ArrayList<>(messages.subList(firstVisible, lastVisible));
+    viewModel.autoTranslateVisibleHistory(visibleBeans);
   }
 
   protected void onReceiveMessage(FetchResult<List<ChatMessageBean>> listFetchResult) {
@@ -2087,6 +2187,8 @@ public abstract class ChatBaseFragment extends BaseFragment {
         payload = ActionConstants.PAYLOAD_SIGNAL;
       } else if (fetchResult.getData().first == MessageUpdateType.VoiceToText) {
         payload = ActionConstants.PAYLOAD_VOICE_TO_TEXT;
+      } else if (fetchResult.getData().first == MessageUpdateType.Translation) {
+        payload = ActionConstants.PAYLOAD_TRANSLATION;
       } else if (fetchResult.getData().first == MessageUpdateType.UpdateMessage) {
         payload = ActionConstants.PAYLOAD_UPDATE_MESSAGE;
       } else if (fetchResult.getData().first == MessageUpdateType.ReloadMessage) {
@@ -2163,6 +2265,15 @@ public abstract class ChatBaseFragment extends BaseFragment {
         && fetchResult.getData().size() > 0) {
       for (MessageRevokeInfo revokeInfo : fetchResult.getData()) {
         V2NIMMessageRefer revokeRefer = revokeInfo.getRevokeRefer();
+        // Task 5.3：撤回时清除本地翻译缓存（若有），从 localExtension 移除 translation 节点
+        ChatMessageBean revokedBean =
+            chatView.getMessageListView().searchMessage(revokeRefer.getMessageClientId());
+        if (revokedBean != null
+            && revokedBean.getTranslationInfo() != null
+            && revokedBean.getMessageData() != null) {
+          ChatRepo.clearTranslationLocalExtension(revokedBean.getMessageData().getMessage(), null);
+          revokedBean.setTranslationInfo(null);
+        }
         chatView.revokeMessage(revokeRefer);
         ChatMsgCache.removeMessage(revokeRefer.getMessageClientId());
         checkMultiSelectView();

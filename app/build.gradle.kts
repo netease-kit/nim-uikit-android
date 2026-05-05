@@ -16,7 +16,7 @@ android {
         minSdk = 24
         targetSdk = 34
         versionCode = 1
-        versionName = "10.9.22"
+        versionName = "10.9.25"
         multiDexEnabled = true
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -71,14 +71,14 @@ dependencies {
 //    implementation(project(":aisearchkit"))
 
     //远端aar依赖
-    implementation("com.netease.yunxin.kit.contact:contactkit-ui:10.9.22")
-    implementation("com.netease.yunxin.kit.conversation:conversationkit-ui:10.9.22")
-    implementation("com.netease.yunxin.kit.localconversation:localconversationkit-ui:10.9.22")
-    implementation("com.netease.yunxin.kit.team:teamkit-ui:10.9.22")
-    implementation("com.netease.yunxin.kit.chat:chatkit-ui:10.9.22")
-    implementation("com.netease.yunxin.kit.chat:chatkit:10.9.22")
-    implementation("com.netease.yunxin.kit.locationkit:locationkit:10.9.22")
-    implementation("com.netease.yunxin.kit.aisearchkit:aisearchkit:10.9.22")
+    implementation("com.netease.yunxin.kit.contact:contactkit-ui:10.9.26")
+    implementation("com.netease.yunxin.kit.conversation:conversationkit-ui:10.9.26")
+    implementation("com.netease.yunxin.kit.localconversation:localconversationkit-ui:10.9.26")
+    implementation("com.netease.yunxin.kit.team:teamkit-ui:10.9.26")
+    implementation("com.netease.yunxin.kit.chat:chatkit-ui:10.9.26")
+    implementation("com.netease.yunxin.kit.chat:chatkit:10.9.26")
+    implementation("com.netease.yunxin.kit.locationkit:locationkit:10.9.26")
+    implementation("com.netease.yunxin.kit.aisearchkit:aisearchkit:10.9.26")
 
     // ---- end ----
 

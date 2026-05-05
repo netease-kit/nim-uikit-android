@@ -43,39 +43,40 @@ public class PictureEngine implements IPictureChooseEngine {
     if (currentLanguage.equals(AppLanguageConfig.APP_LANG_CHINESE)) {
       languageType = LanguageType.CHINESE;
     }
-    PictureChoose pictureChoose = PictureChooseClient.createPictureChoose(
+    PictureChoose pictureChoose =
+        PictureChooseClient.createPictureChoose(
             context,
             languageType,
             config.getOnlyImage(),
             config.getMaxSelectCount(),
             config.getOriginalImage());
+
     if (callback != null) {
       pictureChoose.forResult(
-                              new ImageCallback() {
-                                  @Override
-                                  public void onResult(ArrayList<MediaInfo> result) {
+          new ImageCallback() {
+            @Override
+            public void onResult(ArrayList<MediaInfo> result) {
 
-                                      if (result.isEmpty()) {
-                                          return;
-                                      }
-                                      ArrayList<LocalFileInfo> localFileInfos = new ArrayList<>();
-                                      for (MediaInfo localMedia : result) {
-                                          if (localMedia.getPath() == null) {
-                                              continue;
-                                          }
-                                          localFileInfos.add(convertToLocalFileInfo(localMedia));
-                                      }
-                                      callback.onSuccess(localFileInfos);
-                                  }
+              if (result.isEmpty()) {
+                return;
+              }
+              ArrayList<LocalFileInfo> localFileInfos = new ArrayList<>();
+              for (MediaInfo localMedia : result) {
+                if (localMedia.getPath() == null) {
+                  continue;
+                }
+                localFileInfos.add(convertToLocalFileInfo(localMedia));
+              }
+              callback.onSuccess(localFileInfos);
+            }
 
-                                  @Override
-                                  public void onCancel() {
-                                      callback.onError(-1, "onCancel");
-                                  }
-                              });
-    }else if (activityResultLauncher != null) {
-      pictureChoose
-              .forResult(activityResultLauncher);
+            @Override
+            public void onCancel() {
+              callback.onError(-1, "onCancel");
+            }
+          });
+    } else if (activityResultLauncher != null) {
+      pictureChoose.forResult(activityResultLauncher);
     }
   }
 

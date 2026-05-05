@@ -30,6 +30,8 @@ public class DataUtils {
   private static Boolean togglePushConfig = null;
   private static String pushConfigContent = null;
   private static Boolean searchCloud = null;
+  private static String translationTargetLanguage = null;
+  private static Long autoTranslationEnableTime = null;
 
   /** read appKey from manifest */
   public static String readAppKey(Context context) {
@@ -322,6 +324,52 @@ public class DataUtils {
       pushConfigContent = sharedPreferences.getString(Constant.PUSH_CONFIG_CONTENT, "");
     }
     return pushConfigContent;
+  }
+
+  // 获取消息翻译目标语言代码，默认 "zh"
+  public static String getTranslationTargetLanguage(Context context) {
+    if (translationTargetLanguage == null) {
+      SharedPreferences sharedPreferences =
+          context.getSharedPreferences(
+              Constant.TRANSLATION_CONFIG_FILE, Context.MODE_MULTI_PROCESS);
+      translationTargetLanguage =
+          sharedPreferences.getString(Constant.TRANSLATION_TARGET_LANGUAGE, "zh-CHS");
+    }
+    return translationTargetLanguage;
+  }
+
+  // 保存消息翻译目标语言代码
+  public static void saveTranslationTargetLanguage(Context context, String langCode) {
+    SharedPreferences.Editor editor =
+        context
+            .getSharedPreferences(Constant.TRANSLATION_CONFIG_FILE, Context.MODE_MULTI_PROCESS)
+            .edit();
+    editor.putString(Constant.TRANSLATION_TARGET_LANGUAGE, langCode);
+    translationTargetLanguage = langCode;
+    editor.commit();
+  }
+
+  // 获取自动翻译开启时间戳（毫秒），0 = 关闭
+  public static long getAutoTranslationEnableTime(Context context) {
+    if (autoTranslationEnableTime == null) {
+      SharedPreferences sharedPreferences =
+          context.getSharedPreferences(
+              Constant.TRANSLATION_CONFIG_FILE, Context.MODE_MULTI_PROCESS);
+      autoTranslationEnableTime =
+          sharedPreferences.getLong(Constant.TRANSLATION_AUTO_ENABLE_TIME, 0L);
+    }
+    return autoTranslationEnableTime;
+  }
+
+  // 保存自动翻译开启时间戳（毫秒），传 0 表示关闭
+  public static void saveAutoTranslationEnableTime(Context context, long enableTime) {
+    SharedPreferences.Editor editor =
+        context
+            .getSharedPreferences(Constant.TRANSLATION_CONFIG_FILE, Context.MODE_MULTI_PROCESS)
+            .edit();
+    editor.putLong(Constant.TRANSLATION_AUTO_ENABLE_TIME, enableTime);
+    autoTranslationEnableTime = enableTime;
+    editor.commit();
   }
 
   public static float getSizeToM(long size) {

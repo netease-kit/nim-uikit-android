@@ -389,4 +389,10 @@
 
     <!-- Fun 消息撤回 -->
     <string name="fun_chat_message_revoked">%s撤回了一条消息</string>
+
+    <!-- 消息翻译 -->
+    <string name="chat_translate_btn">翻译</string>
+    <string name="chat_translate_failed">翻译失败</string>
+    <string name="chat_translate_tag">译文</string>
+    <string name="chat_translate_hide">隐藏</string>
 </resources>

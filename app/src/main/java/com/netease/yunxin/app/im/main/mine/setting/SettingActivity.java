@@ -117,6 +117,8 @@ public class SettingActivity extends BaseLocalActivity {
         v -> {
           startActivity(new Intent(SettingActivity.this, SettingUIKitActivity.class));
         });
+    viewBinding.translationSettingLayout.setOnClickListener(
+            v -> startActivity(new Intent(SettingActivity.this, TranslationSettingActivity.class)));
 
     viewBinding.tvLogout.setOnClickListener(
         v ->

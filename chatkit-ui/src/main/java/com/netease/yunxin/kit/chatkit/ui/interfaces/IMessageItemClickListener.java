@@ -23,6 +23,15 @@ public interface IMessageItemClickListener {
   }
 
   /**
+   * 译文区域长按事件回调
+   *
+   * @param view 触发事件的视图（译文容器）
+   * @param position 消息所在位置
+   * @param messageInfo 消息信息（含 translationInfo）
+   */
+  default void onTranslationLongClick(View view, int position, ChatMessageBean messageInfo) {}
+
+  /**
    * 消息点击事件回调
    *
    * @param view 触发事件的视图

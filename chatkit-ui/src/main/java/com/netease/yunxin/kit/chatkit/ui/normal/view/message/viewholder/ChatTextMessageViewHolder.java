@@ -45,6 +45,7 @@ public class ChatTextMessageViewHolder extends NormalChatBaseMessageViewHolder {
   public void bindData(ChatMessageBean message, ChatMessageBean lastMessage) {
     super.bindData(message, lastMessage);
     setMessageText(message);
+    bindTranslation(message);
     initEvent();
   }
 
@@ -52,6 +53,53 @@ public class ChatTextMessageViewHolder extends NormalChatBaseMessageViewHolder {
   protected void onMessageUpdate(ChatMessageBean data) {
     super.onMessageUpdate(data);
     setMessageText(data);
+    bindTranslation(data);
+  }
+
+  @Override
+  protected void onTranslationUpdate(ChatMessageBean message) {
+    bindTranslation(message);
+  }
+
+  /** 绑定译文展示区域 */
+  private void bindTranslation(ChatMessageBean message) {
+    com.netease.yunxin.kit.chatkit.model.TranslationInfo info = message.getTranslationInfo();
+    boolean hasTranslation =
+        info != null
+            && !android.text.TextUtils.isEmpty(info.getTranslatedText())
+            && message.isTranslationVisible();
+    if (hasTranslation) {
+      textBinding.llTranslationArea.setVisibility(View.VISIBLE);
+      textBinding.translationText.setText(info.getTranslatedText());
+      // 译文区域长按：弹出复制/转发/隐藏菜单
+      textBinding.llTranslationArea.setOnLongClickListener(
+          v -> {
+            if (itemClickListener != null) {
+              itemClickListener.onTranslationLongClick(v, position, message);
+            }
+            return true;
+          });
+      // 让气泡宽度能被译文内容撑开：
+      // 根 LinearLayout 是 wrap_content，宽度由 messageText 决定。
+      // 当译文比原文宽时，需要通过给 messageText 设 minWidth 来撑宽气泡，
+      // 避免译文被限制在原文宽度内提前换行。
+      syncTranslationMinWidth(info.getTranslatedText());
+    } else {
+      textBinding.messageText.setMinWidth(0);
+      textBinding.llTranslationArea.setVisibility(View.GONE);
+      textBinding.llTranslationArea.setOnLongClickListener(null);
+    }
+  }
+
+  /** 测量译文单行所需宽度（含 padding），设置给 messageText 的 minWidth， 使气泡能被更长的译文撑宽，避免译文提前换行。 */
+  private void syncTranslationMinWidth(String translatedText) {
+    // translationText 与 messageText 的 paddingHorizontal 均为 dimen_16_dp，相同，故只需测量文字宽度
+    float textWidth = textBinding.translationText.getPaint().measureText(translatedText);
+    int paddingH =
+        textBinding.translationText.getPaddingLeft()
+            + textBinding.translationText.getPaddingRight();
+    // 气泡最大可用宽度由父容器约束，直接设 minWidth；ConstraintLayout 会保证不超出屏幕限制
+    textBinding.messageText.setMinWidth(Math.round(textWidth) + paddingH);
   }
 
   @Override

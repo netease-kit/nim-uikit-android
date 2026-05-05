@@ -361,6 +361,12 @@
     <string name="chat_ai_error_parameter">Parameter error</string>
     <string name="chat_ai_error">The server is busy, please try again later.</string>
 
+    <!-- Message Translation -->
+    <string name="chat_translate_btn">Translate</string>
+    <string name="chat_translate_failed">Translation failed</string>
+    <string name="chat_translate_tag">Translation</string>
+    <string name="chat_translate_hide">Hide</string>
+
     <string name="chat_voice_to_text">Convert to text</string>
     <string name="chat_voice_to_text_failed">Text conversion failed.</string>
     <string name="ps_camera_roll">Image and Video</string>

@@ -149,6 +149,12 @@ public class ChatPopActionFactory {
           && TextUtils.isEmpty(message.getVoiceToText())) {
         actions.add(getVoiceToTextAction(context, message));
       }
+      // 文本消息：非空内容时展示翻译按钮
+      if (message.getViewType() == V2NIMMessageType.V2NIM_MESSAGE_TYPE_TEXT.getValue()
+          && !TextUtils.isEmpty(message.getMessageData().getMessage().getText())
+          && !message.AIMessageStreaming()) {
+        actions.add(getTranslateAction(context, message));
+      }
       addPluginTextActionIfNeed(actions, message);
     }
     if (customPopMenu != null && customPopMenu.get() != null) {
@@ -377,6 +383,75 @@ public class ChatPopActionFactory {
         message);
   }
 
+  // 构建翻译按钮
+  private PluginAction<ChatMessageBean> getTranslateAction(
+      Context context, ChatMessageBean message) {
+    return new PluginAction<>(
+        ActionConstants.POP_ACTION_TRANSLATE,
+        context.getString(R.string.chat_translate_btn),
+        R.drawable.ic_chat_message_translate,
+        (view, messageInfo) -> {
+          if (!NetworkUtils.isConnected()) {
+            ToastX.showShortToast(R.string.chat_network_error_tip);
+            return;
+          }
+          if (actionListener != null) {
+            actionListener.get().onTranslate(messageInfo);
+          }
+        },
+        message);
+  }
+
+  // 构建译文区域长按菜单——「隐藏」按钮
+  public static PluginAction<ChatMessageBean> buildHideTranslationAction(
+      Context context, IChatPopMenuClickListener listener) {
+    return new PluginAction<>(
+        ActionConstants.POP_ACTION_HIDE_TRANSLATION,
+        context.getString(R.string.chat_translate_hide),
+        R.drawable.ic_chat_message_translate,
+        (view, messageInfo) -> {
+          if (listener != null) {
+            listener.onHideTranslation(messageInfo);
+          }
+        },
+        null);
+  }
+
+  // 构建译文区域长按菜单——「复制」按钮（内容为译文）
+  public static PluginAction<String> buildTranslationCopyAction(
+      Context context, String translatedText, IChatPopMenuClickListener listener) {
+    return new PluginAction<>(
+        ActionConstants.POP_ACTION_COPY,
+        context.getString(R.string.chat_message_action_copy),
+        R.drawable.ic_message_copy,
+        (view, text) -> {
+          if (listener != null) {
+            listener.onCopy(translatedText);
+          }
+        },
+        translatedText);
+  }
+
+  // 构建译文区域长按菜单——「转发」按钮（内容为译文）
+  public static PluginAction<ChatMessageBean> buildTranslationForwardAction(
+      Context context, IChatPopMenuClickListener listener) {
+    return new PluginAction<>(
+        ActionConstants.POP_ACTION_TRANSMIT,
+        context.getString(R.string.chat_message_action_transmit),
+        R.drawable.ic_message_transmit,
+        (view, messageInfo) -> {
+          if (!NetworkUtils.isConnected()) {
+            ToastX.showShortToast(R.string.chat_network_error_tip);
+            return;
+          }
+          if (listener != null) {
+            // 触发转发，Fragment 层从 messageBean.translationInfo.translatedText 取内容
+            listener.onForward(messageInfo);
+          }
+        },
+        null);
+  }
+
   // 构建语音播放按钮
   private PluginAction<ChatMessageBean> getVoicePlayAction(
       Context context, ChatMessageBean message) {
@@ -398,5 +473,58 @@ public class ChatPopActionFactory {
           }
         },
         message);
+  }
+
+  /**
+   * 构建译文区域长按菜单的 action 列表：复制、转发（仅译文）、隐藏。 所有点击回调均通过 {@link IChatPopMenuClickListener}
+   * 分发，与普通消息菜单保持一致。
+   *
+   * @param context 上下文
+   * @param message 消息 Bean
+   * @return 包含三个 action 的列表
+   */
+  public List<PluginAction> getTranslationActions(Context context, ChatMessageBean message) {
+    List<PluginAction> actions = new ArrayList<>();
+    // 复制译文
+    String translatedText =
+        message.getTranslationInfo() != null
+            ? message.getTranslationInfo().getTranslatedText()
+            : "";
+    actions.add(
+        new PluginAction<>(
+            ActionConstants.POP_ACTION_COPY,
+            context.getString(R.string.chat_message_action_copy),
+            R.drawable.ic_message_copy,
+            (view, msg) -> {
+              if (actionListener != null) {
+                actionListener.get().onCopy(translatedText);
+              }
+            },
+            message));
+    // 转发译文
+    actions.add(
+        new PluginAction<>(
+            ActionConstants.POP_ACTION_TRANSMIT,
+            context.getString(R.string.chat_message_action_transmit),
+            R.drawable.ic_message_transmit,
+            (view, msg) -> {
+              if (actionListener != null) {
+                actionListener.get().onTranslationForward(msg);
+              }
+            },
+            message));
+    // 隐藏译文
+    actions.add(
+        new PluginAction<>(
+            ActionConstants.POP_ACTION_HIDE_TRANSLATION,
+            context.getString(R.string.chat_translate_hide),
+            R.drawable.ic_chat_message_translate_hide,
+            (view, msg) -> {
+              if (actionListener != null) {
+                actionListener.get().onHideTranslation(msg);
+              }
+            },
+            message));
+    return actions;
   }
 }

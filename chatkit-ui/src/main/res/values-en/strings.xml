@@ -399,4 +399,10 @@
 
     <!-- Fun 消息撤回 -->
     <string name="fun_chat_message_revoked">%s recalled the message</string>
+
+    <!-- Message Translation -->
+    <string name="chat_translate_btn">Translate</string>
+    <string name="chat_translate_failed">Translation failed</string>
+    <string name="chat_translate_tag">Translation</string>
+    <string name="chat_translate_hide">Hide</string>
 </resources>
