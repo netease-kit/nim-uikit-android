@@ -68,7 +68,8 @@ public class FunChatMessageForwardConfirmDialog extends BaseDialog {
       String forwardContent = "";
       if (!TextUtils.isEmpty(sendTips)) {
         forwardContent = sendTips;
-      } else if (TextUtils.equals(action, ActionConstants.POP_ACTION_TRANSMIT)) {
+      } else if (TextUtils.equals(action, ActionConstants.POP_ACTION_TRANSMIT)
+          || TextUtils.equals(action, ActionConstants.POP_ACTION_TRANSLATION_FORWARD)) {
         forwardContent = String.format(getString(R.string.chat_message_forward_tips), sendUser);
       } else if (TextUtils.equals(action, ActionConstants.ACTION_TYPE_MULTI_FORWARD)) {
         forwardContent =

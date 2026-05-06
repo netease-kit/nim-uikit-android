@@ -27,6 +27,7 @@ import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.model.CustomAttachment;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.model.MessagePinInfo;
+import com.netease.yunxin.kit.chatkit.model.TranslationInfo;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant;
 import com.netease.yunxin.kit.chatkit.utils.MessageExtensionHelper;
 import java.io.Serializable;
@@ -65,6 +66,26 @@ public class ChatMessageBean implements Serializable {
       }
     }
 
+    // 从 localExtension 恢复翻译缓存
+    if (localExtensionMap != null && localExtensionMap.containsKey("translation")) {
+      Object transObj = localExtensionMap.get("translation");
+      if (transObj instanceof Map) {
+        try {
+          Map<?, ?> transMap = (Map<?, ?>) transObj;
+          Object lang = transMap.get("targetLanguage");
+          Object text = transMap.get("translatedText");
+          Object time = transMap.get("createTime");
+          if (lang instanceof String && text instanceof String) {
+            long createTime = 0L;
+            if (time instanceof Long) createTime = (Long) time;
+            else if (time instanceof Integer) createTime = ((Integer) time).longValue();
+            translationInfo = new TranslationInfo((String) lang, (String) text, createTime);
+          }
+        } catch (Exception ignored) {
+        }
+      }
+    }
+
     initReplyMessage();
   }
 
@@ -93,6 +114,11 @@ public class ChatMessageBean implements Serializable {
   //语音转文字结果，默认是空
   private String voiceToText;
 
+  // 消息翻译结果（从 localExtension 中解析，null 表示未翻译）
+  private TranslationInfo translationInfo;
+  // 译文是否可见（false=已被用户手动隐藏，不清除 localExtension 缓存）
+  private boolean translationVisible = true;
+
   public boolean showTimeText = false;
 
   public String keyword;
@@ -111,6 +137,22 @@ public class ChatMessageBean implements Serializable {
 
   public String getVoiceToText() {
     return voiceToText;
+  }
+
+  public TranslationInfo getTranslationInfo() {
+    return translationInfo;
+  }
+
+  public void setTranslationInfo(TranslationInfo translationInfo) {
+    this.translationInfo = translationInfo;
+  }
+
+  public boolean isTranslationVisible() {
+    return translationVisible;
+  }
+
+  public void setTranslationVisible(boolean translationVisible) {
+    this.translationVisible = translationVisible;
   }
 
   public IMMessageInfo getMessageData() {

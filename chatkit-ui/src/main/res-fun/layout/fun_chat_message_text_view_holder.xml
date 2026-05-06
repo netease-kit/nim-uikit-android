@@ -3,33 +3,104 @@
   ~ Use of this source code is governed by a MIT license that can be
   ~ found in the LICENSE file.
   -->
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content">
-
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/messageText"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:paddingHorizontal="@dimen/dimen_16_dp"
-    android:layout_marginEnd="5dp"
-    android:layout_marginStart="5dp"
-    android:paddingVertical="@dimen/dimen_10_dp"
-    android:textColor="@color/color_333333"
-    android:textSize="@dimen/text_size_16"
-    android:textColorLink="@color/color_007aff"
-    android:linksClickable="true"
-    tools:text="@tools:sample/lorem" />
-    <ProgressBar
-        android:id="@+id/messageLoading"
-        android:layout_width="@dimen/dimen_16_dp"
-        android:layout_height="@dimen/dimen_16_dp"
-        android:layout_marginTop="@dimen/dimen_12_dp"
-        android:layout_marginStart="@dimen/dimen_16_dp"
-        android:layout_marginEnd="@dimen/dimen_50_dp"
-        android:visibility="gone"
-        android:alpha="0.5"
-        style="@android:style/Widget.ProgressBar.Small"/>
-</FrameLayout>
+    android:orientation="vertical">
+
+    <!--
+        原文气泡容器：背景由 FunChatBaseMessageViewHolder.onMessageBackgroundConfig()
+        通过 getMessageBackgroundView() 返回此 FrameLayout 来设置，
+        不再设置到整个根 LinearLayout 上，从而与下方译文气泡背景隔离。
+    -->
+    <FrameLayout
+        android:id="@+id/flMessageBody"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/messageText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="@dimen/dimen_16_dp"
+            android:layout_marginEnd="5dp"
+            android:layout_marginStart="5dp"
+            android:paddingVertical="@dimen/dimen_10_dp"
+            android:textColor="@color/color_333333"
+            android:textSize="@dimen/text_size_16"
+            android:textColorLink="@color/color_007aff"
+            android:linksClickable="true"
+            tools:text="@tools:sample/lorem" />
+
+        <ProgressBar
+            android:id="@+id/messageLoading"
+            android:layout_width="@dimen/dimen_16_dp"
+            android:layout_height="@dimen/dimen_16_dp"
+            android:layout_marginTop="@dimen/dimen_12_dp"
+            android:layout_marginStart="@dimen/dimen_16_dp"
+            android:layout_marginEnd="@dimen/dimen_50_dp"
+            android:visibility="gone"
+            android:alpha="0.5"
+            style="@android:style/Widget.ProgressBar.Small" />
+
+    </FrameLayout>
+
+    <!-- 独立译文气泡，默认隐藏，使用专用译文背景 fun_bg_message_translate（白色圆角4dp） -->
+    <LinearLayout
+        android:id="@+id/llTranslation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:layout_marginStart="5dp"
+        android:background="@drawable/fun_bg_message_translate"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <!-- 译文文本 -->
+        <TextView
+            android:id="@+id/translationText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="@dimen/dimen_16_dp"
+            android:paddingTop="@dimen/dimen_10_dp"
+            android:paddingBottom="@dimen/dimen_6_dp"
+            android:textColor="@color/color_333333"
+            android:textSize="@dimen/text_size_16"
+            tools:text="Translation result" />
+
+        <!-- 分割线 -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:layout_marginHorizontal="@dimen/dimen_16_dp"
+            android:background="@color/color_chat_translation_divider" />
+
+        <!-- 底部标识行：翻译图标 + "译文"文字 -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/dimen_16_dp"
+            android:layout_marginTop="@dimen/dimen_8_dp"
+            android:layout_marginBottom="@dimen/dimen_8_dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="@dimen/dimen_16_dp"
+                android:layout_height="@dimen/dimen_16_dp"
+                android:src="@drawable/fun_ic_chat_message_show_translate" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/dimen_4_dp"
+                android:text="@string/chat_translate_tag"
+                android:textColor="@color/color_999999"
+                android:textSize="@dimen/text_size_12" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

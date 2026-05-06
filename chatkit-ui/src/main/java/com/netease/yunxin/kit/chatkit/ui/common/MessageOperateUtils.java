@@ -33,6 +33,7 @@ import com.netease.yunxin.kit.chatkit.manager.AIUserManager;
 import com.netease.yunxin.kit.chatkit.media.ImageUtil;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.model.RecentForward;
+import com.netease.yunxin.kit.chatkit.model.TranslationInfo;
 import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
 import com.netease.yunxin.kit.chatkit.repo.ConversationRepo;
 import com.netease.yunxin.kit.chatkit.repo.ResourceRepo;
@@ -40,6 +41,9 @@ import com.netease.yunxin.kit.chatkit.repo.SettingRepo;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.custom.MultiForwardAttachment;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
+import com.netease.yunxin.kit.chatkit.ui.model.ait.AitBlock;
+import com.netease.yunxin.kit.chatkit.ui.model.ait.AitBlock.AitSegment;
+import com.netease.yunxin.kit.chatkit.ui.model.ait.AtContactsModel;
 import com.netease.yunxin.kit.chatkit.utils.SendMediaHelper;
 import com.netease.yunxin.kit.common.ui.utils.ToastX;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
@@ -54,7 +58,10 @@ import com.netease.yunxin.kit.corekit.im2.model.IMMessageProgress;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class MessageOperateUtils {
 
@@ -191,6 +198,167 @@ public class MessageOperateUtils {
             updateMessageLiveData.setValue(messageUpdateResult);
           }
         });
+  }
+
+  /**
+   * 翻译文本消息，并将翻译结果写入消息本地扩展字段，触发 UI 局部刷新。
+   *
+   * @param messageBean 需要翻译的消息
+   * @param targetLanguage 目标语言代码（如 "zh"、"en"）
+   * @param updateMessageLiveData 用于通知 UI 刷新的 LiveData
+   */
+  public static void translateMessage(
+      ChatMessageBean messageBean,
+      String targetLanguage,
+      MutableLiveData<FetchResult<Pair<MessageUpdateType, List<ChatMessageBean>>>>
+          updateMessageLiveData) {
+    if (messageBean == null || messageBean.getMessageData() == null) {
+      return;
+    }
+    V2NIMMessage message = messageBean.getMessageData().getMessage();
+    if (message == null || TextUtils.isEmpty(message.getText())) {
+      return;
+    }
+
+    // 缓存命中：已有翻译且目标语言相同，直接复用，不走网络
+    TranslationInfo cached = messageBean.getTranslationInfo();
+    if (cached != null && targetLanguage.equals(cached.getTargetLanguage())) {
+      // 确保译文可见（用户可能之前隐藏过）
+      messageBean.setTranslationVisible(true);
+      // 直接通知 UI 刷新（translationInfo 已在 bean 上，只需触发局部刷新）
+      List<ChatMessageBean> messageList = new ArrayList<>();
+      messageList.add(messageBean);
+      FetchResult<Pair<MessageUpdateType, List<ChatMessageBean>>> result =
+          new FetchResult<>(LoadStatus.Success);
+      result.setData(new Pair<>(MessageUpdateType.Translation, messageList));
+      result.setType(FetchResult.FetchType.Update);
+      result.setTypeIndex(-1);
+      updateMessageLiveData.setValue(result);
+      return;
+    }
+
+    // @ 保留：切分文本，对每个非 @ 片段独立翻译，全部回调后拼装写入
+    Pair<List<String>, List<Boolean>> splitResult =
+        splitTextByAtMentions(message.getText(), message);
+    List<String> parts = splitResult.first;
+    List<Boolean> isAtFlags = splitResult.second;
+
+    // 预填槽位：@ 段和空串直接保留原文，非 @ 非空串待翻译
+    String[] translatedSlots = new String[parts.size()];
+    int pendingCount = 0;
+    for (int i = 0; i < parts.size(); i++) {
+      if (isAtFlags.get(i) || TextUtils.isEmpty(parts.get(i))) {
+        translatedSlots[i] = parts.get(i);
+      } else {
+        pendingCount++;
+      }
+    }
+
+    // 如果全是 @ 段（无需翻译），直接拼接写入
+    if (pendingCount == 0) {
+      StringBuilder sb = new StringBuilder();
+      for (String part : parts) {
+        if (part != null) sb.append(part);
+      }
+      String restoredText = sb.toString();
+      TranslationInfo translationInfo =
+          new TranslationInfo(targetLanguage, restoredText, System.currentTimeMillis());
+      ChatRepo.updateTranslationLocalExtension(
+          message,
+          translationInfo,
+          new FetchCallback<V2NIMMessage>() {
+            @Override
+            public void onSuccess(V2NIMMessage updatedMsg) {
+              messageBean.setTranslationVisible(true);
+              messageBean.setTranslationInfo(translationInfo);
+              List<ChatMessageBean> ml = new ArrayList<>();
+              ml.add(messageBean);
+              FetchResult<Pair<MessageUpdateType, List<ChatMessageBean>>> r =
+                  new FetchResult<>(LoadStatus.Success);
+              r.setData(new Pair<>(MessageUpdateType.Translation, ml));
+              r.setType(FetchResult.FetchType.Update);
+              r.setTypeIndex(-1);
+              updateMessageLiveData.setValue(r);
+            }
+
+            @Override
+            public void onError(int errorCode, String errorMsg) {
+              FetchResult<Pair<MessageUpdateType, List<ChatMessageBean>>> er =
+                  new FetchResult<>(LoadStatus.Error);
+              er.setError(errorCode, R.string.chat_translate_failed);
+              updateMessageLiveData.setValue(er);
+            }
+          });
+      return;
+    }
+
+    // 并行翻译所有非 @ 片段，全部回调完成后拼装并写入
+    AtomicInteger remaining = new AtomicInteger(pendingCount);
+    AtomicBoolean hasError = new AtomicBoolean(false);
+
+    for (int i = 0; i < parts.size(); i++) {
+      if (isAtFlags.get(i) || TextUtils.isEmpty(parts.get(i))) continue;
+      final int slotIndex = i;
+      final String partText = parts.get(i);
+      ChatRepo.INSTANCE.translateText(
+          partText,
+          targetLanguage,
+          new FetchCallback<String>() {
+            @Override
+            public void onSuccess(String translatedText) {
+              if (hasError.get()) return;
+              // 填充槽位，为空时 fallback 原文
+              translatedSlots[slotIndex] =
+                  TextUtils.isEmpty(translatedText) ? partText : translatedText;
+              // 全部片段完成后拼装写入
+              if (remaining.decrementAndGet() == 0) {
+                StringBuilder resultBuilder = new StringBuilder();
+                for (String slot : translatedSlots) {
+                  if (slot != null) resultBuilder.append(slot);
+                }
+                String restoredText = resultBuilder.toString();
+                TranslationInfo translationInfo =
+                    new TranslationInfo(targetLanguage, restoredText, System.currentTimeMillis());
+                ChatRepo.updateTranslationLocalExtension(
+                    message,
+                    translationInfo,
+                    new FetchCallback<V2NIMMessage>() {
+                      @Override
+                      public void onSuccess(V2NIMMessage updatedMsg) {
+                        messageBean.setTranslationVisible(true);
+                        messageBean.setTranslationInfo(translationInfo);
+                        List<ChatMessageBean> messageList = new ArrayList<>();
+                        messageList.add(messageBean);
+                        FetchResult<Pair<MessageUpdateType, List<ChatMessageBean>>> result =
+                            new FetchResult<>(LoadStatus.Success);
+                        result.setData(new Pair<>(MessageUpdateType.Translation, messageList));
+                        result.setType(FetchResult.FetchType.Update);
+                        result.setTypeIndex(-1);
+                        updateMessageLiveData.setValue(result);
+                      }
+
+                      @Override
+                      public void onError(int errorCode, String errorMsg) {
+                        FetchResult<Pair<MessageUpdateType, List<ChatMessageBean>>> errorResult =
+                            new FetchResult<>(LoadStatus.Error);
+                        errorResult.setError(errorCode, R.string.chat_translate_failed);
+                        updateMessageLiveData.setValue(errorResult);
+                      }
+                    });
+              }
+            }
+
+            @Override
+            public void onError(int errorCode, String errorMsg) {
+              if (hasError.compareAndSet(false, true)) {
+                FetchResult<Pair<MessageUpdateType, List<ChatMessageBean>>> errorResult =
+                    new FetchResult<>(LoadStatus.Error);
+                errorResult.setError(errorCode, R.string.chat_translate_failed);
+                updateMessageLiveData.setValue(errorResult);
+              }
+            }
+          });
+    }
   }
 
   public static void sendMultiForwardMessage(
@@ -478,5 +646,93 @@ public class MessageOperateUtils {
       return file;
     }
     return null;
+  }
+
+  // -------------------------------------------------------------------------
+  // @ 保留翻译工具方法
+  // -------------------------------------------------------------------------
+
+  /**
+   * 将消息文本按 @ 段切分为交替的"普通文本"和"@ 文本"片段列表。
+   *
+   * <p>返回两个等长列表：
+   *
+   * <ul>
+   *   <li>first：文本片段列表（顺序保留原文结构）
+   *   <li>second：对应片段是否为 @ 段（true = @ 段，不翻译；false = 普通文本，需翻译）
+   * </ul>
+   *
+   * 不使用任何占位符，彻底规避翻译引擎对特殊字符的处理。
+   *
+   * @param text 消息原始文本（message.getText()）
+   * @param message 消息对象（用于读取 serverExtension 中的 @ 信息）
+   */
+  public static Pair<List<String>, List<Boolean>> splitTextByAtMentions(
+      String text, V2NIMMessage message) {
+    List<String> parts = new ArrayList<>();
+    List<Boolean> isAtFlags = new ArrayList<>();
+
+    if (TextUtils.isEmpty(text)) {
+      parts.add(text);
+      isAtFlags.add(false);
+      return new Pair<>(parts, isAtFlags);
+    }
+
+    AtContactsModel atModel = MessageHelper.getAitBlockFromMsg(message);
+    if (atModel == null || atModel.getAtBlockList().isEmpty()) {
+      parts.add(text);
+      isAtFlags.add(false);
+      return new Pair<>(parts, isAtFlags);
+    }
+
+    // 1. 展平所有 @ 段，AitSegment.end 是 inclusive
+    List<int[]> segments = new ArrayList<>(); // [start, end(inclusive)]
+    for (AitBlock block : atModel.getAtBlockList()) {
+      if (block == null || TextUtils.isEmpty(block.text)) continue;
+      for (AitSegment seg : block.segments) {
+        if (seg.start < 0 || seg.end >= text.length() || seg.start > seg.end) continue;
+        segments.add(new int[] {seg.start, seg.end});
+      }
+    }
+
+    if (segments.isEmpty()) {
+      parts.add(text);
+      isAtFlags.add(false);
+      return new Pair<>(parts, isAtFlags);
+    }
+
+    // 2. 按 start 升序排序，去重（同一 start 取第一个）
+    Collections.sort(segments, (a, b) -> a[0] - b[0]);
+    List<int[]> deduped = new ArrayList<>();
+    int lastStart = -1;
+    for (int[] seg : segments) {
+      if (seg[0] != lastStart) {
+        deduped.add(seg);
+        lastStart = seg[0];
+      }
+    }
+
+    // 3. 按 @ 段位置切分文本
+    int cursor = 0;
+    for (int[] seg : deduped) {
+      int start = seg[0];
+      int end = seg[1] + 1; // 转为 exclusive
+      // @ 段前的普通文本
+      if (cursor < start) {
+        parts.add(text.substring(cursor, start));
+        isAtFlags.add(false);
+      }
+      // @ 段本身
+      parts.add(text.substring(start, end));
+      isAtFlags.add(true);
+      cursor = end;
+    }
+    // 末尾剩余普通文本
+    if (cursor < text.length()) {
+      parts.add(text.substring(cursor));
+      isAtFlags.add(false);
+    }
+
+    return new Pair<>(parts, isAtFlags);
   }
 }

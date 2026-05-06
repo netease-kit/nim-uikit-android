@@ -114,6 +114,16 @@
             android:exported="false" />
 
         <activity
+            android:name=".main.mine.setting.TranslationSettingActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+
+        <activity
+            android:name=".main.mine.setting.LanguageSelectActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+
+        <activity
             android:name=".main.mine.setting.SettingNotifyActivity"
             android:screenOrientation="portrait"
             android:exported="false" />

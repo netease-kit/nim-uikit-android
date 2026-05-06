@@ -1669,6 +1669,31 @@ public class MessageHelper {
     }
   }
 
+  /**
+   * 发送译文转发消息：以译文纯文本为内容创建文本消息，发到多个目标会话。 复用 {@link #sendNoteMessage} 发送附言，复用 {@link
+   * #saveRecentForward} 记录最近转发。
+   */
+  public static void sendTranslationForwardMessage(
+      String translatedText,
+      String inputMsg,
+      List<String> conversationIds,
+      boolean readReceiptEnabled) {
+    if (TextUtils.isEmpty(translatedText) || conversationIds == null || conversationIds.isEmpty()) {
+      return;
+    }
+    List<RecentForward> recentForwards = new ArrayList<>();
+    for (String conversationId : conversationIds) {
+      V2NIMMessage textMsg = V2NIMMessageCreator.createTextMessage(translatedText);
+      MessageHelper.clearAitAndReplyInfo(textMsg);
+      forwardMessageImpl(textMsg, conversationId, false, readReceiptEnabled);
+      sendNoteMessage(inputMsg, Collections.singletonList(conversationId), readReceiptEnabled);
+      String sessionId = V2NIMConversationIdUtil.conversationTargetId(conversationId);
+      V2NIMConversationType sessionType = V2NIMConversationIdUtil.conversationType(conversationId);
+      recentForwards.add(new RecentForward(sessionId, sessionType));
+    }
+    SettingRepo.saveRecentForward(recentForwards);
+  }
+
   // 发送转发消息（逐条转发）
   public static void sendForwardMessages(
       String inputMsg,

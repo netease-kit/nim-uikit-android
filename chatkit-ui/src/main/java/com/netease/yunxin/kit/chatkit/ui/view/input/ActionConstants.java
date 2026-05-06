@@ -64,8 +64,13 @@ public class ActionConstants {
   public static final String POP_ACTION_DELETE = "POP_ACTION_DELETE";
   //消息长按菜单-转发
   public static final String POP_ACTION_TRANSMIT = "POP_ACTION_TRANSMIT";
+  //译文长按菜单-转发译文（走转发会话选择流程，但发送纯文本消息）
+  public static final String POP_ACTION_TRANSLATION_FORWARD = "POP_ACTION_TRANSLATION_FORWARD";
   //消息长按菜单-语音转文字
   public static final String POP_ACTION_VOICE_TO_TEXT = "POP_ACTION_VOICE_TO_TEXT";
+  //消息长按菜单-翻译
+  public static final String POP_ACTION_TRANSLATE = "POP_ACTION_TRANSLATE";
+  public static final String POP_ACTION_HIDE_TRANSLATION = "POP_ACTION_HIDE_TRANSLATION";
   //消息长按菜单-语音播放
   public static final String POP_ACTION_VOICE_PLAY = "POP_ACTION_VOICE_PLAY";
 
@@ -89,6 +94,7 @@ public class ActionConstants {
   public static final String PAYLOAD_REVOKE_STATUS = "messageRevokeStatus";
   public static final String PAYLOAD_SIGNAL = "messageSignal";
   public static final String PAYLOAD_VOICE_TO_TEXT = "messageVoiceToText";
+  public static final String PAYLOAD_TRANSLATION = "messageTranslation";
   public static final String PAYLOAD_USERINFO = "userInfo";
   public static final String PAYLOAD_REFRESH_AUDIO_ANIM = "refreshAudioAnim";
   public static final String PAYLOAD_SELECT_STATUS = "messageSelectStatus";

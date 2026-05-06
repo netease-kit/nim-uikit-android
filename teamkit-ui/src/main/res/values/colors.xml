@@ -9,6 +9,7 @@
     <!-- ==================== 语义命名颜色（公共） ==================== -->
     <!-- 基础白色 -->
     <color name="color_white">#FFFFFF</color>
+    <color name="color_ededef">#ededef</color>
     <!-- 主文字色（深黑） -->
     <color name="color_team_primary_text">#333333</color>
     <!-- 副标题/说明文字色（中灰） -->

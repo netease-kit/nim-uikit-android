@@ -122,6 +122,8 @@ public abstract class ChatBaseMessageViewHolder extends CommonBaseMessageViewHol
           setSelectStatus(message);
         } else if (TextUtils.equals(payloadItem, ActionConstants.PAYLOAD_VOICE_TO_TEXT)) {
           setVoiceToText(message);
+        } else if (TextUtils.equals(payloadItem, ActionConstants.PAYLOAD_TRANSLATION)) {
+          onTranslationUpdate(message);
         } else if (TextUtils.equals(payloadItem, ActionConstants.PAYLOAD_UPDATE_MESSAGE)) {
           onMessageUpdate(message);
         } else if (TextUtils.equals(payloadItem, ActionConstants.PAYLOAD_RELOAD)) {
@@ -574,6 +576,9 @@ public abstract class ChatBaseMessageViewHolder extends CommonBaseMessageViewHol
    * @param message 消息
    */
   protected void setVoiceToText(ChatMessageBean message) {}
+
+  /** 翻译结果更新回调，子类（如 ChatTextMessageViewHolder）覆盖实现 UI 刷新 */
+  protected void onTranslationUpdate(ChatMessageBean message) {}
 
   /**
    * 设置消息展示的时间以及展示时间的间隔控制

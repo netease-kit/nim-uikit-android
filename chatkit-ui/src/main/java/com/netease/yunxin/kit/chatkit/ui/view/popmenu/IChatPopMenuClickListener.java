@@ -59,6 +59,21 @@ public interface IChatPopMenuClickListener {
     return false;
   }
 
+  // 点击翻译
+  default boolean onTranslate(ChatMessageBean messageInfo) {
+    return false;
+  }
+
+  // 隐藏译文——从译文区域长按菜单触发
+  default boolean onHideTranslation(ChatMessageBean messageInfo) {
+    return false;
+  }
+
+  // 转发译文——以译文文本作为新消息发送到当前会话
+  default boolean onTranslationForward(ChatMessageBean messageInfo) {
+    return false;
+  }
+
   // 点击语音播放
   default boolean onVoicePlayChange(ChatMessageBean messageInfo) {
     return false;

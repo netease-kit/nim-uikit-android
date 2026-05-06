@@ -211,7 +211,11 @@ public abstract class FunChatFragment extends ChatBaseFragment {
           if (TextUtils.equals(forwardAction, ActionConstants.POP_ACTION_TRANSMIT)) {
             ChatMessageBean msg = getForwardMessage();
             viewModel.sendForwardMessage(msg, inputMsg, conversationIds);
-
+          } else if (TextUtils.equals(
+              forwardAction, ActionConstants.POP_ACTION_TRANSLATION_FORWARD)) {
+            viewModel.sendTranslationForwardMessage(
+                translationForwardText, inputMsg, conversationIds);
+            translationForwardText = null;
           } else if (TextUtils.equals(forwardAction, ActionConstants.ACTION_TYPE_MULTI_FORWARD)) {
             viewModel.sendMultiForwardMessage(
                 getConversationName(false),

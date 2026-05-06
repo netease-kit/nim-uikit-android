@@ -76,7 +76,7 @@ public class ViewUtils {
         tips.length() - 2,
         Spanned.SPAN_EXCLUSIVE_EXCLUSIVE // Span 范围：不包含两端的文本
         );
-    Drawable startDrawable = ContextCompat.getDrawable(context, R.drawable.ic_app_error);
+    Drawable startDrawable = ContextCompat.getDrawable(context, R.drawable.ic_error);
     if (startDrawable != null) {
       // 设置图标大小（可选，避免图标过大）
       startDrawable.setBounds(
@@ -88,7 +88,7 @@ public class ViewUtils {
     }
     if (showDelete) {
 
-      Drawable endDrawable = ContextCompat.getDrawable(context, R.drawable.ic_app_clear);
+      Drawable endDrawable = ContextCompat.getDrawable(context, R.drawable.ic_clear);
       if (endDrawable != null) {
         endDrawable.setBounds(0, 0, SizeUtils.dp2px(16), SizeUtils.dp2px(16)); // 20dp × 20dp
         ImageSpan endImageSpan = new ImageSpan(endDrawable, ImageSpan.ALIGN_CENTER);
