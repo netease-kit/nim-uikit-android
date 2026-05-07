@@ -6,6 +6,10 @@
   -->
 
 <resources>
+    <!-- 译文 footer 行（图标 + 文案）自身最小宽度：icon(16) + gap(4) + "译文"(~24) + buffer(6) = 50dp -->
+    <dimen name="dimen_translation_footer_min_width">50dp</dimen>
+    <!-- 译文区域最小宽度：footer(50) + marginHorizontal(12×2=24) = 74dp -->
+    <dimen name="dimen_translation_area_min_width">74dp</dimen>
     <dimen name="photo_crop_width">280dip</dimen>
     <dimen name="photo_crop_stroke_width">1dip</dimen>
     <dimen name="photo_preview_size">200dip</dimen>

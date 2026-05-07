@@ -47,17 +47,19 @@
     </FrameLayout>
 
     <!-- 独立译文气泡，默认隐藏，使用专用译文背景 fun_bg_message_translate（白色圆角4dp） -->
+    <!-- minWidth 保证气泡至少能完整展示底部 footer（图标+文案+两侧margin） -->
     <LinearLayout
         android:id="@+id/llTranslation"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="6dp"
         android:layout_marginStart="5dp"
+        android:minWidth="@dimen/dimen_translation_area_min_width"
         android:background="@drawable/fun_bg_message_translate"
         android:orientation="vertical"
         android:visibility="gone">
 
-        <!-- 译文文本 -->
+        <!-- 译文文本：wrap_content，短译文单行展示，超过最大宽度才换行 -->
         <TextView
             android:id="@+id/translationText"
             android:layout_width="wrap_content"
@@ -77,12 +79,14 @@
             android:background="@color/color_chat_translation_divider" />
 
         <!-- 底部标识行：翻译图标 + "译文"文字 -->
+        <!-- marginH(12dp×2=24dp) + minWidth(50dp) = 74dp = dimen_translation_area_min_width -->
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="@dimen/dimen_16_dp"
+            android:layout_marginHorizontal="@dimen/dimen_12_dp"
             android:layout_marginTop="@dimen/dimen_8_dp"
             android:layout_marginBottom="@dimen/dimen_8_dp"
+            android:minWidth="@dimen/dimen_translation_footer_min_width"
             android:gravity="center_vertical"
             android:orientation="horizontal">
 

@@ -14,6 +14,7 @@ import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageAIStreamStatus;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
 import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
 import com.netease.yunxin.kit.chatkit.manager.UserAIBotManager;
+import com.netease.yunxin.kit.chatkit.model.TranslationInfo;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.chatkit.ui.common.TextLinkifyUtils;
@@ -63,7 +64,7 @@ public class ChatTextMessageViewHolder extends NormalChatBaseMessageViewHolder {
 
   /** 绑定译文展示区域 */
   private void bindTranslation(ChatMessageBean message) {
-    com.netease.yunxin.kit.chatkit.model.TranslationInfo info = message.getTranslationInfo();
+    TranslationInfo info = message.getTranslationInfo();
     boolean hasTranslation =
         info != null
             && !android.text.TextUtils.isEmpty(info.getTranslatedText())
@@ -79,27 +80,41 @@ public class ChatTextMessageViewHolder extends NormalChatBaseMessageViewHolder {
             }
             return true;
           });
-      // 让气泡宽度能被译文内容撑开：
-      // 根 LinearLayout 是 wrap_content，宽度由 messageText 决定。
-      // 当译文比原文宽时，需要通过给 messageText 设 minWidth 来撑宽气泡，
-      // 避免译文被限制在原文宽度内提前换行。
-      syncTranslationMinWidth(info.getTranslatedText());
+      // 设置内容根视图最小宽度，确保气泡至少能容纳 footer（图标+"译文"）
+      int minWidthPx =
+          (int)
+              parent
+                  .getContext()
+                  .getResources()
+                  .getDimension(R.dimen.dimen_translation_area_min_width);
+      textBinding.getRoot().setMinimumWidth(minWidthPx);
+      // updateReplayInfoLayoutWidth() 会在 post() 里把 messageContainer.width 从
+      // MATCH_CONSTRAINT(0dp/wrap) 固化为一个 EXACT 像素值，导致子视图的 minimumWidth
+      // 被 EXACTLY 约束截断，setMinimumWidth 完全无效。
+      // 修复：翻译出现时将 messageContainer.width 重置回 MATCH_CONSTRAINT(0dp)，
+      // 让 ConstraintLayout 以 wrap 模式重新测量，minimumWidth 才能生效。
+      androidx.constraintlayout.widget.ConstraintLayout.LayoutParams lp =
+          (androidx.constraintlayout.widget.ConstraintLayout.LayoutParams)
+              baseViewBinding.messageContainer.getLayoutParams();
+      lp.width = 0; // 0 = MATCH_CONSTRAINT，配合 constraintWidth_default="wrap" 即 wrap_content
+      baseViewBinding.messageContainer.setLayoutParams(lp);
+      // 译文 TextView 使用 wrap_content，可以撑宽气泡。
+      // 需要在布局完成后将 maxWidth 限制为 messageContainer 实际允许的最大宽度，
+      // 防止长译文单行无限延伸超出屏幕边界。
+      baseViewBinding.messageContainer.post(
+          () -> {
+            int containerMaxWidth = baseViewBinding.messageContainer.getWidth();
+            if (containerMaxWidth > 0) {
+              textBinding.translationText.setMaxWidth(containerMaxWidth);
+            }
+          });
     } else {
-      textBinding.messageText.setMinWidth(0);
+      // 隐藏译文时重置最小宽度，不需要重置 messageContainer.width（消失后宽度由原文决定）
+      textBinding.getRoot().setMinimumWidth(0);
+      textBinding.translationText.setMaxWidth(Integer.MAX_VALUE);
       textBinding.llTranslationArea.setVisibility(View.GONE);
       textBinding.llTranslationArea.setOnLongClickListener(null);
     }
-  }
-
-  /** 测量译文单行所需宽度（含 padding），设置给 messageText 的 minWidth， 使气泡能被更长的译文撑宽，避免译文提前换行。 */
-  private void syncTranslationMinWidth(String translatedText) {
-    // translationText 与 messageText 的 paddingHorizontal 均为 dimen_16_dp，相同，故只需测量文字宽度
-    float textWidth = textBinding.translationText.getPaint().measureText(translatedText);
-    int paddingH =
-        textBinding.translationText.getPaddingLeft()
-            + textBinding.translationText.getPaddingRight();
-    // 气泡最大可用宽度由父容器约束，直接设 minWidth；ConstraintLayout 会保证不超出屏幕限制
-    textBinding.messageText.setMinWidth(Math.round(textWidth) + paddingH);
   }
 
   @Override
