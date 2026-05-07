@@ -117,7 +117,18 @@ public class ChatTextMessageViewHolder extends FunChatBaseMessageViewHolder {
             }
             return true;
           });
+      // 译文 TextView 使用 wrap_content，可以撑宽译文气泡（llTranslation）。
+      // 待布局完成后，将 maxWidth 设置为 messageContainer 的最大允许宽度，
+      // 防止超长译文在单行无限延伸超出屏幕边界。
+      baseViewBinding.messageContainer.post(
+          () -> {
+            int containerMaxWidth = baseViewBinding.messageContainer.getWidth();
+            if (containerMaxWidth > 0) {
+              textBinding.translationText.setMaxWidth(containerMaxWidth);
+            }
+          });
     } else {
+      textBinding.translationText.setMaxWidth(Integer.MAX_VALUE);
       textBinding.llTranslation.setVisibility(View.GONE);
       textBinding.llTranslation.setOnLongClickListener(null);
     }

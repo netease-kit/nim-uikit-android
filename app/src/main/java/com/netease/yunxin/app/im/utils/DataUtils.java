@@ -333,7 +333,7 @@ public class DataUtils {
           context.getSharedPreferences(
               Constant.TRANSLATION_CONFIG_FILE, Context.MODE_MULTI_PROCESS);
       translationTargetLanguage =
-          sharedPreferences.getString(Constant.TRANSLATION_TARGET_LANGUAGE, "zh-CHS");
+          sharedPreferences.getString(Constant.TRANSLATION_TARGET_LANGUAGE, "en");
     }
     return translationTargetLanguage;
   }

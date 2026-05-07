@@ -25,14 +25,17 @@
         android:visibility="visible" />
 
     <!-- 翻译区域，默认隐藏 -->
+    <!-- layout_width=wrap_content：译文内容可以撑大容器，与原文 messageText 共同决定气泡宽度 -->
+    <!-- 当译文比原文宽时，根 LinearLayout 会自动扩展；超出最大宽度后 translationText 才换行 -->
     <LinearLayout
         android:id="@+id/llTranslationArea"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:minWidth="@dimen/dimen_translation_area_min_width"
         android:orientation="vertical"
-        android:visibility="gone">
+        android:visibility="visible">
 
-        <!-- 分割线 -->
+        <!-- 分割线：match_parent 跟随容器宽度 -->
         <View
             android:id="@+id/translationDivider"
             android:layout_width="match_parent"
@@ -40,24 +43,28 @@
             android:layout_marginHorizontal="@dimen/dimen_12_dp"
             android:background="@color/color_chat_translation_divider" />
 
-        <!-- 译文内容 -->
+        <!-- 译文内容：wrap_content，单行时撑宽容器，超过最大宽度后自动换行 -->
         <TextView
             android:id="@+id/translationText"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingHorizontal="@dimen/dimen_16_dp"
             android:paddingTop="@dimen/dimen_12_dp"
             android:paddingBottom="@dimen/dimen_6_dp"
             android:textColor="@color/color_chat_message_text"
             android:textSize="@dimen/text_size_16"
+
             tools:text="Translation result" />
 
         <!-- 底部标识行：图标 + "译文" -->
+        <!-- marginH(12dp×2=24dp) + minWidth(50dp) = 74dp = dimen_translation_area_min_width -->
         <LinearLayout
+            android:id="@+id/llTranslationFooter"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="@dimen/dimen_16_dp"
+            android:layout_marginHorizontal="@dimen/dimen_12_dp"
             android:layout_marginBottom="@dimen/dimen_8_dp"
+            android:minWidth="@dimen/dimen_translation_footer_min_width"
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
@@ -71,6 +78,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/dimen_4_dp"
                 android:text="@string/chat_translate_tag"
+                android:maxLines="1"
                 android:textColor="@color/color_chat_translation_tag"
                 android:textSize="@dimen/text_size_12" />
 
