@@ -72,6 +72,8 @@ dependencies {
 
     // 通用UI库,如果需要则引入，同时在chatkit-ui、localconversationkit-ui、conversationkit-ui也需要切换源码引入
 //    implementation(project(":common-ui"))
+    implementation("com.netease.yunxin.kit.call:call-ui:4.6.0-SNAPSHOT")
+    implementation("com.netease.nimlib.coexist:avsignalling:10.9.62") //信令组件
     api("com.netease.yunxin.kit.common:common-picturechoose:1.1.0") //图片选择组件
     implementation("com.netease.yunxin.kit.meeting:meeting:4.18.1")
     implementation("com.airbnb.android:lottie:5.0.3")
