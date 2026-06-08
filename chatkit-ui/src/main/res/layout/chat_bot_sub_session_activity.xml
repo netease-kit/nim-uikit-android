@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/color_white"
+    android:orientation="vertical">
+
+    <FrameLayout
+        android:id="@+id/title_bar_container"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dimen_52_dp">
+
+        <com.netease.yunxin.kit.common.ui.widgets.BackTitleBar
+            android:id="@+id/title_bar_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:titleText="@string/chat_bot_sub_session_title" />
+
+        <LinearLayout
+            android:id="@+id/title_action_container"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="end|center_vertical"
+            android:layout_marginEnd="@dimen/dimen_16_dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/create_topic_button"
+                android:layout_width="@dimen/dimen_40_dp"
+                android:layout_height="@dimen/dimen_40_dp"
+                android:padding="@dimen/dimen_8_dp"
+                android:src="@drawable/ic_contact_add_robot" />
+
+            <ImageView
+                android:id="@+id/setting_button"
+                android:layout_width="@dimen/dimen_40_dp"
+                android:layout_height="@dimen/dimen_40_dp"
+                android:padding="@dimen/dimen_8_dp"
+                android:src="@drawable/ic_more_point" />
+        </LinearLayout>
+    </FrameLayout>
+
+    <LinearLayout
+        android:id="@+id/search_container"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dimen_40_dp"
+        android:layout_marginStart="@dimen/dimen_16_dp"
+        android:layout_marginTop="@dimen/dimen_8_dp"
+        android:layout_marginEnd="@dimen/dimen_16_dp"
+        android:background="@drawable/chat_bot_sub_session_search_bg"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="@dimen/dimen_12_dp"
+        android:paddingEnd="@dimen/dimen_12_dp">
+
+        <ImageView
+            android:layout_width="@dimen/dimen_18_dp"
+            android:layout_height="@dimen/dimen_18_dp"
+            android:src="@drawable/ic_search" />
+
+        <EditText
+            android:id="@+id/search_edit_text"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="@dimen/dimen_8_dp"
+            android:layout_weight="1"
+            android:background="@null"
+            android:hint="@string/chat_bot_sub_session_search_hint"
+            android:imeOptions="actionSearch"
+            android:inputType="text"
+            android:maxLines="1"
+            android:textColor="@color/color_333333"
+            android:textColorHint="@color/color_999999"
+            android:textSize="@dimen/text_size_14" />
+
+        <ImageView
+            android:id="@+id/search_clear_button"
+            android:layout_width="@dimen/dimen_32_dp"
+            android:layout_height="@dimen/dimen_32_dp"
+            android:padding="@dimen/dimen_8_dp"
+            android:src="@drawable/ic_clear"
+            android:visibility="gone" />
+    </LinearLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/topic_recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingTop="@dimen/dimen_8_dp"
+            android:paddingBottom="@dimen/dimen_16_dp" />
+
+        <LinearLayout
+            android:id="@+id/empty_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <ImageView
+                android:id="@+id/empty_image"
+                android:layout_width="@dimen/dimen_118_dp"
+                android:layout_height="@dimen/dimen_96_dp"
+                android:layout_marginTop="@dimen/dimen_120_dp"
+                android:src="@drawable/ic_chat_empty" />
+
+            <TextView
+                android:id="@+id/empty_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dimen_16_dp"
+                android:text="@string/chat_bot_sub_session_empty"
+                android:textColor="@color/color_999999"
+                android:textSize="@dimen/text_size_14" />
+
+            <TextView
+                android:id="@+id/empty_action_button"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/dimen_32_dp"
+                android:layout_marginTop="@dimen/dimen_12_dp"
+                android:background="@drawable/chat_bot_sub_session_empty_button_bg"
+                android:gravity="center"
+                android:minWidth="@dimen/dimen_100_dp"
+                android:paddingStart="@dimen/dimen_16_dp"
+                android:paddingEnd="@dimen/dimen_16_dp"
+                android:text="@string/chat_bot_sub_session_create_conversation"
+                android:textColor="@color/color_white"
+                android:textSize="@dimen/text_size_14" />
+        </LinearLayout>
+    </FrameLayout>
+</LinearLayout>

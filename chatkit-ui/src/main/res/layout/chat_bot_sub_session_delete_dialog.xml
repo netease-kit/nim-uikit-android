@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/chat_bot_sub_session_rename_dialog_bg"
+    android:orientation="vertical"
+    android:paddingStart="@dimen/dimen_24_dp"
+    android:paddingTop="@dimen/dimen_16_dp"
+    android:paddingEnd="@dimen/dimen_24_dp"
+    android:paddingBottom="@dimen/dimen_16_dp">
+
+    <TextView
+        android:id="@+id/dialog_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="@string/chat_bot_sub_session_delete"
+        android:textColor="@color/color_333333"
+        android:textSize="@dimen/text_size_20"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/dialog_message"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dimen_16_dp"
+        android:gravity="center"
+        android:text="@string/chat_bot_sub_session_delete_confirm"
+        android:textColor="@color/color_666666"
+        android:textSize="@dimen/text_size_16" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dimen_42_dp"
+        android:layout_marginTop="@dimen/dimen_16_dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/cancel_button"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginEnd="@dimen/dimen_12_dp"
+            android:layout_weight="1"
+            android:background="@drawable/chat_bot_sub_session_rename_cancel_bg"
+            android:gravity="center"
+            android:text="@string/cancel"
+            android:textColor="@color/color_333333"
+            android:textSize="@dimen/text_size_16" />
+
+        <TextView
+            android:id="@+id/delete_button"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="@dimen/dimen_12_dp"
+            android:layout_weight="1"
+            android:background="@drawable/chat_bot_sub_session_rename_confirm_bg"
+            android:gravity="center"
+            android:text="@string/chat_bot_sub_session_delete"
+            android:textColor="@color/color_white"
+            android:textSize="@dimen/text_size_16" />
+    </LinearLayout>
+</LinearLayout>

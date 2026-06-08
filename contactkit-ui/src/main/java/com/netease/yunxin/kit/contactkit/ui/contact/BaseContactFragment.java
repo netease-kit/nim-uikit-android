@@ -358,6 +358,7 @@ public abstract class BaseContactFragment extends BaseFragment {
     ALog.d(LIB_TAG, TAG, "onDestroy");
     if (viewModel != null) {
       viewModel.getContactLiveData().removeObserver(contactObserver);
+      viewModel.getContactStatusLiveData().removeObserver(onlineStatusObserver);
     }
     handler.removeCallbacksAndMessages(null);
   }

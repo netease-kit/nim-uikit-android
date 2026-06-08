@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatBaseMessageViewHolderBinding;
@@ -87,7 +88,7 @@ public class ChatTipsMessageViewHolder extends NormalChatBaseMessageViewHolder {
     if (content != null && !content.isEmpty()) {
       textBinding.messageTipText.setGravity(Gravity.CENTER);
       textBinding.messageTipText.setTextColor(
-          IMKitClient.getApplicationContext().getResources().getColor(R.color.color_999999));
+          ContextCompat.getColor(IMKitClient.getApplicationContext(), R.color.color_999999));
       textBinding.messageTipText.setTextSize(12);
       textBinding.messageTipText.setText(content);
     } else {

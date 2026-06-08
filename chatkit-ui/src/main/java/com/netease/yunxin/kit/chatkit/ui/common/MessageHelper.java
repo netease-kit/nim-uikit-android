@@ -29,6 +29,7 @@ import android.view.View;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.v2.ai.model.V2NIMAIUser;
 import com.netease.nimlib.sdk.v2.ai.params.V2NIMAIModelCallContent;
@@ -422,7 +423,7 @@ public class MessageHelper {
     if (message != null && textView != null) {
       SpannableString spannableString =
           replaceEmoticons(context, content, DEF_SCALE, ImageSpan.ALIGN_BOTTOM);
-      int color = context.getResources().getColor(AT_HIGHLIGHT);
+      int color = ContextCompat.getColor(context, AT_HIGHLIGHT);
       // 如果是AI消息，不需要高亮@
       if (!MessageHelper.isReceivedMessageFromAi(message)) {
         identifyAtExpression(context, spannableString, color, content, message);
@@ -474,7 +475,7 @@ public class MessageHelper {
     if (textView != null) {
       SpannableString spannableString =
           replaceEmoticons(context, content, DEF_SCALE, ImageSpan.ALIGN_BOTTOM);
-      int color = context.getResources().getColor(AT_HIGHLIGHT);
+      int color = ContextCompat.getColor(context, AT_HIGHLIGHT);
       identifyAtExpression(context, spannableString, color, content, atContactsModel);
       viewSetText(textView, spannableString);
     }
@@ -517,7 +518,7 @@ public class MessageHelper {
    */
   public static SpannableString generateAtSpanString(String content) {
     SpannableString spannableString = new SpannableString(content);
-    int color = IMKitClient.getApplicationContext().getResources().getColor(AT_HIGHLIGHT);
+    int color = ContextCompat.getColor(IMKitClient.getApplicationContext(), AT_HIGHLIGHT);
     ForegroundColorSpan colorSpan = new ForegroundColorSpan(color);
     spannableString.setSpan(colorSpan, 0, content.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
     return spannableString;
@@ -624,10 +625,7 @@ public class MessageHelper {
    * @return 是否可以撤回编辑
    */
   public static boolean isThreadReplayInfo(ChatMessageBean message) {
-    return message != null
-        && message.getMessageData().getMessage().getThreadReply() != null
-        && !TextUtils.isEmpty(
-            message.getMessageData().getMessage().getThreadReply().getMessageClientId());
+    return message != null && message.isThreadReply();
   }
 
   /**

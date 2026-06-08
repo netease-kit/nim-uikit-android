@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.netease.yunxin.kit.chatkit.ui.R;
@@ -43,7 +44,7 @@ public class ChatDateSelectActivity extends BaseLocalActivity {
     binding.searchTitleBar.setTitle(R.string.chat_calendar_filter_by_date);
     binding.searchTitleBar.setOnBackIconClickListener(v -> finish());
     binding.searchTitleBar.setActionText(R.string.chat_dialog_sure);
-    binding.searchTitleBar.setActionTextColor(getResources().getColor(R.color.color_337eff));
+    binding.searchTitleBar.setActionTextColor(ContextCompat.getColor(this, R.color.color_337eff));
 
     binding.searchTitleBar.setRightTextViewVisible(View.VISIBLE);
     binding.searchTitleBar.setActionTextListener(

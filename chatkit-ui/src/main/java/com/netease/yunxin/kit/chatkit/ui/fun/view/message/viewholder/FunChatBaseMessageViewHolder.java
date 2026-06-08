@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessageRefer;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
@@ -261,7 +262,7 @@ public class FunChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
   @Override
   protected void setStatus(ChatMessageBean data) {
     baseViewBinding.readProcess.setColor(
-        parent.getContext().getResources().getColor(R.color.fun_chat_message_read_process));
+        ContextCompat.getColor(parent.getContext(), R.color.fun_chat_message_read_process));
     super.setStatus(data);
     MessageStatusUIOption messageStatusUIOption = uiOptions.messageStatusUIOption;
     if (messageStatusUIOption.readProcessClickListener != null) {

@@ -114,9 +114,9 @@ public class ChatUtils {
     int minute = (time % 3600) / 60;
     int second = time % 60;
     if (hour == 0) {
-      return String.format(Locale.CHINA, "%02d:%02d", minute, second);
+      return String.format(Locale.US, "%02d:%02d", minute, second);
     }
-    return String.format(Locale.CHINA, "%02d:%02d:%02d", hour, minute, second);
+    return String.format(Locale.US, "%02d:%02d:%02d", hour, minute, second);
   }
 
   public static String formatFileSize(long fileS) {

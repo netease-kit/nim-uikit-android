@@ -20,6 +20,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -353,7 +354,7 @@ public class FunChatTeamFragment extends FunChatFragment {
     content.setText(contentText);
     title.setText(getString(R.string.chat_team_be_removed_title));
     positiveBut.setText(getString(R.string.chat_dialog_sure));
-    positiveBut.setTextColor(getResources().getColor(R.color.fun_chat_color));
+    positiveBut.setTextColor(ContextCompat.getColor(requireContext(), R.color.fun_chat_color));
     // 设置不可取消
     builder.setCancelable(false);
     builder.setView(dialogView);

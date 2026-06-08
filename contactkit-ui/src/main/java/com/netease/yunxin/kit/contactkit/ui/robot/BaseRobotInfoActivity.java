@@ -21,8 +21,10 @@ import com.netease.yunxin.kit.common.ui.dialog.CommonChoiceDialog;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.common.ui.widgets.BackTitleBar;
 import com.netease.yunxin.kit.common.ui.widgets.ContactAvatarView;
+import com.netease.yunxin.kit.common.utils.NetworkUtils;
 import com.netease.yunxin.kit.contactkit.ui.R;
 import com.netease.yunxin.kit.contactkit.ui.model.RobotInfoBean;
+import com.netease.yunxin.kit.contactkit.ui.normal.robot.RobotViewConfigActivity;
 import com.netease.yunxin.kit.contactkit.ui.utils.ColorUtils;
 import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
@@ -203,7 +205,7 @@ public abstract class BaseRobotInfoActivity extends BaseLocalActivity {
   }
 
   protected Class<?> getViewConfigActivityClass() {
-    return com.netease.yunxin.kit.contactkit.ui.normal.robot.RobotViewConfigActivity.class;
+    return RobotViewConfigActivity.class;
   }
 
   protected void goChat() {
@@ -214,7 +216,7 @@ public abstract class BaseRobotInfoActivity extends BaseLocalActivity {
   }
 
   protected String getChatRouterPath() {
-    return RouterConstant.PATH_CHAT_P2P_PAGE;
+    return RouterConstant.PATH_CHAT_BOT_SUB_SESSION_LIST_PAGE;
   }
 
   protected int getConfirmPositiveColor() {
@@ -223,7 +225,7 @@ public abstract class BaseRobotInfoActivity extends BaseLocalActivity {
 
   /** 检查网络，无网 Toast 提示，返回 false 表示无网 */
   protected boolean checkNetwork() {
-    if (!com.netease.yunxin.kit.common.utils.NetworkUtils.isConnected()) {
+    if (!NetworkUtils.isConnected()) {
       Toast.makeText(this, R.string.contact_network_error_tip, Toast.LENGTH_SHORT).show();
       return false;
     }

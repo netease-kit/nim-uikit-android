@@ -19,6 +19,7 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import com.netease.nimlib.sdk.uinfo.model.UserInfo;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessage;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessageRefer;
@@ -422,7 +423,7 @@ public class FunChatView extends LinearLayout implements IChatView, AitTextChang
       binding.notificationTextView.setTextSize(14);
       binding.notificationTextView.setText(R.string.chat_network_error_tip);
       binding.notificationTextView.setTextColor(
-          getContext().getResources().getColor(R.color.fun_chat_network_error_text));
+          ContextCompat.getColor(getContext(), R.color.fun_chat_network_error_text));
       binding.notificationTextView.setBackgroundResource(R.color.fun_chat_network_error_bg);
     }
   }

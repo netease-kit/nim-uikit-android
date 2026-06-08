@@ -36,7 +36,7 @@ public class CollectionVideoViewHolder extends CollectionThumbViewHolder {
     if (second <= 0) {
       second = 1;
     }
-    binding.duration.setText(String.format(Locale.CHINA, "%02d:%02d", second / 60, second % 60));
+    binding.duration.setText(String.format(Locale.US, "%02d:%02d", second / 60, second % 60));
     binding.duration.setVisibility(View.VISIBLE);
     binding.progressBar.setMax(PROGRESS_MAX);
     binding.progressBar.setIndeterminate(true);

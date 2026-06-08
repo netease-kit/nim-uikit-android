@@ -16,6 +16,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.PopupWindow;
 import android.widget.TextView;
+import androidx.core.content.ContextCompat;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.corekit.im2.IMKitClient;
@@ -222,7 +223,7 @@ public class SelectableTextHelper {
       if (mSpan == null) {
         mSpan =
             new BackgroundColorSpan(
-                IMKitClient.getApplicationContext().getResources().getColor(mSelectedColor));
+                ContextCompat.getColor(IMKitClient.getApplicationContext(), mSelectedColor));
       }
 
       mSelectionInfo.mSelectionContent =
@@ -280,7 +281,7 @@ public class SelectableTextHelper {
       this.isLeft = isLeft;
       mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
       mPaint.setColor(
-          IMKitClient.getApplicationContext().getResources().getColor(mCursorHandleColor));
+          ContextCompat.getColor(IMKitClient.getApplicationContext(), mCursorHandleColor));
 
       mPopupWindow = new PopupWindow(this);
       mPopupWindow.setClippingEnabled(false);

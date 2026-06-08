@@ -502,6 +502,9 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<CommonBaseMessageVi
   }
 
   public void forwardMessages(List<ChatMessageBean> message) {
+    if (message == null || message.isEmpty()) {
+      return;
+    }
     removeSameMessage(message);
     messageList.addAll(0, message);
     //刷新消息之间的时间是否需要展示

@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.netease.yunxin.kit.chatkit.ui.R;
@@ -43,7 +44,7 @@ public class FunDateSelectActivity extends BaseLocalActivity {
     binding.searchTitleBar.setOnBackIconClickListener(v -> finish());
     binding.searchTitleBar.setActionText(R.string.chat_complete_text);
     binding.searchTitleBar.setActionTextColor(
-        getResources().getColor(R.color.fun_chat_search_item_selected_color));
+        ContextCompat.getColor(this, R.color.fun_chat_search_item_selected_color));
 
     binding.searchTitleBar.setRightTextViewVisible(View.VISIBLE);
     binding.searchTitleBar.setActionTextListener(
@@ -217,7 +218,7 @@ public class FunDateSelectActivity extends BaseLocalActivity {
             },
             minLocal,
             todayLocal,
-            this.getResources().getColor(R.color.fun_chat_color));
+            ContextCompat.getColor(this, R.color.fun_chat_color));
     picker.setCancelable(true);
     picker.setYearMonthMode(true);
     picker.show(monthTitleSelected != null ? monthTitleSelected : todayLocal);

@@ -32,6 +32,38 @@
     <string name="chat_message_add_to_black_list">Block</string>
     <string name="chat_message_delete">Delete</string>
     <string name="chat_setting">Settings</string>
+    <string name="chat_bot_sub_session_title">Topics</string>
+    <string name="chat_bot_sub_session_search_hint">Search sub-session name</string>
+    <string name="chat_bot_sub_session_empty">No topics yet. Send a message to start one.</string>
+    <string name="chat_bot_sub_session_search_empty">No related sub-sessions found</string>
+    <string name="chat_bot_sub_session_no_message">No messages</string>
+    <string name="chat_bot_sub_session_untitled">New topic</string>
+    <string name="chat_bot_sub_session_new">New</string>
+    <string name="chat_bot_sub_session_create_conversation">Create conversation</string>
+    <string name="chat_bot_sub_session_rename">Rename</string>
+    <string name="chat_bot_sub_session_rename_conversation">Rename conversation</string>
+    <string name="chat_bot_sub_session_delete">Delete</string>
+    <string name="chat_bot_sub_session_save">Save</string>
+    <string name="chat_bot_sub_session_setting">Settings</string>
+    <string name="chat_bot_sub_session_delete_confirm">Delete this topic?</string>
+    <string name="chat_bot_sub_session_delete_title">Topic deletion</string>
+    <string name="chat_bot_sub_session_delete_topic">Delete topic "%1$s"?</string>
+    <string name="chat_bot_sub_session_input_name">Enter topic name</string>
+    <string name="chat_bot_sub_session_load_error">Failed to load topics</string>
+    <string name="chat_bot_sub_session_load_failed">Load failed</string>
+    <string name="chat_bot_sub_session_load_more_failed">Data request failed. Please try again later</string>
+    <string name="chat_bot_sub_session_retry">Tap to retry</string>
+    <string name="chat_bot_sub_session_offline_create">You are offline. Cannot create a conversation now</string>
+    <string name="chat_bot_sub_session_rename_failed">Failed to rename. Please try again</string>
+    <string name="chat_bot_sub_session_delete_failed">Failed to delete. Please try again</string>
+    <string name="chat_bot_sub_session_removed">This topic was removed</string>
+    <string name="chat_bot_sub_session_guide">Start chatting with %1$s</string>
+    <string name="chat_bot_sub_session_summary_image">[Photo]</string>
+    <string name="chat_bot_sub_session_summary_file">[File]</string>
+    <string name="chat_bot_sub_session_summary_file_with_name">[File] %1$s</string>
+    <string name="chat_bot_sub_session_summary_audio">[Voice]</string>
+    <string name="chat_bot_sub_session_summary_video">[Video]</string>
+    <string name="chat_bot_sub_session_summary_message">[Message]</string>
     <string name="chat_read_status">Read Status</string>
     <string name="chat_read_with_num">Read by（%d）</string>
     <string name="chat_unread_with_num">Unread by（%d）</string>
@@ -406,4 +438,6 @@
 
     <!-- Fun 消息撤回 -->
     <string name="fun_chat_message_revoked">%s recalled the message</string>
+    <!-- 群通知未知消息类型 -->
+    <string name="chat_team_unknown_message">Unknown message</string>
 </resources>

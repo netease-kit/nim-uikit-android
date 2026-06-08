@@ -8,6 +8,7 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.chatkit.ui.common.TextLinkifyUtils;
@@ -47,7 +48,7 @@ public class ChatRichTextMessageViewHolder extends NormalChatBaseMessageViewHold
               viewBinding.messageTitle,
               attachment.title,
               message.getKeyword(),
-              viewBinding.getRoot().getContext().getResources().getColor(R.color.color_337eff));
+              ContextCompat.getColor(viewBinding.getRoot().getContext(), R.color.color_337eff));
           if (TextUtils.isEmpty(attachment.body)) {
             viewBinding.messageContent.setVisibility(View.GONE);
           } else {

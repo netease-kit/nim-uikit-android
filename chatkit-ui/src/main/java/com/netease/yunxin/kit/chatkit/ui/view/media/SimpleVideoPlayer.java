@@ -23,6 +23,7 @@ import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatSimplePlayerViewBinding;
 import com.netease.yunxin.kit.common.ui.utils.ToastX;
+import com.netease.yunxin.kit.common.utils.CommonFileProvider;
 import com.netease.yunxin.kit.common.utils.ScreenUtils;
 import com.netease.yunxin.kit.common.utils.TimeUtils;
 
@@ -225,8 +226,10 @@ public class SimpleVideoPlayer extends ConstraintLayout {
           try {
             Intent intent = new Intent(Intent.ACTION_VIEW);
             String type = "video/3gp";
-            Uri name = Uri.parse("file://" + videoFilePath);
+            java.io.File videoFile = new java.io.File(videoFilePath);
+            Uri name = CommonFileProvider.Companion.getUriForFile(getContext(), videoFile);
             intent.setDataAndType(name, type);
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             getContext().startActivity(intent);
           } catch (Exception e) {
             ToastX.showShortToast(R.string.chat_message_video_error);

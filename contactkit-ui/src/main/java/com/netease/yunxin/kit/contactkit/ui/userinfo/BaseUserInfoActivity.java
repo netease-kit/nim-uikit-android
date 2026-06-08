@@ -163,7 +163,7 @@ public abstract class BaseUserInfoActivity extends BaseLocalActivity {
 
   protected void goChat() {
     String path = RouterConstant.PATH_CHAT_P2P_PAGE;
-    if (isRobot) {
+    if (isRobot()) {
       path = getRobotChatRouterPath();
     } else if (AIUserManager.isAIUser(userInfoData.data.getAccountId())) {
       path = RouterConstant.PATH_CHAT_AI_P2P_PAGE;
@@ -177,7 +177,11 @@ public abstract class BaseUserInfoActivity extends BaseLocalActivity {
 
   /** 机器人聊天路由，Fun 版子类可覆写 */
   protected String getRobotChatRouterPath() {
-    return RouterConstant.PATH_CHAT_P2P_PAGE;
+    return RouterConstant.PATH_CHAT_BOT_SUB_SESSION_LIST_PAGE;
+  }
+
+  protected boolean isRobot() {
+    return isRobot;
   }
 
   protected Class<? extends Activity> getCommentActivity() {

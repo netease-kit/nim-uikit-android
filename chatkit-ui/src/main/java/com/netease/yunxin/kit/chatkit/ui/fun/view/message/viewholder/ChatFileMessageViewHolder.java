@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessage;
 import com.netease.nimlib.sdk.v2.message.attachment.V2NIMMessageFileAttachment;
 import com.netease.yunxin.kit.alog.ALog;
@@ -73,7 +74,7 @@ public class ChatFileMessageViewHolder extends FunChatBaseMessageViewHolder {
           binding.displayName,
           attachment.getName(),
           currentMessage.getKeyword(),
-          parent.getContext().getResources().getColor(R.color.fun_chat_message_highlight_color));
+          ContextCompat.getColor(parent.getContext(), R.color.fun_chat_message_highlight_color));
     } else {
       binding.displayName.setText(attachment.getName());
     }

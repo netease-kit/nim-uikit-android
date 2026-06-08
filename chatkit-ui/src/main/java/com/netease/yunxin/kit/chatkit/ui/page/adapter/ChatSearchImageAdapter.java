@@ -9,6 +9,7 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
@@ -264,7 +265,7 @@ public class ChatSearchImageAdapter extends RecyclerView.Adapter<RecyclerView.Vi
       int padH = (int) (context.getResources().getDisplayMetrics().density * 12);
       int padV = (int) (context.getResources().getDisplayMetrics().density * 8);
       tv.setPadding(padH, padV, padH, padV);
-      tv.setTextColor(context.getResources().getColor(R.color.color_999999));
+      tv.setTextColor(ContextCompat.getColor(context, R.color.color_999999));
       tv.setText(R.string.chat_list_no_more_tips);
       tv.setGravity(android.view.Gravity.CENTER);
       return new FooterViewHolder(tv);
@@ -440,7 +441,7 @@ public class ChatSearchImageAdapter extends RecyclerView.Adapter<RecyclerView.Vi
           holder.binding.ivVideoIcon.setVisibility(android.view.View.VISIBLE);
           holder.binding.tvDuration.setVisibility(android.view.View.VISIBLE);
           holder.binding.tvDuration.setText(
-              String.format(java.util.Locale.CHINA, "%02d:%02d", second / 60, second % 60));
+              String.format(java.util.Locale.US, "%02d:%02d", second / 60, second % 60));
         } else {
           holder.binding.ivVideoIcon.setVisibility(android.view.View.GONE);
           holder.binding.tvDuration.setVisibility(android.view.View.GONE);

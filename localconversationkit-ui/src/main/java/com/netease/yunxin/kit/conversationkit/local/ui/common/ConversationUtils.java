@@ -7,16 +7,21 @@ package com.netease.yunxin.kit.conversationkit.local.ui.common;
 import static com.netease.yunxin.kit.conversationkit.local.ui.common.ConversationConstant.LIB_TAG;
 
 import android.content.Context;
+import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
+import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
 import com.netease.nimlib.sdk.v2.conversation.model.V2NIMLastMessage;
 import com.netease.nimlib.sdk.v2.conversation.model.V2NIMLocalConversation;
 import com.netease.nimlib.sdk.v2.message.attachment.V2NIMMessageAttachment;
 import com.netease.nimlib.sdk.v2.message.attachment.V2NIMMessageNotificationAttachment;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageNotificationType;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
+import com.netease.nimlib.sdk.v2.utils.V2NIMConversationIdUtil;
 import com.netease.yunxin.kit.alog.ALog;
+import com.netease.yunxin.kit.chatkit.manager.UserAIBotManager;
 import com.netease.yunxin.kit.conversationkit.local.ui.LocalConversationCustom;
 import com.netease.yunxin.kit.conversationkit.local.ui.LocalConversationKitClient;
+import com.netease.yunxin.kit.conversationkit.local.ui.R;
 import com.netease.yunxin.kit.conversationkit.local.ui.model.ConversationBean;
 import com.netease.yunxin.kit.corekit.im2.IMKitClient;
 import java.util.Comparator;
@@ -42,13 +47,34 @@ public class ConversationUtils {
    */
   public static CharSequence getConversationText(
       Context context, V2NIMLocalConversation conversationInfo) {
+    CharSequence content;
     if (LocalConversationKitClient.getConversationUIConfig() != null
         && LocalConversationKitClient.getConversationUIConfig().conversationCustom != null) {
-      return LocalConversationKitClient.getConversationUIConfig()
-          .conversationCustom
-          .customContentText(context, conversationInfo);
+      content =
+          LocalConversationKitClient.getConversationUIConfig()
+              .conversationCustom
+              .customContentText(context, conversationInfo);
+    } else {
+      content = custom.customContentText(context, conversationInfo);
     }
-    return custom.customContentText(context, conversationInfo);
+    return appendBotSubSessionPrefix(context, conversationInfo, content);
+  }
+
+  private static CharSequence appendBotSubSessionPrefix(
+      Context context, V2NIMLocalConversation conversationInfo, CharSequence content) {
+    if (context == null
+        || conversationInfo == null
+        || conversationInfo.getType() != V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P) {
+      return content;
+    }
+    String targetId =
+        V2NIMConversationIdUtil.conversationTargetId(conversationInfo.getConversationId());
+    if (!UserAIBotManager.isUserAIBot(targetId)) {
+      return content;
+    }
+    return new SpannableStringBuilder()
+        .append(context.getString(R.string.conversation_bot_sub_session_prefix))
+        .append(content == null ? "" : content);
   }
 
   /**

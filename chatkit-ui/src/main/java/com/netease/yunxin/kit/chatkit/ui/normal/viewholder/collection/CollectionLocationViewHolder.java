@@ -8,6 +8,7 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import com.bumptech.glide.Glide;
 import com.netease.nimlib.sdk.v2.message.attachment.V2NIMMessageLocationAttachment;
 import com.netease.yunxin.kit.alog.ALog;
@@ -61,7 +62,7 @@ public class CollectionLocationViewHolder extends CollectionBaseViewHolder {
           .load(url)
           .into(binding.locationItemMapIv)
           .onLoadFailed(
-              parent.getContext().getResources().getDrawable(R.drawable.ic_chat_location_default));
+              ContextCompat.getDrawable(parent.getContext(), R.drawable.ic_chat_location_default));
     }
 
     if (TextUtils.isEmpty(url)) {

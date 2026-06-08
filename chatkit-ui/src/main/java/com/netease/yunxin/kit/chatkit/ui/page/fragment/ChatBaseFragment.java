@@ -33,6 +33,7 @@ import androidx.activity.result.PickVisualMediaRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -129,7 +130,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-
 /** 聊天页面基础Fragment 页面交互、消息相关功能 */
 public abstract class ChatBaseFragment extends BaseFragment {
 
@@ -242,9 +242,10 @@ public abstract class ChatBaseFragment extends BaseFragment {
           ALog.i(
               LIB_TAG,
               LOG_TAG,
-              "onDataSync type:" + type != null
-                  ? type.name()
-                  : "null" + " state:" + state != null ? state.name() : "");
+              "onDataSync type:"
+                  + (type != null ? type.name() : "null")
+                  + " state:"
+                  + (state != null ? state.name() : "null"));
           if (type == V2NIMDataSyncType.V2NIM_DATA_SYNC_MAIN) {
             if (state == V2NIMDataSyncState.V2NIM_DATA_SYNC_STATE_COMPLETED) {
               updateDataWhenLogin();
@@ -562,7 +563,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
     chatView
         .getTitleBar()
         .getRightTextView()
-        .setTextColor(getResources().getColor(R.color.color_333333));
+        .setTextColor(ContextCompat.getColor(requireContext(), R.color.color_333333));
     // 权限申请Launcher
     permissionLauncher =
         registerForActivityResult(
@@ -1266,6 +1267,65 @@ public abstract class ChatBaseFragment extends BaseFragment {
     }
   }
 
+  protected List<PluginAction> filterMessagePopMenuActions(
+      @NonNull List<PluginAction> actions, @NonNull ChatMessageBean messageBean) {
+    return actions;
+  }
+
+  protected List<PluginAction> filterTextPopMenuActions(
+      @NonNull List<PluginAction> actions,
+      @NonNull ChatMessageBean messageBean,
+      @NonNull String text) {
+    return actions;
+  }
+
+  protected void showMessagePopMenu(
+      @NonNull View anchorView, @NonNull ChatMessageBean messageBean, int minY) {
+    if (getContext() == null) {
+      return;
+    }
+    if (popMenu != null && popMenu.isShowing()) {
+      popMenu.hide();
+    }
+    popMenu = new ChatPopMenu();
+    List<PluginAction> actions =
+        filterMessagePopMenuActions(
+            ChatPopActionFactory.getInstance().getMessageActions(getContext(), messageBean),
+            messageBean);
+    if (actions.isEmpty()) {
+      return;
+    }
+    popMenu.show(anchorView, actions, messageBean.getMessageData().getMessage().isSelf(), minY);
+  }
+
+  protected void showSelectedTextPopMenu(
+      @NonNull View anchorView,
+      @NonNull ChatMessageBean messageBean,
+      @NonNull String text,
+      boolean isSelectAll,
+      int minY) {
+    if (getContext() == null) {
+      return;
+    }
+    if (isSelectAll) {
+      showMessagePopMenu(anchorView, messageBean, minY);
+      return;
+    }
+    if (popMenu != null && popMenu.isShowing()) {
+      popMenu.hide();
+    }
+    popMenu = new ChatPopMenu();
+    List<PluginAction> actions =
+        filterTextPopMenuActions(
+            ChatPopActionFactory.getInstance().getTextActions(getContext(), text),
+            messageBean,
+            text);
+    if (actions.isEmpty()) {
+      return;
+    }
+    popMenu.show(anchorView, actions, messageBean.getMessageData().getMessage().isSelf(), minY);
+  }
+
   private final IMessageItemClickListener itemClickListener =
       new IMessageItemClickListener() {
         @Override
@@ -1276,15 +1336,9 @@ public abstract class ChatBaseFragment extends BaseFragment {
             if (messageBean.isRevoked() || messageBean.AIMessageStreaming()) {
               return false;
             }
-            // show pop menu
-            if (popMenu != null && popMenu.isShowing()) {
-              popMenu.hide();
-            }
-            popMenu = new ChatPopMenu();
-            //            popMenu.setDismissListener(() -> SelectableTextHelper.getInstance().dismiss());
             int[] location = new int[2];
             chatView.getMessageListView().getLocationOnScreen(location);
-            popMenu.show(getContext(), view, messageBean, location[1]);
+            showMessagePopMenu(view, messageBean, location[1]);
           }
           return true;
         }
@@ -1470,23 +1524,9 @@ public abstract class ChatBaseFragment extends BaseFragment {
               return false;
             }
             ALog.i(LIB_TAG, LOG_TAG, "onTextSelected: " + text);
-            // show pop menu
-            if (popMenu == null) {
-              popMenu = new ChatPopMenu();
-            }
-            //            popMenu.setDismissListener(() -> SelectableTextHelper.getInstance().dismiss());
             int[] location = new int[2];
             chatView.getMessageListView().getLocationOnScreen(location);
-            if (isSelectAll) {
-              popMenu.show(getContext(), view, messageInfo, location[1]);
-            } else {
-              popMenu.show(
-                  getContext(),
-                  view,
-                  text,
-                  messageInfo.getMessageData().getMessage().isSelf(),
-                  location[1]);
-            }
+            showSelectedTextPopMenu(view, messageInfo, text, isSelectAll, location[1]);
           }
           return true;
         }
@@ -2311,7 +2351,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
       ChatMsgCache.removeMessagesByClientId(deleteListId);
       checkMultiSelectView();
       if (chatView.getMessageList() == null || chatView.getMessageList().size() < 1) {
-        viewModel.getMessageList(null, false);
+        reloadMessagesAfterDeleteAll();
       }
     } else if (fetchResult.getLoadStatus() == LoadStatus.Error) {
       FetchResult.ErrorMsg errorMsg = fetchResult.getError();
@@ -2319,6 +2359,10 @@ public abstract class ChatBaseFragment extends BaseFragment {
         ToastX.showShortToast(errorMsg.getRes());
       }
     }
+  }
+
+  protected void reloadMessagesAfterDeleteAll() {
+    viewModel.getMessageList(null, false);
   }
 
   protected void onUserInfoChanged(FetchResult<List<String>> fetchResult) {

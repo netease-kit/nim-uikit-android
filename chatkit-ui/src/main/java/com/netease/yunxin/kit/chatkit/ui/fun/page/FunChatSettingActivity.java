@@ -15,6 +15,7 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
 import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
+import com.netease.yunxin.kit.chatkit.manager.UserAIBotManager;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.databinding.FunChatSettingActivityBinding;
 import com.netease.yunxin.kit.chatkit.ui.model.CloseChatPageEvent;
@@ -39,6 +40,7 @@ public class FunChatSettingActivity extends BaseLocalActivity {
   ChatSettingViewModel viewModel;
   UserWithFriend friendInfo;
   String accId;
+  private boolean fromBotSubSession = false;
 
   protected final EventNotify<CloseChatPageEvent> closeEventNotify =
       new EventNotify<CloseChatPageEvent>() {
@@ -72,12 +74,17 @@ public class FunChatSettingActivity extends BaseLocalActivity {
 
   private void initView() {
     accId = (String) getIntent().getSerializableExtra(RouterConstant.CHAT_ID_KRY);
+    fromBotSubSession = getIntent().getBooleanExtra(RouterConstant.KEY_FROM_BOT_SUB_SESSION, false);
     if (TextUtils.isEmpty(accId)) {
       finish();
       return;
     }
     refreshView();
-    if (IMKitConfigCenter.getEnableTeam()) {
+    boolean shouldShowAddMember =
+        !fromBotSubSession
+            && !UserAIBotManager.isUserAIBot(accId)
+            && IMKitConfigCenter.getEnableTeam();
+    if (shouldShowAddMember) {
       binding.addIv.setVisibility(View.VISIBLE);
       binding.noTeamNameTv.setVisibility(View.GONE);
       binding.nameTv.setVisibility(View.VISIBLE);
@@ -86,6 +93,13 @@ public class FunChatSettingActivity extends BaseLocalActivity {
       binding.noTeamNameTv.setVisibility(View.VISIBLE);
       binding.nameTv.setVisibility(View.GONE);
       binding.addIv.setVisibility(View.GONE);
+    }
+
+    if (fromBotSubSession) {
+      binding.pinLayout.setVisibility(View.GONE);
+      binding.historyLayout.setVisibility(View.GONE);
+      binding.aiPinLayout.setVisibility(View.GONE);
+      binding.aiPinDivider.setVisibility(View.GONE);
     }
 
     binding.stickTopLayout.setOnClickListener(
@@ -97,7 +111,7 @@ public class FunChatSettingActivity extends BaseLocalActivity {
           viewModel.stickTop(accId, !binding.stickTopSC.isChecked());
         });
 
-    if (IMKitConfigCenter.getEnablePinMessage()) {
+    if (!fromBotSubSession && IMKitConfigCenter.getEnablePinMessage()) {
       binding.pinLayout.setVisibility(View.VISIBLE);
       binding.pinLayout.setOnClickListener(
           v ->
@@ -113,15 +127,17 @@ public class FunChatSettingActivity extends BaseLocalActivity {
     } else {
       binding.pinLayout.setVisibility(View.GONE);
     }
-    binding.searchLayout.setOnClickListener(
-        v ->
-            XKitRouter.withKey(RouterConstant.PATH_FUN_CHAT_SEARCH_PAGE)
-                .withParam(
-                    RouterConstant.CHAT_CONVERSATION_TYPE_KRY,
-                    V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P.getValue())
-                .withParam(RouterConstant.CHAT_ID_KRY, accId)
-                .withContext(FunChatSettingActivity.this)
-                .navigate());
+    if (!fromBotSubSession) {
+      binding.historyLayout.setOnClickListener(
+          v ->
+              XKitRouter.withKey(RouterConstant.PATH_FUN_CHAT_SEARCH_PAGE)
+                  .withParam(
+                      RouterConstant.CHAT_CONVERSATION_TYPE_KRY,
+                      V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P.getValue())
+                  .withParam(RouterConstant.CHAT_ID_KRY, accId)
+                  .withContext(FunChatSettingActivity.this)
+                  .navigate());
+    }
     binding.notifyLayout.setOnClickListener(
         v -> {
           if (!NetworkUtils.isConnected()) {
@@ -191,7 +207,7 @@ public class FunChatSettingActivity extends BaseLocalActivity {
                 }
               }
             });
-    if (IMKitConfigCenter.getEnableAIUser()) {
+    if (!fromBotSubSession && IMKitConfigCenter.getEnableAIUser()) {
       viewModel
           .getAIUserPinLiveData()
           .observe(
