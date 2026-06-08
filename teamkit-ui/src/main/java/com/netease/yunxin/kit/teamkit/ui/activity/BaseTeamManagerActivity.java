@@ -239,7 +239,7 @@ public abstract class BaseTeamManagerActivity extends BaseLocalActivity {
     viewModel.getUpdateTeamLiveData().removeObserver(observerForTeamUpdate);
     viewModel.getUpdateAtLiveData().removeObserver(observerForAt);
     viewModel.getUpdateTopStickyLiveData().removeObserver(observerForTopSticky);
-    viewModel.getTeamMemberUpdateData().observeForever(observerForTeamMemberUpdateData);
+    viewModel.getTeamMemberUpdateData().removeObserver(observerForTeamMemberUpdateData);
     viewModel.getTeamWitheMemberData().removeObserver(observerForTeamData);
     viewModel.getTeamUpdateData().removeObserver(observerForTeamUpdateData);
     viewModel.getManagerCountLiveData().removeObserver(observerForMangerCount);

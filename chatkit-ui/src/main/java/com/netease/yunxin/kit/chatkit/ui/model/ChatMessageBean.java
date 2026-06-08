@@ -37,9 +37,19 @@ import java.util.Objects;
 /** this bean for UI show message， only IMMessageInfo will store in db */
 public class ChatMessageBean implements Serializable {
 
+  public enum ReplyParseMode {
+    NORMAL,
+    BOT_TOPIC
+  }
+
   public ChatMessageBean() {}
 
   public ChatMessageBean(IMMessageInfo messageData) {
+    this(messageData, ReplyParseMode.NORMAL);
+  }
+
+  public ChatMessageBean(IMMessageInfo messageData, ReplyParseMode replyParseMode) {
+    this.replyParseMode = replyParseMode == null ? ReplyParseMode.NORMAL : replyParseMode;
     this.messageData = messageData;
     if (messageData == null) {
       return;
@@ -107,9 +117,11 @@ public class ChatMessageBean implements Serializable {
   public int progress;
 
   boolean hasReply = false;
+  boolean threadReply = false;
   V2NIMMessageRefer replyMessageRefer;
 
   IMMessageInfo replyMessage;
+  ReplyParseMode replyParseMode = ReplyParseMode.NORMAL;
 
   //语音转文字结果，默认是空
   private String voiceToText;
@@ -290,8 +302,21 @@ public class ChatMessageBean implements Serializable {
     initReplyMessage();
   }
 
+  public void setReplyParseMode(ReplyParseMode replyParseMode) {
+    this.replyParseMode = replyParseMode == null ? ReplyParseMode.NORMAL : replyParseMode;
+    initReplyMessage();
+  }
+
+  public ReplyParseMode getReplyParseMode() {
+    return replyParseMode;
+  }
+
   public boolean hasReply() {
     return hasReply;
+  }
+
+  public boolean isThreadReply() {
+    return threadReply;
   }
 
   public V2NIMMessageRefer getReplyMessageRefer() {
@@ -307,11 +332,15 @@ public class ChatMessageBean implements Serializable {
   }
 
   private void initReplyMessage() {
+    hasReply = false;
+    threadReply = false;
+    replyMessageRefer = null;
+    replyMessage = null;
     if (messageData != null) {
-      // 优先取threadReply
-      if (messageData.getMessage().getThreadReply() != null) {
+      if (shouldUseThreadReply(messageData.getMessage())) {
         replyMessageRefer = messageData.getMessage().getThreadReply();
         hasReply = true;
+        threadReply = true;
         return;
       }
       Map<String, Object> serverExtensionMap =
@@ -367,6 +396,44 @@ public class ChatMessageBean implements Serializable {
         }
       }
     }
+  }
+
+  private boolean shouldUseThreadReply(V2NIMMessage message) {
+    if (replyParseMode == ReplyParseMode.BOT_TOPIC) {
+      return shouldShowThreadReply(message);
+    }
+    return hasThreadReply(message);
+  }
+
+  public static boolean hasThreadReply(V2NIMMessage message) {
+    return message != null
+        && message.getThreadReply() != null
+        && !TextUtils.isEmpty(message.getThreadReply().getMessageClientId());
+  }
+
+  public static boolean shouldShowThreadReply(V2NIMMessage message) {
+    if (!hasThreadReply(message)) {
+      return false;
+    }
+    V2NIMMessageRefer threadReply = message.getThreadReply();
+    if (TextUtils.isEmpty(threadReply.getMessageClientId())) {
+      return false;
+    }
+    V2NIMMessageRefer threadRoot = message.getThreadRoot();
+    return threadRoot == null || !isSameMessageRefer(threadRoot, threadReply);
+  }
+
+  private static boolean isSameMessageRefer(V2NIMMessageRefer left, V2NIMMessageRefer right) {
+    if (left == null || right == null) {
+      return false;
+    }
+    if (!TextUtils.isEmpty(left.getMessageClientId())
+        && TextUtils.equals(left.getMessageClientId(), right.getMessageClientId())) {
+      return true;
+    }
+    return !TextUtils.isEmpty(left.getMessageServerId())
+        && TextUtils.equals(left.getMessageServerId(), right.getMessageServerId())
+        && left.getCreateTime() == right.getCreateTime();
   }
 
   public boolean isRevoked() {

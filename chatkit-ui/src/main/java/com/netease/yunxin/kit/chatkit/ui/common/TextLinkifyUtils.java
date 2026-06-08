@@ -7,7 +7,7 @@ package com.netease.yunxin.kit.chatkit.ui.common;
 import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.PHONE_NUMBER_PATTERN;
 import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.TEL_SCHEME;
 
-import android.graphics.Color;
+import android.content.Context;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextPaint;
@@ -18,6 +18,8 @@ import android.text.util.Linkify;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.TextView;
+import androidx.core.content.ContextCompat;
+import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.interfaces.IMessageItemClickListener;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 
@@ -33,7 +35,8 @@ public class TextLinkifyUtils {
     Linkify.addLinks(spannable, PHONE_NUMBER_PATTERN, TEL_SCHEME);
 
     // 2. 移除默认的 ClickableSpan，替换为自定义的
-    replaceClickableSpans(spannable, itemClickListener, position, currentMessage);
+    replaceClickableSpans(
+        spannable, textView.getContext(), itemClickListener, position, currentMessage);
     textView.setText(spannable);
     textView.setMovementMethod(
         new LinkMovementMethod() {
@@ -91,6 +94,7 @@ public class TextLinkifyUtils {
   // 替换 Spannable 中的默认 URLSpan 为自定义 ClickableSpan，拦截点击事件
   private static void replaceClickableSpans(
       Spannable spannable,
+      Context context,
       IMessageItemClickListener itemClickListener,
       int position,
       ChatMessageBean currentMessage) {
@@ -118,7 +122,7 @@ public class TextLinkifyUtils {
             public void updateDrawState(TextPaint ds) {
               super.updateDrawState(ds);
               ds.setUnderlineText(false); // 去掉下划线
-              ds.setColor(Color.parseColor("#007AFF")); // 设置链接颜色
+              ds.setColor(ContextCompat.getColor(context, R.color.color_007aff)); // 设置链接颜色
             }
           };
 

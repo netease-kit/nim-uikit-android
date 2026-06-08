@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import com.netease.yunxin.kit.aisearchkit.R;
@@ -104,7 +105,8 @@ public class AISearchPage extends BaseLocalActivity {
           binding.aiSearchExtend.setVisibility(ViewGroup.GONE);
           binding.aiSearchInputLayout.setVisibility(View.VISIBLE);
 
-          binding.blankView.setBackgroundColor(getResources().getColor(R.color.color_80000000));
+          binding.blankView.setBackgroundColor(
+              ContextCompat.getColor(this, R.color.color_80000000));
           changeStatusBarColor(R.color.color_80000000);
         });
 

@@ -64,6 +64,18 @@
             />
 
         <activity
+            android:name="com.netease.yunxin.kit.chatkit.ui.normal.page.ChatBotSubSessionActivity"
+            android:screenOrientation="portrait"
+            android:launchMode="singleTop" />
+
+        <activity
+            android:name="com.netease.yunxin.kit.chatkit.ui.normal.page.ChatBotSubSessionChatActivity"
+            android:screenOrientation="portrait"
+            android:launchMode="singleTask"
+            android:configChanges="orientation|keyboardHidden"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
             android:name="com.netease.yunxin.kit.chatkit.ui.normal.page.ChatTeamActivity"
             android:screenOrientation="portrait"
             android:launchMode="singleTask"
@@ -138,6 +150,16 @@
             android:launchMode="singleTask"/>
 
         <activity android:name=".fun.page.FunChatAIActivity"
+            android:screenOrientation="portrait"
+            android:launchMode="singleTask"
+            android:configChanges="orientation|keyboardHidden"
+            android:windowSoftInputMode="adjustResize"/>
+
+        <activity android:name=".fun.page.FunChatBotSubSessionActivity"
+            android:screenOrientation="portrait"
+            android:launchMode="singleTop"/>
+
+        <activity android:name=".fun.page.FunChatBotSubSessionChatActivity"
             android:screenOrientation="portrait"
             android:launchMode="singleTask"
             android:configChanges="orientation|keyboardHidden"

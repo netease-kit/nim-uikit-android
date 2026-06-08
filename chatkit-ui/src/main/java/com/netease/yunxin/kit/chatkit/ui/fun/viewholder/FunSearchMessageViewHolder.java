@@ -6,6 +6,7 @@ package com.netease.yunxin.kit.chatkit.ui.fun.viewholder;
 
 import android.view.View;
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.chatkit.ui.databinding.FunChatSearchViewHolderBinding;
@@ -42,11 +43,8 @@ public class FunSearchMessageViewHolder extends BaseViewHolder<ChatSearchBean> {
           viewBinding.tvMessage,
           data.getMessage().getText(),
           data.getKeyword(),
-          viewBinding
-              .getRoot()
-              .getContext()
-              .getResources()
-              .getColor(R.color.fun_chat_search_message_hit_color),
+          ContextCompat.getColor(
+              viewBinding.getRoot().getContext(), R.color.fun_chat_search_message_hit_color),
           true,
           true);
 

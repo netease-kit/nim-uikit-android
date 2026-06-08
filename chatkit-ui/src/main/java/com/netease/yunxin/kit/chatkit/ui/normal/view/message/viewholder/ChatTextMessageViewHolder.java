@@ -9,6 +9,7 @@ import android.text.style.ImageSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessageRefer;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageAIStreamStatus;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
@@ -152,7 +153,7 @@ public class ChatTextMessageViewHolder extends NormalChatBaseMessageViewHolder {
                 textBinding.messageText,
                 text,
                 currentMessage.getKeyword(),
-                parent.getContext().getResources().getColor(R.color.color_chat_message_highlight));
+                ContextCompat.getColor(parent.getContext(), R.color.color_chat_message_highlight));
           } else if (TextUtils.isEmpty(text)
               && aiStreamStatus
                   == V2NIMMessageAIStreamStatus.V2NIM_MESSAGE_AI_STREAM_STATUS_ABORTED) {
@@ -179,7 +180,7 @@ public class ChatTextMessageViewHolder extends NormalChatBaseMessageViewHolder {
               textBinding.messageText,
               message.getMessageData().getText(),
               currentMessage.getKeyword(),
-              parent.getContext().getResources().getColor(R.color.color_chat_message_highlight));
+              ContextCompat.getColor(parent.getContext(), R.color.color_chat_message_highlight));
         } else if (!isChatMsg() || !IMKitConfigCenter.getEnableAtMessage()) {
           MessageHelper.identifyFaceExpression(
               textBinding.getRoot().getContext(),

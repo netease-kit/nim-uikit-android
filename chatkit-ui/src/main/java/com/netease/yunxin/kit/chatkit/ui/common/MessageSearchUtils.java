@@ -17,6 +17,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -40,7 +41,7 @@ public class MessageSearchUtils {
     // 按「天」分组（key：yyyy-MM-dd，TreeMap保证key按时间倒序排列）
     // 注：TreeMap的Comparator.reverseOrder() 让最新的日期key排在前面
     Map<String, List<V2NIMMessage>> dailyImages = new TreeMap<>();
-    SimpleDateFormat dayKeyFormat = new SimpleDateFormat(DATE_M_D_FORMATE);
+    SimpleDateFormat dayKeyFormat = new SimpleDateFormat(DATE_M_D_FORMATE, Locale.getDefault());
 
     // 2. 遍历图片，按天分组
     for (V2NIMMessage message : images) {
@@ -121,10 +122,14 @@ public class MessageSearchUtils {
     SimpleDateFormat sdf;
     if (targetYear == currentYear) {
       // 今年：仅展示月-日
-      sdf = new SimpleDateFormat(context.getString(R.string.chat_date_m_d_formate));
+      sdf =
+          new SimpleDateFormat(
+              context.getString(R.string.chat_date_m_d_formate), Locale.getDefault());
     } else {
       // 非今年：展示年-月-日
-      sdf = new SimpleDateFormat(context.getString(R.string.chat_date_y_m_d_formate));
+      sdf =
+          new SimpleDateFormat(
+              context.getString(R.string.chat_date_y_m_d_formate), Locale.getDefault());
     }
     return sdf.format(date);
     //        }
@@ -167,7 +172,7 @@ public class MessageSearchUtils {
         // 根据 "yyyy-MM" key 解析出 Date，再计算 UI 展示文本
         String displayText;
         try {
-          Date groupDate = new SimpleDateFormat("yyyy-MM").parse(monthKey);
+          Date groupDate = new SimpleDateFormat("yyyy-MM", Locale.getDefault()).parse(monthKey);
           displayText = ChatSearchDateUtils.getMonthDisplayText(context, groupDate);
         } catch (Exception e) {
           displayText = monthKey;
@@ -199,7 +204,7 @@ public class MessageSearchUtils {
 
   /** 获取指定日期的0点时间（用于计算天差） */
   private static Date getZeroTime(Date date) {
-    SimpleDateFormat sdf = new SimpleDateFormat(DATE_M_D_FORMATE);
+    SimpleDateFormat sdf = new SimpleDateFormat(DATE_M_D_FORMATE, Locale.getDefault());
     try {
       return sdf.parse(sdf.format(date));
     } catch (ParseException e) {

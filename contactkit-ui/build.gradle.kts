@@ -16,7 +16,7 @@ android {
     defaultConfig {
         minSdk = 24
         consumerProguardFiles("consumer-rules.pro")
-        buildConfigField("String", "versionName", "\"10.9.27\"")
+        buildConfigField("String", "versionName", "\"10.9.30\"")
     }
 
     buildTypes {
@@ -40,7 +40,7 @@ dependencies {
     // imuikit 底层库
 //    api(project(":common-ui"))
     api("com.netease.yunxin.kit:alog:1.1.1")
-    api("com.netease.yunxin.kit.chat:chatkit:10.9.27")
+    api("com.netease.yunxin.kit.chat:chatkit:10.9.30-beta02")
     api("com.netease.yunxin.kit.common:common-ui:1.11.1")
 
     api("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.22")
@@ -49,4 +49,3 @@ dependencies {
     implementation("androidx.recyclerview:recyclerview:1.3.2")
     implementation("com.github.bumptech.glide:glide:4.13.1")
 }
-

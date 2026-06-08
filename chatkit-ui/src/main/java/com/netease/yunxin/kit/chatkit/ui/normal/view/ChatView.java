@@ -19,6 +19,7 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import com.netease.nimlib.sdk.uinfo.model.UserInfo;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessage;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessageRefer;
@@ -427,7 +428,7 @@ public class ChatView extends LinearLayout implements IChatView, AitTextChangeLi
       binding.tvNotification.setTextSize(14);
       binding.tvNotification.setText(R.string.chat_network_error_tip);
       binding.tvNotification.setTextColor(
-          getContext().getResources().getColor(R.color.color_fc596a));
+          ContextCompat.getColor(getContext(), R.color.color_fc596a));
       binding.tvNotification.setBackgroundResource(R.color.color_fee3e6);
     }
   }

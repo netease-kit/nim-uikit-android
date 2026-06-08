@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
@@ -92,14 +93,14 @@ public class AitContactSelectorDialog extends BottomSheetDialog {
       adapter.setAitContactConfig(
           new AitContactAdapter.AitContactConfig(
               SizeUtils.dp2px(30),
-              getContext().getResources().getColor(R.color.color_333333),
+              ContextCompat.getColor(getContext(), R.color.color_333333),
               R.drawable.ic_team_all));
     } else {
       binding.getRoot().setBackgroundResource(R.color.color_ededed);
       adapter.setAitContactConfig(
           new AitContactAdapter.AitContactConfig(
               SizeUtils.dp2px(4),
-              getContext().getResources().getColor(R.color.color_222222),
+              ContextCompat.getColor(getContext(), R.color.color_222222),
               R.drawable.ic_chat_at_all_avatar));
     }
   }

@@ -25,6 +25,14 @@
     <color name="color_007aff">#007AFF</color>
     <color name="color_222222">#222222</color>
     <color name="color_bcccfa">#bcccfa</color>
+    <color name="chat_bot_sub_session_dot_1">#60CFA7</color>
+    <color name="chat_bot_sub_session_dot_2">#53C3F3</color>
+    <color name="chat_bot_sub_session_dot_3">#537FF4</color>
+    <color name="chat_bot_sub_session_dot_4">#854FE2</color>
+    <color name="chat_bot_sub_session_dot_5">#BE65D9</color>
+    <color name="chat_bot_sub_session_dot_6">#E9749D</color>
+    <color name="chat_bot_sub_session_dot_7">#F9B751</color>
+    <color name="chat_bot_sub_session_theme_color">#337EFF</color>
 
     <!-- ==================== 语义命名颜色（公共） ==================== -->
     <!-- Photo Viewer -->
@@ -60,6 +68,8 @@
     <color name="fun_chat_page_bg_color">#ededed</color>
     <color name="fun_chat_secondary_page_bg_color">#ededed</color>
     <color name="fun_chat_color">#58BE6B</color>
+    <color name="fun_conversation_item_bg_color">#FFFFFF</color>
+    <color name="fun_conversation_item_divide_line_color">#D8D8D8</color>
 
     <!-- Fun 会话页面 -->
     <color name="fun_chat_message_read_process">#58BE6B</color>

@@ -46,7 +46,7 @@ public class FunRobotInfoActivity extends BaseRobotInfoActivity {
 
   @Override
   protected String getChatRouterPath() {
-    return RouterConstant.PATH_FUN_CHAT_P2P_PAGE;
+    return RouterConstant.PATH_FUN_CHAT_BOT_SUB_SESSION_LIST_PAGE;
   }
 
   @Override

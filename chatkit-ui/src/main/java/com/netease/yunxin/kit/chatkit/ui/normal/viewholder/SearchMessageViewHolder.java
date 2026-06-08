@@ -7,6 +7,7 @@ package com.netease.yunxin.kit.chatkit.ui.normal.viewholder;
 import android.content.Context;
 import android.view.View;
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessage;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
 import com.netease.yunxin.kit.chatkit.ui.R;
@@ -46,7 +47,7 @@ public class SearchMessageViewHolder extends BaseViewHolder<ChatSearchBean> {
             viewBinding.tvMessage,
             display,
             data.getKeyword(),
-            viewBinding.getRoot().getContext().getResources().getColor(R.color.color_337eff),
+            ContextCompat.getColor(viewBinding.getRoot().getContext(), R.color.color_337eff),
             true,
             true);
       } else {

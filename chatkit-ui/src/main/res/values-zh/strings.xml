@@ -33,6 +33,38 @@
     <string name="chat_message_add_to_black_list">加入黑名单</string>
     <string name="chat_message_delete">删除</string>
     <string name="chat_setting">聊天设置</string>
+    <string name="chat_bot_sub_session_title">话题</string>
+    <string name="chat_bot_sub_session_search_hint">搜索子会话名称</string>
+    <string name="chat_bot_sub_session_empty">暂无话题，发送第一条消息开始新话题</string>
+    <string name="chat_bot_sub_session_search_empty">未找到相关子会话</string>
+    <string name="chat_bot_sub_session_no_message">暂无消息</string>
+    <string name="chat_bot_sub_session_untitled">新话题</string>
+    <string name="chat_bot_sub_session_new">新会话</string>
+    <string name="chat_bot_sub_session_create_conversation">新建会话</string>
+    <string name="chat_bot_sub_session_rename">重命名</string>
+    <string name="chat_bot_sub_session_rename_conversation">重命名会话</string>
+    <string name="chat_bot_sub_session_delete">删除</string>
+    <string name="chat_bot_sub_session_save">确定</string>
+    <string name="chat_bot_sub_session_setting">设置</string>
+    <string name="chat_bot_sub_session_delete_confirm">删除该话题？</string>
+    <string name="chat_bot_sub_session_delete_title">话题删除</string>
+    <string name="chat_bot_sub_session_delete_topic">删除话题“%1$s”？</string>
+    <string name="chat_bot_sub_session_input_name">请输入话题名称</string>
+    <string name="chat_bot_sub_session_load_error">话题加载失败</string>
+    <string name="chat_bot_sub_session_load_failed">加载失败</string>
+    <string name="chat_bot_sub_session_load_more_failed">数据请求失败，请稍后重试</string>
+    <string name="chat_bot_sub_session_retry">点击重试</string>
+    <string name="chat_bot_sub_session_offline_create">当前离线，暂无法新建会话</string>
+    <string name="chat_bot_sub_session_rename_failed">修改失败，请重试</string>
+    <string name="chat_bot_sub_session_delete_failed">删除失败，请重试</string>
+    <string name="chat_bot_sub_session_removed">当前话题已被删除</string>
+    <string name="chat_bot_sub_session_guide">和%1$s开始聊一聊</string>
+    <string name="chat_bot_sub_session_summary_image">[图片消息]</string>
+    <string name="chat_bot_sub_session_summary_file">[文件消息]</string>
+    <string name="chat_bot_sub_session_summary_file_with_name">[文件消息] %1$s</string>
+    <string name="chat_bot_sub_session_summary_audio">[语音消息]</string>
+    <string name="chat_bot_sub_session_summary_video">[视频消息]</string>
+    <string name="chat_bot_sub_session_summary_message">[消息]</string>
     <string name="chat_read_status">消息阅读状态</string>
     <string name="chat_read_with_num">已读（%d）</string>
     <string name="chat_unread_with_num">未读（%d）</string>
@@ -395,4 +427,6 @@
     <string name="chat_translate_failed">翻译失败</string>
     <string name="chat_translate_tag">译文</string>
     <string name="chat_translate_hide">隐藏</string>
+    <!-- 群通知未知消息类型 -->
+    <string name="chat_team_unknown_message">未知消息</string>
 </resources>

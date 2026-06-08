@@ -18,7 +18,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
 import com.netease.yunxin.kit.alog.ALog;
+import com.netease.yunxin.kit.chatkit.manager.UserAIBotManager;
 import com.netease.yunxin.kit.common.ui.action.ActionItem;
 import com.netease.yunxin.kit.common.ui.dialog.ListAlertDialog;
 import com.netease.yunxin.kit.common.ui.fragments.BaseFragment;
@@ -41,6 +43,7 @@ import com.netease.yunxin.kit.conversationkit.ui.page.interfaces.IConversationCa
 import com.netease.yunxin.kit.conversationkit.ui.page.interfaces.ILoadListener;
 import com.netease.yunxin.kit.conversationkit.ui.page.viewmodel.ConversationViewModel;
 import com.netease.yunxin.kit.conversationkit.ui.view.ConversationView;
+import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -141,10 +144,7 @@ public abstract class ConversationBaseFragment extends BaseFragment implements I
         }
         // 内部逻辑，跳转到聊天页面
         if (!result) {
-          XKitRouter.withKey(data.router)
-              .withParam(data.paramKey, data.param)
-              .withContext(ConversationBaseFragment.this.requireContext())
-              .navigate();
+          navigateConversation(data);
         }
         return true;
       }
@@ -166,10 +166,7 @@ public abstract class ConversationBaseFragment extends BaseFragment implements I
         }
         // 内部逻辑，跳转到聊天页面
         if (!result) {
-          XKitRouter.withKey(data.router)
-              .withParam(data.paramKey, data.param)
-              .withContext(ConversationBaseFragment.this.requireContext())
-              .navigate();
+          navigateConversation(data);
         }
         return true;
       }
@@ -219,6 +216,35 @@ public abstract class ConversationBaseFragment extends BaseFragment implements I
       }
     };
   };
+
+  protected void navigateConversation(BaseBean data) {
+    if (data instanceof ConversationBean) {
+      ConversationBean conversation = (ConversationBean) data;
+      String targetId = conversation.getTargetId();
+      if (conversation.getConversationType() == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P
+          && UserAIBotManager.isUserAIBot(targetId)) {
+        boolean funStyle =
+            RouterConstant.PATH_FUN_CHAT_P2P_PAGE.equals(data.router)
+                || RouterConstant.PATH_FUN_CHAT_BOT_SUB_SESSION_LIST_PAGE.equals(data.router);
+        String router =
+            funStyle
+                ? RouterConstant.PATH_FUN_CHAT_BOT_SUB_SESSION_LIST_PAGE
+                : RouterConstant.PATH_CHAT_BOT_SUB_SESSION_LIST_PAGE;
+        XKitRouter.withKey(router)
+            .withParam(RouterConstant.CHAT_ID_KRY, targetId)
+            .withParam(
+                RouterConstant.KEY_BOT_SUB_SESSION_CONVERSATION_ID,
+                conversation.getConversationId())
+            .withContext(requireContext())
+            .navigate();
+        return;
+      }
+    }
+    XKitRouter.withKey(data.router)
+        .withParam(data.paramKey, data.param)
+        .withContext(requireContext())
+        .navigate();
+  }
 
   // 设置外部定制的ViewHolderFactory
   public void setViewHolderFactory(IConversationFactory factory) {

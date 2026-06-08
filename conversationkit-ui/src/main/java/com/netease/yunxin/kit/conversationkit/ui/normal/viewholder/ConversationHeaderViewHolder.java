@@ -36,8 +36,9 @@ public class ConversationHeaderViewHolder extends BaseViewHolder<ConversationBea
           @Override
           public boolean onClick(View view, BaseBean data, int position) {
             if (data instanceof AIUserBean) {
+              String accountId = ((AIUserBean) data).getAccountId();
               XKitRouter.withKey(RouterConstant.PATH_CHAT_P2P_PAGE)
-                  .withParam(RouterConstant.CHAT_ID_KRY, ((AIUserBean) data).getAccountId())
+                  .withParam(RouterConstant.CHAT_ID_KRY, accountId)
                   .withContext(viewBinding.getRoot().getContext())
                   .navigate();
             }

@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
@@ -25,7 +26,6 @@ import com.netease.yunxin.kit.common.utils.SizeUtils;
 import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 import java.util.ArrayList;
-
 /** 标准皮肤，收藏列表页面。 */
 public class CollectionActivity extends CollectionBaseActivity {
 
@@ -38,7 +38,7 @@ public class CollectionActivity extends CollectionBaseActivity {
   @Override
   protected void initView() {
     super.initView();
-    viewBinding.getRoot().setBackgroundColor(getResources().getColor(R.color.color_eef1f4));
+    viewBinding.getRoot().setBackgroundColor(ContextCompat.getColor(this, R.color.color_eef1f4));
     collectionAdapter.setViewHolderFactory(new CollectionViewHolderFactory());
   }
 

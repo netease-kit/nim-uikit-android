@@ -111,7 +111,7 @@
             android:layout_height="@dimen/dimen_1_dp"
             android:background="@color/color_f5f8fc" />
         <RelativeLayout
-            android:id="@+id/searchLayout"
+            android:id="@+id/historyLayout"
             android:layout_width="match_parent"
             android:layout_height="@dimen/dimen_50_dp"
             android:visibility="visible">

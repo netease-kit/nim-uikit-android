@@ -24,6 +24,7 @@
     <dimen name="dimen_80_dp">80dp</dimen>
     <dimen name="dimen_75_dp">75dp</dimen>
     <dimen name="dimen_74_dp">74dp</dimen>
+    <dimen name="dimen_32_dp">32dp</dimen>
     <dimen name="dimen_60_dp">60dp</dimen>
     <dimen name="dimen_56_dp">56dp</dimen>
     <dimen name="dimen_55_dp">55dp</dimen>
@@ -37,8 +38,12 @@
     <dimen name="dimen_28_dp">28dp</dimen>
     <dimen name="dimen_24_dp">24dp</dimen>
     <dimen name="dimen_18_dp">18dp</dimen>
+    <dimen name="dimen_16_dp">16dp</dimen>
     <dimen name="dimen_15_dp">15dp</dimen>
+    <dimen name="dimen_14_dp">14dp</dimen>
     <dimen name="dimen_13_dp">13dp</dimen>
+    <dimen name="dimen_12_dp">12dp</dimen>
+    <dimen name="dimen_10_dp">10dp</dimen>
     <dimen name="dimen_11_dp">11dp</dimen>
     <dimen name="dimen_9_dp">9dp</dimen>
     <dimen name="dimen_8_dp">8dp</dimen>
@@ -52,6 +57,8 @@
     <dimen name="text_size_12">12sp</dimen>
     <dimen name="text_size_10">10sp</dimen>
     <dimen name="text_size_20">20sp</dimen>
+    <dimen name="text_size_16">16sp</dimen>
+    <dimen name="text_size_14">14sp</dimen>
     <dimen name="chat_earphone_icon_size">14dp</dimen>
 
     <!-- ==================== Fun 皮肤专属尺寸 ==================== -->

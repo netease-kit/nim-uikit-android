@@ -8,6 +8,7 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
+import androidx.core.content.ContextCompat;
 import com.netease.yunxin.kit.chatkit.manager.AIUserManager;
 import com.netease.yunxin.kit.common.utils.NetworkUtils;
 import com.netease.yunxin.kit.common.utils.SizeUtils;
@@ -27,9 +28,10 @@ public class FunUserInfoActivity extends BaseUserInfoActivity {
     contactInfoView.configSCBlackSwitch(
         R.drawable.fun_switch_track_selector, R.drawable.fun_switch_thumb_selector);
     contactInfoView.configAvatarCorner(SizeUtils.dp2px(4));
-    contactInfoView.configChatBtnColor(getResources().getColor(R.color.fun_contact_chat_btn_color));
-    contactInfoView.configDivideLineColor(getResources().getColor(R.color.color_ededed));
-    contactInfoView.configRootBgColor(getResources().getColor(R.color.color_ededed));
+    contactInfoView.configChatBtnColor(
+        ContextCompat.getColor(this, R.color.fun_contact_chat_btn_color));
+    contactInfoView.configDivideLineColor(ContextCompat.getColor(this, R.color.color_ededed));
+    contactInfoView.configRootBgColor(ContextCompat.getColor(this, R.color.color_ededed));
     contactInfoView.configSignatureMaxLines(2);
     titleBar = binding.title;
     return binding.getRoot();
@@ -57,7 +59,9 @@ public class FunUserInfoActivity extends BaseUserInfoActivity {
 
   protected void goChat() {
     String path = RouterConstant.PATH_FUN_CHAT_P2P_PAGE;
-    if (AIUserManager.isAIUser(userInfoData.data.getAccountId())) {
+    if (isRobot()) {
+      path = RouterConstant.PATH_FUN_CHAT_BOT_SUB_SESSION_LIST_PAGE;
+    } else if (AIUserManager.isAIUser(userInfoData.data.getAccountId())) {
       path = RouterConstant.PATH_FUN_CHAT_AI_PAGE;
     }
     XKitRouter.withKey(path)

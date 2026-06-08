@@ -23,6 +23,7 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewConfiguration;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.GestureDetectorCompat;
 import androidx.core.view.ScaleGestureDetectorCompat;
 import com.netease.yunxin.kit.chatkit.ui.R;
@@ -1124,12 +1125,12 @@ public class PhotoView extends View
 
       sCropDimPaint = new Paint();
       sCropDimPaint.setAntiAlias(true);
-      sCropDimPaint.setColor(resources.getColor(R.color.photo_crop_dim_color));
+      sCropDimPaint.setColor(ContextCompat.getColor(context, R.color.photo_crop_dim_color));
       sCropDimPaint.setStyle(Style.FILL);
 
       sCropPaint = new Paint();
       sCropPaint.setAntiAlias(true);
-      sCropPaint.setColor(resources.getColor(R.color.photo_crop_highlight_color));
+      sCropPaint.setColor(ContextCompat.getColor(context, R.color.photo_crop_highlight_color));
       sCropPaint.setStyle(Style.STROKE);
       sCropPaint.setStrokeWidth(resources.getDimension(R.dimen.photo_crop_stroke_width));
 

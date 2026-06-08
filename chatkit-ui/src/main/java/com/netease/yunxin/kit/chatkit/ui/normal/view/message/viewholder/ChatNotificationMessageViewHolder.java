@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
 import com.netease.nimlib.sdk.v2.message.attachment.V2NIMMessageNotificationAttachment;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.common.TeamNotificationHelper;
@@ -88,7 +89,7 @@ public class ChatNotificationMessageViewHolder extends NormalChatBaseMessageView
         instanceof V2NIMMessageNotificationAttachment) {
       textBinding.messageText.setGravity(Gravity.CENTER);
       textBinding.messageText.setTextColor(
-          IMKitClient.getApplicationContext().getResources().getColor(R.color.color_999999));
+          ContextCompat.getColor(IMKitClient.getApplicationContext(), R.color.color_999999));
       textBinding.messageText.setTextSize(12);
       String content = TeamNotificationHelper.getTeamNotificationText(message.getMessageData());
       if (TextUtils.isEmpty(content)) {

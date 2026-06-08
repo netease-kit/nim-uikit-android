@@ -71,7 +71,10 @@ public class TeamNotificationHelper {
         text = buildMuteTeamNotification(attachment);
         break;
       default:
-        text = getTeamMemberDisplayName(fromAccount) + ": unknown message";
+        text =
+            getTeamMemberDisplayName(fromAccount)
+                + ": "
+                + IMKitClient.getApplicationContext().getString(R.string.chat_team_unknown_message);
         break;
     }
 
@@ -91,7 +94,9 @@ public class TeamNotificationHelper {
       sb.append(getTeamMemberDisplayName(account));
       sb.append(",");
     }
-    sb.deleteCharAt(sb.length() - 1);
+    if (sb.length() > 0) {
+      sb.deleteCharAt(sb.length() - 1);
+    }
 
     return sb.toString();
   }

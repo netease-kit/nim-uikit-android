@@ -10,6 +10,7 @@ import com.netease.yunxin.kit.chatkit.ui.R;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 public final class ChatSearchDateUtils {
 
@@ -42,7 +43,7 @@ public final class ChatSearchDateUtils {
   }
 
   public static String getMonthKey(Date date) {
-    SimpleDateFormat monthFormat = new SimpleDateFormat("yyyy-MM");
+    SimpleDateFormat monthFormat = new SimpleDateFormat("yyyy-MM", Locale.getDefault());
     return monthFormat.format(date);
   }
 

@@ -19,6 +19,7 @@ import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
 import com.netease.yunxin.kit.chatkit.impl.ConversationListenerImpl;
 import com.netease.yunxin.kit.chatkit.impl.LocalConversationListenerImpl;
+import com.netease.yunxin.kit.chatkit.impl.MessageListenerImpl;
 import com.netease.yunxin.kit.chatkit.listener.ChatListener;
 import com.netease.yunxin.kit.chatkit.listener.MessageRevokeNotification;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
@@ -28,7 +29,6 @@ import com.netease.yunxin.kit.chatkit.repo.LocalConversationRepo;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant;
 import com.netease.yunxin.kit.chatkit.ui.common.AitDBHelper;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
-import com.netease.yunxin.kit.chatkit.ui.impl.MessageObserverImpl;
 import com.netease.yunxin.kit.chatkit.ui.model.ait.AtContactsModel;
 import com.netease.yunxin.kit.corekit.event.EventCenter;
 import com.netease.yunxin.kit.corekit.im2.IMKitClient;
@@ -186,7 +186,7 @@ public class AitService {
   public void registerObserver() {
     ALog.d(ChatKitUIConstant.LIB_TAG, TAG, "registerObserver");
     messageObserver =
-        new MessageObserverImpl() {
+        new MessageListenerImpl() {
           @Override
           public void onReceiveMessages(@NonNull List<IMMessageInfo> messages) {
             super.onReceiveMessages(messages);

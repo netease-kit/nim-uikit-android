@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessage;
@@ -92,7 +93,7 @@ public class ChatSearchFileAdapter extends RecyclerView.Adapter<RecyclerView.Vie
       int padH = (int) (context.getResources().getDisplayMetrics().density * 12);
       int padV = (int) (context.getResources().getDisplayMetrics().density * 8);
       tv.setPadding(padH, padV, padH, padV);
-      tv.setTextColor(context.getResources().getColor(R.color.color_999999));
+      tv.setTextColor(ContextCompat.getColor(context, R.color.color_999999));
       tv.setGravity(android.view.Gravity.CENTER);
       return new FooterViewHolder(tv);
     }

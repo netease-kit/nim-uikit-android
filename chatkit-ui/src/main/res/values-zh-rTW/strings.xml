@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="chat_bot_sub_session_title">話題</string>
+    <string name="chat_bot_sub_session_search_hint">搜尋子會話名稱</string>
+    <string name="chat_bot_sub_session_empty">暫無話題，傳送第一則訊息開始新話題</string>
+    <string name="chat_bot_sub_session_search_empty">未找到相關子會話</string>
+    <string name="chat_bot_sub_session_no_message">暫無訊息</string>
+    <string name="chat_bot_sub_session_untitled">新話題</string>
+    <string name="chat_bot_sub_session_new">新增</string>
+    <string name="chat_bot_sub_session_create_conversation">新增會話</string>
+    <string name="chat_bot_sub_session_rename">重新命名</string>
+    <string name="chat_bot_sub_session_rename_conversation">重新命名會話</string>
+    <string name="chat_bot_sub_session_delete">刪除</string>
+    <string name="chat_bot_sub_session_save">確定</string>
+    <string name="chat_bot_sub_session_setting">設定</string>
+    <string name="chat_bot_sub_session_delete_confirm">刪除此話題？</string>
+    <string name="chat_bot_sub_session_delete_title">話題刪除</string>
+    <string name="chat_bot_sub_session_delete_topic">刪除話題「%1$s」？</string>
+    <string name="chat_bot_sub_session_input_name">請輸入話題名稱</string>
+    <string name="chat_bot_sub_session_load_error">話題載入失敗</string>
+    <string name="chat_bot_sub_session_load_failed">載入失敗</string>
+    <string name="chat_bot_sub_session_load_more_failed">資料請求失敗，請稍後重試</string>
+    <string name="chat_bot_sub_session_retry">點擊重試</string>
+    <string name="chat_bot_sub_session_offline_create">目前離線，暫時無法新增會話</string>
+    <string name="chat_bot_sub_session_rename_failed">修改失敗，請重試</string>
+    <string name="chat_bot_sub_session_delete_failed">刪除失敗，請重試</string>
+    <string name="chat_bot_sub_session_removed">目前話題已被刪除</string>
+    <string name="chat_bot_sub_session_guide">和%1$s開始聊一聊</string>
+    <string name="chat_bot_sub_session_summary_image">[圖片消息]</string>
+    <string name="chat_bot_sub_session_summary_file">[文件消息]</string>
+    <string name="chat_bot_sub_session_summary_file_with_name">[文件消息] %1$s</string>
+    <string name="chat_bot_sub_session_summary_audio">[語音消息]</string>
+    <string name="chat_bot_sub_session_summary_video">[視頻消息]</string>
+    <string name="chat_bot_sub_session_summary_message">[消息]</string>
+</resources>

@@ -12,11 +12,11 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessage;
 import com.netease.yunxin.kit.alog.ALog;
+import com.netease.yunxin.kit.chatkit.impl.MessageListenerImpl;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatUtils;
 import com.netease.yunxin.kit.chatkit.ui.custom.MultiForwardAttachment;
-import com.netease.yunxin.kit.chatkit.ui.impl.MessageObserverImpl;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
@@ -51,8 +51,8 @@ public class ChatForwardMsgViewModel extends BaseViewModel {
   }
 
   //附件下载进度监听
-  private final MessageObserverImpl messageObserver =
-      new MessageObserverImpl() {
+  private final MessageListenerImpl messageObserver =
+      new MessageListenerImpl() {
         @Override
         public void onMessageAttachmentDownloadProgress(
             @NonNull V2NIMMessage message, int progress) {

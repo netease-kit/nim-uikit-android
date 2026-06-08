@@ -23,6 +23,7 @@
     <string name="conversation_network_error_tip">No Network</string>
     <string name="conversation_empty_tip">No Chat</string>
     <string name="conversation_ait_tip">[You\'re mentioned]</string>
+    <string name="conversation_bot_sub_session_prefix">[Sub-session] </string>
 
     <!-- message type-->
     <string name="msg_type_location">[Location]</string>

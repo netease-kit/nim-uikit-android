@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/chat_bot_sub_session_bottom_action_bg"
+    android:orientation="vertical"
+    android:paddingBottom="@dimen/dimen_24_dp">
+
+    <TextView
+        android:id="@+id/topic_title"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dimen_56_dp"
+        android:ellipsize="end"
+        android:gravity="center"
+        android:maxLines="1"
+        android:paddingStart="@dimen/dimen_24_dp"
+        android:paddingEnd="@dimen/dimen_24_dp"
+        android:textColor="@color/color_999999"
+        android:textSize="@dimen/text_size_14" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dimen_1_dp"
+        android:background="@color/color_f2f4f5" />
+
+    <TextView
+        android:id="@+id/rename_button"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dimen_56_dp"
+        android:gravity="center"
+        android:text="@string/chat_bot_sub_session_rename"
+        android:textColor="@color/color_333333"
+        android:textSize="@dimen/text_size_16" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dimen_1_dp"
+        android:background="@color/color_f2f4f5" />
+
+    <TextView
+        android:id="@+id/delete_button"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dimen_56_dp"
+        android:gravity="center"
+        android:text="@string/chat_bot_sub_session_delete"
+        android:textColor="@color/color_fc596a"
+        android:textSize="@dimen/text_size_16" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dimen_10_dp"
+        android:background="@color/color_f2f4f5" />
+
+    <TextView
+        android:id="@+id/cancel_button"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dimen_56_dp"
+        android:gravity="center"
+        android:text="@string/cancel"
+        android:textColor="@color/color_333333"
+        android:textSize="@dimen/text_size_16" />
+</LinearLayout>

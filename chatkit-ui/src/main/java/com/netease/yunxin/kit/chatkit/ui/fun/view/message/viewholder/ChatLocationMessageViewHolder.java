@@ -8,6 +8,7 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import com.bumptech.glide.Glide;
 import com.netease.nimlib.sdk.v2.message.attachment.V2NIMMessageLocationAttachment;
 import com.netease.yunxin.kit.alog.ALog;
@@ -54,13 +55,13 @@ public class ChatLocationMessageViewHolder extends FunChatBaseMessageViewHolder 
           binding.locationItemTitle,
           message.getMessageData().getText(),
           currentMessage.getKeyword(),
-          parent.getContext().getResources().getColor(R.color.fun_chat_message_highlight_color));
+          ContextCompat.getColor(parent.getContext(), R.color.fun_chat_message_highlight_color));
       MessageHelper.identifyHighlight(
           parent.getContext(),
           binding.locationItemAddress,
           attachment.getAddress(),
           currentMessage.getKeyword(),
-          parent.getContext().getResources().getColor(R.color.fun_chat_message_highlight_color));
+          ContextCompat.getColor(parent.getContext(), R.color.fun_chat_message_highlight_color));
     } else {
       binding.locationItemTitle.setText(message.getMessageData().getText());
       binding.locationItemAddress.setText(attachment.getAddress());

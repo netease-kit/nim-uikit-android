@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2022 NetEase, Inc. All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be
+  ~ found in the LICENSE file.
+  -->
+
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/fun_chat_page_bg_color"
+    android:orientation="vertical">
+
+    <com.netease.yunxin.kit.chatkit.ui.fun.view.FunChatView
+        android:id="@+id/chatView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <LinearLayout
+        android:id="@+id/botSubSessionGuideLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clickable="false"
+        android:focusable="false"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <ImageView
+            android:id="@+id/botSubSessionGuideIcon"
+            android:layout_width="@dimen/dimen_60_dp"
+            android:layout_height="@dimen/dimen_60_dp"
+            android:src="@drawable/ic_bot_sub_session_guide" />
+
+        <TextView
+            android:id="@+id/botSubSessionGuideText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dimen_24_dp"
+            android:textColor="@color/color_999999"
+            android:textSize="@dimen/text_size_24"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/chatInvalidTipLayout"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dimen_60_dp"
+        android:layout_gravity="bottom"
+        android:background="@color/color_eef1f4"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/chat_team_error_tip_content" />
+    </FrameLayout>
+
+    <LinearLayout
+        android:id="@+id/messageTipsLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginBottom="@dimen/dimen_140_dp"
+        android:background="@drawable/fun_bg_shape_left_radius"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <ImageView
+            android:layout_width="@dimen/dimen_40_dp"
+            android:layout_height="@dimen/dimen_40_dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/fun_ic_chat_message_arrow_bottom" />
+
+        <TextView
+            android:id="@+id/messageTipsTv"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/dimen_40_dp"
+            android:background="@color/color_white"
+            android:gravity="center_vertical"
+            android:paddingEnd="@dimen/dimen_8_dp"
+            android:textColor="@color/fun_chat_new_message_tips_color"
+            android:textSize="@dimen/text_size_14" />
+
+    </LinearLayout>
+</FrameLayout>

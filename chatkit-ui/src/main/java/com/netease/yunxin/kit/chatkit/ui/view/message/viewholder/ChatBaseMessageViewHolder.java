@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
 import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessage;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageSendingState;
@@ -319,7 +320,7 @@ public abstract class ChatBaseMessageViewHolder extends CommonBaseMessageViewHol
       baseViewBinding.llSignal.setVisibility(View.GONE);
       // 无标记内容设置背景颜色未透明
       baseViewBinding.msgBgLayout.setBackgroundColor(
-          parent.getContext().getResources().getColor(R.color.title_transfer));
+          ContextCompat.getColor(parent.getContext(), R.color.title_transfer));
     }
   }
 

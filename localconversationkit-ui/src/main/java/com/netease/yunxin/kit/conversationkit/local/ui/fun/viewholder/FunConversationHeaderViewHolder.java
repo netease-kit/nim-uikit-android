@@ -47,10 +47,11 @@ public class FunConversationHeaderViewHolder extends BaseViewHolder<Conversation
         new ViewHolderClickListener() {
           @Override
           public boolean onClick(View view, BaseBean data, int position) {
-            // 处理AI用户项点击：跳转到P2P聊天页面
+            // 顶部 AI 数字人入口保持直达单聊，机器人入口由机器人信息页承接子会话。
             if (data instanceof AIUserBean) {
+              String accountId = ((AIUserBean) data).getAccountId();
               XKitRouter.withKey(RouterConstant.PATH_FUN_CHAT_P2P_PAGE)
-                  .withParam(RouterConstant.CHAT_ID_KRY, ((AIUserBean) data).getAccountId())
+                  .withParam(RouterConstant.CHAT_ID_KRY, accountId)
                   .withContext(viewBinding.getRoot().getContext())
                   .navigate();
             }

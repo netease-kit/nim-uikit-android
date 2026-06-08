@@ -16,7 +16,7 @@ android {
         minSdk = 24
         targetSdk = 34
         versionCode = 1
-        versionName = "10.9.25"
+        versionName = "10.9.30"
         multiDexEnabled = true
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -71,14 +71,14 @@ dependencies {
 //    implementation(project(":aisearchkit"))
 
     //远端aar依赖
-    implementation("com.netease.yunxin.kit.contact:contactkit-ui:10.9.27")
-    implementation("com.netease.yunxin.kit.conversation:conversationkit-ui:10.9.27")
-    implementation("com.netease.yunxin.kit.localconversation:localconversationkit-ui:10.9.27")
-    implementation("com.netease.yunxin.kit.team:teamkit-ui:10.9.27")
-    implementation("com.netease.yunxin.kit.chat:chatkit-ui:10.9.27")
-    implementation("com.netease.yunxin.kit.chat:chatkit:10.9.27")
-    implementation("com.netease.yunxin.kit.locationkit:locationkit:10.9.27")
-    implementation("com.netease.yunxin.kit.aisearchkit:aisearchkit:10.9.27")
+    implementation("com.netease.yunxin.kit.contact:contactkit-ui:10.9.30-beta02")
+    implementation("com.netease.yunxin.kit.conversation:conversationkit-ui:10.9.30-beta02")
+    implementation("com.netease.yunxin.kit.localconversation:localconversationkit-ui:10.9.30-beta02")
+    implementation("com.netease.yunxin.kit.team:teamkit-ui:10.9.30-beta02")
+    implementation("com.netease.yunxin.kit.chat:chatkit-ui:10.9.30-beta02")
+    implementation("com.netease.yunxin.kit.chat:chatkit:10.9.30-beta02")
+    implementation("com.netease.yunxin.kit.locationkit:locationkit:10.9.30-beta02")
+    implementation("com.netease.yunxin.kit.aisearchkit:aisearchkit:10.9.30-beta02")
 
     // ---- end ----
 
@@ -88,7 +88,7 @@ dependencies {
     // 以下为必需引入的依赖
     //呼叫组件 UI 包
     implementation("com.netease.yunxin.kit.call:call-ui:3.7.1")
-    implementation("com.netease.nimlib:avsignalling:10.9.81") //信令组件
+    implementation("com.netease.nimlib:avsignalling:10.9.91") //信令组件
     api("com.netease.nimlib:lucene:10.9.81") // 历史消息检索功能
     api("com.netease.yunxin.kit.common:common-picturechoose:1.1.0") //图片选择组件
     implementation("com.journeyapps:zxing-android-embedded:4.3.0") // 二维码扫描

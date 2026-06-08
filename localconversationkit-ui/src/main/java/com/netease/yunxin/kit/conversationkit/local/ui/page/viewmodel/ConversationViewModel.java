@@ -9,15 +9,11 @@ import android.text.TextUtils;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
-import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.v2.V2NIMError;
-import com.netease.nimlib.sdk.v2.V2NIMFailureCallback;
-import com.netease.nimlib.sdk.v2.V2NIMSuccessCallback;
 import com.netease.nimlib.sdk.v2.ai.model.V2NIMAIUser;
 import com.netease.nimlib.sdk.v2.auth.enums.V2NIMDataSyncState;
 import com.netease.nimlib.sdk.v2.auth.enums.V2NIMDataSyncType;
 import com.netease.nimlib.sdk.v2.conversation.V2NIMLocalConversationListener;
-import com.netease.nimlib.sdk.v2.conversation.V2NIMLocalConversationService;
 import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
 import com.netease.nimlib.sdk.v2.conversation.model.V2NIMLocalConversation;
 import com.netease.nimlib.sdk.v2.conversation.result.V2NIMLocalConversationResult;
@@ -761,19 +757,25 @@ public class ConversationViewModel extends BaseViewModel {
             ALog.d(
                 LIB_TAG, TAG, "refreshConversation onSuccess:" + (data != null ? data.size() : 0));
             if (data != null && !data.isEmpty()) {
-              NIMClient.getService(V2NIMLocalConversationService.class)
-                  .getConversationListByIds(
-                      userConversationIdList,
-                      new V2NIMSuccessCallback<List<V2NIMLocalConversation>>() {
-                        @Override
-                        public void onSuccess(List<V2NIMLocalConversation> results) {
-                          updateConversationChange(results);
-                        }
-                      },
-                      new V2NIMFailureCallback() {
-                        @Override
-                        public void onFailure(V2NIMError error) {}
-                      });
+              LocalConversationRepo.getConversationListByIds(
+                  userConversationIdList,
+                  new FetchCallback<List<V2NIMLocalConversation>>() {
+                    @Override
+                    public void onError(int errorCode, @Nullable String errorMsg) {
+                      ALog.e(
+                          LIB_TAG,
+                          TAG,
+                          "getConversationListByIds onError:"
+                              + errorCode
+                              + ",errorMsg:"
+                              + errorMsg);
+                    }
+
+                    @Override
+                    public void onSuccess(@Nullable List<V2NIMLocalConversation> data) {
+                      updateConversationChange(data);
+                    }
+                  });
             }
           }
         });

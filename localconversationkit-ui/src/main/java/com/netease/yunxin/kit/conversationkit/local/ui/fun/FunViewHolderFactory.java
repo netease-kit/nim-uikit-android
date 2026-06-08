@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
 import com.netease.nimlib.sdk.v2.conversation.model.V2NIMLocalConversation;
 import com.netease.nimlib.sdk.v2.utils.V2NIMConversationIdUtil;
+import com.netease.yunxin.kit.chatkit.manager.UserAIBotManager;
 import com.netease.yunxin.kit.common.ui.viewholder.BaseViewHolder;
 import com.netease.yunxin.kit.conversationkit.local.ui.ILocalConversationFactory;
 import com.netease.yunxin.kit.conversationkit.local.ui.common.ConversationConstant;
@@ -29,12 +30,15 @@ public class FunViewHolderFactory implements ILocalConversationFactory {
   public ConversationBean CreateBean(V2NIMLocalConversation info) {
     ConversationBean bean = new ConversationBean(info);
     if (info.getType() == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P) {
+      String targetId = V2NIMConversationIdUtil.conversationTargetId(info.getConversationId());
       return new ConversationBean(
           info,
-          RouterConstant.PATH_FUN_CHAT_P2P_PAGE,
+          UserAIBotManager.isUserAIBot(targetId)
+              ? RouterConstant.PATH_FUN_CHAT_BOT_SUB_SESSION_LIST_PAGE
+              : RouterConstant.PATH_FUN_CHAT_P2P_PAGE,
           ConversationConstant.ViewType.CHAT_VIEW,
           RouterConstant.CHAT_ID_KRY,
-          V2NIMConversationIdUtil.conversationTargetId(info.getConversationId()));
+          targetId);
     } else if (info.getType() == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_TEAM
         || info.getType() == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_SUPER_TEAM) {
       return new ConversationBean(
