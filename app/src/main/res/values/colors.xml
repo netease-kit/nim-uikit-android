@@ -43,5 +43,9 @@
     <color name="color_dbdde4">#dbdde4</color>
     <!-- 蓝色主色 -->
     <color name="color_337eff">#337eff</color>
+    <color name="color_contact_blue_primary">#337EFF</color>
+    <color name="color_conversation_primary_text">#333333</color>
+    <color name="color_f5f8fc">#F5F8FC</color>
+    <color name="fun_conversation_add_pop_text_color">#ffffff</color>
 
 </resources>

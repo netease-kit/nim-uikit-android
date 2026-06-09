@@ -18,7 +18,7 @@ import com.netease.nimlib.sdk.v2.ai.params.V2NIMProxyAIModelCallParams;
 import com.netease.nimlib.sdk.v2.ai.result.V2NIMAIModelCallResult;
 import com.netease.nimlib.sdk.v2.ai.result.V2NIMAIModelStreamCallResult;
 import com.netease.yunxin.kit.alog.ALog;
-import com.netease.yunxin.kit.chatkit.R;
+import com.netease.yunxin.kit.aisearchkit.R;
 import com.netease.yunxin.kit.chatkit.manager.AIUserManager;
 import com.netease.yunxin.kit.chatkit.repo.AIRepo;
 import com.netease.yunxin.kit.chatkit.utils.AIErrorCode;
@@ -181,7 +181,7 @@ public class AISearchViewModel extends BaseViewModel {
       default:
         break;
     }
-    return context.getString(com.netease.yunxin.kit.aisearchkit.R.string.ai_search_error);
+    return context.getString(R.string.ai_search_error);
   }
 
   @Override
