@@ -21,9 +21,9 @@ import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatUtils;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageSearchUtils;
-import com.netease.yunxin.kit.chatkit.ui.databinding.ChatSearchItemDateHeaderBinding;
-import com.netease.yunxin.kit.chatkit.ui.databinding.ChatSearchItemImageGridBinding;
 import com.netease.yunxin.kit.chatkit.ui.databinding.FunChatSearchFileItemBinding;
+import com.netease.yunxin.kit.chatkit.ui.databinding.FunChatSearchItemDateHeaderBinding;
+import com.netease.yunxin.kit.chatkit.ui.databinding.FunChatSearchItemImageGridBinding;
 import com.netease.yunxin.kit.chatkit.ui.interfaces.IItemClickListener;
 import com.netease.yunxin.kit.chatkit.ui.model.MessageGroup;
 import com.netease.yunxin.kit.common.ui.utils.AvatarColor;
@@ -78,12 +78,12 @@ public class FunChatSearchFileAdapter extends RecyclerView.Adapter<RecyclerView.
   @Override
   public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
     if (viewType == VIEW_TYPE_HEADER) {
-      ChatSearchItemDateHeaderBinding binding =
-          ChatSearchItemDateHeaderBinding.inflate(LayoutInflater.from(context), parent, false);
+      FunChatSearchItemDateHeaderBinding binding =
+          FunChatSearchItemDateHeaderBinding.inflate(LayoutInflater.from(context), parent, false);
       return new DateHeaderViewHolder(binding);
     } else if (viewType == VIEW_TYPE_CONTENT) {
-      ChatSearchItemImageGridBinding binding =
-          ChatSearchItemImageGridBinding.inflate(LayoutInflater.from(context), parent, false);
+      FunChatSearchItemImageGridBinding binding =
+          FunChatSearchItemImageGridBinding.inflate(LayoutInflater.from(context), parent, false);
       return new FileListContainerViewHolder(binding);
     } else {
       TextView tv = new TextView(context);
@@ -133,19 +133,19 @@ public class FunChatSearchFileAdapter extends RecyclerView.Adapter<RecyclerView.
   }
 
   static class DateHeaderViewHolder extends RecyclerView.ViewHolder {
-    ChatSearchItemDateHeaderBinding binding;
+    FunChatSearchItemDateHeaderBinding binding;
 
-    public DateHeaderViewHolder(@NonNull ChatSearchItemDateHeaderBinding binding) {
+    public DateHeaderViewHolder(@NonNull FunChatSearchItemDateHeaderBinding binding) {
       super(binding.getRoot());
       this.binding = binding;
     }
   }
 
   class FileListContainerViewHolder extends RecyclerView.ViewHolder {
-    ChatSearchItemImageGridBinding binding;
+    FunChatSearchItemImageGridBinding binding;
     FileListAdapter adapter;
 
-    public FileListContainerViewHolder(@NonNull ChatSearchItemImageGridBinding binding) {
+    public FileListContainerViewHolder(@NonNull FunChatSearchItemImageGridBinding binding) {
       super(binding.getRoot());
       this.binding = binding;
       binding.rvImageGrid.setLayoutManager(new LinearLayoutManager(context));

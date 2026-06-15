@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2022 NetEase, Inc. All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be
+  ~ found in the LICENSE file.
+  -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_margin="1dp"
+    android:id="@+id/itemLayout">
+
+    <ImageView
+        android:id="@+id/iv_image"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:adjustViewBounds="true"
+        android:scaleType="centerCrop"/>
+
+    <ImageView
+        android:id="@+id/iv_video_icon"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_gravity="bottom|start"
+        android:layout_margin="4dp"
+        android:src="@drawable/ic_chat_search_video_tag"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/tv_duration"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginBottom="6dp"
+        android:textColor="#FFFFFF"
+        android:textSize="12sp"
+        android:paddingLeft="6dp"
+        android:paddingRight="6dp"
+        android:paddingTop="2dp"
+        android:paddingBottom="2dp"
+        android:visibility="gone" />
+    <FrameLayout
+        android:id="@+id/progress_fl"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        android:background="@drawable/bg_file_mask">
+
+        <com.google.android.material.progressindicator.CircularProgressIndicator
+            android:id="@+id/progress_bar"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:indicatorColor="@color/color_white"
+            app:trackColor="@color/color_4d000000"
+            app:trackCornerRadius="@dimen/dimen_1_dp"
+            app:trackThickness="@dimen/dimen_2_dp"
+            app:indicatorSize="@dimen/dimen_20_dp"
+            android:layout_gravity="center"/>
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/progress_bar_inside_icon"
+            android:layout_width="@dimen/dimen_6_dp"
+            android:layout_height="@dimen/dimen_9_dp"
+            android:src="@drawable/ic_video_pause_thumb"
+            android:layout_gravity="center"/>
+    </FrameLayout>
+
+</FrameLayout>

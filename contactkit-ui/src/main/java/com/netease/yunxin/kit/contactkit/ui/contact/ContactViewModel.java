@@ -463,18 +463,20 @@ public class ContactViewModel extends BaseViewModel {
     //verify message
     verifyBean =
         new ContactEntranceBean(
-            R.mipmap.ic_contact_verfiy_msg, context.getString(R.string.contact_list_verify_msg));
+            R.mipmap.base_ic_contact_verfiy_msg,
+            context.getString(R.string.contact_list_verify_msg));
     verifyBean.number = unreadCount;
     verifyBean.router = RouterConstant.PATH_MY_NOTIFICATION_PAGE;
     //black list
     ContactEntranceBean blackBean =
         new ContactEntranceBean(
-            R.mipmap.ic_contact_black_list, context.getString(R.string.contact_list_black_list));
+            R.mipmap.base_ic_contact_black_list,
+            context.getString(R.string.contact_list_black_list));
     blackBean.router = RouterConstant.PATH_MY_BLACK_PAGE;
     //my group
     ContactEntranceBean groupBean =
         new ContactEntranceBean(
-            R.mipmap.ic_contact_my_group, context.getString(R.string.contact_list_my_group));
+            R.mipmap.base_ic_contact_my_group, context.getString(R.string.contact_list_my_group));
     groupBean.router = RouterConstant.PATH_MY_TEAM_PAGE;
 
     contactDataList.add(verifyBean);

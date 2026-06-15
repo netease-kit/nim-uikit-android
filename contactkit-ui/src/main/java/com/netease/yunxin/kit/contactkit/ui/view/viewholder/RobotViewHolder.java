@@ -8,7 +8,7 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import com.netease.yunxin.kit.common.utils.SizeUtils;
-import com.netease.yunxin.kit.contactkit.ui.databinding.ContactAiUserViewHolderBinding;
+import com.netease.yunxin.kit.contactkit.ui.databinding.BaseContactAiUserViewHolderBinding;
 import com.netease.yunxin.kit.contactkit.ui.model.BaseContactBean;
 import com.netease.yunxin.kit.contactkit.ui.model.RobotInfoBean;
 import com.netease.yunxin.kit.contactkit.ui.utils.ColorUtils;
@@ -19,7 +19,7 @@ public class RobotViewHolder extends BaseContactViewHolder {
 
   private ItemClickListener itemClickListener;
 
-  private ContactAiUserViewHolderBinding binding;
+  private BaseContactAiUserViewHolderBinding binding;
 
   private final boolean showRoundAvatar;
 
@@ -30,7 +30,7 @@ public class RobotViewHolder extends BaseContactViewHolder {
 
   @Override
   public void initViewBinding(LayoutInflater layoutInflater, ViewGroup container) {
-    binding = ContactAiUserViewHolderBinding.inflate(layoutInflater, container, true);
+    binding = BaseContactAiUserViewHolderBinding.inflate(layoutInflater, container, true);
   }
 
   @Override

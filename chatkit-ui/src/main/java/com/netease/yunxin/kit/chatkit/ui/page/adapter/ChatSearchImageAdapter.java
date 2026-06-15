@@ -20,9 +20,9 @@ import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageSearchUtils;
 import com.netease.yunxin.kit.chatkit.ui.common.ThumbHelper;
-import com.netease.yunxin.kit.chatkit.ui.databinding.ChatSearchItemDateHeaderBinding;
-import com.netease.yunxin.kit.chatkit.ui.databinding.ChatSearchItemImageBinding;
-import com.netease.yunxin.kit.chatkit.ui.databinding.ChatSearchItemImageGridBinding;
+import com.netease.yunxin.kit.chatkit.ui.databinding.BaseChatSearchItemDateHeaderBinding;
+import com.netease.yunxin.kit.chatkit.ui.databinding.BaseChatSearchItemImageBinding;
+import com.netease.yunxin.kit.chatkit.ui.databinding.BaseChatSearchItemImageGridBinding;
 import com.netease.yunxin.kit.chatkit.ui.interfaces.IItemClickListener;
 import com.netease.yunxin.kit.chatkit.ui.model.MessageGroup;
 import com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants;
@@ -249,13 +249,13 @@ public class ChatSearchImageAdapter extends RecyclerView.Adapter<RecyclerView.Vi
   public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
     if (viewType == VIEW_TYPE_HEADER) {
       // 创建日期标题视图，使用ViewBinding
-      ChatSearchItemDateHeaderBinding binding =
-          ChatSearchItemDateHeaderBinding.inflate(LayoutInflater.from(context), parent, false);
+      BaseChatSearchItemDateHeaderBinding binding =
+          BaseChatSearchItemDateHeaderBinding.inflate(LayoutInflater.from(context), parent, false);
       return new DateHeaderViewHolder(binding);
     } else if (viewType == VIEW_TYPE_CONTENT) {
       // 创建图片网格视图，使用ViewBinding
-      ChatSearchItemImageGridBinding binding =
-          ChatSearchItemImageGridBinding.inflate(LayoutInflater.from(context), parent, false);
+      BaseChatSearchItemImageGridBinding binding =
+          BaseChatSearchItemImageGridBinding.inflate(LayoutInflater.from(context), parent, false);
       return new ImageGridViewHolder(binding);
     } else {
       android.widget.TextView tv = new android.widget.TextView(context);
@@ -329,9 +329,9 @@ public class ChatSearchImageAdapter extends RecyclerView.Adapter<RecyclerView.Vi
 
   /** 日期标题视图持有者 */
   static class DateHeaderViewHolder extends RecyclerView.ViewHolder {
-    ChatSearchItemDateHeaderBinding binding;
+    BaseChatSearchItemDateHeaderBinding binding;
 
-    public DateHeaderViewHolder(@NonNull ChatSearchItemDateHeaderBinding binding) {
+    public DateHeaderViewHolder(@NonNull BaseChatSearchItemDateHeaderBinding binding) {
       super(binding.getRoot());
       this.binding = binding;
     }
@@ -339,10 +339,10 @@ public class ChatSearchImageAdapter extends RecyclerView.Adapter<RecyclerView.Vi
 
   /** 图片网格视图持有者 */
   class ImageGridViewHolder extends RecyclerView.ViewHolder {
-    ChatSearchItemImageGridBinding binding;
+    BaseChatSearchItemImageGridBinding binding;
     ImageGridAdapter gridAdapter;
 
-    public ImageGridViewHolder(@NonNull ChatSearchItemImageGridBinding binding) {
+    public ImageGridViewHolder(@NonNull BaseChatSearchItemImageGridBinding binding) {
       super(binding.getRoot());
       this.binding = binding;
 
@@ -402,8 +402,8 @@ public class ChatSearchImageAdapter extends RecyclerView.Adapter<RecyclerView.Vi
     @NonNull
     @Override
     public ImageViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-      ChatSearchItemImageBinding binding =
-          ChatSearchItemImageBinding.inflate(LayoutInflater.from(context), parent, false);
+      BaseChatSearchItemImageBinding binding =
+          BaseChatSearchItemImageBinding.inflate(LayoutInflater.from(context), parent, false);
       return new ImageViewHolder(binding);
     }
 
@@ -523,9 +523,9 @@ public class ChatSearchImageAdapter extends RecyclerView.Adapter<RecyclerView.Vi
 
     /** 图片视图持有者 */
     class ImageViewHolder extends RecyclerView.ViewHolder {
-      ChatSearchItemImageBinding binding;
+      BaseChatSearchItemImageBinding binding;
 
-      public ImageViewHolder(@NonNull ChatSearchItemImageBinding binding) {
+      public ImageViewHolder(@NonNull BaseChatSearchItemImageBinding binding) {
         super(binding.getRoot());
         this.binding = binding;
       }
