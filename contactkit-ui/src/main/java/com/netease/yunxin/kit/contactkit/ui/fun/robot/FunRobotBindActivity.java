@@ -33,7 +33,7 @@ public class FunRobotBindActivity extends BaseRobotBindActivity {
 
   @Override
   protected RobotBindAdapter createAdapter() {
-    return new FunRobotBindAdapter();
+    return new RobotBindAdapter(true);
   }
 
   @Override

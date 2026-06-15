@@ -39,7 +39,7 @@ dependencies {
     // imuikit 底层库
 //    api(project(":common-ui"))
     api("com.netease.yunxin.kit:alog:1.1.1")
-    api("com.netease.yunxin.kit.chat:chatkit:10.9.30-beta02")
+    api("com.netease.yunxin.kit.chat:chatkit:10.9.30-beta03")
     api("com.netease.yunxin.kit.core:corekit-plugin:1.15.1")
     api("com.netease.yunxin.kit.common:common-ui:1.11.1")
     api("com.netease.nimlib:lucene:10.9.81")

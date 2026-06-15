@@ -12,11 +12,11 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import com.netease.yunxin.kit.chatkit.ui.R;
-import com.netease.yunxin.kit.chatkit.ui.normal.page.ChatBotSubSessionActivity;
+import com.netease.yunxin.kit.chatkit.ui.page.BaseChatBotSubSessionActivity;
 import com.netease.yunxin.kit.common.utils.SizeUtils;
 import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 
-public class FunChatBotSubSessionActivity extends ChatBotSubSessionActivity {
+public class FunChatBotSubSessionActivity extends BaseChatBotSubSessionActivity {
 
   @Override
   protected void onCreate(@Nullable Bundle savedInstanceState) {

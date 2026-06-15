@@ -8,7 +8,7 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import com.netease.yunxin.kit.common.utils.SizeUtils;
-import com.netease.yunxin.kit.contactkit.ui.databinding.BaseBlackListViewHolderBinding;
+import com.netease.yunxin.kit.contactkit.ui.databinding.BlackListViewHolderBinding;
 import com.netease.yunxin.kit.contactkit.ui.model.BaseContactBean;
 import com.netease.yunxin.kit.contactkit.ui.model.ContactBlackListBean;
 import com.netease.yunxin.kit.contactkit.ui.utils.ColorUtils;
@@ -19,7 +19,7 @@ public class BlackListViewHolder extends BaseContactViewHolder {
 
   private RelieveListener relieveListener;
 
-  private BaseBlackListViewHolderBinding binding;
+  private BlackListViewHolderBinding binding;
 
   private final boolean showRoundAvatar;
 
@@ -30,7 +30,7 @@ public class BlackListViewHolder extends BaseContactViewHolder {
 
   @Override
   public void initViewBinding(LayoutInflater layoutInflater, ViewGroup container) {
-    binding = BaseBlackListViewHolderBinding.inflate(layoutInflater, container, true);
+    binding = BlackListViewHolderBinding.inflate(layoutInflater, container, true);
   }
 
   @Override

@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
+import com.netease.yunxin.kit.contactkit.ui.databinding.FunRobotBindItemLayoutBinding;
 import com.netease.yunxin.kit.contactkit.ui.databinding.RobotBindItemLayoutBinding;
 import com.netease.yunxin.kit.contactkit.ui.model.RobotInfoBean;
 import com.netease.yunxin.kit.contactkit.ui.utils.ColorUtils;
@@ -20,9 +21,18 @@ import java.util.List;
 /** 绑定机器人列表 Adapter */
 public class RobotBindAdapter extends RecyclerView.Adapter<RobotBindAdapter.ViewHolder> {
 
+  private final boolean funStyle;
   private final List<RobotInfoBean> dataList = new ArrayList<>();
 
   @Nullable private OnItemClickListener itemClickListener;
+
+  public RobotBindAdapter() {
+    this(false);
+  }
+
+  public RobotBindAdapter(boolean funStyle) {
+    this.funStyle = funStyle;
+  }
 
   public void setData(List<RobotInfoBean> data) {
     dataList.clear();
@@ -40,9 +50,17 @@ public class RobotBindAdapter extends RecyclerView.Adapter<RobotBindAdapter.View
   @Override
   public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
     LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-    RobotBindItemLayoutBinding binding =
-        RobotBindItemLayoutBinding.inflate(inflater, parent, false);
-    return new ViewHolder(binding.avatarView, binding.tvName, binding.tvSubtitle, binding.getRoot());
+    if (funStyle) {
+      FunRobotBindItemLayoutBinding binding =
+          FunRobotBindItemLayoutBinding.inflate(inflater, parent, false);
+      return new ViewHolder(
+          binding.avatarView, binding.tvName, binding.tvSubtitle, binding.getRoot());
+    } else {
+      RobotBindItemLayoutBinding binding =
+          RobotBindItemLayoutBinding.inflate(inflater, parent, false);
+      return new ViewHolder(
+          binding.avatarView, binding.tvName, binding.tvSubtitle, binding.getRoot());
+    }
   }
 
   @Override
@@ -56,13 +74,13 @@ public class RobotBindAdapter extends RecyclerView.Adapter<RobotBindAdapter.View
     return dataList.size();
   }
 
-  protected static class ViewHolder extends RecyclerView.ViewHolder {
+  static class ViewHolder extends RecyclerView.ViewHolder {
 
     private final com.netease.yunxin.kit.common.ui.widgets.ContactAvatarView avatarView;
     private final android.widget.TextView tvName;
     private final android.widget.TextView tvSubtitle;
 
-    public ViewHolder(
+    ViewHolder(
         com.netease.yunxin.kit.common.ui.widgets.ContactAvatarView avatarView,
         android.widget.TextView tvName,
         android.widget.TextView tvSubtitle,

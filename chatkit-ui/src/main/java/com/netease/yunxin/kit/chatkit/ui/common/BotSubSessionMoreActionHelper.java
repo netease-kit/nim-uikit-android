@@ -24,7 +24,7 @@ import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatBotSubSessionActionDialogBinding;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatBotSubSessionDeleteDialogBinding;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatBotSubSessionRenameDialogBinding;
-import com.netease.yunxin.kit.chatkit.ui.normal.page.ChatBotSubSessionActivity;
+import com.netease.yunxin.kit.chatkit.ui.page.BaseChatBotSubSessionActivity;
 import com.netease.yunxin.kit.chatkit.ui.page.viewmodel.ChatBotSubSessionViewModel;
 import com.netease.yunxin.kit.common.ui.utils.ToastX;
 import com.netease.yunxin.kit.common.utils.NetworkUtils;
@@ -161,8 +161,8 @@ public final class BotSubSessionMoreActionHelper {
   }
 
   private static int getConfirmButtonBackgroundRes(@NonNull Context context) {
-    if (context instanceof ChatBotSubSessionActivity) {
-      return ((ChatBotSubSessionActivity) context).getRenameConfirmButtonBackgroundRes();
+    if (context instanceof BaseChatBotSubSessionActivity) {
+      return ((BaseChatBotSubSessionActivity) context).getRenameConfirmButtonBackgroundRes();
     }
     return R.drawable.chat_bot_sub_session_rename_confirm_bg;
   }

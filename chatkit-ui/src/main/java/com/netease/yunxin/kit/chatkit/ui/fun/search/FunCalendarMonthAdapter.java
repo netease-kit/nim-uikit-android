@@ -41,7 +41,7 @@ public class FunCalendarMonthAdapter
   public MonthViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
     View v =
         LayoutInflater.from(parent.getContext())
-            .inflate(R.layout.fun_chat_calendar_month_item, parent, false);
+            .inflate(R.layout.chat_calendar_month_item, parent, false);
     return new MonthViewHolder(v);
   }
 
