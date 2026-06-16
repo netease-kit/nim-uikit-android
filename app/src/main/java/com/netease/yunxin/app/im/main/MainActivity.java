@@ -842,10 +842,7 @@ public class MainActivity extends BaseLocalActivity {
       scanIcon.setBounds(0, 0, scanIcon.getMinimumWidth(), scanIcon.getMinimumHeight());
       textView.setCompoundDrawables(scanIcon, null, null, null);
     }
-    textView.setTextColor(
-        ContextCompat.getColor(
-            context,
-            com.netease.yunxin.kit.conversationkit.ui.R.color.color_conversation_primary_text));
+    textView.setTextColor(ContextCompat.getColor(context, R.color.color_conversation_primary_text));
     textView.setCompoundDrawablePadding(marginTopBottom);
 
     // 末尾 item：只设 bottom margin，与 PopItemFactory.getCreateAdvancedTeamItem 保持一致
@@ -879,9 +876,7 @@ public class MainActivity extends BaseLocalActivity {
       textView.setCompoundDrawables(scanIcon, null, null, null);
     }
     textView.setTextColor(
-        ContextCompat.getColor(
-            context,
-            com.netease.yunxin.kit.conversationkit.ui.R.color.fun_conversation_add_pop_text_color));
+        ContextCompat.getColor(context, R.color.fun_conversation_add_pop_text_color));
     textView.setCompoundDrawablePadding(drawableLeft);
 
     // 末尾 item：只设 bottom margin，与 PopItemFactory.getCreateAdvancedTeamItem 保持一致

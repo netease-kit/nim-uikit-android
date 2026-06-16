@@ -108,13 +108,13 @@ public class ChatSearchBaseActivity extends BaseLocalActivity {
               if (lastVisible >= total - 5) {
                 if (viewModel.hasMoreLocal()) {
                   viewModel.searchNextPageByKeyword();
-                  messageAdapter.setFooterLoading(true);
+                  updateFooterLoading(recyclerView, true);
                 } else {
-                  messageAdapter.setFooterLoading(false);
-                  messageAdapter.setShowFooter(total > 0);
+                  updateFooterLoading(recyclerView, false);
+                  updateShowFooter(recyclerView, total > 0);
                 }
               } else if (viewModel.hasMoreLocal()) {
-                messageAdapter.setShowFooter(false);
+                updateShowFooter(recyclerView, false);
               }
             }
           }
@@ -165,6 +165,24 @@ public class ChatSearchBaseActivity extends BaseLocalActivity {
   }
 
   protected void initViewAndSetContentView(@Nullable Bundle savedInstanceState) {}
+
+  private void updateFooterLoading(RecyclerView recyclerView, boolean loading) {
+    recyclerView.post(
+        () -> {
+          if (messageAdapter != null) {
+            messageAdapter.setFooterLoading(loading);
+          }
+        });
+  }
+
+  private void updateShowFooter(RecyclerView recyclerView, boolean showFooter) {
+    recyclerView.post(
+        () -> {
+          if (messageAdapter != null) {
+            messageAdapter.setShowFooter(showFooter);
+          }
+        });
+  }
 
   protected void initData() {
     accountId = getIntent().getStringExtra(RouterConstant.CHAT_ID_KRY);

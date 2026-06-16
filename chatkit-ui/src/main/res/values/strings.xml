@@ -5,7 +5,7 @@
   -->
 
 <resources>
-    <string name="chat_online_status_title_format">%s%s</string>
+    <string name="chat_online_status_title_format">%1$s%2$s</string>
     <string name="chat_online_status_text">(online)</string>
     <string name="chat_offline_status_text">(offline)</string>
     <string name="cancel">Cancel</string>
@@ -88,7 +88,7 @@
     <string name="chat_message_video_download_fail">Video not downloaded</string>
     <string name="chat_message_video_send_fail">Video not sent</string>
     <string name="chat_message_video_fail_try_again">Video not played. Please retry</string>
-    <string name="chat_message_video_time">%02d:%02d</string>
+    <string name="chat_message_video_time">%1$02d:%2$02d</string>
     <string name="chat_message_send">Send</string>
     <string name="chat_message_video_error">Video not played</string>
 
@@ -115,7 +115,7 @@
     <string name="chat_message_call_completed">Duration: &#160;&#160; %s</string>
     <string name="chat_message_multi_record">Chat History</string>
     <string name="chat_message_multi_record_title">Message from %s</string>
-    <string name="chat_message_multi_record_content">%s：%s</string>
+    <string name="chat_message_multi_record_content">%1$s：%2$s</string>
 
     <string name="chat_message_action_copy">Copy</string>
     <string name="chat_message_action_reply">Reply</string>
@@ -192,7 +192,7 @@
     <string name="chat_team_modify_extension_permission_update">Group setting permission has been updated to </string>
     <string name="chat_team_cancel_all_mute">Unmute all</string>
     <string name="chat_team_full_mute">Mute all</string>
-    <string name="chat_team_update">Group%s update as %s</string>
+    <string name="chat_team_update">Group%1$s update as %2$s</string>
     <string name="chat_team_at_permission_manager_tips">Owner or admin can \@ all</string>
     <string name="chat_team_at_permission_all_tips">Everyone can \@all</string>
     <string name="chat_team_top_sticky_permission_manager_tips">Admin or owner can stick message</string>
@@ -269,8 +269,8 @@
     <string name="chat_message_multi_forward_tips">[Combined forward]%s history</string>
     <string name="chat_message_single_forward_tips">[Forward one by one]%s history</string>
 
-    <string name="permission_deny_tips">Can\'t use this function when you closed</string>
-    <string name="permission_location_deny_tips">Can\'t use this function when you closed location service</string>
+    <string name="permission_deny_tips">Cannot use this function when permission is disabled</string>
+    <string name="permission_location_deny_tips">Cannot use this function when location service is disabled</string>
     <string name="permission_default">Please grant access...</string>
     <string name="permission_camera">Grant camera access in setting</string>
     <string name="permission_audio">Grant micro access in setting</string>
@@ -315,7 +315,7 @@
     <string name="chat_location_search_hint">Search Location</string>
     <string name="chat_location_search_empty">Not found</string>
     <string name="chat_location_empty">No location information</string>
-    <string name="chat_location_disable">Can\'t use your location</string>
+    <string name="chat_location_disable">Cannot use your location</string>
     <string name="chat_location_send_empty">Select a location to send</string>
 
 

@@ -12,5 +12,19 @@
     <string name="ai_search_error">Request Exception</string>
     <string name="ai_search_sure">Sure</string>
     <string name="ai_search_network_error">No internet</string>
+    <string name="chat_ai_message_type_unsupport">Unsupported format</string>
+    <string name="chat_ai_error_user_not_exist">User does not exist</string>
+    <string name="chat_ai_error_failed_request_to_the_llm">Failed request to the language model</string>
+    <string name="chat_ai_error_ai_messages_function_disabled">AI messaging function not enabled</string>
+    <string name="chat_ai_error_user_banned">User banned</string>
+    <string name="chat_ai_error_user_chat_banned">User chat banned</string>
+    <string name="chat_ai_error_message_hit_antispam">Message hit anti-spam</string>
+    <string name="chat_ai_error_not_an_ai_account">Not an AI account</string>
+    <string name="chat_ai_error_team_member_not_exist">Team member does not exist</string>
+    <string name="chat_ai_error_team_normal_member_chat_banned">Team normal member chat banned</string>
+    <string name="chat_ai_error_team_member_chat_banned">Team member chat banned</string>
+    <string name="chat_ai_error_cannot_blocklist_an_ai_account">Cannot blocklist an AI account</string>
+    <string name="chat_ai_error_rate_limit_exceeded">Rate limit exceeded</string>
+    <string name="chat_ai_error_parameter">Parameter error</string>
 
 </resources>
