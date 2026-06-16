@@ -616,7 +616,9 @@ public class ConversationViewModel extends BaseViewModel {
               String conversationId =
                   ConversationIdUtils.conversationId(
                       userStatus.getAccountId(), V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P);
-              conversationIdList.add(conversationId);
+              if (!TextUtils.isEmpty(conversationId)) {
+                conversationIdList.add(conversationId);
+              }
             }
           }
           if (!conversationIdList.isEmpty()) {

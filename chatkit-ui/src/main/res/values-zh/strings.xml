@@ -6,7 +6,7 @@
   -->
 
 <resources>
-    <string name="chat_online_status_title_format">%1$s%2$s</string>
+    <string name="chat_online_status_title_format">%s%s</string>
     <string name="chat_online_status_text">(在线)</string>
     <string name="chat_offline_status_text">(离线)</string>
     <string name="cancel">取消</string>
@@ -89,7 +89,7 @@
     <string name="chat_message_video_download_fail">视频下载失败</string>
     <string name="chat_message_video_send_fail">视频发送失败</string>
     <string name="chat_message_video_fail_try_again">暂时无法播放视频，请重试</string>
-    <string name="chat_message_video_time">%1$02d:%2$02d</string>
+    <string name="chat_message_video_time">%02d:%02d</string>
     <string name="chat_message_send">发送</string>
     <string name="chat_message_video_error">无法播放该视频</string>
 
@@ -116,7 +116,7 @@
     <string name="chat_message_call_completed">通话时长 &#8195; %s</string>
     <string name="chat_message_multi_record">聊天记录</string>
     <string name="chat_message_multi_record_title">%s的消息</string>
-    <string name="chat_message_multi_record_content">%1$s：%2$s</string>
+    <string name="chat_message_multi_record_content">%s：%s</string>
 
     <string name="chat_message_action_copy">复制</string>
     <string name="chat_message_action_reply">回复</string>
@@ -189,7 +189,7 @@
     <string name="chat_team_modify_extension_permission_update">更新群权限\"扩展字段修改\"为</string>
     <string name="chat_team_cancel_all_mute">群禁言已关闭</string>
     <string name="chat_team_full_mute">群禁言已开启</string>
-    <string name="chat_team_update">群%1$s被更新为%2$s</string>
+    <string name="chat_team_update">群%s被更新为%s</string>
     <string name="chat_team_at_permission_manager_tips">\@所有人权限更新为群主和管理员</string>
     <string name="chat_team_at_permission_all_tips">\@所有人权限更新为所有人</string>
     <string name="chat_team_top_sticky_permission_manager_tips">置顶消息权限更新为群主和管理员</string>
