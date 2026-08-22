@@ -16,6 +16,7 @@ import com.netease.nimlib.sdk.v2.auth.enums.V2NIMDataSyncType;
 import com.netease.nimlib.sdk.v2.conversation.V2NIMConversationListener;
 import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
 import com.netease.nimlib.sdk.v2.conversation.model.V2NIMConversation;
+import com.netease.nimlib.sdk.v2.conversation.params.V2NIMConversationFilter;
 import com.netease.nimlib.sdk.v2.conversation.result.V2NIMConversationResult;
 import com.netease.nimlib.sdk.v2.subscription.V2NIMSubscribeListener;
 import com.netease.nimlib.sdk.v2.subscription.model.V2NIMUserStatus;
@@ -32,6 +33,7 @@ import com.netease.yunxin.kit.chatkit.impl.LoginDetailListenerImpl;
 import com.netease.yunxin.kit.chatkit.impl.TeamListenerImpl;
 import com.netease.yunxin.kit.chatkit.manager.AIUserChangeListener;
 import com.netease.yunxin.kit.chatkit.manager.AIUserManager;
+import com.netease.yunxin.kit.chatkit.manager.UserAIBotManager;
 import com.netease.yunxin.kit.chatkit.repo.ContactRepo;
 import com.netease.yunxin.kit.chatkit.repo.ConversationRepo;
 import com.netease.yunxin.kit.chatkit.repo.TeamRepo;
@@ -264,13 +266,28 @@ public class ConversationViewModel extends BaseViewModel {
     return updateLiveData;
   }
 
-  /** 获取未读数 */
+  /** 获取非免打扰会话未读数 */
   public void getUnreadCount() {
-    int unreadCount = ConversationRepo.getTotalUnreadCount();
-    ALog.d(LIB_TAG, TAG, "getUnreadCount,onSuccess:" + unreadCount);
-    FetchResult<Integer> fetchResult = new FetchResult<>(LoadStatus.Success);
-    fetchResult.setData(unreadCount);
-    unreadCountLiveData.setValue(fetchResult);
+    V2NIMConversationFilter filter = new V2NIMConversationFilter();
+    filter.setIgnoreMuted(true);
+    ConversationRepo.getUnreadCountByFilter(
+        filter,
+        new FetchCallback<Integer>() {
+          @Override
+          public void onError(int errorCode, @Nullable String errorMsg) {
+            ALog.e(
+                LIB_TAG, TAG, "getUnreadCount,onError code:" + errorCode + ", message:" + errorMsg);
+          }
+
+          @Override
+          public void onSuccess(@Nullable Integer data) {
+            int unreadCount = data == null ? 0 : data;
+            ALog.d(LIB_TAG, TAG, "getUnreadCount,onSuccess:" + unreadCount);
+            FetchResult<Integer> fetchResult = new FetchResult<>(LoadStatus.Success);
+            fetchResult.setData(unreadCount);
+            unreadCountLiveData.setValue(fetchResult);
+          }
+        });
   }
 
   /** 获取会话列表相关数据，包括会话列表数据和未读数 */
@@ -356,9 +373,10 @@ public class ConversationViewModel extends BaseViewModel {
     if (resultData != null) {
       for (int index = 0; index < resultData.size(); index++) {
         ConversationBean conversationBean = resultData.get(index);
-        if (TextUtils.equals(conversationBean.getConversationName(), conversationBean.getTargetId())
-            && conversationBean.infoData.getType()
-                == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P) {
+        if (conversationBean.infoData.getType() == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P
+            && (TextUtils.equals(
+                    conversationBean.getConversationName(), conversationBean.getTargetId())
+                || TextUtils.isEmpty(conversationBean.infoData.getAvatar()))) {
           userIdList.add(conversationBean.getTargetId());
         }
       }
@@ -517,6 +535,7 @@ public class ConversationViewModel extends BaseViewModel {
               TAG,
               "conversationListener onConversationCreated,conversation:"
                   + (conversation != null ? conversation.getConversationId() : "id is null"));
+          refreshBotListForNewP2PConversation(conversation);
           FetchResult<List<ConversationBean>> result = new FetchResult<>(LoadStatus.Success);
           result.setType(FetchResult.FetchType.Add);
           List<V2NIMConversation> data = new ArrayList<>();
@@ -545,6 +564,7 @@ public class ConversationViewModel extends BaseViewModel {
               TAG,
               "conversationListener onConversationChanged,conversation:"
                   + (conversationList != null ? conversationList.size() : "0"));
+          getUnreadCount();
           if (conversationList == null || conversationList.isEmpty()) {
             return;
           }
@@ -588,9 +608,7 @@ public class ConversationViewModel extends BaseViewModel {
         @Override
         public void onTotalUnreadCountChanged(int unreadCount) {
           ALog.d(LIB_TAG, TAG, "conversationListener onTotalUnreadCountChanged:" + unreadCount);
-          FetchResult<Integer> result = new FetchResult<>(LoadStatus.Success);
-          result.setData(unreadCount);
-          unreadCountLiveData.setValue(result);
+          getUnreadCount();
         }
       };
 
@@ -675,11 +693,20 @@ public class ConversationViewModel extends BaseViewModel {
     List<ConversationBean> resultData = new ArrayList<>();
     if (data != null) {
       for (int index = 0; index < data.size(); index++) {
-        ConversationBean conversationBean = conversationFactory.CreateBean(data.get(index));
+        V2NIMConversation conversation = data.get(index);
+        ConversationBean conversationBean = conversationFactory.CreateBean(conversation);
         resultData.add(conversationBean);
       }
     }
     return resultData;
+  }
+
+  private void refreshBotListForNewP2PConversation(V2NIMConversation conversation) {
+    if (conversation == null
+        || conversation.getType() != V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P) {
+      return;
+    }
+    UserAIBotManager.updateAllBots();
   }
 
   //工具方法，去除重复会话

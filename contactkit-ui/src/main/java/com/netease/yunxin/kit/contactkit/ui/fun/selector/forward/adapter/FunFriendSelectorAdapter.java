@@ -50,7 +50,7 @@ public class FunFriendSelectorAdapter
     holder.binding.avatarView.setCornerRadius(SizeUtils.dp2px(4));
     holder.binding.avatarView.setData(
         bean.data.getAvatar(),
-        bean.data.getName(),
+        bean.data.getAvatarName(),
         AvatarColor.avatarColor(bean.data.getAccount()));
   }
 }

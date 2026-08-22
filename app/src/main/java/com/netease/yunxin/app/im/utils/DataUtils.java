@@ -326,14 +326,14 @@ public class DataUtils {
     return pushConfigContent;
   }
 
-  // 获取消息翻译目标语言代码，默认 "zh"
+  // 获取消息翻译目标语言代码，默认简体中文
   public static String getTranslationTargetLanguage(Context context) {
     if (translationTargetLanguage == null) {
       SharedPreferences sharedPreferences =
           context.getSharedPreferences(
               Constant.TRANSLATION_CONFIG_FILE, Context.MODE_MULTI_PROCESS);
       translationTargetLanguage =
-          sharedPreferences.getString(Constant.TRANSLATION_TARGET_LANGUAGE, "en");
+          sharedPreferences.getString(Constant.TRANSLATION_TARGET_LANGUAGE, "zh-CHS");
     }
     return translationTargetLanguage;
   }

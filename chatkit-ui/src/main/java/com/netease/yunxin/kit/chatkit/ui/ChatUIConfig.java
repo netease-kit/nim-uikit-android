@@ -50,6 +50,9 @@ public class ChatUIConfig {
   /** 输入框定制 该接口定义了输入框的定制方法，用于自定义输入框的外观和行为。 */
   public InputProperties inputProperties;
 
+  /** 消息时间与消息内容之间的垂直间距，单位 dp；为 null 时保持默认布局表现。 */
+  public Integer messageTimeContentGapDp;
+
   /** 撤回操作时间限制 单位分钟，客户端限制，需要小于云信控制台配置时间才有用 */
   public Long revokeTimeGap;
 

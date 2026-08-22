@@ -10,12 +10,23 @@ import com.netease.nimlib.sdk.v2.topic.V2NIMTopic;
 public class BotSubSessionItem {
 
   private final V2NIMTopic topic;
+  private final String fallbackTitle;
   private final String summary;
   private final long time;
   private final boolean unread;
 
   public BotSubSessionItem(V2NIMTopic topic, @Nullable String summary, long time, boolean unread) {
+    this(topic, null, summary, time, unread);
+  }
+
+  public BotSubSessionItem(
+      V2NIMTopic topic,
+      @Nullable String fallbackTitle,
+      @Nullable String summary,
+      long time,
+      boolean unread) {
     this.topic = topic;
+    this.fallbackTitle = fallbackTitle;
     this.summary = summary;
     this.time = time;
     this.unread = unread;
@@ -23,6 +34,11 @@ public class BotSubSessionItem {
 
   public V2NIMTopic getTopic() {
     return topic;
+  }
+
+  @Nullable
+  public String getFallbackTitle() {
+    return fallbackTitle;
   }
 
   public String getSummary() {

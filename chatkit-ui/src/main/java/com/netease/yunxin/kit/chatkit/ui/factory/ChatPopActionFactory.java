@@ -152,6 +152,7 @@ public class ChatPopActionFactory {
       // 文本消息：非空内容时展示翻译按钮
       if (message.getViewType() == V2NIMMessageType.V2NIM_MESSAGE_TYPE_TEXT.getValue()
           && !TextUtils.isEmpty(message.getMessageData().getMessage().getText())
+          && MessageHelper.isReceivedMessage(message)
           && !message.AIMessageStreaming()) {
         actions.add(getTranslateAction(context, message));
       }
@@ -391,10 +392,6 @@ public class ChatPopActionFactory {
         context.getString(R.string.chat_translate_btn),
         R.drawable.ic_chat_message_translate,
         (view, messageInfo) -> {
-          if (!NetworkUtils.isConnected()) {
-            ToastX.showShortToast(R.string.chat_network_error_tip);
-            return;
-          }
           if (actionListener != null) {
             actionListener.get().onTranslate(messageInfo);
           }

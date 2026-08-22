@@ -18,11 +18,10 @@ import androidx.lifecycle.ViewModelProvider;
 import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
 import com.netease.nimlib.sdk.v2.topic.V2NIMTopic;
 import com.netease.yunxin.kit.alog.ALog;
-import com.netease.yunxin.kit.chatkit.repo.ConversationRepo;
-import com.netease.yunxin.kit.chatkit.repo.LocalConversationRepo;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.common.BotSubSessionMoreActionHelper;
 import com.netease.yunxin.kit.chatkit.ui.common.BotSubSessionUtils;
+import com.netease.yunxin.kit.chatkit.ui.common.MessageTipsLayoutHelper;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatBotSubSessionChatFragmentBinding;
 import com.netease.yunxin.kit.chatkit.ui.interfaces.IMessageLoadHandler;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
@@ -33,7 +32,6 @@ import com.netease.yunxin.kit.chatkit.ui.view.message.ChatMessageListView;
 import com.netease.yunxin.kit.chatkit.utils.ConversationIdUtils;
 import com.netease.yunxin.kit.common.ui.utils.ToastX;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
-import com.netease.yunxin.kit.corekit.im2.IMKitClient;
 import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.model.PluginAction;
 import java.util.ArrayList;
@@ -64,6 +62,12 @@ public class ChatBotSubSessionChatFragment extends ChatP2PFragment {
       @NonNull LayoutInflater inflater, @Nullable ViewGroup container) {
     botSubSessionBinding = ChatBotSubSessionChatFragmentBinding.inflate(inflater, container, false);
     chatView = botSubSessionBinding.chatView;
+    MessageTipsLayoutHelper.bindToMessageArea(
+        botSubSessionBinding.messageTipsLayout,
+        botSubSessionBinding.chatView,
+        botSubSessionBinding.chatView.getChatBodyLayout());
+    botSubSessionBinding.chatView.attachMessageOverlayView(
+        botSubSessionBinding.botSubSessionGuideLayout);
     chatView.getTitleBar().getTitleTextView().setEllipsize(TextUtils.TruncateAt.MIDDLE);
     chatView
         .getMessageListView()
@@ -103,6 +107,7 @@ public class ChatBotSubSessionChatFragment extends ChatP2PFragment {
   @Override
   protected void initView() {
     super.initView();
+    getMessageBottomLayout().setIsBotSubSession(true);
     chatView.setLoadHandler(
         new IMessageLoadHandler() {
           @Override
@@ -151,20 +156,7 @@ public class ChatBotSubSessionChatFragment extends ChatP2PFragment {
                 requireActivity().finish();
               }
             });
-    clearConversationUnread();
-  }
-
-  private void clearConversationUnread() {
-    if (viewModel == null || TextUtils.isEmpty(viewModel.getConversationId())) {
-      return;
-    }
-    if (IMKitClient.enableV2CloudConversation()) {
-      ConversationRepo.clearUnreadCountByIds(
-          Collections.singletonList(viewModel.getConversationId()), null);
-    } else {
-      LocalConversationRepo.clearUnreadCountByIds(
-          Collections.singletonList(viewModel.getConversationId()), null);
-    }
+    getSubSessionViewModel().clearConversationUnread();
   }
 
   @Override

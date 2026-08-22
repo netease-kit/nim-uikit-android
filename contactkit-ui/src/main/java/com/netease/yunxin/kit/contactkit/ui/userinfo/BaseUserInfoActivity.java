@@ -170,6 +170,7 @@ public abstract class BaseUserInfoActivity extends BaseLocalActivity {
     }
     XKitRouter.withKey(path)
         .withParam(RouterConstant.CHAT_ID_KRY, userInfoData.data.getAccountId())
+        .withParam(RouterConstant.KEY_SESSION_NAME, userInfoData.getName())
         .withContext(BaseUserInfoActivity.this)
         .navigate();
     finish();

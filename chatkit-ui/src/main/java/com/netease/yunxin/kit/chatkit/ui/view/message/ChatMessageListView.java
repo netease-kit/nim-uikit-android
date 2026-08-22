@@ -22,6 +22,7 @@ import com.netease.nimlib.sdk.v2.message.V2NIMMessagePin;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessageRefer;
 import com.netease.nimlib.sdk.v2.team.model.V2NIMTeam;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
+import com.netease.yunxin.kit.chatkit.ui.ChatUIConfig;
 import com.netease.yunxin.kit.chatkit.ui.IChatFactory;
 import com.netease.yunxin.kit.chatkit.ui.factory.ChatPopActionFactory;
 import com.netease.yunxin.kit.chatkit.ui.interfaces.IMessageData;
@@ -228,6 +229,12 @@ public class ChatMessageListView extends RecyclerView implements IMessageData {
   public void setMessageProperties(MessageProperties messageProperties) {
     if (messageAdapter != null) {
       messageAdapter.setMessageProperties(messageProperties);
+    }
+  }
+
+  public void setChatUIConfig(ChatUIConfig config) {
+    if (messageAdapter != null) {
+      messageAdapter.setChatUIConfig(config);
     }
   }
 

@@ -18,6 +18,7 @@ import com.netease.yunxin.kit.conversationkit.local.ui.ILocalConversationFactory
 import com.netease.yunxin.kit.conversationkit.local.ui.model.ConversationBean;
 import com.netease.yunxin.kit.conversationkit.local.ui.model.ConversationHeaderBean;
 import com.netease.yunxin.kit.conversationkit.local.ui.page.DefaultViewHolderFactory;
+import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -64,6 +65,12 @@ public class ConversationAdapter extends RecyclerView.Adapter<BaseViewHolder> {
   public void setShowTag(boolean show) {
     isShow = show;
     if (show) {
+      notifyDataSetChanged();
+    }
+  }
+
+  public void refreshConversations() {
+    if (isShow) {
       notifyDataSetChanged();
     }
   }
@@ -204,6 +211,20 @@ public class ConversationAdapter extends RecyclerView.Adapter<BaseViewHolder> {
         if (TextUtils.equals(conversationList.get(j).getConversationId(), id)) {
           notifyItemChanged(j + conversationHeaderList.size());
         }
+      }
+    }
+  }
+
+  public void resetBotConversationRouter(String conversationId) {
+    for (int i = 0; i < conversationList.size(); i++) {
+      ConversationBean conversation = conversationList.get(i);
+      if (TextUtils.equals(conversation.getConversationId(), conversationId)) {
+        conversation.router =
+            RouterConstant.PATH_FUN_CHAT_BOT_SUB_SESSION_LIST_PAGE.equals(conversation.router)
+                ? RouterConstant.PATH_FUN_CHAT_P2P_PAGE
+                : RouterConstant.PATH_CHAT_P2P_PAGE;
+        notifyItemChanged(i + conversationHeaderList.size());
+        return;
       }
     }
   }

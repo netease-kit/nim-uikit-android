@@ -30,7 +30,7 @@ public class FunSelectedListAdapter
       UserWithFriend friendData) {
     holder.binding.avatarView.setData(
         friendData.getAvatar(),
-        friendData.getName(),
+        friendData.getAvatarName(),
         AvatarColor.avatarColor(friendData.getAccount()));
     holder.itemView.setOnClickListener(
         v -> {

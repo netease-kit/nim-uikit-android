@@ -17,7 +17,9 @@ import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageSendingState;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
+import com.netease.yunxin.kit.chatkit.ui.ChatKitClient;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant;
+import com.netease.yunxin.kit.chatkit.ui.ChatUIConfig;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatMsgCache;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
@@ -51,6 +53,8 @@ public abstract class ChatBaseMessageViewHolder extends CommonBaseMessageViewHol
   public static final float mineAvatarMarginEndInMulti = 4f;
   public static final float containerMarginEnd = 60f;
   public static final float containerMarginEndInMulti = 48f;
+  private static final int DEFAULT_TIME_CONTENT_GAP_DP = 4;
+  private static final int DEFAULT_TIME_BACKGROUND_GAP_DP = 0;
 
   protected final ChatMessageViewHolderUIOptions defaultUIOptions =
       new ChatMessageViewHolderUIOptions.Builder().build();
@@ -630,6 +634,42 @@ public abstract class ChatBaseMessageViewHolder extends CommonBaseMessageViewHol
       } else if (properties.getTimeTextSize() != null) {
         baseViewBinding.tvTime.setTextSize(properties.getTimeTextSize());
       }
+    }
+    applyMessageTimeContentGap();
+  }
+
+  private void applyMessageTimeContentGap() {
+    boolean timeVisible = baseViewBinding.tvTime.getVisibility() == View.VISIBLE;
+    Integer configuredGapDp = null;
+    ChatUIConfig config = chatUIConfig != null ? chatUIConfig : ChatKitClient.getChatUIConfig();
+    if (timeVisible && config != null && config.messageTimeContentGapDp != null) {
+      configuredGapDp = Math.max(0, config.messageTimeContentGapDp);
+    }
+    int contentGapPx =
+        SizeUtils.dp2px(configuredGapDp != null ? configuredGapDp : DEFAULT_TIME_CONTENT_GAP_DP);
+    int backgroundGapPx =
+        SizeUtils.dp2px(configuredGapDp != null ? configuredGapDp : DEFAULT_TIME_BACKGROUND_GAP_DP);
+    updateTopMargin(baseViewBinding.msgBgLayout, backgroundGapPx);
+    updateTopMargin(baseViewBinding.chatMsgSelectLayout, backgroundGapPx);
+    updateTopMargin(baseViewBinding.otherUserAvatar, contentGapPx);
+    updateTopMargin(baseViewBinding.myAvatar, contentGapPx);
+    updateTopMargin(baseViewBinding.otherUsername, contentGapPx);
+    updateTopMargin(baseViewBinding.myName, contentGapPx);
+
+    ViewGroup.LayoutParams contentParams = baseViewBinding.messageContentGroup.getLayoutParams();
+    if (contentParams instanceof ConstraintLayout.LayoutParams) {
+      ConstraintLayout.LayoutParams layoutParams = (ConstraintLayout.LayoutParams) contentParams;
+      layoutParams.goneTopMargin = contentGapPx;
+      baseViewBinding.messageContentGroup.setLayoutParams(layoutParams);
+    }
+  }
+
+  private void updateTopMargin(View view, int topMargin) {
+    ViewGroup.LayoutParams params = view.getLayoutParams();
+    if (params instanceof ViewGroup.MarginLayoutParams) {
+      ViewGroup.MarginLayoutParams marginParams = (ViewGroup.MarginLayoutParams) params;
+      marginParams.topMargin = topMargin;
+      view.setLayoutParams(marginParams);
     }
   }
 

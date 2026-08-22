@@ -45,6 +45,7 @@ public class ChatKitUIConstant {
   public static final String REPLY_TIME_KEY = "time";
 
   public static final String AIT_REMOTE_EXTENSION_KEY = "yxAitMsg";
+  public static final String KEY_LOCAL_TOPIC_TIP = "yxLocalTopicTip";
   //合并转发消息，消息中的扩展字段，用来保存消息发送者昵称
   public static final String KEY_MERGE_REMOTE_EXTENSION_NICK = "mergedMessageNickKey";
   //合并转发消息，消息中的扩展字段，用来保存消息发送者头像

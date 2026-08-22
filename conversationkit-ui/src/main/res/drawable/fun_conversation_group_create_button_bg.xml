@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="@color/fun_conversation_group_primary" />
+    <corners android:radius="@dimen/dimen_8_dp" />
+</shape>

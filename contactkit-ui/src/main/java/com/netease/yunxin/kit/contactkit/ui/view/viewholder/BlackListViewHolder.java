@@ -45,7 +45,7 @@ public class BlackListViewHolder extends BaseContactViewHolder {
 
     binding.avatarView.setData(
         friendData.getAvatar(),
-        blackListBean.getName(),
+        blackListBean.getAvatarName(),
         ColorUtils.avatarColor(friendData.getAccountId()));
 
     binding.tvRelieve.setOnClickListener(

@@ -53,24 +53,19 @@ public class ConversationBaseViewHolder extends BaseViewHolder<ConversationBean>
         TimeFormatLocalUtils.formatMillisecond(
             viewBinding.getRoot().getContext(), data.getLastMsgTime(), locale));
 
-    if (data.infoData.isMute()) {
-      viewBinding.muteIv.setVisibility(View.VISIBLE);
+    int unreadCount = data.infoData.getUnreadCount();
+    boolean isMute = data.infoData.isMute();
+    viewBinding.muteIv.setVisibility(isMute ? View.VISIBLE : View.GONE);
+    if (unreadCount <= 0) {
       viewBinding.unreadTv.setVisibility(View.GONE);
+      viewBinding.muteUnreadDot.setVisibility(View.GONE);
+    } else if (isMute) {
+      viewBinding.unreadTv.setVisibility(View.GONE);
+      viewBinding.muteUnreadDot.setVisibility(View.VISIBLE);
     } else {
-      viewBinding.muteIv.setVisibility(View.GONE);
-      if (data.infoData.getUnreadCount() > 0) {
-        int count = data.infoData.getUnreadCount();
-        String content;
-        if (count >= 100) {
-          content = "99+";
-        } else {
-          content = String.valueOf(count);
-        }
-        viewBinding.unreadTv.setText(content);
-        viewBinding.unreadTv.setVisibility(View.VISIBLE);
-      } else {
-        viewBinding.unreadTv.setVisibility(View.GONE);
-      }
+      viewBinding.muteUnreadDot.setVisibility(View.GONE);
+      viewBinding.unreadTv.setText(unreadCount >= 100 ? "99+" : String.valueOf(unreadCount));
+      viewBinding.unreadTv.setVisibility(View.VISIBLE);
     }
 
     viewBinding.contentLayout.setOnClickListener(v -> itemListener.onClick(v, data, position));

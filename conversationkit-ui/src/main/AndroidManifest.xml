@@ -25,6 +25,27 @@
         <activity android:name=".fun.page.FunConversationActivity"
             android:screenOrientation="portrait"
             android:exported="false"/>
+        <activity android:name=".page.ConversationGroupManageActivity"
+            android:screenOrientation="portrait"
+            android:exported="false"/>
+        <activity android:name=".fun.page.FunConversationGroupManageActivity"
+            android:screenOrientation="portrait"
+            android:exported="false"/>
+        <activity android:name=".page.ConversationGroupNameActivity"
+            android:screenOrientation="portrait"
+            android:exported="false"/>
+        <activity android:name=".page.ConversationGroupSettingActivity"
+            android:screenOrientation="portrait"
+            android:exported="false"/>
+        <activity android:name=".fun.page.FunConversationGroupSettingActivity"
+            android:screenOrientation="portrait"
+            android:exported="false"/>
+        <activity android:name=".page.ConversationGroupAddConversationActivity"
+            android:screenOrientation="portrait"
+            android:exported="false"/>
+        <activity android:name=".fun.page.FunConversationGroupAddConversationActivity"
+            android:screenOrientation="portrait"
+            android:exported="false"/>
     </application>
 
 </manifest>

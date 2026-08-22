@@ -5,6 +5,8 @@
 package com.netease.yunxin.kit.chatkit.ui.view.ait;
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -14,6 +16,7 @@ import com.netease.nimlib.sdk.v2.auth.V2NIMLoginDetailListener;
 import com.netease.nimlib.sdk.v2.auth.enums.V2NIMConnectStatus;
 import com.netease.nimlib.sdk.v2.auth.enums.V2NIMDataSyncState;
 import com.netease.nimlib.sdk.v2.auth.enums.V2NIMDataSyncType;
+import com.netease.nimlib.sdk.v2.conversation.model.V2NIMConversation;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessageRefer;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
@@ -34,24 +37,39 @@ import com.netease.yunxin.kit.corekit.event.EventCenter;
 import com.netease.yunxin.kit.corekit.im2.IMKitClient;
 import com.netease.yunxin.kit.corekit.im2.custom.AitEvent;
 import com.netease.yunxin.kit.corekit.im2.custom.AitInfo;
+import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
 import com.netease.yunxin.kit.corekit.im2.utils.CoroutineUtils;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /** 用于@功能服务类，用于管理@信息，包括接收到的@信息，本地保存的@信息，以及发送@信息事件 */
 public class AitService {
 
   private static final String TAG = "AitService";
+  private static final long READ_TIME_QUERY_DELAY_MS = 50L;
+  private static final int MAX_READ_TIME_QUERY_SIZE = 100;
   private static AitService instance;
   private final Map<String, AitInfo> aitInfoMapCache = new HashMap<>();
+  private final Map<String, Long> readTimeCache = new HashMap<>();
+  private final Map<String, List<AitMessage>> pendingAitMessages = new HashMap<>();
+  private final Set<String> readTimeQueryingConversationIds = new HashSet<>();
+  private final Set<String> pendingReadTimeQueryConversationIds = new LinkedHashSet<>();
+  private final Handler mainHandler = new Handler(Looper.getMainLooper());
   private final CopyOnWriteArrayList<AitInfo> updateList = new CopyOnWriteArrayList<>();
   private final CopyOnWriteArrayList<AitInfo> insertList = new CopyOnWriteArrayList<>();
   private final CopyOnWriteArrayList<AitInfo> deleteList = new CopyOnWriteArrayList<>();
   private Context mContext;
   private boolean hasRegister;
+  private boolean readTimeQueryScheduled;
+  private long readTimeQueryVersion;
 
   private ChatListener messageObserver;
   private LocalConversationListenerImpl localConversationListener;
@@ -81,6 +99,7 @@ public class AitService {
                 return;
               }
               if (status == V2NIMConnectStatus.V2NIM_CONNECT_STATUS_CONNECTED) {
+                resetReadTimeQueryState();
                 if (!hasRegister) {
                   registerObserver();
                   hasRegister = true;
@@ -153,8 +172,7 @@ public class AitService {
     ALog.d(ChatKitUIConstant.LIB_TAG, TAG, "clearAitInfo:" + conversationId);
     AitInfo aitInfo = aitInfoMapCache.remove(conversationId);
     if (aitInfo == null) {
-      aitInfo = new AitInfo();
-      aitInfo.setConversationId(conversationId);
+      return;
     }
     List<AitInfo> aitInfoList = new ArrayList<>();
     aitInfoList.add(aitInfo);
@@ -191,15 +209,7 @@ public class AitService {
           public void onReceiveMessages(@NonNull List<IMMessageInfo> messages) {
             super.onReceiveMessages(messages);
             if (mContext != null && IMKitConfigCenter.getEnableAtMessage()) {
-              ALog.d(
-                  ChatKitUIConstant.LIB_TAG,
-                  TAG,
-                  "ReceiveMessageObserve,onEvent" + messages.size());
-              Map<String, AitInfo> aitInfoMap = parseMessage(messages);
-              if (aitInfoMap.size() > 0) {
-                sendAitEvent(new ArrayList<>(aitInfoMap.values()), AitEvent.AitEventType.Arrive);
-                updateAitInfo(aitInfoMap);
-              }
+              processAitMessages(parseMessage(messages));
             }
           }
 
@@ -237,6 +247,7 @@ public class AitService {
             @Override
             public void onConversationReadTimeUpdated(
                 @Nullable String conversationId, long readTime) {
+              updateReadTime(conversationId, readTime);
               clearAitInfo(conversationId);
             }
           };
@@ -248,6 +259,7 @@ public class AitService {
             @Override
             public void onConversationReadTimeUpdated(
                 @Nullable String conversationId, long readTime) {
+              updateReadTime(conversationId, readTime);
               clearAitInfo(conversationId);
             }
           };
@@ -270,9 +282,9 @@ public class AitService {
   }
 
   // 解析接受到的消息，获取@信息，如果有则本地保存
-  private Map<String, AitInfo> parseMessage(List<IMMessageInfo> msgList) {
+  private Map<String, List<AitMessage>> parseMessage(List<IMMessageInfo> msgList) {
     ALog.d(ChatKitUIConstant.LIB_TAG, TAG, "parseMessage");
-    Map<String, AitInfo> aitInfoMap = new HashMap<>();
+    Map<String, List<AitMessage>> aitInfoMap = new HashMap<>();
     for (IMMessageInfo messageInfo : msgList) {
       if (TextUtils.equals(
           messageInfo.getMessage().getConversationId(), ChatRepo.getConversationId())) {
@@ -286,24 +298,209 @@ public class AitService {
               || TextUtils.equals(AtContactsModel.ACCOUNT_ALL, account)) {
             String uuid = messageInfo.getMessage().getMessageClientId();
             String conversationId = messageInfo.getMessage().getConversationId();
-            ALog.d(
-                ChatKitUIConstant.LIB_TAG,
-                TAG,
-                "ReceiveMessageObserve,onEvent has ait:" + conversationId + "," + uuid);
-
-            AitInfo aitInfo = aitInfoMap.get(conversationId);
-            if (aitInfo == null) {
-              aitInfo = new AitInfo();
-              aitInfo.setConversationId(conversationId);
-              aitInfo.setAccountId(IMKitClient.account());
+            List<AitMessage> aitMessages = aitInfoMap.get(conversationId);
+            if (aitMessages == null) {
+              aitMessages = new ArrayList<>();
+              aitInfoMap.put(conversationId, aitMessages);
             }
-            aitInfo.getMsgUidList().add(uuid);
-            aitInfoMap.put(conversationId, aitInfo);
+            aitMessages.add(new AitMessage(uuid, messageInfo.getMessage().getCreateTime()));
+            break;
           }
         }
       }
     }
     return aitInfoMap;
+  }
+
+  private void processAitMessages(Map<String, List<AitMessage>> messagesByConversation) {
+    if (messagesByConversation == null || messagesByConversation.isEmpty()) {
+      return;
+    }
+    Map<String, Long> cachedReadTimes = new HashMap<>();
+    synchronized (this) {
+      for (Map.Entry<String, List<AitMessage>> entry : messagesByConversation.entrySet()) {
+        String conversationId = entry.getKey();
+        Long readTime = readTimeCache.get(conversationId);
+        if (readTime == null) {
+          List<AitMessage> pendingMessages = pendingAitMessages.get(conversationId);
+          if (pendingMessages == null) {
+            pendingMessages = new ArrayList<>();
+            pendingAitMessages.put(conversationId, pendingMessages);
+          }
+          pendingMessages.addAll(entry.getValue());
+          if (readTimeQueryingConversationIds.add(conversationId)) {
+            pendingReadTimeQueryConversationIds.add(conversationId);
+          }
+        } else {
+          cachedReadTimes.put(conversationId, readTime);
+        }
+      }
+    }
+    notifyAitInfo(buildUnreadAitInfo(messagesByConversation, cachedReadTimes));
+    scheduleReadTimeQuery();
+  }
+
+  private void scheduleReadTimeQuery() {
+    synchronized (this) {
+      if (readTimeQueryScheduled || pendingReadTimeQueryConversationIds.isEmpty()) {
+        return;
+      }
+      readTimeQueryScheduled = true;
+    }
+    mainHandler.postDelayed(this::queryPendingReadTimes, READ_TIME_QUERY_DELAY_MS);
+  }
+
+  private void queryPendingReadTimes() {
+    List<String> conversationIds = new ArrayList<>();
+    final long queryVersion;
+    synchronized (this) {
+      readTimeQueryScheduled = false;
+      queryVersion = readTimeQueryVersion;
+      Iterator<String> iterator = pendingReadTimeQueryConversationIds.iterator();
+      while (iterator.hasNext() && conversationIds.size() < MAX_READ_TIME_QUERY_SIZE) {
+        conversationIds.add(iterator.next());
+        iterator.remove();
+      }
+    }
+    scheduleReadTimeQuery();
+    if (conversationIds.isEmpty()) {
+      return;
+    }
+    if (IMKitClient.enableV2CloudConversation()) {
+      ConversationRepo.getConversationListByIds(
+          conversationIds,
+          new FetchCallback<List<V2NIMConversation>>() {
+            @Override
+            public void onError(int errorCode, @Nullable String errorMsg) {
+              completeReadTimeQuery(queryVersion, conversationIds, new HashMap<>());
+            }
+
+            @Override
+            public void onSuccess(@Nullable List<V2NIMConversation> conversations) {
+              Map<String, Long> readTimes = new HashMap<>();
+              if (conversations != null) {
+                for (V2NIMConversation conversation : conversations) {
+                  if (conversation != null) {
+                    readTimes.put(conversation.getConversationId(), conversation.getLastReadTime());
+                  }
+                }
+              }
+              completeReadTimeQuery(queryVersion, conversationIds, readTimes);
+            }
+          });
+    } else {
+      for (String conversationId : conversationIds) {
+        LocalConversationRepo.getConversationReadTime(
+            conversationId,
+            new FetchCallback<Long>() {
+              @Override
+              public void onError(int errorCode, @Nullable String errorMsg) {
+                completeReadTimeQuery(
+                    queryVersion, Collections.singletonList(conversationId), new HashMap<>());
+              }
+
+              @Override
+              public void onSuccess(@Nullable Long readTime) {
+                Map<String, Long> readTimes = new HashMap<>();
+                if (readTime != null) {
+                  readTimes.put(conversationId, readTime);
+                }
+                completeReadTimeQuery(
+                    queryVersion, Collections.singletonList(conversationId), readTimes);
+              }
+            });
+      }
+    }
+  }
+
+  private void completeReadTimeQuery(
+      long queryVersion, List<String> conversationIds, Map<String, Long> readTimes) {
+    Map<String, List<AitMessage>> messagesByConversation = new HashMap<>();
+    Map<String, Long> effectiveReadTimes = new HashMap<>();
+    synchronized (this) {
+      if (queryVersion != readTimeQueryVersion) {
+        return;
+      }
+      for (String conversationId : conversationIds) {
+        Long readTime = readTimes.get(conversationId);
+        Long cachedReadTime = readTimeCache.get(conversationId);
+        if (cachedReadTime != null && (readTime == null || cachedReadTime > readTime)) {
+          readTime = cachedReadTime;
+        }
+        if (readTime != null) {
+          readTimeCache.put(conversationId, readTime);
+          effectiveReadTimes.put(conversationId, readTime);
+        }
+        readTimeQueryingConversationIds.remove(conversationId);
+        List<AitMessage> pendingMessages = pendingAitMessages.remove(conversationId);
+        if (pendingMessages != null) {
+          messagesByConversation.put(conversationId, pendingMessages);
+        }
+      }
+    }
+    notifyAitInfo(buildUnreadAitInfo(messagesByConversation, effectiveReadTimes));
+  }
+
+  private Map<String, AitInfo> buildUnreadAitInfo(
+      Map<String, List<AitMessage>> messagesByConversation, Map<String, Long> readTimes) {
+    Map<String, AitInfo> result = new HashMap<>();
+    for (Map.Entry<String, List<AitMessage>> entry : messagesByConversation.entrySet()) {
+      Long readTime = readTimes.get(entry.getKey());
+      if (readTime == null) {
+        continue;
+      }
+      AitInfo aitInfo = new AitInfo();
+      aitInfo.setConversationId(entry.getKey());
+      aitInfo.setAccountId(IMKitClient.account());
+      for (AitMessage message : entry.getValue()) {
+        if (message.createTime > readTime) {
+          aitInfo.addMsgUid(message.messageId);
+        }
+      }
+      if (aitInfo.hasMsgUid()) {
+        result.put(entry.getKey(), aitInfo);
+      }
+    }
+    return result;
+  }
+
+  private void notifyAitInfo(Map<String, AitInfo> aitInfoMap) {
+    if (aitInfoMap == null || aitInfoMap.isEmpty()) {
+      return;
+    }
+    sendAitEvent(new ArrayList<>(aitInfoMap.values()), AitEvent.AitEventType.Arrive);
+    updateAitInfo(aitInfoMap);
+  }
+
+  private synchronized void updateReadTime(@Nullable String conversationId, long readTime) {
+    if (!TextUtils.isEmpty(conversationId)) {
+      Long cachedReadTime = readTimeCache.get(conversationId);
+      if (cachedReadTime == null || readTime > cachedReadTime) {
+        readTimeCache.put(conversationId, readTime);
+      }
+    }
+  }
+
+  private void resetReadTimeQueryState() {
+    synchronized (this) {
+      readTimeCache.clear();
+      pendingAitMessages.clear();
+      readTimeQueryingConversationIds.clear();
+      pendingReadTimeQueryConversationIds.clear();
+      readTimeQueryScheduled = false;
+      readTimeQueryVersion++;
+    }
+    mainHandler.removeCallbacksAndMessages(null);
+  }
+
+  private static class AitMessage {
+    private final String messageId;
+    private final long createTime;
+
+    private AitMessage(String messageId, long createTime) {
+      this.messageId = messageId;
+      this.createTime = createTime;
+    }
   }
 
   // 更新@信息

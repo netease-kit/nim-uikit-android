@@ -10,6 +10,7 @@ import android.content.Context;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
+import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMLastMessageState;
 import com.netease.nimlib.sdk.v2.conversation.model.V2NIMConversation;
 import com.netease.nimlib.sdk.v2.conversation.model.V2NIMLastMessage;
 import com.netease.nimlib.sdk.v2.message.attachment.V2NIMMessageAttachment;
@@ -72,9 +73,15 @@ public class ConversationUtils {
     if (!UserAIBotManager.isUserAIBot(targetId)) {
       return content;
     }
+    if (TextUtils.isEmpty(content)
+        || (conversationInfo.getLastMessage() != null
+            && conversationInfo.getLastMessage().getLastMessageState()
+                == V2NIMLastMessageState.V2NIM_MESSAGE_STATE_REVOKED)) {
+      return context.getString(R.string.conversation_bot_sub_session_summary);
+    }
     return new SpannableStringBuilder()
         .append(context.getString(R.string.conversation_bot_sub_session_prefix))
-        .append(content == null ? "" : content);
+        .append(content);
   }
 
   /**

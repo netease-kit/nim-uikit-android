@@ -33,7 +33,7 @@
         android:layout_height="wrap_content"
         android:minWidth="@dimen/dimen_translation_area_min_width"
         android:orientation="vertical"
-        android:visibility="visible">
+        android:visibility="gone">
 
         <!-- 分割线：match_parent 跟随容器宽度 -->
         <View

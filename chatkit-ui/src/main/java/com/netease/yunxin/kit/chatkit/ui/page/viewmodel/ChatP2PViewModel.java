@@ -252,6 +252,9 @@ public class ChatP2PViewModel extends ChatBaseViewModel {
 
           @Override
           public void onSuccess(@Nullable UserWithFriend data) {
+            if (destroyed || !TextUtils.equals(accId, mChatAccountId)) {
+              return;
+            }
             if (data != null) {
               ChatUserCache.getInstance().addUserInfo(data.getUserInfo());
               friendInfoFetchResult.setData(data);

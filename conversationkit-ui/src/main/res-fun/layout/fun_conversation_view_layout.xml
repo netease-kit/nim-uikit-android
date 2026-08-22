@@ -83,6 +83,7 @@
                 android:layout_height="@dimen/dimen_188_dp"
                 android:layout_marginTop="@dimen/dimen_150_dp"
                 android:visibility="gone"
+                android:translationY="@dimen/dimen_50_dp"
                 android:orientation="vertical">
 
                 <ImageView

@@ -401,7 +401,7 @@ public class FunChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
     }
   }
 
-  // 添加 normal 下的回复布局
+  // 添加 fun 下的回复布局
   private void addReplayViewToBottomGroup() {
     replayBinding =
         FunChatMessageReplayViewBinding.inflate(

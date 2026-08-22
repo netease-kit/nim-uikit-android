@@ -21,7 +21,7 @@ import com.netease.yunxin.kit.common.ui.activities.BaseLocalActivity;
 import java.util.ArrayList;
 import java.util.List;
 
-/** 翻译目标语言选择页 展示所有支持的翻译目标语言，选中后立即保存并返回。 */
+/** 翻译目标语言选择页。选择语言后仅更新页面状态，点击保存才提交配置。 */
 public class LanguageSelectActivity extends BaseLocalActivity {
 
   private ActivityLanguageSelectBinding viewBinding;
@@ -32,19 +32,18 @@ public class LanguageSelectActivity extends BaseLocalActivity {
   static {
     LANGUAGES.add(Pair.create("zh-CHS", R.string.translation_lang_zh_chs));
     LANGUAGES.add(Pair.create("zh-CHT", R.string.translation_lang_zh_cht));
-    LANGUAGES.add(Pair.create("ar", R.string.translation_lang_ar));
-    LANGUAGES.add(Pair.create("de", R.string.translation_lang_de));
     LANGUAGES.add(Pair.create("en", R.string.translation_lang_en));
-    LANGUAGES.add(Pair.create("es", R.string.translation_lang_es));
-    LANGUAGES.add(Pair.create("fr", R.string.translation_lang_fr));
-    LANGUAGES.add(Pair.create("id", R.string.translation_lang_id));
-    LANGUAGES.add(Pair.create("it", R.string.translation_lang_it));
     LANGUAGES.add(Pair.create("ja", R.string.translation_lang_ja));
     LANGUAGES.add(Pair.create("ko", R.string.translation_lang_ko));
-    LANGUAGES.add(Pair.create("pt", R.string.translation_lang_pt));
+    LANGUAGES.add(Pair.create("fr", R.string.translation_lang_fr));
+    LANGUAGES.add(Pair.create("de", R.string.translation_lang_de));
+    LANGUAGES.add(Pair.create("es", R.string.translation_lang_es));
     LANGUAGES.add(Pair.create("ru", R.string.translation_lang_ru));
-    LANGUAGES.add(Pair.create("th", R.string.translation_lang_th));
+    LANGUAGES.add(Pair.create("pt", R.string.translation_lang_pt));
+    LANGUAGES.add(Pair.create("it", R.string.translation_lang_it));
     LANGUAGES.add(Pair.create("vi", R.string.translation_lang_vi));
+    LANGUAGES.add(Pair.create("th", R.string.translation_lang_th));
+    LANGUAGES.add(Pair.create("id", R.string.translation_lang_id));
   }
 
   private String currentLangCode;
@@ -80,12 +79,14 @@ public class LanguageSelectActivity extends BaseLocalActivity {
       selectedIconRes = R.drawable.ic_select_blue;
     }
 
-    // TitleBar 右侧"保存"按钮，点击直接返回（选中后即保存，无需二次确认）
+    // 仅在点击保存时提交，返回键直接放弃本次选择。
     viewBinding
         .languageSelectTitleBar
         .setActionText(R.string.setting_save)
         .setActionListener(
             v -> {
+              DataUtils.saveTranslationTargetLanguage(this, currentLangCode);
+              IMKitConfigCenter.setTranslationTargetLanguage(currentLangCode);
               setResult(RESULT_OK);
               finish();
             });
@@ -187,10 +188,6 @@ public class LanguageSelectActivity extends BaseLocalActivity {
 
   private void selectLanguage(String langCode) {
     currentLangCode = langCode;
-    // 保存到持久化存储
-    DataUtils.saveTranslationTargetLanguage(this, langCode);
-    // 更新内存配置
-    IMKitConfigCenter.setTranslationTargetLanguage(langCode);
     // 刷新所有 item 的选中状态和文字颜色
     int defaultColor = ContextCompat.getColor(this, R.color.color_333333);
     for (int i = 0; i < viewBinding.llLanguageContainer.getChildCount(); i++) {

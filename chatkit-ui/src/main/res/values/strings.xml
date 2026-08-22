@@ -64,6 +64,12 @@
     <string name="chat_bot_sub_session_summary_audio">[Voice]</string>
     <string name="chat_bot_sub_session_summary_video">[Video]</string>
     <string name="chat_bot_sub_session_summary_message">[Message]</string>
+    <string name="chat_bot_sub_session_auto_title_image">Photo</string>
+    <string name="chat_bot_sub_session_auto_title_file">File</string>
+    <string name="chat_bot_sub_session_auto_title_audio">Voice</string>
+    <string name="chat_bot_sub_session_auto_title_video">Video</string>
+    <string name="chat_bot_sub_session_auto_title_location">Location</string>
+    <string name="chat_bot_sub_session_auto_title_message">Message</string>
     <string name="chat_read_status">Read Status</string>
     <string name="chat_read_with_num">Read by（%d）</string>
     <string name="chat_unread_with_num">Unread by（%d）</string>

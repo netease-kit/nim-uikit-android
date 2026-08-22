@@ -15,9 +15,12 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.view.inputmethod.EditorInfo;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import com.netease.nimlib.sdk.uinfo.model.UserInfo;
@@ -51,6 +54,7 @@ import java.util.List;
 /** chat view contain all view about chat */
 public class ChatView extends LinearLayout implements IChatView, AitTextChangeListener {
 
+  private static final long KEYBOARD_SCROLL_DELAY = 220L;
   NormalChatViewBinding binding;
 
   AitManager aitTextManager;
@@ -106,6 +110,13 @@ public class ChatView extends LinearLayout implements IChatView, AitTextChangeLi
           }
         });
     binding.getRoot().setOnClickListener(v -> binding.chatBottomInputLayout.collapse(true));
+    binding.chatBottomInputLayout.setKeyboardTransitionListener(
+        () -> {
+          if (binding.messageView.isLastItemVisible()) {
+            binding.messageView.postDelayed(
+                binding.messageView::scrollToEnd, KEYBOARD_SCROLL_DELAY);
+          }
+        });
     binding.chatMsgMultiDeleteLayout.setOnClickListener(
         v -> {
           if (messageProxy != null && binding.chatMsgMultiDeleteIv.isEnabled()) {
@@ -320,7 +331,7 @@ public class ChatView extends LinearLayout implements IChatView, AitTextChangeLi
 
   public void setChatConfig(ChatUIConfig config) {
     if (config != null) {
-      binding.messageView.setMessageProperties(config.messageProperties);
+      binding.messageView.setChatUIConfig(config);
       binding.chatBottomInputLayout.setInputProperties(config.inputProperties);
     }
   }
@@ -563,6 +574,20 @@ public class ChatView extends LinearLayout implements IChatView, AitTextChangeLi
 
   public FrameLayout getChatBodyLayout() {
     return binding.chatViewBody;
+  }
+
+  public void attachMessageOverlayView(@NonNull View view) {
+    if (view.getParent() == binding.chatMessageOverlayLayout) {
+      return;
+    }
+    ViewParent parent = view.getParent();
+    if (parent instanceof ViewGroup) {
+      ((ViewGroup) parent).removeView(view);
+    }
+    binding.chatMessageOverlayLayout.addView(
+        view,
+        new FrameLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
   }
 
   public FrameLayout getChatBottomLayout() {

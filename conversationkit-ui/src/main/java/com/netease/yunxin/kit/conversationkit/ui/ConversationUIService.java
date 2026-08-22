@@ -11,8 +11,14 @@ import com.netease.yunxin.kit.chatkit.ChatService;
 import com.netease.yunxin.kit.conversationkit.ui.common.ConversationConstant;
 import com.netease.yunxin.kit.conversationkit.ui.fun.FunCreateTeamFactory;
 import com.netease.yunxin.kit.conversationkit.ui.fun.page.FunConversationActivity;
+import com.netease.yunxin.kit.conversationkit.ui.fun.page.FunConversationGroupAddConversationActivity;
+import com.netease.yunxin.kit.conversationkit.ui.fun.page.FunConversationGroupManageActivity;
+import com.netease.yunxin.kit.conversationkit.ui.fun.page.FunConversationGroupSettingActivity;
 import com.netease.yunxin.kit.conversationkit.ui.normal.NormalCreateTeamFactory;
 import com.netease.yunxin.kit.conversationkit.ui.normal.page.ConversationActivity;
+import com.netease.yunxin.kit.conversationkit.ui.page.ConversationGroupAddConversationActivity;
+import com.netease.yunxin.kit.conversationkit.ui.page.ConversationGroupManageActivity;
+import com.netease.yunxin.kit.conversationkit.ui.page.ConversationGroupSettingActivity;
 import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 import java.util.ArrayList;
@@ -44,6 +50,14 @@ public class ConversationUIService extends ChatService {
     // 普通版注册，包括会话列表页面，创建讨论组，高级群
     // 注册会话列表Activity页面
     XKitRouter.registerRouter(RouterConstant.PATH_CONVERSATION_PAGE, ConversationActivity.class);
+    XKitRouter.registerRouter(
+        RouterConstant.PATH_CONVERSATION_GROUP_MANAGE_PAGE, ConversationGroupManageActivity.class);
+    XKitRouter.registerRouter(
+        RouterConstant.PATH_CONVERSATION_GROUP_SETTING_PAGE,
+        ConversationGroupSettingActivity.class);
+    XKitRouter.registerRouter(
+        RouterConstant.PATH_CONVERSATION_GROUP_ADD_CONVERSATION_PAGE,
+        ConversationGroupAddConversationActivity.class);
     // 注册创建讨论组方法，包括人员选择，创建讨论组，跳转到聊天页面
     XKitRouter.registerRouter(
         RouterConstant.PATH_SELECT_CREATE_TEAM_PAGE,
@@ -69,6 +83,15 @@ public class ConversationUIService extends ChatService {
     // 注册会话列表Activity页面
     XKitRouter.registerRouter(
         RouterConstant.PATH_FUN_CONVERSATION_PAGE, FunConversationActivity.class);
+    XKitRouter.registerRouter(
+        RouterConstant.PATH_FUN_CONVERSATION_GROUP_MANAGE_PAGE,
+        FunConversationGroupManageActivity.class);
+    XKitRouter.registerRouter(
+        RouterConstant.PATH_FUN_CONVERSATION_GROUP_SETTING_PAGE,
+        FunConversationGroupSettingActivity.class);
+    XKitRouter.registerRouter(
+        RouterConstant.PATH_FUN_CONVERSATION_GROUP_ADD_CONVERSATION_PAGE,
+        FunConversationGroupAddConversationActivity.class);
     // 注册创建讨论组方法，包括人员选择，创建讨论组，跳转到聊天页面
     XKitRouter.registerRouter(
         RouterConstant.PATH_FUN_SELECT_CREATE_TEAM_PAGE,

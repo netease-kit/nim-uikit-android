@@ -1146,7 +1146,13 @@ public abstract class ChatBaseFragment extends BaseFragment {
               new MediaChooseConfig(),
               new FetchCallback<ArrayList<LocalFileInfo>>() {
                 @Override
-                public void onError(int errorCode, String errorMsg) {}
+                public void onError(int errorCode, String errorMsg) {
+                  ALog.e(
+                      LIB_TAG,
+                      LOG_TAG,
+                      "PictureChooseEngine onError:" + errorCode + " errorMsg:" + errorMsg);
+                  ToastX.showShortToast(R.string.chat_message_type_resource_error);
+                }
 
                 @Override
                 public void onSuccess(@Nullable ArrayList<LocalFileInfo> data) {
@@ -1154,37 +1160,18 @@ public abstract class ChatBaseFragment extends BaseFragment {
                 }
               });
     } else {
-      String[] permissions = new String[] {Manifest.permission.READ_EXTERNAL_STORAGE};
-      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-        permissions =
-            new String[] {
-              Manifest.permission.READ_MEDIA_IMAGES,
-              Manifest.permission.READ_MEDIA_VIDEO,
-              Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED
-            };
-        // 根据系统版本判断，如果是Android13则采用Manifest.permission.READ_MEDIA_IMAGES
-      } else if (Build.VERSION.SDK_INT == Build.VERSION_CODES.TIRAMISU) {
-        permissions =
-            new String[] {
-              Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_MEDIA_VIDEO
-            };
-      }
-      if (PermissionUtils.hasPermissions(ChatBaseFragment.this.getContext(), permissions)) {
-        pickMediaLauncher.launch(
-            new PickVisualMediaRequest.Builder()
-                .setMediaType(ActivityResultContracts.PickVisualMedia.ImageAndVideo.INSTANCE)
-                .build());
-      } else {
-        requestSystemPermission(
-            permissions,
-            REQUEST_READ_EXTERNAL_STORAGE_PERMISSION_ALBUM,
-            R.string.chat_permission_storage_title,
-            R.string.chat_permission_storage_content);
-      }
+      pickMediaLauncher.launch(
+          new PickVisualMediaRequest.Builder()
+              .setMediaType(ActivityResultContracts.PickVisualMedia.ImageAndVideo.INSTANCE)
+              .build());
     }
   }
 
   protected void sendImageMessage(ArrayList<LocalFileInfo> result) {
+    if (result == null || result.isEmpty()) {
+      ALog.i(LIB_TAG, LOG_TAG, "PhotoPicker No media selected");
+      return;
+    }
     for (LocalFileInfo localMedia : result) {
       if (localMedia.getPath() != null && localMedia.getMimeType() != null) {
         ALog.i(
@@ -1425,9 +1412,11 @@ public abstract class ChatBaseFragment extends BaseFragment {
             if (messageBean != null && MessageHelper.revokeMsgIsEdit(messageBean)) {
               AtContactsModel aitModel =
                   MessageHelper.getAitBlockFromMsg(messageBean.getMessageData().getMessage());
-              if (aitModel != null) {
+              if (aitManager != null) {
                 aitManager.reset();
-                aitManager.setAitContactsModel(aitModel);
+                if (aitModel != null) {
+                  aitManager.setAitContactsModel(aitModel);
+                }
               }
               Map<String, String> richMap =
                   MessageHelper.getRichMessageRevokeContent(messageBean.getMessageData());
@@ -1917,6 +1906,14 @@ public abstract class ChatBaseFragment extends BaseFragment {
           if (TextUtils.isEmpty(targetLanguage)) {
             targetLanguage = "zh";
           }
+          boolean hasCachedTranslation =
+              messageBean.getTranslationInfo() != null
+                  && TextUtils.equals(
+                      targetLanguage, messageBean.getTranslationInfo().getTargetLanguage());
+          if (!hasCachedTranslation && !NetworkUtils.isConnected()) {
+            ToastX.showShortToast(R.string.chat_network_error_tip);
+            return true;
+          }
           viewModel.translateMessage(messageBean, targetLanguage);
           return true;
         }
@@ -2125,8 +2122,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
               // photo picker.
               if (uri != null) {
                 ALog.i(LIB_TAG, LOG_TAG, "pick media result uri -->> " + uri);
-                mHandler.postDelayed(
-                    () -> viewModel.sendImageOrVideoMessage(uri, getContext()), 100);
+                viewModel.sendImageOrVideoMessage(uri, getContext());
               } else {
                 ALog.i(LIB_TAG, LOG_TAG, "PhotoPicker No media selected");
               }

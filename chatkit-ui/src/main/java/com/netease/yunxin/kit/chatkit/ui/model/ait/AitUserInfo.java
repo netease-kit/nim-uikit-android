@@ -9,7 +9,8 @@ public class AitUserInfo {
   // 账号
   private String account;
   // 名称
-  private String name;
+  private String showName;
+  private String avatarName;
 
   //@之后显示的信息
   private String aitName;
@@ -19,9 +20,11 @@ public class AitUserInfo {
   //是否是AI数字人
   private boolean isAI = false;
 
-  public AitUserInfo(String account, String name, String aitName, String avatar) {
+  public AitUserInfo(
+      String account, String showName, String avatarName, String aitName, String avatar) {
     this.account = account;
-    this.name = name;
+    this.showName = showName;
+    this.avatarName = avatarName;
     this.aitName = aitName;
     this.avatar = avatar;
   }
@@ -38,8 +41,12 @@ public class AitUserInfo {
     return account;
   }
 
-  public String getName() {
-    return name;
+  public String getAvatarName() {
+    return avatarName;
+  }
+
+  public String getShowName() {
+    return showName;
   }
 
   public String getAitName() {
@@ -54,8 +61,8 @@ public class AitUserInfo {
     this.account = account;
   }
 
-  public void setName(String name) {
-    this.name = name;
+  public void setAvatarName(String avatarName) {
+    this.avatarName = avatarName;
   }
 
   public void setAvatar(String avatar) {

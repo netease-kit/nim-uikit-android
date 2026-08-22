@@ -5,8 +5,12 @@
     <color name="color_white">#FFFFFF</color>
     <!-- 主文字色 -->
     <color name="color_conversation_primary_text">#333333</color>
+    <!-- 会话分组主色 -->
+    <color name="color_conversation_group_primary">#337EFF</color>
     <!-- 分割线/按压态背景色 -->
     <color name="color_conversation_divider">#ededef</color>
+    <!-- 会话分组设置页分割线色 -->
+    <color name="color_conversation_group_divider">#EFF1F4</color>
     <!-- 徽标红/角标红 -->
     <color name="color_conversation_badge_red">#f24957</color>
     <!-- 副文字色 -->
@@ -44,6 +48,10 @@
     <color name="fun_conversation_search_hint_color">#7f000000</color>
     <!-- Fun 弹窗背景色 -->
     <color name="fun_conversation_pop_bg_color">#5a5a5a</color>
+    <color name="fun_conversation_group_primary">#58BE6B</color>
+    <color name="fun_conversation_group_primary_disabled">#8058BE6B</color>
+    <color name="fun_conversation_group_divider">#EEEEEE</color>
+    <color name="fun_conversation_group_hint">#A6ADB6</color>
     <!-- ==================== Fun 皮肤专属颜色 END ==================== -->
 
 </resources>

@@ -67,7 +67,8 @@ public class ChatTextMessageViewHolder extends NormalChatBaseMessageViewHolder {
   private void bindTranslation(ChatMessageBean message) {
     TranslationInfo info = message.getTranslationInfo();
     boolean hasTranslation =
-        info != null
+        isChatMsg()
+            && info != null
             && !android.text.TextUtils.isEmpty(info.getTranslatedText())
             && message.isTranslationVisible();
     if (hasTranslation) {
@@ -200,10 +201,9 @@ public class ChatTextMessageViewHolder extends NormalChatBaseMessageViewHolder {
       textBinding.messageText.setText(
           parent.getContext().getResources().getString(R.string.chat_message_not_support_tips));
     }
-    // 也可单独指定模式（例如只识别电话和邮箱）
     if (TextUtils.isEmpty(currentMessage.keyword)) {
       TextLinkifyUtils.addLinks(
-          textBinding.messageText, itemClickListener, position, currentMessage);
+          textBinding.messageText, itemClickListener, position, currentMessage, properties);
     }
   }
 
@@ -211,7 +211,12 @@ public class ChatTextMessageViewHolder extends NormalChatBaseMessageViewHolder {
     if (currentMessage.isAIResponseMsg() && isChatMsg()) {
       V2NIMMessageAIStreamStatus aiStreamStatus = currentMessage.getAIConfig().getAIStreamStatus();
       V2NIMMessageRefer threadInfo = currentMessage.getReplyMessageRefer();
-      if (aiStreamStatus == V2NIMMessageAIStreamStatus.V2NIM_MESSAGE_AI_STREAM_STATUS_PLACEHOLDER) {
+      boolean showLoading =
+          aiStreamStatus == V2NIMMessageAIStreamStatus.V2NIM_MESSAGE_AI_STREAM_STATUS_PLACEHOLDER
+              || (aiStreamStatus
+                      == V2NIMMessageAIStreamStatus.V2NIM_MESSAGE_AI_STREAM_STATUS_STREAMING
+                  && TextUtils.isEmpty(currentMessage.getMessage().getText()));
+      if (showLoading) {
         if (TextUtils.equals(threadInfo.getSenderId(), IMKitClient.account()) && !isMultiSelect) {
           baseViewBinding.messageUpdateRefresh.setVisibility(View.GONE);
           baseViewBinding.messageUpdateStop.setVisibility(View.VISIBLE);
@@ -222,7 +227,9 @@ public class ChatTextMessageViewHolder extends NormalChatBaseMessageViewHolder {
           baseViewBinding.messageUpdateOperate.setVisibility(View.GONE);
         }
         textBinding.messageLoading.setVisibility(View.VISIBLE);
-        textBinding.messageText.setVisibility(View.VISIBLE);
+        // The placeholder has no message text. Keeping the TextView visible would
+        // retain its vertical padding and leave a large blank area above the loader.
+        textBinding.messageText.setVisibility(View.GONE);
 
       } else {
         if (TextUtils.equals(threadInfo.getSenderId(), IMKitClient.account()) && !isMultiSelect) {

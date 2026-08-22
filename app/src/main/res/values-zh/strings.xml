@@ -147,6 +147,7 @@
     <string name="uikit_image_pick_switch_title">使用图片选择器插件</string>
     <string name="uikit_anti_spam_switch_title">文本安全提示功能</string>
     <string name="uikit_cloud_search_switch_title">云搜索功能</string>
+    <string name="uikit_conversation_group_switch_title">会话分组功能</string>
     <string name="uikit_team_manager_limit_title">允许添加的管理员人数( -1 表示无限制)</string>
 
     <!-- -->
@@ -156,13 +157,15 @@
     <!-- 消息翻译设置页 -->
     <string name="translation_setting_title">翻译</string>
     <string name="translation_target_language">将文字翻译为</string>
-    <string name="translation_auto_translate">自动翻译</string>
+    <string name="translation_target_language_description">设置消息翻译的目标语言</string>
+    <string name="translation_auto_translate">自动翻译聊天中收到的消息</string>
+    <string name="translation_auto_translate_description">开启后，会自动翻译聊天中收到的消息</string>
     <string name="translation_select_language">将文字翻译为</string>
     <string name="translation_failed">翻译失败</string>
 
     <!-- 翻译目标语言列表 -->
-    <string name="translation_lang_zh_chs">简体中文</string>
-    <string name="translation_lang_zh_cht">繁体中文</string>
+    <string name="translation_lang_zh_chs">中文(简体)</string>
+    <string name="translation_lang_zh_cht">中文(繁体)</string>
     <string name="translation_lang_ar">阿拉伯语</string>
     <string name="translation_lang_de">德语</string>
     <string name="translation_lang_en">英语</string>

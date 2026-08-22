@@ -4,6 +4,7 @@
 
 package com.netease.yunxin.kit.chatkit.ui.page.viewmodel;
 
+import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.KEY_LOCAL_TOPIC_TIP;
 import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
 
 import android.os.Handler;
@@ -18,9 +19,14 @@ import com.netease.nimlib.sdk.v2.ai.model.V2NIMAIUser;
 import com.netease.nimlib.sdk.v2.ai.params.V2NIMAIModelCallMessage;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessage;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessageCreator;
+import com.netease.nimlib.sdk.v2.message.V2NIMMessageDeletedNotification;
+import com.netease.nimlib.sdk.v2.message.V2NIMMessageRefer;
+import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageQueryDirection;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageSendingState;
+import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMQueryDirection;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMSortOrder;
+import com.netease.nimlib.sdk.v2.message.option.V2NIMMessageListOption;
 import com.netease.nimlib.sdk.v2.message.params.V2NIMSendMessageParams;
 import com.netease.nimlib.sdk.v2.message.result.V2NIMSendMessageResult;
 import com.netease.nimlib.sdk.v2.topic.V2NIMTopic;
@@ -32,10 +38,13 @@ import com.netease.nimlib.sdk.v2.topic.params.V2NIMSendTopicMessageParams;
 import com.netease.nimlib.sdk.v2.topic.params.V2NIMUpdateTopicParams;
 import com.netease.nimlib.sdk.v2.topic.result.V2NIMTopicMessageListResult;
 import com.netease.yunxin.kit.alog.ALog;
+import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
 import com.netease.yunxin.kit.chatkit.impl.MessageListenerImpl;
 import com.netease.yunxin.kit.chatkit.listener.MessageUpdateType;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
+import com.netease.yunxin.kit.chatkit.repo.ConversationRepo;
+import com.netease.yunxin.kit.chatkit.repo.LocalConversationRepo;
 import com.netease.yunxin.kit.chatkit.repo.TopicRepo;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.common.BotSubSessionUtils;
@@ -52,6 +61,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import org.json.JSONObject;
 
 public class ChatBotSubSessionViewModel extends ChatP2PViewModel {
 
@@ -82,6 +92,8 @@ public class ChatBotSubSessionViewModel extends ChatP2PViewModel {
             return;
           }
           ALog.i(LIB_TAG, TAG, "receive topic msg -->> " + filteredMessages.size());
+          // 机器人回复在聊天页实时到达时同步推进父会话已读时间，返回子会话列表不显示红点。
+          clearConversationUnread();
           FetchResult<List<ChatMessageBean>> result = new FetchResult<>(LoadStatus.Success);
           result.setData(convertToTopicChatBeans(filteredMessages));
           result.setType(FetchResult.FetchType.Add);
@@ -122,6 +134,38 @@ public class ChatBotSubSessionViewModel extends ChatP2PViewModel {
           result.setType(FetchResult.FetchType.Update);
           result.setTypeIndex(-1);
           getUpdateMessageLiveData().setValue(result);
+        }
+
+        @Override
+        public void onReceiveMessagesModified(@Nullable List<V2NIMMessage> messages) {
+          List<IMMessageInfo> messageInfos = new ArrayList<>();
+          if (messages != null) {
+            for (V2NIMMessage message : messages) {
+              if (shouldHandleTopicMessage(message)) {
+                messageInfos.add(new IMMessageInfo(message));
+              }
+            }
+          }
+          postTopicMessageUpdates(messageInfos, MessageUpdateType.UpdateMessage);
+        }
+
+        @Override
+        public void onMessageDeletedNotifications(
+            @NonNull List<? extends V2NIMMessageDeletedNotification> notifications) {
+          List<V2NIMMessageRefer> deletedMessages = new ArrayList<>();
+          for (V2NIMMessageDeletedNotification notification : notifications) {
+            V2NIMMessageRefer refer = notification == null ? null : notification.getMessageRefer();
+            if (refer != null && TextUtils.equals(refer.getConversationId(), mConversationId)) {
+              deletedMessages.add(refer);
+            }
+          }
+          if (!deletedMessages.isEmpty()) {
+            FetchResult<List<V2NIMMessageRefer>> result = new FetchResult<>(LoadStatus.Success);
+            result.setType(FetchResult.FetchType.Remove);
+            result.setTypeIndex(-1);
+            result.setData(deletedMessages);
+            getDeleteMessageLiveData().setValue(result);
+          }
         }
       };
 
@@ -182,6 +226,18 @@ public class ChatBotSubSessionViewModel extends ChatP2PViewModel {
     return hasMoreOlderTopicMessages;
   }
 
+  public void clearConversationUnread() {
+    if (TextUtils.isEmpty(getConversationId())) {
+      return;
+    }
+    if (IMKitClient.enableV2CloudConversation()) {
+      ConversationRepo.clearUnreadCountByIds(Collections.singletonList(getConversationId()), null);
+    } else {
+      LocalConversationRepo.clearUnreadCountByIds(
+          Collections.singletonList(getConversationId()), null);
+    }
+  }
+
   public void renameTopic(String newName) {
     renameTopic(newName, null);
   }
@@ -214,6 +270,10 @@ public class ChatBotSubSessionViewModel extends ChatP2PViewModel {
   }
 
   public void deleteTopic() {
+    deleteTopic(null);
+  }
+
+  public void deleteTopic(@Nullable FetchCallback<Void> callback) {
     if (topic == null) {
       return;
     }
@@ -224,11 +284,17 @@ public class ChatBotSubSessionViewModel extends ChatP2PViewModel {
           @Override
           public void onError(int errorCode, @Nullable String errorMsg) {
             ALog.e(LIB_TAG, TAG, "deleteTopic error:" + errorCode + " msg:" + errorMsg);
+            if (callback != null) {
+              callback.onError(errorCode, errorMsg);
+            }
           }
 
           @Override
           public void onSuccess(@Nullable Void data) {
             topicRemovedLiveData.postValue(true);
+            if (callback != null) {
+              callback.onSuccess(data);
+            }
           }
         });
   }
@@ -273,6 +339,17 @@ public class ChatBotSubSessionViewModel extends ChatP2PViewModel {
       Map<String, Object> remoteExtension,
       V2NIMAIUser aiUser) {
     replyTopicMessage(message, replyMsg, pushList, remoteExtension, aiUser);
+  }
+
+  @Override
+  public void resendMessage(V2NIMMessage message, V2NIMMessage replyMessage) {
+    if (message == null) {
+      return;
+    }
+    // Robot sub-session messages must use the same topic send path as the initial send.
+    // The UI replyMessage is only needed by the generic reply-resend flow; passing it to
+    // replyTopicMessage here would create a new Thread reply relation during retry.
+    sendTopicMessage(message, null, null, null, null);
   }
 
   public void getTopicData(@Nullable V2NIMMessage anchor) {
@@ -408,14 +485,59 @@ public class ChatBotSubSessionViewModel extends ChatP2PViewModel {
                     + hasMoreTopicMessages(direction)
                     + " anchorMode:"
                     + anchorMode);
-            postTopicMessages(
-                messages,
+            FetchResult.FetchType fetchType =
                 anchor == null && direction == V2NIMQueryDirection.V2NIM_QUERY_DIRECTION_DESC
                     ? FetchResult.FetchType.Init
-                    : FetchResult.FetchType.Add,
-                direction == V2NIMQueryDirection.V2NIM_QUERY_DIRECTION_DESC ? 0 : -1,
-                false,
-                anchorMode ? anchor : null);
+                    : FetchResult.FetchType.Add;
+            if (fetchType == FetchResult.FetchType.Init) {
+              loadLocalTopicTipsAndPost(messages, fetchType, anchorMode ? anchor : null);
+            } else {
+              postTopicMessages(
+                  messages,
+                  fetchType,
+                  direction == V2NIMQueryDirection.V2NIM_QUERY_DIRECTION_DESC ? 0 : -1,
+                  false,
+                  anchorMode ? anchor : null);
+            }
+          }
+        });
+  }
+
+  private void loadLocalTopicTipsAndPost(
+      @Nullable List<V2NIMMessage> topicMessages,
+      @NonNull FetchResult.FetchType fetchType,
+      @Nullable V2NIMMessage anchor) {
+    V2NIMMessageListOption option =
+        MessageParamBuildUtils.buildMessageOptions(
+            null,
+            0,
+            mConversationId,
+            TOPIC_MESSAGE_PAGE_SIZE * 3,
+            V2NIMMessageQueryDirection.V2NIM_QUERY_DIRECTION_DESC);
+    ChatRepo.getMessageList(
+        option,
+        new FetchCallback<List<IMMessageInfo>>() {
+          @Override
+          public void onError(int errorCode, @Nullable String errorMsg) {
+            postTopicMessages(topicMessages, fetchType, 0, false, anchor);
+          }
+
+          @Override
+          public void onSuccess(@Nullable List<IMMessageInfo> data) {
+            List<V2NIMMessage> merged = new ArrayList<>();
+            if (topicMessages != null) {
+              merged.addAll(topicMessages);
+            }
+            if (data != null) {
+              for (IMMessageInfo info : data) {
+                if (isCurrentLocalTopicTip(info == null ? null : info.getMessage())) {
+                  merged.add(info.getMessage());
+                }
+              }
+            }
+            Collections.sort(
+                merged, (left, right) -> Long.compare(left.getCreateTime(), right.getCreateTime()));
+            postTopicMessages(merged, fetchType, 0, false, anchor);
           }
         });
   }
@@ -516,6 +638,7 @@ public class ChatBotSubSessionViewModel extends ChatP2PViewModel {
                 pendingAutoNameMessage = sentMessage;
                 pendingAutoNameTopicRefer = sentMessage.getTopicRefer();
               }
+              saveAntispamTipIfNeeded(data);
               if (topic == null && data.getMessage().getTopicRefer() != null) {
                 TopicRepo.getTopicByRefer(
                     sentMessage.getTopicRefer(),
@@ -608,7 +731,9 @@ public class ChatBotSubSessionViewModel extends ChatP2PViewModel {
     }
     List<V2NIMAIModelCallMessage> aiMessageList =
         aiMessage == null ? null : Collections.singletonList(aiMessage);
-    String remoteStr = MessageParamBuildUtils.toJson(remoteExtension);
+    String remoteStr =
+        MessageParamBuildUtils.toJson(
+            MessageHelper.createReplyExtension(remoteExtension, replyMessage));
     V2NIMSendMessageParams params =
         MessageCreator.createSendMessageParam(
             message, getConversationId(), pushList, remoteStr, aiUser, aiMessageList, showRead);
@@ -627,6 +752,7 @@ public class ChatBotSubSessionViewModel extends ChatP2PViewModel {
           public void onSuccess(@Nullable V2NIMSendMessageResult data) {
             if (data != null && data.getMessage() != null) {
               postSentMessage(data.getMessage());
+              saveAntispamTipIfNeeded(data);
             }
           }
         });
@@ -639,6 +765,59 @@ public class ChatBotSubSessionViewModel extends ChatP2PViewModel {
     result.setType(FetchResult.FetchType.Update);
     result.setData(createTopicChatBean(info));
     getSendMessageLiveData().setValue(result);
+  }
+
+  private void saveAntispamTipIfNeeded(@NonNull V2NIMSendMessageResult data) {
+    if (!IMKitConfigCenter.getEnableAntiSpamTipMessage()
+        || data.getMessage() == null
+        || TextUtils.isEmpty(data.getAntispamResult())) {
+      return;
+    }
+    V2NIMTopicRefer topicRefer = data.getMessage().getTopicRefer();
+    if (topicRefer == null) {
+      return;
+    }
+    String tips =
+        MessageHelper.getAntispamTips(
+            IMKitClient.getApplicationContext(), data.getAntispamResult());
+    V2NIMMessage tipMessage = V2NIMMessageCreator.createTipsMessage(tips);
+    tipMessage.setLocalExtension(
+        "{\""
+            + KEY_LOCAL_TOPIC_TIP
+            + "\":true,\"topicId\":"
+            + topicRefer.getTopicId()
+            + ",\"topicCreateTime\":"
+            + topicRefer.getCreateTime()
+            + "}");
+    ChatRepo.insertMessageToLocal(
+        tipMessage,
+        mConversationId,
+        data.getMessage().getSenderId(),
+        data.getMessage().getCreateTime() + 5,
+        null);
+  }
+
+  private boolean isCurrentLocalTopicTip(@Nullable V2NIMMessage message) {
+    if (message == null
+        || message.getMessageType() != V2NIMMessageType.V2NIM_MESSAGE_TYPE_TIPS
+        || TextUtils.isEmpty(message.getLocalExtension())) {
+      return false;
+    }
+    try {
+      JSONObject extension = new JSONObject(message.getLocalExtension());
+      if (!extension.optBoolean(KEY_LOCAL_TOPIC_TIP)) {
+        return false;
+      }
+      if (topic != null) {
+        return extension.optLong("topicId") == topic.getTopicId()
+            && extension.optLong("topicCreateTime") == topic.getCreateTime();
+      }
+      return pendingAutoNameTopicRefer != null
+          && extension.optLong("topicId") == pendingAutoNameTopicRefer.getTopicId()
+          && extension.optLong("topicCreateTime") == pendingAutoNameTopicRefer.getCreateTime();
+    } catch (Exception ignored) {
+      return false;
+    }
   }
 
   private void postTopicMessages(
@@ -671,9 +850,15 @@ public class ChatBotSubSessionViewModel extends ChatP2PViewModel {
     if (topic == null) {
       return;
     }
+    boolean topicWasPending = this.topic == null;
     this.topic = topic;
     topicLiveData.postValue(topic);
     tryAutoNamePendingTopic();
+    if (topicWasPending) {
+      // A reply can arrive before the Topic object lookup completes. Reload the
+      // confirmed Topic so the history query restores any early filtered reply.
+      getTopicData(null);
+    }
   }
 
   private ChatMessageBean createTopicChatBean(@NonNull IMMessageInfo messageInfo) {
@@ -693,11 +878,24 @@ public class ChatBotSubSessionViewModel extends ChatP2PViewModel {
     return result;
   }
 
+  private void postTopicMessageUpdates(
+      @Nullable List<IMMessageInfo> messages, @NonNull MessageUpdateType type) {
+    if (messages == null || messages.isEmpty()) {
+      return;
+    }
+    FetchResult<Pair<MessageUpdateType, List<ChatMessageBean>>> result =
+        new FetchResult<>(LoadStatus.Success);
+    result.setData(new Pair<>(type, convertToTopicChatBeans(messages)));
+    result.setType(FetchResult.FetchType.Update);
+    result.setTypeIndex(-1);
+    getUpdateMessageLiveData().setValue(result);
+  }
+
   private boolean isCurrentTopic(@Nullable V2NIMTopicRefer refer) {
     if (topic != null) {
       return sameTopic(topic, refer);
     }
-    return refer != null && TextUtils.equals(refer.getConversationId(), topicConversationId);
+    return pendingAutoNameTopicRefer != null && sameTopic(pendingAutoNameTopicRefer, refer);
   }
 
   private boolean sameTopic(V2NIMTopicRefer left, V2NIMTopicRefer right) {
@@ -734,10 +932,16 @@ public class ChatBotSubSessionViewModel extends ChatP2PViewModel {
       return false;
     }
     if (message.getTopicRefer() == null) {
+      // Local tip messages do not carry a TopicRefer. They are created for the
+      // current Topic conversation and must remain visible in this Topic page.
+      if (message.getMessageType() == V2NIMMessageType.V2NIM_MESSAGE_TYPE_TIPS) {
+        return isCurrentLocalTopicTip(message);
+      }
       return isPendingNewTopicMessageWithoutRefer(message);
     }
     if (topic == null) {
-      return TextUtils.equals(message.getTopicRefer().getConversationId(), topicConversationId);
+      return pendingAutoNameTopicRefer != null
+          && sameTopic(pendingAutoNameTopicRefer, message.getTopicRefer());
     }
     return sameTopic(topic, message.getTopicRefer());
   }

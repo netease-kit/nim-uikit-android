@@ -6,9 +6,11 @@ package com.netease.yunxin.kit.conversationkit.local.ui.normal.viewholder;
 
 import android.view.View;
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
 import com.netease.yunxin.kit.chatkit.OnlineStatusManager;
 import com.netease.yunxin.kit.chatkit.manager.AIUserManager;
+import com.netease.yunxin.kit.chatkit.manager.UserAIBotManager;
 import com.netease.yunxin.kit.common.ui.utils.AvatarColor;
 import com.netease.yunxin.kit.conversationkit.local.ui.R;
 import com.netease.yunxin.kit.conversationkit.local.ui.databinding.LocalConversationViewHolderBinding;
@@ -25,11 +27,21 @@ public class ConversationP2PViewHolder extends ConversationBaseViewHolder {
     super.onBindData(data, position);
     String name = data.getConversationName();
     viewBinding.avatarView.setData(
-        data.infoData.getAvatar(),
+        data.getConversationAvatar(),
         data.getAvatarName(),
         AvatarColor.avatarColor(data.getTargetId()));
     viewBinding.nameTv.setText(name);
-    if (IMKitConfigCenter.getEnableOnlineStatus() && !AIUserManager.isAIUser(data.getTargetId())) {
+    viewBinding.nameTv.setCompoundDrawablesRelativeWithIntrinsicBounds(
+        null,
+        null,
+        UserAIBotManager.isUserAIBot(data.getTargetId())
+            ? ContextCompat.getDrawable(
+                itemView.getContext(), R.drawable.ic_conversation_robot_badge)
+            : null,
+        null);
+    if (IMKitConfigCenter.getEnableOnlineStatus()
+        && !AIUserManager.isAIUser(data.getTargetId())
+        && !UserAIBotManager.isUserAIBot(data.getTargetId())) {
       viewBinding.onlineView.setVisibility(View.VISIBLE);
       if (OnlineStatusManager.isOnlineSubscribe(data.getTargetId())) {
         viewBinding.onlineView.setBackgroundResource(R.drawable.ic_online_status);

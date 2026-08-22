@@ -13,6 +13,12 @@ import java.util.Map;
 /** 消息UI配置 该类用于配置消息的UI属性，如消息背景、消息文字颜色、消息文字大小等 */
 public class MessageProperties {
 
+  public static final int TEXT_LINKIFY_WEB_URLS = 1;
+  public static final int TEXT_LINKIFY_EMAIL_ADDRESSES = 1 << 1;
+  public static final int TEXT_LINKIFY_PHONE_NUMBERS = 1 << 2;
+  public static final int TEXT_LINKIFY_ALL =
+      TEXT_LINKIFY_WEB_URLS | TEXT_LINKIFY_EMAIL_ADDRESSES | TEXT_LINKIFY_PHONE_NUMBERS;
+
   // 接受消息背景
   @Deprecated public Drawable receiveMessageBg;
   // 自己发送消息的背景
@@ -70,6 +76,24 @@ public class MessageProperties {
 
   //发送文件的大小限制，单位MB，默认200MB
   public long sendFileLimit = ChatKitUIConstant.FILE_LIMIT;
+
+  /** 文本消息自动识别配置：null 保持默认识别，0 关闭全部识别，非 0 按 bit mask 启用 URL、邮箱、手机号识别。 */
+  public Integer textLinkifyMask = null;
+
+  // 文本消息自动识别高亮颜色，null 时使用默认蓝色
+  @ColorInt public Integer textLinkColor = null;
+
+  // 文本消息自动识别高亮是否显示下划线，null 时保持默认不显示
+  public Boolean textLinkUnderline = null;
+
+  // 图片/视频缩略图最小宽度占屏幕宽度比例，null 或非法值时保持默认
+  public Float imageThumbMinWidthRatio = null;
+
+  // 图片/视频缩略图最大宽度占屏幕宽度比例，null 或非法值时保持默认
+  public Float imageThumbMaxWidthRatio = null;
+
+  // 图片/视频缩略图最大高度占屏幕高度比例，null 或非法值时保持默认
+  public Float imageThumbMaxHeightRatio = null;
 
   /**
    * 设置接收消息的背景，该方法已过时

@@ -8,10 +8,14 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewbinding.ViewBinding;
+import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
 import com.netease.nimlib.sdk.v2.conversation.model.V2NIMBaseConversation;
+import com.netease.nimlib.sdk.v2.utils.V2NIMConversationIdUtil;
+import com.netease.yunxin.kit.chatkit.cache.FriendUserCache;
 import com.netease.yunxin.kit.contactkit.ui.model.SelectableBean;
 import com.netease.yunxin.kit.contactkit.ui.selector.BaseSelectableViewHolder;
 import com.netease.yunxin.kit.contactkit.ui.selector.SelectableListener;
+import com.netease.yunxin.kit.corekit.im2.model.UserWithFriend;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -95,4 +99,15 @@ public abstract class BaseConversationSelectorAdapter<R extends ViewBinding>
 
   protected abstract void handleBindViewHolder(
       BaseSelectableViewHolder<R> holder, SelectableBean<V2NIMBaseConversation> bean);
+
+  /** P2P default avatars use the user's nickname rather than the friend's alias. */
+  protected String getAvatarName(V2NIMBaseConversation conversation, String conversationName) {
+    if (conversation.getType() != V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P) {
+      return conversationName;
+    }
+    String accountId =
+        V2NIMConversationIdUtil.conversationTargetId(conversation.getConversationId());
+    UserWithFriend friend = FriendUserCache.getFriendByAccount(accountId);
+    return friend == null ? conversationName : friend.getAvatarName();
+  }
 }

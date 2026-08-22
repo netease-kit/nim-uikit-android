@@ -2,5 +2,7 @@
 <resources>
 <item name="tabHasRead" type="id"/>
 <item name="tabUnread" type="id"/>
+<item name="chat_input_panel_animation_token" type="id"/>
+<item name="chat_input_panel_origin_height" type="id"/>
 
 </resources>

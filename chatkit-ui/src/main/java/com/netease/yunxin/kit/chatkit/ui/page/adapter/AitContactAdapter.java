@@ -101,10 +101,10 @@ public class AitContactAdapter extends RecyclerView.Adapter<AitContactAdapter.Ai
     if (member == null) {
       return;
     }
-    String showName = member.getName();
+    String showName = member.getShowName();
     holder.binding.contactName.setText(showName);
     holder.binding.contactHeader.setData(
-        member.getAvatar(), showName, AvatarColor.avatarColor(member.getAccount()));
+        member.getAvatar(), member.getAvatarName(), AvatarColor.avatarColor(member.getAccount()));
     holder
         .binding
         .getRoot()

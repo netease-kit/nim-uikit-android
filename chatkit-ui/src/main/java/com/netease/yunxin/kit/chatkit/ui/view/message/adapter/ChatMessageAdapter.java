@@ -24,6 +24,7 @@ import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.model.MessagePinInfo;
 import com.netease.yunxin.kit.chatkit.ui.ChatMessageType;
+import com.netease.yunxin.kit.chatkit.ui.ChatUIConfig;
 import com.netease.yunxin.kit.chatkit.ui.ChatViewHolderDefaultFactory;
 import com.netease.yunxin.kit.chatkit.ui.IChatFactory;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatUtils;
@@ -57,6 +58,8 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<CommonBaseMessageVi
   private IMessageReader messageReader;
 
   private MessageProperties messageProperties;
+
+  private ChatUIConfig chatUIConfig;
 
   private boolean multiSelect;
 
@@ -105,6 +108,7 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<CommonBaseMessageVi
         holder.setTeamInfo(teamInfo);
         holder.setMultiSelect(multiSelect);
       }
+      holder.setChatUIConfig(chatUIConfig);
       holder.bindData(data, position, payloads);
     }
   }
@@ -124,6 +128,7 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<CommonBaseMessageVi
     }
     holder.setItemClickListener(itemClickListener);
     holder.setProperties(messageProperties);
+    holder.setChatUIConfig(chatUIConfig);
     holder.bindData(data, lastMessage);
   }
 
@@ -153,6 +158,13 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<CommonBaseMessageVi
 
   public void setMessageProperties(MessageProperties messageProperties) {
     this.messageProperties = messageProperties;
+  }
+
+  public void setChatUIConfig(ChatUIConfig config) {
+    chatUIConfig = config;
+    if (config != null && config.messageProperties != null) {
+      messageProperties = config.messageProperties;
+    }
   }
 
   @Override

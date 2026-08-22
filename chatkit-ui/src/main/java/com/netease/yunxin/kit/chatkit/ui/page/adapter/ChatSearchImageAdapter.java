@@ -28,6 +28,7 @@ import com.netease.yunxin.kit.chatkit.ui.model.MessageGroup;
 import com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants;
 import com.netease.yunxin.kit.corekit.im2.model.IMMessageProgress;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -175,7 +176,7 @@ public class ChatSearchImageAdapter extends RecyclerView.Adapter<RecyclerView.Vi
     }
 
     // 倒序删除（从后往前删，避免前面删除导致后面索引偏移）
-    removeIndices.sort((o1, o2) -> o2 - o1);
+    Collections.sort(removeIndices, Collections.reverseOrder());
     for (int index : removeIndices) {
       imageGroups.remove(index);
     }

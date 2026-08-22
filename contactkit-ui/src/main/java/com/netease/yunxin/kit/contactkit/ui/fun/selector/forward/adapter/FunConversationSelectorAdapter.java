@@ -65,7 +65,7 @@ public class FunConversationSelectorAdapter
     holder.binding.avatarView.setCornerRadius(SizeUtils.dp2px(4));
     holder.binding.avatarView.setData(
         bean.data.getAvatar(),
-        conversationName,
+        getAvatarName(bean.data, conversationName),
         AvatarColor.avatarColor(
             V2NIMConversationIdUtil.conversationTargetId(bean.data.getConversationId())));
   }

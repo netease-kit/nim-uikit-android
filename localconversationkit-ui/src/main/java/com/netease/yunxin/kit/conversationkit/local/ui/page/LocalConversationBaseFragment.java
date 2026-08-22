@@ -18,9 +18,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import com.netease.nimlib.sdk.v2.ai.model.V2NIMUserAIBot;
 import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
+import com.netease.nimlib.sdk.v2.utils.V2NIMConversationIdUtil;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
+import com.netease.yunxin.kit.chatkit.manager.UserAIBotEventListener;
 import com.netease.yunxin.kit.chatkit.manager.UserAIBotManager;
 import com.netease.yunxin.kit.common.ui.action.ActionItem;
 import com.netease.yunxin.kit.common.ui.dialog.ListAlertDialog;
@@ -111,6 +114,7 @@ public abstract class LocalConversationBaseFragment extends BaseFragment impleme
     initData();
     bindView();
     registerObserver();
+    UserAIBotManager.addEventListener(userAIBotEventListener);
     // 获取会话数据
     viewModel.getConversationData();
   }
@@ -234,6 +238,7 @@ public abstract class LocalConversationBaseFragment extends BaseFragment impleme
                 : RouterConstant.PATH_CHAT_BOT_SUB_SESSION_LIST_PAGE;
         XKitRouter.withKey(router)
             .withParam(RouterConstant.CHAT_ID_KRY, targetId)
+            .withParam(RouterConstant.KEY_SESSION_NAME, conversation.getConversationName())
             .withParam(
                 RouterConstant.KEY_BOT_SUB_SESSION_CONVERSATION_ID,
                 conversation.getConversationId())
@@ -479,12 +484,35 @@ public abstract class LocalConversationBaseFragment extends BaseFragment impleme
 
   @Override
   public void onDestroyView() {
+    UserAIBotManager.removeEventListener(userAIBotEventListener);
     super.onDestroyView();
     if (networkErrorView != null) {
       NetworkUtils.unregisterNetworkStatusChangedListener(networkStateListener);
     }
     unregisterObserver();
   }
+
+  private final UserAIBotEventListener userAIBotEventListener =
+      new UserAIBotEventListener() {
+        @Override
+        public void onUserAIBotChanged(List<? extends V2NIMUserAIBot> bots) {
+          ConversationView currentView = conversationView;
+          if (currentView != null) {
+            currentView.post(currentView::refreshConversations);
+          }
+        }
+
+        @Override
+        public void onUserAIBotRemoved(String accountId) {
+          ConversationView currentView = conversationView;
+          if (currentView != null) {
+            currentView.post(
+                () ->
+                    currentView.resetBotConversationRouter(
+                        V2NIMConversationIdUtil.p2pConversationId(accountId)));
+          }
+        }
+      };
 
   private final NetworkUtils.NetworkStateListener networkStateListener =
       new NetworkUtils.NetworkStateListener() {

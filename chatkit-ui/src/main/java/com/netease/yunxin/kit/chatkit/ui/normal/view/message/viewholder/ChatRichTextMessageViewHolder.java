@@ -76,11 +76,10 @@ public class ChatRichTextMessageViewHolder extends NormalChatBaseMessageViewHold
                 attachment.body,
                 message.getMessageData().getMessage());
           }
-          // 指定模式（例如只识别电话和邮箱）
           TextLinkifyUtils.addLinks(
-              viewBinding.messageContent, itemClickListener, position, currentMessage);
+              viewBinding.messageContent, itemClickListener, position, currentMessage, properties);
           TextLinkifyUtils.addLinks(
-              viewBinding.messageTitle, itemClickListener, position, currentMessage);
+              viewBinding.messageTitle, itemClickListener, position, currentMessage, properties);
         }
         //    设置选中文本监听回调
         SelectableTextHelper.getInstance()

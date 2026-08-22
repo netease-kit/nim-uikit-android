@@ -139,7 +139,19 @@ public final class BotSubSessionMoreActionHelper {
       @NonNull V2NIMTopic topic,
       @NonNull ChatBotSubSessionViewModel viewModel) {
     showDeleteConfirmDialog(
-        context, BotSubSessionUtils.getTopicTitle(context, topic), viewModel::deleteTopic);
+        context,
+        BotSubSessionUtils.getTopicTitle(context, topic),
+        () ->
+            viewModel.deleteTopic(
+                new FetchCallback<Void>() {
+                  @Override
+                  public void onError(int errorCode, @Nullable String errorMsg) {
+                    ToastX.showShortToast(R.string.chat_bot_sub_session_delete_failed);
+                  }
+
+                  @Override
+                  public void onSuccess(@Nullable Void data) {}
+                }));
   }
 
   public static void showDeleteConfirmDialog(
@@ -154,6 +166,10 @@ public final class BotSubSessionMoreActionHelper {
     binding.cancelButton.setOnClickListener(v -> dialog.dismiss());
     binding.deleteButton.setOnClickListener(
         v -> {
+          if (!NetworkUtils.isConnected()) {
+            ToastX.showShortToast(R.string.chat_network_error_tip);
+            return;
+          }
           dialog.dismiss();
           confirmAction.run();
         });

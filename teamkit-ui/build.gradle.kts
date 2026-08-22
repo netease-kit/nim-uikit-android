@@ -17,7 +17,7 @@ android {
         minSdk = 24
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
-        buildConfigField("String", "versionName", "\"10.9.30\"")
+        buildConfigField("String", "versionName", "\"10.9.50-beta01\"")
     }
 
     buildTypes {
@@ -47,4 +47,3 @@ dependencies {
     implementation("com.github.bumptech.glide:glide:4.13.1")
 
 }
-

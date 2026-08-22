@@ -327,6 +327,12 @@ public class ConversationView extends FrameLayout {
     }
   }
 
+  public void resetBotConversationRouter(String conversationId) {
+    if (adapter != null) {
+      adapter.resetBotConversationRouter(conversationId);
+    }
+  }
+
   /**
    * 添加会话置顶标记
    *
@@ -369,6 +375,12 @@ public class ConversationView extends FrameLayout {
   public void setShowTag(boolean show) {
     if (adapter != null) {
       adapter.setShowTag(show);
+    }
+  }
+
+  public void refreshConversations() {
+    if (adapter != null) {
+      adapter.refreshConversations();
     }
   }
 }

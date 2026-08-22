@@ -27,19 +27,11 @@
         <RelativeLayout
             android:id="@+id/rly_target_language"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/dimen_46_dp"
+            android:layout_height="@dimen/dimen_68_dp"
             android:paddingHorizontal="@dimen/dimen_16_dp">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:gravity="center_vertical"
-                android:text="@string/translation_target_language"
-                android:textColor="@color/color_333333"
-                android:textSize="@dimen/dimen_16_dp"
-                tools:ignore="SpUsage" />
-
             <LinearLayout
+                android:id="@+id/ll_target_language_value"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_alignParentEnd="true"
@@ -63,6 +55,33 @@
 
             </LinearLayout>
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="@dimen/dimen_8_dp"
+                android:layout_toStartOf="@id/ll_target_language_value"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/translation_target_language"
+                    android:textColor="@color/color_333333"
+                    android:textSize="@dimen/dimen_16_dp"
+                    tools:ignore="SpUsage" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/dimen_2_dp"
+                    android:text="@string/translation_target_language_description"
+                    android:textColor="@color/color_999999"
+                    android:textSize="@dimen/dimen_14_dp"
+                    tools:ignore="SpUsage" />
+
+            </LinearLayout>
+
         </RelativeLayout>
 
         <View
@@ -73,17 +92,10 @@
         <!-- 自动翻译 -->
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="@dimen/dimen_46_dp"
-            android:paddingHorizontal="@dimen/dimen_16_dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:gravity="center_vertical"
-                android:text="@string/translation_auto_translate"
-                android:textColor="@color/color_333333"
-                android:textSize="@dimen/dimen_16_dp"
-                tools:ignore="SpUsage" />
+            android:layout_height="wrap_content"
+            android:minHeight="@dimen/dimen_68_dp"
+            android:paddingHorizontal="@dimen/dimen_16_dp"
+            android:paddingVertical="@dimen/dimen_12_dp">
 
             <androidx.appcompat.widget.SwitchCompat
                 android:id="@+id/sc_auto_translate"
@@ -93,6 +105,33 @@
                 android:layout_centerVertical="true"
                 android:thumb="@drawable/switch_thumb_selector"
                 app:track="@drawable/switch_track_selector" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="@dimen/dimen_8_dp"
+                android:layout_toStartOf="@id/sc_auto_translate"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/translation_auto_translate"
+                    android:textColor="@color/color_333333"
+                    android:textSize="@dimen/dimen_16_dp"
+                    tools:ignore="SpUsage" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/dimen_2_dp"
+                    android:text="@string/translation_auto_translate_description"
+                    android:textColor="@color/color_999999"
+                    android:textSize="@dimen/dimen_14_dp"
+                    tools:ignore="SpUsage" />
+
+            </LinearLayout>
 
         </RelativeLayout>
 

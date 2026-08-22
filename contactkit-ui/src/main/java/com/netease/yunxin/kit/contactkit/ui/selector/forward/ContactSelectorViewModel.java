@@ -18,6 +18,7 @@ import com.netease.nimlib.sdk.v2.conversation.result.V2NIMLocalConversationResul
 import com.netease.nimlib.sdk.v2.team.model.V2NIMTeam;
 import com.netease.nimlib.sdk.v2.utils.V2NIMConversationIdUtil;
 import com.netease.yunxin.kit.alog.ALog;
+import com.netease.yunxin.kit.chatkit.manager.UserAIBotManager;
 import com.netease.yunxin.kit.chatkit.model.ConversationSearchInfo;
 import com.netease.yunxin.kit.chatkit.model.FriendSearchInfo;
 import com.netease.yunxin.kit.chatkit.model.RecentForward;
@@ -229,6 +230,9 @@ public class ContactSelectorViewModel extends BaseViewModel {
                 conversationListResult.setStatus(LoadStatus.Success);
                 Set<SelectableBean<V2NIMBaseConversation>> selectableConversation = new HashSet<>();
                 for (V2NIMConversation conversation : data.getConversationList()) {
+                  if (isUserAIBot(conversation)) {
+                    continue;
+                  }
                   SelectableBean<V2NIMBaseConversation> selectableBean =
                       new SelectableBean<>(conversation);
                   //群组会话填充人数
@@ -280,6 +284,9 @@ public class ContactSelectorViewModel extends BaseViewModel {
                 conversationListResult.setStatus(LoadStatus.Success);
                 Set<SelectableBean<V2NIMBaseConversation>> selectableConversation = new HashSet<>();
                 for (V2NIMBaseConversation conversation : data.getConversationList()) {
+                  if (isUserAIBot(conversation)) {
+                    continue;
+                  }
                   SelectableBean<V2NIMBaseConversation> selectableBean =
                       new SelectableBean<>(conversation);
                   //群组会话填充人数
@@ -462,9 +469,11 @@ public class ContactSelectorViewModel extends BaseViewModel {
             recentForwardListResult.setStatus(LoadStatus.Success);
             List<SelectableBean<RecentForward>> selectableRecentForward = new ArrayList<>();
             if (data != null) {
-              allRecentForwardList.addAll(data);
               for (RecentForward recentForward : data) {
-                selectableRecentForward.add(new SelectableBean<>(recentForward));
+                if (!isUserAIBot(recentForward.getSessionId(), recentForward.getSessionType())) {
+                  allRecentForwardList.add(recentForward);
+                  selectableRecentForward.add(new SelectableBean<>(recentForward));
+                }
               }
             }
             recentForwardListResult.setData(selectableRecentForward);
@@ -942,6 +951,9 @@ public class ContactSelectorViewModel extends BaseViewModel {
             List<SelectableBean<V2NIMBaseConversation>> searchConversationList = new ArrayList<>();
             if (data != null && !data.isEmpty()) {
               for (ConversationSearchInfo conversation : data) {
+                if (isUserAIBot(conversation.getConversation())) {
+                  continue;
+                }
                 SelectableBean<V2NIMBaseConversation> conversationBean =
                     new SelectableBean<>(conversation.getConversation());
                 conversationBean.isSelected =
@@ -965,6 +977,19 @@ public class ContactSelectorViewModel extends BaseViewModel {
   public MutableLiveData<FetchResult<List<SelectableBean<V2NIMBaseConversation>>>>
       getConversationListLiveData() {
     return conversationListLiveData;
+  }
+
+  private boolean isUserAIBot(@Nullable V2NIMBaseConversation conversation) {
+    return conversation != null
+        && isUserAIBot(
+            V2NIMConversationIdUtil.conversationTargetId(conversation.getConversationId()),
+            conversation.getType());
+  }
+
+  private boolean isUserAIBot(
+      @Nullable String targetId, @Nullable V2NIMConversationType conversationType) {
+    return conversationType == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P
+        && UserAIBotManager.isUserAIBot(targetId);
   }
 
   public MutableLiveData<FetchResult<List<SelectableBean<V2NIMTeam>>>> getTeamListLiveData() {

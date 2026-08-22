@@ -61,6 +61,13 @@ public class ChatTextMessageViewHolder extends FunChatBaseMessageViewHolder {
   }
 
   @Override
+  protected void onMessageUpdate(ChatMessageBean data) {
+    super.onMessageUpdate(data);
+    setMessageText(data);
+    bindTranslation(data);
+  }
+
+  @Override
   protected boolean needShowMultiSelect() {
     return super.needShowMultiSelect() && !this.currentMessage.AIMessageStreaming();
   }
@@ -91,7 +98,8 @@ public class ChatTextMessageViewHolder extends FunChatBaseMessageViewHolder {
   private void bindTranslation(ChatMessageBean message) {
     com.netease.yunxin.kit.chatkit.model.TranslationInfo info = message.getTranslationInfo();
     boolean hasTranslation =
-        info != null
+        isChatMsg()
+            && info != null
             && !android.text.TextUtils.isEmpty(info.getTranslatedText())
             && message.isTranslationVisible();
     if (hasTranslation) {
@@ -219,10 +227,9 @@ public class ChatTextMessageViewHolder extends FunChatBaseMessageViewHolder {
       textBinding.messageText.setText(
           parent.getContext().getResources().getString(R.string.chat_message_not_support_tips));
     }
-    // 指定模式（例如只识别电话和邮箱）
     if (TextUtils.isEmpty(currentMessage.keyword)) {
       TextLinkifyUtils.addLinks(
-          textBinding.messageText, itemClickListener, position, currentMessage);
+          textBinding.messageText, itemClickListener, position, currentMessage, properties);
     }
   }
 

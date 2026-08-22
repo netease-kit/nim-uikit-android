@@ -5,10 +5,16 @@
 package com.netease.yunxin.kit.conversationkit.ui.model;
 
 import android.text.TextUtils;
+import com.netease.nimlib.sdk.v2.ai.model.V2NIMAIUser;
+import com.netease.nimlib.sdk.v2.ai.model.V2NIMUserAIBot;
 import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
 import com.netease.nimlib.sdk.v2.conversation.model.V2NIMConversation;
 import com.netease.nimlib.sdk.v2.utils.V2NIMConversationIdUtil;
+import com.netease.yunxin.kit.chatkit.cache.FriendUserCache;
+import com.netease.yunxin.kit.chatkit.manager.AIUserManager;
+import com.netease.yunxin.kit.chatkit.manager.UserAIBotManager;
 import com.netease.yunxin.kit.common.ui.viewholder.BaseBean;
+import com.netease.yunxin.kit.corekit.im2.model.UserWithFriend;
 import java.util.Objects;
 
 /** 会话列表数据Bean，封装会话数据，主要用于UI展示 */
@@ -78,6 +84,10 @@ public class ConversationBean extends BaseBean {
   }
 
   public String getConversationName() {
+    String cachedName = getCachedP2PName();
+    if (!TextUtils.isEmpty(cachedName)) {
+      return cachedName;
+    }
     if (infoData != null && !TextUtils.isEmpty(infoData.getName())) {
       return infoData.getName();
     }
@@ -103,11 +113,49 @@ public class ConversationBean extends BaseBean {
    * @return 会话名称，P2P返回对方的昵称，群组返回群名称，如果名称为空返回会话ID
    */
   public String getAvatarName() {
-    if (infoData != null && !TextUtils.isEmpty(this.infoData.getName())) {
-      return this.infoData.getName();
+    if (infoData != null
+        && infoData.getType() == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P) {
+      // P2P 默认头像使用用户昵称或账号，不能使用好友备注。
+      String cachedName = getCachedP2PName();
+      if (!TextUtils.isEmpty(cachedName)) {
+        return cachedName;
+      }
+      UserWithFriend friendInfo = FriendUserCache.getFriendByAccount(getTargetId());
+      if (friendInfo != null) {
+        return friendInfo.getAvatarName();
+      }
     }
+    return getConversationName();
+  }
 
-    return getTargetId();
+  public String getConversationAvatar() {
+    if (infoData == null) {
+      return null;
+    }
+    if (infoData.getType() == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P) {
+      V2NIMUserAIBot bot = UserAIBotManager.getBotById(getTargetId());
+      if (bot != null && !TextUtils.isEmpty(bot.getIcon())) {
+        return bot.getIcon();
+      }
+      V2NIMAIUser aiUser = AIUserManager.getAIUserById(getTargetId());
+      if (aiUser != null && !TextUtils.isEmpty(aiUser.getAvatar())) {
+        return aiUser.getAvatar();
+      }
+    }
+    return infoData.getAvatar();
+  }
+
+  private String getCachedP2PName() {
+    if (infoData == null
+        || infoData.getType() != V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P) {
+      return null;
+    }
+    V2NIMUserAIBot bot = UserAIBotManager.getBotById(getTargetId());
+    if (bot != null && !TextUtils.isEmpty(bot.getName())) {
+      return bot.getName();
+    }
+    V2NIMAIUser aiUser = AIUserManager.getAIUserById(getTargetId());
+    return aiUser == null ? null : aiUser.getName();
   }
 
   public V2NIMConversationType getConversationType() {

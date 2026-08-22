@@ -145,6 +145,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
   protected String mConversationId;
   // 当前会话类型
   private V2NIMConversationType mSessionType;
+  protected boolean destroyed;
   // 是否群聊
   protected boolean mIsTeamGroup = false;
   // 是否显示已读状态
@@ -163,9 +164,9 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
 
   /**
    * 自动翻译：对新收到的消息逐条判断是否满足自动翻译条件，满足则异步触发翻译。 触发条件（全部满足）： 1. autoTranslationEnableTime > 0（开关已开启） 2.
-   * 非自己发送的消息（isSelf == false） 3. 消息类型为文本消息（V2NIM_MESSAGE_TYPE_TEXT） 4. message.createTime >
-   * autoTranslationEnableTime（开关开启后收到的消息） 5. translationInfo == null（尚无翻译缓存，避免重复翻译） 6. 消息 ID 不在
-   * in-flight set 中（无正在进行中的翻译请求）
+   * 非自己发送的消息（isSelf == false） 3. 非 AI 回复消息 4. 消息类型为文本消息（V2NIM_MESSAGE_TYPE_TEXT） 5.
+   * message.createTime > autoTranslationEnableTime（开关开启后收到的消息） 6. translationInfo ==
+   * null（尚无翻译缓存，避免重复翻译） 7. 消息 ID 不在 in-flight set 中（无正在进行中的翻译请求）
    */
   private void autoTranslateIfNeeded(List<ChatMessageBean> chatBeans) {
     long autoTranslationEnableTime = IMKitConfigCenter.INSTANCE.getAutoTranslationEnableTime();
@@ -178,23 +179,26 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
     }
     final String lang = targetLanguage;
     for (ChatMessageBean bean : chatBeans) {
-      if (bean == null || bean.getMessageData() == null) continue;
+      if (!shouldAutoTranslate(bean, autoTranslationEnableTime)) continue;
       V2NIMMessage msg = bean.getMessageData().getMessage();
-      if (msg == null) continue;
-      // 条件 2：非自己发送
-      if (msg.isSelf()) continue;
-      // 条件 3：文本消息
-      if (msg.getMessageType() != V2NIMMessageType.V2NIM_MESSAGE_TYPE_TEXT) continue;
-      // 条件 4：开关开启后收到的消息
-      if (msg.getCreateTime() <= autoTranslationEnableTime) continue;
-      // 条件 5：尚无翻译缓存
-      if (bean.getTranslationInfo() != null) continue;
-      // 条件 6：不在翻译进行中
-      if (translatingMessageIds.contains(msg.getMessageClientId())) continue;
       ALog.i(LIB_TAG, TAG, "autoTranslate: " + msg.getMessageClientId());
       translatingMessageIds.add(msg.getMessageClientId());
       autoTranslateOne(bean, lang);
     }
+  }
+
+  private boolean shouldAutoTranslate(ChatMessageBean bean, long autoTranslationEnableTime) {
+    if (bean == null || bean.getMessageData() == null) {
+      return false;
+    }
+    V2NIMMessage msg = bean.getMessageData().getMessage();
+    return msg != null
+        && !msg.isSelf()
+        && !bean.isAIResponseMsg()
+        && msg.getMessageType() == V2NIMMessageType.V2NIM_MESSAGE_TYPE_TEXT
+        && msg.getCreateTime() > autoTranslationEnableTime
+        && bean.getTranslationInfo() == null
+        && !translatingMessageIds.contains(msg.getMessageClientId());
   }
 
   /**
@@ -230,19 +234,8 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
     int triggered = 0;
     for (ChatMessageBean bean : visibleBeans) {
       if (triggered >= MAX_AUTO_TRANSLATE_PER_SCAN) break;
-      if (bean == null || bean.getMessageData() == null) continue;
+      if (!shouldAutoTranslate(bean, autoTranslationEnableTime)) continue;
       V2NIMMessage msg = bean.getMessageData().getMessage();
-      if (msg == null) continue;
-      // 条件 2：非自己发送
-      if (msg.isSelf()) continue;
-      // 条件 3：文本消息
-      if (msg.getMessageType() != V2NIMMessageType.V2NIM_MESSAGE_TYPE_TEXT) continue;
-      // 条件 4：开关开启后产生的消息
-      if (msg.getCreateTime() <= autoTranslationEnableTime) continue;
-      // 条件 5：尚无翻译缓存
-      if (bean.getTranslationInfo() != null) continue;
-      // 条件 6：不在翻译进行中
-      if (translatingMessageIds.contains(msg.getMessageClientId())) continue;
       ALog.i(LIB_TAG, TAG, "autoTranslateHistory: " + msg.getMessageClientId());
       translatingMessageIds.add(msg.getMessageClientId());
       autoTranslateOne(bean, lang);
@@ -643,6 +636,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
     this.mChatAccountId = accountId;
     this.mConversationId = V2NIMConversationIdUtil.conversationId(accountId, sessionType);
     this.mSessionType = sessionType;
+    this.destroyed = false;
     ALog.i(
         LIB_TAG,
         TAG,
@@ -652,7 +646,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
             + sessionType
             + " conversationId:"
             + mConversationId);
-    ChatUserCache.getInstance().clear();
+    ChatUserCache.getInstance().clearSessionCache(mConversationId);
   }
 
   // 设置当前会话账号，清理未读数
@@ -693,7 +687,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
   // 移除监听
   public void removeListener() {
     ALog.i(LIB_TAG, TAG, "unregisterObservers ");
-    ChatUserCache.getInstance().clear();
+    ChatUserCache.getInstance().clearSessionCache(mConversationId);
     ChatRepo.removeMessageListener(messageListener);
   }
 
@@ -853,10 +847,24 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
   }
 
   public void sendImageOrVideoMessage(Uri uri, Context context) {
-    V2NIMMessage msg = MessageOperateUtils.processUriAndSend(uri, context);
-    if (msg != null) {
-      sendMessage(msg, null, null);
-    }
+    Context appContext =
+        context == null ? IMKitClient.getApplicationContext() : context.getApplicationContext();
+    MessageOperateUtils.processUriAndSendAsync(
+        uri,
+        appContext,
+        new FetchCallback<V2NIMMessage>() {
+          @Override
+          public void onError(int errorCode, @Nullable String errorMsg) {
+            ALog.e(LIB_TAG, TAG, "sendImageOrVideoMessage onError:" + errorMsg);
+          }
+
+          @Override
+          public void onSuccess(@Nullable V2NIMMessage data) {
+            if (data != null) {
+              sendMessage(data, null, null);
+            }
+          }
+        });
   }
 
   // 发送文件消息
@@ -1454,6 +1462,7 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
 
   @Override
   public void onDestroy() {
+    destroyed = true;
     super.onDestroy();
     removeListener();
   }

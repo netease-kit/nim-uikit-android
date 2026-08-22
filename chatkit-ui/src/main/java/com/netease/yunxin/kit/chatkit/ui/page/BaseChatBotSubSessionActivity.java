@@ -7,8 +7,10 @@ package com.netease.yunxin.kit.chatkit.ui.page;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.text.Editable;
@@ -19,16 +21,23 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import com.netease.nimlib.sdk.v2.ai.model.V2NIMUserAIBot;
 import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
 import com.netease.nimlib.sdk.v2.topic.V2NIMTopic;
 import com.netease.nimlib.sdk.v2.utils.V2NIMConversationIdUtil;
+import com.netease.yunxin.kit.chatkit.manager.UserAIBotManager;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.common.BotSubSessionMoreActionHelper;
 import com.netease.yunxin.kit.chatkit.ui.common.BotSubSessionUtils;
@@ -62,7 +71,7 @@ public class BaseChatBotSubSessionActivity extends BaseLocalActivity {
   @Override
   protected void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    changeStatusBarColor(R.color.color_white);
+    setupSystemBars();
     binding = ChatBotSubSessionActivityBinding.inflate(getLayoutInflater());
     setContentView(binding.getRoot());
     accountId = getIntent().getStringExtra(RouterConstant.CHAT_ID_KRY);
@@ -78,8 +87,56 @@ public class BaseChatBotSubSessionActivity extends BaseLocalActivity {
     initViewModel();
   }
 
+  @SuppressWarnings("deprecation")
+  private void setupSystemBars() {
+    int color = ContextCompat.getColor(this, getPageBackgroundColorRes());
+    Window window = getWindow();
+    window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+    window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+    window.setStatusBarColor(color);
+    window.setNavigationBarColor(color);
+    WindowInsetsControllerCompat insetsController =
+        WindowCompat.getInsetsController(window, window.getDecorView());
+    insetsController.setAppearanceLightNavigationBars(true);
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+      window.setNavigationBarDividerColor(color);
+    }
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+      window.setNavigationBarContrastEnforced(false);
+    }
+  }
+
+  protected int getPageBackgroundColorRes() {
+    return R.color.color_white;
+  }
+
+  @Override
+  protected void onNewIntent(Intent intent) {
+    super.onNewIntent(intent);
+    setIntent(intent);
+    String newAccountId = intent.getStringExtra(RouterConstant.CHAT_ID_KRY);
+    if (TextUtils.isEmpty(newAccountId)) {
+      return;
+    }
+    String newConversationId =
+        intent.getStringExtra(RouterConstant.KEY_BOT_SUB_SESSION_CONVERSATION_ID);
+    if (TextUtils.isEmpty(newConversationId)) {
+      newConversationId = V2NIMConversationIdUtil.p2pConversationId(newAccountId);
+    }
+    accountId = newAccountId;
+    conversationId = newConversationId;
+    binding.titleBarView.setTitle(getBotName());
+    binding.searchEditText.setText("");
+    adapter.setSearchKeyword(null);
+    adapter.submitList(null);
+    binding.emptyView.setVisibility(View.GONE);
+    if (viewModel != null) {
+      viewModel.switchConversation(conversationId);
+    }
+  }
+
   private void initView() {
-    binding.titleBarView.setTitle(R.string.chat_bot_sub_session_title);
+    binding.titleBarView.setTitle(getBotName());
     binding.titleBarView.setOnBackIconClickListener(v -> onBackPressed());
     binding.createTopicButton.setOnClickListener(v -> createTopicChat());
     binding.settingButton.setOnClickListener(v -> openSettingPage());
@@ -146,6 +203,7 @@ public class BaseChatBotSubSessionActivity extends BaseLocalActivity {
           public void onTextChanged(CharSequence s, int start, int before, int count) {
             binding.searchClearButton.setVisibility(
                 TextUtils.isEmpty(s) ? View.GONE : View.VISIBLE);
+            adapter.setSearchKeyword(s == null ? null : s.toString());
             if (viewModel != null) {
               viewModel.search(s == null ? null : s.toString());
             }
@@ -155,6 +213,24 @@ public class BaseChatBotSubSessionActivity extends BaseLocalActivity {
           public void afterTextChanged(Editable s) {}
         });
     onListViewReady();
+  }
+
+  private String getBotName() {
+    V2NIMUserAIBot bot = UserAIBotManager.getBotById(accountId);
+    if (bot != null && !TextUtils.isEmpty(bot.getName())) {
+      return bot.getName();
+    }
+    String sessionName = getIntent().getStringExtra(RouterConstant.KEY_SESSION_NAME);
+    if (!TextUtils.isEmpty(sessionName) && !TextUtils.equals(sessionName, accountId)) {
+      return sessionName;
+    }
+    String userName =
+        ChatUserCache.getInstance()
+            .getUserNick(accountId, V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P);
+    if (!TextUtils.isEmpty(userName) && !TextUtils.equals(userName, accountId)) {
+      return userName;
+    }
+    return getString(R.string.chat_bot_sub_session_title);
   }
 
   protected void onListViewReady() {}

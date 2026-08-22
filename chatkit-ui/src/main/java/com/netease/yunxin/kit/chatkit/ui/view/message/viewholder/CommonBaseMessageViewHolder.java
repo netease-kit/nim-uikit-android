@@ -11,6 +11,7 @@ import com.netease.nimlib.sdk.v2.team.model.V2NIMTeam;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant;
 import com.netease.yunxin.kit.chatkit.ui.ChatMessageType;
+import com.netease.yunxin.kit.chatkit.ui.ChatUIConfig;
 import com.netease.yunxin.kit.chatkit.ui.interfaces.IMessageItemClickListener;
 import com.netease.yunxin.kit.chatkit.ui.interfaces.IMessageReader;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
@@ -30,6 +31,8 @@ public abstract class CommonBaseMessageViewHolder extends RecyclerView.ViewHolde
   protected boolean isMultiSelect;
   // 当前支持的自定义配置
   protected MessageProperties properties = new MessageProperties();
+  // 聊天页面 UI 配置
+  protected ChatUIConfig chatUIConfig;
   // 设置点击监听回调集合
   protected IMessageItemClickListener itemClickListener;
   // 用于已读消息回执发送
@@ -98,6 +101,13 @@ public abstract class CommonBaseMessageViewHolder extends RecyclerView.ViewHolde
   public void setProperties(MessageProperties properties) {
     if (properties != null) {
       this.properties = properties;
+    }
+  }
+
+  public void setChatUIConfig(ChatUIConfig config) {
+    chatUIConfig = config;
+    if (config != null && config.messageProperties != null) {
+      properties = config.messageProperties;
     }
   }
 

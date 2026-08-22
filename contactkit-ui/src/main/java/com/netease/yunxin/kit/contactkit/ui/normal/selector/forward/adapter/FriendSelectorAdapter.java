@@ -48,7 +48,7 @@ public class FriendSelectorAdapter
             bean.recordHitInfo));
     holder.binding.avatarView.setData(
         bean.data.getAvatar(),
-        bean.data.getName(),
+        bean.data.getAvatarName(),
         AvatarColor.avatarColor(bean.data.getAccount()));
   }
 }

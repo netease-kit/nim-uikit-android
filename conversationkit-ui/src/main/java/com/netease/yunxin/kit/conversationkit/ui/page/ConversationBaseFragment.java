@@ -18,8 +18,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import com.netease.nimlib.sdk.v2.ai.model.V2NIMUserAIBot;
 import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
+import com.netease.nimlib.sdk.v2.utils.V2NIMConversationIdUtil;
 import com.netease.yunxin.kit.alog.ALog;
+import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
+import com.netease.yunxin.kit.chatkit.manager.UserAIBotEventListener;
 import com.netease.yunxin.kit.chatkit.manager.UserAIBotManager;
 import com.netease.yunxin.kit.common.ui.action.ActionItem;
 import com.netease.yunxin.kit.common.ui.dialog.ListAlertDialog;
@@ -39,14 +43,21 @@ import com.netease.yunxin.kit.conversationkit.ui.common.ConversationHelper;
 import com.netease.yunxin.kit.conversationkit.ui.common.ConversationUtils;
 import com.netease.yunxin.kit.conversationkit.ui.model.AIUserBean;
 import com.netease.yunxin.kit.conversationkit.ui.model.ConversationBean;
+import com.netease.yunxin.kit.conversationkit.ui.model.ConversationGroupBean;
+import com.netease.yunxin.kit.conversationkit.ui.model.ConversationGroupType;
 import com.netease.yunxin.kit.conversationkit.ui.page.interfaces.IConversationCallback;
 import com.netease.yunxin.kit.conversationkit.ui.page.interfaces.ILoadListener;
+import com.netease.yunxin.kit.conversationkit.ui.page.viewmodel.ConversationGroupViewModel;
 import com.netease.yunxin.kit.conversationkit.ui.page.viewmodel.ConversationViewModel;
+import com.netease.yunxin.kit.conversationkit.ui.view.ConversationGroupBar;
 import com.netease.yunxin.kit.conversationkit.ui.view.ConversationView;
+import com.netease.yunxin.kit.corekit.im2.IMKitClient;
 import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -55,6 +66,7 @@ import java.util.List;
  */
 public abstract class ConversationBaseFragment extends BaseFragment implements ILoadListener {
 
+  private static final String UNREAD_TAG = "unread";
   private final String TAG = "ConversationBaseFragment";
   // 会话列表ViewModel，处理业务逻辑
   protected ConversationViewModel viewModel;
@@ -78,10 +90,17 @@ public abstract class ConversationBaseFragment extends BaseFragment implements I
   protected IConversationFactory conversationFactory;
   // 会话列表封装View
   protected ConversationView conversationView;
+  protected ConversationGroupViewModel conversationGroupViewModel;
+  private boolean conversationGroupBarBound;
+  private boolean conversationGroupEnabled;
+  private boolean conversationGroupStateInitialized;
+  protected List<ConversationBean> sourceConversationList = new ArrayList<>();
   // 会话页面顶部TitleBar
   protected TitleBarView titleBarView;
   // 网络错误View，断网情况下设置显示。子类可个性化定制，父类值根据业务数据控制是否展示
   protected View networkErrorView;
+  private boolean networkListenerRegistered;
+  private boolean networkDisconnected;
   // 空数据View，当会话列表为空时显示。子类可个性化定制，父类值根据业务数据控制是否展示
   protected View emptyView;
   protected Comparator<ConversationBean> conversationComparator;
@@ -103,12 +122,15 @@ public abstract class ConversationBaseFragment extends BaseFragment implements I
   @Override
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
-    if (networkErrorView != null) {
+    if (networkErrorView != null || isConversationGroupEnabled()) {
+      networkDisconnected = !NetworkUtils.isConnected();
       NetworkUtils.registerNetworkStatusChangedListener(networkStateListener);
+      networkListenerRegistered = true;
     }
     initData();
     bindView();
     registerObserver();
+    UserAIBotManager.addEventListener(userAIBotEventListener);
     // 获取会话数据
     viewModel.getConversationData();
   }
@@ -123,6 +145,7 @@ public abstract class ConversationBaseFragment extends BaseFragment implements I
       // 设置会话点击事件
       conversationView.setItemClickListener(getViewHolderClickListener());
     }
+    applyConversationGroupConfig();
   }
 
   protected ViewHolderClickListener getViewHolderClickListener() {
@@ -232,6 +255,7 @@ public abstract class ConversationBaseFragment extends BaseFragment implements I
                 : RouterConstant.PATH_CHAT_BOT_SUB_SESSION_LIST_PAGE;
         XKitRouter.withKey(router)
             .withParam(RouterConstant.CHAT_ID_KRY, targetId)
+            .withParam(RouterConstant.KEY_SESSION_NAME, conversation.getConversationName())
             .withParam(
                 RouterConstant.KEY_BOT_SUB_SESSION_CONVERSATION_ID,
                 conversation.getConversationId())
@@ -252,6 +276,9 @@ public abstract class ConversationBaseFragment extends BaseFragment implements I
     if (viewModel != null) {
       viewModel.setConversationFactory(factory);
     }
+    if (conversationGroupViewModel != null) {
+      conversationGroupViewModel.setConversationFactory(factory);
+    }
     if (conversationView != null) {
       conversationView.setViewHolderFactory(factory);
     }
@@ -260,10 +287,13 @@ public abstract class ConversationBaseFragment extends BaseFragment implements I
   // 初始化观察者
   protected void initData() {
     viewModel = new ViewModelProvider(this).get(ConversationViewModel.class);
+    conversationGroupViewModel = new ViewModelProvider(this).get(ConversationGroupViewModel.class);
     conversationComparator = ConversationUtils.getConversationSortOrderComparator();
     viewModel.setComparator(conversationComparator);
+    conversationGroupViewModel.setComparator(conversationComparator);
     if (conversationFactory != null) {
       viewModel.setConversationFactory(conversationFactory);
+      conversationGroupViewModel.setConversationFactory(conversationFactory);
     }
     // 会话列表查询数据变化观察者
     viewModel
@@ -274,10 +304,11 @@ public abstract class ConversationBaseFragment extends BaseFragment implements I
               if (conversationView != null) {
                 if (result.getLoadStatus() == LoadStatus.Success) {
                   if (result.getType() == FetchResult.FetchType.Init) {
-                    conversationView.setData(result.getData());
+                    sourceConversationList = copyConversationList(result.getData());
                   } else if (result.getType() == FetchResult.FetchType.Add) {
-                    conversationView.addData(result.getData());
+                    appendSourceConversations(result.getData());
                   }
+                  renderConversationGroupList();
                   loadData(result.getType(), result.getData());
                   updateEmptyView();
                 }
@@ -289,7 +320,8 @@ public abstract class ConversationBaseFragment extends BaseFragment implements I
           if (conversationView != null) {
             if (result.getLoadStatus() == LoadStatus.Success) {
               ALog.d(LIB_TAG, TAG, "ChangeLiveData");
-              conversationView.update(result.getData());
+              updateSourceConversations(result.getData());
+              renderConversationGroupList();
             }
             updateEmptyView();
           }
@@ -302,11 +334,13 @@ public abstract class ConversationBaseFragment extends BaseFragment implements I
             if (result.getType() == FetchResult.FetchType.Add && conversationView != null) {
               ALog.d(LIB_TAG, TAG, "aitObserver add, Success");
               ConversationHelper.updateAitInfo(result.getData(), true);
+              renderConversationGroupList();
               conversationView.updateAit(result.getData());
             } else if (result.getType() == FetchResult.FetchType.Remove
                 && conversationView != null) {
               ALog.d(LIB_TAG, TAG, "aitObserver remove, Success");
               ConversationHelper.updateAitInfo(result.getData(), false);
+              renderConversationGroupList();
               conversationView.updateAit(result.getData());
             }
           }
@@ -337,7 +371,11 @@ public abstract class ConversationBaseFragment extends BaseFragment implements I
           if (result.getLoadStatus() == LoadStatus.Success) {
             ALog.d(LIB_TAG, TAG, "deleteLiveData, Success");
             if (conversationView != null) {
-              conversationView.remove(result.getData());
+              removeSourceConversations(result.getData());
+              if (conversationGroupViewModel != null) {
+                conversationGroupViewModel.removeCachedConversations(result.getData());
+              }
+              renderConversationGroupList();
             }
             updateEmptyView();
           }
@@ -362,6 +400,261 @@ public abstract class ConversationBaseFragment extends BaseFragment implements I
    * @param data 会话列表数据
    */
   public void loadData(FetchResult.FetchType type, List<ConversationBean> data) {}
+
+  private void bindConversationGroupBar() {
+    if (!isConversationGroupEnabled()
+        || conversationGroupViewModel == null
+        || conversationGroupBarBound) {
+      return;
+    }
+    if (conversationView == null) {
+      return;
+    }
+    conversationGroupBarBound = true;
+    conversationGroupViewModel
+        .getGroupLiveData()
+        .observe(
+            getViewLifecycleOwner(),
+            groups -> {
+              if (!isConversationGroupEnabled()) {
+                return;
+              }
+              ALog.d(
+                  UNREAD_TAG,
+                  "fragment groupLiveData observe groups="
+                      + describeGroups(groups)
+                      + " selected="
+                      + (conversationGroupViewModel.getSelectedGroup() == null
+                          ? "null"
+                          : conversationGroupViewModel.getSelectedGroup().getId()));
+              conversationView.setConversationGroups(
+                  groups,
+                  conversationGroupViewModel.getSelectedGroup() == null
+                      ? ConversationGroupBean.ID_ALL
+                      : conversationGroupViewModel.getSelectedGroup().getId(),
+                  groupClickListener);
+            });
+    conversationGroupViewModel
+        .getSelectedGroupLiveData()
+        .observe(
+            getViewLifecycleOwner(),
+            group -> {
+              if (!isConversationGroupEnabled()) {
+                return;
+              }
+              if (group != null) {
+                conversationView.setSelectedConversationGroup(group.getId());
+                if (group.getType() == ConversationGroupType.CUSTOM) {
+                  if (emptyView != null) {
+                    emptyView.setVisibility(View.GONE);
+                  }
+                  conversationGroupViewModel.loadSelectedGroupConversations(true);
+                }
+              }
+              renderConversationGroupList();
+            });
+    conversationGroupViewModel
+        .getGroupConversationLiveData()
+        .observe(
+            getViewLifecycleOwner(),
+            data -> {
+              if (isConversationGroupEnabled()
+                  && conversationGroupViewModel.isSelectedCustomGroup()) {
+                conversationView.setData(data);
+                updateEmptyView();
+              }
+            });
+    conversationGroupViewModel.loadGroups();
+  }
+
+  private void applyConversationGroupConfig() {
+    boolean enabled = isConversationGroupEnabled();
+    if (conversationGroupStateInitialized && conversationGroupEnabled == enabled) {
+      return;
+    }
+    conversationGroupStateInitialized = true;
+    conversationGroupEnabled = enabled;
+    if (conversationView == null) {
+      return;
+    }
+    if (!enabled) {
+      conversationView.clearConversationGroups();
+      renderConversationGroupList();
+      return;
+    }
+    boolean wasBound = conversationGroupBarBound;
+    bindConversationGroupBar();
+    if (wasBound && conversationGroupViewModel != null) {
+      conversationGroupViewModel.loadGroups();
+    }
+  }
+
+  private boolean isConversationGroupEnabled() {
+    return IMKitClient.enableV2CloudConversation()
+        && IMKitConfigCenter.getEnableConversationGroup();
+  }
+
+  private final ConversationGroupBar.OnGroupClickListener groupClickListener =
+      new ConversationGroupBar.OnGroupClickListener() {
+        @Override
+        public void onGroupClick(ConversationGroupBean group) {
+          conversationGroupViewModel.selectGroup(group);
+        }
+
+        @Override
+        public void onSettingClick() {
+          XKitRouter.withKey(getConversationGroupManagePagePath())
+              .withContext(requireContext())
+              .navigate();
+        }
+      };
+
+  protected String getConversationGroupManagePagePath() {
+    return RouterConstant.PATH_CONVERSATION_GROUP_MANAGE_PAGE;
+  }
+
+  private void renderConversationGroupList() {
+    renderConversationGroupList(true);
+  }
+
+  private void renderConversationGroupList(boolean syncConversations) {
+    ALog.d(
+        UNREAD_TAG,
+        "fragment renderConversationGroupList sync="
+            + syncConversations
+            + " sourceSize="
+            + (sourceConversationList == null ? 0 : sourceConversationList.size())
+            + " selected="
+            + (conversationGroupViewModel == null
+                    || conversationGroupViewModel.getSelectedGroup() == null
+                ? "null"
+                : conversationGroupViewModel.getSelectedGroup().getId()));
+    if (conversationView == null) {
+      return;
+    }
+    if (!isConversationGroupEnabled() || conversationGroupViewModel == null) {
+      conversationView.setData(sourceConversationList);
+      updateEmptyView();
+      return;
+    }
+    List<ConversationBean> source =
+        syncConversations
+            ? sourceConversationList
+            : conversationGroupViewModel.getCurrentConversations();
+    if (syncConversations) {
+      conversationGroupViewModel.setCurrentConversations(sourceConversationList);
+    }
+    if (conversationGroupViewModel.isSelectedCustomGroup()) {
+      List<ConversationBean> customGroupConversations =
+          conversationGroupViewModel.getSelectedGroupConversations();
+      conversationView.setData(customGroupConversations);
+      if (customGroupConversations.isEmpty()
+          && conversationGroupViewModel.hasMoreSelectedGroupConversations()) {
+        conversationGroupViewModel.loadSelectedGroupConversations(false);
+      }
+      return;
+    } else {
+      List<ConversationBean> filteredConversations =
+          conversationGroupViewModel.filterCurrentGroup(source);
+      ALog.d(
+          UNREAD_TAG,
+          "fragment render filtered size="
+              + filteredConversations.size()
+              + " sourceSize="
+              + (source == null ? 0 : source.size()));
+      conversationView.setData(filteredConversations);
+      if (filteredConversations.isEmpty()
+          && conversationGroupViewModel.isSelectedVirtualFilterGroup()
+          && viewModel.hasMore()) {
+        viewModel.loadMore();
+      }
+    }
+    updateEmptyView();
+  }
+
+  private String describeGroups(List<ConversationGroupBean> groups) {
+    if (groups == null) {
+      return "null";
+    }
+    StringBuilder builder = new StringBuilder("[");
+    for (int index = 0; index < groups.size(); index++) {
+      ConversationGroupBean group = groups.get(index);
+      if (index > 0) {
+        builder.append(", ");
+      }
+      if (group == null) {
+        builder.append("null");
+      } else {
+        builder
+            .append("{id=")
+            .append(group.getId())
+            .append(", type=")
+            .append(group.getType())
+            .append(", visible=")
+            .append(group.isVisible())
+            .append(", unread=")
+            .append(group.getUnreadOrCount())
+            .append("}");
+      }
+    }
+    builder.append("]");
+    return builder.toString();
+  }
+
+  private List<ConversationBean> copyConversationList(List<ConversationBean> data) {
+    return data == null ? new ArrayList<>() : new ArrayList<>(data);
+  }
+
+  private void appendSourceConversations(List<ConversationBean> data) {
+    if (data == null || data.isEmpty()) {
+      return;
+    }
+    sourceConversationList.addAll(data);
+    sortSourceConversations();
+  }
+
+  private void updateSourceConversations(List<ConversationBean> data) {
+    if (data == null || data.isEmpty()) {
+      return;
+    }
+    for (ConversationBean bean : data) {
+      int index = indexOfSourceConversation(bean.getConversationId());
+      if (index >= 0) {
+        sourceConversationList.set(index, bean);
+      } else {
+        sourceConversationList.add(bean);
+      }
+    }
+    sortSourceConversations();
+  }
+
+  private void removeSourceConversations(List<String> conversationIds) {
+    if (conversationIds == null || conversationIds.isEmpty()) {
+      return;
+    }
+    Iterator<ConversationBean> iterator = sourceConversationList.iterator();
+    while (iterator.hasNext()) {
+      ConversationBean bean = iterator.next();
+      if (conversationIds.contains(bean.getConversationId())) {
+        iterator.remove();
+      }
+    }
+  }
+
+  private int indexOfSourceConversation(String conversationId) {
+    for (int i = 0; i < sourceConversationList.size(); i++) {
+      if (TextUtils.equals(sourceConversationList.get(i).getConversationId(), conversationId)) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  private void sortSourceConversations() {
+    if (conversationComparator != null) {
+      Collections.sort(sourceConversationList, conversationComparator);
+    }
+  }
 
   /**
    * 加载AI数字人员数据
@@ -389,6 +682,7 @@ public abstract class ConversationBaseFragment extends BaseFragment implements I
   @Override
   public void onResume() {
     super.onResume();
+    applyConversationGroupConfig();
     checkNetwork();
   }
 
@@ -477,38 +771,75 @@ public abstract class ConversationBaseFragment extends BaseFragment implements I
 
   @Override
   public void onDestroyView() {
+    UserAIBotManager.removeEventListener(userAIBotEventListener);
+    conversationGroupBarBound = false;
+    conversationGroupStateInitialized = false;
     super.onDestroyView();
-    if (networkErrorView != null) {
+    if (networkListenerRegistered) {
       NetworkUtils.unregisterNetworkStatusChangedListener(networkStateListener);
+      networkListenerRegistered = false;
     }
     unregisterObserver();
   }
+
+  private final UserAIBotEventListener userAIBotEventListener =
+      new UserAIBotEventListener() {
+        @Override
+        public void onUserAIBotChanged(List<? extends V2NIMUserAIBot> bots) {
+          ConversationView currentView = conversationView;
+          if (currentView != null) {
+            currentView.post(currentView::refreshConversations);
+          }
+        }
+
+        @Override
+        public void onUserAIBotRemoved(String accountId) {
+          ConversationView currentView = conversationView;
+          if (currentView != null) {
+            currentView.post(
+                () ->
+                    currentView.resetBotConversationRouter(
+                        V2NIMConversationIdUtil.p2pConversationId(accountId)));
+          }
+        }
+      };
 
   private final NetworkUtils.NetworkStateListener networkStateListener =
       new NetworkUtils.NetworkStateListener() {
 
         @Override
         public void onConnected(NetworkUtils.NetworkType networkType) {
-          if (networkErrorView == null) {
-            return;
+          boolean shouldReloadGroups = networkDisconnected;
+          networkDisconnected = false;
+          if (networkErrorView != null) {
+            networkErrorView.setVisibility(View.GONE);
           }
-          networkErrorView.setVisibility(View.GONE);
+          if (shouldReloadGroups
+              && isConversationGroupEnabled()
+              && conversationGroupViewModel != null) {
+            ALog.d(UNREAD_TAG, "network reconnected, reload conversation groups");
+            conversationGroupViewModel.loadGroups();
+          }
         }
 
         @Override
         public void onDisconnected() {
-          if (networkErrorView == null) {
-            return;
+          networkDisconnected = true;
+          if (networkErrorView != null) {
+            networkErrorView.setVisibility(View.VISIBLE);
           }
-          networkErrorView.setVisibility(View.VISIBLE);
         }
       };
 
   private void checkNetwork() {
+    boolean connected = NetworkUtils.isConnected();
+    if (!connected) {
+      networkDisconnected = true;
+    }
     if (networkErrorView == null) {
       return;
     }
-    if (NetworkUtils.isConnected()) {
+    if (connected) {
       networkErrorView.setVisibility(View.GONE);
     } else {
       networkErrorView.setVisibility(View.VISIBLE);
@@ -518,13 +849,24 @@ public abstract class ConversationBaseFragment extends BaseFragment implements I
   // 是否有更多数据
   @Override
   public boolean hasMore() {
+    if (isConversationGroupEnabled()
+        && conversationGroupViewModel != null
+        && conversationGroupViewModel.isSelectedCustomGroup()) {
+      return conversationGroupViewModel.hasMoreSelectedGroupConversations();
+    }
     return viewModel.hasMore();
   }
 
   // 加载下一页数据
   @Override
   public void loadMore(Object last) {
-    viewModel.loadMore();
+    if (isConversationGroupEnabled()
+        && conversationGroupViewModel != null
+        && conversationGroupViewModel.isSelectedCustomGroup()) {
+      conversationGroupViewModel.loadSelectedGroupConversations(false);
+    } else {
+      viewModel.loadMore();
+    }
   }
 
   @Override

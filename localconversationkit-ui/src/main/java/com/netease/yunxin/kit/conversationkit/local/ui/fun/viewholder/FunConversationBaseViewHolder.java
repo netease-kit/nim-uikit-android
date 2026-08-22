@@ -60,25 +60,19 @@ public class FunConversationBaseViewHolder extends BaseViewHolder<ConversationBe
       viewBinding.rootLayout.setBackground(itemDrawable); // 普通项背景
     }
 
-    // 处理消息免打扰状态
-    if (data.infoData.isMute()) {
-      // 免打扰时显示免打扰图标，隐藏未读计数
-      viewBinding.muteIv.setVisibility(View.VISIBLE);
+    int unreadCount = data.infoData.getUnreadCount();
+    boolean isMute = data.infoData.isMute();
+    viewBinding.muteIv.setVisibility(isMute ? View.VISIBLE : View.GONE);
+    if (unreadCount <= 0) {
       viewBinding.unreadTv.setVisibility(View.GONE);
+      viewBinding.muteUnreadDot.setVisibility(View.GONE);
+    } else if (isMute) {
+      viewBinding.unreadTv.setVisibility(View.GONE);
+      viewBinding.muteUnreadDot.setVisibility(View.VISIBLE);
     } else {
-      // 非免打扰时隐藏免打扰图标，根据未读数量显示未读计数
-      viewBinding.muteIv.setVisibility(View.GONE);
-      if (data.infoData.getUnreadCount() > 0) {
-        // 未读数量≥100时显示"99+"，否则显示具体数字
-        String content =
-            data.infoData.getUnreadCount() >= 100
-                ? "99+"
-                : String.valueOf(data.infoData.getUnreadCount());
-        viewBinding.unreadTv.setText(content);
-        viewBinding.unreadTv.setVisibility(View.VISIBLE);
-      } else {
-        viewBinding.unreadTv.setVisibility(View.GONE); // 无未读时隐藏计数
-      }
+      viewBinding.muteUnreadDot.setVisibility(View.GONE);
+      viewBinding.unreadTv.setText(unreadCount >= 100 ? "99+" : String.valueOf(unreadCount));
+      viewBinding.unreadTv.setVisibility(View.VISIBLE);
     }
 
     // 设置最后一条消息内容（通过工具类获取格式化文本）

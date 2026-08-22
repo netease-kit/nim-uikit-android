@@ -54,6 +54,13 @@ public class AitContactSelectorDialog extends BottomSheetDialog {
     switchStyle();
   }
 
+  @Override
+  public void show() {
+    binding.contactList.stopScroll();
+    layoutManager.scrollToPositionWithOffset(0, 0);
+    super.show();
+  }
+
   private void initViews() {
     binding.contactArrowIcon.setOnClickListener(v -> dismiss());
     layoutManager = new LinearLayoutManager(getContext());

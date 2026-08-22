@@ -15,6 +15,7 @@ import com.netease.nimlib.sdk.v2.message.V2NIMMessage;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessageDeletedNotification;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMQueryDirection;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMSortOrder;
+import com.netease.nimlib.sdk.v2.message.result.V2NIMThreadMessageListResult;
 import com.netease.nimlib.sdk.v2.topic.V2NIMTopic;
 import com.netease.nimlib.sdk.v2.topic.V2NIMTopicListener;
 import com.netease.nimlib.sdk.v2.topic.V2NIMTopicRefer;
@@ -75,6 +76,7 @@ public class ChatBotSubSessionListViewModel extends BaseViewModel {
   private boolean topicListLoaded;
   private int runningSummaryCount;
   private int summaryRequestVersion;
+  private int conversationRequestVersion;
   private String keyword = "";
   private long conversationReadTime;
   private boolean messageListenerAdded;
@@ -117,6 +119,7 @@ public class ChatBotSubSessionListViewModel extends BaseViewModel {
                 topic.getTopicId(),
                 new BotSubSessionItem(
                     topic,
+                    oldItem == null ? null : oldItem.getFallbackTitle(),
                     oldItem == null ? null : oldItem.getSummary(),
                     oldItem == null ? topic.getUpdateTime() : oldItem.getTime(),
                     oldItem != null && oldItem.hasUnread()));
@@ -144,7 +147,9 @@ public class ChatBotSubSessionListViewModel extends BaseViewModel {
         @Override
         public void onMessageDeletedNotifications(
             @NonNull List<? extends V2NIMMessageDeletedNotification> messages) {
-          // Ignore delete notifications for sub-session list refresh.
+          if (containsCurrentConversation(messages)) {
+            refreshSummaries();
+          }
         }
 
         @Override
@@ -153,6 +158,21 @@ public class ChatBotSubSessionListViewModel extends BaseViewModel {
           refreshTopicSummariesByRevokeNotifications(revokeNotifications);
         }
       };
+
+  private boolean containsCurrentConversation(
+      @Nullable List<? extends V2NIMMessageDeletedNotification> notifications) {
+    if (notifications == null) {
+      return false;
+    }
+    for (V2NIMMessageDeletedNotification notification : notifications) {
+      if (notification != null
+          && notification.getMessageRefer() != null
+          && TextUtils.equals(notification.getMessageRefer().getConversationId(), conversationId)) {
+        return true;
+      }
+    }
+    return false;
+  }
 
   private final ConversationListenerImpl conversationListener =
       new ConversationListenerImpl() {
@@ -182,6 +202,25 @@ public class ChatBotSubSessionListViewModel extends BaseViewModel {
     LocalConversationRepo.addConversationListener(localConversationListener);
   }
 
+  public void switchConversation(@NonNull String conversationId) {
+    if (!TextUtils.equals(this.conversationId, conversationId)) {
+      conversationRequestVersion++;
+      this.conversationId = conversationId;
+      loading = false;
+      topicListLoaded = false;
+      nextToken = null;
+      hasMore = false;
+      keyword = "";
+      conversationReadTime = 0;
+      allTopics.clear();
+      itemMap.clear();
+      latestMessageFromSelfMap.clear();
+      clearSummaryRequests();
+    }
+    loadTopics();
+    refreshUnreadState();
+  }
+
   public boolean hasMore() {
     return hasMore;
   }
@@ -199,6 +238,7 @@ public class ChatBotSubSessionListViewModel extends BaseViewModel {
     latestMessageFromSelfMap.clear();
     clearSummaryRequests();
     postLoading(FetchResult.FetchType.Init);
+    final int requestVersion = conversationRequestVersion;
     V2NIMTopicListOption option =
         new V2NIMTopicListOption(
             conversationId, 0, 0, null, PAGE_SIZE, V2NIMQueryDirection.V2NIM_QUERY_DIRECTION_DESC);
@@ -207,12 +247,18 @@ public class ChatBotSubSessionListViewModel extends BaseViewModel {
         new FetchCallback<V2NIMTopicListResult>() {
           @Override
           public void onError(int errorCode, @Nullable String errorMsg) {
+            if (requestVersion != conversationRequestVersion) {
+              return;
+            }
             loading = false;
             postError(errorCode, FetchResult.FetchType.Init);
           }
 
           @Override
           public void onSuccess(@Nullable V2NIMTopicListResult data) {
+            if (requestVersion != conversationRequestVersion) {
+              return;
+            }
             loading = false;
             topicListLoaded = true;
             List<V2NIMTopic> topics = data == null ? null : data.getTopicList();
@@ -234,6 +280,7 @@ public class ChatBotSubSessionListViewModel extends BaseViewModel {
       return;
     }
     loading = true;
+    final int requestVersion = conversationRequestVersion;
     V2NIMTopicListOption option =
         new V2NIMTopicListOption(
             conversationId,
@@ -247,12 +294,18 @@ public class ChatBotSubSessionListViewModel extends BaseViewModel {
         new FetchCallback<V2NIMTopicListResult>() {
           @Override
           public void onError(int errorCode, @Nullable String errorMsg) {
+            if (requestVersion != conversationRequestVersion) {
+              return;
+            }
             loading = false;
             postError(errorCode, FetchResult.FetchType.Add);
           }
 
           @Override
           public void onSuccess(@Nullable V2NIMTopicListResult data) {
+            if (requestVersion != conversationRequestVersion) {
+              return;
+            }
             loading = false;
             List<V2NIMTopic> topics = data == null ? null : data.getTopicList();
             if (topics != null) {
@@ -363,6 +416,7 @@ public class ChatBotSubSessionListViewModel extends BaseViewModel {
                   data.getTopicId(),
                   new BotSubSessionItem(
                       data,
+                      oldItem == null ? null : oldItem.getFallbackTitle(),
                       oldItem == null ? null : oldItem.getSummary(),
                       oldItem == null ? data.getUpdateTime() : oldItem.getTime(),
                       oldItem != null && oldItem.hasUnread()));
@@ -433,6 +487,37 @@ public class ChatBotSubSessionListViewModel extends BaseViewModel {
     }
     final int requestVersion = summaryRequestVersion;
     runningSummaryCount++;
+    ChatRepo.getLocalThreadMessageListByRootMessageClientId(
+        topic.getMessageClientId(),
+        new FetchCallback<V2NIMThreadMessageListResult>() {
+          @Override
+          public void onError(int errorCode, @Nullable String errorMsg) {
+            if (requestVersion != summaryRequestVersion) {
+              return;
+            }
+            loadTopicSummaryFromTopic(topic, requestVersion);
+          }
+
+          @Override
+          public void onSuccess(@Nullable V2NIMThreadMessageListResult data) {
+            if (requestVersion != summaryRequestVersion) {
+              return;
+            }
+            V2NIMMessage localMessage =
+                data == null || data.getReplyList() == null || data.getReplyList().isEmpty()
+                    ? null
+                    : findLatestMessage(data.getReplyList());
+            if (localMessage != null) {
+              updateSummaryItem(topic, localMessage);
+              finishSummaryRequest();
+              return;
+            }
+            loadTopicSummaryFromTopic(topic, requestVersion);
+          }
+        });
+  }
+
+  private void loadTopicSummaryFromTopic(@NonNull V2NIMTopic topic, int requestVersion) {
     V2NIMTopicMessageListOption option =
         new V2NIMTopicMessageListOption(
             topic,
@@ -474,6 +559,10 @@ public class ChatBotSubSessionListViewModel extends BaseViewModel {
     long topicId = topic.getTopicId();
     String summary =
         BotSubSessionUtils.getMessageSummary(IMKitClient.getApplicationContext(), message);
+    String fallbackTitle =
+        message == null
+            ? null
+            : BotSubSessionUtils.buildAutoTopicName(IMKitClient.getApplicationContext(), message);
     long time = message == null ? topic.getUpdateTime() : message.getCreateTime();
     boolean fromSelf =
         message != null && TextUtils.equals(message.getSenderId(), IMKitClient.account());
@@ -489,7 +578,7 @@ public class ChatBotSubSessionListViewModel extends BaseViewModel {
             || !TextUtils.equals(oldItem.getSummary(), summary)
             || oldItem.getTime() != time
             || oldItem.hasUnread() != hasUnread;
-    itemMap.put(topicId, new BotSubSessionItem(topic, summary, time, hasUnread));
+    itemMap.put(topicId, new BotSubSessionItem(topic, fallbackTitle, summary, time, hasUnread));
     if (changed) {
       publishFiltered(FetchResult.FetchType.Update, LoadStatus.Success);
     }
@@ -599,6 +688,7 @@ public class ChatBotSubSessionListViewModel extends BaseViewModel {
     if (TextUtils.isEmpty(conversationId)) {
       return;
     }
+    final int requestVersion = conversationRequestVersion;
     ConversationRepo.getConversation(
         conversationId,
         new FetchCallback<V2NIMConversation>() {
@@ -609,6 +699,9 @@ public class ChatBotSubSessionListViewModel extends BaseViewModel {
 
           @Override
           public void onSuccess(@Nullable V2NIMConversation data) {
+            if (requestVersion != conversationRequestVersion) {
+              return;
+            }
             conversationReadTime = data == null ? 0 : data.getLastReadTime();
             refreshUnreadStateForItems();
             publishUnreadStateIfTopicListLoaded();
@@ -620,6 +713,7 @@ public class ChatBotSubSessionListViewModel extends BaseViewModel {
     if (TextUtils.isEmpty(conversationId)) {
       return;
     }
+    final int requestVersion = conversationRequestVersion;
     LocalConversationRepo.getConversationReadTime(
         conversationId,
         new FetchCallback<Long>() {
@@ -630,6 +724,9 @@ public class ChatBotSubSessionListViewModel extends BaseViewModel {
 
           @Override
           public void onSuccess(@Nullable Long data) {
+            if (requestVersion != conversationRequestVersion) {
+              return;
+            }
             conversationReadTime = data == null ? 0 : data;
             refreshUnreadStateForItems();
             publishUnreadStateIfTopicListLoaded();
@@ -745,6 +842,7 @@ public class ChatBotSubSessionListViewModel extends BaseViewModel {
           topic.getTopicId(),
           new BotSubSessionItem(
               item.getTopic(),
+              item.getFallbackTitle(),
               item.getSummary(),
               item.getTime(),
               isTopicUnread(item.getTopic(), item.getTime())));
@@ -768,7 +866,9 @@ public class ChatBotSubSessionListViewModel extends BaseViewModel {
         item = new BotSubSessionItem(topic, null, topic.getUpdateTime(), false);
         itemMap.put(topic.getTopicId(), item);
       }
-      String title = topic.getTopicName() == null ? "" : topic.getTopicName();
+      String title =
+          BotSubSessionUtils.getTopicTitle(
+              IMKitClient.getApplicationContext(), topic, item.getFallbackTitle());
       if (TextUtils.isEmpty(lowerKeyword)
           || title.toLowerCase(Locale.getDefault()).contains(lowerKeyword)) {
         result.add(item);

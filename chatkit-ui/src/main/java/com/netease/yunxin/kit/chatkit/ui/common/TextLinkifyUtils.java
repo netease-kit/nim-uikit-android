@@ -19,9 +19,11 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.TextView;
 import androidx.core.content.ContextCompat;
+import com.netease.yunxin.kit.chatkit.ui.ChatKitClient;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.interfaces.IMessageItemClickListener;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
+import com.netease.yunxin.kit.chatkit.ui.view.message.MessageProperties;
 
 public class TextLinkifyUtils {
 
@@ -30,13 +32,26 @@ public class TextLinkifyUtils {
       IMessageItemClickListener itemClickListener,
       int position,
       ChatMessageBean currentMessage) {
+    addLinks(textView, itemClickListener, position, currentMessage, getGlobalMessageProperties());
+  }
+
+  public static void addLinks(
+      TextView textView,
+      IMessageItemClickListener itemClickListener,
+      int position,
+      ChatMessageBean currentMessage,
+      MessageProperties properties) {
+    int mask = getTextLinkifyMask(properties);
+    if (mask == 0) {
+      textView.setMovementMethod(null);
+      return;
+    }
     SpannableString spannable = new SpannableString(textView.getText());
-    Linkify.addLinks(spannable, Linkify.EMAIL_ADDRESSES | Linkify.WEB_URLS);
-    Linkify.addLinks(spannable, PHONE_NUMBER_PATTERN, TEL_SCHEME);
+    addLinksByMask(spannable, mask);
 
     // 2. 移除默认的 ClickableSpan，替换为自定义的
     replaceClickableSpans(
-        spannable, textView.getContext(), itemClickListener, position, currentMessage);
+        spannable, textView.getContext(), itemClickListener, position, currentMessage, properties);
     textView.setText(spannable);
     textView.setMovementMethod(
         new LinkMovementMethod() {
@@ -82,9 +97,17 @@ public class TextLinkifyUtils {
   }
 
   public static void addLinks(TextView textView) {
+    addLinks(textView, getGlobalMessageProperties());
+  }
+
+  public static void addLinks(TextView textView, MessageProperties properties) {
+    int mask = getTextLinkifyMask(properties);
+    if (mask == 0) {
+      textView.setMovementMethod(null);
+      return;
+    }
     SpannableString spannable = new SpannableString(textView.getText());
-    Linkify.addLinks(spannable, Linkify.EMAIL_ADDRESSES | Linkify.WEB_URLS);
-    Linkify.addLinks(textView, PHONE_NUMBER_PATTERN, TEL_SCHEME);
+    addLinksByMask(spannable, mask);
 
     // 3. 设置自定义的 MovementMethod（可选，用于处理点击）
     textView.setText(spannable);
@@ -97,7 +120,8 @@ public class TextLinkifyUtils {
       Context context,
       IMessageItemClickListener itemClickListener,
       int position,
-      ChatMessageBean currentMessage) {
+      ChatMessageBean currentMessage,
+      MessageProperties properties) {
     // 获取所有默认的 URLSpan（Linkify 生成的链接）
     URLSpan[] spans = spannable.getSpans(0, spannable.length(), URLSpan.class);
     for (URLSpan span : spans) {
@@ -121,8 +145,8 @@ public class TextLinkifyUtils {
             @Override
             public void updateDrawState(TextPaint ds) {
               super.updateDrawState(ds);
-              ds.setUnderlineText(false); // 去掉下划线
-              ds.setColor(ContextCompat.getColor(context, R.color.color_007aff)); // 设置链接颜色
+              ds.setUnderlineText(Boolean.TRUE.equals(getTextLinkUnderline(properties)));
+              ds.setColor(getTextLinkColor(context, properties));
             }
           };
 
@@ -130,5 +154,49 @@ public class TextLinkifyUtils {
       spannable.removeSpan(span);
       spannable.setSpan(customSpan, start, end, flags);
     }
+  }
+
+  private static void addLinksByMask(Spannable spannable, int mask) {
+    int systemMask = 0;
+    if ((mask & MessageProperties.TEXT_LINKIFY_EMAIL_ADDRESSES) != 0) {
+      systemMask |= Linkify.EMAIL_ADDRESSES;
+    }
+    if ((mask & MessageProperties.TEXT_LINKIFY_WEB_URLS) != 0) {
+      systemMask |= Linkify.WEB_URLS;
+    }
+    if (systemMask != 0) {
+      Linkify.addLinks(spannable, systemMask);
+    }
+    if ((mask & MessageProperties.TEXT_LINKIFY_PHONE_NUMBERS) != 0) {
+      Linkify.addLinks(spannable, PHONE_NUMBER_PATTERN, TEL_SCHEME);
+    }
+  }
+
+  private static int getTextLinkifyMask(MessageProperties properties) {
+    if (properties != null && properties.textLinkifyMask != null) {
+      return properties.textLinkifyMask;
+    }
+    return MessageProperties.TEXT_LINKIFY_ALL;
+  }
+
+  private static int getTextLinkColor(Context context, MessageProperties properties) {
+    if (properties != null && properties.textLinkColor != null) {
+      return properties.textLinkColor;
+    }
+    return ContextCompat.getColor(context, R.color.color_007aff);
+  }
+
+  private static Boolean getTextLinkUnderline(MessageProperties properties) {
+    if (properties != null) {
+      return properties.textLinkUnderline;
+    }
+    return false;
+  }
+
+  private static MessageProperties getGlobalMessageProperties() {
+    if (ChatKitClient.getChatUIConfig() != null) {
+      return ChatKitClient.getChatUIConfig().messageProperties;
+    }
+    return null;
   }
 }

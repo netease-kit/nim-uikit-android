@@ -8,6 +8,7 @@ import static com.netease.yunxin.kit.conversationkit.ui.common.ConversationConst
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import androidx.annotation.NonNull;
@@ -19,6 +20,7 @@ import com.netease.yunxin.kit.common.ui.viewholder.ViewHolderClickListener;
 import com.netease.yunxin.kit.conversationkit.ui.IConversationFactory;
 import com.netease.yunxin.kit.conversationkit.ui.R;
 import com.netease.yunxin.kit.conversationkit.ui.model.ConversationBean;
+import com.netease.yunxin.kit.conversationkit.ui.model.ConversationGroupBean;
 import com.netease.yunxin.kit.conversationkit.ui.model.ConversationHeaderBean;
 import com.netease.yunxin.kit.conversationkit.ui.page.interfaces.ILoadListener;
 import java.util.Comparator;
@@ -30,6 +32,7 @@ public class ConversationView extends FrameLayout {
   private final String TAG = "ConversationView";
   private RecyclerView recyclerView;
   private ConversationAdapter adapter;
+  private ConversationGroupBar stickyGroupBar;
   private ILoadListener loadMoreListener;
   private final int LOAD_MORE_DIFF = 5;
 
@@ -61,6 +64,12 @@ public class ConversationView extends FrameLayout {
         recyclerView,
         new FrameLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+    stickyGroupBar = new ConversationGroupBar(getContext());
+    stickyGroupBar.setVisibility(View.GONE);
+    this.addView(
+        stickyGroupBar,
+        new FrameLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
     conversationLayoutManager = new LinearLayoutManager(getContext());
     adapter = new ConversationAdapter(conversationLayoutManager);
     recyclerView.setLayoutManager(conversationLayoutManager);
@@ -88,6 +97,7 @@ public class ConversationView extends FrameLayout {
           @Override
           public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
             super.onScrolled(recyclerView, dx, dy);
+            updateStickyGroupBarVisibility();
           }
         });
   }
@@ -127,6 +137,51 @@ public class ConversationView extends FrameLayout {
   public void setHeaderData(List<ConversationHeaderBean> data) {
     if (adapter != null) {
       adapter.setHeaderData(data);
+      updateStickyGroupBarVisibility();
+    }
+  }
+
+  public void setConversationGroups(
+      List<ConversationGroupBean> groups,
+      String selectedGroupId,
+      ConversationGroupBar.OnGroupClickListener listener) {
+    if (adapter != null) {
+      adapter.setConversationGroups(groups, selectedGroupId, listener);
+      stickyGroupBar.setOnGroupClickListener(listener);
+      stickyGroupBar.setGroupsAndSelected(groups, selectedGroupId);
+      updateStickyGroupBarVisibility();
+    }
+  }
+
+  public void clearConversationGroups() {
+    if (adapter != null) {
+      adapter.setConversationGroups(null, ConversationGroupBean.ID_ALL, null);
+    }
+    if (stickyGroupBar != null) {
+      stickyGroupBar.setVisibility(View.GONE);
+    }
+  }
+
+  public void setConversationGroupBarBackgroundColorRes(int colorRes) {
+    if (stickyGroupBar != null) {
+      stickyGroupBar.setBackgroundColorRes(colorRes);
+    }
+  }
+
+  public void setConversationGroupBarFunStyle(boolean funStyle) {
+    if (adapter != null) {
+      adapter.setConversationGroupBarFunStyle(funStyle);
+    }
+    if (stickyGroupBar != null) {
+      stickyGroupBar.setFunStyle(funStyle);
+    }
+  }
+
+  public void setSelectedConversationGroup(String selectedGroupId) {
+    if (adapter != null) {
+      adapter.setSelectedGroupId(selectedGroupId);
+      stickyGroupBar.setSelectedId(selectedGroupId);
+      updateStickyGroupBarVisibility();
     }
   }
 
@@ -164,6 +219,12 @@ public class ConversationView extends FrameLayout {
   public void updateConversation(List<String> idList) {
     if (adapter != null) {
       adapter.updateItem(idList);
+    }
+  }
+
+  public void resetBotConversationRouter(String conversationId) {
+    if (adapter != null) {
+      adapter.resetBotConversationRouter(conversationId);
     }
   }
 
@@ -241,6 +302,30 @@ public class ConversationView extends FrameLayout {
     if (adapter != null) {
       adapter.setShowTag(show);
     }
+  }
+
+  public void refreshConversations() {
+    if (adapter != null) {
+      adapter.refreshConversations();
+    }
+  }
+
+  private void updateStickyGroupBarVisibility() {
+    if (adapter == null || !adapter.hasGroupBar()) {
+      stickyGroupBar.setVisibility(View.GONE);
+      return;
+    }
+    int groupPosition = adapter.getGroupBarPosition();
+    if (groupPosition == RecyclerView.NO_POSITION) {
+      stickyGroupBar.setVisibility(View.GONE);
+      return;
+    }
+    int firstPosition = conversationLayoutManager.findFirstVisibleItemPosition();
+    View groupView = conversationLayoutManager.findViewByPosition(groupPosition);
+    boolean shouldStick =
+        (groupView != null && groupView.getTop() <= 0)
+            || (groupView == null && firstPosition > groupPosition);
+    stickyGroupBar.setVisibility(shouldStick ? View.VISIBLE : View.GONE);
   }
 
   public List<ConversationBean> getDataList() {

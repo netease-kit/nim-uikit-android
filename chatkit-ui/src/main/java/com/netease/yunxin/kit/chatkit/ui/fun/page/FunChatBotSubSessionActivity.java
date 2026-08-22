@@ -6,9 +6,7 @@ package com.netease.yunxin.kit.chatkit.ui.fun.page;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.os.Bundle;
 import android.view.View;
-import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import com.netease.yunxin.kit.chatkit.ui.R;
@@ -19,9 +17,8 @@ import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 public class FunChatBotSubSessionActivity extends BaseChatBotSubSessionActivity {
 
   @Override
-  protected void onCreate(@Nullable Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    changeStatusBarColor(R.color.fun_chat_page_bg_color);
+  protected int getPageBackgroundColorRes() {
+    return R.color.fun_chat_page_bg_color;
   }
 
   @Override
@@ -31,6 +28,7 @@ public class FunChatBotSubSessionActivity extends BaseChatBotSubSessionActivity 
     getWindow().getDecorView().setBackgroundColor(pageBgColor);
     binding.getRoot().setBackgroundColor(pageBgColor);
     adapter.setItemBackgroundColorRes(R.color.fun_conversation_item_bg_color);
+    adapter.setHighlightColorRes(R.color.fun_chat_color);
     binding.emptyActionButton.setBackgroundResource(
         R.drawable.chat_bot_sub_session_empty_button_fun_bg);
     binding.emptyActionButton.setTextColor(ContextCompat.getColor(this, R.color.fun_chat_color));
@@ -48,6 +46,11 @@ public class FunChatBotSubSessionActivity extends BaseChatBotSubSessionActivity 
   @Override
   protected int getSearchEmptyImageRes() {
     return R.drawable.fun_ic_chat_search_empty;
+  }
+
+  @Override
+  protected int getDefaultEmptyImageRes() {
+    return R.drawable.fun_ic_chat_empty;
   }
 
   @Override

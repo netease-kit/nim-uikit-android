@@ -211,6 +211,7 @@ public abstract class BaseRobotInfoActivity extends BaseLocalActivity {
   protected void goChat() {
     XKitRouter.withKey(getChatRouterPath())
         .withParam(RouterConstant.CHAT_ID_KRY, robotBean.getAccountId())
+        .withParam(RouterConstant.KEY_SESSION_NAME, robotBean.getName())
         .withContext(this)
         .navigate();
   }

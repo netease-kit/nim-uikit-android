@@ -148,6 +148,7 @@
     <string name="uikit_image_pick_switch_title">Use image picker plugin</string>
     <string name="uikit_anti_spam_switch_title">Text anti-spam prompt</string>
     <string name="uikit_cloud_search_switch_title">Cloud search</string>
+    <string name="uikit_conversation_group_switch_title">Conversation groups</string>
     <string name="uikit_team_manager_limit_title">Team Manager count limit</string>
 
     <string name="uikit_save_success">Save successfully</string>
@@ -155,8 +156,10 @@
 
     <!-- Message Translation Settings -->
     <string name="translation_setting_title">Translation</string>
-    <string name="translation_target_language">Target Language</string>
-    <string name="translation_auto_translate">Auto Translate</string>
+    <string name="translation_target_language">Translate text to</string>
+    <string name="translation_target_language_description">Translation target language</string>
+    <string name="translation_auto_translate">Auto translate messages received in chats</string>
+    <string name="translation_auto_translate_description">Turn on to automatically translate received messages.</string>
     <string name="translation_select_language">Select Language</string>
     <string name="translation_failed">Translation failed</string>
 

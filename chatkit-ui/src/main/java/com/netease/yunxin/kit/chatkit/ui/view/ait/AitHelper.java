@@ -30,6 +30,7 @@ public class AitHelper {
             new AitUserInfo(
                 userInfoWithTeam.getAccountId(),
                 userInfoWithTeam.getName(),
+                userInfoWithTeam.getAvatarName(),
                 userInfoWithTeam.getName(false),
                 userInfoWithTeam.getAvatar()));
       }
@@ -47,7 +48,7 @@ public class AitHelper {
     List<AitUserInfo> aitUsers = new ArrayList<>(aiUsers.size());
     for (V2NIMAIUser aiUser : aiUsers) {
       String name = TextUtils.isEmpty(aiUser.getName()) ? aiUser.getAccountId() : aiUser.getName();
-      aitUsers.add(new AitUserInfo(aiUser.getAccountId(), name, name, aiUser.getAvatar()));
+      aitUsers.add(new AitUserInfo(aiUser.getAccountId(), name, name, name, aiUser.getAvatar()));
     }
     return aitUsers;
   }

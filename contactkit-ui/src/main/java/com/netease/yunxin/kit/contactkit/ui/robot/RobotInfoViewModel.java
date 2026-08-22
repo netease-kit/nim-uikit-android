@@ -16,6 +16,7 @@ import com.netease.nimlib.sdk.v2.ai.params.V2NIMUpdateUserAIBotParams;
 import com.netease.nimlib.sdk.v2.ai.result.V2NIMCreateUserAIBotResult;
 import com.netease.nimlib.sdk.v2.ai.result.V2NIMRefreshUserAIBotTokenResult;
 import com.netease.yunxin.kit.alog.ALog;
+import com.netease.yunxin.kit.chatkit.manager.UserAIBotManager;
 import com.netease.yunxin.kit.chatkit.repo.AIRepo;
 import com.netease.yunxin.kit.chatkit.repo.ContactRepo;
 import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
@@ -119,6 +120,7 @@ public class RobotInfoViewModel extends BaseViewModel {
           @Override
           public void onSuccess(Void data) {
             ALog.d(LIB_TAG, TAG, "deleteRobot success");
+            UserAIBotManager.removeUserAIBot(accountId);
             FetchResult<Boolean> result = new FetchResult<>(LoadStatus.Success);
             result.setData(true);
             deleteResultLiveData.postValue(result);

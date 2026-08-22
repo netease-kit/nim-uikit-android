@@ -32,4 +32,10 @@
     <string name="chat_bot_sub_session_summary_audio">[語音消息]</string>
     <string name="chat_bot_sub_session_summary_video">[視頻消息]</string>
     <string name="chat_bot_sub_session_summary_message">[消息]</string>
+    <string name="chat_bot_sub_session_auto_title_image">圖片消息</string>
+    <string name="chat_bot_sub_session_auto_title_file">文件消息</string>
+    <string name="chat_bot_sub_session_auto_title_audio">語音消息</string>
+    <string name="chat_bot_sub_session_auto_title_video">視頻消息</string>
+    <string name="chat_bot_sub_session_auto_title_location">位置</string>
+    <string name="chat_bot_sub_session_auto_title_message">消息</string>
 </resources>

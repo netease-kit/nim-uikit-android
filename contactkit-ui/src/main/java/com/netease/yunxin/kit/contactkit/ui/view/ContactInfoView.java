@@ -58,7 +58,7 @@ public class ContactInfoView extends FrameLayout {
     //avatar
     binding.avatarView.setData(
         userInfo.data.getAvatar(),
-        userInfo.getName(),
+        userInfo.getUserName(),
         ColorUtils.avatarColor(userInfo.data.getAccountId()));
 
     //name

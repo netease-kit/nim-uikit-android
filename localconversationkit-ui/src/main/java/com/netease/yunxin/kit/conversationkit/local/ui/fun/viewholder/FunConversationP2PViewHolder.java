@@ -6,9 +6,11 @@ package com.netease.yunxin.kit.conversationkit.local.ui.fun.viewholder;
 
 import android.view.View;
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
 import com.netease.yunxin.kit.chatkit.OnlineStatusManager;
 import com.netease.yunxin.kit.chatkit.manager.AIUserManager;
+import com.netease.yunxin.kit.chatkit.manager.UserAIBotManager;
 import com.netease.yunxin.kit.common.ui.utils.AvatarColor;
 import com.netease.yunxin.kit.conversationkit.local.ui.R;
 import com.netease.yunxin.kit.conversationkit.local.ui.databinding.FunLocalConversationViewHolderBinding;
@@ -41,16 +43,25 @@ public class FunConversationP2PViewHolder extends FunConversationBaseViewHolder 
 
     // 设置会话头像：使用会话头像URL、显示名称及基于目标ID生成的头像颜色
     viewBinding.avatarView.setData(
-        data.infoData.getAvatar(),
+        data.getConversationAvatar(),
         data.getAvatarName(),
         AvatarColor.avatarColor(data.getTargetId()));
 
     // 设置会话名称文本
     viewBinding.nameTv.setText(name);
+    viewBinding.nameTv.setCompoundDrawablesRelativeWithIntrinsicBounds(
+        null,
+        null,
+        UserAIBotManager.isUserAIBot(data.getTargetId())
+            ? ContextCompat.getDrawable(
+                itemView.getContext(), R.drawable.ic_conversation_robot_badge)
+            : null,
+        null);
 
     // 处理在线状态显示逻辑
-    // 条件：在线状态功能启用 且 当前用户不是AI用户
-    if (IMKitConfigCenter.getEnableOnlineStatus() && !AIUserManager.isAIUser(data.getTargetId())) {
+    if (IMKitConfigCenter.getEnableOnlineStatus()
+        && !AIUserManager.isAIUser(data.getTargetId())
+        && !UserAIBotManager.isUserAIBot(data.getTargetId())) {
       viewBinding.onlineView.setVisibility(View.VISIBLE); // 显示在线状态指示器
 
       // 根据用户在线状态设置不同的指示器图标

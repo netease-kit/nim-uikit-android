@@ -16,7 +16,7 @@ android {
     defaultConfig {
         minSdk = 24
         consumerProguardFiles("consumer-rules.pro")
-        buildConfigField("String", "versionName", "\"10.9.30\"")
+        buildConfigField("String", "versionName", "\"10.9.50-beta01\"")
     }
 
     buildTypes {
@@ -39,11 +39,10 @@ dependencies {
     // imuikit 底层库
 //    api(project(":common-ui"))
     api("com.netease.yunxin.kit:alog:1.1.1")
-    api("com.netease.yunxin.kit.chat:chatkit:10.9.30")
-    api("com.netease.yunxin.kit.core:corekit-plugin:1.15.1")
+    api("com.netease.yunxin.kit.chat:chatkit:10.9.50-beta01")
+    api("com.netease.yunxin.kit.core:corekit-plugin:1.16.0")
     api("com.netease.yunxin.kit.common:common-ui:1.11.1")
-    api("com.netease.nimlib:lucene:10.9.81")
-
+    api("com.netease.nimlib:lucene:10.10.10")
     api("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
     api("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.22")
     implementation("androidx.appcompat:appcompat:1.6.1")

@@ -50,6 +50,7 @@ import com.netease.yunxin.kit.chatkit.ui.view.ait.AitTextChangeListener;
 import com.netease.yunxin.kit.chatkit.ui.view.emoji.IEmojiSelectedListener;
 import com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants;
 import com.netease.yunxin.kit.chatkit.ui.view.input.ActionsPanel;
+import com.netease.yunxin.kit.chatkit.ui.view.input.InputPanelAnimator;
 import com.netease.yunxin.kit.chatkit.ui.view.input.InputProperties;
 import com.netease.yunxin.kit.chatkit.ui.view.input.InputState;
 import com.netease.yunxin.kit.chatkit.ui.view.message.audio.ChatMessageAudioControl;
@@ -83,6 +84,7 @@ public class MessageBottomLayout extends FrameLayout
   private InputProperties inputProperties;
   // 被回复消息
   ChatMessageBean replyMessage;
+  private KeyboardTransitionListener keyboardTransitionListener;
 
   private final ActionsPanel mActionsPanel = new ActionsPanel();
   // @输入监听
@@ -124,6 +126,10 @@ public class MessageBottomLayout extends FrameLayout
       @NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
     super(context, attrs, defStyleAttr);
     initView();
+  }
+
+  public void setKeyboardTransitionListener(KeyboardTransitionListener listener) {
+    keyboardTransitionListener = listener;
   }
 
   @SuppressLint("ClickableViewAccessibility")
@@ -406,6 +412,7 @@ public class MessageBottomLayout extends FrameLayout
   private void initView() {
     mBinding =
         FunChatMessageBottomViewBinding.inflate(LayoutInflater.from(getContext()), this, true);
+    InputPanelAnimator.setupKeyboardTransition(mBinding.chatMessageInputRoot);
     getViewTreeObserver()
         .addOnGlobalLayoutListener(
             () -> {
@@ -416,6 +423,9 @@ public class MessageBottomLayout extends FrameLayout
                   if (mInputState != InputState.input) {
                     hideCurrentInput();
                     updateState(InputState.input);
+                  }
+                  if (keyboardTransitionListener != null) {
+                    keyboardTransitionListener.onKeyboardShow();
                   }
                 }
               } else {
@@ -742,8 +752,14 @@ public class MessageBottomLayout extends FrameLayout
   /** 标记当前会话对端是否为 AI 机器人（非 AIUser），用于控制底部菜单项 */
   private boolean mIsAIBot = false;
 
+  private boolean mIsBotSubSession = false;
+
   public void setIsAIBot(boolean isAIBot) {
     this.mIsAIBot = isAIBot;
+  }
+
+  public void setIsBotSubSession(boolean isBotSubSession) {
+    this.mIsBotSubSession = isBotSubSession;
   }
 
   // 显示更多按钮菜单
@@ -755,10 +771,19 @@ public class MessageBottomLayout extends FrameLayout
           FunBottomActionFactory.assembleInputMoreActions(
               V2NIMConversationIdUtil.conversationTargetId(mProxy.getConversationId()),
               mProxy.getConversationType(),
-              mIsAIBot),
+              mIsAIBot,
+              mIsBotSubSession),
           this);
     }
-    postDelayed(() -> mBinding.actionsPanelVp.setVisibility(show ? VISIBLE : GONE), delay);
+    postDelayed(
+        () -> {
+          if (show) {
+            InputPanelAnimator.showPanel(mBinding.actionsPanelVp);
+          } else {
+            InputPanelAnimator.hidePanel(mBinding.actionsPanelVp);
+          }
+        },
+        delay);
   }
 
   // 切换到翻译输入模式
@@ -1038,5 +1063,9 @@ public class MessageBottomLayout extends FrameLayout
     public void onActionClick(View view, String action);
 
     void sendMessage(String msg, boolean sendResult);
+  }
+
+  public interface KeyboardTransitionListener {
+    void onKeyboardShow();
   }
 }

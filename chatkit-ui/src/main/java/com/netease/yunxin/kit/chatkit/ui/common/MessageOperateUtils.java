@@ -50,6 +50,7 @@ import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.common.utils.EncryptUtils;
 import com.netease.yunxin.kit.common.utils.FileUtils;
+import com.netease.yunxin.kit.common.utils.ThreadUtils;
 import com.netease.yunxin.kit.common.utils.UriUtils;
 import com.netease.yunxin.kit.corekit.im2.IMKitClient;
 import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
@@ -531,39 +532,74 @@ public class MessageOperateUtils {
   }
 
   public static V2NIMMessage processUriAndSend(Uri uri, Context context) {
+    MediaMessageBuildResult result = buildMediaMessage(uri, context);
+    if (result.message == null) {
+      showMediaBuildError(context, result.errorResId);
+    }
+    return result.message;
+  }
+
+  public static void processUriAndSendAsync(
+      Uri uri, Context context, FetchCallback<V2NIMMessage> callback) {
+    ThreadUtils.execute(
+        () -> {
+          MediaMessageBuildResult result;
+          try {
+            result = buildMediaMessage(uri, context);
+          } catch (Exception e) {
+            ALog.e(LIB_TAG, TAG, "build media message exception:" + e.getMessage());
+            result = MediaMessageBuildResult.error(R.string.chat_message_type_resource_error);
+          }
+          MediaMessageBuildResult buildResult = result;
+          ThreadUtils.runOnUiThread(
+              () -> {
+                if (buildResult.message != null) {
+                  if (callback != null) {
+                    callback.onSuccess(buildResult.message);
+                  }
+                } else {
+                  showMediaBuildError(context, buildResult.errorResId);
+                  if (callback != null) {
+                    callback.onError(-1, "build media message failed");
+                  }
+                }
+              });
+        });
+  }
+
+  private static MediaMessageBuildResult buildMediaMessage(Uri uri, Context context) {
     if (uri == null) {
-      return null;
+      return MediaMessageBuildResult.error(0);
     }
     long limitSize = ChatUtils.getFileLimitSize() * 1024 * 1024;
-    String mimeType;
+    File file;
     try {
-      String realPath = UriUtils.uri2FileRealPath(uri);
-      mimeType = FileUtils.getFileExtension(realPath);
+      file = UriUtils.uri2File(uri);
     } catch (IllegalStateException e) {
-      ToastX.showShortToast(R.string.chat_message_type_resource_error);
-      return null;
+      return MediaMessageBuildResult.error(R.string.chat_message_type_resource_error);
+    }
+    if (file == null) {
+      return MediaMessageBuildResult.error(R.string.chat_message_type_resource_error);
+    }
+    if (!file.exists() || !file.isFile()) {
+      return MediaMessageBuildResult.error(R.string.chat_message_type_resource_error);
+    }
+    String mimeType = FileUtils.getFileExtension(file.getAbsolutePath());
+    if (TextUtils.isEmpty(mimeType) && context != null) {
+      mimeType = context.getContentResolver().getType(uri);
+    }
+    if (mimeType == null) {
+      mimeType = "";
     }
     if (ImageUtil.isValidPictureFile(mimeType)) {
-      File file = UriUtils.uri2File(uri);
-      if (file != null && file.length() > limitSize) {
-        String fileSizeLimit = String.valueOf(ChatUtils.getFileLimitSize());
-        String limitText =
-            String.format(
-                context.getString(R.string.chat_message_file_size_limit_tips), fileSizeLimit);
-        ToastX.showShortToast(limitText);
-        return null;
+      if (file.length() > limitSize) {
+        return MediaMessageBuildResult.error(R.string.chat_message_file_size_limit_tips);
       }
       V2NIMMessage imageMessage = MessageParamBuildUtils.createImageMessage(file);
-      return imageMessage;
+      return MediaMessageBuildResult.success(imageMessage);
     } else if (ImageUtil.isValidVideoFile(mimeType)) {
-      File file = UriUtils.uri2File(uri);
-      if (file != null && file.length() > limitSize) {
-        String fileSizeLimit = String.valueOf(ChatUtils.getFileLimitSize());
-        String limitText =
-            String.format(
-                context.getString(R.string.chat_message_file_size_limit_tips), fileSizeLimit);
-        ToastX.showShortToast(limitText);
-        return null;
+      if (file.length() > limitSize) {
+        return MediaMessageBuildResult.error(R.string.chat_message_file_size_limit_tips);
       }
       MediaMetadataRetriever mmr = new MediaMetadataRetriever();
       try {
@@ -573,7 +609,7 @@ public class MessageOperateUtils {
         String height = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT);
         String orientation =
             mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION);
-        if ("90".equals(orientation)) {
+        if (Orientation_Vertical.equals(orientation) || "270".equals(orientation)) {
           String local = width;
           width = height;
           height = local;
@@ -586,12 +622,13 @@ public class MessageOperateUtils {
             MessageParamBuildUtils.createVideoMessage(
                 file.getPath(),
                 file.getName(),
-                Integer.parseInt(duration),
-                Integer.parseInt(width),
-                Integer.parseInt(height));
-        return videoMessage;
+                parseMediaInt(duration),
+                parseMediaInt(width),
+                parseMediaInt(height));
+        return MediaMessageBuildResult.success(videoMessage);
       } catch (Exception e) {
         e.printStackTrace();
+        return MediaMessageBuildResult.error(R.string.chat_message_type_resource_error);
       } finally {
         try {
           mmr.release();
@@ -599,9 +636,52 @@ public class MessageOperateUtils {
         }
       }
     } else {
-      ToastX.showShortToast(R.string.chat_message_type_not_support_tips);
+      return MediaMessageBuildResult.error(R.string.chat_message_type_not_support_tips);
     }
-    return null;
+  }
+
+  private static int parseMediaInt(String value) {
+    if (TextUtils.isEmpty(value)) {
+      return 0;
+    }
+    try {
+      return Integer.parseInt(value);
+    } catch (NumberFormatException e) {
+      return 0;
+    }
+  }
+
+  private static void showMediaBuildError(Context context, int errorResId) {
+    if (errorResId == 0) {
+      return;
+    }
+    if (errorResId == R.string.chat_message_file_size_limit_tips && context != null) {
+      String fileSizeLimit = String.valueOf(ChatUtils.getFileLimitSize());
+      String limitText =
+          String.format(
+              context.getString(R.string.chat_message_file_size_limit_tips), fileSizeLimit);
+      ToastX.showShortToast(limitText);
+    } else {
+      ToastX.showShortToast(errorResId);
+    }
+  }
+
+  private static class MediaMessageBuildResult {
+    final V2NIMMessage message;
+    final int errorResId;
+
+    private MediaMessageBuildResult(V2NIMMessage message, int errorResId) {
+      this.message = message;
+      this.errorResId = errorResId;
+    }
+
+    static MediaMessageBuildResult success(V2NIMMessage message) {
+      return new MediaMessageBuildResult(message, 0);
+    }
+
+    static MediaMessageBuildResult error(int errorResId) {
+      return new MediaMessageBuildResult(null, errorResId);
+    }
   }
 
   public static void saveWelcomeMessage(String mConversationId, String mChatAccountId) {

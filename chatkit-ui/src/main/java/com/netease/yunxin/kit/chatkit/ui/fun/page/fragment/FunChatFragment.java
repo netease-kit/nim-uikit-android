@@ -19,6 +19,7 @@ import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatMsgCache;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatUtils;
+import com.netease.yunxin.kit.chatkit.ui.common.MessageTipsLayoutHelper;
 import com.netease.yunxin.kit.chatkit.ui.custom.MultiForwardAttachment;
 import com.netease.yunxin.kit.chatkit.ui.databinding.FunChatFragmentBinding;
 import com.netease.yunxin.kit.chatkit.ui.dialog.ChatBaseForwardSelectDialog;
@@ -72,6 +73,10 @@ public abstract class FunChatFragment extends ChatBaseFragment {
       @NonNull LayoutInflater inflater, @Nullable ViewGroup container) {
     viewBinding = FunChatFragmentBinding.inflate(inflater, container, false);
     chatView = viewBinding.chatView;
+    MessageTipsLayoutHelper.bindToMessageArea(
+        viewBinding.messageTipsLayout,
+        viewBinding.chatView,
+        viewBinding.chatView.getChatBodyLayout());
     chatView.getTitleBar().getTitleTextView().setEllipsize(TextUtils.TruncateAt.MIDDLE);
     chatView
         .getMessageListView()

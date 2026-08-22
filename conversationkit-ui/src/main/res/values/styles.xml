@@ -10,4 +10,19 @@
     <style name="ConversationSelectorRadioBtn" parent="Widget.AppCompat.CompoundButton.RadioButton">
         <item name="android:button">@drawable/conversation_radio_button_selector</item>
     </style>
+
+    <style name="ConversationGroupBottomDialogTheme" parent="ThemeOverlay.AppCompat.Dialog">
+        <item name="android:windowBackground">#00000000</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:backgroundDimEnabled">true</item>
+        <item name="android:windowMinWidthMajor">100%</item>
+        <item name="android:windowMinWidthMinor">100%</item>
+        <item name="android:windowSoftInputMode">stateAlwaysHidden|adjustNothing</item>
+        <item name="android:windowAnimationStyle">@style/ConversationGroupBottomDialogAnimation</item>
+    </style>
+
+    <style name="ConversationGroupBottomDialogAnimation">
+        <item name="android:windowEnterAnimation">@anim/conversation_group_bottom_dialog_enter</item>
+        <item name="android:windowExitAnimation">@anim/conversation_group_bottom_dialog_exit</item>
+    </style>
 </resources>

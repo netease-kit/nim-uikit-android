@@ -14,6 +14,7 @@ import com.netease.yunxin.kit.chatkit.ui.cache.TeamUserManager;
 import com.netease.yunxin.kit.corekit.im2.IMKitClient;
 import com.netease.yunxin.kit.corekit.im2.model.UserWithFriend;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -22,6 +23,8 @@ import java.util.Objects;
 public class ChatUserCache {
 
   private ChatUserCache() {}
+
+  private static final int MAX_NON_FRIEND_USER_CACHE_SIZE = 100;
 
   private static class InstanceHolder {
     private static final ChatUserCache INSTANCE = new ChatUserCache();
@@ -32,7 +35,13 @@ public class ChatUserCache {
   }
 
   //非好友的用户信息
-  private final Map<String, V2NIMUser> userInfoMap = new HashMap<>();
+  private final Map<String, V2NIMUser> userInfoMap =
+      new LinkedHashMap<String, V2NIMUser>() {
+        @Override
+        protected boolean removeEldestEntry(Map.Entry<String, V2NIMUser> eldest) {
+          return size() > MAX_NON_FRIEND_USER_CACHE_SIZE;
+        }
+      };
   private final Map<String, String> conversationNameMap = new HashMap<>();
 
   //置顶消息
@@ -56,7 +65,9 @@ public class ChatUserCache {
 
   public void addUserInfo(V2NIMUser userInfo) {
     if (userInfo != null && !TextUtils.isEmpty(userInfo.getAccountId())) {
-      userInfoMap.put(userInfo.getAccountId(), userInfo);
+      synchronized (userInfoMap) {
+        userInfoMap.put(userInfo.getAccountId(), userInfo);
+      }
     }
   }
 
@@ -90,9 +101,20 @@ public class ChatUserCache {
   }
 
   public void clear() {
-    userInfoMap.clear();
+    synchronized (userInfoMap) {
+      userInfoMap.clear();
+    }
     removeTopMessage();
     conversationNameMap.clear();
+  }
+
+  public void clearSessionCache(String conversationId) {
+    removeConversationInfo(conversationId);
+    if (topMessage != null
+        && topMessage.getMessage() != null
+        && TextUtils.equals(topMessage.getMessage().getConversationId(), conversationId)) {
+      removeTopMessage();
+    }
   }
 
   /**
@@ -114,8 +136,11 @@ public class ChatUserCache {
           && friendInfo.getUserInfo() != null
           && !TextUtils.isEmpty(friendInfo.getUserInfo().getName())) {
         return friendInfo.getUserInfo().getName();
-      } else if (userInfoMap.get(account) != null) {
-        V2NIMUser user = userInfoMap.get(account);
+      } else {
+        V2NIMUser user = getCachedUserInfo(account);
+        if (user == null) {
+          return account;
+        }
         if (!TextUtils.isEmpty(user.getName())) {
           return user.getName();
         }
@@ -140,8 +165,11 @@ public class ChatUserCache {
       UserWithFriend friendInfo = FriendUserCache.getFriendByAccount(account);
       if (friendInfo != null) {
         return friendInfo.getName();
-      } else if (userInfoMap.get(account) != null) {
-        return userInfoMap.get(account).getName();
+      } else {
+        V2NIMUser user = getCachedUserInfo(account);
+        if (user != null) {
+          return user.getName();
+        }
       }
     } else {
       return TeamUserManager.getInstance().getNickname(account, true);
@@ -166,8 +194,11 @@ public class ChatUserCache {
       UserWithFriend friendInfo = FriendUserCache.getFriendByAccount(account);
       if (friendInfo != null) {
         return friendInfo.getAvatarName();
-      } else if (userInfoMap.get(account) != null) {
-        return userInfoMap.get(account).getName();
+      } else {
+        V2NIMUser user = getCachedUserInfo(account);
+        if (user != null) {
+          return user.getName();
+        }
       }
     } else {
       return TeamUserManager.getInstance().getAvatarNickname(account);
@@ -201,8 +232,11 @@ public class ChatUserCache {
       UserWithFriend friendInfo = FriendUserCache.getFriendByAccount(account);
       if (friendInfo != null) {
         return friendInfo.getAvatar();
-      } else if (userInfoMap.get(account) != null) {
-        return userInfoMap.get(account).getAvatar();
+      } else {
+        V2NIMUser user = getCachedUserInfo(account);
+        if (user != null) {
+          return user.getAvatar();
+        }
       }
     } else {
       return TeamUserManager.getInstance().getAvatar(account);
@@ -226,10 +260,16 @@ public class ChatUserCache {
       if (friendInfo != null && friendInfo.getUserInfo() != null) {
         return friendInfo.getUserInfo();
       } else {
-        return userInfoMap.get(account);
+        return getCachedUserInfo(account);
       }
     } else {
       return TeamUserManager.getInstance().getUserInfo(account);
+    }
+  }
+
+  private V2NIMUser getCachedUserInfo(String account) {
+    synchronized (userInfoMap) {
+      return userInfoMap.get(account);
     }
   }
 }

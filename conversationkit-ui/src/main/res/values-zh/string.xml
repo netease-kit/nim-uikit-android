@@ -25,6 +25,45 @@
     <string name="conversation_empty_tip">暂无会话</string>
     <string name="conversation_ait_tip">[有人@我]</string>
     <string name="conversation_bot_sub_session_prefix">[子会话] </string>
+    <string name="conversation_bot_sub_session_summary">子会话</string>
+    <string name="conversation_group_all">全部</string>
+    <string name="conversation_group_ait_me">@我</string>
+    <string name="conversation_group_unread">未读</string>
+    <string name="conversation_group_setting">设置</string>
+    <string name="conversation_group_manage_title">会话分组</string>
+    <string name="conversation_group_save">保存</string>
+    <string name="conversation_group_visible_title">常用分组</string>
+    <string name="conversation_group_hidden_title">隐藏分组</string>
+    <string name="conversation_group_hidden_empty">暂无隐藏分组</string>
+    <string name="conversation_group_create">新建分组</string>
+    <string name="conversation_group_name_hint">设置分组名称</string>
+    <string name="conversation_group_name_count">%1$d/%2$d</string>
+    <string name="conversation_group_name_empty_tip">请输入分组名称</string>
+    <string name="conversation_group_create_limit_tip">会话分组超限</string>
+    <string name="conversation_group_create_failed">创建分组失败</string>
+    <string name="conversation_group_setting_title">分组设置</string>
+    <string name="conversation_group_name_label">分组名称</string>
+    <string name="conversation_group_rename_title">修改分组名称</string>
+    <string name="conversation_group_add_conversation">添加会话</string>
+    <string name="conversation_group_remove_conversation">移除</string>
+    <string name="conversation_group_member_empty">暂无会话</string>
+    <string name="conversation_group_member_title">会话列表(%1$d)</string>
+    <string name="conversation_group_more">...</string>
+    <string name="conversation_group_delete_action">删除</string>
+    <string name="conversation_group_delete_title">删除分组？</string>
+    <string name="conversation_group_delete_message">删除分组不会删除分组内的会话。</string>
+    <string name="conversation_group_add_title">添加会话(%1$d/%2$d)</string>
+    <string name="conversation_group_search_hint">请输入你需要搜索的会话</string>
+    <string name="conversation_group_clear_content_description">清除</string>
+    <string name="conversation_group_search_empty">暂无会话</string>
+    <string name="conversation_group_member_limit_tip">单个分组最多添加 100 个会话</string>
+    <string name="conversation_group_belong_limit_tip">会话所属分组数量超限</string>
+    <string name="conversation_not_exist_tip">会话不存在</string>
+    <string name="conversation_group_not_exist_tip">会话分组不存在</string>
+    <string name="conversation_group_limit_tip">会话分组超限</string>
+    <string name="conversation_group_conversation_limit_tip">分组会话数量超限</string>
+    <string name="conversation_group_add_partial_success">部分会话添加失败</string>
+    <string name="conversation_group_add_failed">添加失败</string>
 
     <!-- message type-->
     <string name="msg_type_location">[地理位置]</string>
@@ -39,4 +78,8 @@
     <string name="msg_type_custom">[自定义消息]</string>
     <string name="msg_type_no_tips">[未知消息体]</string>
     <string name="msg_type_revoke_tips">此消息已撤回</string>
+
+    <!-- ==================== Fun 皮肤专属字符串 ==================== -->
+    <string name="fun_conversation_search_text">搜索</string>
+    <!-- ==================== Fun 皮肤专属字符串 END ==================== -->
 </resources>

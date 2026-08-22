@@ -28,10 +28,10 @@ public class SelectorViewHolder extends BaseViewHolder<ConversationBean> {
   @Override
   public void onBindData(ConversationBean data, int position) {
     viewBinding.avatarView.setData(
-        data.infoData.getAvatar(),
-        data.infoData.getName(),
+        data.getConversationAvatar(),
+        data.getAvatarName(),
         AvatarColor.avatarColor(data.infoData.getConversationId()));
-    viewBinding.conversationNameTv.setText(data.infoData.getName());
+    viewBinding.conversationNameTv.setText(data.getConversationName());
     viewBinding.rootView.setOnClickListener(
         v -> {
           viewBinding.conversationSelectorCb.setChecked(

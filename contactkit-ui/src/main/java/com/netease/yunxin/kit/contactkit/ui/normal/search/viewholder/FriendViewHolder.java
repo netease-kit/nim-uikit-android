@@ -38,7 +38,7 @@ public class FriendViewHolder extends BaseViewHolder<SearchFriendBean> {
     if (friendInfo != null) {
       viewBinding.cavUserIcon.setData(
           friendInfo.getFriendInfo().getAvatar(),
-          friendInfo.getFriendInfo().getName(),
+          friendInfo.getFriendInfo().getAvatarName(),
           AvatarColor.avatarColor(friendInfo.getFriendInfo().getAccount()));
       if (friendInfo.getHitType() == HitType.Alias) {
         viewBinding.tvNickName.setText(

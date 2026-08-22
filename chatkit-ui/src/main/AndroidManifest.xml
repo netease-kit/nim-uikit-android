@@ -66,7 +66,7 @@
         <activity
             android:name="com.netease.yunxin.kit.chatkit.ui.normal.page.ChatBotSubSessionActivity"
             android:screenOrientation="portrait"
-            android:launchMode="singleTop" />
+            android:launchMode="singleTask" />
 
         <activity
             android:name="com.netease.yunxin.kit.chatkit.ui.normal.page.ChatBotSubSessionChatActivity"
@@ -157,7 +157,7 @@
 
         <activity android:name=".fun.page.FunChatBotSubSessionActivity"
             android:screenOrientation="portrait"
-            android:launchMode="singleTop"/>
+            android:launchMode="singleTask"/>
 
         <activity android:name=".fun.page.FunChatBotSubSessionChatActivity"
             android:screenOrientation="portrait"

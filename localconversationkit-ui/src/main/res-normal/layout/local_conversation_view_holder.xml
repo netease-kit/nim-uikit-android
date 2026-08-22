@@ -35,6 +35,16 @@
             android:textSize="@dimen/text_size_12"
             android:visibility="gone" />
 
+        <View
+            android:id="@+id/muteUnreadDot"
+            android:layout_width="@dimen/dimen_8_dp"
+            android:layout_height="@dimen/dimen_8_dp"
+            android:layout_gravity="top|end"
+            android:layout_marginTop="@dimen/dimen_4_dp"
+            android:layout_marginEnd="@dimen/dimen_9_dp"
+            android:background="@drawable/bg_conversation_red_dot"
+            android:visibility="gone" />
+
         <View android:id="@+id/onlineView"
             android:layout_width="@dimen/dimen_12_dp"
             android:layout_height="@dimen/dimen_12_dp"
@@ -57,6 +67,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/dimen_10_dp"
             android:layout_marginEnd="@dimen/dimen_100_dp"
+            android:drawablePadding="@dimen/dimen_4_dp"
             android:ellipsize="end"
             android:maxLines="1"
             android:textColor="@color/color_conversation_primary_text"

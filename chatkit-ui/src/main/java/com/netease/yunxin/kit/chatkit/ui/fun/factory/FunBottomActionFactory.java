@@ -17,7 +17,10 @@ import java.util.List;
 public class FunBottomActionFactory {
 
   public static List<ActionItem> assembleInputMoreActions(
-      String accountId, V2NIMConversationType conversationType, boolean isAIBot) {
+      String accountId,
+      V2NIMConversationType conversationType,
+      boolean isAIBot,
+      boolean isBotSubSession) {
     ArrayList<ActionItem> actions = new ArrayList<>();
     actions.add(
         new ActionItem(
@@ -39,7 +42,8 @@ public class FunBottomActionFactory {
             ActionConstants.ACTION_TYPE_FILE, R.drawable.ic_send_file, R.string.chat_message_file));
     if (conversationType == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P
         && !AIUserManager.isAIUser(accountId)
-        && !isAIBot) {
+        && !isAIBot
+        && !isBotSubSession) {
       actions.add(
           new ActionItem(
               ActionConstants.ACTION_TYPE_VIDEO_CALL,
@@ -54,7 +58,8 @@ public class FunBottomActionFactory {
               R.string.chat_message_translate_action));
     }
     if (IMKitConfigCenter.getEnableAIChatHelper()
-        && conversationType == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P) {
+        && conversationType == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P
+        && !isBotSubSession) {
       actions.add(
           new ActionItem(
               ActionConstants.ACTION_TYPE_AI_HELPER,

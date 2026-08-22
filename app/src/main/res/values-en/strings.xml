@@ -145,21 +145,24 @@
     <string name="uikit_image_pick_switch_title">Use image picker plugin</string>
     <string name="uikit_anti_spam_switch_title">Text anti-spam prompt</string>
     <string name="uikit_cloud_search_switch_title">Cloud search</string>
+    <string name="uikit_conversation_group_switch_title">Conversation groups</string>
     <string name="uikit_team_manager_limit_title">Team Manager count limit</string>
 
     <string name="uikit_save_success">Save successfully</string>
     <string name="uikit_kickoff_tips">Account kicked offline</string>
 
     <!-- Message Translation settings -->
-    <string name="translation_setting_title">Translation</string>
-    <string name="translation_target_language">Translate to</string>
-    <string name="translation_auto_translate">Auto Translate</string>
+    <string name="translation_setting_title">Translate</string>
+    <string name="translation_target_language">Translate text to</string>
+    <string name="translation_target_language_description">Translation target language</string>
+    <string name="translation_auto_translate">Auto translate messages received in chats</string>
+    <string name="translation_auto_translate_description">Turn on to automatically translate received messages.</string>
     <string name="translation_select_language">Translate text to</string>
     <string name="translation_failed">Translation failed</string>
 
     <!-- Translation target language list -->
-    <string name="translation_lang_zh_chs">Simplified Chinese</string>
-    <string name="translation_lang_zh_cht">Traditional Chinese</string>
+    <string name="translation_lang_zh_chs">Chinese(Simplified)</string>
+    <string name="translation_lang_zh_cht">Chinese(Traditional)</string>
     <string name="translation_lang_ar">Arabic</string>
     <string name="translation_lang_de">German</string>
     <string name="translation_lang_en">English</string>

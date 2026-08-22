@@ -9,8 +9,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:background="@color/fun_chat_secondary_page_bg_color"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    tools:theme="@style/Theme.MaterialComponents.Light.NoActionBar">
 
     <com.netease.yunxin.kit.common.ui.widgets.BackTitleBar
         android:id="@+id/titleBar"
@@ -29,7 +31,8 @@
         app:tabRippleColor="@null"
         app:tabBackground="@null"
         android:background="@color/fun_chat_secondary_page_bg_color"
-        app:tabTextColor="@color/fun_chat_read_name_color" />
+        app:tabTextColor="@color/fun_chat_read_name_color"
+        tools:ignore="SpeakableTextPresentCheck" />
 
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/viewPager"

@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import com.netease.nimlib.sdk.v2.topic.V2NIMTopic;
@@ -16,6 +17,7 @@ import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.common.BotSubSessionUtils;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatBotSubSessionItemBinding;
 import com.netease.yunxin.kit.chatkit.ui.model.BotSubSessionItem;
+import com.netease.yunxin.kit.common.ui.utils.EllipsizeUtils;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,6 +33,8 @@ public class BotSubSessionListAdapter
   private final List<BotSubSessionItem> dataList = new ArrayList<>();
   private OnTopicActionListener listener;
   private int itemBackgroundColorRes = R.color.color_white;
+  private int highlightColorRes = R.color.chat_bot_sub_session_theme_color;
+  private String searchKeyword = "";
 
   public void setOnTopicActionListener(OnTopicActionListener listener) {
     this.listener = listener;
@@ -39,6 +43,15 @@ public class BotSubSessionListAdapter
   public void setItemBackgroundColorRes(int colorRes) {
     itemBackgroundColorRes = colorRes;
     notifyDataSetChanged();
+  }
+
+  public void setHighlightColorRes(int colorRes) {
+    highlightColorRes = colorRes;
+    notifyDataSetChanged();
+  }
+
+  public void setSearchKeyword(@Nullable String keyword) {
+    searchKeyword = keyword == null ? "" : keyword.trim();
   }
 
   public void submitList(List<BotSubSessionItem> data) {
@@ -81,7 +94,15 @@ public class BotSubSessionListAdapter
       Context context = binding.getRoot().getContext();
       V2NIMTopic topic = item.getTopic();
       binding.getRoot().setBackgroundColor(ContextCompat.getColor(context, itemBackgroundColorRes));
-      binding.topicTitle.setText(BotSubSessionUtils.getTopicTitle(context, topic));
+      String title = BotSubSessionUtils.getTopicTitle(context, topic, item.getFallbackTitle());
+      binding.topicTitle.setText(
+          EllipsizeUtils.highlight(
+              title,
+              searchKeyword,
+              ContextCompat.getColor(context, highlightColorRes),
+              0,
+              EllipsizeUtils.HIGHLIGHT_ALL,
+              true));
       binding.topicSummary.setText(
           item.getSummary() == null
               ? context.getString(R.string.chat_bot_sub_session_no_message)

@@ -62,7 +62,7 @@ public class ConversationSelectorAdapter
     }
     holder.binding.avatarView.setData(
         bean.data.getAvatar(),
-        conversationName,
+        getAvatarName(bean.data, conversationName),
         AvatarColor.avatarColor(
             V2NIMConversationIdUtil.conversationTargetId(bean.data.getConversationId())));
   }

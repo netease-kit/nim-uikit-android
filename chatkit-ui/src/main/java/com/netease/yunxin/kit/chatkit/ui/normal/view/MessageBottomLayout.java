@@ -51,6 +51,7 @@ import com.netease.yunxin.kit.chatkit.ui.view.emoji.IEmojiSelectedListener;
 import com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants;
 import com.netease.yunxin.kit.chatkit.ui.view.input.ActionsPanel;
 import com.netease.yunxin.kit.chatkit.ui.view.input.InputActionAdapter;
+import com.netease.yunxin.kit.chatkit.ui.view.input.InputPanelAnimator;
 import com.netease.yunxin.kit.chatkit.ui.view.input.InputProperties;
 import com.netease.yunxin.kit.chatkit.ui.view.input.InputState;
 import com.netease.yunxin.kit.chatkit.ui.view.message.audio.ChatMessageAudioControl;
@@ -75,6 +76,7 @@ public class MessageBottomLayout extends FrameLayout
   private boolean mMute = false;
   private InputProperties inputProperties;
   private ActionClickListener actionClickListener;
+  private KeyboardTransitionListener keyboardTransitionListener;
   ChatMessageBean replyMessage;
 
   private final ActionsPanel mActionsPanel = new ActionsPanel();
@@ -104,6 +106,10 @@ public class MessageBottomLayout extends FrameLayout
 
   public void init(IMessageProxy proxy) {
     this.init(BottomActionFactory.assembleDefaultInputActions(), proxy);
+  }
+
+  public void setKeyboardTransitionListener(KeyboardTransitionListener listener) {
+    keyboardTransitionListener = listener;
   }
 
   public void init(List<ActionItem> items, IMessageProxy proxy) {
@@ -276,6 +282,7 @@ public class MessageBottomLayout extends FrameLayout
   private void initView() {
     mBinding =
         NormalChatMessageBottomViewBinding.inflate(LayoutInflater.from(getContext()), this, true);
+    InputPanelAnimator.setupKeyboardTransition(mBinding.chatMessageInputRoot);
     getViewTreeObserver()
         .addOnGlobalLayoutListener(
             () -> {
@@ -604,8 +611,21 @@ public class MessageBottomLayout extends FrameLayout
   /** 标记当前会话对端是否为 AI 机器人（非 AIUser），用于控制底部菜单项 */
   private boolean mIsAIBot = false;
 
+  private boolean mIsBotSubSession = false;
+
   public void setIsAIBot(boolean isAIBot) {
     this.mIsAIBot = isAIBot;
+  }
+
+  public void setIsBotSubSession(boolean isBotSubSession) {
+    this.mIsBotSubSession = isBotSubSession;
+    if (isBotSubSession) {
+      mBinding.chatMsgInputAIHelper.setVisibility(GONE);
+      if (mInputState == InputState.aiHelper) {
+        aiHelperShow(false);
+        mInputState = InputState.none;
+      }
+    }
   }
 
   // 显示或隐藏更多输入界面
@@ -616,10 +636,19 @@ public class MessageBottomLayout extends FrameLayout
           BottomActionFactory.assembleInputMoreActions(
               V2NIMConversationIdUtil.conversationTargetId(mProxy.getConversationId()),
               mProxy.getConversationType(),
-              mIsAIBot),
+              mIsAIBot,
+              mIsBotSubSession),
           this);
     }
-    postDelayed(() -> mBinding.chatMessageActionsPanel.setVisibility(show ? VISIBLE : GONE), delay);
+    postDelayed(
+        () -> {
+          if (show) {
+            InputPanelAnimator.showPanel(mBinding.chatMessageActionsPanel);
+          } else {
+            InputPanelAnimator.hidePanel(mBinding.chatMessageActionsPanel);
+          }
+        },
+        delay);
     actionAdapter.updateItemState(ActionConstants.ACTION_TYPE_MORE, show);
   }
 
@@ -873,6 +902,9 @@ public class MessageBottomLayout extends FrameLayout
       hideCurrentInput();
       mInputState = InputState.input;
     }
+    if (keyboardTransitionListener != null) {
+      keyboardTransitionListener.onKeyboardShow();
+    }
   }
 
   private void onKeyboardHide() {
@@ -955,5 +987,9 @@ public class MessageBottomLayout extends FrameLayout
     public void onActionClick(View view, String action);
 
     void sendMessage(String msg, boolean sendResult);
+  }
+
+  public interface KeyboardTransitionListener {
+    void onKeyboardShow();
   }
 }

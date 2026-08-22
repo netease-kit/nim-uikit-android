@@ -72,9 +72,12 @@ public class ConversationUtils {
     if (!UserAIBotManager.isUserAIBot(targetId)) {
       return content;
     }
+    if (TextUtils.isEmpty(content)) {
+      return context.getString(R.string.conversation_bot_sub_session_summary);
+    }
     return new SpannableStringBuilder()
         .append(context.getString(R.string.conversation_bot_sub_session_prefix))
-        .append(content == null ? "" : content);
+        .append(content);
   }
 
   /**

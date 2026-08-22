@@ -43,6 +43,11 @@ public class FunConversationFragment extends ConversationBaseFragment {
   private FunConversationFragmentBinding viewBinding;
 
   @Override
+  protected String getConversationGroupManagePagePath() {
+    return RouterConstant.PATH_FUN_CONVERSATION_GROUP_MANAGE_PAGE;
+  }
+
+  @Override
   public View initViewAndGetRootView(
       @NonNull LayoutInflater inflater,
       @Nullable ViewGroup container,
@@ -55,6 +60,9 @@ public class FunConversationFragment extends ConversationBaseFragment {
   /** 初始化视图，父类处理业务逻辑，需要按照父类使用到的View进行初始化，保证父类业务逻辑正常展示 */
   private void initView() {
     conversationView = viewBinding.conversationView;
+    conversationView.setConversationGroupBarFunStyle(true);
+    conversationView.setConversationGroupBarBackgroundColorRes(
+        R.color.fun_conversation_item_stick_bg_color);
     titleBarView = viewBinding.titleBar;
     networkErrorView = viewBinding.errorTv;
     emptyView = viewBinding.emptyLayout;

@@ -39,6 +39,9 @@ import com.netease.yunxin.kit.common.utils.ScreenUtils;
 /** view holder to show image/video thumb */
 public abstract class ChatThumbBaseViewHolder extends FunChatBaseMessageViewHolder {
   private static final String TAG = "ChatThumbBaseViewHolder";
+  private static final float DEFAULT_IMAGE_THUMB_MIN_WIDTH_RATIO = 0.25f;
+  private static final float DEFAULT_IMAGE_THUMB_MAX_WIDTH_RATIO = 0.48f;
+  private static final float DEFAULT_IMAGE_THUMB_MAX_HEIGHT_RATIO = 0.45f;
 
   FunChatMessageThumbnailViewHolderBinding binding;
 
@@ -131,7 +134,7 @@ public abstract class ChatThumbBaseViewHolder extends FunChatBaseMessageViewHold
       h = bounds[0] != 0 ? w * bounds[1] / bounds[0] : 0;
     }
     int thumbMaxEdge = getImageThumbMaxEdge();
-    int thumbMaxHeight = (int) (0.45 * ScreenUtils.getDisplayHeight());
+    int thumbMaxHeight = getImageThumbMaxHeight();
     if (w > thumbMaxEdge) {
       w = thumbMaxEdge;
       h = w * bounds[1] / bounds[0];
@@ -228,12 +231,36 @@ public abstract class ChatThumbBaseViewHolder extends FunChatBaseMessageViewHold
     }
   }
 
-  private int getImageThumbMinEdge() {
-    return (int) (0.25 * ScreenUtils.getDisplayWidth());
+  protected int getImageThumbMinEdge() {
+    float minRatio =
+        getValidRatio(properties.imageThumbMinWidthRatio, DEFAULT_IMAGE_THUMB_MIN_WIDTH_RATIO);
+    float maxRatio =
+        getValidRatio(properties.imageThumbMaxWidthRatio, DEFAULT_IMAGE_THUMB_MAX_WIDTH_RATIO);
+    if (minRatio > maxRatio) {
+      minRatio = DEFAULT_IMAGE_THUMB_MIN_WIDTH_RATIO;
+    }
+    return (int) (minRatio * ScreenUtils.getDisplayWidth());
   }
 
-  private int getImageThumbMaxEdge() {
-    return (int) (0.48 * ScreenUtils.getDisplayWidth());
+  protected int getImageThumbMaxEdge() {
+    float minRatio =
+        getValidRatio(properties.imageThumbMinWidthRatio, DEFAULT_IMAGE_THUMB_MIN_WIDTH_RATIO);
+    float maxRatio =
+        getValidRatio(properties.imageThumbMaxWidthRatio, DEFAULT_IMAGE_THUMB_MAX_WIDTH_RATIO);
+    if (minRatio > maxRatio) {
+      maxRatio = DEFAULT_IMAGE_THUMB_MAX_WIDTH_RATIO;
+    }
+    return (int) (maxRatio * ScreenUtils.getDisplayWidth());
+  }
+
+  protected int getImageThumbMaxHeight() {
+    float maxHeightRatio =
+        getValidRatio(properties.imageThumbMaxHeightRatio, DEFAULT_IMAGE_THUMB_MAX_HEIGHT_RATIO);
+    return (int) (maxHeightRatio * ScreenUtils.getDisplayHeight());
+  }
+
+  private float getValidRatio(Float ratio, float defaultRatio) {
+    return ratio != null && ratio > 0 && ratio <= 1 ? ratio : defaultRatio;
   }
 
   protected abstract String thumbFromSourceFile(String path);

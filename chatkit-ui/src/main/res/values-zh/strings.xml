@@ -65,6 +65,12 @@
     <string name="chat_bot_sub_session_summary_audio">[语音消息]</string>
     <string name="chat_bot_sub_session_summary_video">[视频消息]</string>
     <string name="chat_bot_sub_session_summary_message">[消息]</string>
+    <string name="chat_bot_sub_session_auto_title_image">图片消息</string>
+    <string name="chat_bot_sub_session_auto_title_file">文件消息</string>
+    <string name="chat_bot_sub_session_auto_title_audio">语音消息</string>
+    <string name="chat_bot_sub_session_auto_title_video">视频消息</string>
+    <string name="chat_bot_sub_session_auto_title_location">位置</string>
+    <string name="chat_bot_sub_session_auto_title_message">消息</string>
     <string name="chat_read_status">消息阅读状态</string>
     <string name="chat_read_with_num">已读（%d）</string>
     <string name="chat_unread_with_num">未读（%d）</string>

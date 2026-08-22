@@ -21,6 +21,7 @@ import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.common.BotSubSessionMoreActionHelper;
 import com.netease.yunxin.kit.chatkit.ui.common.BotSubSessionUtils;
+import com.netease.yunxin.kit.chatkit.ui.common.MessageTipsLayoutHelper;
 import com.netease.yunxin.kit.chatkit.ui.databinding.FunChatBotSubSessionChatFragmentBinding;
 import com.netease.yunxin.kit.chatkit.ui.fun.view.MessageBottomLayout;
 import com.netease.yunxin.kit.chatkit.ui.interfaces.IMessageLoadHandler;
@@ -62,6 +63,12 @@ public class FunChatBotSubSessionChatFragment extends FunChatP2PFragment {
     botSubSessionBinding =
         FunChatBotSubSessionChatFragmentBinding.inflate(inflater, container, false);
     chatView = botSubSessionBinding.chatView;
+    MessageTipsLayoutHelper.bindToMessageArea(
+        botSubSessionBinding.messageTipsLayout,
+        botSubSessionBinding.chatView,
+        botSubSessionBinding.chatView.getChatBodyLayout());
+    botSubSessionBinding.chatView.attachMessageOverlayView(
+        botSubSessionBinding.botSubSessionGuideLayout);
     chatView.getTitleBar().getTitleTextView().setEllipsize(TextUtils.TruncateAt.MIDDLE);
     chatView
         .getMessageListView()
@@ -101,6 +108,7 @@ public class FunChatBotSubSessionChatFragment extends FunChatP2PFragment {
   @Override
   protected void initView() {
     super.initView();
+    getMessageBottomLayout().setIsBotSubSession(true);
     chatView.setLoadHandler(
         new IMessageLoadHandler() {
           @Override
@@ -149,6 +157,7 @@ public class FunChatBotSubSessionChatFragment extends FunChatP2PFragment {
                 requireActivity().finish();
               }
             });
+    getSubSessionViewModel().clearConversationUnread();
   }
 
   @Override

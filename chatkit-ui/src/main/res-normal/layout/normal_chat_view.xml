@@ -52,6 +52,11 @@
             android:layout_height="wrap_content"
             android:overScrollMode="never" />
 
+        <FrameLayout
+            android:id="@+id/chatMessageOverlayLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
         <LinearLayout
             android:id="@+id/chatTopContainer"
             android:layout_width="match_parent"
