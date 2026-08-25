@@ -32,7 +32,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "im-uikit"
+rootProject.name = "nim-uikit"
 include(":app")
 include(":common-ui")
 include(":aisearchkit")
