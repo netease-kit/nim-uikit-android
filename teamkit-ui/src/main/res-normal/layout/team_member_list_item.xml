@@ -51,22 +51,39 @@
         android:background="@color/color_white"
         app:layout_constraintTop_toTopOf="parent"/>
 
-    <TextView
-        android:id="@+id/tvUserName"
+    <LinearLayout
+        android:id="@+id/userNameLayout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="15dp"
         android:layout_marginEnd="15dp"
-        android:gravity="center_vertical|start"
-        android:singleLine="true"
-        android:textColor="@color/color_team_primary_text"
-        android:textSize="16dp"
+        android:gravity="center_vertical"
+        android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="@id/cavUserIcon"
         app:layout_constraintStart_toEndOf="@id/cavUserIcon"
         app:layout_constraintEnd_toStartOf="@id/tvIdentify"
         app:layout_constraintTop_toTopOf="@id/cavUserIcon"
-        app:layout_goneMarginEnd="72dp"
-        tools:ignore="SpUsage" />
+        app:layout_goneMarginEnd="72dp">
+
+        <com.netease.yunxin.kit.common.ui.widgets.HitHighlightTextView
+            android:id="@+id/tvUserName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:textColor="@color/color_team_primary_text"
+            android:textSize="16sp" />
+
+        <com.netease.yunxin.kit.common.ui.widgets.HitHighlightTextView
+            android:id="@+id/tvUserNameSub"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:textColor="@color/color_team_secondary_text"
+            android:textSize="12sp"
+            android:visibility="gone" />
+    </LinearLayout>
 
     <TextView
         android:id="@+id/tvIdentify"

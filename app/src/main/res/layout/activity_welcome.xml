@@ -66,6 +66,34 @@
         tools:ignore="SpUsage" />
 
     <androidx.appcompat.widget.LinearLayoutCompat
+        android:id="@+id/login_pending_container"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/dimen_50_dp"
+        android:layout_marginTop="@dimen/dimen_127_dp"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/app_desc">
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/login_pending"
+            android:textColor="@color/color_333333"
+            android:textSize="@dimen/text_size_15" />
+
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/login_pending_dots"
+            android:layout_width="@dimen/dimen_30_dp"
+            android:layout_height="@dimen/dimen_24_dp"
+            android:layout_marginStart="@dimen/dimen_4_dp"
+            app:lottie_fileName="lottie/login_pending_dots.json"
+            app:lottie_loop="true" />
+    </androidx.appcompat.widget.LinearLayoutCompat>
+
+    <androidx.appcompat.widget.LinearLayoutCompat
         android:layout_width="wrap_content"
         android:layout_height="@dimen/dimen_21_dp"
         android:orientation="horizontal"

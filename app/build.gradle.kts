@@ -16,9 +16,8 @@ android {
         minSdk = 24
         targetSdk = 34
         versionCode = 1
-        versionName = "10.9.50"
+        versionName = "10.9.60-beta02"
         multiDexEnabled = true
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         ndk {
             abiFilters.add("armeabi-v7a")
@@ -71,14 +70,14 @@ dependencies {
 //    implementation(project(":aisearchkit"))
 
     //远端aar依赖
-    implementation("com.netease.yunxin.kit.contact:contactkit-ui:10.9.50")
-    implementation("com.netease.yunxin.kit.conversation:conversationkit-ui:10.9.50")
-    implementation("com.netease.yunxin.kit.localconversation:localconversationkit-ui:10.9.50")
-    implementation("com.netease.yunxin.kit.team:teamkit-ui:10.9.50")
-    implementation("com.netease.yunxin.kit.chat:chatkit-ui:10.9.50")
-    implementation("com.netease.yunxin.kit.chat:chatkit:10.9.50")
-    implementation("com.netease.yunxin.kit.locationkit:locationkit:10.9.50")
-    implementation("com.netease.yunxin.kit.aisearchkit:aisearchkit:10.9.50")
+    implementation("com.netease.yunxin.kit.contact:contactkit-ui:10.9.60-beta02")
+    implementation("com.netease.yunxin.kit.conversation:conversationkit-ui:10.9.60-beta02")
+    implementation("com.netease.yunxin.kit.localconversation:localconversationkit-ui:10.9.60-beta02")
+    implementation("com.netease.yunxin.kit.team:teamkit-ui:10.9.60-beta02")
+    implementation("com.netease.yunxin.kit.chat:chatkit-ui:10.9.60-beta02")
+    implementation("com.netease.yunxin.kit.chat:chatkit:10.9.60-beta02")
+    implementation("com.netease.yunxin.kit.locationkit:locationkit:10.9.60-beta02")
+    implementation("com.netease.yunxin.kit.aisearchkit:aisearchkit:10.9.60-beta02")
 
     // ---- end ----
 
@@ -87,9 +86,11 @@ dependencies {
 
     // 以下为必需引入的依赖
     //呼叫组件 UI 包
-    implementation("com.netease.yunxin.kit.call:call-ui:4.8.2")
-    implementation("com.netease.nimlib:avsignalling:10.10.10") //信令组件
-    api("com.netease.nimlib:lucene:10.10.10") // 历史消息检索功能
+    implementation("com.netease.yunxin.kit.call:call-ui:4.8.2"){
+         exclude(group = "com.netease.yunxin.kit.core", module = "corekit")
+    }
+    implementation("com.netease.nimlib:avsignalling:10.11.1") //信令组件
+    api("com.netease.nimlib:lucene:10.11.1") // 历史消息检索功能
     api("com.netease.yunxin.kit.common:common-picturechoose:1.1.0") //图片选择组件
     implementation("com.journeyapps:zxing-android-embedded:4.3.0") // 二维码扫描
     implementation("com.airbnb.android:lottie:5.0.3")

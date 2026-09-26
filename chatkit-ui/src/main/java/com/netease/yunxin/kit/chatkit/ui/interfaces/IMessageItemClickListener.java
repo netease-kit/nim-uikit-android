@@ -22,6 +22,17 @@ public interface IMessageItemClickListener {
     return false;
   }
 
+  /** 消息已有表情回复时，点击添加表情入口。 */
+  default boolean onMessageReactionAddClick(View view, int position, ChatMessageBean messageInfo) {
+    return false;
+  }
+
+  /** 点击消息中已有的表情回复，按当前用户状态执行添加或取消。 */
+  default boolean onMessageReactionClick(
+      View view, int position, ChatMessageBean messageInfo, long index, boolean hasSelf) {
+    return false;
+  }
+
   /**
    * 译文区域长按事件回调
    *

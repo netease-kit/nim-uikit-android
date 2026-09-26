@@ -7,6 +7,7 @@ package com.netease.yunxin.kit.teamkit.ui.normal.adapter;
 import android.content.Context;
 import android.text.TextUtils;
 import android.view.View;
+import com.netease.nimlib.sdk.search.model.RecordHitInfo;
 import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamMemberRole;
 import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamType;
 import com.netease.yunxin.kit.chatkit.model.TeamMemberWithUserInfo;
@@ -41,7 +42,7 @@ public class TeamMemberListAdapter extends BaseTeamMemberListAdapter<TeamMemberL
     if (data == null) {
       return;
     }
-    binding.tvUserName.setText(data.getName());
+    bindSearchName(binding, data);
     if (showSelect) {
       binding.selectLayout.setVisibility(View.VISIBLE);
       binding.selectorCb.setChecked(selectData.containsKey(data.getAccountId()));
@@ -119,6 +120,46 @@ public class TeamMemberListAdapter extends BaseTeamMemberListAdapter<TeamMemberL
             }
           };
       binding.getRoot().setOnClickListener(clickListener);
+    }
+  }
+
+  private void bindSearchName(TeamMemberListItemBinding binding, TeamMemberWithUserInfo data) {
+    MemberSearchResult result = getSearchResult(data);
+    if (result == null) {
+      binding.tvUserName.clearHitText(data.getName());
+      binding.tvUserNameSub.setVisibility(View.GONE);
+      return;
+    }
+    String primary = getPrimaryName(data);
+    String secondary = getSecondaryName(data, result);
+    String highlighted = getHighlightedName(data, result);
+    if (TextUtils.equals(primary, highlighted)) {
+      RecordHitInfo hitInfo = getHitInfo(result);
+      if (hitInfo == null) {
+        binding.tvUserName.clearHitText(primary);
+      } else {
+        binding.tvUserName.setHitText(
+            primary, hitInfo.start, hitInfo.end, getSearchHighlightColor());
+      }
+    } else {
+      binding.tvUserName.clearHitText(primary);
+    }
+    if (!TextUtils.isEmpty(secondary)) {
+      binding.tvUserNameSub.setVisibility(View.VISIBLE);
+      if (TextUtils.equals(secondary, highlighted)) {
+        RecordHitInfo hitInfo = getHitInfo(result);
+        if (hitInfo == null) {
+          binding.tvUserNameSub.clearHitText(secondary);
+        } else {
+          binding.tvUserNameSub.setHitText(
+              secondary, hitInfo.start, hitInfo.end, getSearchHighlightColor());
+        }
+      } else {
+        binding.tvUserNameSub.clearHitText(secondary);
+      }
+    } else {
+      binding.tvUserNameSub.clearHitText("");
+      binding.tvUserNameSub.setVisibility(View.GONE);
     }
   }
 }

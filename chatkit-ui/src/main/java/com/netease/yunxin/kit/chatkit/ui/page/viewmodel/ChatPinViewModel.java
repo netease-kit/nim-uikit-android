@@ -28,6 +28,8 @@ import com.netease.nimlib.sdk.v2.message.V2NIMTeamMessageReadReceipt;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessagePinState;
 import com.netease.nimlib.sdk.v2.utils.V2NIMConversationIdUtil;
 import com.netease.yunxin.kit.alog.ALog;
+import com.netease.yunxin.kit.chatkit.cache.TeamMemberCache;
+import com.netease.yunxin.kit.chatkit.cache.TeamMemberCacheListener;
 import com.netease.yunxin.kit.chatkit.listener.ChatListener;
 import com.netease.yunxin.kit.chatkit.listener.MessageRevokeNotification;
 import com.netease.yunxin.kit.chatkit.listener.MessageUpdateType;
@@ -39,7 +41,6 @@ import com.netease.yunxin.kit.chatkit.repo.SettingRepo;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.cache.TeamUserChangedListener;
-import com.netease.yunxin.kit.chatkit.ui.cache.TeamUserManager;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.model.PinEvent;
@@ -109,7 +110,8 @@ public class ChatPinViewModel extends BaseViewModel {
     this.needACK = SettingRepo.getShowReadStatus();
     ChatRepo.addMessageListener(messageListener);
     if (sessionType == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_TEAM) {
-      TeamUserManager.getInstance().addMemberChangedListener(userInfoListener);
+      TeamMemberCache.ensureTeam(mSessionId);
+      TeamMemberCache.addMemberChangedListener(mSessionId, teamMemberCacheListener);
     } else {
       ContactRepo.addContactListener(contactListener);
     }
@@ -259,6 +261,20 @@ public class ChatPinViewModel extends BaseViewModel {
 
         @Override
         public void onUsersAdd(List<String> accountIds) {}
+      };
+
+  private final TeamMemberCacheListener teamMemberCacheListener =
+      new TeamMemberCacheListener() {
+        @Override
+        public void onUsersChanged(String teamId, List<String> accountIds) {
+          userInfoListener.onUsersChanged(accountIds);
+        }
+
+        @Override
+        public void onUsersAdded(String teamId, List<String> accountIds) {}
+
+        @Override
+        public void onUsersRemoved(String teamId, List<String> accountIds) {}
       };
 
   //单聊用户信息变更通知
@@ -475,7 +491,9 @@ public class ChatPinViewModel extends BaseViewModel {
     super.onCleared();
     ChatRepo.removeMessageListener(messageListener);
     ContactRepo.removeContactListener(contactListener);
-    TeamUserManager.getInstance().removeMemberChangedListener(userInfoListener);
+    if (mSessionType == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_TEAM) {
+      TeamMemberCache.removeMemberChangedListener(mSessionId, teamMemberCacheListener);
+    }
     IMKitClient.removeLoginListener(loginListener);
   }
 }

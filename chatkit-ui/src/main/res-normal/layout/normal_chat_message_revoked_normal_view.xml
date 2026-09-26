@@ -12,7 +12,7 @@
     android:layout_height="wrap_content"
     android:paddingHorizontal="@dimen/dimen_16_dp"
     android:paddingVertical="@dimen/dimen_12_dp"
-    android:orientation="vertical"
+    android:orientation="horizontal"
     android:gravity="center_vertical">
 
     <TextView
@@ -29,6 +29,7 @@
         android:id="@+id/tv_action"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/dimen_6_dp"
         android:textSize="@dimen/text_size_16"
         android:text="@string/chat_message_re_edit"
         android:textColor="@color/color_007aff"

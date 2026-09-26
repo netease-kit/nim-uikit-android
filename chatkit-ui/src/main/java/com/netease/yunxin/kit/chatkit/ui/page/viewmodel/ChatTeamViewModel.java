@@ -19,12 +19,12 @@ import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamType;
 import com.netease.nimlib.sdk.v2.team.model.V2NIMTeam;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.ChatConstants;
+import com.netease.yunxin.kit.chatkit.cache.TeamMemberCache;
+import com.netease.yunxin.kit.chatkit.cache.TeamMemberCacheListener;
+import com.netease.yunxin.kit.chatkit.impl.TeamListenerImpl;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
 import com.netease.yunxin.kit.chatkit.repo.TeamRepo;
-import com.netease.yunxin.kit.chatkit.ui.cache.TeamChangeListener;
-import com.netease.yunxin.kit.chatkit.ui.cache.TeamUserChangedListener;
-import com.netease.yunxin.kit.chatkit.ui.cache.TeamUserManager;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatUserCache;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.model.TopStickyMessage;
@@ -37,9 +37,9 @@ import com.netease.yunxin.kit.corekit.im2.custom.TeamEvent;
 import com.netease.yunxin.kit.corekit.im2.custom.TeamEventAction;
 import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -61,10 +61,10 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
   private final MutableLiveData<String> topMessagePermissionLiveData = new MutableLiveData<>();
   private boolean myDismiss = false;
 
-  private final TeamUserChangedListener userInfoListener =
-      new TeamUserChangedListener() {
+  private final TeamMemberCacheListener userInfoListener =
+      new TeamMemberCacheListener() {
         @Override
-        public void onUsersChanged(List<String> accountIds) {
+        public void onUsersChanged(String teamId, List<String> accountIds) {
           ALog.i(
               LIB_TAG, TAG, "onUsersChanged:" + (accountIds == null ? "null" : accountIds.size()));
           FetchResult<List<String>> result = new FetchResult<>(LoadStatus.Finish);
@@ -75,7 +75,7 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
         }
 
         @Override
-        public void onUserDelete(List<String> accountIds) {
+        public void onUsersRemoved(String teamId, List<String> accountIds) {
           ALog.i(LIB_TAG, TAG, "onUserDelete:" + (accountIds == null ? "null" : accountIds.size()));
           FetchResult<List<String>> result = new FetchResult<>(LoadStatus.Finish);
           result.setData(accountIds);
@@ -84,7 +84,7 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
         }
 
         @Override
-        public void onUsersAdd(List<String> accountIds) {
+        public void onUsersAdded(String teamId, List<String> accountIds) {
           ALog.i(LIB_TAG, TAG, "onUsersAdd:" + (accountIds == null ? "null" : accountIds.size()));
           FetchResult<List<String>> result = new FetchResult<>(LoadStatus.Finish);
           result.setData(accountIds);
@@ -93,28 +93,34 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
         }
       };
 
-  private final TeamChangeListener teamInfoListener =
-      team -> {
-        ALog.i(LIB_TAG, TAG, "onTeamInfoUpdated:");
-        if (team != null && TextUtils.equals(team.getTeamId(), mChatAccountId)) {
-          teamLiveData.setValue(team);
-          ChatRepo.setCurrentTeam(team);
-          if (!TextUtils.isEmpty(team.getServerExtension())) {
-            try {
+  private final TeamListenerImpl teamInfoListener =
+      new TeamListenerImpl() {
+        @Override
+        public void onTeamInfoUpdated(V2NIMTeam team) {
+          ALog.i(LIB_TAG, TAG, "onTeamInfoUpdated:");
+          if (team != null && TextUtils.equals(team.getTeamId(), mChatAccountId)) {
+            teamLiveData.setValue(team);
+            ChatRepo.setCurrentTeam(team);
+            notifyTeamInfoChanged();
+            if (!TextUtils.isEmpty(team.getServerExtension())) {
+              try {
 
-              //处理置顶消息
-              handleTopMessage(team.getServerExtension());
+                //处理置顶消息
+                handleTopMessage(team.getServerExtension());
 
-              //处理最后一次操作类型
-              JSONObject jsonTeam = new JSONObject(team.getServerExtension());
-              if (jsonTeam.has(ChatConstants.KEY_EXTENSION_LAST_OPT_TYPE)) {
-                String lastOptType = jsonTeam.optString(ChatConstants.KEY_EXTENSION_LAST_OPT_TYPE);
-                if (TextUtils.equals(lastOptType, ChatConstants.KEY_EXTENSION_STICKY_PERMISSION)) {
-                  handleTopMessagePermission(team.getServerExtension());
+                //处理最后一次操作类型
+                JSONObject jsonTeam = new JSONObject(team.getServerExtension());
+                if (jsonTeam.has(ChatConstants.KEY_EXTENSION_LAST_OPT_TYPE)) {
+                  String lastOptType =
+                      jsonTeam.optString(ChatConstants.KEY_EXTENSION_LAST_OPT_TYPE);
+                  if (TextUtils.equals(
+                      lastOptType, ChatConstants.KEY_EXTENSION_STICKY_PERMISSION)) {
+                    handleTopMessagePermission(team.getServerExtension());
+                  }
                 }
+              } catch (JSONException e) {
+                ALog.e(LIB_TAG, TAG, "handleTopMessage json error:" + e);
               }
-            } catch (JSONException e) {
-              ALog.e(LIB_TAG, TAG, "handleTopMessage json error:" + e);
             }
           }
         }
@@ -123,11 +129,7 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
   @Override
   public void init(String accountId, V2NIMConversationType sessionType) {
     super.init(accountId, sessionType);
-    TeamUserManager.getInstance().init(accountId);
-    if (IMKitClient.account() != null) {
-      //查询自己在群里的信息
-      TeamUserManager.getInstance().getTeamMember(Objects.requireNonNull(IMKitClient.account()));
-    }
+    TeamMemberCache.ensureTeam(accountId);
   }
 
   @Override
@@ -211,16 +213,21 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
   @Override
   public void addListener() {
     super.addListener();
-    TeamUserManager.getInstance().addTeamChangedListener(teamInfoListener);
-    TeamUserManager.getInstance().addMemberChangedListener(userInfoListener);
+    TeamRepo.addTeamListener(teamInfoListener);
+    TeamMemberCache.ensureTeam(mChatAccountId);
+    TeamMemberCache.addMemberChangedListener(mChatAccountId, userInfoListener);
+    if (IMKitClient.account() != null) {
+      // 注册监听后再查询当前成员，避免异步成员结果早于监听器注册。
+      TeamMemberCache.getTeamMember(mChatAccountId, IMKitClient.account());
+    }
     EventCenter.registerEventNotify(teamDismissNotify);
   }
 
   @Override
   public void removeListener() {
     super.removeListener();
-    TeamUserManager.getInstance().removeTeamChangedListener(teamInfoListener);
-    TeamUserManager.getInstance().removeMemberChangedListener(userInfoListener);
+    TeamRepo.removeTeamListener(teamInfoListener);
+    TeamMemberCache.removeMemberChangedListener(mChatAccountId, userInfoListener);
     EventCenter.unregisterEventNotify(teamDismissNotify);
   }
 
@@ -239,15 +246,50 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
   }
 
   public void getTeamInfo() {
+    getTeamInfo(false);
+  }
+
+  public void getTeamInfo(boolean forceRemote) {
     ALog.i(LIB_TAG, TAG, "getTeamInfo:" + mChatAccountId);
-    V2NIMTeam team = TeamUserManager.getInstance().getCurrentTeam();
-    if (team != null) {
+    V2NIMTeam team = ChatRepo.INSTANCE.getCurrentTeam();
+    if (!forceRemote && team != null && TextUtils.equals(team.getTeamId(), mChatAccountId)) {
+      ALog.i(LIB_TAG, TAG, "getTeamInfo cached teamName:" + team.getName());
       teamLiveData.setValue(team);
       ChatRepo.setCurrentTeam(team);
       if (!TextUtils.isEmpty(team.getServerExtension())) {
         handleTopMessage(team.getServerExtension());
       }
+      return;
     }
+    if (forceRemote) {
+      ALog.i(LIB_TAG, TAG, "getTeamInfo remote query, teamId:" + mChatAccountId);
+    }
+    TeamRepo.getTeamInfo(
+        mChatAccountId,
+        new FetchCallback<V2NIMTeam>() {
+          @Override
+          public void onSuccess(@Nullable V2NIMTeam data) {
+            if (data == null || !TextUtils.equals(data.getTeamId(), mChatAccountId)) return;
+            ALog.i(LIB_TAG, TAG, "getTeamInfo success teamName:" + data.getName());
+            ChatRepo.setCurrentTeam(data);
+            teamLiveData.setValue(data);
+            if (!TextUtils.isEmpty(data.getServerExtension())) {
+              handleTopMessage(data.getServerExtension());
+            }
+          }
+
+          @Override
+          public void onError(int errorCode, String errorMsg) {
+            ALog.e(LIB_TAG, TAG, "getTeamInfo failed:" + errorCode + "," + errorMsg);
+          }
+        });
+  }
+
+  private void notifyTeamInfoChanged() {
+    FetchResult<List<String>> result = new FetchResult<>(LoadStatus.Finish);
+    result.setData(Collections.singletonList(mChatAccountId));
+    result.setType(FetchResult.FetchType.Update);
+    userChangeLiveData.setValue(result);
   }
 
   @Override
@@ -266,7 +308,7 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
     }
     List<String> userIds = new ArrayList<>(memberIds);
     userIds.add(IMKitClient.account());
-    TeamUserManager.getInstance().getTeamMembers(userIds, null);
+    TeamMemberCache.getTeamMembers(mChatAccountId, userIds, null);
   }
 
   public boolean hasLoadMessage() {
@@ -399,7 +441,7 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
           ChatConstants.KEY_STICKY_MESSAGE_OPERATION, ChatConstants.TYPE_EXTENSION_STICKY_ADD);
       jsonMessage.put(ChatConstants.KEY_STICKY_MESSAGE_RECEIVER_ID, message.getReceiverId());
 
-      V2NIMTeam team = TeamUserManager.getInstance().getCurrentTeam();
+      V2NIMTeam team = ChatRepo.INSTANCE.getCurrentTeam();
       if (team != null) {
         String teamExtension = team.getServerExtension();
         JSONObject jsonTeam = new JSONObject();
@@ -463,7 +505,7 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
 
       jsonSticky.put(ChatConstants.KEY_EXTENSION_STICKY, jsonMessage);
 
-      V2NIMTeam team = TeamUserManager.getInstance().getCurrentTeam();
+      V2NIMTeam team = ChatRepo.INSTANCE.getCurrentTeam();
       if (team != null) {
         String teamExtension = team.getServerExtension();
         JSONObject jsonTeam = new JSONObject();
@@ -498,12 +540,15 @@ public class ChatTeamViewModel extends ChatBaseViewModel {
   @Override
   public void updateVoicePlayModel() {
     super.updateVoicePlayModel();
-    teamLiveData.setValue(TeamUserManager.getInstance().getCurrentTeam());
+    teamLiveData.setValue(ChatRepo.INSTANCE.getCurrentTeam());
   }
 
   @Override
   protected void onCleared() {
     super.onCleared();
-    TeamUserManager.getInstance().clear();
+    V2NIMTeam currentTeam = ChatRepo.INSTANCE.getCurrentTeam();
+    if (currentTeam != null && TextUtils.equals(currentTeam.getTeamId(), mChatAccountId)) {
+      ChatRepo.setCurrentTeam(null);
+    }
   }
 }

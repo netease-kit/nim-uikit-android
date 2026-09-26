@@ -9,8 +9,6 @@
     android:id="@+id/llyContainer"
     android:layout_height="wrap_content"
     android:layout_width="wrap_content"
-    android:layout_marginStart="@dimen/dimen_5_dp"
-    android:layout_marginEnd="@dimen/dimen_5_dp"
     android:orientation="vertical">
     <RelativeLayout
         android:id="@+id/container"
@@ -45,6 +43,14 @@
 
     </RelativeLayout>
 
+    <View
+        android:id="@+id/voiceToTextDivider"
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:layout_marginHorizontal="@dimen/dimen_12_dp"
+        android:background="@color/color_chat_translation_divider"
+        android:visibility="gone" />
+
     <TextView
         android:id="@+id/tvVoice"
          android:layout_width="wrap_content"
@@ -56,4 +62,3 @@
         android:paddingHorizontal="@dimen/dimen_12_dp"
         android:paddingVertical="@dimen/dimen_9_dp"/>
 </LinearLayout>
-

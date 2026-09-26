@@ -26,12 +26,12 @@ import com.netease.yunxin.kit.chatkit.OnlineStatusManager;
 import com.netease.yunxin.kit.chatkit.cache.FriendUserCache;
 import com.netease.yunxin.kit.chatkit.manager.AIUserManager;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
-import com.netease.yunxin.kit.chatkit.repo.ConversationRepo;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitClient;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatUserCache;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.normal.view.MessageBottomLayout;
+import com.netease.yunxin.kit.chatkit.ui.normal.view.ait.NormalAitContactSelectorDialog;
 import com.netease.yunxin.kit.chatkit.ui.page.viewmodel.ChatP2PViewModel;
 import com.netease.yunxin.kit.chatkit.ui.view.ait.AitManager;
 import com.netease.yunxin.kit.chatkit.utils.ConversationIdUtils;
@@ -41,7 +41,6 @@ import com.netease.yunxin.kit.corekit.im2.model.UserWithFriend;
 import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /** 标准皮肤，单聊会话页面Fragment。 */
@@ -93,7 +92,7 @@ public class ChatP2PFragment extends NormalChatFragment {
     if (IMKitConfigCenter.getEnableAIUser()
         && !AIUserManager.isAIUser(accountId)
         && !AIUserManager.getAIChatUserList().isEmpty()) {
-      aitManager = new AitManager(getContext(), accountId);
+      aitManager = new AitManager(getContext(), accountId, NormalAitContactSelectorDialog::new);
       aitManager.setShowAll(false);
       aitManager.setShowAIUser(true);
       aitManager.setShowTeamMember(false);
@@ -171,8 +170,6 @@ public class ChatP2PFragment extends NormalChatFragment {
     if (chatConfig != null && chatConfig.messageProperties != null) {
       viewModel.setShowReadStatus(chatConfig.messageProperties.showP2PMessageStatus);
     }
-    ConversationRepo.clearUnreadCountByIds(
-        Collections.singletonList(viewModel.getConversationId()), null);
   }
 
   @Override

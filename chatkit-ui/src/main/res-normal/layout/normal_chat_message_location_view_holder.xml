@@ -6,8 +6,7 @@
     android:id="@+id/locationItemRoot"
     android:layout_width="234dp"
     android:layout_height="wrap_content"
-    android:layout_margin="@dimen/dimen_1_dp"
-    android:background="@color/color_white"
+    android:background="@drawable/normal_chat_message_location_bg"
     app:corner_radius="@dimen/dimen_12_dp">
 
     <LinearLayout

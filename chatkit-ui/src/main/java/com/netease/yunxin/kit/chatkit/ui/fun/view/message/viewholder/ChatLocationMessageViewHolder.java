@@ -7,6 +7,7 @@ package com.netease.yunxin.kit.chatkit.ui.fun.view.message.viewholder;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import com.bumptech.glide.Glide;
@@ -31,10 +32,27 @@ public class ChatLocationMessageViewHolder extends FunChatBaseMessageViewHolder 
   }
 
   @Override
+  protected int getMessageReactionGroupTopInsetPx() {
+    return parent.getResources().getDimensionPixelSize(R.dimen.dimen_12_dp);
+  }
+
+  @Override
+  protected void onLayoutConfig(ChatMessageBean messageBean) {
+    super.onLayoutConfig(messageBean);
+    ViewGroup.MarginLayoutParams rootParams =
+        (ViewGroup.MarginLayoutParams) binding.getRoot().getLayoutParams();
+    int inset = parent.getResources().getDimensionPixelSize(R.dimen.dimen_8_dp);
+    boolean isReceivedMessage = MessageHelper.isReceivedMessage(messageBean) || !isChatMsg();
+    rootParams.setMarginStart(isReceivedMessage ? inset : 0);
+    rootParams.setMarginEnd(isReceivedMessage ? 0 : inset);
+    binding.getRoot().setLayoutParams(rootParams);
+  }
+
+  @Override
   public void addViewToMessageContainer() {
     binding =
         FunChatMessageLocationViewHolderBinding.inflate(
-            LayoutInflater.from(parent.getContext()), getMessageContainer(), true);
+            LayoutInflater.from(parent.getContext()), getMessageContentContainer(), true);
   }
 
   @Override
@@ -95,12 +113,7 @@ public class ChatLocationMessageViewHolder extends FunChatBaseMessageViewHolder 
   }
 
   @Override
-  protected void onMessageBackgroundConfig(ChatMessageBean messageBean) {
-    super.onMessageBackgroundConfig(messageBean);
-    if (!messageBean.isRevoked()) {
-      binding.getRoot().setBackgroundResource(R.drawable.fun_bg_message_location);
-    } else {
-      binding.getRoot().setBackgroundResource(R.color.title_transfer);
-    }
+  protected boolean useForwardMessageBackground(ChatMessageBean messageBean) {
+    return true;
   }
 }

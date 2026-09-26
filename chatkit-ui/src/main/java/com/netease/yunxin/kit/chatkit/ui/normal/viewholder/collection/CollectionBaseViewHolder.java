@@ -12,6 +12,7 @@ import androidx.annotation.NonNull;
 import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
 import com.netease.yunxin.kit.chatkit.ui.ChatMessageType;
 import com.netease.yunxin.kit.chatkit.ui.R;
+import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.chatkit.ui.databinding.CollectionBaseViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.interfaces.ChatBaseViewHolder;
 import com.netease.yunxin.kit.chatkit.ui.model.CollectionBean;
@@ -95,7 +96,7 @@ public abstract class CollectionBaseViewHolder extends ChatBaseViewHolder<Collec
     if (message.getMessageData() != null) {
       baseViewBinding.messageAvatar.setData(
           message.getSenderAvatar(),
-          message.getUserName(),
+          MessageHelper.getMessageAvatarName(message.getMessageData()),
           AvatarColor.avatarColor(message.getMessageData().getSenderId()));
       String conversationName = "";
       if (message.getMessageData().getConversationType()

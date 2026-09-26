@@ -1147,6 +1147,8 @@ public class ConversationGroupViewModel extends BaseViewModel {
         @Override
         public void onSyncFinished() {
           ALog.d(UNREAD_TAG, "listener onSyncFinished");
+          // 首次进入页面可能早于主数据同步完成，完成后重新加载分组确保 Tab 补齐。
+          loadGroups();
           syncUnreadSubscriptions();
         }
 

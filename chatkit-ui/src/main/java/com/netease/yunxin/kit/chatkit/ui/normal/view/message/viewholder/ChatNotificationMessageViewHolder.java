@@ -37,7 +37,7 @@ public class ChatNotificationMessageViewHolder extends NormalChatBaseMessageView
   public void addViewToMessageContainer() {
     textBinding =
         NormalChatMessageTextViewHolderBinding.inflate(
-            LayoutInflater.from(parent.getContext()), getMessageContainer(), true);
+            LayoutInflater.from(parent.getContext()), getMessageContentContainer(), true);
   }
 
   @Override
@@ -59,7 +59,7 @@ public class ChatNotificationMessageViewHolder extends NormalChatBaseMessageView
 
   @Override
   protected void onMessageBackgroundConfig(ChatMessageBean messageBean) {
-    baseViewBinding.contentWithTopLayer.setBackgroundResource(R.color.title_transfer);
+    baseViewBinding.messageContentGroup.setBackgroundResource(R.color.title_transfer);
   }
 
   @Override

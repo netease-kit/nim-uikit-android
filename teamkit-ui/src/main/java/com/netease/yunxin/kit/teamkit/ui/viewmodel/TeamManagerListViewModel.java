@@ -7,12 +7,10 @@ package com.netease.yunxin.kit.teamkit.ui.viewmodel;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
-import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamMemberRole;
 import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamType;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.model.TeamMemberWithUserInfo;
 import com.netease.yunxin.kit.chatkit.repo.TeamRepo;
-import com.netease.yunxin.kit.chatkit.ui.cache.TeamUserManager;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
@@ -28,9 +26,6 @@ public class TeamManagerListViewModel extends TeamBaseViewModel {
   private static final String TAG = "TeamManagerListViewModel";
   private static final String LIB_TAG = "TeamKit-UI";
 
-  // 获取群成员信息列表
-  private final MutableLiveData<FetchResult<List<TeamMemberWithUserInfo>>> teamManagerWithUserData =
-      new MutableLiveData<>();
   private final MutableLiveData<FetchResult<List<String>>> addRemoveManagerLiveData =
       new MutableLiveData<>();
 
@@ -39,7 +34,7 @@ public class TeamManagerListViewModel extends TeamBaseViewModel {
   }
 
   public MutableLiveData<FetchResult<List<TeamMemberWithUserInfo>>> getTeamManagerWithUserData() {
-    return teamManagerWithUserData;
+    return teamMemberWithUserData;
   }
 
   /**
@@ -49,14 +44,8 @@ public class TeamManagerListViewModel extends TeamBaseViewModel {
    */
   public void requestTeamManagers(String teamId) {
     ALog.d(LIB_TAG, TAG, "requestTeamMembers:" + teamId);
-    List<TeamMemberWithUserInfo> managerList =
-        TeamUserManager.getInstance()
-            .getTeamMemberWithRoleListFromCache(
-                teamId, V2NIMTeamMemberRole.V2NIM_TEAM_MEMBER_ROLE_MANAGER);
-
-    FetchResult<List<TeamMemberWithUserInfo>> result =
-        new FetchResult<>(LoadStatus.Success, managerList);
-    teamMemberWithUserData.setValue(result);
+    this.teamId = teamId;
+    loadAllTeamMembersByPage();
   }
   /**
    * 添加管理员

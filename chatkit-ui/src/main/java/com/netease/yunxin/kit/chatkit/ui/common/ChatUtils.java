@@ -32,13 +32,13 @@ import com.netease.nimlib.sdk.v2.team.model.V2NIMTeam;
 import com.netease.nimlib.sdk.v2.team.model.V2NIMTeamMember;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.ChatConstants;
+import com.netease.yunxin.kit.chatkit.cache.TeamMemberCache;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.model.TeamMemberWithUserInfo;
 import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitClient;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant;
 import com.netease.yunxin.kit.chatkit.ui.R;
-import com.netease.yunxin.kit.chatkit.ui.cache.TeamUserManager;
 import com.netease.yunxin.kit.chatkit.ui.custom.MultiForwardAttachment;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.page.WatchImageActivity;
@@ -655,7 +655,7 @@ public class ChatUtils {
    * @return 是否有置顶权限
    */
   public static boolean havePermissionForTopSticky() {
-    V2NIMTeam team = TeamUserManager.getInstance().getCurrentTeam();
+    V2NIMTeam team = ChatRepo.INSTANCE.getCurrentTeam();
     boolean isAllAllow = false;
     if (team != null && team.getServerExtension() != null) {
       String teamExtension = team.getServerExtension();
@@ -679,10 +679,10 @@ public class ChatUtils {
         return true;
       }
     }
-    V2NIMTeamMember teamMember = TeamUserManager.getInstance().getCurTeamMember();
-    if (teamMember == null) {
-      teamMember = TeamUserManager.getInstance().getCurTeamMember();
-    }
+    V2NIMTeamMember teamMember =
+        team == null || TextUtils.isEmpty(IMKitClient.account())
+            ? null
+            : TeamMemberCache.getTeamMember(team.getTeamId(), IMKitClient.account());
     return teamMember != null
         && (teamMember.getMemberRole() == V2NIMTeamMemberRole.V2NIM_TEAM_MEMBER_ROLE_OWNER
             || teamMember.getMemberRole() == V2NIMTeamMemberRole.V2NIM_TEAM_MEMBER_ROLE_MANAGER);

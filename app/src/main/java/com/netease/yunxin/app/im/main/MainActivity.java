@@ -66,6 +66,7 @@ import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitClient;
 import com.netease.yunxin.kit.chatkit.ui.ChatUIConfig;
 import com.netease.yunxin.kit.chatkit.ui.IChatInputMenu;
+import com.netease.yunxin.kit.chatkit.ui.StickerConfig;
 import com.netease.yunxin.kit.chatkit.ui.builder.IChatViewCustom;
 import com.netease.yunxin.kit.chatkit.ui.interfaces.IChatView;
 import com.netease.yunxin.kit.chatkit.ui.view.ai.AIHelperView;
@@ -696,6 +697,8 @@ public class MainActivity extends BaseLocalActivity {
             AppConfig.accessToken);
 
     ChatUIConfig uiConfig = new ChatUIConfig();
+    uiConfig.stickerConfig = new StickerConfig();
+    uiConfig.stickerConfig.enabled = true;
     uiConfig.chatViewCustom =
         new IChatViewCustom() {
           @Override

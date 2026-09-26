@@ -19,13 +19,13 @@ import com.netease.nimlib.sdk.v2.message.params.V2NIMMessageSearchExParams;
 import com.netease.nimlib.sdk.v2.message.result.V2NIMMessageSearchResult;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
+import com.netease.yunxin.kit.chatkit.cache.TeamMemberCache;
+import com.netease.yunxin.kit.chatkit.cache.TeamMemberCacheListener;
 import com.netease.yunxin.kit.chatkit.impl.MessageListenerImpl;
 import com.netease.yunxin.kit.chatkit.listener.ChatListener;
 import com.netease.yunxin.kit.chatkit.listener.MessageRevokeNotification;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
-import com.netease.yunxin.kit.chatkit.ui.cache.TeamUserChangedListener;
-import com.netease.yunxin.kit.chatkit.ui.cache.TeamUserManager;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.utils.ConversationIdUtils;
 import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
@@ -130,21 +130,20 @@ public class ChatSearchViewModel extends BaseViewModel {
         }
       };
 
-  private final TeamUserChangedListener cacheUserChangedListener =
-      new TeamUserChangedListener() {
-
+  private final TeamMemberCacheListener teamMemberCacheListener =
+      new TeamMemberCacheListener() {
         @Override
-        public void onUsersChanged(List<String> accountIds) {
+        public void onUsersChanged(String teamId, List<String> accountIds) {
           FetchResult<List<String>> result = new FetchResult<>(LoadStatus.Success);
           result.setData(accountIds);
           userChangeLiveData.postValue(result);
         }
 
         @Override
-        public void onUserDelete(List<String> accountIds) {}
+        public void onUsersAdded(String teamId, List<String> accountIds) {}
 
         @Override
-        public void onUsersAdd(List<String> accountIds) {}
+        public void onUsersRemoved(String teamId, List<String> accountIds) {}
       };
 
   public void setConversationInfo(String sessionId, V2NIMConversationType conversationType) {
@@ -258,7 +257,10 @@ public class ChatSearchViewModel extends BaseViewModel {
     if (haveAddListener) {
       return;
     }
-    TeamUserManager.getInstance().addMemberChangedListener(cacheUserChangedListener);
+    if (conversationType == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_TEAM) {
+      TeamMemberCache.ensureTeam(targetId);
+      TeamMemberCache.addMemberChangedListener(targetId, teamMemberCacheListener);
+    }
     ChatRepo.addMessageListener(messageListener);
     haveAddListener = true;
   }
@@ -280,7 +282,9 @@ public class ChatSearchViewModel extends BaseViewModel {
   @Override
   protected void onCleared() {
     super.onCleared();
-    TeamUserManager.getInstance().removeMemberChangedListener(cacheUserChangedListener);
+    if (conversationType == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_TEAM) {
+      TeamMemberCache.removeMemberChangedListener(targetId, teamMemberCacheListener);
+    }
     ChatRepo.removeMessageListener(messageListener);
     haveAddListener = false;
   }

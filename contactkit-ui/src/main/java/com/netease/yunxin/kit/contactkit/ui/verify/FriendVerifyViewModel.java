@@ -250,7 +250,7 @@ public class FriendVerifyViewModel extends BaseViewModel {
 
   public void clearNotify() {
     ALog.d(LIB_TAG, TAG, "clearNotify");
-    ContactRepo.clearNotification();
+    ContactRepo.clearFriendNotification();
     fetchResult.setLoadStatus(LoadStatus.Finish);
     fetchResult.setFetchType(FetchResult.FetchType.Remove);
     fetchResult.setData(new ArrayList<>(verifyBeanList));

@@ -47,6 +47,11 @@ public class FunChatBotSubSessionChatFragment extends FunChatP2PFragment {
   private FunChatBotSubSessionChatFragmentBinding botSubSessionBinding;
 
   @Override
+  protected boolean supportsEarliestUnread() {
+    return false;
+  }
+
+  @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     if (getArguments() != null) {

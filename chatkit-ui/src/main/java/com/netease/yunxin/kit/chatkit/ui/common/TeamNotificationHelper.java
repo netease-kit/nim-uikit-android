@@ -5,6 +5,7 @@
 package com.netease.yunxin.kit.chatkit.ui.common;
 
 import android.text.TextUtils;
+import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
 import com.netease.nimlib.sdk.v2.message.attachment.V2NIMMessageNotificationAttachment;
 import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamAgreeMode;
 import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamChatBannedMode;
@@ -13,11 +14,12 @@ import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamJoinMode;
 import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamUpdateInfoMode;
 import com.netease.nimlib.sdk.v2.team.model.V2NIMTeam;
 import com.netease.nimlib.sdk.v2.team.model.V2NIMUpdatedTeamInfo;
+import com.netease.nimlib.sdk.v2.utils.V2NIMConversationIdUtil;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.ChatConstants;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
+import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
 import com.netease.yunxin.kit.chatkit.ui.R;
-import com.netease.yunxin.kit.chatkit.ui.cache.TeamUserManager;
 import com.netease.yunxin.kit.corekit.im2.IMKitClient;
 import com.netease.yunxin.kit.corekit.im2.utils.IMKitUtils;
 import java.util.List;
@@ -28,51 +30,61 @@ import org.json.JSONObject;
 public class TeamNotificationHelper {
 
   public static String getTeamNotificationText(IMMessageInfo message) {
+    if (message == null || message.getMessage() == null) {
+      return "";
+    }
+    String teamId =
+        V2NIMConversationIdUtil.conversationTargetId(message.getMessage().getConversationId());
+    if (TextUtils.isEmpty(teamId)
+        || !(message.getMessage().getAttachment() instanceof V2NIMMessageNotificationAttachment)) {
+      return "";
+    }
     return buildNotification(
         message.getMessage().getSenderId(),
-        (V2NIMMessageNotificationAttachment) message.getMessage().getAttachment());
+        (V2NIMMessageNotificationAttachment) message.getMessage().getAttachment(),
+        teamId);
   }
 
   private static String buildNotification(
-      String fromAccount, V2NIMMessageNotificationAttachment attachment) {
+      String fromAccount, V2NIMMessageNotificationAttachment attachment, String teamId) {
     String text;
     switch (attachment.getType()) {
       case V2NIM_MESSAGE_NOTIFICATION_TYPE_TEAM_INVITE:
-        text = buildInviteMemberNotification(attachment, fromAccount);
+        text = buildInviteMemberNotification(attachment, fromAccount, teamId);
         break;
       case V2NIM_MESSAGE_NOTIFICATION_TYPE_TEAM_KICK:
-        text = buildKickMemberNotification(attachment);
+        text = buildKickMemberNotification(attachment, teamId);
         break;
       case V2NIM_MESSAGE_NOTIFICATION_TYPE_TEAM_LAVE:
-        text = buildLeaveTeamNotification(fromAccount);
+        text = buildLeaveTeamNotification(fromAccount, teamId);
         break;
       case V2NIM_MESSAGE_NOTIFICATION_TYPE_TEAM_DISMISS:
-        text = buildDismissTeamNotification(fromAccount);
+        text = buildDismissTeamNotification(fromAccount, teamId);
         break;
       case V2NIM_MESSAGE_NOTIFICATION_TYPE_TEAM_UPDATE_TINFO:
-        text = buildUpdateTeamNotification(fromAccount, attachment);
+        text = buildUpdateTeamNotification(fromAccount, attachment, teamId);
         break;
       case V2NIM_MESSAGE_NOTIFICATION_TYPE_TEAM_APPLY_PASS:
-        text = buildManagerPassTeamApplyNotification(attachment);
+        text = buildManagerPassTeamApplyNotification(attachment, teamId);
         break;
       case V2NIM_MESSAGE_NOTIFICATION_TYPE_TEAM_OWNER_TRANSFER:
-        text = buildTransferOwnerNotification(fromAccount, attachment);
+        text = buildTransferOwnerNotification(fromAccount, attachment, teamId);
         break;
       case V2NIM_MESSAGE_NOTIFICATION_TYPE_TEAM_ADD_MANAGER:
-        text = buildAddTeamManagerNotification(attachment);
+        text = buildAddTeamManagerNotification(attachment, teamId);
         break;
       case V2NIM_MESSAGE_NOTIFICATION_TYPE_TEAM_REMOVE_MANAGER:
-        text = buildRemoveTeamManagerNotification(attachment);
+        text = buildRemoveTeamManagerNotification(attachment, teamId);
         break;
       case V2NIM_MESSAGE_NOTIFICATION_TYPE_TEAM_INVITE_ACCEPT:
-        text = buildAcceptInviteNotification(fromAccount, attachment);
+        text = buildAcceptInviteNotification(fromAccount, attachment, teamId);
         break;
       case V2NIM_MESSAGE_NOTIFICATION_TYPE_TEAM_BANNED_TEAM_MEMBER:
-        text = buildMuteTeamNotification(attachment);
+        text = buildMuteTeamNotification(attachment, teamId);
         break;
       default:
         text =
-            getTeamMemberDisplayName(fromAccount)
+            getTeamMemberDisplayName(fromAccount, teamId)
                 + ": "
                 + IMKitClient.getApplicationContext().getString(R.string.chat_team_unknown_message);
         break;
@@ -81,17 +93,22 @@ public class TeamNotificationHelper {
     return text;
   }
 
-  private static String getTeamMemberDisplayName(String account) {
-    return MessageHelper.getTeamNotifyDisplayName(account);
+  private static String getTeamMemberDisplayName(String account, String teamId) {
+    if (TextUtils.equals(account, IMKitClient.account())) {
+      return IMKitClient.getApplicationContext().getString(R.string.chat_you);
+    }
+    return ChatUserCache.getInstance()
+        .getNickname(account, V2NIMConversationType.V2NIM_CONVERSATION_TYPE_TEAM, teamId);
   }
 
-  private static String buildMemberListString(List<String> members, String fromAccount) {
+  private static String buildMemberListString(
+      List<String> members, String fromAccount, String teamId) {
     StringBuilder sb = new StringBuilder();
     for (String account : members) {
       if (TextUtils.equals(account, fromAccount)) {
         continue;
       }
-      sb.append(getTeamMemberDisplayName(account));
+      sb.append(getTeamMemberDisplayName(account, teamId));
       sb.append(",");
     }
     if (sb.length() > 0) {
@@ -102,14 +119,14 @@ public class TeamNotificationHelper {
   }
 
   private static String buildInviteMemberNotification(
-      V2NIMMessageNotificationAttachment a, String fromAccount) {
+      V2NIMMessageNotificationAttachment a, String fromAccount, String teamId) {
     StringBuilder sb = new StringBuilder();
-    String selfName = getTeamMemberDisplayName(fromAccount);
+    String selfName = getTeamMemberDisplayName(fromAccount, teamId);
 
     sb.append(selfName);
     sb.append(IMKitClient.getApplicationContext().getString(R.string.chat_invite));
-    sb.append(buildMemberListString(a.getTargetIds(), fromAccount));
-    V2NIMTeam team = getTeam();
+    sb.append(buildMemberListString(a.getTargetIds(), fromAccount, teamId));
+    V2NIMTeam team = getTeam(teamId);
     if (team != null && !IMKitUtils.isTeamGroup(team)) {
       sb.append(IMKitClient.getApplicationContext().getString(R.string.chat_join_team));
     } else {
@@ -119,10 +136,11 @@ public class TeamNotificationHelper {
     return sb.toString();
   }
 
-  private static String buildKickMemberNotification(V2NIMMessageNotificationAttachment a) {
+  private static String buildKickMemberNotification(
+      V2NIMMessageNotificationAttachment a, String teamId) {
     StringBuilder sb = new StringBuilder();
-    sb.append(buildMemberListString(a.getTargetIds(), null));
-    V2NIMTeam team = getTeam();
+    sb.append(buildMemberListString(a.getTargetIds(), null, teamId));
+    V2NIMTeam team = getTeam(teamId);
     if (team != null && !IMKitUtils.isTeamGroup(team)) {
       sb.append(IMKitClient.getApplicationContext().getString(R.string.chat_removed_team));
     } else {
@@ -132,32 +150,35 @@ public class TeamNotificationHelper {
     return sb.toString();
   }
 
-  private static String buildLeaveTeamNotification(String fromAccount) {
+  private static String buildLeaveTeamNotification(String fromAccount, String teamId) {
     String tip;
-    V2NIMTeam team = getTeam();
+    V2NIMTeam team = getTeam(teamId);
     if (team != null && !IMKitUtils.isTeamGroup(team)) {
       tip = IMKitClient.getApplicationContext().getString(R.string.chat_left_team);
     } else {
       tip = IMKitClient.getApplicationContext().getString(R.string.chat_left_discuss_team);
     }
-    return getTeamMemberDisplayName(fromAccount) + tip;
+    return getTeamMemberDisplayName(fromAccount, teamId) + tip;
   }
 
-  private static V2NIMTeam getTeam() {
-    return TeamUserManager.getInstance().getCurrentTeam();
+  private static V2NIMTeam getTeam(String teamId) {
+    V2NIMTeam currentTeam = ChatRepo.INSTANCE.getCurrentTeam();
+    return currentTeam != null && TextUtils.equals(currentTeam.getTeamId(), teamId)
+        ? currentTeam
+        : null;
   }
 
-  private static String buildDismissTeamNotification(String fromAccount) {
-    return getTeamMemberDisplayName(fromAccount)
+  private static String buildDismissTeamNotification(String fromAccount, String teamId) {
+    return getTeamMemberDisplayName(fromAccount, teamId)
         + IMKitClient.getApplicationContext().getString(R.string.chat_dismiss_team);
   }
 
   private static String buildUpdateTeamNotification(
-      String fromAccount, V2NIMMessageNotificationAttachment attachment) {
+      String fromAccount, V2NIMMessageNotificationAttachment attachment, String teamId) {
     StringBuilder sb = new StringBuilder();
     StringBuilder subStr = new StringBuilder();
     V2NIMUpdatedTeamInfo field = attachment.getUpdatedTeamInfo();
-    subStr.append(getTeamMemberDisplayName(fromAccount)).append(" ");
+    subStr.append(getTeamMemberDisplayName(fromAccount, teamId)).append(" ");
     if (field.getName() != null) {
       subStr.append(
           String.format(
@@ -357,54 +378,57 @@ public class TeamNotificationHelper {
   }
 
   private static String buildManagerPassTeamApplyNotification(
-      V2NIMMessageNotificationAttachment a) {
+      V2NIMMessageNotificationAttachment a, String teamId) {
     if (a.getUpdatedTeamInfo() != null
         && a.getUpdatedTeamInfo().getJoinMode() == V2NIMTeamJoinMode.V2NIM_TEAM_JOIN_MODE_FREE) {
       return String.format(
           IMKitClient.getApplicationContext().getString(R.string.chat_team_join_application),
-          buildMemberListString(a.getTargetIds(), null));
+          buildMemberListString(a.getTargetIds(), null, teamId));
     }
 
     return String.format(
         IMKitClient.getApplicationContext()
             .getString(R.string.chat_team_manager_pass_ones_application),
-        buildMemberListString(a.getTargetIds(), null));
+        buildMemberListString(a.getTargetIds(), null, teamId));
   }
 
   private static String buildTransferOwnerNotification(
-      String fromAccount, V2NIMMessageNotificationAttachment a) {
+      String fromAccount, V2NIMMessageNotificationAttachment a, String teamId) {
 
-    return getTeamMemberDisplayName(fromAccount)
+    return getTeamMemberDisplayName(fromAccount, teamId)
         + IMKitClient.getApplicationContext().getString(R.string.chat_team_remove_to_another)
-        + buildMemberListString(a.getTargetIds(), null);
+        + buildMemberListString(a.getTargetIds(), null, teamId);
   }
 
-  private static String buildAddTeamManagerNotification(V2NIMMessageNotificationAttachment a) {
+  private static String buildAddTeamManagerNotification(
+      V2NIMMessageNotificationAttachment a, String teamId) {
 
     return String.format(
         IMKitClient.getApplicationContext().getString(R.string.chat_team_appoint_manager),
-        buildMemberListString(a.getTargetIds(), null));
+        buildMemberListString(a.getTargetIds(), null, teamId));
   }
 
-  private static String buildRemoveTeamManagerNotification(V2NIMMessageNotificationAttachment a) {
+  private static String buildRemoveTeamManagerNotification(
+      V2NIMMessageNotificationAttachment a, String teamId) {
 
     return String.format(
         IMKitClient.getApplicationContext().getString(R.string.chat_team_removed_manager),
-        buildMemberListString(a.getTargetIds(), null));
+        buildMemberListString(a.getTargetIds(), null, teamId));
   }
 
   private static String buildAcceptInviteNotification(
-      String fromAccount, V2NIMMessageNotificationAttachment a) {
+      String fromAccount, V2NIMMessageNotificationAttachment a, String teamId) {
 
-    return getTeamMemberDisplayName(fromAccount)
+    return getTeamMemberDisplayName(fromAccount, teamId)
         + String.format(
             IMKitClient.getApplicationContext().getString(R.string.chat_team_accept_ones_invent),
-            buildMemberListString(a.getTargetIds(), null));
+            buildMemberListString(a.getTargetIds(), null, teamId));
   }
 
-  private static String buildMuteTeamNotification(V2NIMMessageNotificationAttachment a) {
+  private static String buildMuteTeamNotification(
+      V2NIMMessageNotificationAttachment a, String teamId) {
 
-    return buildMemberListString(a.getTargetIds(), null)
+    return buildMemberListString(a.getTargetIds(), null, teamId)
         + IMKitClient.getApplicationContext().getString(R.string.chat_team_operate_by_manager)
         + (a.isChatBanned()
             ? IMKitClient.getApplicationContext().getString(R.string.chat_team_mute)

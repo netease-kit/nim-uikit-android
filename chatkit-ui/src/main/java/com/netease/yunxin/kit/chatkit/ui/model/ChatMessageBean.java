@@ -131,6 +131,9 @@ public class ChatMessageBean implements Serializable {
   // 译文是否可见（false=已被用户手动隐藏，不清除 localExtension 缓存）
   private boolean translationVisible = true;
 
+  /** Reaction 状态仅属于当前聊天页面，不写入 NIM 消息本体。 */
+  private final MessageReactionState reactionState = new MessageReactionState();
+
   public boolean showTimeText = false;
 
   public String keyword;
@@ -165,6 +168,10 @@ public class ChatMessageBean implements Serializable {
 
   public void setTranslationVisible(boolean translationVisible) {
     this.translationVisible = translationVisible;
+  }
+
+  public MessageReactionState getReactionState() {
+    return reactionState;
   }
 
   public IMMessageInfo getMessageData() {
@@ -207,6 +214,22 @@ public class ChatMessageBean implements Serializable {
 
   public V2NIMMessage getMessage() {
     return messageData.getMessage();
+  }
+
+  /** 构造 QuickComment 取消操作所需的消息引用。 */
+  public V2NIMMessageRefer getMessageRefer() {
+    if (messageData == null || messageData.getMessage() == null) {
+      return null;
+    }
+    V2NIMMessage message = messageData.getMessage();
+    return V2NIMMessageReferBuilder.builder()
+        .withSenderId(message.getSenderId())
+        .withReceiverId(message.getReceiverId())
+        .withMessageClientId(message.getMessageClientId())
+        .withMessageServerId(message.getMessageServerId())
+        .withConversationType(message.getConversationType())
+        .withCreateTime(message.getCreateTime())
+        .build();
   }
 
   public V2NIMMessageAIConfig getAIConfig() {

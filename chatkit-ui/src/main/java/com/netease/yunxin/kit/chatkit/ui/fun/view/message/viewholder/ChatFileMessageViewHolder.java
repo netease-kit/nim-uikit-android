@@ -41,7 +41,7 @@ public class ChatFileMessageViewHolder extends FunChatBaseMessageViewHolder {
     super.addViewToMessageContainer();
     binding =
         FunChatMessageFileViewHolderBinding.inflate(
-            LayoutInflater.from(parent.getContext()), getMessageContainer(), true);
+            LayoutInflater.from(parent.getContext()), getMessageContentContainer(), true);
     ViewGroup.LayoutParams params = binding.placeHolder.getLayoutParams();
     params.width = ScreenUtils.getDisplayWidth();
   }
@@ -50,6 +50,29 @@ public class ChatFileMessageViewHolder extends FunChatBaseMessageViewHolder {
   public void bindData(ChatMessageBean message, ChatMessageBean lastMessage) {
     super.bindData(message, lastMessage);
     loadData();
+  }
+
+  @Override
+  protected void onLayoutConfig(ChatMessageBean messageBean) {
+    super.onLayoutConfig(messageBean);
+    ViewGroup.MarginLayoutParams rootParams =
+        (ViewGroup.MarginLayoutParams) binding.getRoot().getLayoutParams();
+    int defaultInset = parent.getResources().getDimensionPixelSize(R.dimen.dimen_8_dp);
+    int reactionInset =
+        parent
+            .getResources()
+            .getDimensionPixelSize(
+                showReceiveUIStyle() ? R.dimen.dimen_12_dp : R.dimen.dimen_12_dp);
+    boolean hasReaction = !messageBean.getReactionState().summarize().isEmpty();
+    if (MessageHelper.isReceivedMessage(messageBean)) {
+      rootParams.setMarginStart(hasReaction ? reactionInset : defaultInset);
+      rootParams.setMarginEnd(defaultInset);
+    } else {
+      rootParams.setMarginEnd(hasReaction ? reactionInset : defaultInset);
+      rootParams.setMarginStart(defaultInset);
+    }
+
+    binding.getRoot().setLayoutParams(rootParams);
   }
 
   protected V2NIMMessage getMsgInternal() {
@@ -129,7 +152,16 @@ public class ChatFileMessageViewHolder extends FunChatBaseMessageViewHolder {
 
   @Override
   protected void onMessageBackgroundConfig(ChatMessageBean messageBean) {
-    baseViewBinding.messageContainer.setBackgroundResource(R.color.title_transfer);
+    super.onMessageBackgroundConfig(messageBean);
+    boolean hasReaction = !messageBean.getReactionState().summarize().isEmpty();
+    if (!hasReaction) {
+      // 无 Reaction 时保留文件卡片自身的边框和背景。
+      binding.getRoot().setBackgroundResource(R.drawable.fun_shape_corner_bg);
+      baseViewBinding.messageContentGroup.setBackgroundResource(R.color.title_transfer);
+      return;
+    }
+    // 保留父类按 ChatUIConfig 和皮肤默认值设置的消息背景，Reaction 使用该背景区域。
+    binding.getRoot().setBackgroundResource(R.drawable.fun_shape_corner_bg);
   }
 
   @Override

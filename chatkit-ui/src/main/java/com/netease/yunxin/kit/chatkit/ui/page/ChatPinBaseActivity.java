@@ -64,6 +64,23 @@ public abstract class ChatPinBaseActivity extends BaseLocalActivity {
   // 转发Launcher
   protected ActivityResultLauncher<Intent> forwardLauncher;
 
+  private final NetworkUtils.NetworkStateListener networkStateListener =
+      new NetworkUtils.NetworkStateListener() {
+        @Override
+        public void onConnected(NetworkUtils.NetworkType networkType) {
+          if (viewBinding != null) {
+            viewBinding.pinNetworkErrorTv.setVisibility(View.GONE);
+          }
+        }
+
+        @Override
+        public void onDisconnected() {
+          if (viewBinding != null) {
+            viewBinding.pinNetworkErrorTv.setVisibility(View.VISIBLE);
+          }
+        }
+      };
+
   // 跳转到聊天页面
   public static final String ACTION_CHECK_PIN = "check_pin";
   // 标记页面弹窗 取消置顶
@@ -78,14 +95,27 @@ public abstract class ChatPinBaseActivity extends BaseLocalActivity {
     super.onCreate(savedInstanceState);
     viewBinding = ChatPinActivityBinding.inflate(getLayoutInflater());
     setContentView(viewBinding.getRoot());
+    NetworkUtils.registerNetworkStatusChangedListener(networkStateListener);
     initView();
     initData();
+  }
+
+  @Override
+  protected void onResume() {
+    super.onResume();
+    NetworkUtils.refreshNetworkStatus();
   }
 
   @Override
   protected void onStop() {
     super.onStop();
     ChatMessageAudioControl.getInstance().stopAudio();
+  }
+
+  @Override
+  protected void onDestroy() {
+    NetworkUtils.unregisterNetworkStatusChangedListener(networkStateListener);
+    super.onDestroy();
   }
 
   // 初始化页面View

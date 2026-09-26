@@ -11,13 +11,16 @@ import static android.widget.RelativeLayout.START_OF;
 import static com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants.PAYLOAD_REFRESH_AUDIO_ANIM;
 
 import android.graphics.drawable.AnimationDrawable;
+import android.graphics.drawable.GradientDrawable;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import com.netease.nimlib.sdk.v2.message.attachment.V2NIMMessageAudioAttachment;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
@@ -127,7 +130,40 @@ public class ChatAudioMessageViewHolder extends FunChatBaseMessageViewHolder {
   public void addViewToMessageContainer() {
     audioBinding =
         FunChatMessageAudioViewHolderBinding.inflate(
-            LayoutInflater.from(parent.getContext()), getMessageContainer(), true);
+            LayoutInflater.from(parent.getContext()), getMessageContentContainer(), true);
+  }
+
+  @Override
+  protected void onLayoutConfig(ChatMessageBean messageBean) {
+    super.onLayoutConfig(messageBean);
+    ViewGroup.MarginLayoutParams rootParams =
+        (ViewGroup.MarginLayoutParams) audioBinding.getRoot().getLayoutParams();
+    int inset = parent.getResources().getDimensionPixelSize(R.dimen.dimen_12_dp);
+    int topInset = parent.getResources().getDimensionPixelSize(R.dimen.dimen_8_dp);
+    boolean hasReaction = !messageBean.getReactionState().summarize().isEmpty();
+    rootParams.setMarginStart(hasReaction ? inset : 0);
+    rootParams.setMarginEnd(hasReaction ? inset : 0);
+
+    rootParams.topMargin = hasReaction ? topInset : 0;
+    rootParams.bottomMargin = hasReaction ? topInset : 0;
+    audioBinding.getRoot().setLayoutParams(rootParams);
+  }
+
+  @Override
+  protected void onMessageBackgroundConfig(ChatMessageBean messageBean) {
+    super.onMessageBackgroundConfig(messageBean);
+    audioBinding.container.setBackground(null);
+    if (messageBean.getReactionState().summarize().isEmpty()) {
+      return;
+    }
+    // Keep the existing message background and add a separate bubble for audio controls.
+    GradientDrawable audioBackground = new GradientDrawable();
+    audioBackground.setColor(
+        ContextCompat.getColor(
+            parent.getContext(),
+            showReceiveUIStyle() ? R.color.fun_chat_page_bg_color : R.color.color_white));
+    audioBackground.setCornerRadius(parent.getResources().getDimension(R.dimen.dimen_4_dp));
+    audioBinding.container.setBackground(audioBackground);
   }
 
   @Override
@@ -138,6 +174,21 @@ public class ChatAudioMessageViewHolder extends FunChatBaseMessageViewHolder {
       audioBinding.tvTime.setVisibility(View.GONE);
       audioBinding.messageText.setVisibility(View.VISIBLE);
       return;
+    }
+    if (showReceiveUIStyle()) {
+      if (properties.getReceiveMessageTextSize() != null) {
+        audioBinding.tvTime.setTextSize(properties.getReceiveMessageTextSize());
+      }
+      if (properties.getReceiveMessageTextColor() != null) {
+        audioBinding.tvTime.setTextColor(properties.getReceiveMessageTextColor());
+      }
+    } else {
+      if (properties.getSelfMessageTextSize() != null) {
+        audioBinding.tvTime.setTextSize(properties.getSelfMessageTextSize());
+      }
+      if (properties.getSelfMessageTextColor() != null) {
+        audioBinding.tvTime.setTextColor(properties.getSelfMessageTextColor());
+      }
     }
     audioBinding.animation.setVisibility(View.VISIBLE);
     audioBinding.tvTime.setVisibility(View.VISIBLE);
@@ -165,6 +216,14 @@ public class ChatAudioMessageViewHolder extends FunChatBaseMessageViewHolder {
   @Override
   protected void setVoiceToText(ChatMessageBean message) {
     if (!TextUtils.isEmpty(message.getVoiceToText())) {
+      audioBinding.voiceToTextDivider.setVisibility(View.VISIBLE);
+      ViewGroup.MarginLayoutParams dividerLayoutParams =
+          (ViewGroup.MarginLayoutParams) audioBinding.voiceToTextDivider.getLayoutParams();
+      int dividerMargin =
+          audioBinding.getRoot().getResources().getDimensionPixelSize(R.dimen.dimen_12_dp);
+      dividerLayoutParams.setMarginStart(dividerMargin);
+      dividerLayoutParams.setMarginEnd(dividerMargin);
+      audioBinding.voiceToTextDivider.setLayoutParams(dividerLayoutParams);
       audioBinding.tvVoice.setVisibility(View.VISIBLE);
       audioBinding.tvVoice.setText(message.getVoiceToText());
       LinearLayout.LayoutParams layoutParams =
@@ -179,13 +238,9 @@ public class ChatAudioMessageViewHolder extends FunChatBaseMessageViewHolder {
       }
       audioBinding.tvVoice.setLayoutParams(layoutParams);
     } else {
+      audioBinding.voiceToTextDivider.setVisibility(View.GONE);
       audioBinding.tvVoice.setVisibility(View.GONE);
     }
-  }
-
-  @Override
-  protected View getMessageBackgroundView() {
-    return audioBinding.container;
   }
 
   @Override

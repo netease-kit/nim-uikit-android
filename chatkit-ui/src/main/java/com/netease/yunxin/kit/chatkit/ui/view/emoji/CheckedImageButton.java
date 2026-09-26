@@ -7,6 +7,7 @@ package com.netease.yunxin.kit.chatkit.ui.view.emoji;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import androidx.appcompat.widget.AppCompatImageButton;
@@ -23,6 +24,8 @@ public class CheckedImageButton extends AppCompatImageButton {
   private Drawable normalImage;
 
   private Drawable checkedImage;
+
+  private Drawable checkedBackground;
 
   private int leftPadding, topPadding, rightPadding, bottomPadding;
 
@@ -62,9 +65,13 @@ public class CheckedImageButton extends AppCompatImageButton {
       updateImage(image);
     }
 
-    int background = push ? checkedBkResId : normalBkResId;
-    if (background != 0) {
-      updateBackground(background);
+    if (push && checkedBackground != null) {
+      updateBackground(checkedBackground);
+    } else {
+      int background = push ? checkedBkResId : normalBkResId;
+      if (background != 0) {
+        updateBackground(background);
+      }
     }
   }
 
@@ -75,6 +82,13 @@ public class CheckedImageButton extends AppCompatImageButton {
 
   public void setCheckedBkResId(int checkedBkResId) {
     this.checkedBkResId = checkedBkResId;
+  }
+
+  public void setCheckedBackgroundColor(int color) {
+    checkedBackground = new ColorDrawable(color);
+    if (checked) {
+      updateBackground(checkedBackground);
+    }
   }
 
   public void setNormalImageId(int normalResId) {
@@ -99,6 +113,11 @@ public class CheckedImageButton extends AppCompatImageButton {
 
   private void updateBackground(int resId) {
     setBackgroundResource(resId);
+    setPadding(leftPadding, topPadding, rightPadding, bottomPadding);
+  }
+
+  private void updateBackground(Drawable background) {
+    setBackground(background);
     setPadding(leftPadding, topPadding, rightPadding, bottomPadding);
   }
 

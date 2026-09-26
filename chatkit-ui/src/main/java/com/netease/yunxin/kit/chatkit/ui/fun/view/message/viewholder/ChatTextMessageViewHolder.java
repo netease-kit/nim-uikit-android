@@ -8,6 +8,7 @@ import android.text.TextUtils;
 import android.text.style.ImageSpan;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessageRefer;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageAIStreamStatus;
@@ -37,16 +38,17 @@ public class ChatTextMessageViewHolder extends FunChatBaseMessageViewHolder {
   public void addViewToMessageContainer() {
     textBinding =
         FunChatMessageTextViewHolderBinding.inflate(
-            LayoutInflater.from(parent.getContext()), getMessageContainer(), true);
+            LayoutInflater.from(parent.getContext()), getMessageContentContainer(), true);
   }
 
-  /** 文本消息背景只设置给原文气泡（flMessageBody）， 译文气泡（llTranslation）使用独立背景 fun_bg_message_translate。 */
   @Override
-  protected View getMessageBackgroundView() {
+  protected void onMessageBackgroundConfig(ChatMessageBean messageBean) {
+    super.onMessageBackgroundConfig(messageBean);
+    // 消息体和译文使用 messageContentGroup 的整体背景，避免子 View 背景重叠。
     if (textBinding != null) {
-      return textBinding.flMessageBody;
+      textBinding.flMessageBody.setBackground(null);
+      textBinding.llTranslation.setBackground(null);
     }
-    return super.getMessageBackgroundView();
   }
 
   @Override
@@ -58,6 +60,23 @@ public class ChatTextMessageViewHolder extends FunChatBaseMessageViewHolder {
     syncRootGravity();
     bindTranslation(message);
     initEvent();
+  }
+
+  @Override
+  protected void onLayoutConfig(ChatMessageBean messageBean) {
+    super.onLayoutConfig(messageBean);
+    ViewGroup.MarginLayoutParams rootParams =
+        (ViewGroup.MarginLayoutParams) textBinding.getRoot().getLayoutParams();
+    rootParams.setMarginStart(parent.getResources().getDimensionPixelSize(R.dimen.dimen_16_dp));
+    rootParams.setMarginEnd(parent.getResources().getDimensionPixelSize(R.dimen.dimen_16_dp));
+    textBinding.getRoot().setLayoutParams(rootParams);
+
+    int contentInset = parent.getResources().getDimensionPixelSize(R.dimen.dimen_4_dp);
+    textBinding.messageText.setPaddingRelative(
+        showReceiveUIStyle() ? contentInset : 0,
+        textBinding.messageText.getPaddingTop(),
+        showReceiveUIStyle() ? 0 : contentInset,
+        textBinding.messageText.getPaddingBottom());
   }
 
   @Override
@@ -90,7 +109,7 @@ public class ChatTextMessageViewHolder extends FunChatBaseMessageViewHolder {
     if (showReceiveUIStyle()) {
       root.setGravity(android.view.Gravity.START);
     } else {
-      root.setGravity(android.view.Gravity.END);
+      root.setGravity(android.view.Gravity.START);
     }
   }
 
@@ -105,17 +124,13 @@ public class ChatTextMessageViewHolder extends FunChatBaseMessageViewHolder {
     if (hasTranslation) {
       textBinding.llTranslation.setVisibility(View.VISIBLE);
       textBinding.translationText.setText(info.getTranslatedText());
-      // 发送方：译文气泡右侧紧贴气泡边缘；接收方：左侧
+      // 翻译内容左侧与消息主体对齐；发送方保留右侧边界间距。
       android.view.ViewGroup.MarginLayoutParams lp =
           (android.view.ViewGroup.MarginLayoutParams) textBinding.llTranslation.getLayoutParams();
       int margin = com.netease.yunxin.kit.common.utils.SizeUtils.dp2px(5);
-      if (showReceiveUIStyle()) {
-        lp.setMarginStart(margin);
-        lp.setMarginEnd(0);
-      } else {
-        lp.setMarginStart(0);
-        lp.setMarginEnd(margin);
-      }
+      int contentInset = parent.getResources().getDimensionPixelSize(R.dimen.dimen_4_dp);
+      lp.setMarginStart(showReceiveUIStyle() ? contentInset : 0);
+      lp.setMarginEnd(showReceiveUIStyle() ? 0 : margin);
       textBinding.llTranslation.setLayoutParams(lp);
       // 译文气泡长按：弹出复制/转发/隐藏菜单
       textBinding.llTranslation.setOnLongClickListener(
@@ -125,18 +140,7 @@ public class ChatTextMessageViewHolder extends FunChatBaseMessageViewHolder {
             }
             return true;
           });
-      // 译文 TextView 使用 wrap_content，可以撑宽译文气泡（llTranslation）。
-      // 待布局完成后，将 maxWidth 设置为 messageContainer 的最大允许宽度，
-      // 防止超长译文在单行无限延伸超出屏幕边界。
-      baseViewBinding.messageContainer.post(
-          () -> {
-            int containerMaxWidth = baseViewBinding.messageContainer.getWidth();
-            if (containerMaxWidth > 0) {
-              textBinding.translationText.setMaxWidth(containerMaxWidth);
-            }
-          });
     } else {
-      textBinding.translationText.setMaxWidth(Integer.MAX_VALUE);
       textBinding.llTranslation.setVisibility(View.GONE);
       textBinding.llTranslation.setOnLongClickListener(null);
     }

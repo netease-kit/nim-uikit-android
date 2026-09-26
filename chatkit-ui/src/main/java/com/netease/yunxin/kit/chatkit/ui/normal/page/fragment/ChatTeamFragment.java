@@ -29,14 +29,15 @@ import com.netease.nimlib.sdk.v2.team.model.V2NIMTeam;
 import com.netease.nimlib.sdk.v2.team.model.V2NIMTeamMember;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
+import com.netease.yunxin.kit.chatkit.cache.TeamMemberCache;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitClient;
 import com.netease.yunxin.kit.chatkit.ui.R;
-import com.netease.yunxin.kit.chatkit.ui.cache.TeamUserManager;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatUserCache;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatUtils;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.normal.view.MessageBottomLayout;
+import com.netease.yunxin.kit.chatkit.ui.normal.view.ait.NormalAitContactSelectorDialog;
 import com.netease.yunxin.kit.chatkit.ui.page.viewmodel.ChatTeamViewModel;
 import com.netease.yunxin.kit.chatkit.ui.view.ait.AitManager;
 import com.netease.yunxin.kit.chatkit.utils.ConversationIdUtils;
@@ -88,7 +89,7 @@ public class ChatTeamFragment extends NormalChatFragment {
     }
     mConversationId = ConversationIdUtils.conversationId(accountId, conversationType);
     // 初始化AitManager
-    aitManager = new AitManager(getContext(), accountId);
+    aitManager = new AitManager(getContext(), accountId, NormalAitContactSelectorDialog::new);
     aitManager.updateTeamInfo(teamInfo);
     chatView.setAitManager(aitManager);
     refreshView();
@@ -140,6 +141,9 @@ public class ChatTeamFragment extends NormalChatFragment {
     } else {
       chatView.getTitleBar().getActionImageView().setVisibility(View.GONE);
     }
+    if (currentMember == null && teamInfo != null && !TextUtils.isEmpty(IMKitClient.account())) {
+      currentMember = TeamMemberCache.getTeamMember(teamInfo.getTeamId(), IMKitClient.account());
+    }
     boolean isMute = ChatUtils.isMute(currentMember, teamInfo);
     ALog.d(LIB_TAG, TAG, "refreshView isMute:" + isMute);
     if (isMute) {
@@ -176,7 +180,7 @@ public class ChatTeamFragment extends NormalChatFragment {
   protected void updateDataWhenLogin() {
     if (viewModel instanceof ChatTeamViewModel) {
       // 请求群信息
-      ((ChatTeamViewModel) viewModel).getTeamInfo();
+      ((ChatTeamViewModel) viewModel).getTeamInfo(true);
     }
   }
 
@@ -293,7 +297,7 @@ public class ChatTeamFragment extends NormalChatFragment {
     if (fetchResult.getLoadStatus() == LoadStatus.Finish && fetchResult.getData() != null) {
       for (String userId : fetchResult.getData()) {
         if (TextUtils.equals(userId, IMKitClient.account())) {
-          currentMember = TeamUserManager.getInstance().getCurTeamMember();
+          currentMember = TeamMemberCache.getTeamMember(accountId, IMKitClient.account());
           refreshView();
         }
       }

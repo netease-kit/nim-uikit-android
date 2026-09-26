@@ -4,17 +4,16 @@
 
 package com.netease.yunxin.kit.contactkit.ui.fun.search.viewholder;
 
-import android.text.SpannableString;
-import android.text.Spanned;
 import android.text.TextUtils;
-import android.text.style.ForegroundColorSpan;
 import android.view.View;
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import com.netease.nimlib.sdk.search.model.RecordHitInfo;
 import com.netease.yunxin.kit.chatkit.model.FriendSearchInfo;
 import com.netease.yunxin.kit.chatkit.model.HitType;
 import com.netease.yunxin.kit.common.ui.utils.AvatarColor;
 import com.netease.yunxin.kit.common.ui.viewholder.BaseViewHolder;
+import com.netease.yunxin.kit.common.ui.widgets.HitHighlightTextView;
 import com.netease.yunxin.kit.contactkit.ui.R;
 import com.netease.yunxin.kit.contactkit.ui.databinding.FunSearchUserViewHolderBinding;
 import com.netease.yunxin.kit.contactkit.ui.model.SearchFriendBean;
@@ -41,40 +40,47 @@ public class FunSearchFriendViewHolder extends BaseViewHolder<SearchFriendBean> 
           friendInfo.getFriendInfo().getAvatarName(),
           AvatarColor.avatarColor(friendInfo.getFriendInfo().getAccount()));
       if (friendInfo.getHitType() == HitType.Alias) {
-        viewBinding.tvNickName.setText(
-            getSelectSpanText(friendInfo.getFriendInfo().getAlias(), friendInfo.getHitInfo()));
+        setHitText(
+            viewBinding.tvNickName, friendInfo.getFriendInfo().getAlias(), friendInfo.getHitInfo());
+        viewBinding.tvName.clearHitText("");
         viewBinding.tvName.setVisibility(View.GONE);
       } else if (friendInfo.getHitType() == HitType.UserName) {
 
         if (!TextUtils.isEmpty(friendInfo.getFriendInfo().getAlias())) {
-          viewBinding.tvNickName.setText(friendInfo.getFriendInfo().getAlias());
+          viewBinding.tvNickName.clearHitText(friendInfo.getFriendInfo().getAlias());
           viewBinding.tvNickName.setVisibility(View.VISIBLE);
-          viewBinding.tvName.setText(
-              getSelectSpanText(
-                  friendInfo.getFriendInfo().getUserInfo().getName(), friendInfo.getHitInfo()));
+          setHitText(
+              viewBinding.tvName,
+              friendInfo.getFriendInfo().getUserInfo().getName(),
+              friendInfo.getHitInfo());
           viewBinding.tvName.setVisibility(View.VISIBLE);
         } else {
-          viewBinding.tvNickName.setText(
-              getSelectSpanText(
-                  friendInfo.getFriendInfo().getUserInfo().getName(), friendInfo.getHitInfo()));
+          setHitText(
+              viewBinding.tvNickName,
+              friendInfo.getFriendInfo().getUserInfo().getName(),
+              friendInfo.getHitInfo());
+          viewBinding.tvName.clearHitText("");
           viewBinding.tvNickName.setVisibility(View.VISIBLE);
           viewBinding.tvName.setVisibility(View.GONE);
         }
       } else {
         viewBinding.tvNickName.setVisibility(View.VISIBLE);
         if (!TextUtils.isEmpty(friendInfo.getFriendInfo().getAlias())) {
-          viewBinding.tvNickName.setText(friendInfo.getFriendInfo().getAlias());
-          viewBinding.tvName.setText(
-              getSelectSpanText(friendInfo.getFriendInfo().getAccount(), friendInfo.getHitInfo()));
+          viewBinding.tvNickName.clearHitText(friendInfo.getFriendInfo().getAlias());
+          setHitText(
+              viewBinding.tvName, friendInfo.getFriendInfo().getAccount(), friendInfo.getHitInfo());
           viewBinding.tvName.setVisibility(View.VISIBLE);
         } else if (!TextUtils.isEmpty(friendInfo.getFriendInfo().getUserInfo().getName())) {
-          viewBinding.tvNickName.setText(friendInfo.getFriendInfo().getUserInfo().getName());
-          viewBinding.tvName.setText(
-              getSelectSpanText(friendInfo.getFriendInfo().getAccount(), friendInfo.getHitInfo()));
+          viewBinding.tvNickName.clearHitText(friendInfo.getFriendInfo().getUserInfo().getName());
+          setHitText(
+              viewBinding.tvName, friendInfo.getFriendInfo().getAccount(), friendInfo.getHitInfo());
           viewBinding.tvName.setVisibility(View.VISIBLE);
         } else {
-          viewBinding.tvNickName.setText(
-              getSelectSpanText(friendInfo.getFriendInfo().getAccount(), friendInfo.getHitInfo()));
+          setHitText(
+              viewBinding.tvNickName,
+              friendInfo.getFriendInfo().getAccount(),
+              friendInfo.getHitInfo());
+          viewBinding.tvName.clearHitText("");
           viewBinding.tvName.setVisibility(View.GONE);
         }
       }
@@ -83,20 +89,16 @@ public class FunSearchFriendViewHolder extends BaseViewHolder<SearchFriendBean> 
     }
   }
 
-  private SpannableString getSelectSpanText(String text, RecordHitInfo hitInfo) {
-    SpannableString spannable = new SpannableString(text);
-    if (hitInfo != null) {
-      spannable.setSpan(
-          new ForegroundColorSpan(
-              viewBinding
-                  .getRoot()
-                  .getContext()
-                  .getResources()
-                  .getColor(R.color.fun_contact_search_hit_text_color)),
-          hitInfo.start,
-          hitInfo.end,
-          Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+  private void setHitText(HitHighlightTextView textView, String text, RecordHitInfo hitInfo) {
+    if (hitInfo == null) {
+      textView.clearHitText(text);
+      return;
     }
-    return spannable;
+    textView.setHitText(
+        text,
+        hitInfo.start,
+        hitInfo.end,
+        ContextCompat.getColor(
+            viewBinding.getRoot().getContext(), R.color.fun_contact_search_hit_text_color));
   }
 }

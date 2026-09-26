@@ -11,17 +11,18 @@ import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamType;
 import com.netease.nimlib.sdk.v2.team.model.V2NIMTeam;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.impl.TeamListenerImpl;
+import com.netease.yunxin.kit.chatkit.model.TeamMemberListResult;
 import com.netease.yunxin.kit.chatkit.model.TeamMemberWithUserInfo;
 import com.netease.yunxin.kit.chatkit.model.TeamWithCurrentMember;
 import com.netease.yunxin.kit.chatkit.repo.TeamRepo;
 import com.netease.yunxin.kit.chatkit.ui.cache.TeamUserChangedListener;
-import com.netease.yunxin.kit.chatkit.ui.cache.TeamUserManager;
 import com.netease.yunxin.kit.chatkit.utils.ErrorUtils;
 import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
 import com.netease.yunxin.kit.corekit.im2.IMKitClient;
 import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
+import com.netease.yunxin.kit.teamkit.ui.utils.TeamKitTeamMemberCache;
 import java.util.List;
 import java.util.Objects;
 
@@ -95,8 +96,9 @@ public class TeamBaseViewModel extends BaseViewModel {
     if (!TextUtils.isEmpty(teamId)) {
       this.teamId = teamId;
       TeamRepo.addTeamListener(teamListener);
-      TeamUserManager.getInstance().init(teamId);
-      TeamUserManager.getInstance().addMemberChangedListener(teamUserChangedListener);
+      TeamKitTeamMemberCache.getInstance().initTeamId(teamId);
+      TeamKitTeamMemberCache.getInstance()
+          .addMemberChangedListener(teamId, teamUserChangedListener);
     }
   }
 
@@ -127,12 +129,14 @@ public class TeamBaseViewModel extends BaseViewModel {
 
   public void loadTeamMember() {
     ALog.d(LIB_TAG, TAG, "loadTeamMemberFromCache");
-    TeamUserManager.getInstance()
-        .getAllTeamMembers(
+    TeamKitTeamMemberCache.getInstance()
+        .getFirstTeamMemberPage(
+            teamId,
             true,
-            new FetchCallback<List<TeamMemberWithUserInfo>>() {
+            new FetchCallback<TeamMemberListResult>() {
               @Override
-              public void onSuccess(@Nullable List<TeamMemberWithUserInfo> param) {
+              public void onSuccess(@Nullable TeamMemberListResult result) {
+                List<TeamMemberWithUserInfo> param = result == null ? null : result.getMemberList();
                 ALog.d(
                     LIB_TAG,
                     TAG,
@@ -151,6 +155,69 @@ public class TeamBaseViewModel extends BaseViewModel {
             });
   }
 
+  /** Loads the first page immediately and continues loading subsequent pages for member lists. */
+  public void loadAllTeamMembersByPage() {
+    if (loadingAllPages) {
+      return;
+    }
+    loadingAllPages = true;
+    TeamKitTeamMemberCache.getInstance()
+        .getFirstTeamMemberPage(
+            teamId,
+            true,
+            new FetchCallback<TeamMemberListResult>() {
+              @Override
+              public void onSuccess(@Nullable TeamMemberListResult result) {
+                publishMemberPage(result, FetchResult.FetchType.Init);
+                if (result != null && !result.isFinished()) {
+                  loadNextTeamMemberPage();
+                } else {
+                  loadingAllPages = false;
+                }
+              }
+
+              @Override
+              public void onError(int errorCode, String errorMsg) {
+                loadingAllPages = false;
+                teamMemberWithUserData.setValue(new FetchResult<>(errorCode, errorMsg));
+              }
+            });
+  }
+
+  private boolean loadingAllPages;
+
+  private void loadNextTeamMemberPage() {
+    TeamKitTeamMemberCache.getInstance()
+        .getNextTeamMemberPage(
+            teamId,
+            true,
+            new FetchCallback<TeamMemberListResult>() {
+              @Override
+              public void onSuccess(@Nullable TeamMemberListResult result) {
+                publishMemberPage(result, FetchResult.FetchType.Add);
+                if (result != null && !result.isFinished()) {
+                  loadNextTeamMemberPage();
+                } else {
+                  loadingAllPages = false;
+                }
+              }
+
+              @Override
+              public void onError(int errorCode, String errorMsg) {
+                loadingAllPages = false;
+                teamMemberWithUserData.setValue(new FetchResult<>(errorCode, errorMsg));
+              }
+            });
+  }
+
+  private void publishMemberPage(
+      @Nullable TeamMemberListResult result, FetchResult.FetchType type) {
+    FetchResult<List<TeamMemberWithUserInfo>> fetchResult = new FetchResult<>(LoadStatus.Success);
+    fetchResult.setData(result == null ? null : result.getMemberList());
+    fetchResult.setType(type);
+    teamMemberWithUserData.setValue(fetchResult);
+  }
+
   private final TeamUserChangedListener teamUserChangedListener =
       new TeamUserChangedListener() {
         @Override
@@ -160,7 +227,8 @@ public class TeamBaseViewModel extends BaseViewModel {
             FetchResult<List<TeamMemberWithUserInfo>> userData =
                 new FetchResult<>(
                     FetchResult.FetchType.Update,
-                    TeamUserManager.getInstance().getTeamMembersFromCache(accountIds));
+                    TeamKitTeamMemberCache.getInstance()
+                        .getTeamMembersFromCache(teamId, accountIds));
             teamMemberWithUserData.setValue(userData);
           }
         }
@@ -171,7 +239,8 @@ public class TeamBaseViewModel extends BaseViewModel {
               && accountIds != null
               && accountIds.size() > 0) {
             ALog.d(LIB_TAG, TAG, "teamUserChangedListener,onUsersAdd:" + accountIds.size());
-            notifyAddMember(TeamUserManager.getInstance().getTeamMembersFromCache(accountIds));
+            notifyAddMember(
+                TeamKitTeamMemberCache.getInstance().getTeamMembersFromCache(teamId, accountIds));
           }
         }
 
@@ -268,7 +337,8 @@ public class TeamBaseViewModel extends BaseViewModel {
     super.onCleared();
     if (!TextUtils.isEmpty(teamId)) {
       TeamRepo.removeTeamListener(teamListener);
-      TeamUserManager.getInstance().removeMemberChangedListener(teamUserChangedListener);
+      TeamKitTeamMemberCache.getInstance()
+          .removeMemberChangedListener(teamId, teamUserChangedListener);
     }
   }
 }

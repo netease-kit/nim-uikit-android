@@ -145,6 +145,7 @@
     <string name="contact_robot_title">My Robot</string>
 <string name="contact_robot_empty_tips">No robots yet. Tap the top-right button to create one.</string>
 <string name="contact_robot_limit_tips">Robot limit reached. Please select an existing robot or delete one first.</string>    <string name="contact_robot_info_title">Robot</string>
+    <string name="contact_robot_qrcode_bind_used">This QR code has already been bound</string>
     <string name="contact_robot_edit">Edit</string>
     <string name="contact_robot_view_config">View Config</string>
     <string name="contact_robot_view_config_page_title">Config String</string>
@@ -168,6 +169,8 @@
     <string name="contact_robot_edit_name">Nickname</string>
     <string name="contact_robot_edit_save">Save</string>
     <string name="contact_robot_edit_name_title">Edit Nickname</string>
+    <string name="contact_robot_edit_name_page_title">Nickname</string>
+    <string name="contact_robot_edit_name_done">Done</string>
     <string name="contact_robot_edit_name_hint">Enter robot nickname</string>
     <string name="contact_robot_create_title">Create Robot</string>
     <string name="contact_robot_create_name_required">Please enter a nickname first</string>

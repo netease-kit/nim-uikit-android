@@ -73,6 +73,7 @@ public abstract class FunChatFragment extends ChatBaseFragment {
       @NonNull LayoutInflater inflater, @Nullable ViewGroup container) {
     viewBinding = FunChatFragmentBinding.inflate(inflater, container, false);
     chatView = viewBinding.chatView;
+    viewBinding.earliestUnreadTipsLayout.setOnClickListener(v -> onEarliestUnreadEntryClick());
     MessageTipsLayoutHelper.bindToMessageArea(
         viewBinding.messageTipsLayout,
         viewBinding.chatView,
@@ -267,11 +268,15 @@ public abstract class FunChatFragment extends ChatBaseFragment {
   @Override
   protected void onLoadMessage(FetchResult<List<ChatMessageBean>> listFetchResult) {
     super.onLoadMessage(listFetchResult);
-    if (chatView.getMessageListView().hasMoreNewerMessages()) {
-      showMessageScrollToBottom(true);
-    } else {
-      showMessageScrollToBottom(false);
-    }
+    chatView
+        .getMessageListView()
+        .post(
+            () -> {
+              boolean show =
+                  chatView.getMessageListView().hasMoreNewerMessages()
+                      || !chatView.getMessageListView().isLastItemVisible();
+              showMessageScrollToBottom(show);
+            });
   }
 
   @Override
@@ -332,6 +337,19 @@ public abstract class FunChatFragment extends ChatBaseFragment {
       }
     } else {
       viewBinding.messageTipsLayout.setVisibility(View.GONE);
+    }
+  }
+
+  @Override
+  protected void updateEarliestUnreadEntry(boolean visible, int count) {
+    if (viewBinding != null) {
+      viewBinding.earliestUnreadTipsLayout.setVisibility(visible ? View.VISIBLE : View.GONE);
+      if (visible) {
+        viewBinding.earliestUnreadTipsTv.setText(
+            String.format(
+                getString(R.string.chat_message_earliest_unread_with_num),
+                count > 99 ? "99+" : String.valueOf(count)));
+      }
     }
   }
 }

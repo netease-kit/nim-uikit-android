@@ -6,10 +6,9 @@
   -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:minWidth="@dimen/dimen_60_dp"
-    android:paddingVertical="@dimen/dimen_8_dp"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
+    android:layout_width="@dimen/chat_pop_menu_item_width"
+    android:layout_height="@dimen/chat_pop_menu_item_height"
+    android:paddingVertical="@dimen/chat_pop_menu_item_vertical_padding"
     android:layout_gravity="center_horizontal"
     android:gravity="center_horizontal"
     android:orientation="vertical">
@@ -23,10 +22,13 @@
 
         <TextView
             android:id="@+id/menu_title"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginTop="@dimen/dimen_6_dp"
-            android:textSize="@dimen/text_size_14"
+            android:ellipsize="end"
+            android:gravity="center"
+            android:maxLines="2"
+            android:textSize="@dimen/chat_pop_menu_item_text_size"
             android:textColor="@color/color_333333" />
 </LinearLayout>

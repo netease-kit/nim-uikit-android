@@ -5,6 +5,7 @@
 package com.netease.yunxin.kit.chatkit.ui.view.message.adapter;
 
 import static com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant.LIB_TAG;
+import static com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants.PAYLOAD_EMOJI_REACTION;
 import static com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants.PAYLOAD_PROGRESS;
 import static com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants.PAYLOAD_REPLY;
 import static com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants.PAYLOAD_SIGNAL;
@@ -427,8 +428,14 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<CommonBaseMessageVi
   public void updateMessage(ChatMessageBean message, Object payload) {
     int pos = getMessageIndex(message);
     if (pos >= 0) {
-      messageList.set(pos, message);
-      messagesMap.put(message.getMsgClientId(), message);
+      ChatMessageBean currentMessage = messageList.get(pos);
+      if (PAYLOAD_EMOJI_REACTION.equals(payload) && currentMessage != message) {
+        currentMessage.getReactionState().replace(message.getReactionState().getComments());
+        message = currentMessage;
+      } else {
+        messageList.set(pos, message);
+        messagesMap.put(message.getMsgClientId(), message);
+      }
       notifyItemChanged(pos, payload);
     }
   }

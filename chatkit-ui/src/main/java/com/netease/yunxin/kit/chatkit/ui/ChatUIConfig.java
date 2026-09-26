@@ -17,6 +17,9 @@ import com.netease.yunxin.kit.chatkit.ui.view.popmenu.IChatPopMenuClickListener;
  */
 public class ChatUIConfig {
 
+  /** 自定义贴图配置。为空或关闭时不显示贴图入口。 */
+  public StickerConfig stickerConfig;
+
   /** 消息点击事件 该接口定义了消息的点击事件方法，用于处理用户点击消息的事件。 */
   public IMessageItemClickListener messageItemClickListener;
 

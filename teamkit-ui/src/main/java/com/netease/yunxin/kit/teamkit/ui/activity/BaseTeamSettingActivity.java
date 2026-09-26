@@ -19,6 +19,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Rect;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -63,7 +64,6 @@ import com.netease.yunxin.kit.teamkit.ui.utils.NetworkUtilsWrapper;
 import com.netease.yunxin.kit.teamkit.ui.utils.TeamUtils;
 import com.netease.yunxin.kit.teamkit.ui.viewmodel.TeamSettingViewModel;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -294,8 +294,26 @@ public abstract class BaseTeamSettingActivity extends BaseLocalActivity {
                 }
               } else if (result.getType() == FetchResult.FetchType.Init) {
                 refreshTeamMemberList(result.getData());
-              } else if (result.getType() == FetchResult.FetchType.Add
-                  || result.getType() == FetchResult.FetchType.Remove) {
+              } else if (result.getType() == FetchResult.FetchType.Add) {
+                List<TeamMemberWithUserInfo> addedMembers = result.getData();
+                if (addedMembers != null && !addedMembers.isEmpty()) {
+                  teamMemberInfoList =
+                      teamMemberInfoList == null
+                          ? new ArrayList<>()
+                          : new ArrayList<>(teamMemberInfoList);
+                  List<TeamMemberWithUserInfo> newMembers = new ArrayList<>();
+                  for (TeamMemberWithUserInfo member : addedMembers) {
+                    if (member == null || containsMember(member.getAccountId())) {
+                      continue;
+                    }
+                    teamMemberInfoList.add(member);
+                    newMembers.add(member);
+                  }
+                  if (adapter != null && !newMembers.isEmpty()) {
+                    adapter.addData(newMembers, null);
+                  }
+                }
+              } else if (result.getType() == FetchResult.FetchType.Remove) {
                 settingViewModel.loadTeamMember();
               }
             });
@@ -378,12 +396,21 @@ public abstract class BaseTeamSettingActivity extends BaseLocalActivity {
 
   public void refreshTeamMemberList(List<TeamMemberWithUserInfo> memberList) {
     teamMemberInfoList = memberList;
-    if (memberList.size() > 1) {
-      Collections.sort(teamMemberInfoList, TeamUtils.teamSettingMemberComparator());
-    }
     if (adapter != null) {
       adapter.setDataList(teamMemberInfoList);
     }
+  }
+
+  private boolean containsMember(String accountId) {
+    if (teamMemberInfoList == null) {
+      return false;
+    }
+    for (TeamMemberWithUserInfo member : teamMemberInfoList) {
+      if (member != null && TextUtils.equals(member.getAccountId(), accountId)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private void refreshUI(V2NIMTeam team, V2NIMTeamMember teamMember) {

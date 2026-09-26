@@ -36,12 +36,12 @@ public class ChatTipsMessageViewHolder extends NormalChatBaseMessageViewHolder {
   public void addViewToMessageContainer() {
     textBinding =
         NormalChatMessageTipViewHolderBinding.inflate(
-            LayoutInflater.from(parent.getContext()), getMessageContainer(), true);
+            LayoutInflater.from(parent.getContext()), getMessageContentContainer(), true);
   }
 
   @Override
   protected void onMessageBackgroundConfig(ChatMessageBean messageBean) {
-    baseViewBinding.contentWithTopLayer.setBackgroundResource(R.color.title_transfer);
+    baseViewBinding.messageContentGroup.setBackgroundResource(R.color.title_transfer);
   }
 
   @Override

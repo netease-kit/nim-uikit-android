@@ -4,15 +4,14 @@
 
 package com.netease.yunxin.kit.contactkit.ui.fun.search.viewholder;
 
-import android.text.SpannableString;
-import android.text.Spanned;
-import android.text.style.ForegroundColorSpan;
 import android.view.View;
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import com.netease.nimlib.sdk.search.model.RecordHitInfo;
 import com.netease.yunxin.kit.chatkit.model.TeamSearchInfo;
 import com.netease.yunxin.kit.common.ui.utils.AvatarColor;
 import com.netease.yunxin.kit.common.ui.viewholder.BaseViewHolder;
+import com.netease.yunxin.kit.common.ui.widgets.HitHighlightTextView;
 import com.netease.yunxin.kit.contactkit.ui.R;
 import com.netease.yunxin.kit.contactkit.ui.databinding.FunSearchUserViewHolderBinding;
 import com.netease.yunxin.kit.contactkit.ui.model.SearchTeamBean;
@@ -39,28 +38,24 @@ public class FunSearchTeamViewHolder extends BaseViewHolder<SearchTeamBean> {
           searchInfo.getTeam().getAvatar(),
           searchInfo.getTeam().getName(),
           AvatarColor.avatarColor(searchInfo.getTeam().getTeamId()));
-      viewBinding.tvNickName.setText(
-          getSelectSpanText(searchInfo.getTeam().getName(), searchInfo.getHitInfo()));
+      setHitText(viewBinding.tvNickName, searchInfo.getTeam().getName(), searchInfo.getHitInfo());
+      viewBinding.tvName.clearHitText("");
       viewBinding.tvNickName.setVisibility(View.VISIBLE);
       viewBinding.tvName.setVisibility(View.GONE);
       viewBinding.getRoot().setOnClickListener(v -> itemListener.onClick(v, data, position));
     }
   }
 
-  private SpannableString getSelectSpanText(String text, RecordHitInfo hitInfo) {
-    SpannableString spannable = new SpannableString(text);
-    if (hitInfo != null) {
-      spannable.setSpan(
-          new ForegroundColorSpan(
-              viewBinding
-                  .getRoot()
-                  .getContext()
-                  .getResources()
-                  .getColor(R.color.fun_contact_search_hit_text_color)),
-          hitInfo.start,
-          hitInfo.end,
-          Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+  private void setHitText(HitHighlightTextView textView, String text, RecordHitInfo hitInfo) {
+    if (hitInfo == null) {
+      textView.clearHitText(text);
+      return;
     }
-    return spannable;
+    textView.setHitText(
+        text,
+        hitInfo.start,
+        hitInfo.end,
+        ContextCompat.getColor(
+            viewBinding.getRoot().getContext(), R.color.fun_contact_search_hit_text_color));
   }
 }

@@ -240,7 +240,7 @@ public class BaseChatBotSubSessionActivity extends BaseLocalActivity {
   }
 
   protected int getSearchEmptyImageRes() {
-    return R.drawable.ic_chat_empty;
+    return R.drawable.ic_list_empty;
   }
 
   private void initViewModel() {

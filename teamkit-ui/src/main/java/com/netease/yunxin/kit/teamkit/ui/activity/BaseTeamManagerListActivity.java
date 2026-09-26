@@ -26,7 +26,6 @@ import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamType;
 import com.netease.nimlib.sdk.v2.team.model.V2NIMTeam;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.model.TeamMemberWithUserInfo;
-import com.netease.yunxin.kit.chatkit.ui.cache.TeamUserManager;
 import com.netease.yunxin.kit.common.ui.activities.BaseLocalActivity;
 import com.netease.yunxin.kit.common.ui.dialog.ChoiceListener;
 import com.netease.yunxin.kit.common.ui.dialog.CommonChoiceDialog;
@@ -42,6 +41,7 @@ import com.netease.yunxin.kit.teamkit.ui.R;
 import com.netease.yunxin.kit.teamkit.ui.adapter.BaseTeamMemberListAdapter;
 import com.netease.yunxin.kit.teamkit.ui.model.EventCloseChat;
 import com.netease.yunxin.kit.teamkit.ui.normal.adapter.TeamMemberListAdapter;
+import com.netease.yunxin.kit.teamkit.ui.utils.TeamKitTeamMemberCache;
 import com.netease.yunxin.kit.teamkit.ui.utils.TeamUIKitConstant;
 import com.netease.yunxin.kit.teamkit.ui.utils.TeamUtils;
 import com.netease.yunxin.kit.teamkit.ui.viewmodel.TeamManagerListViewModel;
@@ -178,7 +178,7 @@ public abstract class BaseTeamManagerListActivity extends BaseLocalActivity {
                 } else if (resultInfo.getType() == FetchResult.FetchType.Update) {
                   //管理员添加和删除，走的群成员身份更新
                   List<TeamMemberWithUserInfo> updateData =
-                      TeamUserManager.getInstance()
+                      TeamKitTeamMemberCache.getInstance()
                           .getTeamMemberWithRoleListFromCache(
                               teamInfo.getTeamId(),
                               V2NIMTeamMemberRole.V2NIM_TEAM_MEMBER_ROLE_MANAGER);

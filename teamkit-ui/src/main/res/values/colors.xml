@@ -6,6 +6,7 @@
   -->
 
 <resources>
+    <color name="color_337eff">#337eff</color>
     <!-- ==================== 语义命名颜色（公共） ==================== -->
     <!-- 基础白色 -->
     <color name="color_white">#FFFFFF</color>

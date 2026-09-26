@@ -10,11 +10,12 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessage;
 import com.netease.yunxin.kit.alog.ALog;
+import com.netease.yunxin.kit.chatkit.cache.TeamMemberCache;
+import com.netease.yunxin.kit.chatkit.cache.TeamMemberCacheListener;
 import com.netease.yunxin.kit.chatkit.model.IMTeamMsgAckInfo;
 import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
 import com.netease.yunxin.kit.chatkit.ui.R;
-import com.netease.yunxin.kit.chatkit.ui.cache.TeamUserChangedListener;
-import com.netease.yunxin.kit.chatkit.ui.cache.TeamUserManager;
+import com.netease.yunxin.kit.chatkit.utils.ConversationIdUtils;
 import com.netease.yunxin.kit.common.ui.utils.ToastX;
 import com.netease.yunxin.kit.common.ui.viewmodel.BaseViewModel;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
@@ -33,6 +34,8 @@ public class ChatReadStateViewModel extends BaseViewModel {
   private final MutableLiveData<FetchResult<List<String>>> userChangeLiveData =
       new MutableLiveData<>();
 
+  private String teamId;
+
   /**
    * 用户变更监听
    *
@@ -42,21 +45,21 @@ public class ChatReadStateViewModel extends BaseViewModel {
     return userChangeLiveData;
   }
 
-  private final TeamUserChangedListener cacheUserChangedListener =
-      new TeamUserChangedListener() {
+  private final TeamMemberCacheListener cacheUserChangedListener =
+      new TeamMemberCacheListener() {
 
         @Override
-        public void onUsersChanged(List<String> accountIds) {
+        public void onUsersChanged(String changedTeamId, List<String> accountIds) {
           FetchResult<List<String>> result = new FetchResult<>(LoadStatus.Success);
           result.setData(accountIds);
           userChangeLiveData.postValue(result);
         }
 
         @Override
-        public void onUserDelete(List<String> accountIds) {}
+        public void onUsersRemoved(String changedTeamId, List<String> accountIds) {}
 
         @Override
-        public void onUsersAdd(List<String> accountIds) {}
+        public void onUsersAdded(String changedTeamId, List<String> accountIds) {}
       };
 
   public void fetchTeamAckInfo(V2NIMMessage message) {
@@ -67,7 +70,9 @@ public class ChatReadStateViewModel extends BaseViewModel {
     if (message == null) {
       return;
     }
-    TeamUserManager.getInstance().addMemberChangedListener(cacheUserChangedListener);
+    teamId = ConversationIdUtils.conversationTargetId(message.getConversationId());
+    TeamMemberCache.ensureTeam(teamId);
+    TeamMemberCache.addMemberChangedListener(teamId, cacheUserChangedListener);
     ChatRepo.getTeamMessageReceiptDetail(
         message,
         null,
@@ -97,6 +102,8 @@ public class ChatReadStateViewModel extends BaseViewModel {
   @Override
   protected void onCleared() {
     super.onCleared();
-    TeamUserManager.getInstance().removeMemberChangedListener(cacheUserChangedListener);
+    if (teamId != null) {
+      TeamMemberCache.removeMemberChangedListener(teamId, cacheUserChangedListener);
+    }
   }
 }

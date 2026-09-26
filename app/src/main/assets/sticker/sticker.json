@@ -1,0 +1,683 @@
+{
+  "version": 1,
+  "packs": [
+    {
+      "id": "ajmd",
+      "title": "阿鸡米德",
+      "order": 0,
+      "cover": "ajmd/ajmd001.png",
+      "iconNormal": "icons/ajmd_s_normal.png",
+      "iconSelected": "icons/ajmd_s_pressed.png",
+      "stickers": [
+        {
+          "id": "ajmd_001",
+          "name": "ajmd001",
+          "file": "ajmd/ajmd001.png",
+          "order": 0
+        },
+        {
+          "id": "ajmd_002",
+          "name": "ajmd002",
+          "file": "ajmd/ajmd002.png",
+          "order": 1
+        },
+        {
+          "id": "ajmd_003",
+          "name": "ajmd003",
+          "file": "ajmd/ajmd003.png",
+          "order": 2
+        },
+        {
+          "id": "ajmd_004",
+          "name": "ajmd004",
+          "file": "ajmd/ajmd004.png",
+          "order": 3
+        },
+        {
+          "id": "ajmd_005",
+          "name": "ajmd005",
+          "file": "ajmd/ajmd005.png",
+          "order": 4
+        },
+        {
+          "id": "ajmd_006",
+          "name": "ajmd006",
+          "file": "ajmd/ajmd006.png",
+          "order": 5
+        },
+        {
+          "id": "ajmd_007",
+          "name": "ajmd007",
+          "file": "ajmd/ajmd007.png",
+          "order": 6
+        },
+        {
+          "id": "ajmd_008",
+          "name": "ajmd008",
+          "file": "ajmd/ajmd008.png",
+          "order": 7
+        },
+        {
+          "id": "ajmd_009",
+          "name": "ajmd009",
+          "file": "ajmd/ajmd009.png",
+          "order": 8
+        },
+        {
+          "id": "ajmd_010",
+          "name": "ajmd010",
+          "file": "ajmd/ajmd010.png",
+          "order": 9
+        },
+        {
+          "id": "ajmd_011",
+          "name": "ajmd011",
+          "file": "ajmd/ajmd011.png",
+          "order": 10
+        },
+        {
+          "id": "ajmd_012",
+          "name": "ajmd012",
+          "file": "ajmd/ajmd012.png",
+          "order": 11
+        },
+        {
+          "id": "ajmd_013",
+          "name": "ajmd013",
+          "file": "ajmd/ajmd013.png",
+          "order": 12
+        },
+        {
+          "id": "ajmd_014",
+          "name": "ajmd014",
+          "file": "ajmd/ajmd014.png",
+          "order": 13
+        },
+        {
+          "id": "ajmd_015",
+          "name": "ajmd015",
+          "file": "ajmd/ajmd015.png",
+          "order": 14
+        },
+        {
+          "id": "ajmd_016",
+          "name": "ajmd016",
+          "file": "ajmd/ajmd016.png",
+          "order": 15
+        },
+        {
+          "id": "ajmd_017",
+          "name": "ajmd017",
+          "file": "ajmd/ajmd017.png",
+          "order": 16
+        },
+        {
+          "id": "ajmd_018",
+          "name": "ajmd018",
+          "file": "ajmd/ajmd018.png",
+          "order": 17
+        },
+        {
+          "id": "ajmd_019",
+          "name": "ajmd019",
+          "file": "ajmd/ajmd019.png",
+          "order": 18
+        },
+        {
+          "id": "ajmd_020",
+          "name": "ajmd020",
+          "file": "ajmd/ajmd020.png",
+          "order": 19
+        },
+        {
+          "id": "ajmd_021",
+          "name": "ajmd021",
+          "file": "ajmd/ajmd021.png",
+          "order": 20
+        },
+        {
+          "id": "ajmd_022",
+          "name": "ajmd022",
+          "file": "ajmd/ajmd022.png",
+          "order": 21
+        },
+        {
+          "id": "ajmd_023",
+          "name": "ajmd023",
+          "file": "ajmd/ajmd023.png",
+          "order": 22
+        },
+        {
+          "id": "ajmd_024",
+          "name": "ajmd024",
+          "file": "ajmd/ajmd024.png",
+          "order": 23
+        },
+        {
+          "id": "ajmd_025",
+          "name": "ajmd025",
+          "file": "ajmd/ajmd025.png",
+          "order": 24
+        },
+        {
+          "id": "ajmd_026",
+          "name": "ajmd026",
+          "file": "ajmd/ajmd026.png",
+          "order": 25
+        },
+        {
+          "id": "ajmd_027",
+          "name": "ajmd027",
+          "file": "ajmd/ajmd027.png",
+          "order": 26
+        },
+        {
+          "id": "ajmd_028",
+          "name": "ajmd028",
+          "file": "ajmd/ajmd028.png",
+          "order": 27
+        },
+        {
+          "id": "ajmd_029",
+          "name": "ajmd029",
+          "file": "ajmd/ajmd029.png",
+          "order": 28
+        },
+        {
+          "id": "ajmd_030",
+          "name": "ajmd030",
+          "file": "ajmd/ajmd030.png",
+          "order": 29
+        },
+        {
+          "id": "ajmd_031",
+          "name": "ajmd031",
+          "file": "ajmd/ajmd031.png",
+          "order": 30
+        },
+        {
+          "id": "ajmd_032",
+          "name": "ajmd032",
+          "file": "ajmd/ajmd032.png",
+          "order": 31
+        },
+        {
+          "id": "ajmd_033",
+          "name": "ajmd033",
+          "file": "ajmd/ajmd033.png",
+          "order": 32
+        },
+        {
+          "id": "ajmd_034",
+          "name": "ajmd034",
+          "file": "ajmd/ajmd034.png",
+          "order": 33
+        },
+        {
+          "id": "ajmd_035",
+          "name": "ajmd035",
+          "file": "ajmd/ajmd035.png",
+          "order": 34
+        },
+        {
+          "id": "ajmd_036",
+          "name": "ajmd036",
+          "file": "ajmd/ajmd036.png",
+          "order": 35
+        },
+        {
+          "id": "ajmd_037",
+          "name": "ajmd037",
+          "file": "ajmd/ajmd037.png",
+          "order": 36
+        },
+        {
+          "id": "ajmd_038",
+          "name": "ajmd038",
+          "file": "ajmd/ajmd038.png",
+          "order": 37
+        },
+        {
+          "id": "ajmd_039",
+          "name": "ajmd039",
+          "file": "ajmd/ajmd039.png",
+          "order": 38
+        },
+        {
+          "id": "ajmd_040",
+          "name": "ajmd040",
+          "file": "ajmd/ajmd040.png",
+          "order": 39
+        },
+        {
+          "id": "ajmd_041",
+          "name": "ajmd041",
+          "file": "ajmd/ajmd041.png",
+          "order": 40
+        },
+        {
+          "id": "ajmd_042",
+          "name": "ajmd042",
+          "file": "ajmd/ajmd042.png",
+          "order": 41
+        },
+        {
+          "id": "ajmd_043",
+          "name": "ajmd043",
+          "file": "ajmd/ajmd043.png",
+          "order": 42
+        },
+        {
+          "id": "ajmd_044",
+          "name": "ajmd044",
+          "file": "ajmd/ajmd044.png",
+          "order": 43
+        },
+        {
+          "id": "ajmd_045",
+          "name": "ajmd045",
+          "file": "ajmd/ajmd045.png",
+          "order": 44
+        },
+        {
+          "id": "ajmd_046",
+          "name": "ajmd046",
+          "file": "ajmd/ajmd046.png",
+          "order": 45
+        },
+        {
+          "id": "ajmd_047",
+          "name": "ajmd047",
+          "file": "ajmd/ajmd047.png",
+          "order": 46
+        },
+        {
+          "id": "ajmd_048",
+          "name": "ajmd048",
+          "file": "ajmd/ajmd048.png",
+          "order": 47
+        }
+      ]
+    },
+    {
+      "id": "xxy",
+      "title": "小熊",
+      "order": 1,
+      "cover": "xxy/xxy001.png",
+      "iconNormal": "icons/xxy_s_normal.png",
+      "iconSelected": "icons/xxy_s_pressed.png",
+      "stickers": [
+        {
+          "id": "xxy_001",
+          "name": "xxy001",
+          "file": "xxy/xxy001.png",
+          "order": 0
+        },
+        {
+          "id": "xxy_002",
+          "name": "xxy002",
+          "file": "xxy/xxy002.png",
+          "order": 1
+        },
+        {
+          "id": "xxy_003",
+          "name": "xxy003",
+          "file": "xxy/xxy003.png",
+          "order": 2
+        },
+        {
+          "id": "xxy_004",
+          "name": "xxy004",
+          "file": "xxy/xxy004.png",
+          "order": 3
+        },
+        {
+          "id": "xxy_005",
+          "name": "xxy005",
+          "file": "xxy/xxy005.png",
+          "order": 4
+        },
+        {
+          "id": "xxy_006",
+          "name": "xxy006",
+          "file": "xxy/xxy006.png",
+          "order": 5
+        },
+        {
+          "id": "xxy_007",
+          "name": "xxy007",
+          "file": "xxy/xxy007.png",
+          "order": 6
+        },
+        {
+          "id": "xxy_008",
+          "name": "xxy008",
+          "file": "xxy/xxy008.png",
+          "order": 7
+        },
+        {
+          "id": "xxy_009",
+          "name": "xxy009",
+          "file": "xxy/xxy009.png",
+          "order": 8
+        },
+        {
+          "id": "xxy_010",
+          "name": "xxy010",
+          "file": "xxy/xxy010.png",
+          "order": 9
+        },
+        {
+          "id": "xxy_011",
+          "name": "xxy011",
+          "file": "xxy/xxy011.png",
+          "order": 10
+        },
+        {
+          "id": "xxy_012",
+          "name": "xxy012",
+          "file": "xxy/xxy012.png",
+          "order": 11
+        },
+        {
+          "id": "xxy_013",
+          "name": "xxy013",
+          "file": "xxy/xxy013.png",
+          "order": 12
+        },
+        {
+          "id": "xxy_014",
+          "name": "xxy014",
+          "file": "xxy/xxy014.png",
+          "order": 13
+        },
+        {
+          "id": "xxy_015",
+          "name": "xxy015",
+          "file": "xxy/xxy015.png",
+          "order": 14
+        },
+        {
+          "id": "xxy_016",
+          "name": "xxy016",
+          "file": "xxy/xxy016.png",
+          "order": 15
+        },
+        {
+          "id": "xxy_017",
+          "name": "xxy017",
+          "file": "xxy/xxy017.png",
+          "order": 16
+        },
+        {
+          "id": "xxy_018",
+          "name": "xxy018",
+          "file": "xxy/xxy018.png",
+          "order": 17
+        },
+        {
+          "id": "xxy_019",
+          "name": "xxy019",
+          "file": "xxy/xxy019.png",
+          "order": 18
+        },
+        {
+          "id": "xxy_020",
+          "name": "xxy020",
+          "file": "xxy/xxy020.png",
+          "order": 19
+        },
+        {
+          "id": "xxy_021",
+          "name": "xxy021",
+          "file": "xxy/xxy021.png",
+          "order": 20
+        },
+        {
+          "id": "xxy_022",
+          "name": "xxy022",
+          "file": "xxy/xxy022.png",
+          "order": 21
+        },
+        {
+          "id": "xxy_023",
+          "name": "xxy023",
+          "file": "xxy/xxy023.png",
+          "order": 22
+        },
+        {
+          "id": "xxy_024",
+          "name": "xxy024",
+          "file": "xxy/xxy024.png",
+          "order": 23
+        },
+        {
+          "id": "xxy_025",
+          "name": "xxy025",
+          "file": "xxy/xxy025.png",
+          "order": 24
+        },
+        {
+          "id": "xxy_026",
+          "name": "xxy026",
+          "file": "xxy/xxy026.png",
+          "order": 25
+        },
+        {
+          "id": "xxy_027",
+          "name": "xxy027",
+          "file": "xxy/xxy027.png",
+          "order": 26
+        },
+        {
+          "id": "xxy_028",
+          "name": "xxy028",
+          "file": "xxy/xxy028.png",
+          "order": 27
+        },
+        {
+          "id": "xxy_029",
+          "name": "xxy029",
+          "file": "xxy/xxy029.png",
+          "order": 28
+        },
+        {
+          "id": "xxy_030",
+          "name": "xxy030",
+          "file": "xxy/xxy030.png",
+          "order": 29
+        },
+        {
+          "id": "xxy_031",
+          "name": "xxy031",
+          "file": "xxy/xxy031.png",
+          "order": 30
+        },
+        {
+          "id": "xxy_032",
+          "name": "xxy032",
+          "file": "xxy/xxy032.png",
+          "order": 31
+        },
+        {
+          "id": "xxy_033",
+          "name": "xxy033",
+          "file": "xxy/xxy033.png",
+          "order": 32
+        },
+        {
+          "id": "xxy_034",
+          "name": "xxy034",
+          "file": "xxy/xxy034.png",
+          "order": 33
+        },
+        {
+          "id": "xxy_035",
+          "name": "xxy035",
+          "file": "xxy/xxy035.png",
+          "order": 34
+        },
+        {
+          "id": "xxy_036",
+          "name": "xxy036",
+          "file": "xxy/xxy036.png",
+          "order": 35
+        },
+        {
+          "id": "xxy_037",
+          "name": "xxy037",
+          "file": "xxy/xxy037.png",
+          "order": 36
+        },
+        {
+          "id": "xxy_038",
+          "name": "xxy038",
+          "file": "xxy/xxy038.png",
+          "order": 37
+        },
+        {
+          "id": "xxy_039",
+          "name": "xxy039",
+          "file": "xxy/xxy039.png",
+          "order": 38
+        },
+        {
+          "id": "xxy_040",
+          "name": "xxy040",
+          "file": "xxy/xxy040.png",
+          "order": 39
+        }
+      ]
+    },
+    {
+      "id": "lt",
+      "title": "兔子",
+      "order": 2,
+      "cover": "lt/lt001.png",
+      "iconNormal": "icons/lt_s_normal.png",
+      "iconSelected": "icons/lt_s_pressed.png",
+      "stickers": [
+        {
+          "id": "lt_001",
+          "name": "lt001",
+          "file": "lt/lt001.png",
+          "order": 0
+        },
+        {
+          "id": "lt_002",
+          "name": "lt002",
+          "file": "lt/lt002.png",
+          "order": 1
+        },
+        {
+          "id": "lt_003",
+          "name": "lt003",
+          "file": "lt/lt003.png",
+          "order": 2
+        },
+        {
+          "id": "lt_004",
+          "name": "lt004",
+          "file": "lt/lt004.png",
+          "order": 3
+        },
+        {
+          "id": "lt_005",
+          "name": "lt005",
+          "file": "lt/lt005.png",
+          "order": 4
+        },
+        {
+          "id": "lt_006",
+          "name": "lt006",
+          "file": "lt/lt006.png",
+          "order": 5
+        },
+        {
+          "id": "lt_007",
+          "name": "lt007",
+          "file": "lt/lt007.png",
+          "order": 6
+        },
+        {
+          "id": "lt_008",
+          "name": "lt008",
+          "file": "lt/lt008.png",
+          "order": 7
+        },
+        {
+          "id": "lt_009",
+          "name": "lt009",
+          "file": "lt/lt009.png",
+          "order": 8
+        },
+        {
+          "id": "lt_010",
+          "name": "lt010",
+          "file": "lt/lt010.png",
+          "order": 9
+        },
+        {
+          "id": "lt_011",
+          "name": "lt011",
+          "file": "lt/lt011.png",
+          "order": 10
+        },
+        {
+          "id": "lt_012",
+          "name": "lt012",
+          "file": "lt/lt012.png",
+          "order": 11
+        },
+        {
+          "id": "lt_013",
+          "name": "lt013",
+          "file": "lt/lt013.png",
+          "order": 12
+        },
+        {
+          "id": "lt_014",
+          "name": "lt014",
+          "file": "lt/lt014.png",
+          "order": 13
+        },
+        {
+          "id": "lt_015",
+          "name": "lt015",
+          "file": "lt/lt015.png",
+          "order": 14
+        },
+        {
+          "id": "lt_016",
+          "name": "lt016",
+          "file": "lt/lt016.png",
+          "order": 15
+        },
+        {
+          "id": "lt_017",
+          "name": "lt017",
+          "file": "lt/lt017.png",
+          "order": 16
+        },
+        {
+          "id": "lt_018",
+          "name": "lt018",
+          "file": "lt/lt018.png",
+          "order": 17
+        },
+        {
+          "id": "lt_019",
+          "name": "lt019",
+          "file": "lt/lt019.png",
+          "order": 18
+        },
+        {
+          "id": "lt_020",
+          "name": "lt020",
+          "file": "lt/lt020.png",
+          "order": 19
+        }
+      ]
+    }
+  ]
+}

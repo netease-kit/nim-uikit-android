@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import com.netease.nimlib.sdk.v2.auth.option.V2NIMLoginOption;
 import com.netease.yunxin.app.im.R;
 import com.netease.yunxin.app.im.databinding.ActivityAccountLoginBinding;
 import com.netease.yunxin.kit.common.ui.activities.BaseLocalActivity;
@@ -46,15 +47,17 @@ public class AccountLoginActivity extends BaseLocalActivity {
   // 登录IM
   private void loginIM(String account, String token) {
 
+    V2NIMLoginOption option = new V2NIMLoginOption();
+    option.setOfflineMode(false);
     IMKitClient.login(
         account,
         token,
-        null,
+        option,
         new FetchCallback<Void>() {
           @Override
           public void onError(int errorCode, @NonNull String errorMsg) {
             ToastX.showShortToast(
-                String.format(getResources().getString(R.string.login_fail), errorCode));
+                String.format(getResources().getString(R.string.login_fail), errorMsg));
           }
 
           @Override

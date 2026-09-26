@@ -9,10 +9,12 @@ import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
 import com.netease.nimlib.sdk.v2.team.model.V2NIMTeamMember;
 import com.netease.nimlib.sdk.v2.user.V2NIMUser;
 import com.netease.yunxin.kit.chatkit.cache.FriendUserCache;
+import com.netease.yunxin.kit.chatkit.cache.TeamMemberCache;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
-import com.netease.yunxin.kit.chatkit.ui.cache.TeamUserManager;
+import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
 import com.netease.yunxin.kit.corekit.im2.IMKitClient;
 import com.netease.yunxin.kit.corekit.im2.model.UserWithFriend;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -60,7 +62,10 @@ public class ChatUserCache {
   }
 
   public List<String> getAllTeamMemberAccounts() {
-    return TeamUserManager.getInstance().getAllMembersAccountIds();
+    String teamId = currentTeamId();
+    return TextUtils.isEmpty(teamId)
+        ? Collections.emptyList()
+        : TeamMemberCache.getAllTeamMemberAccounts(teamId);
   }
 
   public void addUserInfo(V2NIMUser userInfo) {
@@ -78,10 +83,8 @@ public class ChatUserCache {
   }
 
   public String getConversationInfo(String conversationId) {
-    if (conversationNameMap.containsKey(conversationId)) {
-      return conversationNameMap.get(conversationId);
-    }
-    return conversationId;
+    String name = conversationNameMap.get(conversationId);
+    return name == null ? conversationId : name;
   }
 
   public void removeConversationInfo(String conversationId) {
@@ -97,7 +100,8 @@ public class ChatUserCache {
    * @return 群成员信息
    */
   public V2NIMTeamMember getTeamMemberOnly(String account) {
-    return TeamUserManager.getInstance().getTeamMember(account);
+    String teamId = currentTeamId();
+    return TextUtils.isEmpty(teamId) ? null : TeamMemberCache.getTeamMember(teamId, account);
   }
 
   public void clear() {
@@ -111,7 +115,6 @@ public class ChatUserCache {
   public void clearSessionCache(String conversationId) {
     removeConversationInfo(conversationId);
     if (topMessage != null
-        && topMessage.getMessage() != null
         && TextUtils.equals(topMessage.getMessage().getConversationId(), conversationId)) {
       removeTopMessage();
     }
@@ -124,18 +127,21 @@ public class ChatUserCache {
    * @return 用户昵称
    */
   public String getUserNick(String account, V2NIMConversationType type) {
+    return getUserNick(account, type, currentTeamId());
+  }
+
+  public String getUserNick(String account, V2NIMConversationType type, String teamId) {
     if (TextUtils.equals(account, IMKitClient.account())) {
-      if (IMKitClient.currentUser() != null
-          && !TextUtils.isEmpty(IMKitClient.currentUser().getName())) {
-        return IMKitClient.currentUser().getName();
+      V2NIMUser currentUser = IMKitClient.currentUser();
+      if (currentUser != null && !TextUtils.isEmpty(currentUser.getName())) {
+        return currentUser.getName();
       }
     }
     if (type == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P) {
       UserWithFriend friendInfo = FriendUserCache.getFriendByAccount(account);
-      if (friendInfo != null
-          && friendInfo.getUserInfo() != null
-          && !TextUtils.isEmpty(friendInfo.getUserInfo().getName())) {
-        return friendInfo.getUserInfo().getName();
+      V2NIMUser friendUser = friendInfo == null ? null : friendInfo.getUserInfo();
+      if (friendUser != null && !TextUtils.isEmpty(friendUser.getName())) {
+        return friendUser.getName();
       } else {
         V2NIMUser user = getCachedUserInfo(account);
         if (user == null) {
@@ -146,7 +152,7 @@ public class ChatUserCache {
         }
       }
     } else {
-      V2NIMUser user = TeamUserManager.getInstance().getUserInfo(account);
+      V2NIMUser user = getTeamUserInfo(account, teamId);
       if (user != null && !TextUtils.isEmpty(user.getName())) {
         return user.getName();
       }
@@ -155,11 +161,16 @@ public class ChatUserCache {
   }
 
   public String getNickname(String account, V2NIMConversationType type) {
+    return getNickname(account, type, currentTeamId());
+  }
+
+  public String getNickname(String account, V2NIMConversationType type, String teamId) {
     if (type == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P) {
       //本人先处理
       if (Objects.equals(account, IMKitClient.account())) {
-        if (!TextUtils.isEmpty(IMKitClient.currentUser().getName())) {
-          return IMKitClient.currentUser().getName();
+        V2NIMUser currentUser = IMKitClient.currentUser();
+        if (currentUser != null && !TextUtils.isEmpty(currentUser.getName())) {
+          return currentUser.getName();
         }
       }
       UserWithFriend friendInfo = FriendUserCache.getFriendByAccount(account);
@@ -172,7 +183,7 @@ public class ChatUserCache {
         }
       }
     } else {
-      return TeamUserManager.getInstance().getNickname(account, true);
+      return getTeamNickname(account, true, teamId);
     }
     return account;
   }
@@ -184,11 +195,16 @@ public class ChatUserCache {
    * @return 群成员信息
    */
   public String getAvatarName(String account, V2NIMConversationType type) {
+    return getAvatarName(account, type, currentTeamId());
+  }
+
+  public String getAvatarName(String account, V2NIMConversationType type, String teamId) {
     if (type == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P) {
       //本人先处理
       if (Objects.equals(account, IMKitClient.account())) {
-        if (!TextUtils.isEmpty(IMKitClient.currentUser().getName())) {
-          return IMKitClient.currentUser().getName();
+        V2NIMUser currentUser = IMKitClient.currentUser();
+        if (currentUser != null && !TextUtils.isEmpty(currentUser.getName())) {
+          return currentUser.getName();
         }
       }
       UserWithFriend friendInfo = FriendUserCache.getFriendByAccount(account);
@@ -201,7 +217,7 @@ public class ChatUserCache {
         }
       }
     } else {
-      return TeamUserManager.getInstance().getAvatarNickname(account);
+      return getTeamAvatarName(account, teamId);
     }
     return account;
   }
@@ -213,7 +229,11 @@ public class ChatUserCache {
    * @return 群成员信息
    */
   public String getAitName(String account) {
-    return TeamUserManager.getInstance().getNickname(account, false);
+    return getTeamNickname(account, false);
+  }
+
+  public String getAitName(String account, String teamId) {
+    return getTeamNickname(account, false, teamId);
   }
 
   /**
@@ -224,9 +244,14 @@ public class ChatUserCache {
    * @return 用户头像
    */
   public String getAvatar(String account, V2NIMConversationType type) {
+    return getAvatar(account, type, currentTeamId());
+  }
+
+  public String getAvatar(String account, V2NIMConversationType type, String teamId) {
     //本人先处理
     if (Objects.equals(account, IMKitClient.account())) {
-      return IMKitClient.currentUser().getAvatar();
+      V2NIMUser currentUser = IMKitClient.currentUser();
+      return currentUser == null ? null : currentUser.getAvatar();
     }
     if (type == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P) {
       UserWithFriend friendInfo = FriendUserCache.getFriendByAccount(account);
@@ -239,7 +264,7 @@ public class ChatUserCache {
         }
       }
     } else {
-      return TeamUserManager.getInstance().getAvatar(account);
+      return getTeamAvatar(account, teamId);
     }
     return null;
   }
@@ -252,6 +277,10 @@ public class ChatUserCache {
    * @return 用户信息
    */
   public V2NIMUser getUserInfo(String account, V2NIMConversationType type) {
+    return getUserInfo(account, type, currentTeamId());
+  }
+
+  public V2NIMUser getUserInfo(String account, V2NIMConversationType type, String teamId) {
     if (TextUtils.equals(account, IMKitClient.account())) {
       return IMKitClient.currentUser();
     }
@@ -263,7 +292,7 @@ public class ChatUserCache {
         return getCachedUserInfo(account);
       }
     } else {
-      return TeamUserManager.getInstance().getUserInfo(account);
+      return getTeamUserInfo(account, teamId);
     }
   }
 
@@ -271,5 +300,51 @@ public class ChatUserCache {
     synchronized (userInfoMap) {
       return userInfoMap.get(account);
     }
+  }
+
+  private String currentTeamId() {
+    return ChatRepo.INSTANCE.getCurrentTeam() == null
+        ? null
+        : ChatRepo.INSTANCE.getCurrentTeam().getTeamId();
+  }
+
+  private V2NIMUser getTeamUserInfo(String account) {
+    return getTeamUserInfo(account, currentTeamId());
+  }
+
+  private V2NIMUser getTeamUserInfo(String account, String teamId) {
+    return TextUtils.isEmpty(teamId) ? null : TeamMemberCache.getUserInfo(teamId, account);
+  }
+
+  private String getTeamNickname(String account, boolean needAlias) {
+    return getTeamNickname(account, needAlias, currentTeamId());
+  }
+
+  private String getTeamNickname(String account, boolean needAlias, String teamId) {
+    if (TextUtils.isEmpty(teamId)) {
+      return account;
+    }
+    String nickname = TeamMemberCache.getNickname(teamId, account, needAlias);
+    return nickname == null ? account : nickname;
+  }
+
+  private String getTeamAvatarName(String account) {
+    return getTeamAvatarName(account, currentTeamId());
+  }
+
+  private String getTeamAvatarName(String account, String teamId) {
+    if (TextUtils.isEmpty(teamId)) {
+      return account;
+    }
+    String name = TeamMemberCache.getAvatarName(teamId, account);
+    return name == null ? account : name;
+  }
+
+  private String getTeamAvatar(String account) {
+    return getTeamAvatar(account, currentTeamId());
+  }
+
+  private String getTeamAvatar(String account, String teamId) {
+    return TextUtils.isEmpty(teamId) ? null : TeamMemberCache.getAvatar(teamId, account);
   }
 }

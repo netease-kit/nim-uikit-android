@@ -30,10 +30,15 @@ public class ChatLocationMessageViewHolder extends NormalChatBaseMessageViewHold
   }
 
   @Override
+  protected int getMessageReactionGroupTopInsetPx() {
+    return parent.getResources().getDimensionPixelSize(R.dimen.dimen_12_dp);
+  }
+
+  @Override
   public void addViewToMessageContainer() {
     binding =
         NormalChatMessageLocationViewHolderBinding.inflate(
-            LayoutInflater.from(parent.getContext()), getMessageContainer(), true);
+            LayoutInflater.from(parent.getContext()), getMessageContentContainer(), true);
   }
 
   @Override
@@ -105,16 +110,12 @@ public class ChatLocationMessageViewHolder extends NormalChatBaseMessageViewHold
   @Override
   protected void onMessageBackgroundConfig(ChatMessageBean messageBean) {
     super.onMessageBackgroundConfig(messageBean);
-    if (!messageBean.isRevoked()) {
-      boolean isReceivedMsg = MessageHelper.isReceivedMessage(messageBean);
-      if (isReceivedMsg) {
-        baseViewBinding.contentWithTopLayer.setBackgroundResource(
-            R.drawable.chat_message_stroke_other_bg);
-      } else {
-        baseViewBinding.contentWithTopLayer.setBackgroundResource(
-            R.drawable.chat_message_stoke_self_bg);
-      }
+    boolean hasReaction = !messageBean.getReactionState().summarize().isEmpty();
+    if (hasReaction) {
+      binding.getRoot().setBackground(null);
+    } else {
+      binding.getRoot().setBackgroundResource(R.drawable.normal_chat_message_location_bg);
+      baseViewBinding.messageContentGroup.setBackgroundResource(R.color.title_transfer);
     }
-    baseViewBinding.messageContainer.setPadding(0, 0, 0, 0);
   }
 }

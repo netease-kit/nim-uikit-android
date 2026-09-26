@@ -48,6 +48,8 @@ import com.netease.yunxin.kit.chatkit.ui.view.ai.AIHelperView;
 import com.netease.yunxin.kit.chatkit.ui.view.ait.AitManager;
 import com.netease.yunxin.kit.chatkit.ui.view.ait.AitTextChangeListener;
 import com.netease.yunxin.kit.chatkit.ui.view.emoji.IEmojiSelectedListener;
+import com.netease.yunxin.kit.chatkit.ui.view.emoji.IStickerSelectedListener;
+import com.netease.yunxin.kit.chatkit.ui.view.emoji.StickerFileCallback;
 import com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants;
 import com.netease.yunxin.kit.chatkit.ui.view.input.ActionsPanel;
 import com.netease.yunxin.kit.chatkit.ui.view.input.InputActionAdapter;
@@ -85,6 +87,7 @@ public class MessageBottomLayout extends FrameLayout
   private boolean isKeyboardShow = false;
   private InputState mInputState = InputState.none;
   private IEmojiSelectedListener emojiSelectedListener;
+  private IStickerSelectedListener stickerSelectedListener;
 
   private boolean canRender = true;
 
@@ -142,6 +145,31 @@ public class MessageBottomLayout extends FrameLayout
           public void onEmojiSendClick() {
             sendText(replyMessage);
           }
+        };
+    stickerSelectedListener =
+        item -> {
+          if (item == null || mBinding.chatMessageEmojiView.getStickerAssetManager() == null) {
+            return;
+          }
+          mBinding
+              .chatMessageEmojiView
+              .getStickerAssetManager()
+              .loadStickerFile(
+                  item,
+                  new StickerFileCallback() {
+                    @Override
+                    public void onSuccess(File file, int width, int height) {
+                      if (mProxy != null) {
+                        mProxy.sendImageMessage(
+                            file.getAbsolutePath(), file.getName(), width, height, replyMessage);
+                      }
+                    }
+
+                    @Override
+                    public void onError(Throwable error) {
+                      ToastX.showShortToast(R.string.chat_message_type_resource_error);
+                    }
+                  });
         };
     mBinding.llyReply.setVisibility(GONE);
     mBinding.chatMessageInputEt.setOnFocusChangeListener(
@@ -578,8 +606,16 @@ public class MessageBottomLayout extends FrameLayout
       mInputState = InputState.none;
       return;
     }
-    hideCurrentInput();
-    emojiShow(true, 0);
+    if (mInputState == InputState.more) {
+      InputPanelAnimator.hidePanelImmediately(mBinding.chatMessageActionsPanel);
+      mBinding.chatMessageEmojiView.setVisibility(VISIBLE);
+      mBinding.chatMessageEmojiView.show(emojiSelectedListener, stickerSelectedListener);
+      actionAdapter.updateItemState(ActionConstants.ACTION_TYPE_MORE, false);
+      actionAdapter.updateItemState(ActionConstants.ACTION_TYPE_EMOJI, true);
+    } else {
+      hideCurrentInput();
+      emojiShow(true, 0);
+    }
     mInputState = InputState.emoji;
   }
 
@@ -589,7 +625,7 @@ public class MessageBottomLayout extends FrameLayout
         () -> {
           mBinding.chatMessageEmojiView.setVisibility(show ? VISIBLE : GONE);
           if (show) {
-            mBinding.chatMessageEmojiView.show(emojiSelectedListener);
+            mBinding.chatMessageEmojiView.show(emojiSelectedListener, stickerSelectedListener);
           }
         },
         delay);
@@ -603,8 +639,25 @@ public class MessageBottomLayout extends FrameLayout
       mInputState = InputState.none;
       return;
     }
-    hideCurrentInput();
-    morePanelShow(true, 0);
+    if (mInputState == InputState.emoji) {
+      if (!mActionsPanel.hasInit()) {
+        mActionsPanel.init(
+            mBinding.chatMessageActionsPanel,
+            BottomActionFactory.assembleInputMoreActions(
+                V2NIMConversationIdUtil.conversationTargetId(mProxy.getConversationId()),
+                mProxy.getConversationType(),
+                mIsAIBot,
+                mIsBotSubSession),
+            this);
+      }
+      InputPanelAnimator.hidePanelImmediately(mBinding.chatMessageEmojiView);
+      InputPanelAnimator.showPanelImmediately(mBinding.chatMessageActionsPanel);
+      actionAdapter.updateItemState(ActionConstants.ACTION_TYPE_EMOJI, false);
+      actionAdapter.updateItemState(ActionConstants.ACTION_TYPE_MORE, true);
+    } else {
+      hideCurrentInput();
+      morePanelShow(true, 0);
+    }
     mInputState = InputState.more;
   }
 

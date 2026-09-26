@@ -30,10 +30,15 @@ public class ChatForwardMessageViewHolder extends NormalChatBaseMessageViewHolde
   }
 
   @Override
+  protected int getMessageReactionGroupTopInsetPx() {
+    return parent.getResources().getDimensionPixelSize(R.dimen.dimen_8_dp);
+  }
+
+  @Override
   protected void addViewToMessageContainer() {
     viewBinding =
         NormalChatMessageForwardViewHolderBinding.inflate(
-            LayoutInflater.from(parent.getContext()), getMessageContainer(), true);
+            LayoutInflater.from(parent.getContext()), getMessageContentContainer(), true);
     ViewGroup.LayoutParams params = viewBinding.placeHolder.getLayoutParams();
     params.width = ScreenUtils.getDisplayWidth();
   }

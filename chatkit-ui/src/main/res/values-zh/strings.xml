@@ -77,6 +77,7 @@
     <string name="chat_all_user_have_read">全部成员已读</string>
     <string name="chat_all_user_have_unread">全部成员未读</string>
     <string name="chat_message_ait_contact_title">选择提醒</string>
+    <string name="chat_message_ait_contact_search_hint">搜索群成员</string>
     <string name="chat_message_rich_title_hint">请输入标题</string>
     <string name="chat_message_rich_body_hint">请输入内容</string>
 
@@ -126,6 +127,7 @@
 
     <string name="chat_message_action_copy">复制</string>
     <string name="chat_message_action_reply">回复</string>
+    <string name="chat_message_action_emoji_reaction">表情回复</string>
     <string name="chat_message_action_transmit">转发</string>
     <string name="chat_message_action_voice_play_on">听筒播放</string>
     <string name="chat_message_action_voice_play_off">扬声器</string>
@@ -394,6 +396,9 @@
     <string name="ps_camera_roll">图片和视频</string>
     <string name="chat_tel_tips_title">\"%s\"可能是一个电话号码，你可以</string>
     <string name="chat_message_see_bottom">%d条新消息</string>
+    <string name="chat_message_earliest_unread">最早未读</string>
+    <string name="chat_message_earliest_unread_with_num">%s条新消息</string>
+    <string name="chat_message_earliest_unread_load_failed">最早未读消息定位失败，请点击重试</string>
 
     <!-- 反垃圾内容提示文本 -->
     <string name="chat_anti_porn_tips">色情</string>

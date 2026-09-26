@@ -8,6 +8,7 @@ import android.text.TextUtils;
 import android.text.style.ImageSpan;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessageRefer;
@@ -40,7 +41,7 @@ public class ChatTextMessageViewHolder extends NormalChatBaseMessageViewHolder {
   public void addViewToMessageContainer() {
     textBinding =
         NormalChatMessageTextViewHolderBinding.inflate(
-            LayoutInflater.from(parent.getContext()), getMessageContainer(), true);
+            LayoutInflater.from(parent.getContext()), getMessageContentContainer(), true);
   }
 
   @Override
@@ -49,6 +50,17 @@ public class ChatTextMessageViewHolder extends NormalChatBaseMessageViewHolder {
     setMessageText(message);
     bindTranslation(message);
     initEvent();
+  }
+
+  @Override
+  protected void onLayoutConfig(ChatMessageBean messageBean) {
+    super.onLayoutConfig(messageBean);
+    ViewGroup.MarginLayoutParams rootParams =
+        (ViewGroup.MarginLayoutParams) textBinding.getRoot().getLayoutParams();
+    int inset = parent.getResources().getDimensionPixelSize(R.dimen.dimen_16_dp);
+    rootParams.setMarginStart(inset);
+    rootParams.setMarginEnd(inset);
+    textBinding.getRoot().setLayoutParams(rootParams);
   }
 
   @Override
@@ -90,28 +102,8 @@ public class ChatTextMessageViewHolder extends NormalChatBaseMessageViewHolder {
                   .getResources()
                   .getDimension(R.dimen.dimen_translation_area_min_width);
       textBinding.getRoot().setMinimumWidth(minWidthPx);
-      // updateReplayInfoLayoutWidth() 会在 post() 里把 messageContainer.width 从
-      // MATCH_CONSTRAINT(0dp/wrap) 固化为一个 EXACT 像素值，导致子视图的 minimumWidth
-      // 被 EXACTLY 约束截断，setMinimumWidth 完全无效。
-      // 修复：翻译出现时将 messageContainer.width 重置回 MATCH_CONSTRAINT(0dp)，
-      // 让 ConstraintLayout 以 wrap 模式重新测量，minimumWidth 才能生效。
-      androidx.constraintlayout.widget.ConstraintLayout.LayoutParams lp =
-          (androidx.constraintlayout.widget.ConstraintLayout.LayoutParams)
-              baseViewBinding.messageContainer.getLayoutParams();
-      lp.width = 0; // 0 = MATCH_CONSTRAINT，配合 constraintWidth_default="wrap" 即 wrap_content
-      baseViewBinding.messageContainer.setLayoutParams(lp);
-      // 译文 TextView 使用 wrap_content，可以撑宽气泡。
-      // 需要在布局完成后将 maxWidth 限制为 messageContainer 实际允许的最大宽度，
-      // 防止长译文单行无限延伸超出屏幕边界。
-      baseViewBinding.messageContainer.post(
-          () -> {
-            int containerMaxWidth = baseViewBinding.messageContainer.getWidth();
-            if (containerMaxWidth > 0) {
-              textBinding.translationText.setMaxWidth(containerMaxWidth);
-            }
-          });
     } else {
-      // 隐藏译文时重置最小宽度，不需要重置 messageContainer.width（消失后宽度由原文决定）
+      // 隐藏译文时重置最小宽度。
       textBinding.getRoot().setMinimumWidth(0);
       textBinding.translationText.setMaxWidth(Integer.MAX_VALUE);
       textBinding.llTranslationArea.setVisibility(View.GONE);
@@ -137,6 +129,13 @@ public class ChatTextMessageViewHolder extends NormalChatBaseMessageViewHolder {
         textBinding.messageText.setTextSize(commonUIOption.messageTextSize);
       } else if (properties.getReceiveMessageTextSize() != null) {
         textBinding.messageText.setTextSize(properties.getReceiveMessageTextSize());
+      }
+    } else {
+      if (properties.getSelfMessageTextSize() != null) {
+        textBinding.messageText.setTextSize(properties.getSelfMessageTextSize());
+      }
+      if (properties.getSelfMessageTextColor() != null) {
+        textBinding.messageText.setTextColor(properties.getSelfMessageTextColor());
       }
     }
 

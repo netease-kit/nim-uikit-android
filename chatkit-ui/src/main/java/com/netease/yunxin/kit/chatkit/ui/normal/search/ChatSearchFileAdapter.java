@@ -192,15 +192,10 @@ public class ChatSearchFileAdapter extends RecyclerView.Adapter<RecyclerView.Vie
       }
       holder.binding.fileTypeIv.setImageResource(ChatUtils.getFileIcon(ext));
       // header: avatar, name, time (MM-dd)
-      String name =
-          MessageHelper.getChatMessageUserNameByAccount(
-              message.getSenderId(), message.getConversationType());
+      String name = MessageHelper.getChatMessageUserName(message);
       holder.binding.otherUsername.setText(name);
-      String nickName =
-          MessageHelper.getChatCacheAvatarName(
-              message.getSenderId(), message.getConversationType());
-      String avatar =
-          MessageHelper.getChatCacheAvatar(message.getSenderId(), message.getConversationType());
+      String nickName = MessageHelper.getChatCacheAvatarName(message);
+      String avatar = MessageHelper.getChatCacheAvatar(message);
       holder.binding.messageAvatar.setData(
           avatar, nickName, AvatarColor.avatarColor(message.getSenderId()));
       Date d = new Date(message.getCreateTime());

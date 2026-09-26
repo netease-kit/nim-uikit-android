@@ -14,8 +14,10 @@
     <color name="color_e3e4e4">#E3E4E4</color>
     <color name="color_eef1f4">#EFF1F4</color>
     <color name="color_999999">#999999</color>
+    <color name="color_666666">#666666</color>
     <color name="color_e2e5e8">#E2E5E8</color>
     <color name="color_337eff">#337EFF</color>
+    <color name="chat_emoji_tab_selected_bg">#E5EEFF</color>
     <color name="color_4d000000">#4d000000</color>
     <color name="color_d9d9d9">#4d000000</color>
     <color name="color_b3b7bc">#b3b7bc</color>
@@ -66,8 +68,10 @@
     <color name="fun_chat_title_divider">#d5d5d5</color>
     <!-- Fun 主色 -->
     <color name="fun_chat_page_bg_color">#ededed</color>
+    <color name="fun_chat_message_send_bg_color">#A9EA7A</color>
     <color name="fun_chat_secondary_page_bg_color">#ededed</color>
     <color name="fun_chat_color">#58BE6B</color>
+    <color name="fun_chat_emoji_tab_selected_bg_color">#E7F6EA</color>
     <color name="fun_conversation_item_bg_color">#FFFFFF</color>
     <color name="fun_conversation_item_divide_line_color">#D8D8D8</color>
 

@@ -48,6 +48,8 @@ import com.netease.yunxin.kit.chatkit.ui.view.ai.AIHelperView;
 import com.netease.yunxin.kit.chatkit.ui.view.ait.AitManager;
 import com.netease.yunxin.kit.chatkit.ui.view.ait.AitTextChangeListener;
 import com.netease.yunxin.kit.chatkit.ui.view.emoji.IEmojiSelectedListener;
+import com.netease.yunxin.kit.chatkit.ui.view.emoji.IStickerSelectedListener;
+import com.netease.yunxin.kit.chatkit.ui.view.emoji.StickerFileCallback;
 import com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants;
 import com.netease.yunxin.kit.chatkit.ui.view.input.ActionsPanel;
 import com.netease.yunxin.kit.chatkit.ui.view.input.InputPanelAnimator;
@@ -96,6 +98,7 @@ public class MessageBottomLayout extends FrameLayout
   private InputState mInputState = InputState.none;
   // 表情选择监听
   private IEmojiSelectedListener emojiSelectedListener;
+  private IStickerSelectedListener stickerSelectedListener;
 
   // 语音输入监听
   private IAudioRecordCallback audioRecordCallback;
@@ -190,6 +193,31 @@ public class MessageBottomLayout extends FrameLayout
           public void onEmojiSendClick() {
             sendText(replyMessage);
           }
+        };
+    stickerSelectedListener =
+        item -> {
+          if (item == null || mBinding.emojiPickerView.getStickerAssetManager() == null) {
+            return;
+          }
+          mBinding
+              .emojiPickerView
+              .getStickerAssetManager()
+              .loadStickerFile(
+                  item,
+                  new StickerFileCallback() {
+                    @Override
+                    public void onSuccess(File file, int width, int height) {
+                      if (mProxy != null) {
+                        mProxy.sendImageMessage(
+                            file.getAbsolutePath(), file.getName(), width, height, replyMessage);
+                      }
+                    }
+
+                    @Override
+                    public void onError(Throwable error) {
+                      ToastX.showShortToast(R.string.chat_message_type_resource_error);
+                    }
+                  });
         };
 
     // 语音输入监听
@@ -412,6 +440,12 @@ public class MessageBottomLayout extends FrameLayout
   private void initView() {
     mBinding =
         FunChatMessageBottomViewBinding.inflate(LayoutInflater.from(getContext()), this, true);
+    mBinding.emojiPickerView.setTabDividerColorResource(R.color.fun_chat_title_divider);
+    mBinding.emojiPickerView.setPageIndicatorSelectorResource(
+        R.drawable.fun_chat_emoji_page_indicator_selector);
+    mBinding.emojiPickerView.setSendButtonBackgroundResource(R.color.fun_chat_color);
+    mBinding.emojiPickerView.setTabSelectedBackgroundColorResource(
+        R.color.fun_chat_emoji_tab_selected_bg_color);
     InputPanelAnimator.setupKeyboardTransition(mBinding.chatMessageInputRoot);
     getViewTreeObserver()
         .addOnGlobalLayoutListener(
@@ -706,8 +740,14 @@ public class MessageBottomLayout extends FrameLayout
       updateState(InputState.none);
       return;
     }
-    emojiShow(true, 0);
-    hideCurrentInput();
+    if (mInputState == InputState.more) {
+      InputPanelAnimator.hidePanelImmediately(mBinding.actionsPanelVp);
+      mBinding.emojiPickerView.setVisibility(VISIBLE);
+      mBinding.emojiPickerView.show(emojiSelectedListener, stickerSelectedListener);
+    } else {
+      emojiShow(true, 0);
+      hideCurrentInput();
+    }
     updateState(InputState.emoji);
   }
 
@@ -731,7 +771,7 @@ public class MessageBottomLayout extends FrameLayout
         () -> {
           mBinding.emojiPickerView.setVisibility(show ? VISIBLE : GONE);
           if (show) {
-            mBinding.emojiPickerView.show(emojiSelectedListener);
+            mBinding.emojiPickerView.show(emojiSelectedListener, stickerSelectedListener);
           }
         },
         delay);
@@ -744,8 +784,23 @@ public class MessageBottomLayout extends FrameLayout
       updateState(InputState.none);
       return;
     }
-    morePanelShow(true, 0);
-    hideCurrentInput();
+    if (mInputState == InputState.emoji) {
+      if (!mActionsPanel.hasInit()) {
+        mActionsPanel.init(
+            mBinding.actionsPanelVp,
+            FunBottomActionFactory.assembleInputMoreActions(
+                V2NIMConversationIdUtil.conversationTargetId(mProxy.getConversationId()),
+                mProxy.getConversationType(),
+                mIsAIBot,
+                mIsBotSubSession),
+            this);
+      }
+      InputPanelAnimator.hidePanelImmediately(mBinding.emojiPickerView);
+      InputPanelAnimator.showPanelImmediately(mBinding.actionsPanelVp);
+    } else {
+      morePanelShow(true, 0);
+      hideCurrentInput();
+    }
     updateState(InputState.more);
   }
 

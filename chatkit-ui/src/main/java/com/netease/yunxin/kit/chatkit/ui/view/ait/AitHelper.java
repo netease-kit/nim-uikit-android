@@ -6,6 +6,7 @@ package com.netease.yunxin.kit.chatkit.ui.view.ait;
 
 import android.text.TextUtils;
 import com.netease.nimlib.sdk.v2.ai.model.V2NIMAIUser;
+import com.netease.nimlib.sdk.v2.user.V2NIMUser;
 import com.netease.yunxin.kit.chatkit.manager.AIUserManager;
 import com.netease.yunxin.kit.chatkit.model.TeamMemberWithUserInfo;
 import com.netease.yunxin.kit.chatkit.ui.model.ait.AitUserInfo;
@@ -26,13 +27,21 @@ public class AitHelper {
     List<AitUserInfo> aitUsers = new ArrayList<>(userInfoWithTeams.size());
     for (TeamMemberWithUserInfo userInfoWithTeam : userInfoWithTeams) {
       if (!AIUserManager.isAIChatUser(userInfoWithTeam.getAccountId())) {
-        aitUsers.add(
+        AitUserInfo aitUser =
             new AitUserInfo(
                 userInfoWithTeam.getAccountId(),
                 userInfoWithTeam.getName(),
                 userInfoWithTeam.getAvatarName(),
                 userInfoWithTeam.getName(false),
-                userInfoWithTeam.getAvatar()));
+                userInfoWithTeam.getAvatar());
+        aitUser.setFriendAlias(
+            userInfoWithTeam.getFriendInfo() == null
+                ? null
+                : userInfoWithTeam.getFriendInfo().getAlias());
+        aitUser.setTeamNick(userInfoWithTeam.getTeamMember().getTeamNick());
+        V2NIMUser userInfo = userInfoWithTeam.getUserInfo();
+        aitUser.setUserName(userInfo == null ? null : userInfo.getName());
+        aitUsers.add(aitUser);
       }
     }
     return aitUsers;
@@ -48,7 +57,11 @@ public class AitHelper {
     List<AitUserInfo> aitUsers = new ArrayList<>(aiUsers.size());
     for (V2NIMAIUser aiUser : aiUsers) {
       String name = TextUtils.isEmpty(aiUser.getName()) ? aiUser.getAccountId() : aiUser.getName();
-      aitUsers.add(new AitUserInfo(aiUser.getAccountId(), name, name, name, aiUser.getAvatar()));
+      AitUserInfo aitUser =
+          new AitUserInfo(aiUser.getAccountId(), name, name, name, aiUser.getAvatar());
+      aitUser.setAI(true);
+      aitUser.setUserName(name);
+      aitUsers.add(aitUser);
     }
     return aitUsers;
   }

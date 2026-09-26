@@ -30,10 +30,15 @@ public class ChatForwardMessageViewHolder extends FunChatBaseMessageViewHolder {
   }
 
   @Override
+  protected int getMessageReactionGroupTopInsetPx() {
+    return parent.getResources().getDimensionPixelSize(R.dimen.dimen_8_dp);
+  }
+
+  @Override
   protected void addViewToMessageContainer() {
     viewBinding =
         FunChatMessageForwardViewHolderBinding.inflate(
-            LayoutInflater.from(parent.getContext()), getMessageContainer(), true);
+            LayoutInflater.from(parent.getContext()), getMessageContentContainer(), true);
   }
 
   @Override

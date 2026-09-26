@@ -12,10 +12,10 @@ import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.GlideException;
@@ -39,7 +39,7 @@ import com.netease.yunxin.kit.common.utils.ScreenUtils;
 /** view holder to show image/video thumb */
 public abstract class ChatThumbBaseViewHolder extends FunChatBaseMessageViewHolder {
   private static final String TAG = "ChatThumbBaseViewHolder";
-  private static final float DEFAULT_IMAGE_THUMB_MIN_WIDTH_RATIO = 0.25f;
+  private static final float DEFAULT_IMAGE_THUMB_MIN_WIDTH_RATIO = 0.35f;
   private static final float DEFAULT_IMAGE_THUMB_MAX_WIDTH_RATIO = 0.48f;
   private static final float DEFAULT_IMAGE_THUMB_MAX_HEIGHT_RATIO = 0.45f;
 
@@ -60,7 +60,42 @@ public abstract class ChatThumbBaseViewHolder extends FunChatBaseMessageViewHold
   public void addViewToMessageContainer() {
     binding =
         FunChatMessageThumbnailViewHolderBinding.inflate(
-            LayoutInflater.from(parent.getContext()), getMessageContainer(), true);
+            LayoutInflater.from(parent.getContext()), getMessageContentContainer(), true);
+  }
+
+  @Override
+  protected void onLayoutConfig(ChatMessageBean messageBean) {
+    super.onLayoutConfig(messageBean);
+    ViewGroup.MarginLayoutParams rootParams =
+        (ViewGroup.MarginLayoutParams) binding.getRoot().getLayoutParams();
+    int receiveInset = parent.getResources().getDimensionPixelSize(R.dimen.dimen_12_dp);
+    int reactionInset = parent.getResources().getDimensionPixelSize(R.dimen.dimen_6_dp);
+    int sendingReactionEndInset = parent.getResources().getDimensionPixelSize(R.dimen.dimen_14_dp);
+    boolean hasReaction = !messageBean.getReactionState().summarize().isEmpty();
+    boolean isReceiving = showReceiveUIStyle();
+    if (isReceiving) {
+      rootParams.setMarginStart(hasReaction ? receiveInset : reactionInset);
+      rootParams.setMarginEnd(hasReaction ? reactionInset : 0);
+      rootParams.topMargin = hasReaction ? reactionInset : 0;
+      rootParams.bottomMargin = hasReaction ? receiveInset : 0;
+    } else {
+      rootParams.setMarginStart(hasReaction ? reactionInset : 0);
+      rootParams.setMarginEnd(hasReaction ? sendingReactionEndInset : receiveInset);
+      rootParams.topMargin = hasReaction ? reactionInset : 0;
+      rootParams.bottomMargin = hasReaction ? reactionInset : 0;
+    }
+    binding.getRoot().setLayoutParams(rootParams);
+  }
+
+  @Override
+  protected void onMessageBackgroundConfig(ChatMessageBean messageBean) {
+    boolean hasReaction = !messageBean.getReactionState().summarize().isEmpty();
+    if (!hasReaction) {
+      baseViewBinding.messageContentGroup.setBackground(null);
+      return;
+    }
+    baseViewBinding.messageContentGroup.setBackgroundResource(
+        showReceiveUIStyle() ? R.drawable.fun_bg_message_receive : R.drawable.fun_bg_message_send);
   }
 
   @Override
@@ -159,8 +194,6 @@ public abstract class ChatThumbBaseViewHolder extends FunChatBaseMessageViewHold
     float[] corners = getCorners();
     ShapeDrawable.Builder shapeBuilder =
         new ShapeDrawable.Builder()
-            .setStroke(
-                1, ContextCompat.getColor(getMessageContainer().getContext(), R.color.color_e2e5e8))
             .setRadii(
                 new float[] {
                   corners[0],

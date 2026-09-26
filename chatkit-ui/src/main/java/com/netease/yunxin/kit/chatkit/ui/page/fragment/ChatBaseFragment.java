@@ -26,6 +26,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultLauncher;
@@ -47,12 +48,15 @@ import com.netease.nimlib.sdk.v2.auth.enums.V2NIMDataSyncType;
 import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessage;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessagePin;
+import com.netease.nimlib.sdk.v2.message.V2NIMMessageQuickComment;
+import com.netease.nimlib.sdk.v2.message.V2NIMMessageQuickCommentNotification;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessageRefer;
 import com.netease.nimlib.sdk.v2.message.attachment.V2NIMMessageImageAttachment;
 import com.netease.nimlib.sdk.v2.message.attachment.V2NIMMessageVideoAttachment;
 import com.netease.nimlib.sdk.v2.message.config.V2NIMMessageAIConfig;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageAIStatus;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageQueryDirection;
+import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageQuickCommentType;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
 import com.netease.nimlib.sdk.v2.utils.V2NIMConversationIdUtil;
 import com.netease.yunxin.kit.alog.ALog;
@@ -84,6 +88,7 @@ import com.netease.yunxin.kit.chatkit.ui.custom.NERTCCallAttachment;
 import com.netease.yunxin.kit.chatkit.ui.custom.RichTextAttachment;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatTopMessageLayoutBinding;
 import com.netease.yunxin.kit.chatkit.ui.dialog.ChatBaseForwardSelectDialog;
+import com.netease.yunxin.kit.chatkit.ui.earliestunread.EarliestUnreadController;
 import com.netease.yunxin.kit.chatkit.ui.factory.ChatPopActionFactory;
 import com.netease.yunxin.kit.chatkit.ui.fun.view.message.viewholder.ChatAudioMessageViewHolder;
 import com.netease.yunxin.kit.chatkit.ui.interfaces.IChatView;
@@ -92,11 +97,13 @@ import com.netease.yunxin.kit.chatkit.ui.interfaces.IMessageLoadHandler;
 import com.netease.yunxin.kit.chatkit.ui.interfaces.IMessageProxy;
 import com.netease.yunxin.kit.chatkit.ui.model.AnchorScrollInfo;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
+import com.netease.yunxin.kit.chatkit.ui.model.MessageReactionState;
 import com.netease.yunxin.kit.chatkit.ui.model.MessageRevokeInfo;
 import com.netease.yunxin.kit.chatkit.ui.model.ait.AtContactsModel;
 import com.netease.yunxin.kit.chatkit.ui.page.viewmodel.ChatBaseViewModel;
 import com.netease.yunxin.kit.chatkit.ui.page.viewmodel.ChatP2PViewModel;
 import com.netease.yunxin.kit.chatkit.ui.page.viewmodel.ChatTeamViewModel;
+import com.netease.yunxin.kit.chatkit.ui.textSelectionHelper.SelectableTextHelper;
 import com.netease.yunxin.kit.chatkit.ui.view.ait.AitManager;
 import com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants;
 import com.netease.yunxin.kit.chatkit.ui.view.message.adapter.ChatMessageAdapter;
@@ -111,6 +118,7 @@ import com.netease.yunxin.kit.common.ui.fragments.BaseFragment;
 import com.netease.yunxin.kit.common.ui.utils.ToastX;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
+import com.netease.yunxin.kit.common.utils.KeyboardUtils;
 import com.netease.yunxin.kit.common.utils.NetworkUtils;
 import com.netease.yunxin.kit.common.utils.PermissionUtils;
 import com.netease.yunxin.kit.common.utils.model.LocalFileInfo;
@@ -132,7 +140,6 @@ import java.util.Map;
 import java.util.Objects;
 /** 聊天页面基础Fragment 页面交互、消息相关功能 */
 public abstract class ChatBaseFragment extends BaseFragment {
-
   private static final String LOG_TAG = "ChatBaseFragment";
 
   //权限请求
@@ -182,6 +189,8 @@ public abstract class ChatBaseFragment extends BaseFragment {
 
   protected IMMessageInfo anchorMessage;
 
+  private EarliestUnreadController earliestUnreadController;
+
   // 多媒体文件选择Launcher
   ActivityResultLauncher<PickVisualMediaRequest> pickMediaLauncher;
   // 文件选择Launcher
@@ -220,6 +229,8 @@ public abstract class ChatBaseFragment extends BaseFragment {
   private Observer<FetchResult<IMMessageProgress>> attachLiveDataObserver;
   // 用户信息变更观察者
   private Observer<FetchResult<List<String>>> userInfoLiveDataObserver;
+  private Observer<ChatMessageBean> reactionMessageLiveDataObserver;
+  private Observer<V2NIMMessageQuickCommentNotification> reactionNotificationLiveDataObserver;
 
   // 消息标记观察者
   private Observer<FetchResult<Map<String, V2NIMMessagePin>>> msgPinLiveDataObserver;
@@ -259,6 +270,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
                             .getMessageAdapter()
                             .getItemCount()
                         > 0) {
+                  viewModel.reloadQuickComments(ChatBaseFragment.this.chatView.getMessageList());
                   //如果已经有数据了，不再重新拉取
                   return;
                 }
@@ -277,6 +289,10 @@ public abstract class ChatBaseFragment extends BaseFragment {
 
   // 消息长按菜单
   protected ChatPopMenu popMenu;
+  private View pendingPopupAnchor;
+  private ViewTreeObserver pendingPopupViewTreeObserver;
+  private ViewTreeObserver.OnGlobalLayoutListener pendingPopupLayoutListener;
+  private Runnable pendingPopupAction;
   // 消息UI布局个性化配置接口，页面加载时会调用customizeChatLayout方法
   protected IChatViewCustom chatViewCustom;
   // 消息页面UI的个性化配置接口
@@ -294,6 +310,11 @@ public abstract class ChatBaseFragment extends BaseFragment {
   ChatTopMessageLayoutBinding topMessageViewBinding;
 
   public boolean isForeground = false;
+
+  @Override
+  public void onCreate(@Nullable Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+  }
 
   @Nullable
   @Override
@@ -329,13 +350,14 @@ public abstract class ChatBaseFragment extends BaseFragment {
     mHandler = new Handler();
 
     initViewModel();
+    initEarliestUnreadController();
     handleTopMessage();
     initDataObserver();
     //增加登录监听器，如果客户没有登录，则监听登录成功后，再去拉取数据
     IMKitClient.addLoginDetailListener(loginListener);
     //如果客户已经登录，则直接拉取数据
     if (!TextUtils.isEmpty(IMKitClient.account())) {
-      initData();
+      earliestUnreadController.prepareConversation();
     }
     activityResultLauncher =
         registerForActivityResult(
@@ -351,10 +373,55 @@ public abstract class ChatBaseFragment extends BaseFragment {
             });
   }
 
-  @Override
-  public void onSaveInstanceState(@NonNull Bundle outState) {
-    super.onSaveInstanceState(outState);
-    ALog.i(LIB_TAG, LOG_TAG, "onSaveInstanceState");
+  private void initEarliestUnreadController() {
+    earliestUnreadController =
+        new EarliestUnreadController(
+            new EarliestUnreadController.Host() {
+              @Override
+              public boolean isPageActive() {
+                return isAdded() && getView() != null && viewModel != null;
+              }
+
+              @Override
+              public boolean supportsEarliestUnread() {
+                return ChatBaseFragment.this.supportsEarliestUnread();
+              }
+
+              @Override
+              public IChatView getChatView() {
+                return chatView;
+              }
+
+              @Override
+              public ChatBaseViewModel getViewModel() {
+                return viewModel;
+              }
+
+              @Override
+              public void initializeChat(boolean unreadAlreadyCleared) {
+                if (viewModel == null) return;
+                if (unreadAlreadyCleared) {
+                  viewModel.setChattingAccountWithoutClear();
+                } else {
+                  viewModel.setChattingAccount();
+                }
+                initData();
+              }
+
+              @Override
+              public void updateEarliestUnreadEntry(boolean visible, int count) {
+                ChatBaseFragment.this.updateEarliestUnreadEntry(visible, count);
+              }
+
+              @Override
+              public void showLocationFailure() {
+                if (isAdded()) {
+                  ToastX.showShortToast(
+                      getString(R.string.chat_message_earliest_unread_load_failed));
+                }
+              }
+            },
+            IMKitConfigCenter.getEnableLastReadPosition());
   }
 
   private void handleTopMessage() {
@@ -488,16 +555,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
 
   //获取指定消息昵称，优先取缓存
   private String getTopMessageNick(IMMessageInfo messageInfo) {
-    if (ChatUserCache.getInstance()
-            .getUserInfo(
-                MessageHelper.getRealMessageSenderId(messageInfo.getMessage()),
-                V2NIMConversationType.V2NIM_CONVERSATION_TYPE_TEAM)
-        != null) {
-      return MessageHelper.getChatMessageUserNameByAccount(
-          MessageHelper.getRealMessageSenderId(messageInfo.getMessage()),
-          V2NIMConversationType.V2NIM_CONVERSATION_TYPE_TEAM);
-    }
-    return messageInfo.getFromUserName();
+    return MessageHelper.getChatMessageUserName(messageInfo.getMessage());
   }
 
   /**
@@ -560,6 +618,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
     chatView.setLoadHandler(loadHandler);
     chatView.setMessageReader(message -> viewModel.sendReceipt(message.getMessage()));
     chatView.setItemClickListener(itemClickListener);
+    moveEarliestUnreadTipsBelowTopMessage();
     chatView
         .getTitleBar()
         .getRightTextView()
@@ -667,6 +726,9 @@ public abstract class ChatBaseFragment extends BaseFragment {
                 if (popMenu != null && popMenu.isShowing()) {
                   popMenu.hide();
                 }
+                if (earliestUnreadController != null) {
+                  earliestUnreadController.onScroll();
+                }
               }
 
               @Override
@@ -677,6 +739,42 @@ public abstract class ChatBaseFragment extends BaseFragment {
                 }
               }
             });
+  }
+
+  private void moveEarliestUnreadTipsBelowTopMessage() {
+    if (rootView == null || chatView == null) return;
+    View tipsView = rootView.findViewById(R.id.earliestUnreadTipsLayout);
+    View topContainer = chatView.getRootView().findViewById(R.id.chatTopContainer);
+    if (!(tipsView instanceof ViewGroup) || !(topContainer instanceof ViewGroup)) return;
+    ViewGroup tipsParent = (ViewGroup) tipsView.getParent();
+    if (tipsParent != null) {
+      tipsParent.removeView(tipsView);
+    }
+    LinearLayout.LayoutParams layoutParams =
+        new LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+    layoutParams.gravity = Gravity.END;
+    layoutParams.setMarginEnd(0);
+    ((ViewGroup) topContainer).addView(tipsView, layoutParams);
+    updateEarliestUnreadTipsTopMargin();
+  }
+
+  private void updateEarliestUnreadTipsTopMargin() {
+    if (rootView == null || chatView == null) return;
+    View tipsView = rootView.findViewById(R.id.earliestUnreadTipsLayout);
+    View notificationView = chatView.getRootView().findViewById(R.id.tv_notification);
+    if (notificationView == null) {
+      notificationView = chatView.getRootView().findViewById(R.id.notificationTextView);
+    }
+    if (tipsView == null || notificationView == null) return;
+    ViewGroup.LayoutParams params = tipsView.getLayoutParams();
+    if (!(params instanceof LinearLayout.LayoutParams)) return;
+    LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) params;
+    layoutParams.topMargin =
+        notificationView.getVisibility() == View.VISIBLE
+            ? 0
+            : getResources().getDimensionPixelSize(R.dimen.dimen_16_dp);
+    tipsView.setLayoutParams(layoutParams);
   }
   // 加载UI的个性化配置
   private void loadConfig() {
@@ -877,6 +975,16 @@ public abstract class ChatBaseFragment extends BaseFragment {
           } else {
             viewModel.sendAudioMessage(audioFile, audioLength);
           }
+          return true;
+        }
+
+        @Override
+        public boolean sendImageMessage(
+            String imagePath, String fileName, int width, int height, ChatMessageBean replyMsg) {
+          if (TextUtils.isEmpty(imagePath)) {
+            return false;
+          }
+          viewModel.sendImageMessage(imagePath, fileName, width, height);
           return true;
         }
 
@@ -1275,6 +1383,8 @@ public abstract class ChatBaseFragment extends BaseFragment {
       popMenu.hide();
     }
     popMenu = new ChatPopMenu();
+    popMenu.setReactionListener(actionListener);
+    popMenu.setReactionMessage(messageBean);
     List<PluginAction> actions =
         filterMessagePopMenuActions(
             ChatPopActionFactory.getInstance().getMessageActions(getContext(), messageBean),
@@ -1283,6 +1393,81 @@ public abstract class ChatBaseFragment extends BaseFragment {
       return;
     }
     popMenu.show(anchorView, actions, messageBean.getMessageData().getMessage().isSelf(), minY);
+  }
+
+  private void showMessagePopMenuAfterKeyboardHidden(
+      @NonNull View anchorView, @NonNull ChatMessageBean messageBean) {
+    showPopupAfterKeyboardHidden(
+        anchorView, () -> showMessagePopMenu(anchorView, messageBean, getMessageListTop()));
+  }
+
+  private void showPopupAfterKeyboardHidden(@NonNull View anchorView, @NonNull Runnable action) {
+    clearPendingPopupRequest();
+    Activity activity = getActivity();
+    if (activity == null || chatView == null || !KeyboardUtils.isKeyboardShow(activity)) {
+      action.run();
+      return;
+    }
+
+    View root = chatView.getRootView();
+    if (root == null || !root.isAttachedToWindow()) {
+      return;
+    }
+    ViewTreeObserver observer = root.getViewTreeObserver();
+    if (!observer.isAlive()) {
+      return;
+    }
+
+    pendingPopupAnchor = anchorView;
+    pendingPopupAction = action;
+    pendingPopupViewTreeObserver = observer;
+    pendingPopupLayoutListener =
+        () -> {
+          Activity currentActivity = getActivity();
+          if (currentActivity == null || KeyboardUtils.isKeyboardShow(currentActivity)) {
+            return;
+          }
+          View popupAnchor = pendingPopupAnchor;
+          Runnable popupAction = pendingPopupAction;
+          clearPendingPopupRequest();
+          if (popupAnchor == null
+              || popupAction == null
+              || !popupAnchor.isAttachedToWindow()
+              || chatView == null) {
+            return;
+          }
+          popupAction.run();
+        };
+    observer.addOnGlobalLayoutListener(pendingPopupLayoutListener);
+
+    chatView.hideCurrentInput();
+    if (!KeyboardUtils.isKeyboardShow(activity)) {
+      ViewTreeObserver.OnGlobalLayoutListener listener = pendingPopupLayoutListener;
+      if (listener != null) {
+        listener.onGlobalLayout();
+      }
+    }
+  }
+
+  private int getMessageListTop() {
+    if (chatView == null) {
+      return 0;
+    }
+    int[] location = new int[2];
+    chatView.getMessageListView().getLocationOnScreen(location);
+    return location[1];
+  }
+
+  private void clearPendingPopupRequest() {
+    if (pendingPopupViewTreeObserver != null
+        && pendingPopupViewTreeObserver.isAlive()
+        && pendingPopupLayoutListener != null) {
+      pendingPopupViewTreeObserver.removeOnGlobalLayoutListener(pendingPopupLayoutListener);
+    }
+    pendingPopupAnchor = null;
+    pendingPopupAction = null;
+    pendingPopupViewTreeObserver = null;
+    pendingPopupLayoutListener = null;
   }
 
   protected void showSelectedTextPopMenu(
@@ -1316,6 +1501,30 @@ public abstract class ChatBaseFragment extends BaseFragment {
   private final IMessageItemClickListener itemClickListener =
       new IMessageItemClickListener() {
         @Override
+        public boolean onMessageReactionAddClick(
+            View view, int position, ChatMessageBean messageBean) {
+          if (popMenu != null && popMenu.isShowing()) {
+            ChatPopMenu showingPopMenu = popMenu;
+            popMenu = null;
+            showingPopMenu.hide();
+            return true;
+          }
+          if (messageBean == null || messageBean.getMessageData() == null) {
+            return true;
+          }
+          boolean isSelf = messageBean.getMessageData().getMessage().isSelf();
+          showPopupAfterKeyboardHidden(
+              view, () -> showEmojiOnlyPopMenu(view, messageBean, isSelf, getMessageListTop()));
+          return true;
+        }
+
+        @Override
+        public boolean onMessageReactionClick(
+            View view, int position, ChatMessageBean messageBean, long index, boolean hasSelf) {
+          return toggleMessageReaction(messageBean, index, hasSelf);
+        }
+
+        @Override
         public boolean onMessageLongClick(View view, int position, ChatMessageBean messageBean) {
           if (delegateListener == null
               || !delegateListener.onMessageLongClick(view, position, messageBean)) {
@@ -1323,9 +1532,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
             if (messageBean.isRevoked() || messageBean.AIMessageStreaming()) {
               return false;
             }
-            int[] location = new int[2];
-            chatView.getMessageListView().getLocationOnScreen(location);
-            showMessagePopMenu(view, messageBean, location[1]);
+            showMessagePopMenuAfterKeyboardHidden(view, messageBean);
           }
           return true;
         }
@@ -1389,7 +1596,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
             if (aitManager != null) {
               if (conversationType == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_TEAM) {
                 if (!TextUtils.equals(account, IMKitClient.account())) {
-                  String name = MessageHelper.getTeamAtName(account);
+                  String name = MessageHelper.getTeamAtName(account, accountId);
                   aitManager.insertReplyAit(account, name);
                 }
               }
@@ -1565,6 +1772,13 @@ public abstract class ChatBaseFragment extends BaseFragment {
         }
       };
 
+  private void showEmojiOnlyPopMenu(
+      @NonNull View anchorView, @NonNull ChatMessageBean messageBean, boolean isSelf, int minY) {
+    popMenu = new ChatPopMenu();
+    popMenu.setReactionListener(actionListener);
+    popMenu.showEmojiOnly(anchorView, messageBean, isSelf, minY);
+  }
+
   /**
    * 获取消息发送者ID
    *
@@ -1714,7 +1928,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
         && addAit) {
       String account = MessageHelper.getRealMessageSenderId(messageInfo.getMessage());
       if (!TextUtils.equals(account, IMKitClient.account())) {
-        String name = MessageHelper.getTeamAtName(account);
+        String name = MessageHelper.getTeamAtName(account, accountId);
         aitManager.insertReplyAit(account, name);
       }
     }
@@ -1770,6 +1984,23 @@ public abstract class ChatBaseFragment extends BaseFragment {
           }
           loadReplyView(messageBean.getMessageData(), true);
           return true;
+        }
+
+        @Override
+        public boolean onEmojiReaction(ChatMessageBean messageBean) {
+          SelectableTextHelper.getInstance().dismiss();
+          if (chatConfig != null
+              && chatConfig.popMenuClickListener != null
+              && chatConfig.popMenuClickListener.onEmojiReaction(messageBean)) {
+            return true;
+          }
+          return true;
+        }
+
+        @Override
+        public boolean onEmojiReaction(ChatMessageBean messageBean, long index) {
+          SelectableTextHelper.getInstance().dismiss();
+          return toggleMessageReaction(messageBean, index, hasSelfReaction(messageBean, index));
         }
 
         @Override
@@ -1988,6 +2219,30 @@ public abstract class ChatBaseFragment extends BaseFragment {
         }
       };
 
+  private boolean toggleMessageReaction(ChatMessageBean messageBean, long index, boolean hasSelf) {
+    if (!IMKitConfigCenter.getEnableMessageReaction()) return true;
+    if (messageBean == null) {
+      return true;
+    }
+    if (chatConfig != null
+        && chatConfig.popMenuClickListener != null
+        && chatConfig.popMenuClickListener.onEmojiReaction(messageBean, index)) {
+      return true;
+    }
+    viewModel.toggleQuickComment(messageBean, index, hasSelf);
+    return true;
+  }
+
+  private boolean hasSelfReaction(ChatMessageBean messageBean, long index) {
+    for (MessageReactionState.ReactionSummary summary :
+        messageBean.getReactionState().summarize()) {
+      if (summary.getIndex() == index) {
+        return summary.hasSelf();
+      }
+    }
+    return false;
+  }
+
   protected void onStartForward(String action) {
     forwardAction = action;
   }
@@ -2061,6 +2316,16 @@ public abstract class ChatBaseFragment extends BaseFragment {
 
   protected abstract void initData();
 
+  /** 最早未读仅适用于普通 P2P/Team，会话特例由具体页面显式关闭。 */
+  protected boolean supportsEarliestUnread() {
+    if (conversationType != V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P
+        && conversationType != V2NIMConversationType.V2NIM_CONVERSATION_TYPE_TEAM) {
+      return false;
+    }
+    return conversationType != V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P
+        || !AIUserManager.isAIUser(accountId);
+  }
+
   //登录状态变化时更新数据
   protected abstract void updateDataWhenLogin();
 
@@ -2077,6 +2342,19 @@ public abstract class ChatBaseFragment extends BaseFragment {
 
     messageUpdateLiveDataObserver = this::onMessageUpdate;
     viewModel.getUpdateMessageLiveData().observeForever(messageUpdateLiveDataObserver);
+
+    reactionMessageLiveDataObserver =
+        messageBean -> {
+          if (messageBean != null && chatView != null) {
+            chatView.updateMessage(messageBean, ActionConstants.PAYLOAD_EMOJI_REACTION);
+          }
+        };
+    viewModel.getReactionMessageLiveData().observeForever(reactionMessageLiveDataObserver);
+
+    reactionNotificationLiveDataObserver = this::onReactionNotification;
+    viewModel
+        .getReactionNotificationLiveData()
+        .observeForever(reactionNotificationLiveDataObserver);
 
     pinedMessageLiveDataObserver = this::onPinedMessageListChange;
     viewModel.getPinedMessageListLiveData().observeForever(pinedMessageLiveDataObserver);
@@ -2182,6 +2460,21 @@ public abstract class ChatBaseFragment extends BaseFragment {
     // 消息数据加载完成后，触发一次可见区域历史消息补翻扫描
     // 使用 post 确保 RecyclerView 已完成布局渲染，可见条目已更新
     chatView.getMessageListView().post(this::triggerAutoTranslateVisibleHistory);
+    if (IMKitConfigCenter.getEnableMessageReaction()) {
+      chatView
+          .getMessageListView()
+          .post(() -> viewModel.loadQuickComments(chatView.getMessageList()));
+    } else {
+    }
+    if (earliestUnreadController != null) {
+      earliestUnreadController.onMessageListChanged();
+    }
+  }
+
+  protected void updateEarliestUnreadEntry(boolean visible, int count) {}
+
+  protected void onEarliestUnreadEntryClick() {
+    if (earliestUnreadController != null) earliestUnreadController.onEntryClick();
   }
 
   /** 触发历史消息可见区域自动翻译扫描。 取当前可见区域内的消息列表，交由 ViewModel 判断并触发翻译。 仅在自动翻译开关开启时实际执行（ViewModel 内部会做开关判断）。 */
@@ -2212,6 +2505,12 @@ public abstract class ChatBaseFragment extends BaseFragment {
     if (!chatView.getMessageListView().hasMoreNewerMessages()) {
       boolean scroll = chatView.getMessageListView().isLastItemVisible() && isForeground;
       chatView.appendMessageList(listFetchResult.getData(), scroll);
+      if (IMKitConfigCenter.getEnableMessageReaction()) {
+        chatView
+            .getMessageListView()
+            .post(() -> viewModel.loadQuickComments(chatView.getMessageList()));
+      } else {
+      }
     }
   }
 
@@ -2474,9 +2773,18 @@ public abstract class ChatBaseFragment extends BaseFragment {
   public void onStart() {
     super.onStart();
     ALog.i(LIB_TAG, LOG_TAG, "onStart");
-    viewModel.setChattingAccount();
     chatView.setNetWorkState(NetworkUtils.isConnected());
+    updateEarliestUnreadTipsTopMargin();
     isForeground = true;
+  }
+
+  @Override
+  public void onResume() {
+    super.onResume();
+    NetworkUtils.refreshNetworkStatus();
+    if (chatView != null) {
+      chatView.setNetWorkState(NetworkUtils.isConnected());
+    }
   }
 
   public void onNewIntent(Intent intent) {
@@ -2643,6 +2951,9 @@ public abstract class ChatBaseFragment extends BaseFragment {
 
   protected void switchMultiSelect(boolean show) {
     chatView.showMultiSelect(show, onCancelListener);
+    if (earliestUnreadController != null) {
+      earliestUnreadController.onMultiSelectChanged(show);
+    }
     if (topMessageViewBinding != null) {
       if (show) {
         // 进入多选模式，强制隐藏置顶消息
@@ -2662,12 +2973,14 @@ public abstract class ChatBaseFragment extends BaseFragment {
         public void onConnected(NetworkUtils.NetworkType networkType) {
           ALog.i(LIB_TAG, LOG_TAG, "onNewIntent");
           chatView.setNetWorkState(true);
+          updateEarliestUnreadTipsTopMargin();
           refreshTeamMessageReceiptForNetBroken();
         }
 
         @Override
         public void onDisconnected() {
           chatView.setNetWorkState(false);
+          updateEarliestUnreadTipsTopMargin();
         }
       };
 
@@ -2698,12 +3011,20 @@ public abstract class ChatBaseFragment extends BaseFragment {
   @Override
   public void onDestroyView() {
     ALog.i(LIB_TAG, LOG_TAG, "onDestroyView");
+    clearPendingPopupRequest();
+    if (earliestUnreadController != null) {
+      earliestUnreadController.onDestroyView();
+      earliestUnreadController = null;
+    }
     super.onDestroyView();
     IMKitClient.removeLoginDetailListener(loginListener);
     viewModel.clearChattingAccount();
     NetworkUtils.unregisterNetworkStatusChangedListener(networkStateListener);
     if (popMenu != null) {
       popMenu.hide();
+    }
+    if (aitManager != null) {
+      aitManager.release();
     }
     viewModel.getUserChangeLiveData().removeObserver(userInfoLiveDataObserver);
     viewModel.getQueryMessageLiveData().removeObserver(messageLiveDataObserver);
@@ -2714,8 +3035,44 @@ public abstract class ChatBaseFragment extends BaseFragment {
     viewModel.getRevokeMessageLiveData().removeObserver(revokeLiveDataObserver);
     viewModel.getAttachmentProgressMutableLiveData().removeObserver(attachLiveDataObserver);
     viewModel.getUpdateMessageLiveData().removeObserver(messageUpdateLiveDataObserver);
+    viewModel.getReactionMessageLiveData().removeObserver(reactionMessageLiveDataObserver);
+    viewModel
+        .getReactionNotificationLiveData()
+        .removeObserver(reactionNotificationLiveDataObserver);
     viewModel.getPinedMessageListLiveData().removeObserver(pinedMessageLiveDataObserver);
     viewModel.onDestroy();
+  }
+
+  private void onReactionNotification(@Nullable V2NIMMessageQuickCommentNotification notification) {
+    if (notification == null
+        || notification.getQuickComment() == null
+        || chatView == null
+        || chatView.getMessageList() == null) {
+      return;
+    }
+    V2NIMMessageQuickComment comment = notification.getQuickComment();
+    V2NIMMessageRefer refer = comment.getMessageRefer();
+    if (refer == null || TextUtils.isEmpty(refer.getMessageClientId())) {
+      return;
+    }
+    for (ChatMessageBean message : chatView.getMessageList()) {
+      if (message == null
+          || !TextUtils.equals(message.getMsgClientId(), refer.getMessageClientId())) {
+        continue;
+      }
+      if (notification.getOperationType()
+          == V2NIMMessageQuickCommentType.V2NIM_MESSAGE_QUICK_COMMENT_TYPE_ADD) {
+        message.getReactionState().add(comment);
+      } else if (notification.getOperationType()
+          == V2NIMMessageQuickCommentType.V2NIM_MESSAGE_QUICK_COMMENT_TYPE_REMOVE) {
+        message.getReactionState().remove(comment.getOperatorId(), comment.getIndex());
+      } else {
+        return;
+      }
+      chatView.updateMessage(message, ActionConstants.PAYLOAD_EMOJI_REACTION);
+      return;
+    }
+    viewModel.loadQuickCommentsForNotification(notification);
   }
 
   /** for custom layout for ChatView */
