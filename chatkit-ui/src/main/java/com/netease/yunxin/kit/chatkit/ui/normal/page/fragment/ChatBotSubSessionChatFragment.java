@@ -47,6 +47,11 @@ public class ChatBotSubSessionChatFragment extends ChatP2PFragment {
   private ChatBotSubSessionChatFragmentBinding botSubSessionBinding;
 
   @Override
+  protected boolean supportsEarliestUnread() {
+    return false;
+  }
+
+  @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     if (getArguments() != null) {

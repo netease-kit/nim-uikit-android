@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.GridLayout;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatMeesageMoreItemViewBinding;
 import com.netease.yunxin.kit.chatkit.ui.view.IItemActionListener;
 import com.netease.yunxin.kit.common.ui.action.ActionItem;
@@ -47,6 +48,8 @@ public class ActionsPanelAdapter extends RecyclerView.Adapter<ActionsPanelAdapte
             ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
     gridLayout.setColumnCount(COLUMN_COUNT);
     gridLayout.setRowCount(ROW_COUNT);
+    gridLayout.setPadding(
+        0, mContext.getResources().getDimensionPixelSize(R.dimen.dimen_9_dp), 0, 0);
     return new GridViewHolder(gridLayout);
   }
 
@@ -75,6 +78,7 @@ public class ActionsPanelAdapter extends RecyclerView.Adapter<ActionsPanelAdapte
     param.height = ViewGroup.LayoutParams.WRAP_CONTENT;
     param.width = ScreenUtils.getDisplayWidth() / COLUMN_COUNT;
     param.setGravity(Gravity.CENTER);
+    param.topMargin = mContext.getResources().getDimensionPixelSize(R.dimen.dimen_4_dp);
     param.columnSpec = GridLayout.spec(i % COLUMN_COUNT);
     param.rowSpec = GridLayout.spec(i / COLUMN_COUNT);
     binding.getRoot().setLayoutParams(param);

@@ -7,7 +7,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:layout_margin="@dimen/dimen_12_dp">
 
     <!--
         原文气泡容器：背景由 FunChatBaseMessageViewHolder.onMessageBackgroundConfig()
@@ -23,10 +24,6 @@
             android:id="@+id/messageText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingHorizontal="@dimen/dimen_16_dp"
-            android:layout_marginEnd="5dp"
-            android:layout_marginStart="5dp"
-            android:paddingVertical="@dimen/dimen_10_dp"
             android:textColor="@color/color_333333"
             android:textSize="@dimen/text_size_16"
             android:textColorLink="@color/color_007aff"
@@ -53,9 +50,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="6dp"
-        android:layout_marginStart="5dp"
         android:minWidth="@dimen/dimen_translation_area_min_width"
-        android:background="@drawable/fun_bg_message_translate"
         android:orientation="vertical"
         android:visibility="gone">
 
@@ -64,28 +59,26 @@
             android:id="@+id/translationText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingHorizontal="@dimen/dimen_16_dp"
+            android:paddingEnd="@dimen/dimen_16_dp"
             android:paddingTop="@dimen/dimen_10_dp"
             android:paddingBottom="@dimen/dimen_6_dp"
             android:textColor="@color/color_333333"
             android:textSize="@dimen/text_size_16"
             tools:text="Translation result" />
 
-        <!-- 分割线 -->
+        <!-- 分割线：与译文内容左侧对齐，右侧保留消息内容间距 -->
         <View
             android:layout_width="match_parent"
             android:layout_height="0.5dp"
-            android:layout_marginHorizontal="@dimen/dimen_16_dp"
+            android:layout_marginEnd="@dimen/dimen_12_dp"
             android:background="@color/color_chat_translation_divider" />
 
-        <!-- 底部标识行：翻译图标 + "译文"文字 -->
-        <!-- marginH(12dp×2=24dp) + minWidth(50dp) = 74dp = dimen_translation_area_min_width -->
+        <!-- 底部标识行：翻译图标 + "译文"文字，左侧与译文内容对齐 -->
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="@dimen/dimen_12_dp"
-            android:layout_marginTop="@dimen/dimen_8_dp"
-            android:layout_marginBottom="@dimen/dimen_8_dp"
+            android:layout_marginEnd="@dimen/dimen_12_dp"
+            android:layout_marginTop="@dimen/dimen_6_dp"
             android:minWidth="@dimen/dimen_translation_footer_min_width"
             android:gravity="center_vertical"
             android:orientation="horizontal">

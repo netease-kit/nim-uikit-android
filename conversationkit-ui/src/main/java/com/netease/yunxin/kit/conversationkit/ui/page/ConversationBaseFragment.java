@@ -682,6 +682,7 @@ public abstract class ConversationBaseFragment extends BaseFragment implements I
   @Override
   public void onResume() {
     super.onResume();
+    NetworkUtils.refreshNetworkStatus();
     applyConversationGroupConfig();
     checkNetwork();
   }

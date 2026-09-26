@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="chat_message_reaction_emoji_size">22dp</dimen>
+    <dimen name="chat_message_reaction_item_horizontal_padding">8dp</dimen>
+    <dimen name="chat_message_reaction_count_margin_start">4dp</dimen>
+    <dimen name="chat_message_reaction_row_spacing">6dp</dimen>
+    <dimen name="chat_reaction_popup_emoji_size">22dp</dimen>
+    <dimen name="chat_input_emoji_size">30dp</dimen>
+    <dimen name="chat_emoji_page_indicator_width">4dp</dimen>
+    <dimen name="chat_emoji_page_indicator_height">4dp</dimen>
+    <dimen name="chat_emoji_page_indicator_spacing">4dp</dimen>
+    <dimen name="chat_emoji_grid_spacing">2dp</dimen>
+    <dimen name="chat_reaction_popup_width">266dp</dimen>
+    <dimen name="chat_reaction_popup_slot_size">38dp</dimen>
+    <dimen name="chat_pop_menu_item_width">50dp</dimen>
+    <dimen name="chat_pop_menu_item_height">62dp</dimen>
+    <dimen name="chat_pop_menu_item_horizontal_spacing">4dp</dimen>
+    <dimen name="chat_pop_menu_item_vertical_padding">4dp</dimen>
+    <dimen name="chat_pop_menu_item_text_size">12sp</dimen>
+</resources>

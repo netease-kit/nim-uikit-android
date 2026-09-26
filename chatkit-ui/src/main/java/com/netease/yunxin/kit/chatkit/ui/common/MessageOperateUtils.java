@@ -584,14 +584,17 @@ public class MessageOperateUtils {
     if (!file.exists() || !file.isFile()) {
       return MediaMessageBuildResult.error(R.string.chat_message_type_resource_error);
     }
-    String mimeType = FileUtils.getFileExtension(file.getAbsolutePath());
-    if (TextUtils.isEmpty(mimeType) && context != null) {
+    String mimeType = null;
+    if (context != null) {
       mimeType = context.getContentResolver().getType(uri);
+    }
+    if (TextUtils.isEmpty(mimeType)) {
+      mimeType = FileUtils.getFileExtension(file.getAbsolutePath());
     }
     if (mimeType == null) {
       mimeType = "";
     }
-    if (ImageUtil.isValidPictureFile(mimeType)) {
+    if (ImageUtil.isValidPictureFile(file, mimeType)) {
       if (file.length() > limitSize) {
         return MediaMessageBuildResult.error(R.string.chat_message_file_size_limit_tips);
       }

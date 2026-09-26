@@ -7,6 +7,9 @@
 
 <resources>
     <dimen name="dimen_8_dp">8dp</dimen>
+    <dimen name="dimen_4_dp">4dp</dimen>
+    <dimen name="dimen_24_dp">24dp</dimen>
+    <dimen name="dimen_30_dp">30dp</dimen>
     <dimen name="dimen_10_dp">10dp</dimen>
     <dimen name="dimen_12_dp">12dp</dimen>
     <dimen name="dimen_15_dp">15dp</dimen>
@@ -29,6 +32,7 @@
     <dimen name="dimen_315_dp">315dp</dimen>
 
     <dimen name="text_size_24">24sp</dimen>
+    <dimen name="text_size_15">15sp</dimen>
     <dimen name="text_size_26">26sp</dimen>
     <dimen name="grid_expected_size">120dp</dimen>
     <dimen name="pop_text_margin_left">15dp</dimen>

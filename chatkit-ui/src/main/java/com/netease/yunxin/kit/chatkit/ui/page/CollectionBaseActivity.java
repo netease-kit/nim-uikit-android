@@ -63,6 +63,23 @@ public abstract class CollectionBaseActivity extends BaseLocalActivity {
   // 转发Launcher
   protected ActivityResultLauncher<Intent> forwardLauncher;
 
+  private final NetworkUtils.NetworkStateListener networkStateListener =
+      new NetworkUtils.NetworkStateListener() {
+        @Override
+        public void onConnected(NetworkUtils.NetworkType networkType) {
+          if (viewBinding != null) {
+            viewBinding.collectionNetworkErrorTv.setVisibility(View.GONE);
+          }
+        }
+
+        @Override
+        public void onDisconnected() {
+          if (viewBinding != null) {
+            viewBinding.collectionNetworkErrorTv.setVisibility(View.VISIBLE);
+          }
+        }
+      };
+
   // 标记页面弹窗 取消置顶
   public static final String ACTION_DELETE_COLLECTION = "delete_collection";
   // 标记页面弹窗 转发消息
@@ -75,14 +92,27 @@ public abstract class CollectionBaseActivity extends BaseLocalActivity {
     super.onCreate(savedInstanceState);
     viewBinding = ChatCollectionActivityBinding.inflate(getLayoutInflater());
     setContentView(viewBinding.getRoot());
+    NetworkUtils.registerNetworkStatusChangedListener(networkStateListener);
     initView();
     initData();
+  }
+
+  @Override
+  protected void onResume() {
+    super.onResume();
+    NetworkUtils.refreshNetworkStatus();
   }
 
   @Override
   protected void onStop() {
     super.onStop();
     ChatMessageAudioControl.getInstance().stopAudio();
+  }
+
+  @Override
+  protected void onDestroy() {
+    NetworkUtils.unregisterNetworkStatusChangedListener(networkStateListener);
+    super.onDestroy();
   }
 
   // 初始化页面View

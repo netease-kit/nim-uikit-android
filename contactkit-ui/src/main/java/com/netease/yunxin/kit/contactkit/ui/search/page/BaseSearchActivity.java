@@ -12,6 +12,7 @@ import android.text.TextWatcher;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -145,7 +146,10 @@ public abstract class BaseSearchActivity extends BaseLocalActivity {
           });
 
       searchEditText.setOnEditorActionListener(
-          (v, actionId, event) -> event.getKeyCode() == KeyEvent.KEYCODE_ENTER);
+          (v, actionId, event) ->
+              actionId == EditorInfo.IME_ACTION_SEARCH
+                  || actionId == EditorInfo.IME_ACTION_DONE
+                  || (event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER));
     }
     if (backView != null) {
       backView.setOnClickListener(v -> onBackPressed());

@@ -9,14 +9,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingTop="@dimen/dimen_6_dp"
-    android:paddingBottom="@dimen/dimen_8_dp"
+    android:paddingTop="@dimen/dimen_5_dp"
+    android:paddingBottom="@dimen/dimen_7_dp"
     tools:ignore="MissingDefaultResource">
 
     <ImageView
         android:id="@+id/ivEmoji"
-        android:layout_width="@dimen/dimen_32_dp"
-        android:layout_height="@dimen/dimen_32_dp"
+        android:layout_width="@dimen/chat_input_emoji_size"
+        android:layout_height="@dimen/chat_input_emoji_size"
         android:layout_centerHorizontal="true" >
     </ImageView>
 

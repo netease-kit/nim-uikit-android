@@ -441,7 +441,7 @@ public class FunChatView extends LinearLayout implements IChatView, AitTextChang
 
   @Override
   public void addTopView(View view) {
-    binding.chatTopContainer.addView(view);
+    binding.chatTopContainer.addView(view, Math.min(1, binding.chatTopContainer.getChildCount()));
   }
 
   @Override

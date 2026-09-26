@@ -266,9 +266,8 @@ public abstract class BaseTeamMemberListActivity extends BaseLocalActivity {
                 } else if (resultInfo.getType() == FetchResult.FetchType.Update) {
                   adapter.updateDataWithComparator(
                       resultInfo.getData(), TeamUtils.teamManagerComparator());
-                } else if (resultInfo.getType() == FetchResult.FetchType.Add
-                    || resultInfo.getType() == FetchResult.FetchType.Remove) {
-                  viewModel.loadTeamMember();
+                } else if (resultInfo.getType() == FetchResult.FetchType.Add) {
+                  adapter.addData(resultInfo.getData(), TeamUtils.teamManagerComparator());
                 }
                 if (adapter.getItemCount() > 0) {
                   groupEmpty.setVisibility(View.GONE);
@@ -290,7 +289,7 @@ public abstract class BaseTeamMemberListActivity extends BaseLocalActivity {
                 adapter.removeData(listResultInfo.getData());
               }
             });
-    viewModel.loadTeamMember();
+    viewModel.loadAllTeamMembersByPage();
     viewModel.requestTeamData(teamId);
   }
 

@@ -15,9 +15,8 @@ android {
 
     defaultConfig {
         minSdk = 24
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
-        buildConfigField("String", "versionName", "\"10.9.50\"")
+        buildConfigField("String", "versionName", "\"10.9.60-beta02\"")
     }
 
     buildTypes {
@@ -26,24 +25,30 @@ android {
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
+
     kotlinOptions {
         jvmTarget = "1.8"
     }
+
     buildFeatures {
         viewBinding = true
         buildConfig = true
     }
-    sourceSets["main"].res.srcDirs("src/main/res","src/main/res-fun","src/main/res-normal")
+    sourceSets["main"].res.srcDirs("src/main/res", "src/main/res-fun", "src/main/res-normal")
+
 }
 
 dependencies {
-    // imuikit 底层库
-    implementation(project(":chatkit-ui"))
-
-    api("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.22")
+    implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
+    api("com.netease.yunxin.kit.chat:chatkit:10.9.60-beta02")
+    api("com.netease.yunxin.kit.chat:chatkit-ui:10.9.60-beta02")
+    api("com.netease.yunxin.kit.common:common-ui:1.12.0")
+    api("org.jetbrains.kotlin:kotlin-stdlib:1.9.22")
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.11.0")
     implementation("androidx.recyclerview:recyclerview:1.3.2")
+    implementation("com.netease.yunxin.kit:alog:1.1.1")
     implementation("com.github.bumptech.glide:glide:4.13.1")
+    implementation("com.netease.yunxin.kit.common:common:1.12.0")
 
 }

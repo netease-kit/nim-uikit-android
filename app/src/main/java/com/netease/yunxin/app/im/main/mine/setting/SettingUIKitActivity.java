@@ -59,6 +59,7 @@ public class SettingUIKitActivity extends BaseLocalActivity {
     viewBinding.aiStreamModeSc.setChecked(viewModel.getAIStream(this));
     viewBinding.kitCloudSearchSc.setChecked(IMKitConfigCenter.getEnableCloudSearch());
     viewBinding.kitConversationGroupSc.setChecked(IMKitConfigCenter.getEnableConversationGroup());
+    viewBinding.kitMessageReactionSc.setChecked(IMKitConfigCenter.getEnableMessageReaction());
     viewBinding.aiStreamModeSc.setOnClickListener(
         v -> {
           boolean checked = viewBinding.aiStreamModeSc.isChecked();
@@ -184,6 +185,10 @@ public class SettingUIKitActivity extends BaseLocalActivity {
         v ->
             IMKitConfigCenter.setEnableConversationGroup(
                 viewBinding.kitConversationGroupSc.isChecked()));
+    viewBinding.kitMessageReactionSc.setOnClickListener(
+        v ->
+            IMKitConfigCenter.setEnableMessageReaction(
+                viewBinding.kitMessageReactionSc.isChecked()));
   }
 
   private void updateCommonView(@DrawableRes int thumbRes, @DrawableRes int trackRes) {
@@ -223,6 +228,9 @@ public class SettingUIKitActivity extends BaseLocalActivity {
 
     viewBinding.kitConversationGroupSc.setThumbResource(thumbRes);
     viewBinding.kitConversationGroupSc.setTrackResource(trackRes);
+
+    viewBinding.kitMessageReactionSc.setThumbResource(thumbRes);
+    viewBinding.kitMessageReactionSc.setTrackResource(trackRes);
 
     viewBinding.kitImagePickSc.setThumbResource(thumbRes);
     viewBinding.kitImagePickSc.setTrackResource(trackRes);

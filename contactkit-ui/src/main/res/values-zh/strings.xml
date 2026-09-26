@@ -143,6 +143,7 @@
     <string name="contact_robot_title">我的机器人</string>
     <string name="contact_robot_empty_tips">暂无机器人，点击右上角创建</string>
     <string name="contact_robot_limit_tips">机器人数量已达上限，请选择已有机器人或去删除机器人</string>
+    <string name="contact_robot_qrcode_bind_used">该二维码已被绑定</string>
     <string name="contact_robot_info_title">机器人</string>
     <string name="contact_robot_edit">编辑</string>
     <string name="contact_robot_view_config">查看配置串</string>
@@ -167,6 +168,8 @@
     <string name="contact_robot_edit_name">昵称</string>
     <string name="contact_robot_edit_save">保存</string>
     <string name="contact_robot_edit_name_title">修改昵称</string>
+    <string name="contact_robot_edit_name_page_title">昵称</string>
+    <string name="contact_robot_edit_name_done">完成</string>
     <string name="contact_robot_edit_name_hint">请输入机器人昵称</string>
     <string name="contact_robot_create_title">创建机器人</string>
     <string name="contact_robot_create_name_required">请先输入昵称</string>

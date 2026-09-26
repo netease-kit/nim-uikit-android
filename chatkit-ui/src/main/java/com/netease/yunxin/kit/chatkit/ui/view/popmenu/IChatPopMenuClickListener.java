@@ -19,6 +19,15 @@ public interface IChatPopMenuClickListener {
     return false;
   }
 
+  // 点击表情回复
+  default boolean onEmojiReaction(ChatMessageBean messageInfo) {
+    return false;
+  }
+
+  default boolean onEmojiReaction(ChatMessageBean messageInfo, long index) {
+    return onEmojiReaction(messageInfo);
+  }
+
   // 点击转发
   default boolean onForward(ChatMessageBean messageInfo) {
     return false;

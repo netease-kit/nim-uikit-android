@@ -396,6 +396,7 @@ public abstract class LocalConversationBaseFragment extends BaseFragment impleme
   @Override
   public void onResume() {
     super.onResume();
+    NetworkUtils.refreshNetworkStatus();
     checkNetwork();
   }
 

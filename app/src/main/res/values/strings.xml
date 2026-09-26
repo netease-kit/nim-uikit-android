@@ -15,6 +15,7 @@
     <string name="yunxin_tips">For test only. Beware of money transfer, lottery winnings strange call scams.</string>
     <string name="yunxin_report_tips">Report</string>
     <string name="welcome_button">register/login</string>
+    <string name="login_pending">Logging in</string>
     <string name="email_login">Email Login</string>
     <string name="server_config">Select Node</string>
     <string name="tab_session_tab_text">Chats</string>
@@ -97,6 +98,7 @@
     <string name="setting_fail">Setting Failed</string>
     <string name="setting_success">Setting Successfully</string>
     <string name="login_fail">Login Failed:%s</string>
+    <string name="login_timeout">Login timed out. Please log in again.</string>
     <string name="request_fail">Failed</string>
     <string name="user_fail">Failed</string>
     <string name="imkit_email_fail">The email format is incorrect. Please check.</string>
@@ -149,6 +151,7 @@
     <string name="uikit_anti_spam_switch_title">Text anti-spam prompt</string>
     <string name="uikit_cloud_search_switch_title">Cloud search</string>
     <string name="uikit_conversation_group_switch_title">Conversation groups</string>
+    <string name="uikit_message_reaction_switch_title">Message Reaction</string>
     <string name="uikit_team_manager_limit_title">Team Manager count limit</string>
 
     <string name="uikit_save_success">Save successfully</string>

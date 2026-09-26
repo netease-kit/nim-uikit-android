@@ -7,8 +7,6 @@ package com.netease.yunxin.kit.chatkit.ui.fun.view.message.viewholder;
 import android.view.View;
 import androidx.annotation.NonNull;
 import com.netease.nimlib.sdk.v2.message.attachment.V2NIMMessageImageAttachment;
-import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageSendingState;
-import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatBaseMessageViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.common.utils.ImageUtils;
@@ -28,14 +26,7 @@ public class ChatImageMessageViewHolder extends ChatThumbBaseViewHolder {
 
     binding.progressBarInsideIcon.setVisibility(View.GONE);
     binding.playIcon.setVisibility(View.GONE);
-    if (getMsgInternal().isSelf()
-        && (getMsgInternal().getSendingState()
-            == V2NIMMessageSendingState.V2NIM_MESSAGE_SENDING_STATE_SENDING)) {
-      binding.progressBar.setVisibility(View.VISIBLE);
-      binding.progressBar.setIndeterminate(true);
-    } else {
-      binding.progressBar.setVisibility(View.GONE);
-    }
+    binding.progressBar.setVisibility(View.GONE);
   }
 
   @Override
@@ -67,10 +58,5 @@ public class ChatImageMessageViewHolder extends ChatThumbBaseViewHolder {
   protected float[] getCorners() {
     int corner = SizeUtils.dp2px(4);
     return new float[] {corner, corner, corner, corner};
-  }
-
-  @Override
-  protected void onMessageBackgroundConfig(ChatMessageBean messageBean) {
-    baseViewBinding.messageContainer.setBackgroundResource(R.color.title_transfer);
   }
 }

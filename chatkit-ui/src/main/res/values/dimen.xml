@@ -17,11 +17,14 @@
     <dimen name="photo_page_margin">32dip</dimen>
     <dimen name="chat_name_max_length">160dp</dimen>
     <dimen name="dimen_188_dp">188dp</dimen>
+    <dimen name="chat_input_panel_height">203dp</dimen>
+    <dimen name="chat_input_emoji_page_height">145dp</dimen>
     <dimen name="dimen_150_dp">150dp</dimen>
     <dimen name="dimen_120_dp">120dp</dimen>
     <dimen name="dimen_103_dp">103dp</dimen>
     <dimen name="dimen_100_dp">100dp</dimen>
     <dimen name="dimen_80_dp">80dp</dimen>
+    <dimen name="dimen_88_dp">88dp</dimen>
     <dimen name="dimen_75_dp">75dp</dimen>
     <dimen name="dimen_74_dp">74dp</dimen>
     <dimen name="dimen_32_dp">32dp</dimen>
@@ -38,6 +41,7 @@
     <dimen name="dimen_28_dp">28dp</dimen>
     <dimen name="dimen_24_dp">24dp</dimen>
     <dimen name="dimen_18_dp">18dp</dimen>
+    <dimen name="dimen_17_dp">17dp</dimen>
     <dimen name="dimen_16_dp">16dp</dimen>
     <dimen name="dimen_15_dp">15dp</dimen>
     <dimen name="dimen_14_dp">14dp</dimen>
@@ -47,9 +51,12 @@
     <dimen name="dimen_11_dp">11dp</dimen>
     <dimen name="dimen_9_dp">9dp</dimen>
     <dimen name="dimen_8_dp">8dp</dimen>
+    <dimen name="sticker_item_size">62dp</dimen>
+    <dimen name="chat_emoji_tab_divider_width">0.5dp</dimen>
     <dimen name="dimen_7_dp">7dp</dimen>
     <dimen name="dimen_6_dp">6dp</dimen>
     <dimen name="dimen_5_dp">5dp</dimen>
+    <dimen name="dimen_4_dp">4dp</dimen>
     <dimen name="dimen_3_dp">3dp</dimen>
     <dimen name="dimen_2_dp">2dp</dimen>
 

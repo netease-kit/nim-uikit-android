@@ -73,6 +73,8 @@ public class ActionConstants {
   public static final String POP_ACTION_HIDE_TRANSLATION = "POP_ACTION_HIDE_TRANSLATION";
   //消息长按菜单-语音播放
   public static final String POP_ACTION_VOICE_PLAY = "POP_ACTION_VOICE_PLAY";
+  // 消息长按菜单-表情回复
+  public static final String POP_ACTION_EMOJI_REACTION = "POP_ACTION_EMOJI_REACTION";
 
   //消息长按菜单-置顶
   public static final String POP_ACTION_TOP_STICK = "POP_ACTION_TOP_STICK";
@@ -99,4 +101,5 @@ public class ActionConstants {
   public static final String PAYLOAD_REFRESH_AUDIO_ANIM = "refreshAudioAnim";
   public static final String PAYLOAD_SELECT_STATUS = "messageSelectStatus";
   public static final String PAYLOAD_UPDATE_MESSAGE = "messageUpdate";
+  public static final String PAYLOAD_EMOJI_REACTION = "messageEmojiReaction";
 }

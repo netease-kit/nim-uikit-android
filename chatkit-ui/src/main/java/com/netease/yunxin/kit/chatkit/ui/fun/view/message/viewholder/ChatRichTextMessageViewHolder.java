@@ -30,7 +30,7 @@ public class ChatRichTextMessageViewHolder extends FunChatBaseMessageViewHolder 
   protected void addViewToMessageContainer() {
     viewBinding =
         FunChatMessageRichTextViewHolderBinding.inflate(
-            LayoutInflater.from(parent.getContext()), getMessageContainer(), true);
+            LayoutInflater.from(parent.getContext()), getMessageContentContainer(), true);
   }
 
   @Override

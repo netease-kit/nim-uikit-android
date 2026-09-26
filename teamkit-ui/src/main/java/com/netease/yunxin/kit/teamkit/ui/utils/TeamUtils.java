@@ -222,7 +222,7 @@ public class TeamUtils {
       int roleComparison =
           compareRoles(o1.getTeamMember().getMemberRole(), o2.getTeamMember().getMemberRole());
       if (roleComparison != 0) {
-        return -roleComparison;
+        return roleComparison;
       }
 
       // If roles are the same, compare based on join time

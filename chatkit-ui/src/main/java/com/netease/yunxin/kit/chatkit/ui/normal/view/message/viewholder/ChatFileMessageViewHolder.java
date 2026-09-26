@@ -41,9 +41,22 @@ public class ChatFileMessageViewHolder extends NormalChatBaseMessageViewHolder {
     super.addViewToMessageContainer();
     binding =
         NormalChatMessageFileViewHolderBinding.inflate(
-            LayoutInflater.from(parent.getContext()), getMessageContainer(), true);
+            LayoutInflater.from(parent.getContext()), getMessageContentContainer(), true);
     ViewGroup.LayoutParams params = binding.placeHolder.getLayoutParams();
     params.width = ScreenUtils.getDisplayWidth();
+  }
+
+  @Override
+  protected void onLayoutConfig(ChatMessageBean messageBean) {
+    super.onLayoutConfig(messageBean);
+    ViewGroup.MarginLayoutParams rootParams =
+        (ViewGroup.MarginLayoutParams) binding.getRoot().getLayoutParams();
+    boolean hasReaction = !messageBean.getReactionState().summarize().isEmpty();
+    int horizontalInset =
+        hasReaction ? parent.getResources().getDimensionPixelSize(R.dimen.dimen_12_dp) : 0;
+    rootParams.setMarginStart(horizontalInset);
+    rootParams.setMarginEnd(horizontalInset);
+    binding.getRoot().setLayoutParams(rootParams);
   }
 
   @Override
@@ -129,7 +142,14 @@ public class ChatFileMessageViewHolder extends NormalChatBaseMessageViewHolder {
 
   @Override
   protected void onMessageBackgroundConfig(ChatMessageBean messageBean) {
-    baseViewBinding.contentWithTopLayer.setBackgroundResource(R.color.title_transfer);
+    super.onMessageBackgroundConfig(messageBean);
+    boolean hasReaction = !messageBean.getReactionState().summarize().isEmpty();
+    // 文件主体在有无 Reaction、发送和接收状态下都保留独立的白色圆角边框。
+    binding.getRoot().setBackgroundResource(R.drawable.bg_shape_corner);
+    if (!hasReaction) {
+      // 无 Reaction 时保留文件消息原有的透明外层背景。
+      baseViewBinding.messageContentGroup.setBackgroundResource(R.color.title_transfer);
+    }
   }
 
   @Override

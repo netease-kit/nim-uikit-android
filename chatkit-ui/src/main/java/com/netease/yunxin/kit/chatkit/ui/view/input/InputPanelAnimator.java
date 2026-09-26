@@ -71,6 +71,14 @@ public final class InputPanelAnimator {
     restorePanelHeight(panel);
   }
 
+  /** Shows a panel immediately without replaying the height animation. */
+  public static void showPanelImmediately(@NonNull View panel) {
+    markPanelRequest(panel);
+    panel.animate().cancel();
+    restorePanelHeight(panel);
+    panel.setVisibility(View.VISIBLE);
+  }
+
   public static void setupKeyboardTransition(@NonNull View inputRoot) {
     ViewCompat.setWindowInsetsAnimationCallback(
         inputRoot,
@@ -181,9 +189,10 @@ public final class InputPanelAnimator {
         View.MeasureSpec.makeMeasureSpec(Math.max(0, parentWidth), View.MeasureSpec.EXACTLY);
     int heightSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
     panel.measure(widthSpec, heightSpec);
-    return panel.getMeasuredHeight() > 0
-        ? panel.getMeasuredHeight()
-        : Math.round(dpToPx(panel, 188f));
+    int targetHeight =
+        panel.getMeasuredHeight() > 0 ? panel.getMeasuredHeight() : Math.round(dpToPx(panel, 188f));
+    panel.setTag(R.id.chat_input_panel_origin_height, targetHeight);
+    return targetHeight;
   }
 
   private static int getOriginHeight(@NonNull View panel, ViewGroup.LayoutParams params) {
@@ -219,7 +228,7 @@ public final class InputPanelAnimator {
       return;
     }
     Object originHeight = panel.getTag(R.id.chat_input_panel_origin_height);
-    if (originHeight instanceof Integer) {
+    if (originHeight instanceof Integer && (Integer) originHeight > 0) {
       params.height = (Integer) originHeight;
       panel.setLayoutParams(params);
     }

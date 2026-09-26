@@ -28,6 +28,34 @@
             android:layout_gravity="center"
             android:text="@string/chat_team_error_tip_content"/>
     </FrameLayout>
+    <LinearLayout android:id="@+id/earliestUnreadTipsLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_gravity="top|end"
+        android:background="@drawable/bg_shape_left_radius"
+        android:visibility="gone">
+        <FrameLayout
+            android:layout_width="@dimen/dimen_32_dp"
+            android:layout_height="@dimen/dimen_40_dp"
+            android:layout_marginStart="@dimen/dimen_6_dp">
+            <ImageView
+                android:layout_width="@dimen/dimen_16_dp"
+                android:layout_height="@dimen/dimen_16_dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_chat_message_arrow_top"
+                android:scaleType="centerInside" />
+        </FrameLayout>
+        <TextView android:id="@+id/earliestUnreadTipsTv"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/dimen_40_dp"
+            android:gravity="center"
+            android:paddingStart="0dp"
+            android:paddingEnd="@dimen/dimen_8_dp"
+            android:text="@string/chat_message_earliest_unread"
+            android:textColor="@color/color_chat_new_message_tips"
+            android:textSize="@dimen/text_size_14" />
+    </LinearLayout>
     <LinearLayout android:id="@+id/messageTipsLayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -35,7 +63,7 @@
         android:layout_gravity="bottom|end"
         android:layout_marginBottom="@dimen/dimen_120_dp"
         android:background="@drawable/bg_shape_left_radius"
-        android:visibility="visible">
+        android:visibility="gone">
 
         <ImageView
             android:layout_width="@dimen/dimen_40_dp"

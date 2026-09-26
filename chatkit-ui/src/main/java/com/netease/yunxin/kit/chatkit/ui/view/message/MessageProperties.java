@@ -27,6 +27,10 @@ public class MessageProperties {
   public Integer selfMessageBgRes = null;
   // 接收消息的背景颜色
   public Integer receiveMessageBgRes = null;
+  // 接收消息 Reaction 的背景颜色
+  @ColorInt public Integer receiveMessageReactionBgColor = null;
+  // 发送消息 Reaction 的背景颜色
+  @ColorInt public Integer selfMessageReactionBgColor = null;
   // 用户昵称颜色
   @ColorInt public Integer userNickColor = null;
   // 用户昵称文字大小
@@ -131,6 +135,28 @@ public class MessageProperties {
    */
   public Drawable getSelfMessageBg() {
     return selfMessageBg;
+  }
+
+  /** 设置接收消息 Reaction 的背景颜色。 */
+  public void setReceiveMessageReactionBgColor(@ColorInt int color) {
+    this.receiveMessageReactionBgColor = color;
+  }
+
+  /** 获取接收消息 Reaction 的背景颜色。 */
+  @ColorInt
+  public Integer getReceiveMessageReactionBgColor() {
+    return receiveMessageReactionBgColor;
+  }
+
+  /** 设置发送消息 Reaction 的背景颜色。 */
+  public void setSelfMessageReactionBgColor(@ColorInt int color) {
+    this.selfMessageReactionBgColor = color;
+  }
+
+  /** 获取发送消息 Reaction 的背景颜色。 */
+  @ColorInt
+  public Integer getSelfMessageReactionBgColor() {
+    return selfMessageReactionBgColor;
   }
 
   /**

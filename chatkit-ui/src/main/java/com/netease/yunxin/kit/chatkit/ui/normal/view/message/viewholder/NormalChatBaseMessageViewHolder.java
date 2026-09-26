@@ -4,6 +4,7 @@
 
 package com.netease.yunxin.kit.chatkit.ui.normal.view.message.viewholder;
 
+import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 import android.text.style.ImageSpan;
 import android.view.LayoutInflater;
@@ -49,31 +50,31 @@ public class NormalChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
   @Override
   protected void onMessageBackgroundConfig(ChatMessageBean messageBean) {
     super.onMessageBackgroundConfig(messageBean);
+    baseViewBinding.messageContentGroup.setBackground(null);
     boolean isReceivedMsg = MessageHelper.isReceivedMessage(messageBean) || !isChatMsg();
     CommonUIOption commonUIOption = uiOptions.commonUIOption;
     boolean isCustomBgValid = true;
     if (isReceivedMsg) {
       if (commonUIOption.otherUserMessageBg != null) {
-        baseViewBinding.contentWithTopLayer.setBackground(commonUIOption.otherUserMessageBg);
+        setMessageBackground(commonUIOption.otherUserMessageBg);
       } else if (commonUIOption.otherUserMessageBgRes != null) {
-        baseViewBinding.contentWithTopLayer.setBackgroundResource(
-            commonUIOption.otherUserMessageBgRes);
+        setMessageBackgroundResource(commonUIOption.otherUserMessageBgRes);
       } else if (properties.getReceiveMessageBg() != null) {
-        baseViewBinding.contentWithTopLayer.setBackground(properties.getReceiveMessageBg());
+        setMessageBackground(properties.getReceiveMessageBg());
       } else if (properties.receiveMessageBgRes != null) {
-        baseViewBinding.contentWithTopLayer.setBackgroundResource(properties.receiveMessageBgRes);
+        setMessageBackgroundResource(properties.receiveMessageBgRes);
       } else {
         isCustomBgValid = false;
       }
     } else {
       if (commonUIOption.myMessageBg != null) {
-        baseViewBinding.contentWithTopLayer.setBackground(commonUIOption.myMessageBg);
+        setMessageBackground(commonUIOption.myMessageBg);
       } else if (commonUIOption.myMessageBgRes != null) {
-        baseViewBinding.contentWithTopLayer.setBackgroundResource(commonUIOption.myMessageBgRes);
+        setMessageBackgroundResource(commonUIOption.myMessageBgRes);
       } else if (properties.getSelfMessageBg() != null) {
-        baseViewBinding.contentWithTopLayer.setBackground(properties.getSelfMessageBg());
+        setMessageBackground(properties.getSelfMessageBg());
       } else if (properties.selfMessageBgRes != null) {
-        baseViewBinding.contentWithTopLayer.setBackgroundResource(properties.selfMessageBgRes);
+        setMessageBackgroundResource(properties.selfMessageBgRes);
       } else {
         isCustomBgValid = false;
       }
@@ -82,15 +83,26 @@ public class NormalChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
       return;
     }
     if (isReceivedMsg) {
-      baseViewBinding.contentWithTopLayer.setBackgroundResource(R.drawable.chat_message_other_bg);
+      setMessageBackgroundResource(R.drawable.chat_message_other_bg);
     } else {
-      baseViewBinding.contentWithTopLayer.setBackgroundResource(R.drawable.chat_message_self_bg);
+      setMessageBackgroundResource(R.drawable.chat_message_self_bg);
     }
+  }
+
+  private void setMessageBackground(Drawable background) {
+    baseViewBinding.messageContentGroup.setBackground(background);
+  }
+
+  private void setMessageBackgroundResource(int backgroundRes) {
+    baseViewBinding.messageContentGroup.setBackgroundResource(backgroundRes);
   }
 
   @Override
   protected void onLayoutConfig(ChatMessageBean messageBean) {
     super.onLayoutConfig(messageBean);
+    if (!showReceiveUIStyle() && uiOptions.commonUIOption.messageContentLayoutGravity == null) {
+      setMessageContentChildrenLeftAligned();
+    }
     ConstraintLayout.LayoutParams messageContainerLayoutParams =
         (ConstraintLayout.LayoutParams) baseViewBinding.messageContentGroup.getLayoutParams();
     ConstraintLayout.LayoutParams signalLayoutParams =
@@ -105,10 +117,23 @@ public class NormalChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
     // 设置消息体
     messageContainerLayoutParams.rightMargin = size;
     messageContainerLayoutParams.leftMargin = size;
-    // 非回复消息修改布局文件默认大小
-    if (!messageBean.hasReply() && !MessageHelper.isThreadReplayInfo(messageBean)) {
-      messageContainerLayoutParams.width = 0;
-    }
+  }
+
+  private void setMessageContentChildrenLeftAligned() {
+    ConstraintLayout.LayoutParams messageContainerParams =
+        (ConstraintLayout.LayoutParams) baseViewBinding.messageContainer.getLayoutParams();
+    messageContainerParams.horizontalBias = CommonUIOption.MessageContentLayoutGravity.left;
+    baseViewBinding.messageContainer.setLayoutParams(messageContainerParams);
+
+    ConstraintLayout.LayoutParams messageTopParams =
+        (ConstraintLayout.LayoutParams) baseViewBinding.messageTopGroup.getLayoutParams();
+    messageTopParams.horizontalBias = CommonUIOption.MessageContentLayoutGravity.left;
+    baseViewBinding.messageTopGroup.setLayoutParams(messageTopParams);
+
+    ConstraintLayout.LayoutParams messageBottomParams =
+        (ConstraintLayout.LayoutParams) baseViewBinding.messageBottomGroup.getLayoutParams();
+    messageBottomParams.horizontalBias = CommonUIOption.MessageContentLayoutGravity.left;
+    baseViewBinding.messageBottomGroup.setLayoutParams(messageBottomParams);
   }
 
   @Override
@@ -121,21 +146,10 @@ public class NormalChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
       baseViewBinding.messageContainer.setEnabled(true);
       return;
     }
-    if (data.hasReply() || MessageHelper.isThreadReplayInfo(data)) {
-      ConstraintLayout.LayoutParams messageContainerLayoutParams =
-          (ConstraintLayout.LayoutParams) baseViewBinding.messageContainer.getLayoutParams();
-      ConstraintLayout.LayoutParams messageTopLayoutParams =
-          (ConstraintLayout.LayoutParams) baseViewBinding.messageTopGroup.getLayoutParams();
-      ConstraintLayout.LayoutParams messageBottomLayoutParams =
-          (ConstraintLayout.LayoutParams) baseViewBinding.messageBottomGroup.getLayoutParams();
-      messageContainerLayoutParams.width = 0;
-      messageTopLayoutParams.width = 0;
-      messageBottomLayoutParams.width = 0;
-    }
     baseViewBinding.messageContainer.setEnabled(false);
-    baseViewBinding.messageTopGroup.removeAllViews();
-    baseViewBinding.messageContainer.removeAllViews();
-    baseViewBinding.messageBottomGroup.removeAllViews();
+    baseViewBinding.messageNormalReplyContainer.removeAllViews();
+    getMessageContentContainer().removeAllViews();
+    baseViewBinding.messageReactionContainer.removeAllViews();
     //reedit
     addRevokeViewToMessageContainer();
     revokedViewBinding.tvAction.setOnClickListener(
@@ -172,7 +186,7 @@ public class NormalChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
     if (messageBean == null || messageBean.getMessageData() == null) {
       return;
     }
-    baseViewBinding.messageTopGroup.removeAllViews();
+    baseViewBinding.messageNormalReplyContainer.removeAllViews();
     ALog.w(
         TAG,
         TAG,
@@ -183,52 +197,53 @@ public class NormalChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
     } else if (messageBean.hasReply()) {
       //自定义回复实现
       addReplayViewToTopGroup();
+      final NormalChatMessageReplayNormalViewBinding replyBinding = replayBinding;
+      final String messageClientId = messageBean.getMsgClientId();
       V2NIMMessageRefer refer = messageBean.getReplyMessageRefer();
       if (refer != null) {
-        if (messageBean.getReplyMessage() == null) {
-          MessageHelper.getReplyMessageInfo(
-              refer,
-              new FetchCallback<IMMessageInfo>() {
-                @Override
-                public void onError(int errorCode, @Nullable String errorMsg) {
-                  baseViewBinding.messageTopGroup.removeAllViews();
+        MessageHelper.getReplyMessageInfo(
+            refer,
+            messageBean.getReplyMessage(),
+            new FetchCallback<IMMessageInfo>() {
+              @Override
+              public void onError(int errorCode, @Nullable String errorMsg) {
+                if (isReplyBindingValid(messageClientId, replyBinding)) {
+                  baseViewBinding.messageNormalReplyContainer.removeAllViews();
                 }
+              }
 
-                @Override
-                public void onSuccess(@Nullable IMMessageInfo param) {
-                  replyMessage = param;
-                  String content = "| " + MessageHelper.getReplyContent(replyMessage);
-                  MessageHelper.identifyFaceExpression(
-                      replayBinding.tvReply.getContext(),
-                      replayBinding.tvReply,
-                      content,
-                      ImageSpan.ALIGN_BOTTOM);
-                  updateReplayInfoLayoutWidth(messageBean);
+              @Override
+              public void onSuccess(@Nullable IMMessageInfo param) {
+                if (!isReplyBindingValid(messageClientId, replyBinding)) {
+                  return;
                 }
-              });
-        } else {
-          replyMessage = messageBean.getReplyMessage();
-          String content = "| " + MessageHelper.getReplyContent(replyMessage);
-          MessageHelper.identifyFaceExpression(
-              replayBinding.tvReply.getContext(),
-              replayBinding.tvReply,
-              content,
-              ImageSpan.ALIGN_BOTTOM);
-          updateReplayInfoLayoutWidth(messageBean);
-        }
+                replyMessage = param;
+                String content = "| " + MessageHelper.getReplyContent(replyMessage);
+                MessageHelper.identifyFaceExpression(
+                    replyBinding.tvReply.getContext(),
+                    replyBinding.tvReply,
+                    content,
+                    ImageSpan.ALIGN_BOTTOM);
+              }
+            });
       }
 
       if (itemClickListener != null) {
-        replayBinding.tvReply.setOnClickListener(
+        replyBinding.tvReply.setOnClickListener(
             v -> {
               if (!isMultiSelect) {
                 itemClickListener.onReplyMessageClick(v, position, replyMessage);
               }
             });
       }
-    } else {
-      updateReplayInfoLayoutWidth(messageBean);
     }
+  }
+
+  private boolean isReplyBindingValid(
+      String messageClientId, NormalChatMessageReplayNormalViewBinding replyBinding) {
+    return currentMessage != null
+        && TextUtils.equals(currentMessage.getMsgClientId(), messageClientId)
+        && replayBinding == replyBinding;
   }
 
   @Override
@@ -262,35 +277,42 @@ public class NormalChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
           TAG,
           "no reply message found, uuid="
               + messageBean.getMessageData().getMessage().getMessageClientId());
-      baseViewBinding.messageTopGroup.removeAllViews();
+      baseViewBinding.messageNormalReplyContainer.removeAllViews();
       return;
     }
     addReplayViewToTopGroup();
+    final NormalChatMessageReplayNormalViewBinding replyBinding = replayBinding;
+    final String messageClientId = messageBean.getMsgClientId();
 
     MessageHelper.getReplyMessageInfo(
         threadOption,
+        messageBean.getReplyMessage(),
         new FetchCallback<IMMessageInfo>() {
           @Override
           public void onError(int errorCode, @Nullable String errorMsg) {
-            replayBinding.tvReply.setVisibility(View.GONE);
+            if (isReplyBindingValid(messageClientId, replyBinding)) {
+              replyBinding.tvReply.setVisibility(View.GONE);
+            }
           }
 
           @Override
           public void onSuccess(@Nullable IMMessageInfo param) {
+            if (!isReplyBindingValid(messageClientId, replyBinding)) {
+              return;
+            }
 
             replyMessage = param;
             String content = "| " + MessageHelper.getReplyContent(replyMessage);
             MessageHelper.identifyFaceExpression(
-                replayBinding.tvReply.getContext(),
-                replayBinding.tvReply,
+                replyBinding.tvReply.getContext(),
+                replyBinding.tvReply,
                 content,
                 ImageSpan.ALIGN_BOTTOM);
-            updateReplayInfoLayoutWidth(messageBean);
           }
         });
 
     if (itemClickListener != null) {
-      replayBinding.tvReply.setOnClickListener(
+      replyBinding.tvReply.setOnClickListener(
           v -> {
             if (!isMultiSelect) {
               itemClickListener.onReplyMessageClick(v, position, replyMessage);
@@ -299,41 +321,16 @@ public class NormalChatBaseMessageViewHolder extends ChatBaseMessageViewHolder {
     }
   }
 
-  /// 由于 normal 布局中需要 messageContainer 和 messageTopGroup 相同宽度展示
-  private void updateReplayInfoLayoutWidth(ChatMessageBean messageBean) {
-    ConstraintLayout.LayoutParams messageContainerLayoutParams =
-        (ConstraintLayout.LayoutParams) baseViewBinding.messageContainer.getLayoutParams();
-    ConstraintLayout.LayoutParams messageTopLayoutParams =
-        (ConstraintLayout.LayoutParams) baseViewBinding.messageTopGroup.getLayoutParams();
-    messageTopLayoutParams.width = 0;
-    messageContainerLayoutParams.width = 0;
-    baseViewBinding.messageContainer.setLayoutParams(messageContainerLayoutParams);
-    baseViewBinding.messageTopGroup.setLayoutParams(messageTopLayoutParams);
-    baseViewBinding.messageContainer.post(
-        () -> {
-          if (MessageHelper.isReceivedMessage(messageBean)) {
-            return;
-          }
-          int width1 = baseViewBinding.messageTopGroup.getWidth();
-          int width2 = baseViewBinding.messageContainer.getWidth();
-          int maxWidth = Math.max(width1, width2);
-          messageContainerLayoutParams.width = maxWidth;
-          messageTopLayoutParams.width = maxWidth;
-          baseViewBinding.messageContainer.setLayoutParams(messageContainerLayoutParams);
-          baseViewBinding.messageTopGroup.setLayoutParams(messageTopLayoutParams);
-        });
-  }
-
   // 添加 normal 下的回复布局
   private void addReplayViewToTopGroup() {
     replayBinding =
         NormalChatMessageReplayNormalViewBinding.inflate(
-            LayoutInflater.from(parent.getContext()), baseViewBinding.messageTopGroup, true);
+            LayoutInflater.from(parent.getContext()), getNormalReplyContainer(), true);
   }
 
   private void addRevokeViewToMessageContainer() {
     revokedViewBinding =
         NormalChatMessageRevokedNormalViewBinding.inflate(
-            LayoutInflater.from(parent.getContext()), baseViewBinding.messageContainer, true);
+            LayoutInflater.from(parent.getContext()), getMessageContentContainer(), true);
   }
 }

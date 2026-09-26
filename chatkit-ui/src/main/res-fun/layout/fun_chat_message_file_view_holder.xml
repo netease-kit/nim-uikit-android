@@ -3,10 +3,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_marginStart="@dimen/dimen_12_dp"
-    android:layout_marginEnd="@dimen/dimen_12_dp"
     android:background="@drawable/fun_shape_corner_bg"
-    android:layout_height="@dimen/dimen_56_dp">
+    android:layout_height="@dimen/dimen_56_dp"
+    android:layout_margin="@dimen/dimen_8_dp">
 
     <ImageView android:id="@+id/file_type_iv"
         android:layout_width="@dimen/dimen_32_dp"

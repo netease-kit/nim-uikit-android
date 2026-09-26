@@ -7,6 +7,7 @@ package com.netease.yunxin.kit.chatkit.ui.view.emoji;
 import android.content.Context;
 import android.text.TextUtils;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -29,35 +30,71 @@ public class EmojiView {
   private final ViewPager emojiPager;
   private final LinearLayout pageNumberLayout;
   private int pageCount;
+  private int emojiPageCount;
 
   /** emoji page count，keep with Adapter same.last on is delete */
   public static final int EMOJI_PER_PAGE = 20;
 
   private final Context context;
   private final IEmojiSelectedListener listener;
+  private final IStickerSelectedListener stickerListener;
+  private final StickerAssetManager stickerAssetManager;
+  private final IEmojiCategoryChanged categoryChangedListener;
   private final EmoticonViewPaperAdapter pagerAdapter = new EmoticonViewPaperAdapter();
+  private OnPageChangeListener pageChangeListener;
+  private boolean released;
 
   private int categoryIndex;
   private boolean isDataInitialized = false;
   private List<Integer> categoryPageNumberList;
   private final int[] pagerIndexInfo = new int[2];
+  private List<StickerPage> stickerPages = new ArrayList<>();
+  private List<Integer> stickerPackFirstPagePositions = new ArrayList<>();
+  private boolean stickerPagesInitialized;
+  private boolean showingStickers;
+  private int pageIndicatorSelectorResId = R.drawable.chat_emoji_page_indicator_selector;
 
   public EmojiView(
       Context context,
       IEmojiSelectedListener listener,
       ViewPager mCurPage,
       LinearLayout pageNumberLayout) {
+    this(context, listener, null, null, null, mCurPage, pageNumberLayout);
+  }
+
+  public EmojiView(
+      Context context,
+      IEmojiSelectedListener listener,
+      IStickerSelectedListener stickerListener,
+      StickerAssetManager stickerAssetManager,
+      IEmojiCategoryChanged categoryChangedListener,
+      ViewPager mCurPage,
+      LinearLayout pageNumberLayout) {
     this.context = context.getApplicationContext();
     this.listener = listener;
+    this.stickerListener = stickerListener;
+    this.stickerAssetManager = stickerAssetManager;
+    this.categoryChangedListener = categoryChangedListener;
     this.pageNumberLayout = pageNumberLayout;
     this.emojiPager = mCurPage;
 
-    emojiPager.addOnPageChangeListener(
+    pageChangeListener =
         new OnPageChangeListener() {
 
           @Override
           public void onPageSelected(int position) {
+            boolean stickerPosition = isStickerPosition(position);
+            showingStickers = stickerPosition;
             setCurEmotionPage(position);
+            if (categoryChangedListener != null) {
+              if (stickerPosition && !stickerPages.isEmpty()) {
+                int pagePosition = Math.min(position - emojiPageCount, stickerPages.size() - 1);
+                categoryChangedListener.onCategoryChanged(
+                    stickerPages.get(pagePosition).packIndex + 1);
+              } else if (!stickerPosition) {
+                categoryChangedListener.onCategoryChanged(0);
+              }
+            }
           }
 
           @Override
@@ -66,9 +103,22 @@ public class EmojiView {
 
           @Override
           public void onPageScrollStateChanged(int state) {}
-        });
+        };
+    emojiPager.addOnPageChangeListener(pageChangeListener);
     emojiPager.setAdapter(pagerAdapter);
     emojiPager.setOffscreenPageLimit(1);
+  }
+
+  /** Releases callbacks registered by this view from the host ViewPager. */
+  public void release() {
+    if (released) {
+      return;
+    }
+    released = true;
+    if (pageChangeListener != null) {
+      emojiPager.removeOnPageChangeListener(pageChangeListener);
+      pageChangeListener = null;
+    }
   }
 
   public void setCategoryDataReloadFlag() {
@@ -76,18 +126,34 @@ public class EmojiView {
   }
 
   public void showStickers(int index) {
-    if (isDataInitialized
-        && getPagerInfo(emojiPager.getCurrentItem()) != null
-        && pagerIndexInfo[0] == index
-        && pagerIndexInfo[1] == 0) {
+    initData();
+    emojiPageCount = getCategoryPageCount();
+    ensureStickerPagesInitialized();
+    pageCount = emojiPageCount + stickerPages.size();
+    if (index < 0 || index >= stickerPackFirstPagePositions.size()) return;
+    int stickerPosition = stickerPackFirstPagePositions.get(index);
+
+    boolean wasShowingStickers = showingStickers;
+    showingStickers = true;
+    if (wasShowingStickers && isDataInitialized && emojiPager.getCurrentItem() == stickerPosition) {
       return;
     }
 
     this.categoryIndex = index;
-    showStickerGridView();
+    pagerAdapter.notifyDataSetChanged();
+    setCurStickerPage(stickerPosition - emojiPageCount);
+    emojiPager.setCurrentItem(stickerPosition, false);
+  }
+
+  public void setPageIndicatorSelectorResource(int selectorResId) {
+    pageIndicatorSelectorResId = selectorResId;
+    for (int i = 0; i < pageNumberLayout.getChildCount(); i++) {
+      pageNumberLayout.getChildAt(i).setBackgroundResource(selectorResId);
+    }
   }
 
   public void showEmojis() {
+    showingStickers = false;
     showEmojiGridView();
   }
 
@@ -113,21 +179,34 @@ public class EmojiView {
           imgCur = (ImageView) pageNumberLayout.getChildAt(i);
         } else {
           imgCur = new ImageView(context);
-          imgCur.setBackgroundResource(R.drawable.view_pager_indicator_selector);
+          imgCur.setBackgroundResource(pageIndicatorSelectorResId);
           pageNumberLayout.addView(imgCur);
         }
       }
 
+      LinearLayout.LayoutParams indicatorParams =
+          new LinearLayout.LayoutParams(
+              getDimensionPixelSize(R.dimen.chat_emoji_page_indicator_width),
+              getDimensionPixelSize(R.dimen.chat_emoji_page_indicator_height));
+      indicatorParams.rightMargin =
+          i < pageCount - 1 ? getDimensionPixelSize(R.dimen.chat_emoji_page_indicator_spacing) : 0;
+      imgCur.setLayoutParams(indicatorParams);
       imgCur.setId(i);
       imgCur.setSelected(i == page);
       imgCur.setVisibility(View.VISIBLE);
     }
   }
 
+  private int getDimensionPixelSize(int dimensionResId) {
+    return context.getResources().getDimensionPixelSize(dimensionResId);
+  }
+
   private void showEmojiGridView() {
     initData();
-    pageCount =
+    emojiPageCount =
         (int) Math.ceil(ChatEmojiManager.INSTANCE.getDisplayCount() / (float) EMOJI_PER_PAGE);
+    ensureStickerPagesInitialized();
+    pageCount = emojiPageCount + stickerPages.size();
     pagerAdapter.notifyDataSetChanged();
     resetEmotionPager();
   }
@@ -138,7 +217,11 @@ public class EmojiView {
   }
 
   private void setCurEmotionPage(int position) {
-    setCurPage(position, pageCount);
+    if (isStickerPosition(position)) {
+      setCurStickerPage(position - emojiPageCount);
+      return;
+    }
+    setCurPage(position, emojiPageCount);
   }
 
   public OnItemClickListener emojiListener =
@@ -167,22 +250,6 @@ public class EmojiView {
         }
       };
 
-  private void showStickerGridView() {
-    initData();
-    pagerAdapter.notifyDataSetChanged();
-
-    int position = 0;
-    for (int i = 0; i < categoryPageNumberList.size(); i++) {
-      if (i == categoryIndex) {
-        break;
-      }
-      position += categoryPageNumberList.get(i);
-    }
-
-    setCurStickerPage(position);
-    emojiPager.setCurrentItem(position, false);
-  }
-
   private void initData() {
     if (isDataInitialized) {
       return;
@@ -204,7 +271,42 @@ public class EmojiView {
     isDataInitialized = true;
   }
 
+  private void initStickerPages() {
+    stickerPages.clear();
+    stickerPackFirstPagePositions.clear();
+    if (stickerAssetManager == null) return;
+    List<StickerPack> packs = stickerAssetManager.getPacks();
+    for (int packIndex = 0; packIndex < packs.size(); packIndex++) {
+      List<StickerItem> items = packs.get(packIndex).items;
+      int pageCount = (int) Math.ceil(items.size() / 8.0);
+      if (pageCount == 0) continue;
+      stickerPackFirstPagePositions.add(emojiPageCount + stickerPages.size());
+      for (int page = 0; page < pageCount; page++) {
+        int start = page * 8;
+        int end = Math.min(start + 8, items.size());
+        stickerPages.add(
+            new StickerPage(
+                packIndex, page, pageCount, new ArrayList<>(items.subList(start, end))));
+      }
+    }
+    pageCount = stickerPages.size();
+  }
+
+  private void ensureStickerPagesInitialized() {
+    if (stickerPagesInitialized) {
+      return;
+    }
+    initStickerPages();
+    stickerPagesInitialized = true;
+  }
+
   private int[] getPagerInfo(int position) {
+    if (isStickerPosition(position)) {
+      StickerPage page = stickerPages.get(position - emojiPageCount);
+      pagerIndexInfo[0] = page.packIndex;
+      pagerIndexInfo[1] = page.pageIndexInPack;
+      return pagerIndexInfo;
+    }
     if (categoryPageNumberList == null) {
       return pagerIndexInfo;
     }
@@ -228,12 +330,13 @@ public class EmojiView {
   }
 
   private void setCurStickerPage(int position) {
-    getPagerInfo(position);
-    int categoryIndex = pagerIndexInfo[0];
-    int pageIndexInCategory = pagerIndexInfo[1];
-    int categoryPageCount = categoryPageNumberList.get(categoryIndex);
+    if (stickerPages.isEmpty()) return;
+    StickerPage page = stickerPages.get(Math.max(0, Math.min(position, stickerPages.size() - 1)));
+    setCurPage(page.pageIndexInPack, page.packPageCount);
+  }
 
-    setCurPage(pageIndexInCategory, categoryPageCount);
+  private boolean isStickerPosition(int position) {
+    return position >= emojiPageCount && position < emojiPageCount + stickerPages.size();
   }
 
   private class EmoticonViewPaperAdapter extends PagerAdapter {
@@ -250,8 +353,9 @@ public class EmojiView {
     @NonNull
     @Override
     public Object instantiateItem(@NonNull ViewGroup container, int position) {
+      boolean stickerPosition = isStickerPosition(position);
       int pos;
-      if (categoryPageNumberList != null && categoryPageNumberList.size() > 0) {
+      if (!stickerPosition && categoryPageNumberList != null && categoryPageNumberList.size() > 0) {
         getPagerInfo(position);
         pos = pagerIndexInfo[1];
       } else {
@@ -259,15 +363,28 @@ public class EmojiView {
       }
 
       pageNumberLayout.setVisibility(View.VISIBLE);
-      GridView gridView = new GridView(context);
+      GridView gridView =
+          (GridView)
+              LayoutInflater.from(container.getContext())
+                  .inflate(R.layout.chat_emoji_page_layout, container, false);
 
-      gridView.setOnItemClickListener(emojiListener);
-      gridView.setAdapter(new EmojiAdapter(context, pos * EMOJI_PER_PAGE));
-      gridView.setNumColumns(7);
-      gridView.setHorizontalSpacing(5);
-      gridView.setVerticalSpacing(5);
+      if (stickerPosition) {
+        StickerPage page = stickerPages.get(position - emojiPageCount);
+        gridView.setOnItemClickListener(
+            (parent, view, itemPosition, id) -> {
+              if (stickerListener != null && itemPosition < page.items.size()) {
+                stickerListener.onStickerSelected(page.items.get(itemPosition));
+              }
+            });
+        gridView.setAdapter(new StickerAdapter(stickerAssetManager, page.items));
+      } else {
+        gridView.setOnItemClickListener(emojiListener);
+        gridView.setAdapter(new EmojiAdapter(context, pos * EMOJI_PER_PAGE));
+      }
+      gridView.setClickable(true);
+      gridView.setNumColumns(stickerPosition ? 4 : 7);
 
-      gridView.setGravity(Gravity.CENTER);
+      gridView.setGravity(stickerPosition ? Gravity.CENTER : Gravity.BOTTOM);
       gridView.setSelector(R.drawable.emoji_item_selector);
       container.addView(gridView);
       return gridView;

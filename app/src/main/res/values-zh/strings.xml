@@ -15,6 +15,7 @@
     <string name="app_scan_invalid_qr_code">扫码失败，请重试</string>
     <string name="app_scan_qr_code_expired">二维码已过期</string>
     <string name="welcome_button">注册/登录</string>
+    <string name="login_pending">登录中</string>
     <string name="email_login">邮箱登录</string>
     <string name="server_config">节点选择</string>
     <string name="tab_session_tab_text">消息</string>
@@ -95,6 +96,7 @@
     <string name="setting_fail">设置失败</string>
     <string name="setting_success">设置成功</string>
     <string name="login_fail">登录失败:%s</string>
+    <string name="login_timeout">登录超时，请重新登录</string>
     <string name="request_fail">操作失败</string>
     <string name="user_fail">用户信息获取失败</string>
     <string name="imkit_email_fail">邮箱格式错误，请检查</string>
@@ -148,6 +150,7 @@
     <string name="uikit_anti_spam_switch_title">文本安全提示功能</string>
     <string name="uikit_cloud_search_switch_title">云搜索功能</string>
     <string name="uikit_conversation_group_switch_title">会话分组功能</string>
+    <string name="uikit_message_reaction_switch_title">消息表情回应功能</string>
     <string name="uikit_team_manager_limit_title">允许添加的管理员人数( -1 表示无限制)</string>
 
     <!-- -->

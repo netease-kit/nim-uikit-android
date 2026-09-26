@@ -54,6 +54,7 @@ import com.netease.nimlib.sdk.v2.message.params.V2NIMSendMessageParams;
 import com.netease.nimlib.sdk.v2.message.result.V2NIMSendMessageResult;
 import com.netease.nimlib.sdk.v2.team.enums.V2NIMTeamChatBannedMode;
 import com.netease.nimlib.sdk.v2.team.model.V2NIMUpdatedTeamInfo;
+import com.netease.nimlib.sdk.v2.user.V2NIMUser;
 import com.netease.nimlib.sdk.v2.utils.V2NIMConversationIdUtil;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.ChatCustomMsgFactory;
@@ -68,7 +69,6 @@ import com.netease.yunxin.kit.chatkit.ui.ChatCustom;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitClient;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant;
 import com.netease.yunxin.kit.chatkit.ui.R;
-import com.netease.yunxin.kit.chatkit.ui.cache.TeamUserManager;
 import com.netease.yunxin.kit.chatkit.ui.custom.MultiForwardAttachment;
 import com.netease.yunxin.kit.chatkit.ui.custom.RichTextAttachment;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
@@ -101,6 +101,7 @@ public class MessageHelper {
 
   public static final float DEF_SCALE = 0.6f;
   public static final float SMALL_SCALE = 0.4F;
+  public static final float INPUT_EDIT_TEXT_SCALE = 0.5F;
   private static final String TAG = "MessageUtil";
 
   // @信息高亮颜色值
@@ -117,7 +118,8 @@ public class MessageHelper {
     if (account.equals(IMKitClient.account())) {
       return IMKitClient.getApplicationContext().getString(R.string.chat_you);
     }
-    return TeamUserManager.getInstance().getNickname(account, true);
+    return ChatUserCache.getInstance()
+        .getNickname(account, V2NIMConversationType.V2NIM_CONVERSATION_TYPE_TEAM);
   }
 
   /**
@@ -141,6 +143,10 @@ public class MessageHelper {
    * @param account 操作者账号ID
    */
   public static String getTeamReaderDisplayName(String account) {
+    return getTeamReaderDisplayName(account, null);
+  }
+
+  public static String getTeamReaderDisplayName(String account, String teamId) {
     if (TextUtils.equals(IMKitClient.account(), account)) {
       return IMKitClient.getApplicationContext().getString(R.string.chat_you);
     }
@@ -150,7 +156,12 @@ public class MessageHelper {
       return AIUserManager.getAIUserById(account).getName();
     }
 
-    return TeamUserManager.getInstance().getNickname(account, true);
+    if (!TextUtils.isEmpty(teamId)) {
+      return ChatUserCache.getInstance()
+          .getNickname(account, V2NIMConversationType.V2NIM_CONVERSATION_TYPE_TEAM, teamId);
+    }
+    return ChatUserCache.getInstance()
+        .getNickname(account, V2NIMConversationType.V2NIM_CONVERSATION_TYPE_TEAM);
   }
 
   /**
@@ -160,12 +171,19 @@ public class MessageHelper {
    * @return UI展示昵称
    */
   public static String getTeamAtName(String user) {
+    return getTeamAtName(user, null);
+  }
+
+  public static String getTeamAtName(String user, String teamId) {
     if (TextUtils.equals(IMKitClient.account(), user)) {
       return "";
     }
     //数字人直接返回
     if (AIUserManager.getAIUserById(user) != null) {
       return AIUserManager.getAIUserById(user).getName();
+    }
+    if (!TextUtils.isEmpty(teamId)) {
+      return ChatUserCache.getInstance().getAitName(user, teamId);
     }
     return ChatUserCache.getInstance().getAitName(user);
   }
@@ -184,6 +202,61 @@ public class MessageHelper {
       return TextUtils.isEmpty(aiUser.getName()) ? account : aiUser.getName();
     }
     return ChatUserCache.getInstance().getNickname(account, type);
+  }
+
+  public static String getChatMessageUserName(V2NIMMessage message) {
+    if (message == null) return null;
+    String account = getRealMessageSenderId(message);
+    if (AIUserManager.getAIUserById(account) != null) {
+      V2NIMAIUser aiUser = AIUserManager.getAIUserById(account);
+      return TextUtils.isEmpty(aiUser.getName()) ? account : aiUser.getName();
+    }
+    String teamId =
+        message.getConversationType() == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_TEAM
+                || message.getConversationType()
+                    == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_SUPER_TEAM
+            ? V2NIMConversationIdUtil.conversationTargetId(message.getConversationId())
+            : null;
+    return ChatUserCache.getInstance().getNickname(account, message.getConversationType(), teamId);
+  }
+
+  /**
+   * Gets the sender name for message-based UI such as chat and PIN pages.
+   *
+   * <p>PIN queries may carry sender data before that data is visible in the shared cache, so the
+   * enriched message info is used as a fallback while preserving the chat page priority.
+   */
+  public static String getMessageDisplayName(IMMessageInfo messageInfo) {
+    if (messageInfo == null || messageInfo.getMessage() == null) {
+      return null;
+    }
+    V2NIMMessage message = messageInfo.getMessage();
+    String account = getRealMessageSenderId(message);
+    String cachedName = getChatMessageUserName(message);
+    if (!TextUtils.isEmpty(cachedName) && !TextUtils.equals(cachedName, account)) {
+      return cachedName;
+    }
+
+    if (TextUtils.equals(account, IMKitClient.account())) {
+      V2NIMUser currentUser = IMKitClient.currentUser();
+      if (currentUser != null && !TextUtils.isEmpty(currentUser.getName())) {
+        return currentUser.getName();
+      }
+    }
+    if (messageInfo.getFromUser() != null
+        && !TextUtils.isEmpty(messageInfo.getFromUser().getAlias())) {
+      return messageInfo.getFromUser().getAlias();
+    }
+    if (messageInfo.getFromTeamMember() != null
+        && !TextUtils.isEmpty(messageInfo.getFromTeamMember().getTeamNick())) {
+      return messageInfo.getFromTeamMember().getTeamNick();
+    }
+    if (messageInfo.getFromUser() != null
+        && messageInfo.getFromUser().getUserInfo() != null
+        && !TextUtils.isEmpty(messageInfo.getFromUser().getUserInfo().getName())) {
+      return messageInfo.getFromUser().getUserInfo().getName();
+    }
+    return account;
   }
 
   /**
@@ -222,6 +295,28 @@ public class MessageHelper {
     return ChatUserCache.getInstance().getAvatar(account, type);
   }
 
+  public static String getChatCacheAvatar(V2NIMMessage message) {
+    return message == null ? null : getChatCacheAvatar(message, getRealMessageSenderId(message));
+  }
+
+  public static String getChatCacheAvatar(V2NIMMessage message, String account) {
+    if (message == null || account == null) return null;
+    String teamId =
+        message.getConversationType() == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_TEAM
+                || message.getConversationType()
+                    == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_SUPER_TEAM
+            ? V2NIMConversationIdUtil.conversationTargetId(message.getConversationId())
+            : null;
+    if (AIUserManager.getAIUserById(account) != null) {
+      return AIUserManager.getAIUserById(account).getAvatar();
+    }
+    if (TextUtils.equals(account, IMKitClient.account())) {
+      V2NIMUser currentUser = IMKitClient.currentUser();
+      return currentUser == null ? null : currentUser.getAvatar();
+    }
+    return ChatUserCache.getInstance().getAvatar(account, message.getConversationType(), teamId);
+  }
+
   /**
    * 获取消息发送者头像名称，用于当用户头像不存在时展示
    *
@@ -236,11 +331,55 @@ public class MessageHelper {
       return TextUtils.isEmpty(aiUser.getName()) ? account : aiUser.getName();
     }
     if (account.equals(IMKitClient.account())) {
-      return TextUtils.isEmpty(IMKitClient.currentUser().getName())
+      V2NIMUser currentUser = IMKitClient.currentUser();
+      return currentUser == null || TextUtils.isEmpty(currentUser.getName())
           ? account
-          : IMKitClient.currentUser().getName();
+          : currentUser.getName();
     }
     return ChatUserCache.getInstance().getAvatarName(account, type);
+  }
+
+  public static String getChatCacheAvatarName(V2NIMMessage message) {
+    if (message == null) return null;
+    String account = getRealMessageSenderId(message);
+    V2NIMAIUser aiUser = AIUserManager.getAIUserById(account);
+    if (aiUser != null) {
+      return TextUtils.isEmpty(aiUser.getName()) ? account : aiUser.getName();
+    }
+    String teamId =
+        message.getConversationType() == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_TEAM
+                || message.getConversationType()
+                    == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_SUPER_TEAM
+            ? V2NIMConversationIdUtil.conversationTargetId(message.getConversationId())
+            : null;
+    return ChatUserCache.getInstance()
+        .getAvatarName(account, message.getConversationType(), teamId);
+  }
+
+  /**
+   * 获取消息发送者头像占位文字，只使用个人昵称，不使用好友备注或群昵称。
+   *
+   * @param message 消息体
+   * @return 个人昵称，资料不存在时返回 accid
+   */
+  public static String getMessageAvatarName(V2NIMMessage message) {
+    if (message == null) {
+      return null;
+    }
+    String account = getRealMessageSenderId(message);
+    if (AIUserManager.getAIUserById(account) != null) {
+      V2NIMAIUser aiUser = AIUserManager.getAIUserById(account);
+      return TextUtils.isEmpty(aiUser.getName()) ? account : aiUser.getName();
+    }
+    String teamId =
+        message.getConversationType() == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_TEAM
+                || message.getConversationType()
+                    == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_SUPER_TEAM
+            ? V2NIMConversationIdUtil.conversationTargetId(message.getConversationId())
+            : null;
+    String userNick =
+        ChatUserCache.getInstance().getUserNick(account, message.getConversationType(), teamId);
+    return TextUtils.isEmpty(userNick) ? account : userNick;
   }
 
   /**
@@ -252,7 +391,7 @@ public class MessageHelper {
   public static String getChatSearchMessageUserName(V2NIMMessage message) {
     String name = null;
     if (message != null) {
-      name = getChatMessageUserNameByAccount(message.getSenderId(), message.getConversationType());
+      name = getChatMessageUserName(message);
     }
     return name;
   }
@@ -267,10 +406,7 @@ public class MessageHelper {
     if (messageInfo == null) {
       return "...";
     }
-    String nickName =
-        getChatMessageUserNameByAccount(
-            getRealMessageSenderId(messageInfo.getMessage()),
-            messageInfo.getMessage().getConversationType());
+    String nickName = getChatMessageUserName(messageInfo.getMessage());
     String content = getMsgBrief(messageInfo, false);
     return nickName + ": " + content;
   }
@@ -307,6 +443,18 @@ public class MessageHelper {
         });
   }
 
+  /** Ensures the reply message has sender data before it is rendered. */
+  public static void getReplyMessageInfo(
+      V2NIMMessageRefer replyMessage,
+      @Nullable IMMessageInfo existingMessage,
+      FetchCallback<IMMessageInfo> callback) {
+    if (existingMessage != null && existingMessage.hasReplySenderName()) {
+      callback.onSuccess(existingMessage);
+      return;
+    }
+    getReplyMessageInfo(replyMessage, callback);
+  }
+
   /**
    * 获取回复消息内容，在消息列表中展示。将消息内容和发送者进行拼接展示
    *
@@ -318,11 +466,7 @@ public class MessageHelper {
     if (messageInfo == null) {
       result = IMKitClient.getApplicationContext().getString(R.string.chat_message_removed_tip);
     } else {
-      String nickName =
-          getChatMessageUserNameByAccount(
-              messageInfo.getMessage().getSenderId(),
-              messageInfo.getMessage().getConversationType());
-      //messageInfo.getFromUserName();
+      String nickName = messageInfo.getReplySenderName();
       String content = getMsgBrief(messageInfo, false);
       result = nickName + ": " + content;
     }
@@ -797,7 +941,7 @@ public class MessageHelper {
       int from = start + matcher.start();
       int to = start + matcher.end();
       String emote = spannableString.subSequence(from, to).toString();
-      Drawable d = ChatEmojiManager.INSTANCE.getEmoteDrawable(emote, SMALL_SCALE);
+      Drawable d = ChatEmojiManager.INSTANCE.getEmoteDrawable(emote, INPUT_EDIT_TEXT_SCALE);
       if (d != null) {
         ImageSpan span = new ImageSpan(d, ImageSpan.ALIGN_CENTER);
         spannableString.setSpan(span, from, to, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -1038,18 +1182,14 @@ public class MessageHelper {
       }
       String name = null;
       String avatar = null;
-      if (MessageHelper.getRealMessageSenderId(info.getMessage()).equals(IMKitClient.account())
-          && IMKitClient.currentUser() != null) {
+      String realSenderId = MessageHelper.getRealMessageSenderId(info.getMessage());
+      if (realSenderId.equals(IMKitClient.account()) && IMKitClient.currentUser() != null) {
         //自己
         name = IMKitClient.currentUser().getName();
         avatar = IMKitClient.currentUser().getAvatar();
       } else {
-        name =
-            MessageHelper.getUserNickByAccount(
-                MessageHelper.getRealMessageSenderId(info.getMessage()), conversationType);
-        avatar =
-            MessageHelper.getChatCacheAvatar(
-                MessageHelper.getRealMessageSenderId(info.getMessage()), conversationType);
+        name = MessageHelper.getUserNickByAccount(realSenderId, conversationType);
+        avatar = MessageHelper.getChatCacheAvatar(realSenderId, conversationType);
       }
 
       extension.put(

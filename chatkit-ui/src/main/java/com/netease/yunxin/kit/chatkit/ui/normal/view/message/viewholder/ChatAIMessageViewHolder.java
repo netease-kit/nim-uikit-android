@@ -31,7 +31,7 @@ public class ChatAIMessageViewHolder extends NormalChatBaseMessageViewHolder {
   public void addViewToMessageContainer() {
     textBinding =
         NormalChatMessageTextViewHolderBinding.inflate(
-            LayoutInflater.from(parent.getContext()), getMessageContainer(), true);
+            LayoutInflater.from(parent.getContext()), getMessageContentContainer(), true);
   }
 
   @Override

@@ -149,7 +149,7 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/chat_message_action_container"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/dimen_56_dp"
+        android:layout_height="@dimen/dimen_52_dp"
         android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -186,14 +186,14 @@
         <com.netease.yunxin.kit.chatkit.ui.view.emoji.EmojiPickerView
             android:id="@+id/chat_message_emoji_view"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/chat_input_panel_height"
             android:background="@android:color/white"
             android:visibility="gone" />
 
         <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/chat_message_actions_panel"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/dimen_188_dp"
+            android:layout_height="@dimen/chat_input_panel_height"
             android:visibility="gone" />
     </FrameLayout>
 

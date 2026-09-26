@@ -109,9 +109,8 @@ public abstract class ChatBasePinViewHolder extends ChatBaseViewHolder<ChatMessa
   private void loadNickAndAvatar(ChatMessageBean message) {
 
     //get nick name
-    String name =
-        MessageHelper.getChatMessageUserNameByAccount(
-            message.getSenderId(), message.getMessageData().getMessage().getConversationType());
+    String name = MessageHelper.getMessageDisplayName(message.getMessageData());
+    String avatarName = MessageHelper.getMessageAvatarName(message.getMessageData().getMessage());
     baseViewBinding.otherUsername.setText(name);
     if (properties.getUserNickColor() != null) {
       baseViewBinding.otherUsername.setTextColor(properties.getUserNickColor());
@@ -119,15 +118,15 @@ public abstract class ChatBasePinViewHolder extends ChatBaseViewHolder<ChatMessa
     if (properties.getUserNickTextSize() != null) {
       baseViewBinding.otherUsername.setTextSize(properties.getUserNickTextSize());
     }
-    String avatar =
-        MessageHelper.getChatCacheAvatar(
-            message.getSenderId(), message.getMessageData().getMessage().getConversationType());
+    String avatar = MessageHelper.getChatCacheAvatar(message.getMessageData().getMessage());
     baseViewBinding.messageAvatar.setVisibility(View.VISIBLE);
     if (properties.getAvatarCornerRadius() != null) {
       baseViewBinding.messageAvatar.setCornerRadius(properties.getAvatarCornerRadius());
     }
     baseViewBinding.messageAvatar.setData(
-        avatar, name, AvatarColor.avatarColor(message.getMessageData().getMessage().getSenderId()));
+        avatar,
+        avatarName,
+        AvatarColor.avatarColor(message.getMessageData().getMessage().getSenderId()));
   }
 
   private void setTime(ChatMessageBean message) {

@@ -10,10 +10,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:layout_marginHorizontal="@dimen/dimen_6_dp"
-    android:layout_marginTop="@dimen/dimen_6_dp"
-    android:layout_marginBottom="@dimen/dimen_3_dp">
+    android:layout_margin="@dimen/dimen_4_dp"
+    android:orientation="vertical">
 
     <TextView
         android:id="@+id/messageMultiTitle"

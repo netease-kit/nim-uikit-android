@@ -97,9 +97,7 @@ public class ChatPopActionFactory {
         || customPopMenu.get().showDefaultPopMenu()) {
       if (message.hasErrorCode()) {
         actions.add(getDeleteAction(context, message));
-        return actions;
-      }
-      if (message.getMessageData().getMessage().getSendingState()
+      } else if (message.getMessageData().getMessage().getSendingState()
               == V2NIMMessageSendingState.V2NIM_MESSAGE_SENDING_STATE_FAILED
           || message.getMessageData().getMessage().getSendingState()
               == V2NIMMessageSendingState.V2NIM_MESSAGE_SENDING_STATE_SENDING
@@ -108,55 +106,54 @@ public class ChatPopActionFactory {
         actions.add(getDeleteAction(context, message));
         actions.add(getMultiSelectAction(context, message));
         addPluginTextActionIfNeed(actions, message);
-        return actions;
+      } else {
+        if (message.getMessageData().getMessage().getMessageType()
+            == V2NIMMessageType.V2NIM_MESSAGE_TYPE_AUDIO) {
+          actions.add(getVoicePlayAction(context, message));
+        }
+        if (message.getViewType() == MsgTypeEnum.nrtc_netcall.getValue()) {
+          actions.add(getDeleteAction(context, message));
+          actions.add(getMultiSelectAction(context, message));
+        } else {
+          // 基础消息类型都在MsgTypeEnum中定义,自定义消息类型都是MsgTypeEnum.custom，
+          // 自定义消息，根据自定义消息的Type区分IMUIKIt内置从101开始，客户定义从1000开始
+          addCopyActionIfNeed(context, actions, message);
+          actions.add(getReplyAction(context, message));
+          if (message.getViewType() != MsgTypeEnum.audio.getValue()) {
+            actions.add(getTransmitAction(context, message));
+          }
+          if (IMKitConfigCenter.getEnablePinMessage()) {
+            actions.add(getPinAction(context, message));
+          }
+          actions.add(getDeleteAction(context, message));
+          if (!MessageHelper.isReceivedMessage(message)) {
+            actions.add(getRecallAction(context, message));
+          }
+          actions.add(getMultiSelectAction(context, message));
+          if (IMKitConfigCenter.getEnableCollectionMessage()) {
+            actions.add(getCollectionAction(context, message));
+          }
+          if (IMKitConfigCenter.getEnableTopMessage()
+              && message.getMessageData().getMessage().getConversationType()
+                  == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_TEAM) {
+            actions.add(getTopStickyAction(context, message));
+          }
+          if (message.getMessageData().getMessage().getMessageType()
+                  == V2NIMMessageType.V2NIM_MESSAGE_TYPE_AUDIO
+              && IMKitConfigCenter.getEnableVoiceToText()
+              && TextUtils.isEmpty(message.getVoiceToText())) {
+            actions.add(getVoiceToTextAction(context, message));
+          }
+          // 文本消息：非空内容时展示翻译按钮
+          if (message.getViewType() == V2NIMMessageType.V2NIM_MESSAGE_TYPE_TEXT.getValue()
+              && !TextUtils.isEmpty(message.getMessageData().getMessage().getText())
+              && MessageHelper.isReceivedMessage(message)
+              && !message.AIMessageStreaming()) {
+            actions.add(getTranslateAction(context, message));
+          }
+          addPluginTextActionIfNeed(actions, message);
+        }
       }
-      if (message.getMessageData().getMessage().getMessageType()
-          == V2NIMMessageType.V2NIM_MESSAGE_TYPE_AUDIO) {
-        actions.add(getVoicePlayAction(context, message));
-      }
-      if (message.getViewType() == MsgTypeEnum.nrtc_netcall.getValue()) {
-        // call
-        actions.add(getDeleteAction(context, message));
-        actions.add(getMultiSelectAction(context, message));
-        return actions;
-      }
-      // 基础消息类型都在MsgTypeEnum中定义,自定义消息类型都是MsgTypeEnum.custom，
-      // 自定义消息，根据自定义消息的Type区分IMUIKIt内置从101开始，客户定义从1000开始
-      addCopyActionIfNeed(context, actions, message);
-      actions.add(getReplyAction(context, message));
-      if (message.getViewType() != MsgTypeEnum.audio.getValue()) {
-        actions.add(getTransmitAction(context, message));
-      }
-      if (IMKitConfigCenter.getEnablePinMessage()) {
-        actions.add(getPinAction(context, message));
-      }
-      actions.add(getDeleteAction(context, message));
-      if (!MessageHelper.isReceivedMessage(message)) {
-        actions.add(getRecallAction(context, message));
-      }
-      actions.add(getMultiSelectAction(context, message));
-      if (IMKitConfigCenter.getEnableCollectionMessage()) {
-        actions.add(getCollectionAction(context, message));
-      }
-      if (IMKitConfigCenter.getEnableTopMessage()
-          && message.getMessageData().getMessage().getConversationType()
-              == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_TEAM) {
-        actions.add(getTopStickyAction(context, message));
-      }
-      if (message.getMessageData().getMessage().getMessageType()
-              == V2NIMMessageType.V2NIM_MESSAGE_TYPE_AUDIO
-          && IMKitConfigCenter.getEnableVoiceToText()
-          && TextUtils.isEmpty(message.getVoiceToText())) {
-        actions.add(getVoiceToTextAction(context, message));
-      }
-      // 文本消息：非空内容时展示翻译按钮
-      if (message.getViewType() == V2NIMMessageType.V2NIM_MESSAGE_TYPE_TEXT.getValue()
-          && !TextUtils.isEmpty(message.getMessageData().getMessage().getText())
-          && MessageHelper.isReceivedMessage(message)
-          && !message.AIMessageStreaming()) {
-        actions.add(getTranslateAction(context, message));
-      }
-      addPluginTextActionIfNeed(actions, message);
     }
     if (customPopMenu != null && customPopMenu.get() != null) {
       return customPopMenu.get().customizePopMenu(actions, message);

@@ -20,6 +20,7 @@ import com.netease.nimlib.sdk.v2.ai.params.V2NIMAIModelCallMessage;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessage;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessageCreator;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessageDeletedNotification;
+import com.netease.nimlib.sdk.v2.message.V2NIMMessageQuickCommentNotification;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessageRefer;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageQueryDirection;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageSendingState;
@@ -147,6 +148,12 @@ public class ChatBotSubSessionViewModel extends ChatP2PViewModel {
             }
           }
           postTopicMessageUpdates(messageInfos, MessageUpdateType.UpdateMessage);
+        }
+
+        @Override
+        public void onMessageQuickCommentNotification(
+            @Nullable V2NIMMessageQuickCommentNotification notification) {
+          handleQuickCommentNotification(notification);
         }
 
         @Override

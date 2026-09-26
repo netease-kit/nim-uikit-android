@@ -26,6 +26,9 @@ public interface IMessageProxy {
 
   boolean sendAudio(File audioFile, int audioLength, ChatMessageBean replyMsg);
 
+  boolean sendImageMessage(
+      String imagePath, String fileName, int width, int height, ChatMessageBean replyMsg);
+
   boolean sendCustomMessage(Map<String, Object> attachment, String content);
 
   void onTypeStateChange(boolean isTyping);

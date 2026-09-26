@@ -4,6 +4,8 @@
 
 package com.netease.yunxin.kit.chatkit.ui.view.message.viewholder;
 
+import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.View;
@@ -16,6 +18,7 @@ import com.netease.nimlib.sdk.v2.message.V2NIMMessage;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageSendingState;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
 import com.netease.yunxin.kit.alog.ALog;
+import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitClient;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitUIConstant;
@@ -26,7 +29,9 @@ import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.chatkit.ui.custom.ChatConfigManager;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatBaseMessageViewHolderBinding;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
+import com.netease.yunxin.kit.chatkit.ui.view.emoji.ReactionEmojiManager;
 import com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants;
+import com.netease.yunxin.kit.chatkit.ui.view.message.ReactionGroupView;
 import com.netease.yunxin.kit.chatkit.ui.view.message.viewholder.options.ChatMessageViewHolderUIOptions;
 import com.netease.yunxin.kit.chatkit.ui.view.message.viewholder.options.CommonUIOption;
 import com.netease.yunxin.kit.chatkit.ui.view.message.viewholder.options.CommonUIOption.MessageContentLayoutGravity;
@@ -47,6 +52,7 @@ import java.util.Map;
 
 /** base message view holder for chat message item */
 public abstract class ChatBaseMessageViewHolder extends CommonBaseMessageViewHolder {
+  private static final String MESSAGE_REACTION_TAG = "message_reactions";
 
   private static final String TAG = "ChatBaseMessageViewHolder";
   public static final float mineAvatarMarginEnd = 16f;
@@ -131,6 +137,8 @@ public abstract class ChatBaseMessageViewHolder extends CommonBaseMessageViewHol
           onTranslationUpdate(message);
         } else if (TextUtils.equals(payloadItem, ActionConstants.PAYLOAD_UPDATE_MESSAGE)) {
           onMessageUpdate(message);
+        } else if (TextUtils.equals(payloadItem, ActionConstants.PAYLOAD_EMOJI_REACTION)) {
+          renderMessageReactions(message);
         } else if (TextUtils.equals(payloadItem, ActionConstants.PAYLOAD_RELOAD)) {
           reloadMessage();
         }
@@ -147,9 +155,10 @@ public abstract class ChatBaseMessageViewHolder extends CommonBaseMessageViewHol
     uiOptions = getUIOptions(message);
     currentMessage = message;
     // 清空消息内容，初始化
-    baseViewBinding.messageContainer.removeAllViews();
-    baseViewBinding.messageBottomGroup.removeAllViews();
-    baseViewBinding.messageTopGroup.removeAllViews();
+    getMessageContentContainer().removeAllViews();
+    baseViewBinding.messageReactionContainer.removeAllViews();
+    baseViewBinding.messageNormalReplyContainer.removeAllViews();
+    baseViewBinding.messageFunReplyContainer.removeAllViews();
     // 合并转发消息展示
     addViewToMessageContainer();
     if (!isChatMsg()) {
@@ -193,6 +202,113 @@ public abstract class ChatBaseMessageViewHolder extends CommonBaseMessageViewHol
     onMessageBackgroundConfig(message);
     // 控制消息布局
     onLayoutConfig(message);
+    renderMessageReactions(message);
+  }
+
+  private void renderMessageReactions(ChatMessageBean message) {
+    ViewGroup group = baseViewBinding.messageReactionContainer;
+    if (!IMKitConfigCenter.getEnableMessageReaction()) {
+      group.removeAllViews();
+      return;
+    }
+    if (message == null) {
+      return;
+    }
+    ReactionGroupView reactionGroup =
+        (ReactionGroupView) group.findViewWithTag(MESSAGE_REACTION_TAG);
+    if (reactionGroup == null) {
+      reactionGroup = new ReactionGroupView(group.getContext());
+      reactionGroup.setTag(MESSAGE_REACTION_TAG);
+      group.addView(
+          reactionGroup,
+          new ViewGroup.LayoutParams(
+              ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+    }
+    if (!isChatMsg() || message.isRevoked()) {
+      reactionGroup.bind(null, createReactionDrawableProvider(), getReactionStyle(message), null);
+      return;
+    }
+    final ReactionGroupView targetGroup = reactionGroup;
+    targetGroup.bind(
+        message.getReactionState().summarize(),
+        createReactionDrawableProvider(),
+        getReactionStyle(message),
+        itemClickListener == null
+            ? null
+            : new ReactionGroupView.OnReactionClickListener() {
+              @Override
+              public void onReactionClick(View view, long index, boolean hasSelf) {
+                itemClickListener.onMessageReactionClick(view, position, message, index, hasSelf);
+              }
+
+              @Override
+              public void onAddClick(View view) {
+                itemClickListener.onMessageReactionAddClick(
+                    baseViewBinding.messageContentGroup, position, message);
+              }
+            });
+  }
+
+  private ReactionGroupView.ReactionDrawableProvider createReactionDrawableProvider() {
+    return new ReactionGroupView.ReactionDrawableProvider() {
+      @Override
+      public Drawable getDrawable(long index) {
+        return ReactionEmojiManager.getDrawable(index);
+      }
+
+      @Override
+      public float getVisualScale(long index) {
+        return ReactionEmojiManager.getVisualScale(index);
+      }
+    };
+  }
+
+  protected ReactionGroupView.ReactionStyle getReactionStyle(ChatMessageBean message) {
+    int reactionLeftInset = parent.getResources().getDimensionPixelSize(R.dimen.dimen_12_dp);
+    int reactionTopInset = getMessageReactionGroupTopInsetPx();
+    int reactionHorizontalInset = parent.getResources().getDimensionPixelSize(R.dimen.dimen_12_dp);
+    int reactionBottomInset = parent.getResources().getDimensionPixelSize(R.dimen.dimen_12_dp);
+    return new ReactionGroupView.ReactionStyle(
+        reactionLeftInset,
+        reactionTopInset,
+        reactionHorizontalInset,
+        reactionBottomInset,
+        parent.getResources().getDimensionPixelSize(R.dimen.chat_message_reaction_row_spacing),
+        SizeUtils.dp2px(6),
+        parent.getResources().getDimensionPixelSize(R.dimen.dimen_8_dp),
+        parent
+            .getResources()
+            .getDimensionPixelSize(R.dimen.chat_message_reaction_item_horizontal_padding),
+        SizeUtils.dp2px(2),
+        parent.getResources().getDimensionPixelSize(R.dimen.chat_message_reaction_emoji_size),
+        parent
+            .getResources()
+            .getDimensionPixelSize(R.dimen.chat_message_reaction_count_margin_start),
+        12f,
+        SizeUtils.dp2px(4),
+        SizeUtils.dp2px(18),
+        SizeUtils.dp2px(14),
+        getMessageReactionBackgroundColor(parent.getContext(), !showReceiveUIStyle()),
+        getReactionHighlightColor(parent.getContext()));
+  }
+
+  /** Returns the top inset of the Reaction group for a specific message type. */
+  protected int getMessageReactionGroupTopInsetPx() {
+    return 0;
+  }
+
+  protected int getReactionHighlightColor(Context context) {
+    return ContextCompat.getColor(context, R.color.color_chat_message_highlight);
+  }
+
+  protected int getMessageReactionBackgroundColor(Context context, boolean isSelfMessage) {
+    Integer configuredColor =
+        isSelfMessage
+            ? properties.getSelfMessageReactionBgColor()
+            : properties.getReceiveMessageReactionBgColor();
+    return configuredColor != null
+        ? configuredColor
+        : ContextCompat.getColor(context, R.color.color_white);
   }
 
   public void reloadMessage() {
@@ -228,7 +344,7 @@ public abstract class ChatBaseMessageViewHolder extends CommonBaseMessageViewHol
     }
   }
 
-  // 若消息为通知/提示消息，则不进行后续内容设置，和 uikit 中默认逻辑有关
+  // 若消息为通知/提示消息，则不进行后续内容设置，和 UIkit 中默认逻辑有关
   protected boolean needMessageClickAndExtra() {
     return true;
   }
@@ -439,7 +555,8 @@ public abstract class ChatBaseMessageViewHolder extends CommonBaseMessageViewHol
   protected void loadNickAndAvatarForOthers(ChatMessageBean message) {
 
     // 获取对方用户头像
-    String fromAccount = message.getSenderId();
+    String fromAccount =
+        MessageHelper.getRealMessageSenderId(message.getMessageData().getMessage());
     String avatar = null;
     String avatarName = fromAccount;
     if (isForwardMsg()) {
@@ -457,16 +574,10 @@ public abstract class ChatBaseMessageViewHolder extends CommonBaseMessageViewHol
       baseViewBinding.otherUsername.setVisibility(View.VISIBLE);
       baseViewBinding.otherUsername.setText(avatarName);
     } else {
-      avatar =
-          MessageHelper.getChatCacheAvatar(
-              fromAccount, message.getMessageData().getMessage().getConversationType());
-      avatarName =
-          MessageHelper.getChatCacheAvatarName(
-              fromAccount, message.getMessageData().getMessage().getConversationType());
+      avatar = MessageHelper.getChatCacheAvatar(message.getMessageData().getMessage());
+      avatarName = MessageHelper.getChatCacheAvatarName(message.getMessageData().getMessage());
       // 获取对方用户昵称
-      String name =
-          MessageHelper.getChatMessageUserNameByAccount(
-              fromAccount, message.getMessageData().getMessage().getConversationType());
+      String name = MessageHelper.getChatMessageUserName(message.getMessageData().getMessage());
       // 当前若时在群会话中，则展示对方用户昵称否则不展示
       if (message.getMessageData().getMessage().getConversationType()
               == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_TEAM
@@ -476,12 +587,6 @@ public abstract class ChatBaseMessageViewHolder extends CommonBaseMessageViewHol
       } else {
         baseViewBinding.otherUsername.setVisibility(View.GONE);
       }
-    }
-
-    if (!isChatMsg()) {
-      avatarName =
-          MessageHelper.getChatCacheAvatarName(
-              fromAccount, message.getMessageData().getMessage().getConversationType());
     }
     // 用户信息ui自定义设置内容
     UserInfoUIOption userInfoUIOption = uiOptions.userInfoUIOption;
@@ -500,7 +605,7 @@ public abstract class ChatBaseMessageViewHolder extends CommonBaseMessageViewHol
       myAvatarLayoutParams.width = avatarSize;
       myAvatarLayoutParams.height = avatarSize;
       int marginForAvatar = 10;
-      int size = SizeUtils.dp2px(userInfoUIOption.myAvatarSize + marginForAvatar);
+      int size = SizeUtils.dp2px(userInfoUIOption.otherUserAvatarSize + marginForAvatar);
       // 更新若头像消息后对头像依赖的间距
       updateGoneParam(size);
     }
@@ -864,21 +969,32 @@ public abstract class ChatBaseMessageViewHolder extends CommonBaseMessageViewHol
         (ConstraintLayout.LayoutParams) baseViewBinding.messageTopGroup.getLayoutParams();
     ConstraintLayout.LayoutParams messageBottomLayoutParams =
         (ConstraintLayout.LayoutParams) baseViewBinding.messageBottomGroup.getLayoutParams();
+    ConstraintLayout.LayoutParams messageReplyLayoutParams =
+        (ConstraintLayout.LayoutParams) baseViewBinding.messageReplyGroup.getLayoutParams();
+    ConstraintLayout.LayoutParams messageStatusLayoutParams =
+        (ConstraintLayout.LayoutParams) baseViewBinding.messageStatus.getLayoutParams();
     ConstraintLayout.LayoutParams signalLayoutParams =
         (ConstraintLayout.LayoutParams) baseViewBinding.llSignal.getLayoutParams();
+    messageStatusLayoutParams.startToEnd = ConstraintLayout.LayoutParams.UNSET;
+    messageStatusLayoutParams.endToStart = ConstraintLayout.LayoutParams.UNSET;
     if (showReceiveUIStyle()) {
       // 收到的消息设置消息体展示居左
       messageContainerLayoutParams.horizontalBias = MessageContentLayoutGravity.left;
       messageTopLayoutParams.horizontalBias = MessageContentLayoutGravity.left;
       messageBottomLayoutParams.horizontalBias = MessageContentLayoutGravity.left;
+      messageReplyLayoutParams.horizontalBias = MessageContentLayoutGravity.left;
       messageContentLayoutParams.horizontalBias = MessageContentLayoutGravity.left;
+      messageStatusLayoutParams.startToEnd = baseViewBinding.messageContentGroup.getId();
       baseViewBinding.llSignal.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
     } else {
       // 发送的消息设置消息体展示居右
       messageContentLayoutParams.horizontalBias = MessageContentLayoutGravity.right;
       messageContainerLayoutParams.horizontalBias = MessageContentLayoutGravity.right;
       messageTopLayoutParams.horizontalBias = MessageContentLayoutGravity.right;
+      // 消息气泡及底部 Reaction 区域整体保持右对齐，内容对齐由皮肤实现控制。
       messageBottomLayoutParams.horizontalBias = MessageContentLayoutGravity.right;
+      messageReplyLayoutParams.horizontalBias = MessageContentLayoutGravity.right;
+      messageStatusLayoutParams.endToStart = baseViewBinding.messageContentGroup.getId();
       baseViewBinding.llSignal.setGravity(Gravity.END | Gravity.CENTER_VERTICAL);
     }
     // 自定义消息布局，支持左中右三种，详细见 MessageContentLayoutGravity
@@ -888,12 +1004,15 @@ public abstract class ChatBaseMessageViewHolder extends CommonBaseMessageViewHol
       messageContainerLayoutParams.horizontalBias = commonUIOption.messageContentLayoutGravity;
       messageTopLayoutParams.horizontalBias = commonUIOption.messageContentLayoutGravity;
       messageBottomLayoutParams.horizontalBias = commonUIOption.messageContentLayoutGravity;
+      messageReplyLayoutParams.horizontalBias = commonUIOption.messageContentLayoutGravity;
     }
     baseViewBinding.llSignal.setLayoutParams(signalLayoutParams);
     baseViewBinding.messageContainer.setLayoutParams(messageContainerLayoutParams);
     baseViewBinding.messageBottomGroup.setLayoutParams(messageBottomLayoutParams);
+    baseViewBinding.messageReplyGroup.setLayoutParams(messageReplyLayoutParams);
     baseViewBinding.messageContentGroup.setLayoutParams(messageContentLayoutParams);
     baseViewBinding.messageTopGroup.setLayoutParams(messageTopLayoutParams);
+    baseViewBinding.messageStatus.setLayoutParams(messageStatusLayoutParams);
   }
 
   /**
@@ -1011,25 +1130,20 @@ public abstract class ChatBaseMessageViewHolder extends CommonBaseMessageViewHol
    * @param size 头像大小
    */
   protected void updateGoneParam(int size) {
-    ConstraintLayout.LayoutParams messageContainerLayoutParams =
-        (ConstraintLayout.LayoutParams) baseViewBinding.messageContainer.getLayoutParams();
-    messageContainerLayoutParams.goneRightMargin = size;
-    messageContainerLayoutParams.goneLeftMargin = size;
-    baseViewBinding.messageContainer.setLayoutParams(messageContainerLayoutParams);
-    ConstraintLayout.LayoutParams messageBottomLayoutParams =
-        (ConstraintLayout.LayoutParams) baseViewBinding.messageBottomGroup.getLayoutParams();
-    messageBottomLayoutParams.goneRightMargin = size;
-    messageBottomLayoutParams.goneLeftMargin = size;
-    baseViewBinding.messageBottomGroup.setLayoutParams(messageBottomLayoutParams);
-    ConstraintLayout.LayoutParams messageTopLayoutParams =
-        (ConstraintLayout.LayoutParams) baseViewBinding.messageTopGroup.getLayoutParams();
-    messageTopLayoutParams.goneRightMargin = size;
-    messageTopLayoutParams.goneLeftMargin = size;
-    baseViewBinding.messageTopGroup.setLayoutParams(messageTopLayoutParams);
+    ConstraintLayout.LayoutParams messageContentLayoutParams =
+        (ConstraintLayout.LayoutParams) baseViewBinding.messageContentGroup.getLayoutParams();
+    messageContentLayoutParams.goneStartMargin = size;
+    messageContentLayoutParams.goneEndMargin = size;
+    baseViewBinding.messageContentGroup.setLayoutParams(messageContentLayoutParams);
+    ConstraintLayout.LayoutParams messageReplyLayoutParams =
+        (ConstraintLayout.LayoutParams) baseViewBinding.messageReplyGroup.getLayoutParams();
+    messageReplyLayoutParams.goneStartMargin = size;
+    messageReplyLayoutParams.goneEndMargin = size;
+    baseViewBinding.messageReplyGroup.setLayoutParams(messageReplyLayoutParams);
     ConstraintLayout.LayoutParams signalLayoutParams =
         (ConstraintLayout.LayoutParams) baseViewBinding.llSignal.getLayoutParams();
-    signalLayoutParams.goneLeftMargin = size;
-    signalLayoutParams.goneRightMargin = size;
+    signalLayoutParams.goneStartMargin = size;
+    signalLayoutParams.goneEndMargin = size;
     baseViewBinding.llSignal.setLayoutParams(signalLayoutParams);
   }
 
@@ -1039,6 +1153,21 @@ public abstract class ChatBaseMessageViewHolder extends CommonBaseMessageViewHol
   /** 获取消息内容展示容器 */
   protected ViewGroup getMessageContainer() {
     return baseViewBinding.messageContainer;
+  }
+
+  /** Returns the component-owned container used by built-in message ViewHolders. */
+  protected ViewGroup getMessageContentContainer() {
+    return baseViewBinding.messageContentContainer;
+  }
+
+  /** Returns the reply content container used by the Normal skin. */
+  protected ViewGroup getNormalReplyContainer() {
+    return baseViewBinding.messageNormalReplyContainer;
+  }
+
+  /** Returns the reply content container used by the Fun skin. */
+  protected ViewGroup getFunReplyContainer() {
+    return baseViewBinding.messageFunReplyContainer;
   }
 
   /**

@@ -25,7 +25,6 @@ import com.netease.yunxin.kit.chatkit.model.TeamMemberWithUserInfo;
 import com.netease.yunxin.kit.chatkit.repo.ConversationRepo;
 import com.netease.yunxin.kit.chatkit.repo.LocalConversationRepo;
 import com.netease.yunxin.kit.chatkit.repo.TeamRepo;
-import com.netease.yunxin.kit.chatkit.ui.cache.TeamUserManager;
 import com.netease.yunxin.kit.chatkit.utils.ChatKitConstant;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.corekit.event.EventCenter;
@@ -33,6 +32,7 @@ import com.netease.yunxin.kit.corekit.im2.IMKitClient;
 import com.netease.yunxin.kit.corekit.im2.custom.TeamEvent;
 import com.netease.yunxin.kit.corekit.im2.custom.TeamEventAction;
 import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
+import com.netease.yunxin.kit.teamkit.ui.utils.TeamKitTeamMemberCache;
 import java.util.List;
 import java.util.Objects;
 
@@ -543,7 +543,7 @@ public class TeamSettingViewModel extends TeamBaseViewModel {
   }
 
   public List<String> getTeamMemberIds() {
-    return TeamUserManager.getInstance().getAllMembersAccountIds();
+    return TeamKitTeamMemberCache.getInstance().getAllMembersAccountIds(teamId);
   }
 
   @Override

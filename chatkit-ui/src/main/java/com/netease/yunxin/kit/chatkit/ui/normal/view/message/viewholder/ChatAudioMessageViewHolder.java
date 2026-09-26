@@ -15,6 +15,7 @@ import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import androidx.annotation.NonNull;
@@ -127,7 +128,18 @@ public class ChatAudioMessageViewHolder extends NormalChatBaseMessageViewHolder 
   public void addViewToMessageContainer() {
     audioBinding =
         NormalChatMessageAudioViewHolderBinding.inflate(
-            LayoutInflater.from(parent.getContext()), getMessageContainer(), true);
+            LayoutInflater.from(parent.getContext()), getMessageContentContainer(), true);
+  }
+
+  @Override
+  protected void onMessageBackgroundConfig(ChatMessageBean messageBean) {
+    super.onMessageBackgroundConfig(messageBean);
+    audioBinding.container.setBackground(null);
+    if (messageBean.getReactionState().summarize().isEmpty()) {
+      return;
+    }
+    // Keep the existing message background and add a separate bubble for audio controls.
+    audioBinding.container.setBackgroundResource(R.drawable.bg_corner_white);
   }
 
   @Override
@@ -138,6 +150,21 @@ public class ChatAudioMessageViewHolder extends NormalChatBaseMessageViewHolder 
       audioBinding.tvTime.setVisibility(View.GONE);
       audioBinding.messageText.setVisibility(View.VISIBLE);
       return;
+    }
+    if (showReceiveUIStyle()) {
+      if (properties.getReceiveMessageTextSize() != null) {
+        audioBinding.tvTime.setTextSize(properties.getReceiveMessageTextSize());
+      }
+      if (properties.getReceiveMessageTextColor() != null) {
+        audioBinding.tvTime.setTextColor(properties.getReceiveMessageTextColor());
+      }
+    } else {
+      if (properties.getSelfMessageTextSize() != null) {
+        audioBinding.tvTime.setTextSize(properties.getSelfMessageTextSize());
+      }
+      if (properties.getSelfMessageTextColor() != null) {
+        audioBinding.tvTime.setTextColor(properties.getSelfMessageTextColor());
+      }
     }
     audioBinding.animation.setVisibility(View.VISIBLE);
     audioBinding.tvTime.setVisibility(View.VISIBLE);
@@ -175,9 +202,18 @@ public class ChatAudioMessageViewHolder extends NormalChatBaseMessageViewHolder 
   @Override
   protected void setVoiceToText(ChatMessageBean message) {
     if (!TextUtils.isEmpty(message.getVoiceToText())) {
+      audioBinding.voiceToTextDivider.setVisibility(View.VISIBLE);
+      ViewGroup.MarginLayoutParams dividerLayoutParams =
+          (ViewGroup.MarginLayoutParams) audioBinding.voiceToTextDivider.getLayoutParams();
+      int targetMargin =
+          audioBinding.getRoot().getResources().getDimensionPixelSize(R.dimen.dimen_12_dp);
+      dividerLayoutParams.setMarginStart(targetMargin - audioBinding.getRoot().getPaddingLeft());
+      dividerLayoutParams.setMarginEnd(targetMargin - audioBinding.getRoot().getPaddingRight());
+      audioBinding.voiceToTextDivider.setLayoutParams(dividerLayoutParams);
       audioBinding.tvVoice.setVisibility(View.VISIBLE);
       audioBinding.tvVoice.setText(message.getVoiceToText());
     } else {
+      audioBinding.voiceToTextDivider.setVisibility(View.GONE);
       audioBinding.tvVoice.setVisibility(View.GONE);
     }
   }

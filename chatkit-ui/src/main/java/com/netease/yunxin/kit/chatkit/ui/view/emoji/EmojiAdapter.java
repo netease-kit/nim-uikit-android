@@ -4,7 +4,6 @@
 
 package com.netease.yunxin.kit.chatkit.ui.view.emoji;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -41,19 +40,37 @@ public class EmojiAdapter extends BaseAdapter {
     return startIndex + position;
   }
 
-  @SuppressLint({"ViewHolder", "InflateParams"})
+  @Override
   public View getView(int position, View convertView, ViewGroup parent) {
-    ChatEmojiItemLayoutBinding viewBinding =
-        ChatEmojiItemLayoutBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
-    convertView = viewBinding.getRoot();
+    ViewHolder holder;
+    if (convertView == null) {
+      ChatEmojiItemLayoutBinding binding =
+          ChatEmojiItemLayoutBinding.inflate(LayoutInflater.from(context), parent, false);
+      holder = new ViewHolder(binding);
+      convertView = binding.getRoot();
+      convertView.setTag(holder);
+    } else {
+      holder = (ViewHolder) convertView.getTag();
+    }
+
     int count = ChatEmojiManager.INSTANCE.getDisplayCount();
     int index = startIndex + position;
     if (position == EmojiView.EMOJI_PER_PAGE || index == count) {
-      viewBinding.ivEmoji.setBackgroundResource(R.drawable.ic_chat_emoji_del);
+      holder.binding.ivEmoji.setBackgroundResource(R.drawable.ic_chat_emoji_del);
     } else if (index < count) {
-      viewBinding.ivEmoji.setBackground(ChatEmojiManager.INSTANCE.getDisplayDrawable(index));
+      holder.binding.ivEmoji.setBackground(ChatEmojiManager.INSTANCE.getDisplayDrawable(index));
+    } else {
+      holder.binding.ivEmoji.setBackground(null);
     }
 
     return convertView;
+  }
+
+  private static final class ViewHolder {
+    private final ChatEmojiItemLayoutBinding binding;
+
+    private ViewHolder(ChatEmojiItemLayoutBinding binding) {
+      this.binding = binding;
+    }
   }
 }

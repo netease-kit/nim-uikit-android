@@ -31,7 +31,7 @@ public class ChatRichTextMessageViewHolder extends NormalChatBaseMessageViewHold
   protected void addViewToMessageContainer() {
     viewBinding =
         NormalChatMessageRichTextViewHolderBinding.inflate(
-            LayoutInflater.from(parent.getContext()), getMessageContainer(), true);
+            LayoutInflater.from(parent.getContext()), getMessageContentContainer(), true);
   }
 
   @Override

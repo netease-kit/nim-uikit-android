@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2022 NetEase, Inc. All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be
+  ~ found in the LICENSE file.
+  -->
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingTop="@dimen/dimen_3_dp"
+    android:paddingBottom="@dimen/dimen_5_dp">
+
+    <ImageView
+        android:id="@+id/ivEmoji"
+        android:layout_width="@dimen/sticker_item_size"
+        android:layout_height="@dimen/sticker_item_size"
+        android:layout_centerHorizontal="true"
+        android:scaleType="fitCenter" />
+
+</RelativeLayout>

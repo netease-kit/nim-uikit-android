@@ -4,19 +4,17 @@
 
 package com.netease.yunxin.kit.teamkit.ui.utils;
 
-import com.netease.yunxin.kit.chatkit.ui.cache.TeamUserManager;
-
 public class TeamMemberHelper {
 
   public static String getTeamMemberName(String teamId, String accountId) {
-    return TeamUserManager.getInstance().getNickname(accountId, true);
+    return TeamKitTeamMemberCache.getInstance().getNickname(teamId, accountId, true);
   }
 
   public static String getTeamMemberAvatar(String teamId, String accountId) {
-    return TeamUserManager.getInstance().getAvatar(accountId);
+    return TeamKitTeamMemberCache.getInstance().getAvatar(teamId, accountId);
   }
 
   public static String getTeamMemberAvatarName(String teamId, String accountId) {
-    return TeamUserManager.getInstance().getAvatarNickname(accountId);
+    return TeamKitTeamMemberCache.getInstance().getAvatarNickname(teamId, accountId);
   }
 }

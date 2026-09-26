@@ -51,7 +51,7 @@ public class ChatSearchBean extends BaseBean {
   public String getAvatar() {
     if (msgRecord != null) {
       return MessageHelper.getChatCacheAvatar(
-          MessageHelper.getRealMessageSenderId(msgRecord), msgRecord.getConversationType());
+          msgRecord, MessageHelper.getRealMessageSenderId(msgRecord));
     }
     return null;
   }

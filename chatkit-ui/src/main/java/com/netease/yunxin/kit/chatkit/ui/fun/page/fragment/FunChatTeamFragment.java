@@ -31,14 +31,15 @@ import com.netease.nimlib.sdk.v2.team.model.V2NIMTeam;
 import com.netease.nimlib.sdk.v2.team.model.V2NIMTeamMember;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
+import com.netease.yunxin.kit.chatkit.cache.TeamMemberCache;
 import com.netease.yunxin.kit.chatkit.model.IMMessageInfo;
 import com.netease.yunxin.kit.chatkit.ui.ChatKitClient;
 import com.netease.yunxin.kit.chatkit.ui.R;
-import com.netease.yunxin.kit.chatkit.ui.cache.TeamUserManager;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatUserCache;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatUtils;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageHelper;
 import com.netease.yunxin.kit.chatkit.ui.fun.view.MessageBottomLayout;
+import com.netease.yunxin.kit.chatkit.ui.fun.view.ait.FunAitContactSelectorDialog;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.page.viewmodel.ChatTeamViewModel;
 import com.netease.yunxin.kit.chatkit.ui.view.ait.AitManager;
@@ -103,8 +104,7 @@ public class FunChatTeamFragment extends FunChatFragment {
       }
     }
     // 初始化AitManager 用于@功能
-    aitManager = new AitManager(getContext(), accountId);
-    aitManager.setUIStyle(AitManager.STYLE_FUN);
+    aitManager = new AitManager(getContext(), accountId, FunAitContactSelectorDialog::new);
     aitManager.updateTeamInfo(teamInfo);
     chatView.setAitManager(aitManager);
     refreshView();
@@ -156,6 +156,9 @@ public class FunChatTeamFragment extends FunChatFragment {
     } else {
       chatView.getTitleBar().getActionImageView().setVisibility(View.GONE);
     }
+    if (currentMember == null && teamInfo != null && !TextUtils.isEmpty(IMKitClient.account())) {
+      currentMember = TeamMemberCache.getTeamMember(teamInfo.getTeamId(), IMKitClient.account());
+    }
     boolean isMute = ChatUtils.isMute(currentMember, teamInfo);
     ALog.d(LIB_TAG, TAG, "refreshView isMute:" + isMute);
     if (isMute) {
@@ -191,7 +194,7 @@ public class FunChatTeamFragment extends FunChatFragment {
   protected void updateDataWhenLogin() {
     if (viewModel instanceof ChatTeamViewModel) {
       // 请求群信息
-      ((ChatTeamViewModel) viewModel).getTeamInfo();
+      ((ChatTeamViewModel) viewModel).getTeamInfo(true);
     }
   }
 
@@ -294,7 +297,7 @@ public class FunChatTeamFragment extends FunChatFragment {
     if (fetchResult.getLoadStatus() == LoadStatus.Finish && fetchResult.getData() != null) {
       for (String userId : fetchResult.getData()) {
         if (TextUtils.equals(userId, IMKitClient.account())) {
-          currentMember = TeamUserManager.getInstance().getCurTeamMember();
+          currentMember = TeamMemberCache.getTeamMember(accountId, IMKitClient.account());
           refreshView();
         }
       }

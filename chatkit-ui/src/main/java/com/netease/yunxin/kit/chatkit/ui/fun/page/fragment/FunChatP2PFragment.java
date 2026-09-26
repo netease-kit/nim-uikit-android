@@ -31,6 +31,7 @@ import com.netease.yunxin.kit.chatkit.ui.ChatKitClient;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.common.ChatUserCache;
 import com.netease.yunxin.kit.chatkit.ui.fun.view.MessageBottomLayout;
+import com.netease.yunxin.kit.chatkit.ui.fun.view.ait.FunAitContactSelectorDialog;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.page.viewmodel.ChatP2PViewModel;
 import com.netease.yunxin.kit.chatkit.ui.view.ait.AitManager;
@@ -102,7 +103,7 @@ public class FunChatP2PFragment extends FunChatFragment {
     if (IMKitConfigCenter.getEnableAIUser()
         && !AIUserManager.isAIUser(accountId)
         && !AIUserManager.getAIChatUserList().isEmpty()) {
-      aitManager = new AitManager(getContext(), accountId);
+      aitManager = new AitManager(getContext(), accountId, FunAitContactSelectorDialog::new);
       aitManager.setShowAll(false);
       aitManager.setShowAIUser(true);
       aitManager.setShowTeamMember(false);

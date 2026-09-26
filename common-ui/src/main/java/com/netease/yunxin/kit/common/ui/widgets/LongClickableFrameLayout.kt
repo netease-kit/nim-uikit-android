@@ -27,11 +27,15 @@ class LongClickableFrameLayout @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) : FrameLayout(context, attrs, defStyleAttr) {
     var mLongPressTriggered: Boolean = false
+    private var touchSequenceActive = false
+    private var longClickDispatchedInTouchSequence = false
 
     override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
         val mask = ev.actionMasked
         if (mask == MotionEvent.ACTION_DOWN) {
             mLongPressTriggered = false
+            touchSequenceActive = true
+            longClickDispatchedInTouchSequence = false
         }
         val handle = super.dispatchTouchEvent(ev)
         if (mask == MotionEvent.ACTION_DOWN && isLongClickable) {
@@ -41,8 +45,21 @@ class LongClickableFrameLayout @JvmOverloads constructor(
             ev.actionMasked == MotionEvent.ACTION_CANCEL
         ) {
             removeLongPress()
+            touchSequenceActive = false
         }
         return handle
+    }
+
+    override fun performLongClick(): Boolean {
+        if (touchSequenceActive && longClickDispatchedInTouchSequence) {
+            return mLongPressTriggered
+        }
+        longClickDispatchedInTouchSequence = true
+        val handled = super.performLongClick()
+        if (touchSequenceActive) {
+            mLongPressTriggered = handled
+        }
+        return handled
     }
 
     private fun scheduleLongPress() {

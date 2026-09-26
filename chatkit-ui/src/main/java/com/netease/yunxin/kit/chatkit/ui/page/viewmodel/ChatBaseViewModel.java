@@ -27,6 +27,7 @@ import com.netease.nimlib.sdk.v2.message.V2NIMMessageCreator;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessageDeletedNotification;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessagePin;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessagePinNotification;
+import com.netease.nimlib.sdk.v2.message.V2NIMMessageQuickComment;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessageQuickCommentNotification;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessageRefer;
 import com.netease.nimlib.sdk.v2.message.V2NIMP2PMessageReadReceipt;
@@ -36,6 +37,7 @@ import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageAIRegenOpType;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageAIStreamStopOpType;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessagePinState;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageQueryDirection;
+import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageQuickCommentType;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageSendingState;
 import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageType;
 import com.netease.nimlib.sdk.v2.message.option.V2NIMMessageListOption;
@@ -67,6 +69,8 @@ import com.netease.yunxin.kit.chatkit.ui.model.AnchorScrollInfo;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.model.MessageRevokeInfo;
 import com.netease.yunxin.kit.chatkit.ui.view.ait.AitService;
+import com.netease.yunxin.kit.chatkit.ui.view.emoji.ReactionEmojiManager;
+import com.netease.yunxin.kit.chatkit.ui.view.message.MessageReactionSupport;
 import com.netease.yunxin.kit.chatkit.utils.ErrorUtils;
 import com.netease.yunxin.kit.chatkit.utils.SendMediaHelper;
 import com.netease.yunxin.kit.common.ui.utils.ToastX;
@@ -82,14 +86,21 @@ import com.netease.yunxin.kit.corekit.im2.provider.V2MessageProvider;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import org.json.JSONObject;
 
 /** 消息ViewModel 基类 消息接受、发送、撤回等逻辑 用户、好友信息变更监听等 */
 public abstract class ChatBaseViewModel extends BaseViewModel {
+
   public static final String TAG = "ChatViewModel";
+  private static final int QUICK_COMMENT_QUERY_BATCH_SIZE = 20;
 
   // 撤回消息超时时间
   private static final int RES_REVOKE_TIMEOUT = 107314;
@@ -139,6 +150,13 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
   private final MutableLiveData<FetchResult<List<V2NIMMessagePin>>> pinedMessageListLiveData =
       new MutableLiveData<>();
 
+  private final MutableLiveData<ChatMessageBean> reactionMessageLiveData = new MutableLiveData<>();
+
+  private final MutableLiveData<V2NIMMessageQuickCommentNotification> reactionNotificationLiveData =
+      new MutableLiveData<>();
+
+  private final Set<String> reactionOperations = Collections.synchronizedSet(new HashSet<>());
+
   // 当前会话账号ID，单聊则为对方账号，群聊则为群ID
   protected String mChatAccountId;
   // 当前会话ID
@@ -155,6 +173,48 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
 
   // 消息分页大小
   private final int messagePageSize = 100;
+
+  public static final class EarliestUnreadInfo {
+    private final int count;
+    private final long earliestUnreadTime;
+    @Nullable private final IMMessageInfo earliestUnreadMessage;
+    private final Set<String> effectiveUnreadMessageIds;
+    private final boolean countTruncated;
+
+    public EarliestUnreadInfo(
+        int count,
+        long earliestUnreadTime,
+        @Nullable IMMessageInfo earliestUnreadMessage,
+        Set<String> effectiveUnreadMessageIds,
+        boolean countTruncated) {
+      this.count = count;
+      this.earliestUnreadTime = earliestUnreadTime;
+      this.earliestUnreadMessage = earliestUnreadMessage;
+      this.effectiveUnreadMessageIds = effectiveUnreadMessageIds;
+      this.countTruncated = countTruncated;
+    }
+
+    public int getCount() {
+      return count;
+    }
+
+    public long getEarliestUnreadTime() {
+      return earliestUnreadTime;
+    }
+
+    @Nullable
+    public IMMessageInfo getEarliestUnreadMessage() {
+      return earliestUnreadMessage;
+    }
+
+    public Set<String> getEffectiveUnreadMessageIds() {
+      return effectiveUnreadMessageIds;
+    }
+
+    public boolean isCountTruncated() {
+      return countTruncated;
+    }
+  }
   // 视频图片旋转角度，适配部分机型发送图片旋转问题
   private final String Orientation_Vertical = "90";
 
@@ -386,7 +446,9 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
 
         @Override
         public void onMessageQuickCommentNotification(
-            @Nullable V2NIMMessageQuickCommentNotification quickCommentNotification) {}
+            @Nullable V2NIMMessageQuickCommentNotification quickCommentNotification) {
+          handleQuickCommentNotification(quickCommentNotification);
+        }
 
         @Override
         public void onMessagePinNotification(
@@ -498,6 +560,263 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
   // 获取标记消息LiveData
   public MutableLiveData<FetchResult<Map<String, V2NIMMessagePin>>> getMsgPinLiveData() {
     return msgPinLiveData;
+  }
+
+  public MutableLiveData<ChatMessageBean> getReactionMessageLiveData() {
+    return reactionMessageLiveData;
+  }
+
+  public MutableLiveData<V2NIMMessageQuickCommentNotification> getReactionNotificationLiveData() {
+    return reactionNotificationLiveData;
+  }
+
+  /** 查询当前消息列表中的 Reaction，供首次加载和分页消息补齐服务端状态。 */
+  public void loadQuickComments(List<ChatMessageBean> messageBeans) {
+    queryQuickComments(messageBeans, false);
+  }
+
+  /** 主数据同步完成且当前消息列表已有数据时，重新校准服务端 Reaction 状态。 */
+  public void reloadQuickComments(List<ChatMessageBean> messageBeans) {
+    queryQuickComments(messageBeans, true);
+  }
+
+  private void queryQuickComments(List<ChatMessageBean> messageBeans, boolean forceReload) {
+    if (!IMKitConfigCenter.getEnableMessageReaction()) {
+      return;
+    }
+    if (destroyed || messageBeans == null || messageBeans.isEmpty()) {
+      return;
+    }
+    List<ChatMessageBean> validBeans = new ArrayList<>();
+    List<V2NIMMessage> messages = new ArrayList<>();
+    for (ChatMessageBean bean : messageBeans) {
+      if (isQuickCommentQueryableMessage(bean)
+          && (forceReload || !bean.getReactionState().isLoaded())
+          && !bean.getReactionState().isLoading()) {
+        bean.getReactionState().setLoading(true);
+        validBeans.add(bean);
+        messages.add(bean.getMessage());
+      }
+    }
+    if (messages.isEmpty()) {
+      return;
+    }
+    for (int start = 0; start < validBeans.size(); start += QUICK_COMMENT_QUERY_BATCH_SIZE) {
+      int end = Math.min(start + QUICK_COMMENT_QUERY_BATCH_SIZE, validBeans.size());
+      loadQuickCommentsBatch(
+          new ArrayList<>(validBeans.subList(start, end)),
+          new ArrayList<>(messages.subList(start, end)));
+    }
+  }
+
+  private void loadQuickCommentsBatch(List<ChatMessageBean> beans, List<V2NIMMessage> messages) {
+    if (beans.isEmpty() || messages.isEmpty()) {
+      return;
+    }
+    final String conversationId = mConversationId;
+    ChatRepo.getQuickCommentList(
+        messages,
+        new FetchCallback<Map<String, List<V2NIMMessageQuickComment>>>() {
+          @Override
+          public void onError(int errorCode, @Nullable String errorMsg) {
+            for (ChatMessageBean bean : beans) {
+              bean.getReactionState().setLoading(false);
+            }
+          }
+
+          @Override
+          public void onSuccess(@Nullable Map<String, List<V2NIMMessageQuickComment>> result) {
+            if (destroyed || !TextUtils.equals(conversationId, mConversationId)) {
+              for (ChatMessageBean bean : beans) {
+                bean.getReactionState().setLoading(false);
+              }
+              return;
+            }
+            for (ChatMessageBean bean : beans) {
+              List<V2NIMMessageQuickComment> comments = findQuickComments(result, bean);
+              bean.getReactionState().replace(comments);
+              reactionMessageLiveData.setValue(bean);
+            }
+          }
+        });
+  }
+
+  /** SDK 返回 Map 的键在不同实现版本中可能使用消息客户端 ID 或服务端 ID。 */
+  @Nullable
+  private List<V2NIMMessageQuickComment> findQuickComments(
+      @Nullable Map<String, List<V2NIMMessageQuickComment>> result, ChatMessageBean bean) {
+    if (result == null || bean == null || bean.getMessage() == null) {
+      return null;
+    }
+    String clientId = bean.getMessage().getMessageClientId();
+    String serverId = bean.getMessage().getMessageServerId();
+    List<V2NIMMessageQuickComment> comments = result.get(clientId);
+    if (comments == null && !TextUtils.isEmpty(serverId)) {
+      comments = result.get(serverId);
+    }
+    if (comments != null) {
+      return comments;
+    }
+    for (List<V2NIMMessageQuickComment> values : result.values()) {
+      if (values == null) {
+        continue;
+      }
+      for (V2NIMMessageQuickComment comment : values) {
+        if (comment == null || comment.getMessageRefer() == null) {
+          continue;
+        }
+        V2NIMMessageRefer refer = comment.getMessageRefer();
+        if (TextUtils.equals(clientId, refer.getMessageClientId())
+            || (!TextUtils.isEmpty(serverId)
+                && TextUtils.equals(serverId, refer.getMessageServerId()))) {
+          return values;
+        }
+      }
+    }
+    return null;
+  }
+
+  /** 通过当前工程 ChatRepo 发起 Reaction 操作，不在 UI 直接访问 SDK。 */
+  public void toggleQuickComment(ChatMessageBean messageBean, long index, boolean hasSelf) {
+    if (!IMKitConfigCenter.getEnableMessageReaction()) {
+      return;
+    }
+    if (!isReactionMessage(messageBean)) {
+      return;
+    }
+    if (!ReactionEmojiManager.isValidIndex(index)) {
+      return;
+    }
+    String key = messageBean.getMsgClientId() + ":" + index;
+    if (!reactionOperations.add(key)) {
+      return;
+    }
+    FetchCallback<Void> callback =
+        new FetchCallback<Void>() {
+          @Override
+          public void onError(int errorCode, @Nullable String errorMsg) {
+            reactionOperations.remove(key);
+            ALog.i(LIB_TAG, TAG, "quickComment operation failed:" + errorCode);
+            ToastX.showShortToast(R.string.chat_network_error_tip);
+          }
+
+          @Override
+          public void onSuccess(@Nullable Void data) {
+            // 状态以 SDK 通知为准，避免本端成功回调与通知重复累加。
+            reactionOperations.remove(key);
+          }
+        };
+    if (hasSelf) {
+      ChatRepo.removeQuickComment(messageBean.getMessageRefer(), index, null, callback);
+    } else {
+      ChatRepo.addQuickComment(messageBean.getMessage(), index, null, null, callback);
+    }
+  }
+
+  private boolean isReactionMessage(ChatMessageBean messageBean) {
+    return MessageReactionSupport.canOperate(messageBean);
+  }
+
+  private boolean isQuickCommentQueryableMessage(ChatMessageBean messageBean) {
+    return MessageReactionSupport.canQuery(messageBean);
+  }
+
+  protected final void handleQuickCommentNotification(
+      @Nullable V2NIMMessageQuickCommentNotification notification) {
+    if (!IMKitConfigCenter.getEnableMessageReaction()) {
+      return;
+    }
+    if (destroyed || notification == null || notification.getQuickComment() == null) {
+      return;
+    }
+    V2NIMMessageQuickComment comment = notification.getQuickComment();
+    V2NIMMessageRefer refer = comment.getMessageRefer();
+    if (refer == null || !TextUtils.equals(refer.getConversationId(), mConversationId)) {
+      return;
+    }
+    String clientId = refer.getMessageClientId();
+    if (TextUtils.isEmpty(clientId)) {
+      return;
+    }
+    if (notification.getOperationType() == null) {
+      return;
+    }
+    if (notification.getOperationType()
+            != V2NIMMessageQuickCommentType.V2NIM_MESSAGE_QUICK_COMMENT_TYPE_ADD
+        && notification.getOperationType()
+            != V2NIMMessageQuickCommentType.V2NIM_MESSAGE_QUICK_COMMENT_TYPE_REMOVE) {
+      return;
+    }
+    reactionOperations.remove(clientId + ":" + comment.getIndex());
+    reactionNotificationLiveData.setValue(notification);
+  }
+
+  /** 查询当前消息列表中不存在的 Reaction 消息，作为实时通知的补偿路径。 */
+  public void loadQuickCommentsForNotification(
+      @Nullable V2NIMMessageQuickCommentNotification notification) {
+    if (!IMKitConfigCenter.getEnableMessageReaction()) {
+      return;
+    }
+    if (destroyed || notification == null || notification.getQuickComment() == null) {
+      return;
+    }
+    V2NIMMessageQuickComment comment = notification.getQuickComment();
+    V2NIMMessageRefer refer = comment.getMessageRefer();
+    if (refer == null || !TextUtils.equals(refer.getConversationId(), mConversationId)) {
+      return;
+    }
+    String clientId = refer.getMessageClientId();
+    if (TextUtils.isEmpty(clientId)) {
+      return;
+    }
+    final String requestConversationId = mConversationId;
+    ChatRepo.getMessageListByIds(
+        Collections.singletonList(clientId),
+        requestConversationId,
+        true,
+        true,
+        new FetchCallback<List<IMMessageInfo>>() {
+          @Override
+          public void onError(int errorCode, @Nullable String errorMsg) {}
+
+          @Override
+          public void onSuccess(@Nullable List<IMMessageInfo> messages) {
+            if (destroyed
+                || !TextUtils.equals(requestConversationId, mConversationId)
+                || messages == null
+                || messages.isEmpty()) {
+              return;
+            }
+            IMMessageInfo messageInfo = messages.get(0);
+            if (messageInfo == null
+                || messageInfo.getMessage() == null
+                || !TextUtils.equals(clientId, messageInfo.getMessage().getMessageClientId())) {
+              return;
+            }
+            ChatMessageBean bean = new ChatMessageBean(messageInfo);
+            if (!isQuickCommentQueryableMessage(bean)) {
+              return;
+            }
+            ChatRepo.getQuickCommentList(
+                Collections.singletonList(messageInfo.getMessage()),
+                new FetchCallback<Map<String, List<V2NIMMessageQuickComment>>>() {
+                  @Override
+                  public void onError(int errorCode, @Nullable String errorMsg) {}
+
+                  @Override
+                  public void onSuccess(
+                      @Nullable Map<String, List<V2NIMMessageQuickComment>> result) {
+                    if (destroyed || !TextUtils.equals(requestConversationId, mConversationId)) {
+                      return;
+                    }
+                    List<V2NIMMessageQuickComment> comments = findQuickComments(result, bean);
+                    bean.getReactionState().replace(comments);
+                    reactionOperations.remove(clientId + ":" + comment.getIndex());
+                    reactionMessageLiveData.setValue(bean);
+                  }
+                });
+          }
+        });
   }
 
   // 获取删除消息LiveData
@@ -637,15 +956,6 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
     this.mConversationId = V2NIMConversationIdUtil.conversationId(accountId, sessionType);
     this.mSessionType = sessionType;
     this.destroyed = false;
-    ALog.i(
-        LIB_TAG,
-        TAG,
-        "init accountId:"
-            + accountId
-            + " sessionType:"
-            + sessionType
-            + " conversationId:"
-            + mConversationId);
     ChatUserCache.getInstance().clearSessionCache(mConversationId);
   }
 
@@ -656,6 +966,204 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
       ChatRepo.setCurrentConversationId(mConversationId);
       AitService.getInstance().clearAitInfo(mConversationId);
     }
+  }
+
+  /** 仅设置当前会话，不清理未读数。 */
+  public void setChattingAccountWithoutClear() {
+    ALog.i(LIB_TAG, TAG, "setChattingAccountWithoutClear sessionId:" + mConversationId);
+    if (!TextUtils.isEmpty(mConversationId)) {
+      ChatRepo.setCurrentConversationIdWithoutClear(mConversationId);
+      AitService.getInstance().clearAitInfo(mConversationId);
+    }
+  }
+
+  /** 清理当前会话未读数。 */
+  public void clearConversationUnreadCount(FetchCallback<Void> callback) {
+    if (!TextUtils.isEmpty(mConversationId)) {
+      ChatRepo.clearUnreadCount(mConversationId, callback);
+    }
+  }
+
+  /** 在清理会话未读前读取页面本次生命周期使用的阅读时间。 */
+  public void getConversationReadTime(FetchCallback<Long> callback) {
+    if (!TextUtils.isEmpty(mConversationId)) {
+      ChatRepo.getConversationReadTime(mConversationId, callback);
+    }
+  }
+
+  /** 获取当前会话未读数，仅作为最早未读消息扫描的前置条件。 */
+  public void getConversationUnreadCount(FetchCallback<Integer> callback) {
+    if (!TextUtils.isEmpty(mConversationId)) {
+      ChatRepo.getConversationUnreadCount(mConversationId, callback);
+    }
+  }
+
+  /** 查询阅读时间之前的最近一条消息，用于从当前列表范围外建立定位锚点。 */
+  public void queryMessageBefore(long endTime, FetchCallback<IMMessageInfo> callback) {
+    if (TextUtils.isEmpty(mConversationId) || endTime <= 0) {
+      callback.onSuccess(null);
+      return;
+    }
+    V2NIMMessageListOption option =
+        V2NIMMessageListOption.V2NIMMessageListOptionBuilder.builder(mConversationId)
+            .withEndTime(endTime)
+            .withLimit(1)
+            .withDirection(V2NIMMessageQueryDirection.V2NIM_QUERY_DIRECTION_DESC)
+            .build();
+    ChatRepo.getMessageList(
+        option,
+        new FetchCallback<List<IMMessageInfo>>() {
+          @Override
+          public void onSuccess(@Nullable List<IMMessageInfo> data) {
+            callback.onSuccess(data == null || data.isEmpty() ? null : data.get(0));
+          }
+
+          @Override
+          public void onError(int errorCode, @Nullable String errorMsg) {
+            callback.onError(errorCode, errorMsg);
+          }
+        });
+  }
+
+  /** 按开始时间正序查询第一条消息，用于按时间定位聊天页面锚点。 */
+  public void queryMessageAtOrAfter(long beginTime, FetchCallback<IMMessageInfo> callback) {
+    if (TextUtils.isEmpty(mConversationId) || beginTime < 0) {
+      callback.onSuccess(null);
+      return;
+    }
+    V2NIMMessageListOption option =
+        V2NIMMessageListOption.V2NIMMessageListOptionBuilder.builder(mConversationId)
+            .withBeginTime(beginTime)
+            .withLimit(1)
+            .withDirection(V2NIMMessageQueryDirection.V2NIM_QUERY_DIRECTION_ASC)
+            .build();
+    ChatRepo.getMessageList(
+        option,
+        new FetchCallback<List<IMMessageInfo>>() {
+          @Override
+          public void onSuccess(@Nullable List<IMMessageInfo> data) {
+            IMMessageInfo anchor = data == null || data.isEmpty() ? null : data.get(0);
+            callback.onSuccess(anchor);
+          }
+
+          @Override
+          public void onError(int errorCode, @Nullable String errorMsg) {
+            callback.onError(errorCode, errorMsg);
+          }
+        });
+  }
+
+  /** 查询未读消息列表并在业务层聚合准确数量和最早未读时间。 */
+  public void queryEarliestUnreadInfo(long readTime, FetchCallback<EarliestUnreadInfo> callback) {
+    if (readTime < 0 || TextUtils.isEmpty(mConversationId)) {
+      callback.onSuccess(new EarliestUnreadInfo(0, 0L, null, new HashSet<>(), false));
+      return;
+    }
+    queryEarliestUnreadInfoPage(
+        readTime, null, new HashSet<>(), 0, 0L, null, new HashSet<>(), callback);
+  }
+
+  private void queryEarliestUnreadInfoPage(
+      long readTime,
+      @Nullable V2NIMMessage anchor,
+      Set<String> countedMessageIds,
+      int count,
+      long earliestUnreadTime,
+      @Nullable IMMessageInfo earliestUnreadMessage,
+      Set<String> effectiveUnreadMessageIds,
+      FetchCallback<EarliestUnreadInfo> callback) {
+    V2NIMMessageListOption.V2NIMMessageListOptionBuilder builder =
+        V2NIMMessageListOption.V2NIMMessageListOptionBuilder.builder(mConversationId)
+            .withLimit(messagePageSize)
+            .withDirection(V2NIMMessageQueryDirection.V2NIM_QUERY_DIRECTION_ASC)
+            .withOnlyQueryLocal(false);
+    if (anchor == null) {
+      builder.withBeginTime(readTime == Long.MAX_VALUE ? Long.MAX_VALUE : readTime + 1L);
+    } else {
+      builder.withAnchorMessage(anchor);
+      builder.withBeginTime(anchor.getCreateTime());
+    }
+    ChatRepo.getMessageList(
+        builder.build(),
+        false,
+        false,
+        new FetchCallback<List<IMMessageInfo>>() {
+          @Override
+          public void onSuccess(@Nullable List<IMMessageInfo> data) {
+            int currentCount = count;
+            long currentEarliestUnreadTime = earliestUnreadTime;
+            IMMessageInfo currentEarliestUnreadMessage = earliestUnreadMessage;
+            if (data == null || data.isEmpty()) {
+              callback.onSuccess(
+                  new EarliestUnreadInfo(
+                      currentCount,
+                      currentEarliestUnreadTime,
+                      currentEarliestUnreadMessage,
+                      new HashSet<>(effectiveUnreadMessageIds),
+                      false));
+              return;
+            }
+            for (IMMessageInfo messageInfo : data) {
+              if (messageInfo == null || messageInfo.getMessage() == null) continue;
+              V2NIMMessage message = messageInfo.getMessage();
+              if (message.getCreateTime() <= readTime) continue;
+              if (TextUtils.equals(message.getSenderId(), IMKitClient.account())) {
+                continue;
+              }
+              if (countedMessageIds.add(message.getMessageClientId())) {
+                if (currentEarliestUnreadTime == 0L) {
+                  currentEarliestUnreadTime = message.getCreateTime();
+                  currentEarliestUnreadMessage = messageInfo;
+                }
+                effectiveUnreadMessageIds.add(message.getMessageClientId());
+                currentCount++;
+              }
+            }
+            boolean truncated = currentCount >= messagePageSize;
+            if (currentCount >= messagePageSize) {
+              callback.onSuccess(
+                  new EarliestUnreadInfo(
+                      messagePageSize,
+                      currentEarliestUnreadTime,
+                      currentEarliestUnreadMessage,
+                      new HashSet<>(effectiveUnreadMessageIds),
+                      true));
+              return;
+            }
+            if (data.size() < messagePageSize) {
+              callback.onSuccess(
+                  new EarliestUnreadInfo(
+                      currentCount,
+                      currentEarliestUnreadTime,
+                      currentEarliestUnreadMessage,
+                      new HashSet<>(effectiveUnreadMessageIds),
+                      false));
+              return;
+            }
+            IMMessageInfo lastMessage = data.get(data.size() - 1);
+            queryEarliestUnreadInfoPage(
+                readTime,
+                lastMessage.getMessage(),
+                countedMessageIds,
+                currentCount,
+                currentEarliestUnreadTime,
+                currentEarliestUnreadMessage,
+                effectiveUnreadMessageIds,
+                callback);
+          }
+
+          @Override
+          public void onError(int errorCode, @Nullable String errorMsg) {
+            callback.onError(errorCode, errorMsg);
+          }
+        });
+  }
+
+  private static long getMessageTime(@Nullable List<IMMessageInfo> messages, boolean first) {
+    if (messages == null || messages.isEmpty()) return 0L;
+    int index = first ? 0 : messages.size() - 1;
+    IMMessageInfo info = messages.get(index);
+    return info == null || info.getMessage() == null ? 0L : info.getMessage().getCreateTime();
   }
 
   // 设置是否群聊
@@ -1129,11 +1637,67 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
     getMessageListByOptions(anchor, 0, direction, needToScrollEnd);
   }
 
+  /** Loads both sides of an unread anchor and reports the combined result to the caller. */
+  public void getMessageListForEarliestUnread(V2NIMMessage anchor, FetchCallback<Void> callback) {
+    if (anchor == null || callback == null) {
+      return;
+    }
+    addListener();
+    AtomicInteger remaining = new AtomicInteger(2);
+    AtomicBoolean completed = new AtomicBoolean(false);
+    AtomicBoolean failed = new AtomicBoolean(false);
+    AtomicReference<Integer> errorCode = new AtomicReference<>(0);
+    AtomicReference<String> errorMsg = new AtomicReference<>();
+    FetchCallback<Void> directionCallback =
+        new FetchCallback<Void>() {
+          @Override
+          public void onSuccess(@Nullable Void data) {
+            if (remaining.decrementAndGet() == 0 && completed.compareAndSet(false, true)) {
+              if (failed.get()) {
+                callback.onError(errorCode.get(), errorMsg.get());
+              } else {
+                callback.onSuccess(null);
+              }
+            }
+          }
+
+          @Override
+          public void onError(int code, @Nullable String message) {
+            failed.set(true);
+            errorCode.compareAndSet(0, code);
+            errorMsg.compareAndSet(null, message);
+            if (remaining.decrementAndGet() == 0 && completed.compareAndSet(false, true)) {
+              callback.onError(errorCode.get(), errorMsg.get());
+            }
+          }
+        };
+    new Handler(Looper.getMainLooper())
+        .post(
+            () ->
+                getMessageListByOptions(
+                    anchor,
+                    0,
+                    V2NIMMessageQueryDirection.V2NIM_QUERY_DIRECTION_DESC,
+                    false,
+                    directionCallback));
+    getMessageListByOptions(
+        anchor, 0, V2NIMMessageQueryDirection.V2NIM_QUERY_DIRECTION_ASC, false, directionCallback);
+  }
+
   private void getMessageListByOptions(
       V2NIMMessage anchor,
       long startTime,
       V2NIMMessageQueryDirection direction,
       boolean needToScrollEnd) {
+    getMessageListByOptions(anchor, startTime, direction, needToScrollEnd, null);
+  }
+
+  private void getMessageListByOptions(
+      V2NIMMessage anchor,
+      long startTime,
+      V2NIMMessageQueryDirection direction,
+      boolean needToScrollEnd,
+      @Nullable FetchCallback<Void> completionCallback) {
     V2NIMMessageListOption optionBuilder =
         MessageParamBuildUtils.buildMessageOptions(
             anchor, startTime, mConversationId, messagePageSize, direction);
@@ -1144,6 +1708,9 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
           @Override
           public void onError(int errorCode, @Nullable String errorMsg) {
             onListFetchFailed(errorCode);
+            if (completionCallback != null) {
+              completionCallback.onError(errorCode, errorMsg);
+            }
             ALog.i(
                 LIB_TAG,
                 TAG,
@@ -1162,8 +1729,14 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
                 Collections.reverse(data);
               }
             }
-            ALog.i(LIB_TAG, TAG, "getMessageListByOptions,reverse:" + data.size());
+            ALog.i(
+                LIB_TAG,
+                TAG,
+                "getMessageListByOptions,reverse:" + (data == null ? "null" : data.size()));
             onListFetchSuccess(anchor, needToScrollEnd, data, direction);
+            if (completionCallback != null) {
+              completionCallback.onSuccess(null);
+            }
           }
         });
   }
@@ -1262,14 +1835,18 @@ public abstract class ChatBaseViewModel extends BaseViewModel {
               MessageHelper.getAIContentMsg(replyMsg),
               0);
     }
-    //    Map<String, Object> remote = MessageHelper.createReplyExtension(remoteExtension, replyMsg);
-    //      sendMessage(
-    //              message,
-    //              pushList,
-    //              remote,
-    //              aiUser,
-    //              aiMessage == null ? null : Collections.singletonList(aiMessage));
-    sendReplyMessage(message, replyMsg, pushList, remoteExtension, aiMessage, aiUser);
+    if (IMKitConfigCenter.getThreadReply()) {
+
+      sendReplyMessage(message, replyMsg, pushList, remoteExtension, aiMessage, aiUser);
+    } else {
+      Map<String, Object> remote = MessageHelper.createReplyExtension(remoteExtension, replyMsg);
+      sendMessage(
+          message,
+          pushList,
+          remote,
+          aiUser,
+          aiMessage == null ? null : Collections.singletonList(aiMessage));
+    }
   }
 
   public void replyTextMessage(

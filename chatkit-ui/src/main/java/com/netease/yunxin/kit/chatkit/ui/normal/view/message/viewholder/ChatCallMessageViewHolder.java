@@ -35,7 +35,7 @@ public class ChatCallMessageViewHolder extends NormalChatBaseMessageViewHolder {
   public void addViewToMessageContainer() {
     callBinding =
         NormalChatMessageCallViewHolderBinding.inflate(
-            LayoutInflater.from(parent.getContext()), getMessageContainer(), true);
+            LayoutInflater.from(parent.getContext()), getMessageContentContainer(), true);
   }
 
   @Override
@@ -60,6 +60,21 @@ public class ChatCallMessageViewHolder extends NormalChatBaseMessageViewHolder {
     }
     boolean isSelf = message.isSelf();
     int callTypeIconRes;
+    if (showReceiveUIStyle()) {
+      if (properties.getReceiveMessageTextSize() != null) {
+        callBinding.chatMessageCallText.setTextSize(properties.getReceiveMessageTextSize());
+      }
+      if (properties.getReceiveMessageTextColor() != null) {
+        callBinding.chatMessageCallText.setTextColor(properties.getReceiveMessageTextColor());
+      }
+    } else {
+      if (properties.getSelfMessageTextSize() != null) {
+        callBinding.chatMessageCallText.setTextSize(properties.getSelfMessageTextSize());
+      }
+      if (properties.getSelfMessageTextColor() != null) {
+        callBinding.chatMessageCallText.setTextColor(properties.getSelfMessageTextColor());
+      }
+    }
     if (!isChatMsg()) {
       String callText = "";
       if (attachment != null && attachment.callType == 1) {

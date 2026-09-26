@@ -9,7 +9,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    >
 
     <TextView
         android:id="@+id/messageTitle"
@@ -33,7 +34,8 @@
         android:textSize="@dimen/text_size_16"
         android:textColor="@color/color_chat_rich_message_content"
         android:paddingHorizontal="@dimen/dimen_16_dp"
-        android:paddingBottom="@dimen/dimen_4_dp"
+        android:paddingTop="@dimen/dimen_2_dp"
+        android:paddingBottom="@dimen/dimen_12_dp"
         android:ellipsize="end"
         android:textColorLink="@color/color_chat_message_highlight"
         android:linksClickable="true"

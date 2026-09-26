@@ -59,6 +59,9 @@ public class ChatMessageListView extends RecyclerView implements IMessageData {
 
   private boolean hasMoreNewerMessages;
 
+  /** Whether a size change should keep the list following the bottom. */
+  private boolean followBottomOnSizeChanged;
+
   // 防抖滚动任务：多条消息快速到来时只执行最后一次滚底
   private final Runnable scrollToEndRunnable =
       () -> {
@@ -249,6 +252,7 @@ public class ChatMessageListView extends RecyclerView implements IMessageData {
 
   @Override
   public void appendMessageList(List<ChatMessageBean> messageList, boolean needToScrollEnd) {
+    followBottomOnSizeChanged = needToScrollEnd;
     if (messageAdapter != null) {
       messageAdapter.appendMessages(messageList);
       if (needToScrollEnd) {
@@ -259,6 +263,7 @@ public class ChatMessageListView extends RecyclerView implements IMessageData {
 
   @Override
   public void appendMessage(ChatMessageBean message) {
+    followBottomOnSizeChanged = true;
     if (messageAdapter != null) {
       messageAdapter.appendMessage(message);
       scrollToEnd();
@@ -333,6 +338,7 @@ public class ChatMessageListView extends RecyclerView implements IMessageData {
   }
 
   public void insertMessage(ChatMessageBean message, boolean scroll) {
+    followBottomOnSizeChanged = scroll;
     if (messageAdapter != null) {
       int messageIndex = messageAdapter.searchMessagePosition(message.getMsgClientId());
       // 失败重发，如果想要让重发消息展示在最下方，需要再这里remove，然后insertMessageSortByTime
@@ -427,6 +433,7 @@ public class ChatMessageListView extends RecyclerView implements IMessageData {
   }
 
   public void scrollToEnd() {
+    followBottomOnSizeChanged = true;
     if (messageAdapter != null && messageAdapter.getItemCount() > 0) {
       // 先移除已排队的旧任务，再 post 新任务，保证多条消息快速到来时只滚到最终底部
       removeCallbacks(scrollToEndRunnable);
@@ -455,6 +462,14 @@ public class ChatMessageListView extends RecyclerView implements IMessageData {
     return -1;
   }
 
+  public boolean isMessageVisible(String messageId) {
+    int position = searchMessagePosition(messageId);
+    return position >= 0
+        && layoutManager != null
+        && position >= layoutManager.findFirstVisibleItemPosition()
+        && position <= layoutManager.findLastVisibleItemPosition();
+  }
+
   @SuppressLint("ClickableViewAccessibility")
   @Override
   public boolean onTouchEvent(MotionEvent e) {
@@ -475,9 +490,7 @@ public class ChatMessageListView extends RecyclerView implements IMessageData {
   protected void onSizeChanged(int w, int h, int oldw, int oldh) {
     if (Math.abs(oldh - h)
         > BarUtils.getStatusBarHeight(getContext()) + BarUtils.getNavBarHeight(getContext())) {
-      if (hasMoreNewerMessages) {
-        scrollBy(0, oldh - h);
-      } else {
+      if (followBottomOnSizeChanged) {
         scrollToEnd();
         this.postDelayed(
             () -> {
@@ -488,6 +501,8 @@ public class ChatMessageListView extends RecyclerView implements IMessageData {
               }
             },
             100);
+      } else if (hasMoreNewerMessages) {
+        scrollBy(0, oldh - h);
       }
     }
     super.onSizeChanged(w, h, oldw, oldh);
@@ -497,6 +512,7 @@ public class ChatMessageListView extends RecyclerView implements IMessageData {
   public void onScrollStateChanged(int state) {
     super.onScrollStateChanged(state);
     if (state == RecyclerView.SCROLL_STATE_IDLE) {
+      followBottomOnSizeChanged = isLastItemVisible();
       if (loadHandler != null && getLayoutManager() != null) {
         LinearLayoutManager layoutManager = (LinearLayoutManager) getLayoutManager();
         int firstPosition = layoutManager.findFirstCompletelyVisibleItemPosition();

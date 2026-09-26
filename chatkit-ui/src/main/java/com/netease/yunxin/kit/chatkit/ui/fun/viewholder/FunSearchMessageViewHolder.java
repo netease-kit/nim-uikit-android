@@ -72,15 +72,9 @@ public class FunSearchMessageViewHolder extends BaseViewHolder<ChatSearchBean> {
   }
 
   private void loadNickAndAvatar(ChatSearchBean data) {
-    String name =
-        MessageHelper.getChatMessageUserNameByAccount(
-            data.getAccount(), data.getMessage().getConversationType());
-    String avatar =
-        MessageHelper.getChatCacheAvatar(
-            data.getAccount(), data.getMessage().getConversationType());
-    String avatarName =
-        MessageHelper.getChatCacheAvatarName(
-            data.getAccount(), data.getMessage().getConversationType());
+    String name = MessageHelper.getChatMessageUserName(data.getMessage());
+    String avatar = MessageHelper.getChatCacheAvatar(data.getMessage());
+    String avatarName = MessageHelper.getChatCacheAvatarName(data.getMessage());
     viewBinding.avatarView.setData(avatar, avatarName, AvatarColor.avatarColor(data.getAccount()));
     viewBinding.tvNickName.setText(name);
   }

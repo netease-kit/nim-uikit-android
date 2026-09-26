@@ -101,9 +101,7 @@ public class ChatPinActivity extends ChatPinBaseActivity {
     }
     String sendName =
         TextUtils.isEmpty(mSessionName)
-            ? MessageHelper.getChatMessageUserNameByAccount(
-                forwardMessage.getSenderId(),
-                forwardMessage.getMessageData().getMessage().getConversationType())
+            ? MessageHelper.getChatMessageUserName(forwardMessage.getMessageData().getMessage())
             : mSessionName;
     ChatMessageForwardConfirmDialog confirmDialog =
         ChatMessageForwardConfirmDialog.createForwardConfirmDialog(
