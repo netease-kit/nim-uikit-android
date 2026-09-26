@@ -15,13 +15,11 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.content.res.AppCompatResources;
-import com.netease.yunxin.app.im.AppSkinConfig;
 import com.netease.yunxin.app.im.R;
 import com.netease.yunxin.app.im.databinding.TypeSelectActivityBinding;
 import com.netease.yunxin.app.im.utils.Constant;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.common.ui.activities.BaseLocalActivity;
-import com.netease.yunxin.kit.common.utils.SizeUtils;
 import java.util.ArrayList;
 
 /** channel type select page choice list should be transfer by intent */
@@ -71,20 +69,6 @@ public class TypeSelectActivity extends BaseLocalActivity {
           back();
         });
 
-    if (AppSkinConfig.getInstance().getAppSkinStyle() == AppSkinConfig.AppSkin.commonSkin) {
-      setCommonSkin();
-    }
-  }
-
-  private void setCommonSkin() {
-    changeStatusBarColor(R.color.color_ededed);
-    viewBinding.llyRoot.setBackgroundResource(R.color.color_ededed);
-
-    viewBinding.rfLayout.setBackgroundResource(R.color.color_white);
-    ViewGroup.MarginLayoutParams layoutParamsS =
-        (ViewGroup.MarginLayoutParams) viewBinding.rfLayout.getLayoutParams();
-    layoutParamsS.setMargins(0, SizeUtils.dp2px(6), 0, 0);
-    viewBinding.rfLayout.setLayoutParams(layoutParamsS);
   }
 
   @Override

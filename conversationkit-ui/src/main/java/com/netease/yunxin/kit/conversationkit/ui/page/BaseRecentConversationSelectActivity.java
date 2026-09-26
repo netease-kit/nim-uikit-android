@@ -211,45 +211,35 @@ public abstract class BaseRecentConversationSelectActivity extends BaseLocalActi
 
   protected abstract void submitSelectedConversations();
 
-  protected boolean isFunStyle() {
-    return false;
-  }
-
   protected int getPrimaryColor() {
-    return ContextCompat.getColor(
-        this,
-        isFunStyle()
-            ? R.color.fun_conversation_group_primary
-            : R.color.color_conversation_group_primary);
+    return ContextCompat.getColor(this, R.color.color_conversation_group_primary);
   }
 
   protected int getPageBackgroundColor() {
     return ContextCompat.getColor(
         this,
-        isFunStyle() ? R.color.fun_conversation_secondary_page_bg_color : R.color.color_white);
+        R.color.color_white);
   }
 
   protected int getNavigationBackgroundColor() {
     return ContextCompat.getColor(
         this,
-        isFunStyle() ? R.color.fun_conversation_secondary_page_bg_color : R.color.color_white);
+        R.color.color_white);
   }
 
   protected int getListBackgroundColor() {
     return ContextCompat.getColor(
-        this, isFunStyle() ? R.color.fun_conversation_item_bg_color : R.color.color_white);
+        this, R.color.color_white);
   }
 
   protected int getEmptyImageRes() {
-    return isFunStyle() ? R.drawable.fun_ic_conversation_empty : R.drawable.ic_conversation_empty;
+    return R.drawable.ic_conversation_empty;
   }
 
   protected int getItemDividerColor() {
     return ContextCompat.getColor(
         this,
-        isFunStyle()
-            ? R.color.fun_conversation_item_divide_line_color
-            : R.color.color_conversation_group_divider);
+        R.color.color_conversation_group_divider);
   }
 
   protected class RecentConversationAdapter
@@ -278,14 +268,11 @@ public abstract class BaseRecentConversationSelectActivity extends BaseLocalActi
       row.setOrientation(LinearLayout.HORIZONTAL);
       row.setGravity(Gravity.CENTER_VERTICAL);
       row.setPadding(
-          SizeUtils.dp2px(isFunStyle() ? 16 : 20), 0, SizeUtils.dp2px(isFunStyle() ? 16 : 20), 0);
-      row.setBackgroundResource(
-          isFunStyle()
-              ? R.drawable.fun_conversation_view_holder_selector
-              : R.drawable.conversation_common_view_holder_selector);
+          SizeUtils.dp2px(20), 0, SizeUtils.dp2px(20), 0);
+      row.setBackgroundResource(R.drawable.conversation_common_view_holder_selector);
       row.setLayoutParams(
           new RecyclerView.LayoutParams(
-              ViewGroup.LayoutParams.MATCH_PARENT, SizeUtils.dp2px(isFunStyle() ? 72 : 64)));
+              ViewGroup.LayoutParams.MATCH_PARENT, SizeUtils.dp2px(64)));
       return new RecentConversationViewHolder(row);
     }
 
@@ -311,20 +298,15 @@ public abstract class BaseRecentConversationSelectActivity extends BaseLocalActi
       super(row);
       radioButton = new AppCompatRadioButton(row.getContext());
       radioButton.setButtonDrawable(
-          isFunStyle()
-              ? R.drawable.fun_conversation_radio_button_selector
-              : R.drawable.conversation_radio_button_selector);
+          R.drawable.conversation_radio_button_selector);
       radioButton.setClickable(false);
       row.addView(
           radioButton, new LinearLayout.LayoutParams(SizeUtils.dp2px(18), SizeUtils.dp2px(18)));
 
       avatarView = new ContactAvatarView(row.getContext());
-      if (isFunStyle()) {
-        avatarView.setCornerRadius(SizeUtils.dp2px(4));
-      }
       LinearLayout.LayoutParams avatarParams =
           new LinearLayout.LayoutParams(
-              SizeUtils.dp2px(isFunStyle() ? 48 : 42), SizeUtils.dp2px(isFunStyle() ? 48 : 42));
+              SizeUtils.dp2px(42), SizeUtils.dp2px(42));
       avatarParams.leftMargin = SizeUtils.dp2px(12);
       row.addView(avatarView, avatarParams);
 
@@ -332,17 +314,13 @@ public abstract class BaseRecentConversationSelectActivity extends BaseLocalActi
       LinearLayout textContainer = new LinearLayout(row.getContext());
       textContainer.setOrientation(LinearLayout.VERTICAL);
       textContainer.setGravity(Gravity.CENTER_VERTICAL);
-      textContainer.setPadding(0, 0, 0, isFunStyle() ? SizeUtils.dp2px(1) : 0);
+      textContainer.setPadding(0, 0, 0, 0);
       nameView = new TextView(row.getContext());
       nameView.setSingleLine(true);
       nameView.setEllipsize(TextUtils.TruncateAt.END);
-      nameView.setTextSize(isFunStyle() ? 17 : 16);
+      nameView.setTextSize(16);
       nameView.setTextColor(
-          ContextCompat.getColor(
-              row.getContext(),
-              isFunStyle()
-                  ? R.color.fun_conversation_item_title_text_color
-                  : R.color.color_conversation_primary_text));
+          ContextCompat.getColor(row.getContext(), R.color.color_conversation_primary_text));
       textContainer.addView(nameView);
       contentFrame.addView(
           textContainer,
@@ -350,7 +328,7 @@ public abstract class BaseRecentConversationSelectActivity extends BaseLocalActi
               ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
       divider = new View(row.getContext());
       divider.setBackgroundColor(getItemDividerColor());
-      divider.setVisibility(isFunStyle() ? View.VISIBLE : View.GONE);
+      divider.setVisibility(View.GONE);
       FrameLayout.LayoutParams dividerParams =
           new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, SizeUtils.dp2px(1));
       dividerParams.gravity = Gravity.BOTTOM;

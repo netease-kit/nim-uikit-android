@@ -83,30 +83,18 @@ public class ConversationGroupManageActivity extends BaseLocalActivity {
   private void setupSystemBars() {
     ConversationGroupSystemBarHelper.apply(
         this,
-        ContextCompat.getColor(
-            this,
-            isFunStyle()
-                ? R.color.fun_conversation_secondary_page_bg_color
-                : R.color.color_conversation_divider));
+        ContextCompat.getColor(this, R.color.color_conversation_divider));
   }
 
   private View createContentView() {
     LinearLayout root = new LinearLayout(this);
     root.setOrientation(LinearLayout.VERTICAL);
     root.setBackgroundColor(
-        ContextCompat.getColor(
-            this,
-            isFunStyle()
-                ? R.color.fun_conversation_secondary_page_bg_color
-                : R.color.color_conversation_divider));
+        ContextCompat.getColor(this, R.color.color_conversation_divider));
 
     BackTitleBar titleBar = new BackTitleBar(this);
     titleBar.setBackgroundColor(
-        ContextCompat.getColor(
-            this,
-            isFunStyle()
-                ? R.color.fun_conversation_secondary_page_bg_color
-                : R.color.color_conversation_divider));
+        ContextCompat.getColor(this, R.color.color_conversation_divider));
     titleBar
         .setTitle(R.string.conversation_group_manage_title)
         .setOnBackIconClickListener(v -> finish());
@@ -159,10 +147,8 @@ public class ConversationGroupManageActivity extends BaseLocalActivity {
     LinearLayout.LayoutParams params =
         new LinearLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-    if (!isFunStyle()) {
-      params.leftMargin = SizeUtils.dp2px(16);
-      params.rightMargin = SizeUtils.dp2px(16);
-    }
+    params.leftMargin = SizeUtils.dp2px(16);
+    params.rightMargin = SizeUtils.dp2px(16);
     container.setLayoutParams(params);
     return container;
   }
@@ -187,10 +173,7 @@ public class ConversationGroupManageActivity extends BaseLocalActivity {
     view.setTextSize(16);
     view.setGravity(Gravity.CENTER);
     view.setTextColor(ContextCompat.getColor(this, R.color.color_white));
-    view.setBackgroundResource(
-        isFunStyle()
-            ? R.drawable.fun_conversation_group_create_button_bg
-            : R.drawable.conversation_group_create_button_bg);
+    view.setBackgroundResource(R.drawable.conversation_group_create_button_bg);
     LinearLayout.LayoutParams params =
         new LinearLayout.LayoutParams(SizeUtils.dp2px(315), SizeUtils.dp2px(50));
     params.gravity = Gravity.CENTER_HORIZONTAL;
@@ -376,10 +359,6 @@ public class ConversationGroupManageActivity extends BaseLocalActivity {
   }
 
   protected void showCreateGroupDialog() {
-    if (isFunStyle()) {
-      startActivity(new Intent(this, ConversationGroupNameActivity.class));
-      return;
-    }
     ConversationGroupNameDialog.show(
         this,
         R.string.conversation_group_create,
@@ -422,20 +401,12 @@ public class ConversationGroupManageActivity extends BaseLocalActivity {
         });
   }
 
-  protected boolean isFunStyle() {
-    return false;
-  }
-
   protected int getPrimaryColorRes() {
-    return isFunStyle()
-        ? R.color.fun_conversation_group_primary
-        : R.color.color_conversation_group_primary;
+    return R.color.color_conversation_group_primary;
   }
 
   protected String getSettingPagePath() {
-    return isFunStyle()
-        ? RouterConstant.PATH_FUN_CONVERSATION_GROUP_SETTING_PAGE
-        : RouterConstant.PATH_CONVERSATION_GROUP_SETTING_PAGE;
+    return RouterConstant.PATH_CONVERSATION_GROUP_SETTING_PAGE;
   }
 
   private class GroupAdapter extends RecyclerView.Adapter<GroupViewHolder> {
@@ -463,11 +434,11 @@ public class ConversationGroupManageActivity extends BaseLocalActivity {
           createGroupRow(data.get(position), visibleList, holder),
           new FrameLayout.LayoutParams(
               ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-      if (isFunStyle() && position < data.size() - 1) {
+      if (position < data.size() - 1) {
         View divider = new View(holder.container.getContext());
         divider.setBackgroundColor(
             ContextCompat.getColor(
-                holder.container.getContext(), R.color.fun_conversation_group_divider));
+                holder.container.getContext(), R.color.color_conversation_group_divider));
         FrameLayout.LayoutParams dividerParams =
             new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, SizeUtils.dp2px(0.5f), Gravity.BOTTOM);

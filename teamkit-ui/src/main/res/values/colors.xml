@@ -35,15 +35,4 @@
     <!-- (Normal 皮肤颜色使用公共色，无专属颜色) -->
     <color name="normal_color_selected">#ededef</color>
 
-    <!-- ==================== Fun 皮肤专属颜色 ==================== -->
-    <!-- Fun 页面背景色（浅灰） -->
-    <color name="fun_team_page_bg_color">#EDEDED</color>
-    <!-- Fun 绿色主色（按钮/开关激活/群主标签描边） -->
-    <color name="fun_team_green_primary">#58BE6B</color>
-    <!-- Fun 弹窗/对话框内容区背景 -->
-    <color name="fun_team_dialog_content_bg">#f7f7f7</color>
-    <!-- Fun 群主角色标签管理员颜色（橙色，用于 manager 徽章） -->
-    <color name="fun_team_manager_color">#EA8339</color>
-    <!-- ==================== Fun 皮肤专属颜色 END ==================== -->
-
 </resources>

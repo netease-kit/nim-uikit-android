@@ -116,107 +116,10 @@
             android:exported="false"
             android:screenOrientation="portrait" />
 
-        <!-- fun style activity -->
-        <activity
-            android:name=".fun.contact.FunContactActivity"
-            android:exported="false"
-            android:screenOrientation="portrait" />
-
-        <activity
-            android:name=".fun.addfriend.FunAddFriendActivity"
-            android:exported="false"
-            android:screenOrientation="portrait" />
-
-
-        <activity
-            android:name=".fun.blacklist.FunBlackListActivity"
-            android:launchMode="singleTop"
-            android:screenOrientation="portrait" />
-
-        <activity
-            android:name=".fun.team.FunTeamListActivity"
-            android:launchMode="singleTop"
-            android:screenOrientation="portrait" />
-
-        <activity
-            android:name=".fun.userinfo.FunUserInfoActivity"
-            android:launchMode="singleTop"
-            android:screenOrientation="portrait" />
-
-        <activity
-            android:name=".fun.userinfo.FunCommentActivity"
-            android:launchMode="singleTop"
-            android:screenOrientation="portrait" />
-
-        <activity
-            android:name=".fun.selector.FunContactSelectorActivity"
-            android:launchMode="singleTop"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".fun.search.FunSearchActivity"
-            android:exported="false"
-            android:screenOrientation="portrait" />
         <activity
             android:name=".normal.selector.forward.ForwardSelectorActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
-        <activity
-            android:name=".fun.selector.forward.FunForwardSelectorActivity"
-            android:exported="false"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".fun.ai.FunAIUserListActivity"
-            android:exported="false"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".fun.robot.FunRobotListActivity"
-            android:exported="false"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".fun.robot.FunRobotInfoActivity"
-            android:exported="false"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".fun.robot.FunRobotBindActivity"
-            android:exported="false"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".fun.robot.FunRobotCreateActivity"
-            android:exported="false"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".fun.robot.FunRobotEditActivity"
-            android:exported="false"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".fun.robot.FunRobotEditNameActivity"
-            android:exported="false"
-            android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateAlwaysVisible|adjustResize" />
-        <activity
-            android:name=".fun.robot.FunRobotViewConfigActivity"
-            android:exported="false"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".fun.selector.ai.FunAIContactSelectorActivity"
-            android:exported="false"
-            android:screenOrientation="portrait" />
-
-        <activity android:name=".fun.verify.FunFriendVerifyActivity"
-            android:exported="false"
-            android:screenOrientation="portrait" />
-
-        <activity android:name=".fun.verify.FunContactVerifyActivity"
-            android:exported="false"
-            android:screenOrientation="portrait" />
-
-        <activity android:name=".fun.team.FunTeamSearchActivity"
-            android:exported="false"
-            android:screenOrientation="portrait" />
-
-        <activity android:name=".fun.team.FunTeamProfileActivity"
-            android:exported="false"
-            android:screenOrientation="portrait"/>
 
     </application>
 

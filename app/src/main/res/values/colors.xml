@@ -20,9 +20,6 @@
     <color name="color_eef1f4">#EEF1F4</color>
     <color name="color_eff1f4">#EFF1F4</color>
     <color name="transparent">#00000000</color>
-    <color name="fun_tab_checked_color">#58BE6B</color>
-
-    <color name="fun_page_bg_color">#ededed</color>
     <color name="normal_page_bg_color">#FFFFFF</color>
 
     <color name="color_58be6b">#58be6b</color>
@@ -46,6 +43,4 @@
     <color name="color_contact_blue_primary">#337EFF</color>
     <color name="color_conversation_primary_text">#333333</color>
     <color name="color_f5f8fc">#F5F8FC</color>
-    <color name="fun_conversation_add_pop_text_color">#ffffff</color>
-
 </resources>

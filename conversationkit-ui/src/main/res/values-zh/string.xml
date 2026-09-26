@@ -79,7 +79,4 @@
     <string name="msg_type_no_tips">[未知消息体]</string>
     <string name="msg_type_revoke_tips">此消息已撤回</string>
 
-    <!-- ==================== Fun 皮肤专属字符串 ==================== -->
-    <string name="fun_conversation_search_text">搜索</string>
-    <!-- ==================== Fun 皮肤专属字符串 END ==================== -->
 </resources>

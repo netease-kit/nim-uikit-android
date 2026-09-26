@@ -122,8 +122,7 @@
     <string name="selector_conversation_empty">暂无会话</string>
     <string name="selector_team_empty">暂无群聊</string>
     <string name="select_empty_tips">请选择联系人</string>
-    <string name="fun_selector_close">关闭</string>
-    <string name="fun_contact_search">搜索</string>
+    <string name="contact_search">搜索</string>
     <string name="contact_selector_session_max_count">最多只能选择%s个会话</string>
 
     <!-- search -->
@@ -191,8 +190,5 @@
     <string name="contact_dialog_sure">确认</string>
     <string name="contact_dialog_cancel">取消</string>
 
-    <!-- ==================== Fun 皮肤专属字符串 ==================== -->
-    <string name="fun_contact_search_hint_text">搜索</string>
-    <!-- ==================== Fun 皮肤专属字符串 END ==================== -->
 
 </resources>

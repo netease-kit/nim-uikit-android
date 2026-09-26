@@ -389,10 +389,6 @@ public class ConversationGroupSettingActivity extends BaseLocalActivity {
 
   private void showDeleteConfirmDialog() {
     CommonChoiceDialog dialog = new CommonChoiceDialog();
-    if (isFunStyle()) {
-      dialog.setPositiveTextColor(
-          ContextCompat.getColor(this, R.color.fun_conversation_group_primary));
-    }
     dialog
         .setTitleStr(getString(R.string.conversation_group_delete_title))
         .setContentStr(getString(R.string.conversation_group_delete_message))
@@ -411,60 +407,36 @@ public class ConversationGroupSettingActivity extends BaseLocalActivity {
         .show(getSupportFragmentManager());
   }
 
-  protected boolean isFunStyle() {
-    return false;
-  }
-
   private int getPageBackgroundColor() {
-    return ContextCompat.getColor(
-        this,
-        isFunStyle() ? R.color.fun_conversation_secondary_page_bg_color : R.color.color_white);
+    return ContextCompat.getColor(this, R.color.color_white);
   }
 
   private int getNavigationBackgroundColor() {
-    return ContextCompat.getColor(
-        this,
-        isFunStyle() ? R.color.fun_conversation_secondary_page_bg_color : R.color.color_white);
+    return ContextCompat.getColor(this, R.color.color_white);
   }
 
   private int getTitleActionColor() {
-    return ContextCompat.getColor(
-        this,
-        isFunStyle()
-            ? R.color.fun_conversation_group_primary
-            : R.color.color_conversation_group_primary);
+    return ContextCompat.getColor(this, R.color.color_conversation_group_primary);
   }
 
   private int getPrimaryColor() {
-    return ContextCompat.getColor(
-        this,
-        isFunStyle()
-            ? R.color.fun_conversation_group_primary
-            : R.color.color_conversation_group_primary);
+    return ContextCompat.getColor(this, R.color.color_conversation_group_primary);
   }
 
   private int getDividerColor() {
-    return ContextCompat.getColor(
-        this,
-        isFunStyle()
-            ? R.color.fun_conversation_group_divider
-            : R.color.color_conversation_group_divider);
+    return ContextCompat.getColor(this, R.color.color_conversation_group_divider);
   }
 
   private int getEmptyImageRes() {
-    return isFunStyle() ? R.drawable.fun_ic_conversation_empty : R.drawable.ic_conversation_empty;
+    return R.drawable.ic_conversation_empty;
   }
 
   private int getAddIconRes() {
-    return isFunStyle()
-        ? R.drawable.fun_conversation_group_add_member
-        : R.drawable.conversation_group_add_member;
+    return R.drawable.conversation_group_add_member;
   }
 
   private String getAddConversationPagePath() {
-    return isFunStyle()
-        ? RouterConstant.PATH_FUN_CONVERSATION_GROUP_ADD_CONVERSATION_PAGE
-        : RouterConstant.PATH_CONVERSATION_GROUP_ADD_CONVERSATION_PAGE;
+    return RouterConstant.PATH_CONVERSATION_GROUP_ADD_CONVERSATION_PAGE;
   }
 
   private void deleteGroup() {
@@ -524,10 +496,8 @@ public class ConversationGroupSettingActivity extends BaseLocalActivity {
       divider.setBackgroundColor(getDividerColor());
       LinearLayout.LayoutParams dividerParams =
           new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, SizeUtils.dp2px(1));
-      dividerParams.leftMargin =
-          isFunStyle() ? SizeUtils.dp2px(64) : SizeUtils.dp2px(MEMBER_ROW_HORIZONTAL_PADDING_DP);
-      dividerParams.rightMargin =
-          isFunStyle() ? 0 : SizeUtils.dp2px(MEMBER_ROW_HORIZONTAL_PADDING_DP);
+      dividerParams.leftMargin = SizeUtils.dp2px(MEMBER_ROW_HORIZONTAL_PADDING_DP);
+      dividerParams.rightMargin = SizeUtils.dp2px(MEMBER_ROW_HORIZONTAL_PADDING_DP);
       container.addView(divider, dividerParams);
       return new MemberViewHolder(container, row, divider);
     }
@@ -554,9 +524,6 @@ public class ConversationGroupSettingActivity extends BaseLocalActivity {
       super(container);
       this.divider = divider;
       avatarView = new ContactAvatarView(row.getContext());
-      if (isFunStyle()) {
-        avatarView.setCornerRadius(SizeUtils.dp2px(4));
-      }
       row.addView(
           avatarView, new LinearLayout.LayoutParams(SizeUtils.dp2px(36), SizeUtils.dp2px(36)));
 
@@ -587,10 +554,7 @@ public class ConversationGroupSettingActivity extends BaseLocalActivity {
           0,
           SizeUtils.dp2px(REMOVE_BUTTON_HORIZONTAL_PADDING_DP),
           0);
-      removeView.setBackgroundResource(
-          isFunStyle()
-              ? R.drawable.fun_conversation_group_member_delete_bg
-              : R.drawable.conversation_group_member_delete_bg);
+      removeView.setBackgroundResource(R.drawable.conversation_group_member_delete_bg);
       removeView.setTextColor(getPrimaryColor());
       row.addView(
           removeView,

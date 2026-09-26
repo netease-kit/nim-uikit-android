@@ -24,10 +24,6 @@
             android:screenOrientation="portrait"
             android:exported="false"
             tools:ignore="DiscouragedApi" />
-        <activity android:name=".fun.page.FunLocalConversationActivity"
-            android:screenOrientation="portrait"
-            android:exported="false"
-            tools:ignore="DiscouragedApi" />
     </application>
 
 </manifest>
