@@ -46,7 +46,7 @@ public class ConversationGroupNameActivity extends BaseLocalActivity {
     super.onCreate(savedInstanceState);
     viewModel = new ViewModelProvider(this).get(ConversationGroupViewModel.class);
     ConversationGroupSystemBarHelper.apply(
-        this, ContextCompat.getColor(this, R.color.fun_conversation_secondary_page_bg_color));
+        this, ContextCompat.getColor(this, R.color.color_white));
     setContentView(createContentView());
     input.requestFocus();
     input.postDelayed(this::showKeyboard, 200);
@@ -56,11 +56,11 @@ public class ConversationGroupNameActivity extends BaseLocalActivity {
     LinearLayout root = new LinearLayout(this);
     root.setOrientation(LinearLayout.VERTICAL);
     root.setBackgroundColor(
-        ContextCompat.getColor(this, R.color.fun_conversation_secondary_page_bg_color));
+        ContextCompat.getColor(this, R.color.color_white));
 
     FrameLayout titleBar = new FrameLayout(this);
     titleBar.setBackgroundColor(
-        ContextCompat.getColor(this, R.color.fun_conversation_secondary_page_bg_color));
+        ContextCompat.getColor(this, R.color.color_white));
     root.addView(
         titleBar,
         new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, SizeUtils.dp2px(56)));
@@ -112,7 +112,7 @@ public class ConversationGroupNameActivity extends BaseLocalActivity {
     input = new EditText(this);
     input.setSingleLine(true);
     input.setHint(R.string.conversation_group_name_hint);
-    input.setHintTextColor(ContextCompat.getColor(this, R.color.fun_conversation_group_hint));
+    input.setHintTextColor(ContextCompat.getColor(this, R.color.color_conversation_secondary_text));
     input.setTextColor(ContextCompat.getColor(this, R.color.color_conversation_primary_text));
     input.setTextSize(16);
     input.setGravity(Gravity.CENTER_VERTICAL);
@@ -141,7 +141,7 @@ public class ConversationGroupNameActivity extends BaseLocalActivity {
     countView = new TextView(this);
     countView.setGravity(Gravity.RIGHT);
     countView.setTextSize(14);
-    countView.setTextColor(ContextCompat.getColor(this, R.color.fun_conversation_group_hint));
+    countView.setTextColor(ContextCompat.getColor(this, R.color.color_conversation_secondary_text));
     inputContainer.addView(
         countView,
         new LinearLayout.LayoutParams(
@@ -179,8 +179,8 @@ public class ConversationGroupNameActivity extends BaseLocalActivity {
         ContextCompat.getColor(
             this,
             enabled
-                ? R.color.fun_conversation_group_primary
-                : R.color.fun_conversation_group_primary_disabled));
+                ? R.color.color_conversation_group_primary
+                : R.color.color_conversation_group_primary));
   }
 
   private void createGroup() {

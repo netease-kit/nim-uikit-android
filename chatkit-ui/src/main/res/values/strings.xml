@@ -435,20 +435,6 @@
     <string name="chat_date_y_m_d_formate">yyyy-MM-dd</string>
     <string name="chat_date_y_m_formate">yyyy-MM</string>
 
-    <!-- ==================== Fun 皮肤专属字符串 ==================== -->
-
-    <!-- Fun 输入框 -->
-    <string name="fun_chat_input_more_album_title">Album</string>
-    <string name="fun_chat_input_audio_record_title">Hold to Talk</string>
-    <string name="fun_chat_input_hint_tips">Enter what you want to say…</string>
-
-    <!-- Fun 录音提示 -->
-    <string name="fun_chat_audio_record_send_tips">release to send</string>
-    <string name="fun_chat_audio_record_cancel_tips">release to cancel</string>
-    <string name="fun_chat_audio_record_max_time_tips">Recording will stop after %d \"</string>
-
-    <!-- Fun 消息撤回 -->
-    <string name="fun_chat_message_revoked">%s recalled the message</string>
     <!-- 群通知未知消息类型 -->
     <string name="chat_team_unknown_message">Unknown message</string>
 </resources>

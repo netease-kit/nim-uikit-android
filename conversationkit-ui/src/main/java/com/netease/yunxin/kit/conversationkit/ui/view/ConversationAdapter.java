@@ -37,7 +37,6 @@ public class ConversationAdapter extends RecyclerView.Adapter<BaseViewHolder> {
   private final List<ConversationGroupBean> conversationGroupList = new ArrayList<>();
   private String selectedGroupId = ConversationGroupBean.ID_ALL;
   private ConversationGroupBar.OnGroupClickListener groupClickListener;
-  private boolean conversationGroupBarFunStyle;
   // 数据比较器
   private Comparator<ConversationBean> dataComparator;
   // 点击事件监听
@@ -156,10 +155,7 @@ public class ConversationAdapter extends RecyclerView.Adapter<BaseViewHolder> {
     for (int i = 0; i < conversationList.size(); i++) {
       ConversationBean conversation = conversationList.get(i);
       if (TextUtils.equals(conversation.getConversationId(), conversationId)) {
-        conversation.router =
-            RouterConstant.PATH_FUN_CHAT_BOT_SUB_SESSION_LIST_PAGE.equals(conversation.router)
-                ? RouterConstant.PATH_FUN_CHAT_P2P_PAGE
-                : RouterConstant.PATH_CHAT_P2P_PAGE;
+        conversation.router = RouterConstant.PATH_CHAT_P2P_PAGE;
         notifyItemChanged(i + getContentStartPosition());
         return;
       }
@@ -353,14 +349,6 @@ public class ConversationAdapter extends RecyclerView.Adapter<BaseViewHolder> {
     this.clickListener = listener;
   }
 
-  public void setConversationGroupBarFunStyle(boolean funStyle) {
-    this.conversationGroupBarFunStyle = funStyle;
-    int position = getGroupBarPosition();
-    if (position != RecyclerView.NO_POSITION) {
-      notifyItemChanged(position);
-    }
-  }
-
   public void setComparator(Comparator<ConversationBean> comparator) {
     this.dataComparator = comparator;
   }
@@ -385,8 +373,7 @@ public class ConversationAdapter extends RecyclerView.Adapter<BaseViewHolder> {
           .bind(
               conversationGroupList,
               selectedGroupId,
-              groupClickListener,
-              conversationGroupBarFunStyle);
+              groupClickListener);
     } else {
       holder.onBindData(this.getData(position), position);
       holder.setItemOnClickListener(clickListener);
@@ -456,9 +443,7 @@ public class ConversationAdapter extends RecyclerView.Adapter<BaseViewHolder> {
     void bind(
         List<ConversationGroupBean> groups,
         String selectedGroupId,
-        ConversationGroupBar.OnGroupClickListener listener,
-        boolean funStyle) {
-      groupBar.setFunStyle(funStyle);
+        ConversationGroupBar.OnGroupClickListener listener) {
       groupBar.setOnGroupClickListener(listener);
       groupBar.setGroupsAndSelected(groups, selectedGroupId);
     }

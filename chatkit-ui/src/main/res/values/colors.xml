@@ -61,58 +61,6 @@
     <color name="color_chat_new_message_tips">#1861DF</color>
     <color name="color_chat_search_sub_text">#B3B7BC</color>
 
-    <!-- ==================== Fun 皮肤专属颜色 ==================== -->
-    <!-- Fun 公共 -->
-    <color name="fun_chat_network_error_text">#7f000000</color>
-    <color name="fun_chat_network_error_bg">#fceeee</color>
-    <color name="fun_chat_title_divider">#d5d5d5</color>
-    <!-- Fun 主色 -->
-    <color name="fun_chat_page_bg_color">#ededed</color>
-    <color name="fun_chat_message_send_bg_color">#A9EA7A</color>
-    <color name="fun_chat_secondary_page_bg_color">#ededed</color>
-    <color name="fun_chat_color">#58BE6B</color>
-    <color name="fun_chat_emoji_tab_selected_bg_color">#E7F6EA</color>
-    <color name="fun_conversation_item_bg_color">#FFFFFF</color>
-    <color name="fun_conversation_item_divide_line_color">#D8D8D8</color>
-
-    <!-- Fun 会话页面 -->
-    <color name="fun_chat_message_read_process">#58BE6B</color>
-    <color name="fun_chat_message_highlight_color">#58BE6B</color>
-    <color name="fun_chat_new_message_tips_color">#58BE6B</color>
-    <color name="fun_chat_input_bg_color">#f5f5f5</color>
-    <color name="fun_chat_input_reply_bg_color">#e1e1e1</color>
-    <color name="fun_chat_input_reply_text_color">#666666</color>
-    <color name="fun_chat_input_send_audio_color">#222222</color>
-    <color name="fun_chat_input_audio_record_bg_color">#D9D9D9</color>
-    <color name="fun_chat_input_audio_record_cancel_bg_color">#222222</color>
-    <color name="fun_chat_input_audio_record_tips_color">#aaaaaa</color>
-    <color name="fun_chat_message_revoked_tip_text_color">#AAAAAA</color>
-    <color name="fun_chat_message_revoked_action_btn_text_color">#1861DF</color>
-    <color name="fun_chat_message_black_tip_text_color">#AAAAAA</color>
-
-    <!-- Fun PIN 页面 -->
-    <color name="fun_chat_message_pin_bg_color">#FFF5DD</color>
-    <color name="fun_chat_message_pin_view_holder_bg_color">#FFFFFF</color>
-
-    <!-- Fun 历史记录搜索页面 -->
-    <color name="fun_chat_search_empty_text_color">#AAAAAA</color>
-    <color name="fun_chat_search_name_color">#737373</color>
-    <color name="fun_chat_search_message_color">#737373</color>
-    <color name="fun_chat_search_message_hit_color">#58BE6B</color>
-    <color name="fun_chat_search_time_color">#cccccc</color>
-    <color name="fun_chat_search_item_bg_color">#FFFFFF</color>
-
-    <!-- Fun 消息阅读状态页面 -->
-    <color name="fun_chat_read_title_color">#222222</color>
-    <color name="fun_chat_read_name_color">#333333</color>
-    <color name="fun_chat_read_selected_color">#58BE6B</color>
-
-    <!-- Fun 消息搜索页面 -->
-    <color name="fun_chat_search_item_text_color">#596C96</color>
-    <color name="fun_chat_search_item_selected_color">#58BE6B</color>
-    <color name="fun_chat_search_item_split_line_color">#C9C9C9</color>
-    <color name="fun_chat_search_sub_text_color">#B1B1B1</color>
-
     <!-- 翻译分割线颜色 -->
     <color name="color_chat_translation_divider">#14000000</color>
     <!-- 翻译标签文字颜色 -->

@@ -229,13 +229,7 @@ public abstract class LocalConversationBaseFragment extends BaseFragment impleme
       String targetId = conversation.getTargetId();
       if (conversation.getConversationType() == V2NIMConversationType.V2NIM_CONVERSATION_TYPE_P2P
           && UserAIBotManager.isUserAIBot(targetId)) {
-        boolean funStyle =
-            RouterConstant.PATH_FUN_CHAT_P2P_PAGE.equals(data.router)
-                || RouterConstant.PATH_FUN_CHAT_BOT_SUB_SESSION_LIST_PAGE.equals(data.router);
-        String router =
-            funStyle
-                ? RouterConstant.PATH_FUN_CHAT_BOT_SUB_SESSION_LIST_PAGE
-                : RouterConstant.PATH_CHAT_BOT_SUB_SESSION_LIST_PAGE;
+        String router = RouterConstant.PATH_CHAT_BOT_SUB_SESSION_LIST_PAGE;
         XKitRouter.withKey(router)
             .withParam(RouterConstant.CHAT_ID_KRY, targetId)
             .withParam(RouterConstant.KEY_SESSION_NAME, conversation.getConversationName())

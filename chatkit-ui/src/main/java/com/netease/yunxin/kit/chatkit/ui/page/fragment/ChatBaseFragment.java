@@ -90,7 +90,7 @@ import com.netease.yunxin.kit.chatkit.ui.databinding.ChatTopMessageLayoutBinding
 import com.netease.yunxin.kit.chatkit.ui.dialog.ChatBaseForwardSelectDialog;
 import com.netease.yunxin.kit.chatkit.ui.earliestunread.EarliestUnreadController;
 import com.netease.yunxin.kit.chatkit.ui.factory.ChatPopActionFactory;
-import com.netease.yunxin.kit.chatkit.ui.fun.view.message.viewholder.ChatAudioMessageViewHolder;
+import com.netease.yunxin.kit.chatkit.ui.normal.view.message.viewholder.ChatAudioMessageViewHolder;
 import com.netease.yunxin.kit.chatkit.ui.interfaces.IChatView;
 import com.netease.yunxin.kit.chatkit.ui.interfaces.IMessageItemClickListener;
 import com.netease.yunxin.kit.chatkit.ui.interfaces.IMessageLoadHandler;
@@ -763,9 +763,6 @@ public abstract class ChatBaseFragment extends BaseFragment {
     if (rootView == null || chatView == null) return;
     View tipsView = rootView.findViewById(R.id.earliestUnreadTipsLayout);
     View notificationView = chatView.getRootView().findViewById(R.id.tv_notification);
-    if (notificationView == null) {
-      notificationView = chatView.getRootView().findViewById(R.id.notificationTextView);
-    }
     if (tipsView == null || notificationView == null) return;
     ViewGroup.LayoutParams params = tipsView.getLayoutParams();
     if (!(params instanceof LinearLayout.LayoutParams)) return;

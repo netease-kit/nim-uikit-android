@@ -69,8 +69,4 @@
     <dimen name="text_size_14">14sp</dimen>
     <dimen name="chat_earphone_icon_size">14dp</dimen>
 
-    <!-- ==================== Fun 皮肤专属尺寸 ==================== -->
-
-    <!-- Fun 录音动画 -->
-    <dimen name="fun_chat_audio_record_animator_max_width">315dp</dimen>
 </resources>

@@ -16,7 +16,6 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.netease.nimlib.sdk.v2.user.V2NIMUser;
-import com.netease.yunxin.app.im.AppSkinConfig;
 import com.netease.yunxin.app.im.R;
 import com.netease.yunxin.app.im.about.AboutActivity;
 import com.netease.yunxin.app.im.databinding.FragmentMineBinding;
@@ -27,7 +26,6 @@ import com.netease.yunxin.kit.chatkit.repo.ContactRepo;
 import com.netease.yunxin.kit.common.ui.fragments.BaseFragment;
 import com.netease.yunxin.kit.common.ui.utils.AvatarColor;
 import com.netease.yunxin.kit.common.ui.utils.ToastX;
-import com.netease.yunxin.kit.common.utils.SizeUtils;
 import com.netease.yunxin.kit.corekit.im2.IMKitClient;
 import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
 import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
@@ -73,11 +71,9 @@ public class MineFragment extends BaseFragment {
     binding.userInfoClick.setOnClickListener(v -> MineInfoActivity.launch(getContext(), launcher));
     binding.collectLl.setOnClickListener(
         v -> {
-          String path =
-              AppSkinConfig.getInstance().getAppSkinStyle() == AppSkinConfig.AppSkin.commonSkin
-                  ? RouterConstant.PATH_FUN_COLLECTION_PAGE
-                  : RouterConstant.PATH_COLLECTION_PAGE;
-          XKitRouter.withKey(path).withContext(this.requireContext()).navigate();
+          XKitRouter.withKey(RouterConstant.PATH_COLLECTION_PAGE)
+              .withContext(this.requireContext())
+              .navigate();
         });
 
     binding.settingLl.setOnClickListener(
@@ -86,10 +82,6 @@ public class MineFragment extends BaseFragment {
   }
 
   private void refreshUserInfo(String account) {
-    if (AppSkinConfig.getInstance().getAppSkinStyle() == AppSkinConfig.AppSkin.commonSkin) {
-      int cornerRadius = SizeUtils.dp2px(4);
-      binding.cavIcon.setCornerRadius(cornerRadius);
-    }
     ContactRepo.getUserInfo(
         Collections.singletonList(account),
         new FetchCallback<List<V2NIMUser>>() {

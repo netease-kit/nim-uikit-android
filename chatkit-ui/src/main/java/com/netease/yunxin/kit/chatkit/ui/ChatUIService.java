@@ -9,17 +9,6 @@ import androidx.annotation.NonNull;
 import com.netease.yunxin.kit.chatkit.ChatService;
 import com.netease.yunxin.kit.chatkit.ui.custom.MultiForwardAttachment;
 import com.netease.yunxin.kit.chatkit.ui.custom.RichTextAttachment;
-import com.netease.yunxin.kit.chatkit.ui.fun.page.FunChatAIActivity;
-import com.netease.yunxin.kit.chatkit.ui.fun.page.FunChatBotSubSessionActivity;
-import com.netease.yunxin.kit.chatkit.ui.fun.page.FunChatBotSubSessionChatActivity;
-import com.netease.yunxin.kit.chatkit.ui.fun.page.FunChatForwardActivity;
-import com.netease.yunxin.kit.chatkit.ui.fun.page.FunChatP2PActivity;
-import com.netease.yunxin.kit.chatkit.ui.fun.page.FunChatPinActivity;
-import com.netease.yunxin.kit.chatkit.ui.fun.page.FunChatReaderActivity;
-import com.netease.yunxin.kit.chatkit.ui.fun.page.FunChatSettingActivity;
-import com.netease.yunxin.kit.chatkit.ui.fun.page.FunChatTeamActivity;
-import com.netease.yunxin.kit.chatkit.ui.fun.page.FunCollectionActivity;
-import com.netease.yunxin.kit.chatkit.ui.fun.search.FunChatSearchHistoryActivity;
 import com.netease.yunxin.kit.chatkit.ui.normal.page.ChatAIActivity;
 import com.netease.yunxin.kit.chatkit.ui.normal.page.ChatBotSubSessionActivity;
 import com.netease.yunxin.kit.chatkit.ui.normal.page.ChatBotSubSessionChatActivity;
@@ -74,25 +63,7 @@ public class ChatUIService extends ChatService {
         RouterConstant.PATH_COLLECTION_DETAIL_PAGE, CollectionDetailActivity.class);
 
     // 注册功能聊天页面到路由器
-    XKitRouter.registerRouter(RouterConstant.PATH_FUN_CHAT_P2P_PAGE, FunChatP2PActivity.class);
-    XKitRouter.registerRouter(RouterConstant.PATH_FUN_CHAT_AI_PAGE, FunChatAIActivity.class);
-    XKitRouter.registerRouter(
-        RouterConstant.PATH_FUN_CHAT_BOT_SUB_SESSION_LIST_PAGE, FunChatBotSubSessionActivity.class);
-    XKitRouter.registerRouter(
-        RouterConstant.PATH_FUN_CHAT_BOT_SUB_SESSION_CHAT_PAGE,
-        FunChatBotSubSessionChatActivity.class);
-    XKitRouter.registerRouter(RouterConstant.PATH_FUN_CHAT_TEAM_PAGE, FunChatTeamActivity.class);
-    XKitRouter.registerRouter(
-        RouterConstant.PATH_FUN_CHAT_SEARCH_PAGE, FunChatSearchHistoryActivity.class);
 
-    XKitRouter.registerRouter(RouterConstant.PATH_FUN_CHAT_PIN_PAGE, FunChatPinActivity.class);
-    XKitRouter.registerRouter(
-        RouterConstant.PATH_FUN_CHAT_READER_PAGE, FunChatReaderActivity.class);
-    XKitRouter.registerRouter(
-        RouterConstant.PATH_FUN_CHAT_SETTING_PAGE, FunChatSettingActivity.class);
-    XKitRouter.registerRouter(
-        RouterConstant.PATH_FUN_CHAT_FORWARD_PAGE, FunChatForwardActivity.class);
-    XKitRouter.registerRouter(RouterConstant.PATH_FUN_COLLECTION_PAGE, FunCollectionActivity.class);
 
     // ===通用逻辑初始化===
     // 注册自定义消息类型

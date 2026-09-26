@@ -32,7 +32,6 @@ public class ConversationGroupBar extends LinearLayout {
   private final HorizontalScrollView scrollView;
   private final ImageView settingView;
   private int backgroundColorRes = R.color.color_conversation_divider;
-  private boolean funStyle;
   private OnGroupClickListener listener;
   private String selectedId = ConversationGroupBean.ID_ALL;
   private List<ConversationGroupBean> groups = new ArrayList<>();
@@ -69,14 +68,6 @@ public class ConversationGroupBar extends LinearLayout {
   public void setBackgroundColorRes(int backgroundColorRes) {
     this.backgroundColorRes = backgroundColorRes;
     applyBackgroundColor();
-  }
-
-  public void setFunStyle(boolean funStyle) {
-    if (this.funStyle == funStyle) {
-      return;
-    }
-    this.funStyle = funStyle;
-    render();
   }
 
   private void applyBackgroundColor() {
@@ -164,9 +155,7 @@ public class ConversationGroupBar extends LinearLayout {
   }
 
   private int getSelectedTextColorRes() {
-    return funStyle
-        ? R.color.fun_conversation_group_primary
-        : R.color.color_conversation_group_primary;
+    return R.color.color_conversation_group_primary;
   }
 
   private boolean isSameGroups(

@@ -53,43 +53,6 @@
         <activity android:name=".normal.activity.TeamMemberSelectActivity"
             android:screenOrientation="portrait"/>
 
-        <!-- fun版 Activity注册 -->
-        <activity
-            android:name=".fun.activity.FunTeamSettingActivity"
-            android:screenOrientation="portrait" />
-
-        <activity
-            android:name=".fun.activity.FunTeamInfoActivity"
-            android:screenOrientation="portrait" />
-
-        <activity
-            android:name=".fun.activity.FunTeamUpdateNicknameActivity"
-            android:screenOrientation="portrait" />
-
-        <activity
-            android:name=".fun.activity.FunTeamMemberListActivity"
-            android:screenOrientation="portrait" />
-
-        <activity
-            android:name=".fun.activity.FunTeamUpdateIconActivity"
-            android:screenOrientation="portrait" />
-
-        <activity
-            android:name=".fun.activity.FunTeamUpdateNameActivity"
-            android:screenOrientation="portrait" />
-
-        <activity
-            android:name=".fun.activity.FunTeamUpdateIntroduceActivity"
-            android:screenOrientation="portrait" />
-
-        <activity android:name=".fun.activity.FunTeamManagerActivity"
-            android:screenOrientation="portrait"/>
-
-        <activity android:name=".fun.activity.FunTeamManagerListActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".fun.activity.FunTeamMemberSelectActivity"
-            android:screenOrientation="portrait"/>
-
     </application>
 
 </manifest>

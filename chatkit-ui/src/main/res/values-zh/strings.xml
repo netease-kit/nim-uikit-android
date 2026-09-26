@@ -418,20 +418,6 @@
     <string name="chat_date_y_m_d_formate">yyyy年MM月dd日</string>
     <string name="chat_date_y_m_formate">yyyy年MM月</string>
 
-    <!-- ==================== Fun 皮肤专属字符串 ==================== -->
-
-    <!-- Fun 输入框 -->
-    <string name="fun_chat_input_more_album_title">相册</string>
-    <string name="fun_chat_input_audio_record_title">按住 说话</string>
-    <string name="fun_chat_input_hint_tips">请输入您想说的…</string>
-
-    <!-- Fun 录音提示 -->
-    <string name="fun_chat_audio_record_send_tips">松开 发送</string>
-    <string name="fun_chat_audio_record_cancel_tips">松开 取消</string>
-    <string name="fun_chat_audio_record_max_time_tips">%d \" 后将停止录音</string>
-
-    <!-- Fun 消息撤回 -->
-    <string name="fun_chat_message_revoked">%s撤回了一条消息</string>
 
     <!-- 消息翻译 -->
     <string name="chat_translate_btn">翻译</string>

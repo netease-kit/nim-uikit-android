@@ -33,7 +33,7 @@
             android:background="@drawable/bg_search_et"
             android:drawableStart="@drawable/ic_search"
             android:drawablePadding="5dp"
-            android:hint="@string/fun_contact_search"
+            android:hint="@string/contact_search"
             android:maxLines="1"
             android:paddingStart="15dp"
             android:paddingEnd="15dp"

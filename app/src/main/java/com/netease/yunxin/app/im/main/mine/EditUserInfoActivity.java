@@ -12,7 +12,6 @@ import android.text.InputFilter;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
@@ -22,7 +21,6 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import com.netease.nimlib.sdk.v2.user.V2NIMUser;
 import com.netease.nimlib.sdk.v2.user.params.V2NIMUserUpdateParams;
-import com.netease.yunxin.app.im.AppSkinConfig;
 import com.netease.yunxin.app.im.R;
 import com.netease.yunxin.app.im.databinding.ActivityEditNicknameBinding;
 import com.netease.yunxin.app.im.utils.AppUtils;
@@ -31,7 +29,6 @@ import com.netease.yunxin.kit.chatkit.repo.ContactRepo;
 import com.netease.yunxin.kit.chatkit.utils.ErrorUtils;
 import com.netease.yunxin.kit.common.ui.activities.BaseLocalActivity;
 import com.netease.yunxin.kit.common.ui.utils.ToastX;
-import com.netease.yunxin.kit.common.utils.SizeUtils;
 import com.netease.yunxin.kit.corekit.im2.IMKitClient;
 import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
 import java.util.Collections;
@@ -99,21 +96,6 @@ public class EditUserInfoActivity extends BaseLocalActivity {
     binding.etNickname.requestFocus();
 
     binding.ivClear.setOnClickListener(v -> binding.etNickname.setText(null));
-    if (AppSkinConfig.getInstance().getAppSkinStyle() == AppSkinConfig.AppSkin.commonSkin) {
-      setCommonSkin();
-    }
-  }
-
-  private void setCommonSkin() {
-    changeStatusBarColor(R.color.color_ededed);
-    binding.clyRoot.setBackgroundResource(R.color.color_ededed);
-    binding.tvDone.setTextColor(getResources().getColor(R.color.color_58be6b));
-
-    binding.etNickname.setBackgroundResource(R.color.color_white);
-    ViewGroup.MarginLayoutParams layoutParamsS =
-        (ViewGroup.MarginLayoutParams) binding.etNickname.getLayoutParams();
-    layoutParamsS.setMargins(0, SizeUtils.dp2px(6), 0, 0);
-    binding.etNickname.setLayoutParams(layoutParamsS);
   }
 
   private void loadData() {

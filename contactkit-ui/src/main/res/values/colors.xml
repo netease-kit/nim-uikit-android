@@ -42,17 +42,4 @@
     <color name="normal_page_bg_second_color">#EFF1F4</color>
     <color name="normal_page_primary_color">#337EFF</color>
 
-    <!-- ==================== Fun 皮肤专属颜色 ==================== -->
-    <!-- Fun 主色 -->
-    <color name="fun_contact_page_bg_color">#ededed</color>
-    <color name="fun_contact_page_primary_bg_color">#ffffff</color>
-    <color name="fun_contact_primary_color">#58BE6B</color>
-    <color name="fun_contact_chat_btn_color">#525C8C</color>
-
-    <!-- Fun 搜索页面 -->
-    <color name="fun_contact_search_hit_text_color">#58BE6B</color>
-    <color name="fun_contact_search_item_bg_color">#FFFFFF</color>
-    <color name="fun_contact_search_item_title_color">#737373</color>
-    <color name="fun_contact_search_item_nick_color">#333333</color>
-    <color name="fun_contact_search_item_name_color">#666666</color>
 </resources>

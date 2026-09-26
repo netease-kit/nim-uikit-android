@@ -30,7 +30,7 @@ android {
         viewBinding = true
         buildConfig = true
     }
-    sourceSets["main"].res.srcDirs("src/main/res", "src/main/res-fun", "src/main/res-normal")
+    sourceSets["main"].res.srcDirs("src/main/res", "src/main/res-normal")
 
 }
 

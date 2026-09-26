@@ -219,10 +219,7 @@ public class ConversationAdapter extends RecyclerView.Adapter<BaseViewHolder> {
     for (int i = 0; i < conversationList.size(); i++) {
       ConversationBean conversation = conversationList.get(i);
       if (TextUtils.equals(conversation.getConversationId(), conversationId)) {
-        conversation.router =
-            RouterConstant.PATH_FUN_CHAT_BOT_SUB_SESSION_LIST_PAGE.equals(conversation.router)
-                ? RouterConstant.PATH_FUN_CHAT_P2P_PAGE
-                : RouterConstant.PATH_CHAT_P2P_PAGE;
+        conversation.router = RouterConstant.PATH_CHAT_P2P_PAGE;
         notifyItemChanged(i + conversationHeaderList.size());
         return;
       }

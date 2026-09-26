@@ -5,15 +5,12 @@
 package com.netease.yunxin.app.im.main.mine.setting;
 
 import android.os.Bundle;
-import android.view.ViewGroup;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
-import com.netease.yunxin.app.im.AppSkinConfig;
 import com.netease.yunxin.app.im.R;
 import com.netease.yunxin.app.im.databinding.ActivityMineSettingNotifyBinding;
 import com.netease.yunxin.kit.common.ui.activities.BaseLocalActivity;
 import com.netease.yunxin.kit.common.ui.viewmodel.LoadStatus;
-import com.netease.yunxin.kit.common.utils.SizeUtils;
 
 public class SettingNotifyActivity extends BaseLocalActivity {
 
@@ -74,43 +71,5 @@ public class SettingNotifyActivity extends BaseLocalActivity {
             viewModel.setPushShowNoDetail(
                 SettingNotifyActivity.this, !viewBinding.notifyShowInfoSc.isChecked()));
     viewBinding.settingTitleBar.setOnBackIconClickListener(v -> onBackPressed());
-    if (AppSkinConfig.getInstance().getAppSkinStyle() == AppSkinConfig.AppSkin.commonSkin) {
-      updateCommonView();
-    }
-  }
-
-  private void updateCommonView() {
-    changeStatusBarColor(R.color.color_ededed);
-    viewBinding.clRoot.setBackgroundResource(R.color.color_ededed);
-
-    viewBinding.notifyLl.setBackgroundResource(R.color.color_white);
-    ViewGroup.MarginLayoutParams layoutParamsN =
-        (ViewGroup.MarginLayoutParams) viewBinding.notifyLl.getLayoutParams();
-    layoutParamsN.setMargins(0, SizeUtils.dp2px(4), 0, 0);
-    viewBinding.notifyLl.setLayoutParams(layoutParamsN);
-
-    viewBinding.notifyModeLl.setBackgroundResource(R.color.color_white);
-    ViewGroup.MarginLayoutParams layoutParamsM =
-        (ViewGroup.MarginLayoutParams) viewBinding.notifyModeLl.getLayoutParams();
-    layoutParamsM.setMargins(0, SizeUtils.dp2px(4), 0, 0);
-    viewBinding.notifyModeLl.setLayoutParams(layoutParamsM);
-
-    viewBinding.pushModeLl.setBackgroundResource(R.color.color_white);
-    ViewGroup.MarginLayoutParams layoutParamsP =
-        (ViewGroup.MarginLayoutParams) viewBinding.pushModeLl.getLayoutParams();
-    layoutParamsP.setMargins(0, SizeUtils.dp2px(4), 0, 0);
-    viewBinding.pushModeLl.setLayoutParams(layoutParamsP);
-
-    viewBinding.notifySc.setThumbResource(R.drawable.fun_setting_bg_switch_thumb_selector);
-    viewBinding.notifySc.setTrackResource(R.drawable.fun_setting_bg_switch_track_selector);
-
-    viewBinding.notifyRingSc.setThumbResource(R.drawable.fun_setting_bg_switch_thumb_selector);
-    viewBinding.notifyRingSc.setTrackResource(R.drawable.fun_setting_bg_switch_track_selector);
-
-    viewBinding.notifyShakeSc.setThumbResource(R.drawable.fun_setting_bg_switch_thumb_selector);
-    viewBinding.notifyShakeSc.setTrackResource(R.drawable.fun_setting_bg_switch_track_selector);
-
-    viewBinding.notifyShowInfoSc.setThumbResource(R.drawable.fun_setting_bg_switch_thumb_selector);
-    viewBinding.notifyShowInfoSc.setTrackResource(R.drawable.fun_setting_bg_switch_track_selector);
   }
 }

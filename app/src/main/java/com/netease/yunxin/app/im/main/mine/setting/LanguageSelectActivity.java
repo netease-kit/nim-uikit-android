@@ -12,7 +12,6 @@ import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.core.util.Pair;
-import com.netease.yunxin.app.im.AppSkinConfig;
 import com.netease.yunxin.app.im.R;
 import com.netease.yunxin.app.im.databinding.ActivityLanguageSelectBinding;
 import com.netease.yunxin.app.im.utils.DataUtils;
@@ -48,9 +47,7 @@ public class LanguageSelectActivity extends BaseLocalActivity {
 
   private String currentLangCode;
 
-  // 皮肤主色：Normal=蓝色，Fun=绿色（与 SettingLanguageActivity 保持一致）
   private int selectedColor;
-  // 选中状态图标资源
   private int selectedIconRes;
 
   @Override
@@ -67,17 +64,8 @@ public class LanguageSelectActivity extends BaseLocalActivity {
 
     viewBinding.languageSelectTitleBar.setOnBackIconClickListener(v -> onBackPressed());
 
-    // 皮肤适配：与 SettingLanguageActivity 保持一致
-    // commonSkin（Normal 皮肤）= 绿色；else（Fun 皮肤）= 蓝色
-    boolean isNormal =
-        AppSkinConfig.getInstance().getAppSkinStyle() == AppSkinConfig.AppSkin.commonSkin;
-    if (isNormal) {
-      selectedColor = ContextCompat.getColor(this, R.color.color_58be6b);
-      selectedIconRes = R.drawable.ic_select_green;
-    } else {
-      selectedColor = ContextCompat.getColor(this, R.color.color_337eff);
-      selectedIconRes = R.drawable.ic_select_blue;
-    }
+    selectedColor = ContextCompat.getColor(this, R.color.color_337eff);
+    selectedIconRes = R.drawable.ic_select_blue;
 
     // 仅在点击保存时提交，返回键直接放弃本次选择。
     viewBinding

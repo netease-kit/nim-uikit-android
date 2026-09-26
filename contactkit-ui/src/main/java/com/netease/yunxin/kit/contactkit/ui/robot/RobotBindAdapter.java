@@ -11,7 +11,6 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
-import com.netease.yunxin.kit.contactkit.ui.databinding.FunRobotBindItemLayoutBinding;
 import com.netease.yunxin.kit.contactkit.ui.databinding.RobotBindItemLayoutBinding;
 import com.netease.yunxin.kit.contactkit.ui.model.RobotInfoBean;
 import com.netease.yunxin.kit.contactkit.ui.utils.ColorUtils;
@@ -21,18 +20,11 @@ import java.util.List;
 /** 绑定机器人列表 Adapter */
 public class RobotBindAdapter extends RecyclerView.Adapter<RobotBindAdapter.ViewHolder> {
 
-  private final boolean funStyle;
   private final List<RobotInfoBean> dataList = new ArrayList<>();
 
   @Nullable private OnItemClickListener itemClickListener;
 
-  public RobotBindAdapter() {
-    this(false);
-  }
-
-  public RobotBindAdapter(boolean funStyle) {
-    this.funStyle = funStyle;
-  }
+  public RobotBindAdapter() {}
 
   public void setData(List<RobotInfoBean> data) {
     dataList.clear();
@@ -50,17 +42,10 @@ public class RobotBindAdapter extends RecyclerView.Adapter<RobotBindAdapter.View
   @Override
   public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
     LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-    if (funStyle) {
-      FunRobotBindItemLayoutBinding binding =
-          FunRobotBindItemLayoutBinding.inflate(inflater, parent, false);
-      return new ViewHolder(
-          binding.avatarView, binding.tvName, binding.tvSubtitle, binding.getRoot());
-    } else {
-      RobotBindItemLayoutBinding binding =
-          RobotBindItemLayoutBinding.inflate(inflater, parent, false);
-      return new ViewHolder(
-          binding.avatarView, binding.tvName, binding.tvSubtitle, binding.getRoot());
-    }
+    RobotBindItemLayoutBinding binding =
+        RobotBindItemLayoutBinding.inflate(inflater, parent, false);
+    return new ViewHolder(
+        binding.avatarView, binding.tvName, binding.tvSubtitle, binding.getRoot());
   }
 
   @Override

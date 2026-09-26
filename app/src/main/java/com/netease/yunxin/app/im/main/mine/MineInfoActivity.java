@@ -10,7 +10,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
@@ -21,7 +20,6 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import com.netease.nimlib.sdk.v2.user.V2NIMUser;
 import com.netease.nimlib.sdk.v2.user.params.V2NIMUserUpdateParams;
-import com.netease.yunxin.app.im.AppSkinConfig;
 import com.netease.yunxin.app.im.R;
 import com.netease.yunxin.app.im.databinding.ActivityMineInfoBinding;
 import com.netease.yunxin.app.im.utils.Constant;
@@ -35,10 +33,8 @@ import com.netease.yunxin.kit.common.ui.utils.ToastX;
 import com.netease.yunxin.kit.common.ui.widgets.datepicker.CustomDatePicker;
 import com.netease.yunxin.kit.common.ui.widgets.datepicker.DateFormatUtils;
 import com.netease.yunxin.kit.common.utils.NetworkUtils;
-import com.netease.yunxin.kit.common.utils.SizeUtils;
 import com.netease.yunxin.kit.corekit.im2.IMKitClient;
 import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
-import com.netease.yunxin.kit.teamkit.ui.fun.dialog.FunPhotoChoiceDialog;
 import com.netease.yunxin.kit.teamkit.ui.normal.dialog.ImageChoiceDialog;
 import java.io.File;
 import java.util.ArrayList;
@@ -123,30 +119,6 @@ public class MineInfoActivity extends BaseLocalActivity {
               selectIndex,
               launcher);
         });
-    if (AppSkinConfig.getInstance().getAppSkinStyle() == AppSkinConfig.AppSkin.commonSkin) {
-      setCommonSkin();
-    }
-  }
-
-  private void setCommonSkin() {
-    int cornerRadius = SizeUtils.dp2px(4);
-    binding.cavAvatar.setCornerRadius(cornerRadius);
-
-    changeStatusBarColor(R.color.color_ededed);
-
-    binding.clRoot.setBackgroundResource(R.color.color_ededed);
-
-    binding.llUserInfo.setBackgroundResource(R.color.color_white);
-    ViewGroup.MarginLayoutParams layoutParamsN =
-        (ViewGroup.MarginLayoutParams) binding.llUserInfo.getLayoutParams();
-    layoutParamsN.setMargins(0, SizeUtils.dp2px(4), 0, 0);
-    binding.llUserInfo.setLayoutParams(layoutParamsN);
-
-    binding.flSign.setBackgroundResource(R.color.color_white);
-    ViewGroup.MarginLayoutParams layoutParamsS =
-        (ViewGroup.MarginLayoutParams) binding.flSign.getLayoutParams();
-    layoutParamsS.setMargins(0, SizeUtils.dp2px(6), 0, 0);
-    binding.flSign.setLayoutParams(layoutParamsS);
   }
 
   private void loadData(String account) {
@@ -183,12 +155,7 @@ public class MineInfoActivity extends BaseLocalActivity {
   }
 
   private void choicePhoto() {
-    BasePhotoChoiceDialog choiceDialog;
-    if (AppSkinConfig.getInstance().getAppSkinStyle() == AppSkinConfig.AppSkin.commonSkin) {
-      choiceDialog = new FunPhotoChoiceDialog(this);
-    } else {
-      choiceDialog = new ImageChoiceDialog(this);
-    }
+    BasePhotoChoiceDialog choiceDialog = new ImageChoiceDialog(this);
     choiceDialog.show(
         new CommonCallback<File>() {
           @Override

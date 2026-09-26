@@ -168,15 +168,6 @@ public class ConversationView extends FrameLayout {
     }
   }
 
-  public void setConversationGroupBarFunStyle(boolean funStyle) {
-    if (adapter != null) {
-      adapter.setConversationGroupBarFunStyle(funStyle);
-    }
-    if (stickyGroupBar != null) {
-      stickyGroupBar.setFunStyle(funStyle);
-    }
-  }
-
   public void setSelectedConversationGroup(String selectedGroupId) {
     if (adapter != null) {
       adapter.setSelectedGroupId(selectedGroupId);
