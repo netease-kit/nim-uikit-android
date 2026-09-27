@@ -64,7 +64,6 @@
     <string name="setting_friend_delete_mode">删除好友是否同步删除备注</string>
     <string name="setting_message_read_mode">消息已读未读功能</string>
     <string name="setting_complete">完成</string>
-    <string name="setting_skin">外观</string>
     <string name="setting_language">语言</string>
     <string name="setting_chinese">中文</string>
     <string name="setting_english">English</string>
@@ -102,10 +101,6 @@
     <string name="imkit_email_fail">邮箱格式错误，请检查</string>
     <string name="network_error">当前网络不可用，请检查你的网络设置。</string>
     <string name="anti_error">存在不安全内容，请重新输入。</string>
-
-    <!--    skin-->
-    <string name="base_type">基础皮肤</string>
-    <string name="common_skin">通用皮肤</string>
 
     <!-- server config -->
     <string name="server_config_title">私有化配置</string>

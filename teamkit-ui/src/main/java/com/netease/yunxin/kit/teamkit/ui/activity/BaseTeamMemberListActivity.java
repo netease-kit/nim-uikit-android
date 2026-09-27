@@ -43,7 +43,7 @@ import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.teamkit.ui.R;
 import com.netease.yunxin.kit.teamkit.ui.adapter.BaseTeamMemberListAdapter;
 import com.netease.yunxin.kit.teamkit.ui.model.EventCloseChat;
-import com.netease.yunxin.kit.teamkit.ui.normal.adapter.TeamMemberListAdapter;
+import com.netease.yunxin.kit.teamkit.ui.fun.adapter.FunTeamMemberListAdapter;
 import com.netease.yunxin.kit.teamkit.ui.utils.TeamUtils;
 import com.netease.yunxin.kit.teamkit.ui.viewmodel.TeamBaseViewModel;
 import java.util.ArrayList;
@@ -184,7 +184,7 @@ public abstract class BaseTeamMemberListActivity extends BaseLocalActivity {
     rvMemberList.setAdapter(adapter);
     adapter.setItemClickListener(
         (action, view, data, position) -> {
-          if (action.equals(TeamMemberListAdapter.ACTION_REMOVE)) {
+          if (action.equals(FunTeamMemberListAdapter.ACTION_REMOVE)) {
             doActionAndFilterNetworkBroken(
                 this,
                 () -> {

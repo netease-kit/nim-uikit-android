@@ -1,0 +1,22 @@
+id: skin.keep-normal
+kind: skin-prune
+status: verified-structure-at-official-baseline
+keep: normal
+remove: fun
+baseline: d6cef8e9c72873c8f5198bfdbf217d440a52487c
+scope:
+  discover_modules: from current Gradle settings and local UIKit module source sets
+  candidate_sources: fun-owned local source packages, factories, routes, and registrations
+  candidate_resources: src/main/res-fun and resources proven Fun-only
+  required_review: shared classes, resource source-set declarations, consumers
+immutable:
+  - Maven artifacts and dependency declarations
+  - generated outputs, caches, and binary libraries
+  - app/sample files unrelated to the removed Fun skin
+required_review:
+  - app/sample imports, routes, registrations, selection branches, and resources that reference removed Fun code
+absent_behavior: stop-without-edits-if-no-fun-owned-source-or-resource-is-confirmed
+validation:
+  - no retained source references Fun-only symbols or resources
+  - removed resource directory is absent from affected source sets
+  - affected local modules compile and pass applicable Lint

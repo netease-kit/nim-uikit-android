@@ -18,7 +18,7 @@ import com.netease.nimlib.sdk.v2.message.result.V2NIMMessageSearchResult;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.chatkit.IMKitConfigCenter;
 import com.netease.yunxin.kit.chatkit.repo.ChatRepo;
-import com.netease.yunxin.kit.chatkit.ui.normal.search.ChatSearchImageActivity;
+import com.netease.yunxin.kit.chatkit.ui.fun.search.FunChatSearchImageActivity;
 import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
 import java.util.ArrayList;
@@ -147,11 +147,11 @@ public class ChatSearchImageViewModel extends ChatSearchBaseViewModel {
 
   public void setMode(int mode) {
     messageTypes.clear();
-    if (mode == ChatSearchImageActivity.MODE_IMAGE) {
+    if (mode == FunChatSearchImageActivity.MODE_IMAGE) {
       messageTypes.add(V2NIMMessageType.V2NIM_MESSAGE_TYPE_IMAGE);
-    } else if (mode == ChatSearchImageActivity.MODE_VIDEO) {
+    } else if (mode == FunChatSearchImageActivity.MODE_VIDEO) {
       messageTypes.add(V2NIMMessageType.V2NIM_MESSAGE_TYPE_VIDEO);
-    } else if (mode == ChatSearchImageActivity.MODE_ALL) {
+    } else if (mode == FunChatSearchImageActivity.MODE_ALL) {
       messageTypes.add(V2NIMMessageType.V2NIM_MESSAGE_TYPE_IMAGE);
       messageTypes.add(V2NIMMessageType.V2NIM_MESSAGE_TYPE_VIDEO);
     }

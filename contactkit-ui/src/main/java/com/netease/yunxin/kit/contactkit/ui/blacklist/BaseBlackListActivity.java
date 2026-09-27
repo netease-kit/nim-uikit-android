@@ -20,7 +20,7 @@ import com.netease.yunxin.kit.common.utils.NetworkUtils;
 import com.netease.yunxin.kit.contactkit.ui.R;
 import com.netease.yunxin.kit.contactkit.ui.activity.BaseListActivity;
 import com.netease.yunxin.kit.contactkit.ui.model.IViewTypeConstant;
-import com.netease.yunxin.kit.contactkit.ui.normal.view.ContactViewHolderFactory;
+import com.netease.yunxin.kit.contactkit.ui.fun.view.FunContactViewHolderFactory;
 import com.netease.yunxin.kit.contactkit.ui.view.viewholder.BaseContactViewHolder;
 import com.netease.yunxin.kit.contactkit.ui.view.viewholder.BlackListViewHolder;
 import java.util.ArrayList;
@@ -124,7 +124,7 @@ public class BaseBlackListActivity extends BaseListActivity {
 
   protected void setBlackListViewHolder() {
     binding.contactListView.setViewHolderFactory(
-        new ContactViewHolderFactory() {
+        new FunContactViewHolderFactory() {
           @Override
           protected BaseContactViewHolder getCustomViewHolder(ViewGroup view, int viewType) {
             if (viewType == IViewTypeConstant.CONTACT_BLACK_LIST) {

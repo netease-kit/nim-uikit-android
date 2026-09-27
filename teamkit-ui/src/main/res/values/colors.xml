@@ -31,10 +31,6 @@
     <!-- 退出/解散群 危险操作文字色（红） -->
     <color name="color_team_danger_red">#e6605c</color>
 
-    <!-- ==================== Normal 皮肤专属颜色 ==================== -->
-    <!-- (Normal 皮肤颜色使用公共色，无专属颜色) -->
-    <color name="normal_color_selected">#ededef</color>
-
     <!-- ==================== Fun 皮肤专属颜色 ==================== -->
     <!-- Fun 页面背景色（浅灰） -->
     <color name="fun_team_page_bg_color">#EDEDED</color>

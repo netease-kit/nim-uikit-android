@@ -18,41 +18,6 @@
                 android:value="xkit.startup" />
         </provider>
 
-        <activity
-            android:name=".normal.activity.TeamSettingActivity"
-            android:screenOrientation="portrait" />
-
-        <activity
-            android:name=".normal.activity.TeamInfoActivity"
-            android:screenOrientation="portrait" />
-
-        <activity
-            android:name=".normal.activity.TeamUpdateNicknameActivity"
-            android:screenOrientation="portrait" />
-
-        <activity
-            android:name=".normal.activity.TeamMemberListActivity"
-            android:screenOrientation="portrait" />
-
-        <activity
-            android:name=".normal.activity.TeamUpdateIconActivity"
-            android:screenOrientation="portrait" />
-
-        <activity
-            android:name=".normal.activity.TeamUpdateNameActivity"
-            android:screenOrientation="portrait" />
-
-        <activity
-            android:name=".normal.activity.TeamUpdateIntroduceActivity"
-            android:screenOrientation="portrait" />
-
-        <activity android:name=".normal.activity.TeamManagerActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".normal.activity.TeamManagerListActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".normal.activity.TeamMemberSelectActivity"
-            android:screenOrientation="portrait"/>
-
         <!-- fun版 Activity注册 -->
         <activity
             android:name=".fun.activity.FunTeamSettingActivity"

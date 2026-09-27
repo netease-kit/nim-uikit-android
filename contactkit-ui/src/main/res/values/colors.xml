@@ -37,11 +37,6 @@
     <!-- IndexBar 悬浮标题线 -->
     <color name="color_contact_suspension_line">#DBE0E8</color>
 
-    <!-- ==================== Normal 皮肤专属颜色 ==================== -->
-    <color name="normal_page_bg_primary_color">#FFFFFF</color>
-    <color name="normal_page_bg_second_color">#EFF1F4</color>
-    <color name="normal_page_primary_color">#337EFF</color>
-
     <!-- ==================== Fun 皮肤专属颜色 ==================== -->
     <!-- Fun 主色 -->
     <color name="fun_contact_page_bg_color">#ededed</color>

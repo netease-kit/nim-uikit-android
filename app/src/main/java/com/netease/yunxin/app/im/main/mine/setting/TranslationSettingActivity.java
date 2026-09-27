@@ -9,7 +9,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
-import com.netease.yunxin.app.im.AppSkinConfig;
 import com.netease.yunxin.app.im.R;
 import com.netease.yunxin.app.im.databinding.ActivityTranslationSettingBinding;
 import com.netease.yunxin.app.im.utils.DataUtils;
@@ -58,24 +57,12 @@ public class TranslationSettingActivity extends BaseLocalActivity {
           IMKitConfigCenter.setAutoTranslationEnableTime(enableTime1);
         });
 
-    // 皮肤适配（参照 SettingUIKitActivity）
     android.view.ViewGroup.MarginLayoutParams layoutParams =
         (android.view.ViewGroup.MarginLayoutParams)
             viewBinding.llTranslationSettings.getLayoutParams();
-    if (AppSkinConfig.getInstance().getAppSkinStyle() == AppSkinConfig.AppSkin.baseSkin) {
-      // Normal 皮肤：容器无水平 margin，白色背景，顶部 16dp 间距
-      layoutParams.setMargins(0, SizeUtils.dp2px(16), 0, 0);
-      viewBinding.llTranslationSettings.setBackgroundColor(
-          ContextCompat.getColor(this, R.color.color_white));
-      viewBinding.scAutoTranslate.setThumbResource(R.drawable.switch_thumb_selector);
-      viewBinding.scAutoTranslate.setTrackResource(R.drawable.switch_track_selector);
-      // Switch 保持布局中的默认 switch_thumb_selector / switch_track_selector（绿色，来自 chatkit-ui Normal 皮肤）
-    } else {
-      // Fun 皮肤：容器左右各 20dp margin，Switch 覆盖为蓝色样式
-      layoutParams.setMargins(SizeUtils.dp2px(20), SizeUtils.dp2px(16), SizeUtils.dp2px(20), 0);
-      viewBinding.scAutoTranslate.setThumbResource(R.drawable.fun_setting_bg_switch_thumb_selector);
-      viewBinding.scAutoTranslate.setTrackResource(R.drawable.fun_setting_bg_switch_track_selector);
-    }
+    layoutParams.setMargins(SizeUtils.dp2px(20), SizeUtils.dp2px(16), SizeUtils.dp2px(20), 0);
+    viewBinding.scAutoTranslate.setThumbResource(R.drawable.fun_setting_bg_switch_thumb_selector);
+    viewBinding.scAutoTranslate.setTrackResource(R.drawable.fun_setting_bg_switch_track_selector);
     viewBinding.llTranslationSettings.setLayoutParams(layoutParams);
   }
 

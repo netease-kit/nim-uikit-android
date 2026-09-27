@@ -762,10 +762,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
   private void updateEarliestUnreadTipsTopMargin() {
     if (rootView == null || chatView == null) return;
     View tipsView = rootView.findViewById(R.id.earliestUnreadTipsLayout);
-    View notificationView = chatView.getRootView().findViewById(R.id.tv_notification);
-    if (notificationView == null) {
-      notificationView = chatView.getRootView().findViewById(R.id.notificationTextView);
-    }
+    View notificationView = chatView.getRootView().findViewById(R.id.notificationTextView);
     if (tipsView == null || notificationView == null) return;
     ViewGroup.LayoutParams params = tipsView.getLayoutParams();
     if (!(params instanceof LinearLayout.LayoutParams)) return;

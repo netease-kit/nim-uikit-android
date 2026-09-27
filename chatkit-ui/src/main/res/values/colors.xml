@@ -45,21 +45,10 @@
     <!-- 消息气泡 -->
     <color name="color_chat_message_sender_name">#3eaf96</color>
     <color name="color_chat_message_signal_bg">#FFFBEA</color>
+    <color name="color_chat_message_highlight">#007AFF</color>
 
     <!-- AI -->
     <color name="color_chat_ai_tag_text">#E75257</color>
-
-    <!-- ==================== Normal 皮肤专属颜色 ==================== -->
-    <!-- normal -->
-    <color name="color_chat_input_reply_divider">#d8eae4</color>
-    <color name="color_chat_input_reply_text">#929299</color>
-    <color name="color_chat_input_reply_bg">#eff1f4</color>
-    <color name="color_chat_message_highlight">#007AFF</color>
-    <color name="color_chat_message_text">#333333</color>
-    <color name="color_chat_rich_message_title">#222222</color>
-    <color name="color_chat_rich_message_content">#222222</color>
-    <color name="color_chat_new_message_tips">#1861DF</color>
-    <color name="color_chat_search_sub_text">#B3B7BC</color>
 
     <!-- ==================== Fun 皮肤专属颜色 ==================== -->
     <!-- Fun 公共 -->

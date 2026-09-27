@@ -9,7 +9,7 @@
     android:id="@+id/root_view"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/view_normal_selector"
+    android:background="@drawable/fun_view_selector"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <com.netease.yunxin.kit.common.ui.widgets.RoundFrameLayout

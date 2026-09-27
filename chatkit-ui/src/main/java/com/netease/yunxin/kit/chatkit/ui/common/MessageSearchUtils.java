@@ -8,7 +8,7 @@ import android.content.Context;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessage;
 import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.model.MessageGroup;
-import com.netease.yunxin.kit.chatkit.ui.normal.search.ChatSearchDateUtils;
+import com.netease.yunxin.kit.chatkit.ui.fun.search.ChatSearchDateUtils;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;

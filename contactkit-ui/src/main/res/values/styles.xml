@@ -7,12 +7,6 @@
 
 <resources>
 
-    <!-- ==================== Normal 皮肤样式 ==================== -->
-    <style name="SelectorRadioBtn" parent="Widget.AppCompat.CompoundButton.RadioButton">
-        <item name="android:button">@drawable/radio_button_selector</item>
-    </style>
-    <!-- ==================== Normal 皮肤样式 END ==================== -->
-
     <!-- ==================== Fun 皮肤样式 ==================== -->
     <style name="FunSelectorRadioBtn" parent="Widget.AppCompat.CompoundButton.RadioButton">
         <item name="android:button">@drawable/fun_radio_button_selector</item>

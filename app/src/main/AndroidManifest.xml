@@ -104,11 +104,6 @@
             android:exported="false" />
 
         <activity
-            android:name=".main.mine.setting.SkinActivity"
-            android:screenOrientation="portrait"
-            android:exported="false" />
-
-        <activity
             android:name=".main.mine.setting.SettingLanguageActivity"
             android:screenOrientation="portrait"
             android:exported="false" />
