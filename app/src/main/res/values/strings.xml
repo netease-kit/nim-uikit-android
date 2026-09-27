@@ -77,7 +77,6 @@
     <string name="setting_notify_push_sync">Multi-terminal</string>
     <string name="setting_notify_push_detail">Message Notification Banner</string>
     <string name="setting_complete">Done</string>
-    <string name="setting_skin">Skin</string>
     <string name="setting_language">Language</string>
     <string name="setting_chinese">中文</string>
     <string name="setting_english">English</string>
@@ -104,10 +103,6 @@
     <string name="imkit_email_fail">The email format is incorrect. Please check.</string>
     <string name="network_error">No internet</string>
     <string name="anti_error">Unsafe content detected. Please rephrase.</string>
-
-    <!--    skin-->
-    <string name="base_type">Base Skin</string>
-    <string name="common_skin">Common Skin</string>
 
     <!-- server config -->
     <string name="server_config_title">Server config</string>

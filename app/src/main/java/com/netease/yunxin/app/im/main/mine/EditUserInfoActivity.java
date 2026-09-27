@@ -22,7 +22,6 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import com.netease.nimlib.sdk.v2.user.V2NIMUser;
 import com.netease.nimlib.sdk.v2.user.params.V2NIMUserUpdateParams;
-import com.netease.yunxin.app.im.AppSkinConfig;
 import com.netease.yunxin.app.im.R;
 import com.netease.yunxin.app.im.databinding.ActivityEditNicknameBinding;
 import com.netease.yunxin.app.im.utils.AppUtils;
@@ -99,12 +98,10 @@ public class EditUserInfoActivity extends BaseLocalActivity {
     binding.etNickname.requestFocus();
 
     binding.ivClear.setOnClickListener(v -> binding.etNickname.setText(null));
-    if (AppSkinConfig.getInstance().getAppSkinStyle() == AppSkinConfig.AppSkin.commonSkin) {
-      setCommonSkin();
-    }
+    setFunSkin();
   }
 
-  private void setCommonSkin() {
+  private void setFunSkin() {
     changeStatusBarColor(R.color.color_ededed);
     binding.clyRoot.setBackgroundResource(R.color.color_ededed);
     binding.tvDone.setTextColor(getResources().getColor(R.color.color_58be6b));

@@ -24,7 +24,7 @@ import com.netease.yunxin.kit.common.ui.widgets.ContactAvatarView;
 import com.netease.yunxin.kit.common.utils.NetworkUtils;
 import com.netease.yunxin.kit.contactkit.ui.R;
 import com.netease.yunxin.kit.contactkit.ui.model.RobotInfoBean;
-import com.netease.yunxin.kit.contactkit.ui.normal.robot.RobotViewConfigActivity;
+import com.netease.yunxin.kit.contactkit.ui.fun.robot.FunRobotViewConfigActivity;
 import com.netease.yunxin.kit.contactkit.ui.utils.ColorUtils;
 import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
 import com.netease.yunxin.kit.corekit.route.XKitRouter;
@@ -205,7 +205,7 @@ public abstract class BaseRobotInfoActivity extends BaseLocalActivity {
   }
 
   protected Class<?> getViewConfigActivityClass() {
-    return RobotViewConfigActivity.class;
+    return FunRobotViewConfigActivity.class;
   }
 
   protected void goChat() {
@@ -221,7 +221,7 @@ public abstract class BaseRobotInfoActivity extends BaseLocalActivity {
   }
 
   protected int getConfirmPositiveColor() {
-    return ContextCompat.getColor(this, R.color.normal_page_primary_color);
+    return ContextCompat.getColor(this, R.color.fun_contact_primary_color);
   }
 
   /** 检查网络，无网 Toast 提示，返回 false 表示无网 */

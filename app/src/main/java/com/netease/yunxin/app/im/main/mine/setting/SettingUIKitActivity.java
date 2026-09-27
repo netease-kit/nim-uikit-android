@@ -11,7 +11,6 @@ import android.view.View;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
-import com.netease.yunxin.app.im.AppSkinConfig;
 import com.netease.yunxin.app.im.PictureEngine;
 import com.netease.yunxin.app.im.R;
 import com.netease.yunxin.app.im.databinding.ActivityKitConfigBinding;
@@ -34,14 +33,12 @@ public class SettingUIKitActivity extends BaseLocalActivity {
 
     setContentView(viewBinding.getRoot());
     initView();
-    if (AppSkinConfig.getInstance().getAppSkinStyle() == AppSkinConfig.AppSkin.commonSkin) {
-      changeStatusBarColor(R.color.color_ededed);
-      viewBinding.clRoot.setBackgroundResource(R.color.color_ededed);
-      viewBinding.kitSettingll.setBackgroundResource(R.color.color_white);
-      updateCommonView(
-          R.drawable.fun_setting_bg_switch_thumb_selector,
-          R.drawable.fun_setting_bg_switch_track_selector);
-    }
+    changeStatusBarColor(R.color.color_ededed);
+    viewBinding.clRoot.setBackgroundResource(R.color.color_ededed);
+    viewBinding.kitSettingll.setBackgroundResource(R.color.color_white);
+    updateCommonView(
+        R.drawable.fun_setting_bg_switch_thumb_selector,
+        R.drawable.fun_setting_bg_switch_track_selector);
   }
 
   private void initView() {

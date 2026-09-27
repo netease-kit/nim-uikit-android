@@ -16,7 +16,6 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.netease.nimlib.sdk.v2.user.V2NIMUser;
-import com.netease.yunxin.app.im.AppSkinConfig;
 import com.netease.yunxin.app.im.R;
 import com.netease.yunxin.app.im.about.AboutActivity;
 import com.netease.yunxin.app.im.databinding.FragmentMineBinding;
@@ -73,10 +72,7 @@ public class MineFragment extends BaseFragment {
     binding.userInfoClick.setOnClickListener(v -> MineInfoActivity.launch(getContext(), launcher));
     binding.collectLl.setOnClickListener(
         v -> {
-          String path =
-              AppSkinConfig.getInstance().getAppSkinStyle() == AppSkinConfig.AppSkin.commonSkin
-                  ? RouterConstant.PATH_FUN_COLLECTION_PAGE
-                  : RouterConstant.PATH_COLLECTION_PAGE;
+          String path = RouterConstant.PATH_FUN_COLLECTION_PAGE;
           XKitRouter.withKey(path).withContext(this.requireContext()).navigate();
         });
 
@@ -86,10 +82,8 @@ public class MineFragment extends BaseFragment {
   }
 
   private void refreshUserInfo(String account) {
-    if (AppSkinConfig.getInstance().getAppSkinStyle() == AppSkinConfig.AppSkin.commonSkin) {
-      int cornerRadius = SizeUtils.dp2px(4);
-      binding.cavIcon.setCornerRadius(cornerRadius);
-    }
+    int cornerRadius = SizeUtils.dp2px(4);
+    binding.cavIcon.setCornerRadius(cornerRadius);
     ContactRepo.getUserInfo(
         Collections.singletonList(account),
         new FetchCallback<List<V2NIMUser>>() {

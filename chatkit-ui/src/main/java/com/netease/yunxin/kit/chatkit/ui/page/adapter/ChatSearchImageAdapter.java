@@ -21,7 +21,7 @@ import com.netease.yunxin.kit.chatkit.ui.R;
 import com.netease.yunxin.kit.chatkit.ui.common.MessageSearchUtils;
 import com.netease.yunxin.kit.chatkit.ui.common.ThumbHelper;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatSearchItemDateHeaderBinding;
-import com.netease.yunxin.kit.chatkit.ui.databinding.ChatSearchItemImageBinding;
+import com.netease.yunxin.kit.chatkit.ui.databinding.FunChatSearchItemImageBinding;
 import com.netease.yunxin.kit.chatkit.ui.databinding.ChatSearchItemImageGridBinding;
 import com.netease.yunxin.kit.chatkit.ui.interfaces.IItemClickListener;
 import com.netease.yunxin.kit.chatkit.ui.model.MessageGroup;
@@ -403,8 +403,8 @@ public class ChatSearchImageAdapter extends RecyclerView.Adapter<RecyclerView.Vi
     @NonNull
     @Override
     public ImageViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-      ChatSearchItemImageBinding binding =
-          ChatSearchItemImageBinding.inflate(LayoutInflater.from(context), parent, false);
+      FunChatSearchItemImageBinding binding =
+          FunChatSearchItemImageBinding.inflate(LayoutInflater.from(context), parent, false);
       return new ImageViewHolder(binding);
     }
 
@@ -524,9 +524,9 @@ public class ChatSearchImageAdapter extends RecyclerView.Adapter<RecyclerView.Vi
 
     /** 图片视图持有者 */
     class ImageViewHolder extends RecyclerView.ViewHolder {
-      ChatSearchItemImageBinding binding;
+      FunChatSearchItemImageBinding binding;
 
-      public ImageViewHolder(@NonNull ChatSearchItemImageBinding binding) {
+      public ImageViewHolder(@NonNull FunChatSearchItemImageBinding binding) {
         super(binding.getRoot());
         this.binding = binding;
       }

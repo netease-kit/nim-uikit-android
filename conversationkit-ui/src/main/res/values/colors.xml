@@ -24,9 +24,6 @@
     <!-- 网络异常提示文字色（红） -->
     <color name="color_conversation_network_error_text">#fc596a</color>
 
-    <!-- ==================== Normal 皮肤专属颜色 ==================== -->
-    <!-- (Normal 皮肤无专属颜色，使用公共色) -->
-
     <!-- ==================== Fun 皮肤专属颜色 ==================== -->
     <color name="fun_conversation_page_bg_color">#ededed</color>
     <color name="fun_conversation_secondary_page_bg_color">#ededed</color>

@@ -11,7 +11,7 @@
     android:paddingStart="@dimen/dimen_8_dp"
     android:paddingEnd="@dimen/dimen_05_dp"
     android:layout_height="wrap_content"
-    android:background="@drawable/view_normal_selector"
+    android:background="@drawable/fun_view_selector"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 

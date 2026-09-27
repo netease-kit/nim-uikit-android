@@ -16,7 +16,6 @@ import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.netease.yunxin.app.im.AppSkinConfig;
 import com.netease.yunxin.app.im.IMApplication;
 import com.netease.yunxin.app.im.R;
 import com.netease.yunxin.app.im.databinding.ActivityMineSettingBinding;
@@ -95,9 +94,6 @@ public class SettingActivity extends BaseLocalActivity {
     viewBinding.notifyFl.setOnClickListener(
         v -> startActivity(new Intent(SettingActivity.this, SettingNotifyActivity.class)));
 
-    viewBinding.skinFl.setOnClickListener(
-        v -> startActivity(new Intent(SettingActivity.this, SkinActivity.class)));
-
     viewBinding.appLanguageLayout.setOnClickListener(
         view -> startActivity(new Intent(SettingActivity.this, SettingLanguageActivity.class)));
 
@@ -144,31 +140,29 @@ public class SettingActivity extends BaseLocalActivity {
                         }
                     }));
     viewBinding.settingTitleBar.setOnBackIconClickListener(v -> onBackPressed());
-    if (AppSkinConfig.getInstance().getAppSkinStyle() == AppSkinConfig.AppSkin.commonSkin) {
-      changeStatusBarColor(R.color.color_ededed);
-      viewBinding.clRoot.setBackgroundResource(R.color.color_ededed);
-      viewBinding.nextGroupLl.setBackgroundResource(R.color.color_white);
-      ViewGroup.MarginLayoutParams layoutParams =
-          (ViewGroup.MarginLayoutParams) viewBinding.nextGroupLl.getLayoutParams();
-      layoutParams.setMargins(0, 0, 0, 0);
-      viewBinding.nextGroupLl.setLayoutParams(layoutParams);
+    changeStatusBarColor(R.color.color_ededed);
+    viewBinding.clRoot.setBackgroundResource(R.color.color_ededed);
+    viewBinding.nextGroupLl.setBackgroundResource(R.color.color_white);
+    ViewGroup.MarginLayoutParams layoutParams =
+        (ViewGroup.MarginLayoutParams) viewBinding.nextGroupLl.getLayoutParams();
+    layoutParams.setMargins(0, 0, 0, 0);
+    viewBinding.nextGroupLl.setLayoutParams(layoutParams);
 
-      viewBinding.notifyMessageLl.setBackgroundResource(R.color.color_white);
-      ViewGroup.MarginLayoutParams layoutParamsN =
-          (ViewGroup.MarginLayoutParams) viewBinding.notifyMessageLl.getLayoutParams();
-      layoutParamsN.setMargins(0, SizeUtils.dp2px(6), 0, 0);
-      viewBinding.notifyMessageLl.setLayoutParams(layoutParamsN);
+    viewBinding.notifyMessageLl.setBackgroundResource(R.color.color_white);
+    ViewGroup.MarginLayoutParams layoutParamsN =
+        (ViewGroup.MarginLayoutParams) viewBinding.notifyMessageLl.getLayoutParams();
+    layoutParamsN.setMargins(0, SizeUtils.dp2px(6), 0, 0);
+    viewBinding.notifyMessageLl.setLayoutParams(layoutParamsN);
 
-      viewBinding.tvLogout.setBackgroundResource(R.color.color_white);
-      ViewGroup.MarginLayoutParams layoutParamsL =
-          (ViewGroup.MarginLayoutParams) viewBinding.tvLogout.getLayoutParams();
-      layoutParamsL.setMargins(0, SizeUtils.dp2px(6), 0, 0);
-      viewBinding.tvLogout.setLayoutParams(layoutParamsL);
+    viewBinding.tvLogout.setBackgroundResource(R.color.color_white);
+    ViewGroup.MarginLayoutParams layoutParamsL =
+        (ViewGroup.MarginLayoutParams) viewBinding.tvLogout.getLayoutParams();
+    layoutParamsL.setMargins(0, SizeUtils.dp2px(6), 0, 0);
+    viewBinding.tvLogout.setLayoutParams(layoutParamsL);
 
-      updateCommonView(
-          R.drawable.fun_setting_bg_switch_thumb_selector,
-          R.drawable.fun_setting_bg_switch_track_selector);
-    }
+    updateCommonView(
+        R.drawable.fun_setting_bg_switch_thumb_selector,
+        R.drawable.fun_setting_bg_switch_track_selector);
   }
 
   @Override

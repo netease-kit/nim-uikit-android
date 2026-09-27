@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.view.ViewGroup;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
-import com.netease.yunxin.app.im.AppSkinConfig;
 import com.netease.yunxin.app.im.R;
 import com.netease.yunxin.app.im.databinding.ActivityMineSettingNotifyBinding;
 import com.netease.yunxin.kit.common.ui.activities.BaseLocalActivity;
@@ -74,9 +73,7 @@ public class SettingNotifyActivity extends BaseLocalActivity {
             viewModel.setPushShowNoDetail(
                 SettingNotifyActivity.this, !viewBinding.notifyShowInfoSc.isChecked()));
     viewBinding.settingTitleBar.setOnBackIconClickListener(v -> onBackPressed());
-    if (AppSkinConfig.getInstance().getAppSkinStyle() == AppSkinConfig.AppSkin.commonSkin) {
-      updateCommonView();
-    }
+    updateCommonView();
   }
 
   private void updateCommonView() {

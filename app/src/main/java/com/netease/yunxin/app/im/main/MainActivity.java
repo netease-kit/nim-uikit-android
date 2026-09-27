@@ -39,7 +39,6 @@ import com.netease.nimlib.sdk.v2.message.config.V2NIMMessagePushConfig;
 import com.netease.nimlib.sdk.v2.message.params.V2NIMSendMessageParams;
 import com.netease.nimlib.sdk.v2.user.V2NIMUser;
 import com.netease.yunxin.app.im.AppConfig;
-import com.netease.yunxin.app.im.AppSkinConfig;
 import com.netease.yunxin.app.im.BuildConfig;
 import com.netease.yunxin.app.im.R;
 import com.netease.yunxin.app.im.databinding.ActivityMainBinding;
@@ -78,18 +77,15 @@ import com.netease.yunxin.kit.common.ui.widgets.ContentListPopView;
 import com.netease.yunxin.kit.common.utils.SizeUtils;
 import com.netease.yunxin.kit.contactkit.ui.contact.BaseContactFragment;
 import com.netease.yunxin.kit.contactkit.ui.fun.contact.FunContactFragment;
-import com.netease.yunxin.kit.contactkit.ui.normal.contact.ContactFragment;
 import com.netease.yunxin.kit.conversationkit.local.ui.LocalConversationKitClient;
 import com.netease.yunxin.kit.conversationkit.local.ui.LocalConversationUIConfig;
 import com.netease.yunxin.kit.conversationkit.local.ui.fun.page.FunLocalConversationFragment;
-import com.netease.yunxin.kit.conversationkit.local.ui.normal.page.LocalConversationFragment;
 import com.netease.yunxin.kit.conversationkit.local.ui.page.LocalConversationBaseFragment;
 import com.netease.yunxin.kit.conversationkit.ui.ConversationKitClient;
 import com.netease.yunxin.kit.conversationkit.ui.ConversationUIConfig;
 import com.netease.yunxin.kit.conversationkit.ui.IConversationViewLayout;
 import com.netease.yunxin.kit.conversationkit.ui.fun.FunPopItemFactory;
 import com.netease.yunxin.kit.conversationkit.ui.fun.page.FunConversationFragment;
-import com.netease.yunxin.kit.conversationkit.ui.normal.page.ConversationFragment;
 import com.netease.yunxin.kit.conversationkit.ui.page.ConversationBaseFragment;
 import com.netease.yunxin.kit.corekit.event.BaseEvent;
 import com.netease.yunxin.kit.corekit.event.EventCenter;
@@ -145,24 +141,6 @@ public class MainActivity extends BaseLocalActivity {
   // 翻译数字人账号
   private static final String AI_TRANSLATION_USER_ACCOUNT = "translation";
 
-  //皮肤变更事件，切换皮肤后重新加载页面
-  EventNotify<SkinEvent> skinNotify =
-      new EventNotify<SkinEvent>() {
-        @Override
-        public void onNotify(@NonNull SkinEvent message) {
-          Intent intent = getIntent();
-          finish();
-          intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-          startActivity(intent);
-        }
-
-        @NonNull
-        @Override
-        public String getEventType() {
-          return "skinEvent";
-        }
-      };
-
   //语音变更事件，切换语言后重新加载页面
   EventNotify<MultiLanguageUtils.LangEvent> langeNotify =
       new EventNotify<MultiLanguageUtils.LangEvent>() {
@@ -208,7 +186,6 @@ public class MainActivity extends BaseLocalActivity {
     setContentView(activityMainBinding.getRoot());
     initView();
     initData();
-    EventCenter.registerEventNotify(skinNotify);
     EventCenter.registerEventNotify(langeNotify);
     initContactFragment(mContactFragment);
     initConversationFragment();
@@ -332,34 +309,17 @@ public class MainActivity extends BaseLocalActivity {
   }
 
   private void initView() {
-    // 判断是否是通用皮肤
-    boolean isCommonSkin =
-        AppSkinConfig.getInstance().getAppSkinStyle() == AppSkinConfig.AppSkin.commonSkin;
     ALog.i(Constant.PROJECT_TAG, "MainActivity:initView currentIndex = " + currentIndex);
     List<Fragment> fragments = new ArrayList<>();
     boolean cloudConversation = DataUtils.getCloudConversationConfigSwitch(this);
-    // 根据皮肤类型加载不同的Fragment
-    if (isCommonSkin) {
-      changeStatusBarColor(R.color.fun_page_bg_color);
-      // 通用皮肤，使用FunConversationFragment和FunContactFragment
-      if (cloudConversation) {
-        mConversationFragment = new FunConversationFragment();
-      } else {
-        mLocalConversationFragment = new FunLocalConversationFragment();
-      }
-      mContactFragment = new FunContactFragment();
-
+    changeStatusBarColor(R.color.fun_page_bg_color);
+    if (cloudConversation) {
+      mConversationFragment = new FunConversationFragment();
     } else {
-      // 协同皮肤使用ConversationFragment和ContactFragment
-      changeStatusBarColor(R.color.normal_page_bg_color);
-      if (cloudConversation) {
-        mConversationFragment = new ConversationFragment();
-      } else {
-        mLocalConversationFragment = new LocalConversationFragment();
-      }
-      mContactFragment = new ContactFragment();
+      mLocalConversationFragment = new FunLocalConversationFragment();
     }
-    loadCustomConfig(isCommonSkin);
+    mContactFragment = new FunContactFragment();
+    loadCustomConfig(true);
     if (mConversationFragment != null) {
       fragments.add(mConversationFragment);
     } else {
@@ -385,7 +345,7 @@ public class MainActivity extends BaseLocalActivity {
     }
     changeStatusBarColor(R.color.color_white);
     resetTabStyle();
-    resetTabSkin(isCommonSkin);
+    resetTabSkin(true);
     if (haveUnreadConversation) {
       activityMainBinding.conversationDot.setVisibility(View.VISIBLE);
     }
@@ -421,7 +381,6 @@ public class MainActivity extends BaseLocalActivity {
   @Override
   protected void onDestroy() {
     ALog.i(Constant.PROJECT_TAG, "MainActivity:onDestroy");
-    EventCenter.unregisterEventNotify(skinNotify);
     EventCenter.unregisterEventNotify(langeNotify);
     super.onDestroy();
   }
@@ -435,7 +394,7 @@ public class MainActivity extends BaseLocalActivity {
     }
     resetTabStyle();
     mCurrentTab = view;
-    resetTabSkin(AppSkinConfig.getInstance().getAppSkinStyle() == AppSkinConfig.AppSkin.commonSkin);
+    resetTabSkin(true);
   }
 
   @SuppressLint("UseCompatLoadingForDrawables")
@@ -792,21 +751,15 @@ public class MainActivity extends BaseLocalActivity {
             IMMessage message = (IMMessage) msg;
             String targetId = message.getSessionId();
             SessionTypeEnum conversationType = message.getSessionType();
-            boolean isNormal =
-                AppSkinConfig.getInstance().getAppSkinStyle() == AppSkinConfig.AppSkin.baseSkin;
             if (conversationType == SessionTypeEnum.P2P) {
               XKitRouter.withKey(
-                      isNormal
-                          ? RouterConstant.PATH_CHAT_P2P_PAGE
-                          : RouterConstant.PATH_FUN_CHAT_P2P_PAGE)
+                      RouterConstant.PATH_FUN_CHAT_P2P_PAGE)
                   .withParam(RouterConstant.CHAT_ID_KRY, targetId)
                   .withContext(this)
                   .navigate();
             } else if (conversationType == SessionTypeEnum.Team) {
               XKitRouter.withKey(
-                      isNormal
-                          ? RouterConstant.PATH_CHAT_TEAM_PAGE
-                          : RouterConstant.PATH_FUN_CHAT_TEAM_PAGE)
+                      RouterConstant.PATH_FUN_CHAT_TEAM_PAGE)
                   .withParam(RouterConstant.CHAT_ID_KRY, targetId)
                   .withContext(this)
                   .navigate();
@@ -940,12 +893,7 @@ public class MainActivity extends BaseLocalActivity {
 
       // 二维码有效，跳转到机器人绑定页面，传入 qrCodeId
       ALog.i(Constant.PROJECT_TAG, "onScanResult: 跳转绑定页, qrCodeId=" + qrCodeId);
-      boolean isCommonSkin =
-          AppSkinConfig.getInstance().getAppSkinStyle() == AppSkinConfig.AppSkin.commonSkin;
-      String routerPath =
-          isCommonSkin
-              ? RouterConstant.PATH_FUN_MY_ROBOT_BIND_PAGE
-              : RouterConstant.PATH_MY_ROBOT_BIND_PAGE;
+      String routerPath = RouterConstant.PATH_FUN_MY_ROBOT_BIND_PAGE;
       XKitRouter.withKey(routerPath)
           .withContext(this)
           .withParam(RouterConstant.KEY_ROBOT_QR_CODE_ID, qrCodeId)
@@ -957,12 +905,4 @@ public class MainActivity extends BaseLocalActivity {
     }
   }
 
-  //皮肤变更事件
-  public static class SkinEvent extends BaseEvent {
-    @NonNull
-    @Override
-    public String getType() {
-      return "skinEvent";
-    }
-  }
 }

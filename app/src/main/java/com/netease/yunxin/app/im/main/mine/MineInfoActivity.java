@@ -21,7 +21,6 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import com.netease.nimlib.sdk.v2.user.V2NIMUser;
 import com.netease.nimlib.sdk.v2.user.params.V2NIMUserUpdateParams;
-import com.netease.yunxin.app.im.AppSkinConfig;
 import com.netease.yunxin.app.im.R;
 import com.netease.yunxin.app.im.databinding.ActivityMineInfoBinding;
 import com.netease.yunxin.app.im.utils.Constant;
@@ -39,7 +38,6 @@ import com.netease.yunxin.kit.common.utils.SizeUtils;
 import com.netease.yunxin.kit.corekit.im2.IMKitClient;
 import com.netease.yunxin.kit.corekit.im2.extend.FetchCallback;
 import com.netease.yunxin.kit.teamkit.ui.fun.dialog.FunPhotoChoiceDialog;
-import com.netease.yunxin.kit.teamkit.ui.normal.dialog.ImageChoiceDialog;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -123,12 +121,10 @@ public class MineInfoActivity extends BaseLocalActivity {
               selectIndex,
               launcher);
         });
-    if (AppSkinConfig.getInstance().getAppSkinStyle() == AppSkinConfig.AppSkin.commonSkin) {
-      setCommonSkin();
-    }
+    setFunSkin();
   }
 
-  private void setCommonSkin() {
+  private void setFunSkin() {
     int cornerRadius = SizeUtils.dp2px(4);
     binding.cavAvatar.setCornerRadius(cornerRadius);
 
@@ -183,12 +179,7 @@ public class MineInfoActivity extends BaseLocalActivity {
   }
 
   private void choicePhoto() {
-    BasePhotoChoiceDialog choiceDialog;
-    if (AppSkinConfig.getInstance().getAppSkinStyle() == AppSkinConfig.AppSkin.commonSkin) {
-      choiceDialog = new FunPhotoChoiceDialog(this);
-    } else {
-      choiceDialog = new ImageChoiceDialog(this);
-    }
+    BasePhotoChoiceDialog choiceDialog = new FunPhotoChoiceDialog(this);
     choiceDialog.show(
         new CommonCallback<File>() {
           @Override

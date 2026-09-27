@@ -40,7 +40,7 @@ import com.netease.yunxin.kit.corekit.im2.IMKitClient;
 import com.netease.yunxin.kit.teamkit.ui.R;
 import com.netease.yunxin.kit.teamkit.ui.adapter.BaseTeamMemberListAdapter;
 import com.netease.yunxin.kit.teamkit.ui.model.EventCloseChat;
-import com.netease.yunxin.kit.teamkit.ui.normal.adapter.TeamMemberListAdapter;
+import com.netease.yunxin.kit.teamkit.ui.fun.adapter.FunTeamMemberListAdapter;
 import com.netease.yunxin.kit.teamkit.ui.utils.TeamKitTeamMemberCache;
 import com.netease.yunxin.kit.teamkit.ui.utils.TeamUIKitConstant;
 import com.netease.yunxin.kit.teamkit.ui.utils.TeamUtils;
@@ -132,7 +132,7 @@ public abstract class BaseTeamManagerListActivity extends BaseLocalActivity {
       adapter.setShowRemoveTagWithMemberType(V2NIMTeamMemberRole.V2NIM_TEAM_MEMBER_ROLE_MANAGER);
       adapter.setItemClickListener(
           (action, view, data, position) -> {
-            if (action.equals(TeamMemberListAdapter.ACTION_REMOVE)) {
+            if (action.equals(FunTeamMemberListAdapter.ACTION_REMOVE)) {
               doActionAndFilterNetworkBroken(
                   this,
                   () -> {

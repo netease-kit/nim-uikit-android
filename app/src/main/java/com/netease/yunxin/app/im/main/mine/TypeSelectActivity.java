@@ -15,7 +15,6 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.content.res.AppCompatResources;
-import com.netease.yunxin.app.im.AppSkinConfig;
 import com.netease.yunxin.app.im.R;
 import com.netease.yunxin.app.im.databinding.TypeSelectActivityBinding;
 import com.netease.yunxin.app.im.utils.Constant;
@@ -71,12 +70,10 @@ public class TypeSelectActivity extends BaseLocalActivity {
           back();
         });
 
-    if (AppSkinConfig.getInstance().getAppSkinStyle() == AppSkinConfig.AppSkin.commonSkin) {
-      setCommonSkin();
-    }
+    setFunSkin();
   }
 
-  private void setCommonSkin() {
+  private void setFunSkin() {
     changeStatusBarColor(R.color.color_ededed);
     viewBinding.llyRoot.setBackgroundResource(R.color.color_ededed);
 

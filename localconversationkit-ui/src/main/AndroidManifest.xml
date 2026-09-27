@@ -20,10 +20,6 @@
                 android:value="xkit.startup" />
         </provider>
 
-        <activity android:name=".normal.page.LocalConversationActivity"
-            android:screenOrientation="portrait"
-            android:exported="false"
-            tools:ignore="DiscouragedApi" />
         <activity android:name=".fun.page.FunLocalConversationActivity"
             android:screenOrientation="portrait"
             android:exported="false"

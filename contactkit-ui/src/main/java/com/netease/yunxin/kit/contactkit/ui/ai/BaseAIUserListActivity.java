@@ -14,7 +14,7 @@ import com.netease.yunxin.kit.common.utils.NetworkUtils;
 import com.netease.yunxin.kit.contactkit.ui.R;
 import com.netease.yunxin.kit.contactkit.ui.activity.BaseListActivity;
 import com.netease.yunxin.kit.contactkit.ui.model.IViewTypeConstant;
-import com.netease.yunxin.kit.contactkit.ui.normal.view.ContactViewHolderFactory;
+import com.netease.yunxin.kit.contactkit.ui.fun.view.FunContactViewHolderFactory;
 import com.netease.yunxin.kit.contactkit.ui.view.viewholder.AIUserViewHolder;
 import com.netease.yunxin.kit.contactkit.ui.view.viewholder.BaseContactViewHolder;
 import com.netease.yunxin.kit.corekit.im2.utils.RouterConstant;
@@ -69,7 +69,7 @@ public class BaseAIUserListActivity extends BaseListActivity {
 
   protected void setViewHolder() {
     binding.contactListView.setViewHolderFactory(
-        new ContactViewHolderFactory() {
+        new FunContactViewHolderFactory() {
           @Override
           protected BaseContactViewHolder getCustomViewHolder(ViewGroup view, int viewType) {
             if (viewType == IViewTypeConstant.CONTACT_AI_USER) {

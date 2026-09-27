@@ -34,7 +34,7 @@ import com.netease.yunxin.kit.common.ui.viewmodel.FetchResult;
 import com.netease.yunxin.kit.corekit.im2.IMKitClient;
 import com.netease.yunxin.kit.teamkit.ui.R;
 import com.netease.yunxin.kit.teamkit.ui.dialog.BaseTeamIdentifyDialog;
-import com.netease.yunxin.kit.teamkit.ui.normal.dialog.TeamIdentifyDialog;
+import com.netease.yunxin.kit.teamkit.ui.fun.dialog.FunTeamIdentifyDialog;
 import com.netease.yunxin.kit.teamkit.ui.utils.NetworkUtilsWrapper;
 import com.netease.yunxin.kit.teamkit.ui.utils.TeamUtils;
 import com.netease.yunxin.kit.teamkit.ui.viewmodel.TeamManagerViewModel;
@@ -247,7 +247,7 @@ public abstract class BaseTeamManagerActivity extends BaseLocalActivity {
 
   // 获取设置权限设置对话框
   protected BaseTeamIdentifyDialog getTeamIdentifyDialog() {
-    return new TeamIdentifyDialog(this);
+    return new FunTeamIdentifyDialog(this);
   }
 
   // 群更新信息观察者

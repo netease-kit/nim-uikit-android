@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.LinearLayout;
 import androidx.annotation.Nullable;
-import com.netease.yunxin.app.im.AppSkinConfig;
 import com.netease.yunxin.app.im.R;
 import com.netease.yunxin.app.im.databinding.ActivityLanguageSettingBinding;
 import com.netease.yunxin.app.im.utils.MultiLanguageUtils;
@@ -61,17 +60,10 @@ public class SettingLanguageActivity extends BaseLocalActivity {
             });
     LinearLayout.LayoutParams layoutParams =
         (LinearLayout.LayoutParams) viewBinding.llyContainer.getLayoutParams();
-    if (AppSkinConfig.getInstance().getAppSkinStyle() == AppSkinConfig.AppSkin.commonSkin) {
-      viewBinding.langSettingTitleBar.setActionTextColor(
-          getResources().getColor(R.color.color_58be6b));
-      layoutParams.setMargins(0, SizeUtils.dp2px(20), 0, SizeUtils.dp2px(20));
-      viewBinding.llyContainer.setBackgroundColor(getResources().getColor(R.color.color_white));
-    } else {
-      viewBinding.langSettingTitleBar.setActionTextColor(
-          getResources().getColor(R.color.color_337EFF));
-      layoutParams.setMargins(
-          SizeUtils.dp2px(20), SizeUtils.dp2px(20), SizeUtils.dp2px(20), SizeUtils.dp2px(20));
-    }
+    viewBinding.langSettingTitleBar.setActionTextColor(
+        getResources().getColor(R.color.color_337EFF));
+    layoutParams.setMargins(
+        SizeUtils.dp2px(20), SizeUtils.dp2px(20), SizeUtils.dp2px(20), SizeUtils.dp2px(20));
     viewBinding.llyContainer.setLayoutParams(layoutParams);
 
     viewBinding.rlyChinese.setOnClickListener(
