@@ -16,7 +16,7 @@ android {
         minSdk = 24
         targetSdk = 34
         versionCode = 1
-        versionName = "10.9.60-beta02"
+        versionName = "10.9.60-beta03"
         multiDexEnabled = true
 
         ndk {
@@ -61,23 +61,23 @@ dependencies {
     // 以下本地依赖和远端依赖不能同时引入，否则会报错。根据您的项目需要来进行切换
     // ---- start ----
     //本地代码依赖
-//    implementation(project(":contactkit-ui"))
-//    implementation(project(":conversationkit-ui"))
-//    implementation(project(":localconversationkit-ui"))
-//    implementation(project(":teamkit-ui"))
-//    implementation(project(":chatkit-ui"))
-//    implementation(project(":locationkit"))
-//    implementation(project(":aisearchkit"))
+    implementation(project(":contactkit-ui"))
+    implementation(project(":conversationkit-ui"))
+    implementation(project(":localconversationkit-ui"))
+    implementation(project(":teamkit-ui"))
+    implementation(project(":chatkit-ui"))
+    implementation(project(":locationkit"))
+    implementation(project(":aisearchkit"))
 
     //远端aar依赖
-    implementation("com.netease.yunxin.kit.contact:contactkit-ui:10.9.60-beta02")
-    implementation("com.netease.yunxin.kit.conversation:conversationkit-ui:10.9.60-beta02")
-    implementation("com.netease.yunxin.kit.localconversation:localconversationkit-ui:10.9.60-beta02")
-    implementation("com.netease.yunxin.kit.team:teamkit-ui:10.9.60-beta02")
-    implementation("com.netease.yunxin.kit.chat:chatkit-ui:10.9.60-beta02")
-    implementation("com.netease.yunxin.kit.chat:chatkit:10.9.60-beta02")
-    implementation("com.netease.yunxin.kit.locationkit:locationkit:10.9.60-beta02")
-    implementation("com.netease.yunxin.kit.aisearchkit:aisearchkit:10.9.60-beta02")
+//    implementation("com.netease.yunxin.kit.contact:contactkit-ui:10.9.60-beta03")
+//    implementation("com.netease.yunxin.kit.conversation:conversationkit-ui:10.9.60-beta03")
+//    implementation("com.netease.yunxin.kit.localconversation:localconversationkit-ui:10.9.60-beta03")
+//    implementation("com.netease.yunxin.kit.team:teamkit-ui:10.9.60-beta03")
+//    implementation("com.netease.yunxin.kit.chat:chatkit-ui:10.9.60-beta03")
+//    implementation("com.netease.yunxin.kit.chat:chatkit:10.9.60-beta03")
+//    implementation("com.netease.yunxin.kit.locationkit:locationkit:10.9.60-beta03")
+//    implementation("com.netease.yunxin.kit.aisearchkit:aisearchkit:10.9.60-beta03")
 
     // ---- end ----
 
@@ -86,9 +86,7 @@ dependencies {
 
     // 以下为必需引入的依赖
     //呼叫组件 UI 包
-    implementation("com.netease.yunxin.kit.call:call-ui:4.8.2"){
-         exclude(group = "com.netease.yunxin.kit.core", module = "corekit")
-    }
+    implementation("com.netease.yunxin.kit.call:call-ui:4.8.2")
     implementation("com.netease.nimlib:avsignalling:10.11.1") //信令组件
     api("com.netease.nimlib:lucene:10.11.1") // 历史消息检索功能
     api("com.netease.yunxin.kit.common:common-picturechoose:1.1.0") //图片选择组件
