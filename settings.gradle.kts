@@ -6,6 +6,9 @@
 
 pluginManagement {
     repositories {
+        maven {
+            setUrl("https://yunxin-maven-repo.netease.im/repository/maven-public/")
+        }
         gradlePluginPortal()
         google()
         mavenCentral()
@@ -21,6 +24,9 @@ pluginManagement {
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
+        maven {
+            setUrl("https://yunxin-maven-repo.netease.im/repository/maven-public/")
+        }
         google()
         mavenCentral()
         maven {
