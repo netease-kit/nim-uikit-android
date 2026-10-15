@@ -1,0 +1,19 @@
+id: feature.message-reaction
+kind: feature-prune
+status: not-present-at-official-baseline
+baseline: d6cef8e9c72873c8f5198bfdbf217d440a52487c
+scope: UIKit-local message reaction UI and feature-exclusive local state/call paths only
+discovery_hints:
+  - ReactionGroupView
+  - MessageReactionState
+  - ReactionEmojiManager
+  - reaction callbacks and payloads
+  - chat_message_action_emoji_reaction
+immutable:
+  - Maven SDK, chat, corekit, and common UI artifacts
+  - generic emoji input and shared message rendering
+absent_behavior: return-NOT_PRESENT-without-edits-when-no-local-reaction-experience-is-found
+required_evidence:
+  - trace local entry points through state, rendering, callbacks, and resources
+  - separate feature-exclusive code from shared responsibilities
+  - verify no feature-owned local references remain after pruning

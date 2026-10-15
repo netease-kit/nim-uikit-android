@@ -1,0 +1,19 @@
+id: feature.earliest-unread
+kind: feature-prune
+status: not-present-at-official-baseline
+baseline: d6cef8e9c72873c8f5198bfdbf217d440a52487c
+scope: chat-page earliest-unread prompt and dedicated positioning flow only
+discovery_hints:
+  - EarliestUnreadController
+  - earliestUnread or lastReadPosition page state
+  - dedicated prompt layout IDs and strings
+  - feature-specific global enable flag
+immutable:
+  - Maven SDK, chat, corekit, and common UI artifacts
+  - conversation unread/read APIs and clear-unread behavior
+  - generic history loading and newest-message navigation
+absent_behavior: return-NOT_PRESENT-without-edits-when-no-local-earliest-unread-prompt-is-found
+required_evidence:
+  - trace page lifecycle, count query, boundary check, anchor lookup, and both skin UIs
+  - preserve multi-select behavior and shared message-list state
+  - verify no prompt-owned local references remain after pruning
