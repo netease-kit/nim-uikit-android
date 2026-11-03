@@ -196,6 +196,9 @@ public class MessageHelper {
    * @return UI展示昵称
    */
   public static String getChatMessageUserNameByAccount(String account, V2NIMConversationType type) {
+    if (TextUtils.isEmpty(account)) {
+      return "";
+    }
     //数字人直接返回
     if (AIUserManager.getAIUserById(account) != null) {
       V2NIMAIUser aiUser = AIUserManager.getAIUserById(account);
@@ -364,9 +367,12 @@ public class MessageHelper {
    */
   public static String getMessageAvatarName(V2NIMMessage message) {
     if (message == null) {
-      return null;
+      return "";
     }
     String account = getRealMessageSenderId(message);
+    if (TextUtils.isEmpty(account)) {
+      return "";
+    }
     if (AIUserManager.getAIUserById(account) != null) {
       V2NIMAIUser aiUser = AIUserManager.getAIUserById(account);
       return TextUtils.isEmpty(aiUser.getName()) ? account : aiUser.getName();
@@ -1597,11 +1603,9 @@ public class MessageHelper {
       String conversationName, V2NIMMessage message) {
     int type = message.getMessageType().getValue() + COLLECTION_TYPE_START;
     String data = V2NIMMessageConverter.messageSerialization(message);
-    String senderName =
-        getChatMessageUserNameByAccount(
-            getRealMessageSenderId(message), message.getConversationType());
-    String senderAvatar =
-        getChatCacheAvatar(getRealMessageSenderId(message), message.getConversationType());
+    String account = getRealMessageSenderId(message);
+    String senderName = getChatMessageUserNameByAccount(account, message.getConversationType());
+    String senderAvatar = getChatCacheAvatar(account, message.getConversationType());
     JSONObject paramJson = new JSONObject();
     try {
       paramJson.put("message", data);

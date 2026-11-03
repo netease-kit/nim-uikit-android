@@ -722,6 +722,7 @@ public abstract class BaseTeamSettingActivity extends BaseLocalActivity {
 
   @Override
   protected void onDestroy() {
+    EventCenter.unregisterEventNotify(closeEventNotify);
     super.onDestroy();
   }
 

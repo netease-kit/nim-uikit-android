@@ -751,6 +751,12 @@ public class ChatView extends LinearLayout implements IChatView, AitTextChangeLi
     return super.onInterceptTouchEvent(ev);
   }
 
+  @Override
+  protected void onDetachedFromWindow() {
+    SelectableTextHelper.getInstance().release();
+    super.onDetachedFromWindow();
+  }
+
   //判断点击的位置是否在view内
   private boolean isViewUnder(View view, float x, float y) {
     int[] location = new int[2];

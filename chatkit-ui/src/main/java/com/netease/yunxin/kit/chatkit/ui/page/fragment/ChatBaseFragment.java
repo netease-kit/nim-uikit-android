@@ -3011,6 +3011,7 @@ public abstract class ChatBaseFragment extends BaseFragment {
   @Override
   public void onDestroyView() {
     ALog.i(LIB_TAG, LOG_TAG, "onDestroyView");
+    SelectableTextHelper.getInstance().release();
     clearPendingPopupRequest();
     if (earliestUnreadController != null) {
       earliestUnreadController.onDestroyView();

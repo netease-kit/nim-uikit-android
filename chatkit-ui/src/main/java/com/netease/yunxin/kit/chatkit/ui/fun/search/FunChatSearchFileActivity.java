@@ -11,6 +11,7 @@ import android.view.View;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.netease.nimlib.sdk.v2.message.V2NIMMessage;
@@ -27,6 +28,7 @@ import com.netease.yunxin.kit.chatkit.ui.interfaces.IItemClickListener;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.model.MessageGroup;
 import com.netease.yunxin.kit.chatkit.ui.page.viewmodel.ChatSearchFileViewModel;
+import com.netease.yunxin.kit.chatkit.ui.textSelectionHelper.SelectableTextHelper;
 import com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants;
 import com.netease.yunxin.kit.chatkit.utils.ErrorUtils;
 import com.netease.yunxin.kit.common.ui.action.ActionItem;
@@ -86,17 +88,17 @@ public class FunChatSearchFileActivity extends BaseLocalActivity {
       finish();
       return;
     }
-    searchFileViewModel = new ChatSearchFileViewModel();
+    searchFileViewModel = new ViewModelProvider(this).get(ChatSearchFileViewModel.class);
     searchFileViewModel.init(conversationId);
     // 搜索文件消息结果回调
-    searchFileViewModel.getSearchFileLiveData().observeForever(this::onLoadSearchResult);
+    searchFileViewModel.getSearchFileLiveData().observe(this, this::onLoadSearchResult);
     // 附件下载监听，文件消息、视频消息等下载进度更新
     searchFileViewModel
         .getAttachmentProgressLiveData()
-        .observeForever(this::onAttachmentUpdateProgress);
+        .observe(this, this::onAttachmentUpdateProgress);
     searchFileViewModel
         .getMessageDeletedOrRevokedLiveData()
-        .observeForever(this::onMessageDeletedOrRevoked);
+        .observe(this, this::onMessageDeletedOrRevoked);
     showLoading();
     searchFileViewModel.searchFileMessages();
   }
@@ -316,6 +318,7 @@ public class FunChatSearchFileActivity extends BaseLocalActivity {
 
   @Override
   protected void onDestroy() {
+    SelectableTextHelper.getInstance().release();
     super.onDestroy();
   }
 }
