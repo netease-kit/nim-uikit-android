@@ -6,6 +6,9 @@
   -->
 
 <resources>
+    <!-- 兼容公共代码仍使用的历史颜色资源名 -->
+    <color name="color_337eff">#337eff</color>
+
     <!-- ==================== 语义命名颜色（公共） ==================== -->
     <!-- 基础白色 -->
     <color name="color_white">#FFFFFF</color>
