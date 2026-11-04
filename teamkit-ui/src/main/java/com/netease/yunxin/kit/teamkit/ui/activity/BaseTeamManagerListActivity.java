@@ -152,6 +152,12 @@ public abstract class BaseTeamManagerListActivity extends BaseLocalActivity {
     return null;
   }
 
+  @Override
+  protected void onDestroy() {
+    EventCenter.unregisterEventNotify(closeEventNotify);
+    super.onDestroy();
+  }
+
   private void initData() {
     // 初始化配置ViewModel teamId
     viewModel.configTeamId(teamInfo.getTeamId());

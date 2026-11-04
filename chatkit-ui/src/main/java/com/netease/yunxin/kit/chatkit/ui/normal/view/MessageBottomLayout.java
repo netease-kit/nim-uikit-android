@@ -585,7 +585,11 @@ public class MessageBottomLayout extends FrameLayout
       mBinding.chatMsgInputAIHelper.setChecked(false);
       mBinding.chatMessageAiHelperView.hide();
       mBinding.chatMessageActionContainer.setVisibility(VISIBLE);
-      mBinding.chatMessageInputRoot.setBackgroundResource(R.color.color_eef1f4);
+      if (inputProperties != null && inputProperties.inputBarBg != null) {
+        mBinding.chatMessageInputRoot.setBackground(inputProperties.inputBarBg);
+      } else {
+        mBinding.chatMessageInputRoot.setBackgroundResource(R.color.color_eef1f4);
+      }
     }
   }
 

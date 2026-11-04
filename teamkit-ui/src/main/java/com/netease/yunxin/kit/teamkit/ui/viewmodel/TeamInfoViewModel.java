@@ -74,4 +74,10 @@ public class TeamInfoViewModel extends BaseViewModel {
           }
         });
   }
+
+  @Override
+  protected void onCleared() {
+    TeamRepo.removeTeamListener(teamListener);
+    super.onCleared();
+  }
 }
