@@ -11,6 +11,7 @@ import android.view.View;
 import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.netease.nimlib.sdk.v2.conversation.enums.V2NIMConversationType;
@@ -29,6 +30,7 @@ import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.normal.ChatMessageForwardConfirmDialog;
 import com.netease.yunxin.kit.chatkit.ui.page.adapter.ChatSearchImageAdapter;
 import com.netease.yunxin.kit.chatkit.ui.page.viewmodel.ChatSearchImageViewModel;
+import com.netease.yunxin.kit.chatkit.ui.textSelectionHelper.SelectableTextHelper;
 import com.netease.yunxin.kit.chatkit.ui.view.input.ActionConstants;
 import com.netease.yunxin.kit.chatkit.utils.ConversationIdUtils;
 import com.netease.yunxin.kit.chatkit.utils.ErrorUtils;
@@ -106,18 +108,18 @@ public class ChatSearchImageActivity extends BaseLocalActivity {
     if (TextUtils.isEmpty(conversationId)) {
       finish();
     }
-    searchImageViewModel = new ChatSearchImageViewModel();
+    searchImageViewModel = new ViewModelProvider(this).get(ChatSearchImageViewModel.class);
     conversationType = ConversationIdUtils.conversationType(conversationId);
     targetId = ConversationIdUtils.conversationTargetId(conversationId);
     searchImageViewModel.init(conversationId, searchMode);
-    searchImageViewModel.getSearchImageLiveData().observeForever(this::loadFetchResult);
+    searchImageViewModel.getSearchImageLiveData().observe(this, this::loadFetchResult);
     // 附件下载监听，文件消息、视频消息等下载进度更新
     searchImageViewModel
         .getAttachmentProgressLiveData()
-        .observeForever(this::onAttachmentUpdateProgress);
+        .observe(this, this::onAttachmentUpdateProgress);
     searchImageViewModel
         .getMessageDeletedOrRevokedLiveData()
-        .observeForever(this::onMessageDeletedOrRevoked);
+        .observe(this, this::onMessageDeletedOrRevoked);
     showLoading();
     searchImageViewModel.searchImageMessages();
   }
@@ -388,5 +390,11 @@ public class ChatSearchImageActivity extends BaseLocalActivity {
           }
         });
     confirmDialog.show(getSupportFragmentManager(), DIALOG_TAG_FORWARD_CONFIRM);
+  }
+
+  @Override
+  protected void onDestroy() {
+    SelectableTextHelper.getInstance().release();
+    super.onDestroy();
   }
 }

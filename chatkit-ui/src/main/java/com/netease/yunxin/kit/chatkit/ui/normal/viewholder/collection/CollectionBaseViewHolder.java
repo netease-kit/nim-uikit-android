@@ -94,9 +94,13 @@ public abstract class CollectionBaseViewHolder extends ChatBaseViewHolder<Collec
     baseViewBinding.messageBody.setGravity(Gravity.START);
     baseViewBinding.userNameTv.setText(message.getUserName());
     if (message.getMessageData() != null) {
+      String avatarName = MessageHelper.getMessageAvatarName(message.getMessageData());
+      if (TextUtils.isEmpty(avatarName)) {
+        avatarName = message.getUserName();
+      }
       baseViewBinding.messageAvatar.setData(
           message.getSenderAvatar(),
-          MessageHelper.getMessageAvatarName(message.getMessageData()),
+          avatarName == null ? "" : avatarName,
           AvatarColor.avatarColor(message.getMessageData().getSenderId()));
       String conversationName = "";
       if (message.getMessageData().getConversationType()
