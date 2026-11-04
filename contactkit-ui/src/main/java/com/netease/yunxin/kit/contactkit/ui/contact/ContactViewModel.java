@@ -547,5 +547,6 @@ public class ContactViewModel extends BaseViewModel {
     ContactRepo.removeFriendApplicationCountListener(friendApplicationCountListener);
     IMKitClient.removeLoginDetailListener(loginDetailListener);
     TeamRepo.removeTeamListener(teamListener);
+    OnlineStatusManager.removeUserOnlineListener(onlineListener);
   }
 }

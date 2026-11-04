@@ -26,6 +26,7 @@ import com.netease.yunxin.kit.chatkit.ui.interfaces.IMessageItemClickListener;
 import com.netease.yunxin.kit.chatkit.ui.model.ChatMessageBean;
 import com.netease.yunxin.kit.chatkit.ui.page.adapter.ChatSearchAdapter;
 import com.netease.yunxin.kit.chatkit.ui.page.viewmodel.ChatSearchKeywordViewModel;
+import com.netease.yunxin.kit.chatkit.ui.textSelectionHelper.SelectableTextHelper;
 import com.netease.yunxin.kit.chatkit.utils.ConversationIdUtils;
 import com.netease.yunxin.kit.chatkit.utils.ErrorUtils;
 import com.netease.yunxin.kit.common.ui.activities.BaseLocalActivity;
@@ -195,8 +196,14 @@ public class ChatSearchBaseActivity extends BaseLocalActivity {
     conversationId = ConversationIdUtils.conversationId(accountId, conversationType);
     viewModel = new ViewModelProvider(this).get(ChatSearchKeywordViewModel.class);
     viewModel.setConversationInfo(accountId, conversationType);
-    viewModel.getSearchMessagesLiveData().observeForever(this::onMessageLoad);
-    viewModel.getMessageDeletedLiveData().observeForever(this::onDeleteOrRevokeMessage);
+    viewModel.getSearchMessagesLiveData().observe(this, this::onMessageLoad);
+    viewModel.getMessageDeletedLiveData().observe(this, this::onDeleteOrRevokeMessage);
+  }
+
+  @Override
+  protected void onDestroy() {
+    SelectableTextHelper.getInstance().release();
+    super.onDestroy();
   }
 
   protected IChatDefaultFactory getChatFactory() {

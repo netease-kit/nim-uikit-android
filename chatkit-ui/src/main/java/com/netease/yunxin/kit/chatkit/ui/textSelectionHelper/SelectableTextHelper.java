@@ -180,6 +180,20 @@ public class SelectableTextHelper {
     mMessage = null;
   }
 
+  /**
+   * 释放页面级文本选择资源。
+   *
+   * <p>SelectableTextHelper 是进程级单例，不能继续持有页面 TextView、PopupWindow 或回调，否则 会通过 Activity Context/Holder
+   * 回调保留聊天页面。该方法只应在宿主页面销毁时调用，不能替代 dismiss() 的临时隐藏语义。
+   */
+  public void release() {
+    dismiss();
+    mSpannable = null;
+    onChangeListener = null;
+    mStartHandle = null;
+    mEndHandle = null;
+  }
+
   /** 重置选中的文案 */
   public void resetSelectionInfo() {
     mSelectionInfo.mSelectionContent = null;
