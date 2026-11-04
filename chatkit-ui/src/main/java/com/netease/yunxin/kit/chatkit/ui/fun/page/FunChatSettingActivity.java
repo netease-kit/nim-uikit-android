@@ -72,6 +72,12 @@ public class FunChatSettingActivity extends BaseLocalActivity {
     initData();
   }
 
+  @Override
+  protected void onDestroy() {
+    EventCenter.unregisterEventNotify(closeEventNotify);
+    super.onDestroy();
+  }
+
   private void initView() {
     accId = (String) getIntent().getSerializableExtra(RouterConstant.CHAT_ID_KRY);
     fromBotSubSession = getIntent().getBooleanExtra(RouterConstant.KEY_FROM_BOT_SUB_SESSION, false);
