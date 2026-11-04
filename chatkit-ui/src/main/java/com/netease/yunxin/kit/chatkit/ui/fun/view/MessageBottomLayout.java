@@ -754,6 +754,7 @@ public class MessageBottomLayout extends FrameLayout
   // 更新输入状态，包括文本输入、语音输入、表情输入、更多输入
   private void updateState(InputState state) {
     mInputState = state;
+    applyInputBarBackground();
     mBinding.inputMoreRb.setBackgroundResource(R.drawable.fun_ic_chat_input_more_selector);
     mBinding.inputMoreRb.setChecked(mInputState == InputState.more);
     mBinding.inputEmojiRb.setBackgroundResource(R.drawable.fun_ic_chat_input_emoji_selector);
@@ -1083,9 +1084,7 @@ public class MessageBottomLayout extends FrameLayout
   public void loadConfig() {
     if (this.inputProperties != null) {
 
-      if (inputProperties.inputBarBg != null) {
-        mBinding.chatMessageInputRoot.setBackground(inputProperties.inputBarBg);
-      }
+      applyInputBarBackground();
 
       if (inputProperties.inputEditBg != null) {
         mBinding.inputLayout.setBackground(inputProperties.inputEditBg);
@@ -1110,6 +1109,12 @@ public class MessageBottomLayout extends FrameLayout
       if (inputProperties.inputEditHintTextColor != null) {
         mBinding.chatMessageInputEt.setHintTextColor(inputProperties.inputEditHintTextColor);
       }
+    }
+  }
+
+  private void applyInputBarBackground() {
+    if (inputProperties != null && inputProperties.inputBarBg != null) {
+      mBinding.chatMessageInputRoot.setBackground(inputProperties.inputBarBg);
     }
   }
 

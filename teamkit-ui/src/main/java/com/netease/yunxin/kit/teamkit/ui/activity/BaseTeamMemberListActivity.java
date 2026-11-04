@@ -122,6 +122,12 @@ public abstract class BaseTeamMemberListActivity extends BaseLocalActivity {
     initData();
   }
 
+  @Override
+  protected void onDestroy() {
+    EventCenter.unregisterEventNotify(closeEventNotify);
+    super.onDestroy();
+  }
+
   protected void refreshUI() {
     if (teamWithCurrentMember != null && teamWithCurrentMember.getTeam() != null) {
       if (TeamUtils.isTeamGroup(teamWithCurrentMember.getTeam())) {
